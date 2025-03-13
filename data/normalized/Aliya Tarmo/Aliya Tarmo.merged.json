@@ -1,0 +1,120 @@
+{
+   "name": "Aliya Tarmo",
+   "title": "Content Producer",
+   "location": "Vancouver, British Columbia, Canada",
+   "key_skills": [
+      "Networking",
+      "Producing",
+      "Casting"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/aliya-tarmo-06073a1b",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "One Twenty Three West",
+         "title": "Senior Producer",
+         "duration": {
+            "start_date": "2021-12-01",
+            "end_date": "Present",
+            "date_range": "1 year 3 months"
+         },
+         "location": "Vancouver, British Columbia, Canada",
+         "description": [
+            "Captaining Live Action, CG and Augmented Reality projects",
+            "Working with clients within health, government, automotive, not-for-profit, and tech sectors",
+            "Leading multidisciplinary teams"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Guerilla Creative",
+         "title": "Senior Producer",
+         "duration": {
+            "start_date": "2019-04-01",
+            "end_date": "2021-08-01",
+            "date_range": "2 years 5 months"
+         },
+         "location": "Melbourne, Victoria, Australia",
+         "description": [
+            "Creating engaging video and digital content for major brands",
+            "Crafting compelling narratives through visual storytelling"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Rotor Studios",
+         "title": "Key Account Manager",
+         "duration": {
+            "start_date": "2018-05-01",
+            "end_date": "2019-04-01",
+            "date_range": "1 year"
+         },
+         "location": "Melbourne, Victoria, Australia",
+         "description": [
+            "Specialising in Live-action Content Production and CG",
+            "Managing key accounts, including Toyota Motor Corporation Australia"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Purple Monky",
+         "title": "Producer",
+         "duration": {
+            "start_date": "2015-12-01",
+            "end_date": "2018-05-01",
+            "date_range": "2 years 5 months"
+         },
+         "location": "Melbourne, Victoria, Australia",
+         "description": [
+            "Producing unique films and products through nimble production methods",
+            "Focusing on high quality content for various platforms"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Trisko Talent Management",
+         "title": "Talent Agent",
+         "duration": {
+            "start_date": "2012-01-01",
+            "end_date": "2014-12-01",
+            "date_range": "3 years"
+         },
+         "location": "Vancouver, British Columbia, Canada",
+         "description": [
+            "Representing actors for film, television, and commercials",
+            "Working alongside numerous US based agencies and managers"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Vancouver Organizing Committee for the 2010 Olympic and Paralympic Winter Games",
+         "title": "Communications Coordinator",
+         "duration": {
+            "start_date": "2009-12-01",
+            "end_date": "2010-03-01",
+            "date_range": "4 months"
+         },
+         "location": "Vancouver, British Columbia, Canada",
+         "description": [
+            "Organizing and executing press conferences for the Olympic Games"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Marriott Hotel",
+         "title": "Guest Services Concierge",
+         "duration": {
+            "start_date": "2008-02-01",
+            "end_date": "2009-07-01",
+            "date_range": "1 year 5 months"
+         },
+         "location": "Vancouver, British Columbia, Canada",
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

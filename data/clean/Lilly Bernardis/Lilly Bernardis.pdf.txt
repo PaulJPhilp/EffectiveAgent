@@ -1,0 +1,54 @@
+{
+   "name": "Lilly Bernardis",
+   "title": "Account Producer",
+   "location": "Englewood, Colorado, United States",
+   "key_skills": [],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/lilly-bernardis-530039154",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Outerkind",
+         "title": "Account Producer",
+         "duration": {
+            "start_date": "Feb 2023",
+            "end_date": "Present",
+            "date_range": "2 years 1 month"
+         },
+         "location": "Colorado, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Easy Event Planning",
+         "title": "Digital Marketing and SEO Intern",
+         "duration": {
+            "start_date": "Aug 2021",
+            "end_date": "Feb 2023",
+            "date_range": "1 year 7 months"
+         },
+         "location": "Remote",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Club Greenwood",
+         "title": "Kids Camp Coordinator",
+         "duration": {
+            "start_date": "May 2016",
+            "end_date": "Dec 2020",
+            "date_range": "4 years 8 months"
+         },
+         "location": null,
+         "description": [
+            "Managed 25 camp counselors to ensure they are adhering to their roles and responsibilities.",
+            "Assembled camp schedule.",
+            "Created activities and games to entertain and educate children ages 5-13."
+         ],
+         "company_url": null
+      }
+   ]
+}

@@ -1,0 +1,119 @@
+{
+  "name": "Aliya Tarmo",
+  "title": "Content Producer",
+  "location": "Greater Vancouver Metropolitan Area",
+  "key_skills": [
+    "Networking",
+    "Producing",
+    "Casting"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/aliya-tarmo-06073a1b",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "123w (One Twenty Three West)",
+      "title": "Senior Producer",
+      "duration": {
+        "start_date": "December 2021",
+        "end_date": "Present",
+        "date_range": "3 years 3 months"
+      },
+      "location": "Vancouver, British Columbia, Canada",
+      "description": [
+        "Leading multidisciplinary teams.",
+        "Working with clients in various sectors."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Guerilla Creative",
+      "title": "Senior Producer",
+      "duration": {
+        "start_date": "April 2019",
+        "end_date": "August 2021",
+        "date_range": "2 years 5 months"
+      },
+      "location": "Melbourne, Australia",
+      "description": [
+        "Creating engaging video and digital content.",
+        "Collaborating with large brands and networks."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Rotor Studios",
+      "title": "Key Account Manager",
+      "duration": {
+        "start_date": "May 2018",
+        "end_date": "April 2019",
+        "date_range": "1 year"
+      },
+      "location": "Melbourne, Australia",
+      "description": [
+        "Managing key accounts including Toyota Motor Corporation Australia."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "PurpleMonky",
+      "title": "Producer",
+      "duration": {
+        "start_date": "December 2015",
+        "end_date": "May 2018",
+        "date_range": "2 years 6 months"
+      },
+      "location": "Melbourne, Australia",
+      "description": [
+        "Producing unique films and digital content.",
+        "Engaging with a variety of clients."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Trisko Talent Management",
+      "title": "Talent Agent",
+      "duration": {
+        "start_date": "January 2012",
+        "end_date": "December 2014",
+        "date_range": "3 years"
+      },
+      "location": "Vancouver, Canada Area",
+      "description": [
+        "Representing actors for various mediums."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "VANOC",
+      "title": "Communications Coordinator (Contract)",
+      "duration": {
+        "start_date": "December 2009",
+        "end_date": "March 2010",
+        "date_range": "4 months"
+      },
+      "location": null,
+      "description": [
+        "Organizing and executing press conferences."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Marriott Hotel",
+      "title": "Guest Services/Concierge",
+      "duration": {
+        "start_date": "February 2008",
+        "end_date": "July 2009",
+        "date_range": "1 year 6 months"
+      },
+      "location": null,
+      "description": [
+        "Providing guest services and concierge activities."
+      ],
+      "company_url": null
+    }
+  ]
+}

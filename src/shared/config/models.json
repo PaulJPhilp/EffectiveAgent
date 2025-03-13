@@ -1,0 +1,302 @@
+{
+	"defaultModelId": "gpt-3.5-turbo",
+	"defaultTemperature": 0.2,
+	"models": [
+		{
+			"id": "gpt-3.5-turbo",
+			"aliases": ["3.5", "chatgpt"],
+			"provider": "openai",
+			"modelName": "gpt-3.5-turbo",
+			"maxTokens": 4096,
+			"contextWindow": 4096,
+			"costPer1kTokens": 0.002,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning"
+			],
+			"thinkingLevel": "low"
+		},
+		{
+			"id": "gpt-3.5-turbo-16k",
+			"aliases": ["chatgpt-16k", "3.5-16k"],
+			"provider": "openai",
+			"modelName": "gpt-3.5-turbo-16k",
+			"maxTokens": 16384,
+			"contextWindow": 16384,
+			"costPer1kTokens": 0.003,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning"
+			],
+			"thinkingLevel": "low"
+		},
+		{
+			"id": "gpt-3.5-turbo-instruct",
+			"aliases": ["3.5-instruct", "chatgpt-instruct"],
+			"provider": "openai",
+			"modelName": "gpt-3.5-turbo-instruct",
+			"maxTokens": 4096,
+			"contextWindow": 4096,
+			"costPer1kTokens": 0.002,
+			"capabilities": ["text-generation", "function-calling", "reasoning"],
+			"thinkingLevel": "low"
+		},
+		{
+			"id": "gpt-4",
+			"aliases": ["4", "gpt4"],
+			"provider": "openai",
+			"modelName": "gpt-4",
+			"maxTokens": 8192,
+			"contextWindow": 8192,
+			"costPer1kTokens": 0.03,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"code-generation"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "gpt-4-32k",
+			"aliases": ["4-32k"],
+			"provider": "openai",
+			"modelName": "gpt-4-32k",
+			"maxTokens": 32768,
+			"contextWindow": 32768,
+			"costPer1kTokens": 0.06,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"code-generation"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "gpt-4-turbo",
+			"aliases": ["gpt-4-turbo-preview", "4-turbo", "4t"],
+			"provider": "openai",
+			"modelName": "gpt-4-turbo-preview",
+			"maxTokens": 128000,
+			"contextWindow": 128000,
+			"costPer1kTokens": 0.01,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"code-generation",
+				"vision"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "gpt-4.5-preview",
+			"provider": "openai",
+			"modelName": "gpt-4.5-preview",
+			"maxTokens": 128000,
+			"contextWindow": 128000,
+			"costPer1kTokens": 0.01,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"code-generation",
+				"vision"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "o1",
+			"provider": "openai",
+			"modelName": "o1",
+			"maxTokens": 128000,
+			"contextWindow": 128000,
+			"costPer1kTokens": 0.2,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"code-generation",
+				"vision",
+				"ocr"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "o1-mini",
+			"provider": "openai",
+			"modelName": "o1-mini",
+			"maxTokens": 128000,
+			"contextWindow": 128000,
+			"costPer1kTokens": 0.15,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"code-generation",
+				"vision",
+				"ocr"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "o1-preview",
+			"provider": "openai",
+			"modelName": "o1-preview",
+			"maxTokens": 128000,
+			"contextWindow": 128000,
+			"costPer1kTokens": 0.25,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"code-generation",
+				"vision",
+				"ocr"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "o3-mini",
+			"provider": "openai",
+			"modelName": "o3-mini",
+			"maxTokens": 128000,
+			"contextWindow": 128000,
+			"costPer1kTokens": 0.3,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"code-generation",
+				"vision",
+				"ocr"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "claude-3-7-sonnet",
+			"provider": "anthropic",
+			"modelName": "claude-3-7-sonnet",
+			"maxTokens": 200000,
+			"contextWindow": 200000,
+			"costPer1kTokens": 0.008,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"vision",
+				"code-generation"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "claude-3-5-sonnet",
+			"provider": "anthropic",
+			"modelName": "claude-3-5-sonnet-20241022",
+			"maxTokens": 200000,
+			"contextWindow": 200000,
+			"costPer1kTokens": 0.003,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"vision",
+				"code-generation"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "claude-3-5-haiku",
+			"provider": "anthropic",
+			"modelName": "claude-3-5-haiku-20241022",
+			"maxTokens": 200000,
+			"contextWindow": 200000,
+			"costPer1kTokens": 0.0015,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning"
+			],
+			"thinkingLevel": "low"
+		},
+		{
+			"id": "claude-3-opus",
+			"provider": "anthropic",
+			"modelName": "claude-3-opus-20240229",
+			"maxTokens": 200000,
+			"contextWindow": 200000,
+			"costPer1kTokens": 0.015,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"vision",
+				"code-generation"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "gemini-pro",
+			"provider": "google",
+			"modelName": "gemini-pro",
+			"maxTokens": 32768,
+			"contextWindow": 32768,
+			"costPer1kTokens": 0.0005,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"search"
+			],
+			"thinkingLevel": "medium"
+		},
+		{
+			"id": "gemini-1.5-pro",
+			"provider": "google",
+			"modelName": "gemini-1.5-pro",
+			"maxTokens": 1000000,
+			"contextWindow": 1000000,
+			"costPer1kTokens": 0.0035,
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"reasoning",
+				"search",
+				"ocr"
+			],
+			"thinkingLevel": "high"
+		},
+		{
+			"id": "dall-e-3",
+			"provider": "openai",
+			"modelName": "dall-e-3",
+			"capabilities": ["text-to-image"]
+		},
+		{
+			"id": "embedding-ada-002",
+			"provider": "openai",
+			"modelName": "text-embedding-ada-002",
+			"costPer1kTokens": 0.0001,
+			"capabilities": ["embeddings"]
+		}
+	]
+}

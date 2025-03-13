@@ -1,0 +1,141 @@
+{
+  "name": "Amanda Levine",
+  "title": "Senior Experiential Producer",
+  "location": "Miami Beach, Florida, United States",
+  "key_skills": [
+    "Marketing",
+    "PowerPoint",
+    "Newsletters"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/amanda-levine-1230565",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Dentsu Creative",
+      "title": "Senior Event Producer",
+      "duration": {
+        "start_date": "2023-04-01",
+        "end_date": "Present",
+        "date_range": "1 year 11 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Double A Labs",
+      "title": "Executive Producer",
+      "duration": {
+        "start_date": "2021-10-01",
+        "end_date": "2023-02-28",
+        "date_range": "1 year 4 months"
+      },
+      "location": "Austin, TX + New York, NY",
+      "description": [
+        "Produced a mobile tour for Dell Technologies across the U.S. and Canada.",
+        "Managed a $2.3M budget and coordinated 70+ tour stops.",
+        "Secured permits, oversaw logistics, and executed immersive product activations.",
+        "Produced celebratory events for YouTube Shorts Creators in major U.S. cities.",
+        "Supervised multi-vendor teams and executed high-profile brand activations."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Wellth Collective",
+      "title": "Senior Event Consultant",
+      "duration": {
+        "start_date": "2020-05-01",
+        "end_date": "2021-10-31",
+        "date_range": "1 year 5 months"
+      },
+      "location": null,
+      "description": [
+        "Produced high-end, COVID-safe VIP events in Park City, UT, and New York.",
+        "Managed press and social media-driven event strategies.",
+        "Led logistics, vendor coordination, and activation planning."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "ION",
+      "title": "Senior Event Strategist",
+      "duration": {
+        "start_date": "2018-10-01",
+        "end_date": "2020-05-31",
+        "date_range": "1 year 7 months"
+      },
+      "location": "New York, NY",
+      "description": [
+        "Led annual global events for 1,000+ clients in multiple cities worldwide.",
+        "Managed budgets up to $5M and optimized industry event lead generation.",
+        "Developed branding strategies for over 50 corporate events."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "DKC",
+      "title": "Senior Production Coordinator",
+      "duration": {
+        "start_date": "2015-07-01",
+        "end_date": "2016-12-31",
+        "date_range": "1 year 5 months"
+      },
+      "location": "New York, NY",
+      "description": [
+        "Managed large-scale corporate events, including product launches for major brands like Jaguar Land Rover, New Balance, and L’Oréal.",
+        "Coordinated high-profile press briefings, including events involving Pope Francis.",
+        "Led logistical planning, staffing, and vendor selection."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Metropolitan Pavilion & Metropolitan West",
+      "title": "Senior Event Coordinator",
+      "duration": {
+        "start_date": "2012-12-01",
+        "end_date": "2015-07-31",
+        "date_range": "2 years 7 months"
+      },
+      "location": "New York, NY",
+      "description": [
+        "Produced 50+ events annually, including trade shows, fundraisers, and galas.",
+        "Managed event logistics, vendor relations, and on-site production."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Chezzam Entertainment",
+      "title": "Project Manager",
+      "duration": {
+        "start_date": "2011-09-01",
+        "end_date": "2012-12-31",
+        "date_range": "1 year 3 months"
+      },
+      "location": "Syosset, NY",
+      "description": [
+        "Led corporate and private event productions.",
+        "Managed budgets and vendor relations."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Guidepoint",
+      "title": "Marketing Manager",
+      "duration": {
+        "start_date": "2008-01-01",
+        "end_date": "2010-08-31",
+        "date_range": "2 years 7 months"
+      },
+      "location": null,
+      "description": [
+        "Managed promotional materials and networking events.",
+        "Developed email marketing campaigns and newsletters."
+      ],
+      "company_url": null
+    }
+  ]
+}

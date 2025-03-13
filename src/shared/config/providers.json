@@ -1,0 +1,33 @@
+{
+	"providers": [
+		{
+			"id": "openai",
+			"name": "OpenAI",
+			"type": "openai",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 3500,
+				"tokensPerMinute": 250000
+			}
+		},
+		{
+			"id": "anthropic",
+			"name": "Anthropic",
+			"type": "anthropic",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 1000
+			}
+		},
+		{
+			"id": "google",
+			"name": "Google AI",
+			"type": "google",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 1000
+			}
+		}
+	],
+	"defaultProviderId": "openai"
+}

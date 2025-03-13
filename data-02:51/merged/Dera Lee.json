@@ -1,0 +1,107 @@
+{
+  "name": "Dera Lee",
+  "title": "Founder + CEO at DLP Experiential Marketing Agency",
+  "location": "New York City Metropolitan Area",
+  "key_skills": [
+    "Attention To Detail",
+    "Multitasker",
+    "Customer Relations",
+    "Attention to Detail"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/deralee",
+    "email": null,
+    "company_website": "https://www.deralee.com"
+  },
+  "certificates": [
+    {
+      "name": "BIzbash Top 1000 People in Events",
+      "issuer": "BIzbash",
+      "date_earned": "2020",
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "Active"
+    },
+    {
+      "name": "2020 Ex Award Winner",
+      "issuer": "Ex Awards",
+      "date_earned": "2020",
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "Active"
+    }
+  ],
+  "experience": [
+    {
+      "company": "DLP Experiential Marketing Agency",
+      "title": "Founder + CEO",
+      "duration": {
+        "start_date": "August 2015",
+        "end_date": "Present",
+        "date_range": "9 years 7 months"
+      },
+      "location": "Greater New York City Area",
+      "description": [
+        "Founded and lead an award-winning event production and design agency.",
+        "Brings brand campaigns to life with expertise in the event industry and marketing trends."
+      ],
+      "company_url": "https://www.deralee.com"
+    },
+    {
+      "company": "We Are BMF",
+      "title": "Events Director",
+      "duration": {
+        "start_date": "September 2012",
+        "end_date": "September 2014",
+        "date_range": "2 years 1 month"
+      },
+      "location": "Greater New York City Area",
+      "description": [
+        "Directed events focused on enhancing client engagement and experience."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "New York Cruise Lines, Inc.",
+      "title": "Director of Special Events",
+      "duration": {
+        "start_date": "March 2011",
+        "end_date": "September 2012",
+        "date_range": "1 year 7 months"
+      },
+      "location": "Greater New York City Area",
+      "description": [
+        "Managed all aspects of special events, ensuring exceptional client satisfaction."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Shiraz Creative",
+      "title": "Senior Events Manager",
+      "duration": {
+        "start_date": "November 2006",
+        "end_date": "February 2011",
+        "date_range": "4 years 4 months"
+      },
+      "location": "Greater New York City Area",
+      "description": [
+        "Oversaw event production and logistics, delivering high-quality experiences."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "BF9 Media",
+      "title": "Event Manager",
+      "duration": {
+        "start_date": "November 2004",
+        "end_date": "November 2006",
+        "date_range": "2 years 1 month"
+      },
+      "location": "Greater New York City Area",
+      "description": [
+        "Coordinated and managed events to ensure seamless execution."
+      ],
+      "company_url": null
+    }
+  ]
+}

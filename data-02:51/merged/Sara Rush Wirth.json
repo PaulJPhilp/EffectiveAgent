@@ -1,0 +1,167 @@
+{
+  "name": "Sara Rush Wirth",
+  "title": "Director, PR, Internal Communications & IR at Portillo's",
+  "location": "Greater Chicago Area",
+  "key_skills": [
+    "Strategic Communications",
+    "Corporate Communications",
+    "Content Strategy"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/sararushwirth",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Portillo's",
+      "title": "Director, PR, Internal Communications & IR",
+      "duration": {
+        "start_date": "March 2020",
+        "end_date": "Present",
+        "date_range": "3 years 8 months"
+      },
+      "location": "Greater Chicago Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Winsight, LLC",
+      "title": "Content Director, Foodservice",
+      "duration": {
+        "start_date": "June 2019",
+        "end_date": "March 2020",
+        "date_range": "10 months"
+      },
+      "location": "Chicago",
+      "description": [
+        "Organizational leader of the Foodservice team, driving the content and content strategy as well as overseeing the editorial teams for Restaurant Business and FoodService Director, including collaborative creation and execution of print and digital products that drive digital metrics.",
+        "This role includes working cross-functionally with a range of teams to ideate and develop strategies that drive engagement and assure the right content is on the right platform, in the right forum, using the right multimedia or in-person strategy and pushed out the right way to the right audience."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Winsight, LLC",
+      "title": "Executive Editor, Restaurant Business Magazine",
+      "duration": {
+        "start_date": "August 2018",
+        "end_date": "May 2019",
+        "date_range": "10 months"
+      },
+      "location": "Chicago",
+      "description": [
+        "Focused on leading the content strategy and deployment initiatives for the Restaurant Business team, successfully driving brand loyalty and readership, audience engagement and digital metrics in a fast-paced, deadline-oriented environment."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Winsight, LLC",
+      "title": "Managing Editor, Restaurant Business Magazine",
+      "duration": {
+        "start_date": "May 2016",
+        "end_date": "August 2018",
+        "date_range": "2 years 4 months"
+      },
+      "location": "Chicago",
+      "description": [
+        "Managed print and digital projects for Restaurant Business from ideation to execution, working with cross-functionally with various departments and stakeholders to achieve high engagement metrics.",
+        "Curated and developed editorial content and editorial processes, with a focus on technology and data; presented at a range of restaurant industry events."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Winsight, LLC",
+      "title": "Senior Editor, Restaurant Business Magazine",
+      "duration": {
+        "start_date": "July 2015",
+        "end_date": "May 2016",
+        "date_range": "11 months"
+      },
+      "location": "Greater Chicago Area",
+      "description": [
+        "Developed and edited print and digital content for Restaurant Business, with a focus on technology and data-driven projects and packages.",
+        "Moderated and presented at various restaurant industry conferences."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Winsight, LLC",
+      "title": "Senior Associate Editor, Restaurant Business Magazine",
+      "duration": {
+        "start_date": "December 2014",
+        "end_date": "July 2015",
+        "date_range": "8 months"
+      },
+      "location": "Chicago",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Winsight, LLC",
+      "title": "Associate Editor, Restaurant Business Magazine",
+      "duration": {
+        "start_date": "October 2013",
+        "end_date": "December 2014",
+        "date_range": "1 year 3 months"
+      },
+      "location": "Chicago",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Publications International",
+      "title": "Editor",
+      "duration": {
+        "start_date": "August 2012",
+        "end_date": "October 2013",
+        "date_range": "1 year 3 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Technomic, Inc.",
+      "title": "Associate Editor",
+      "duration": {
+        "start_date": "April 2010",
+        "end_date": "August 2012",
+        "date_range": "2 years 5 months"
+      },
+      "location": null,
+      "description": [
+        "Write/edit weekly, monthly, quarterly and annual publications including newsletters and analytical reports",
+        "Answer reporter inquiries and contribute to marketing efforts such as press releases and sell sheets",
+        "Help develop and produce custom published products",
+        "Create, compile and manage industry publications and social-media outlets for vice presidents and EVP",
+        "Aid in training and coaching newer staff members and interns"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Smith Marketing",
+      "title": "All Clad Demonstrator/Representative",
+      "duration": {
+        "start_date": "November 2009",
+        "end_date": "November 2010",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Chicago, IL",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Northwestern Memorial Physicians Group",
+      "title": "Lead Patient Service Representative",
+      "duration": {
+        "start_date": "September 2008",
+        "end_date": "April 2010",
+        "date_range": "1 year 8 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    }
+  ]
+}

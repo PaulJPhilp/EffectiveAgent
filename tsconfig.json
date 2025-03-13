@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		// Enable latest features
+		"lib": ["ESNext", "DOM"],
+		"target": "ES2022",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
+		"jsx": "react-jsx",
+		"allowJs": true,
+
+		// Bundler mode
+		"esModuleInterop": true,
+		"strict": true,
+		"declaration": true,
+		"outDir": "dist",
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"verbatimModuleSyntax": true,
+
+		// Best practices
+		"noFallthroughCasesInSwitch": true,
+
+		// Some stricter flags (disabled by default)
+		"noUnusedLocals": false,
+		"noUnusedParameters": false,
+		"noPropertyAccessFromIndexSignature": false
+	},
+	"include": ["src/**/*", "*.ts"],
+	"exclude": ["node_modules", "dist", "**/*.test.ts"]
+}

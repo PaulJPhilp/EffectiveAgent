@@ -1,0 +1,160 @@
+{
+   "name": "Tara Scanlon",
+   "title": "Vice President, Strategy",
+   "location": "Boston, Massachusetts, United States",
+   "key_skills": [
+      "Media Planning",
+      "Media Strategy",
+      "Advertising"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/tara-scanlon-b199a6a",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Dentsu X",
+         "title": "Vice President, Strategy",
+         "duration": {
+            "start_date": "2022-06-01",
+            "end_date": "Present",
+            "date_range": "2 years 9 months"
+         },
+         "location": null,
+         "description": [
+            "Lead integrated communication planning and buying across North American business units for CPG and Travel based clients including Creative and Media services.",
+            "Oversee cross-functional media team focused on driving brand and performance focused media plans.",
+            "Clients: Ben & Jerry's, Amplify Snacks, Vital Farms, New Orleans & Co."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Dentsu X",
+         "title": "Vice President, Planning",
+         "duration": {
+            "start_date": "2021-02-01",
+            "end_date": "2022-06-01",
+            "date_range": "1 year 5 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "360i",
+         "title": "Group Director, Planning",
+         "duration": {
+            "start_date": "2019-06-01",
+            "end_date": "2021-02-01",
+            "date_range": "1 year 9 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Clients: Pernod Ricard (Whisky and Gin), Ben & Jerry's, Amplify Snacks, Vital Farms, New Orleans & Co., Purell."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "360i",
+         "title": "Director, Planning",
+         "duration": {
+            "start_date": "2016-01-01",
+            "end_date": "2019-05-01",
+            "date_range": "3 years 5 months"
+         },
+         "location": "New York City, New York, United States",
+         "description": [
+            "Strategic communications planning across Pernod Ricard Whisky, SkinnyPop and Ben & Jerry's. Previously worked on Reckitt Benckiser and Plated."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Dentsu Aegis Network",
+         "title": "Associate Director, Communications Planning",
+         "duration": {
+            "start_date": "2014-03-01",
+            "end_date": "2016-01-01",
+            "date_range": "1 year 11 months"
+         },
+         "location": null,
+         "description": [
+            "Strategic communications planning and execution on Reckitt Benckiser."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "OMD USA",
+         "title": "Supervisor",
+         "duration": {
+            "start_date": "2012-07-01",
+            "end_date": "2014-03-01",
+            "date_range": "1 year 9 months"
+         },
+         "location": null,
+         "description": [
+            "Strategy Supervisor on the Quaker Oats account.",
+            "Oversee the planning, development and coordinate the execution of integrated media plans across the Quaker portfolio of brands.",
+            "Responsibilities include development of communication strategy, target insights, investment prioritization, and market trend analyses."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "MindShare",
+         "title": "Manager",
+         "duration": {
+            "start_date": "2011-01-01",
+            "end_date": "2012-07-01",
+            "date_range": "1 year 7 months"
+         },
+         "location": null,
+         "description": [
+            "Media Manager on LG account focusing on the Mobile sector."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "MindShare",
+         "title": "Senior Associate",
+         "duration": {
+            "start_date": "2010-07-01",
+            "end_date": "2011-01-01",
+            "date_range": "7 months"
+         },
+         "location": null,
+         "description": [
+            "Planner on the LG Mobile business."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "OMD USA",
+         "title": "Media Strategist",
+         "duration": {
+            "start_date": "2009-07-01",
+            "end_date": "2010-07-01",
+            "date_range": "1 year 1 month"
+         },
+         "location": null,
+         "description": [
+            "Strategist and Planner on Lowe's Home Improvement account."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "OMD USA",
+         "title": "Assistant Strategist",
+         "duration": {
+            "start_date": "2008-06-01",
+            "end_date": "2009-07-01",
+            "date_range": "1 year 2 months"
+         },
+         "location": null,
+         "description": [
+            "Assistant Strategist on Lowe's Home Improvement account."
+         ],
+         "company_url": null
+      }
+   ]
+}

@@ -1,0 +1,62 @@
+{
+	"id": "sample-profile-2",
+	"name": "John Doe",
+	"title": "Event Manager",
+	"company": "EventPro Solutions",
+	"industry": "Events & Entertainment",
+	"location": "Chicago, IL",
+	"skills": [
+		"Event Planning",
+		"Vendor Management",
+		"Budget Management",
+		"Project Management",
+		"Client Relations",
+		"Contract Negotiation",
+		"Marketing Coordination",
+		"Team Leadership"
+	],
+	"experience": [
+		{
+			"title": "Event Manager",
+			"company": "EventPro Solutions",
+			"duration": "4 years",
+			"description": "Managing corporate events, conferences, and product launches for Fortune 500 clients with budgets ranging from $50,000 to $500,000."
+		},
+		{
+			"title": "Event Coordinator",
+			"company": "Global Events Inc.",
+			"duration": "3 years",
+			"description": "Coordinated logistics, vendor relationships, and on-site execution for corporate and non-profit events."
+		},
+		{
+			"title": "Marketing Assistant",
+			"company": "Creative Marketing Group",
+			"duration": "2 years",
+			"description": "Supported marketing campaigns and assisted with event planning and execution."
+		}
+	],
+	"education": [
+		{
+			"degree": "Bachelor of Business Administration, Marketing",
+			"institution": "University of Illinois",
+			"year": "2012"
+		},
+		{
+			"degree": "Associate's Degree, Hospitality Management",
+			"institution": "Chicago Community College",
+			"year": "2010"
+		}
+	],
+	"certifications": [
+		"Certified Meeting Professional (CMP)",
+		"Certified Special Events Professional (CSEP)",
+		"Project Management Professional (PMP)"
+	],
+	"interests": [
+		"Experiential Marketing",
+		"Sustainable Event Planning",
+		"Technology in Events",
+		"Virtual and Hybrid Events"
+	],
+	"summary": "Experienced event management professional with a proven track record of planning and executing successful corporate events, conferences, and product launches. Skilled in vendor management, budget control, and creating memorable experiences for clients and attendees."
+}

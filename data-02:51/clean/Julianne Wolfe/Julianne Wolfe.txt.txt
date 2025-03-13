@@ -1,0 +1,129 @@
+{
+   "name": "Julianne Wolfe",
+   "title": "Producer",
+   "location": "Los Angeles, California, United States",
+   "key_skills": [
+      "Event Planning",
+      "Social Networking",
+      "Customer Service"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/juliannewolfe",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "NVE Experience Agency",
+         "title": "Producer",
+         "duration": {
+            "start_date": "Jan 2024",
+            "end_date": "Present",
+            "date_range": "1 year 2 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "Led large-scale events valued at $2M+.",
+            "Notable Projects include Revolve Festival 2024 & 2023, SiriusXM events, Billboard events, and more."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "NVE Experience Agency",
+         "title": "Associate Producer",
+         "duration": {
+            "start_date": "Dec 2022",
+            "end_date": "Jan 2024",
+            "date_range": "1 year 2 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "NVE Experience Agency",
+         "title": "Sr. Production Coordinator",
+         "duration": {
+            "start_date": "Jan 2022",
+            "end_date": "Dec 2022",
+            "date_range": "1 year"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "NVE Experience Agency",
+         "title": "Production Coordinator",
+         "duration": {
+            "start_date": "Dec 2020",
+            "end_date": "Jan 2022",
+            "date_range": "1 year 2 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "NVE Experience Agency",
+         "title": "Production Operations Coordinator",
+         "duration": {
+            "start_date": "Jan 2020",
+            "end_date": "Dec 2020",
+            "date_range": "1 year"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Creative Group",
+         "title": "Lead Recruiter / Sr. Recruiter",
+         "duration": {
+            "start_date": "Sep 2018",
+            "end_date": "Dec 2019",
+            "date_range": "1 year 4 months"
+         },
+         "location": "Greater Los Angeles Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Creative Group",
+         "title": "Creative Recruiter",
+         "duration": {
+            "start_date": "Sep 2017",
+            "end_date": "Sep 2018",
+            "date_range": "1 year 1 month"
+         },
+         "location": "Greater Los Angeles Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "EOS Lounge",
+         "title": "Production Assistant / Marketing Coordinator",
+         "duration": {
+            "start_date": "Aug 2016",
+            "end_date": "Jul 2017",
+            "date_range": "1 year"
+         },
+         "location": "Santa Barbara, California Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "UCSB Enterprise Technology Services",
+         "title": "Administrative Assistant",
+         "duration": {
+            "start_date": "May 2016",
+            "end_date": "Jun 2017",
+            "date_range": "1 year 2 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

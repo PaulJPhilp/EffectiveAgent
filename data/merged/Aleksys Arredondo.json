@@ -1,0 +1,182 @@
+{
+  "name": "Aleksys Arredondo",
+  "title": "Product Analysis Engineer",
+  "location": "Burlington, Massachusetts, United States",
+  "key_skills": [
+    "Failure Mode and Effects Analysis (FMEA)",
+    "Corrective and Preventive Action (CAPA)",
+    "U.S. Food and Drug Administration (FDA)"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/arralek",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [
+    {
+      "name": "Introduction to ISO Global BIM Standards",
+      "issuer": "Unknown Issuer",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "In Progress"
+    },
+    {
+      "name": "Certified Associate in Project Management (CAPM)® Exam Tips",
+      "issuer": "Unknown Issuer",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "In Progress"
+    },
+    {
+      "name": "AI Show: Medical Imaging with Azure Machine Learning",
+      "issuer": "Unknown Issuer",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "In Progress"
+    },
+    {
+      "name": "Data Engineering Foundations",
+      "issuer": "Unknown Issuer",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "In Progress"
+    },
+    {
+      "name": "Process Improvement Foundations",
+      "issuer": "Unknown Issuer",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "In Progress"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Abbott",
+      "title": "Product Analysis Engineer",
+      "duration": {
+        "start_date": "Nov 2024",
+        "end_date": "Present",
+        "date_range": "0 years 4 months"
+      },
+      "location": "Burlington, Massachusetts, United States",
+      "description": [
+        "Working in the Heart Failure division of Abbott.",
+        "Collaborating with other engineers in the Mechanical Circulatory Support (MCS) Product Performance Group (PPG).",
+        "Directly involved in regulatory compliance of post-market performance of the HeartMate 3™ Left Ventricular Assist Device (LVAD)."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Cheil North America",
+      "title": "Associate Producer",
+      "duration": {
+        "start_date": "May 2023",
+        "end_date": "Aug 2024",
+        "date_range": "1 year 4 months"
+      },
+      "location": "Plano, Texas, United States",
+      "description": [
+        "Elevate every consumer touch point experience and effectively plan and project manage experiential and event marketing.",
+        "Evaluating project details, cost/budget, and timelines to make appropriate recommendations.",
+        "Prepare contracts, review vendor proposals, and negotiate contracts/costs.",
+        "Conduct pre- and post-project activities such as cost analysis and project recap."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "UTDesign",
+      "title": "Biomedical Senior Project Engineer",
+      "duration": {
+        "start_date": "May 2023",
+        "end_date": "Dec 2023",
+        "date_range": "8 months"
+      },
+      "location": "Richardson, Texas, United States",
+      "description": [
+        "Involved in the UT Design Studio developing the Coupage Technique for a medical device.",
+        "Tasked with automating the technique and creating a controllable vest.",
+        "Collaborated with cross-functional teams to integrate electronic systems into the device."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Department of Bioengineering - UT Dallas",
+      "title": "Research Engineer",
+      "duration": {
+        "start_date": "Jun 2021",
+        "end_date": "Sep 2023",
+        "date_range": "2 years 4 months"
+      },
+      "location": "Richardson, Texas, United States",
+      "description": [
+        "Research areas included in vitro co-culture and migration assays.",
+        "Conducted experiments regarding integrity and corrosion of Titanium implants."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "PICKUP",
+      "title": "Market Success Coordinator",
+      "duration": {
+        "start_date": "Jan 2023",
+        "end_date": "Apr 2023",
+        "date_range": "4 months"
+      },
+      "location": "Plano, Texas, United States",
+      "description": [
+        "Assisted with incoming and outbound calls and handled logistical support.",
+        "Provided two-way communications while monitoring the grid to maximize performance."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Luxury Delivery Concierge",
+      "title": "Luxury Delivery Concierge",
+      "duration": {
+        "start_date": "May 2022",
+        "end_date": "Jan 2023",
+        "date_range": "9 months"
+      },
+      "location": "Dallas-Fort Worth Metroplex",
+      "description": [
+        "Delivered for Louis Vuitton with a white-glove styled concierge service."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Pain Relief Network",
+      "title": "Healthcare Manager",
+      "duration": {
+        "start_date": "Jul 2020",
+        "end_date": "Jun 2021",
+        "date_range": "1 year"
+      },
+      "location": "McAllen, Texas, United States",
+      "description": [
+        "Managed teams for telehealth consultations and screened patients.",
+        "Provided consultations for pain management assistance."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Rio Health Medical Clinic",
+      "title": "Mechanical Engineer",
+      "duration": {
+        "start_date": "Apr 2018",
+        "end_date": "Jun 2019",
+        "date_range": "1 year 3 months"
+      },
+      "location": "McAllen, Texas, United States",
+      "description": [
+        "Worked on innovating techniques in physical therapy and engineering applications.",
+        "Processed medical records and assisted in screening calls."
+      ],
+      "company_url": null
+    }
+  ]
+}

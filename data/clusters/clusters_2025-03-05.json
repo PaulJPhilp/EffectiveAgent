@@ -1,0 +1,160 @@
+{
+  "clusters": [
+    {
+      "name": "Creative Experience Managers",
+      "description": "Professionals who design and execute immersive experiences, often within brand marketing and event management. They focus on enhancing customer engagement through creative event strategies.",
+      "commonCharacteristics": [
+        "Strong background in event management and production",
+        "Experience in collaborating with cross-functional teams",
+        "Focus on building brand partnerships",
+        "Creative problem solvers",
+        "Experience working with high-profile brands"
+      ],
+      "skills": [
+        "Event Planning",
+        "Experiential Marketing",
+        "Project Management",
+        "Brand Activation",
+        "Creative Direction",
+        "Stakeholder Management"
+      ],
+      "typicalBackground": "Typically possess degrees in marketing, communications, or related fields, with substantial experience in event production and brand marketing roles.",
+      "percentageOfTotal": 28,
+      "representativeProfiles": [
+        "Julianne Wolfe",
+        "Callie Pegadiotes",
+        "Amanda Levine"
+      ]
+    },
+    {
+      "name": "Strategic Marketing Leaders",
+      "description": "Experienced professionals focused on driving strategic marketing communications for brands. They typically oversee marketing teams and manage complex campaigns across various media.",
+      "commonCharacteristics": [
+        "High-level strategic thinkers",
+        "Expertise in media planning and execution",
+        "Skilled in stakeholder engagement",
+        "Strong understanding of integrated marketing",
+        "Leadership in managing marketing teams"
+      ],
+      "skills": [
+        "Marketing Strategy",
+        "Media Planning",
+        "Communications",
+        "Brand Management",
+        "Public Relations",
+        "Digital Marketing"
+      ],
+      "typicalBackground": "Usually have advanced degrees in marketing or business management and significant experience in strategic planning roles in marketing agencies or corporate environments.",
+      "percentageOfTotal": 25,
+      "representativeProfiles": [
+        "Tara Scanlon",
+        "Annessa Morley",
+        "Lauren Morrison"
+      ]
+    },
+    {
+      "name": "Innovative Brand Creators",
+      "description": "Professionals who specialize in brand strategy and creative direction, driving brand identity and narrative across various platforms. They focus on building brand loyalty and engaging target audiences.",
+      "commonCharacteristics": [
+        "Creative and strategic orientation",
+        "Expertise in digital and social media marketing",
+        "Strong storytelling capabilities",
+        "Experience in improving customer engagement",
+        "Background in content creation and brand management"
+      ],
+      "skills": [
+        "Brand Strategy",
+        "Content Development",
+        "Digital Marketing",
+        "Creative Writing",
+        "Social Media Strategy",
+        "SEO"
+      ],
+      "typicalBackground": "Often come from marketing or communications backgrounds with experience in both creative roles and campaign management, usually having degrees in these fields.",
+      "percentageOfTotal": 20,
+      "representativeProfiles": [
+        "Joanne Hsu",
+        "Bianca Myers",
+        "Darya Cable"
+      ]
+    },
+    {
+      "name": "Operations and Compliance Specialists",
+      "description": "Professionals with backgrounds in operations management and compliance, focusing on ensuring smooth processes within marketing and production environments, including managing teams and budgets.",
+      "commonCharacteristics": [
+        "Detail-oriented and organized",
+        "Strong project management skills",
+        "Experience with budget oversight",
+        "Focus on operational efficiency",
+        "Expertise in regulatory compliance"
+      ],
+      "skills": [
+        "Project Management",
+        "Budget Management",
+        "Regulatory Compliance",
+        "Operations Management",
+        "Cross-Departmental Coordination"
+      ],
+      "typicalBackground": "Usually have degrees in business administration, operations management, or related fields, with significant experience in operational roles within marketing or event agencies.",
+      "percentageOfTotal": 15,
+      "representativeProfiles": [
+        "Jennifer Wisinger",
+        "Sean Choi",
+        "Courtney Boyd"
+      ]
+    },
+    {
+      "name": "Data-Driven Marketing Analysts",
+      "description": "Professionals who focus on analyzing market trends and data to drive marketing strategies, often utilizing analytics tools to measure campaign effectiveness and inform business decisions.",
+      "commonCharacteristics": [
+        "Analytical and data-oriented mindset",
+        "Capable of translating data insights into strategic recommendations",
+        "Experience with analytical tools and methodologies",
+        "Focused on measuring and improving KPI performance",
+        "Strong communication skills for reporting findings"
+      ],
+      "skills": [
+        "Market Research",
+        "Data Analysis",
+        "KPI Reporting",
+        "Digital Analytics",
+        "Customer Insights"
+      ],
+      "typicalBackground": "Typically have degrees in marketing, statistics, or economics, and are skilled in data analytics with several years of experience in marketing analysis roles.",
+      "percentageOfTotal": 12,
+      "representativeProfiles": [
+        "Gabrielle Kessler",
+        "Lucy Wright",
+        "Aliya Tarmo"
+      ]
+    },
+    {
+      "name": "Emerging Influencer Strategists",
+      "description": "Younger professionals developing expertise in influencer marketing and social media strategies, often working on campaigns that engage younger demographics through innovative platforms.",
+      "commonCharacteristics": [
+        "Passion for social media and influencer culture",
+        "Ability to connect with younger audiences",
+        "Creativity in campaign design",
+        "Emerging market knowledge",
+        "Fluency in digital content creation"
+      ],
+      "skills": [
+        "Influencer Marketing",
+        "Social Media Management",
+        "Content Creation",
+        "Campaign Development",
+        "E-commerce Strategies"
+      ],
+      "typicalBackground": "Often recent graduates or early career professionals with degrees in marketing, communications, or media studies, frequently engaged in social media and digital marketing roles.",
+      "percentageOfTotal": 10,
+      "representativeProfiles": [
+        "Luise Bjelke",
+        "Katie Proctor",
+        "Lilly Bernardis"
+      ]
+    }
+  ],
+  "analysis": "The clusters identified emphasize the diversity of roles in marketing and production, highlighting the importance of both creative and strategic functions. There is a strong presence of experiential and brand management roles, showcasing the industry's shift towards creating immersive consumer experiences while maintaining operational efficiencies. Younger professionals focusing on digital strategies and influencer marketing reflect the evolving landscape of brand engagement.",
+  "totalProfiles": 49,
+  "date": "2025-03-05"
+}

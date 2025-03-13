@@ -1,0 +1,130 @@
+{
+  "name": "Lauren Rummel",
+  "title": "Brand Marketing Specialist at Morinaga America Inc.",
+  "location": "Orange County, California, United States",
+  "key_skills": [
+    "Microsoft Office",
+    "Customer Service",
+    "Microsoft Word",
+    "E-commerce",
+    "Content optimization",
+    "SEO Copywriting",
+    "Project management"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/lauren-rummel-24247b101",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Morinaga America",
+      "title": "Brand Marketing Specialist",
+      "duration": {
+        "start_date": "March 2023",
+        "end_date": "Present",
+        "date_range": "7 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Li & Fung",
+      "title": "Marketing Specialist",
+      "duration": {
+        "start_date": "April 2020",
+        "end_date": "February 2023",
+        "date_range": "2 years 11 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Li & Fung",
+      "title": "Marketing Coordinator",
+      "duration": {
+        "start_date": "April 2018",
+        "end_date": "April 2020",
+        "date_range": "2 years 1 month"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Li & Fung",
+      "title": "Marketing Assistant",
+      "duration": {
+        "start_date": "April 2016",
+        "end_date": "April 2018",
+        "date_range": "2 years 1 month"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Li & Fung",
+      "title": "Executive Assistant",
+      "duration": {
+        "start_date": "September 2015",
+        "end_date": "April 2016",
+        "date_range": "8 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Test Prep Gurus",
+      "title": "Test Administrator and Office Assistant",
+      "duration": {
+        "start_date": "August 2014",
+        "end_date": "September 2015",
+        "date_range": "1 year 2 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Caliber Range Corporation",
+      "title": "Social Media and Production Assistant",
+      "duration": {
+        "start_date": "October 2013",
+        "end_date": "September 2015",
+        "date_range": "2 years"
+      },
+      "location": "Huntington Beach, CA",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Gap Inc./Old Navy",
+      "title": "Sales Associate",
+      "duration": {
+        "start_date": "October 2012",
+        "end_date": "January 2013",
+        "date_range": "4 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Target",
+      "title": "Planogram and Sales Associate",
+      "duration": {
+        "start_date": "June 2010",
+        "end_date": "October 2012",
+        "date_range": "2 years 5 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    }
+  ]
+}

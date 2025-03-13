@@ -1,0 +1,149 @@
+{
+   "name": "Ali Parker",
+   "title": "Co-Founder",
+   "location": "Atlanta, Georgia, United States",
+   "key_skills": [
+      "Event Management",
+      "Event Planning",
+      "Sports Marketing"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/ali-parker-79191427",
+      "email": null,
+      "company_website": "https://www.alilouiseparker.com"
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "The Broad Collective",
+         "title": "Co-Founder",
+         "duration": {
+            "start_date": "2018-01-01",
+            "end_date": "Present",
+            "date_range": "7 years 2 months"
+         },
+         "location": "Austin, Texas, United States",
+         "description": [
+            "Built an agency from the ground up by optimizing existing relationships, creating new partnerships and leveraging over 10 years of industry knowledge which grew revenue over 60% year over year (pre COVID-19)."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Freelance",
+         "title": "Experiential Producer",
+         "duration": {
+            "start_date": "2017-04-01",
+            "end_date": "2017-12-31",
+            "date_range": "9 months"
+         },
+         "location": "Greater Chicago Area, Illinois, United States",
+         "description": [
+            "Hired by agencies and brands to conceptualize and produce experiential marketing campaigns that increased brand awareness among key demographics.",
+            "Headed a team of creative freelancers and collaborated with clients to produce three to four projects simultaneously.",
+            "Demonstrated professionalism and knowledge by repeatedly being recruited by the same clients."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "BeCore",
+         "title": "Director of Production",
+         "duration": {
+            "start_date": "2016-01-01",
+            "end_date": "2017-03-31",
+            "date_range": "1 year 3 months"
+         },
+         "location": "Greater Los Angeles Area, California, United States",
+         "description": [
+            "Managed 12 key accounts and a team of over 10 at an experiential marketing agency based in Los Angeles.",
+            "Member of the executive team that directly influenced company strategy and overall goals by researching industry standards and practices.",
+            "Advocated for updated company benefits to improve employee retention and reduce burnout, leading to retaining producers for over 2 years in a high-turnover industry.",
+            "Orchestrated weekly meetings to ensure cross-functional collaboration with creative and business development teams as well as forecasting future revenue and growth.",
+            "Represented the executive team onsite at events to oversee the production team and seek out new business opportunities."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "BeCore",
+         "title": "Account Director",
+         "duration": {
+            "start_date": "2014-10-01",
+            "end_date": "2015-12-31",
+            "date_range": "1 year 3 months"
+         },
+         "location": null,
+         "description": [
+            "Oversaw accounts and directed internal production and creative teams to align with brand teams for Mark Anthony Brands and Teva.",
+            "Grew account revenue by building relationships with clients, seeking out new opportunities, and hitting KPIs on projects, leading to increased budgets year over year.",
+            "Increased average profit margin on projects by 5%."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "BeCore",
+         "title": "Senior Producer",
+         "duration": {
+            "start_date": "2013-01-01",
+            "end_date": "2014-09-30",
+            "date_range": "1 year 9 months"
+         },
+         "location": "Greater Los Angeles Area, California, United States",
+         "description": [
+            "Strategized and executed over 30 events for key brands including Red Bull, Nike, and others.",
+            "Trained a team of over 5 Assistant Producers and Project Coordinators.",
+            "Continuously met and exceeded client expectations and hit all project KPIs, leading to year over year repeat projects, client retention, and account growth."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Red Frog Events",
+         "title": "Event Director",
+         "duration": {
+            "start_date": "2010-05-01",
+            "end_date": "2012-10-31",
+            "date_range": "2 years 6 months"
+         },
+         "location": null,
+         "description": [
+            "Planned and executed over 25 domestic and international events within the active entertainment industry.",
+            "Developed an event strategy and RFP for local government approvals on future event locations.",
+            "Built relationships with key vendors, resulting in over $100K in savings per year.",
+            "Spearheaded team to run first P&L and analytics on flagship event to understand overall profit margin."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Red Frog Events",
+         "title": "Production Manager",
+         "duration": {
+            "start_date": "2010-01-01",
+            "end_date": "2010-05-31",
+            "date_range": "5 months"
+         },
+         "location": "Chicago, Illinois, United States",
+         "description": [
+            "Created the on-site logistics and operations plan and led the on-site production team for a successful first year festival.",
+            "Researched and vetted key vendors for staging and production leading to a multi-contract agreement.",
+            "Established roles and responsibilities for on-site production team."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Mad Eagle",
+         "title": "Manager",
+         "duration": {
+            "start_date": "2005-11-01",
+            "end_date": "2009-12-31",
+            "date_range": "4 years 2 months"
+         },
+         "location": null,
+         "description": [
+            "Assisted in discovering new product lines and ordering shipments.",
+            "Designed window and in-store displays.",
+            "Hosted private in-store parties for clientele.",
+            "Styled outfits for magazine shoots.",
+            "Built relationships with loyal clients."
+         ],
+         "company_url": null
+      }
+   ]
+}

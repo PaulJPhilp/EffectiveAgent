@@ -1,0 +1,141 @@
+{
+  "name": "Julianne Wolfe",
+  "title": "Producer | Experiential Marketing | Event Production",
+  "location": "Los Angeles, California, United States",
+  "key_skills": [
+    "Event Planning",
+    "Social Networking",
+    "Customer Service"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/juliannewolfe",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "NVE Experience Agency",
+      "title": "Producer",
+      "duration": {
+        "start_date": "2024-01-01",
+        "end_date": null,
+        "date_range": "1 year 2 months"
+      },
+      "location": "Los Angeles, California, United States",
+      "description": [
+        "Notable Projects: Revolve - Revolve Festival 2024 & 2023",
+        "SiriusXM - Jack Harlow, John Legend, John Mayer, Pitbull",
+        "Billboard - Golden Globes After Party",
+        "Billboard - Samsung x Sabrina Carpenter",
+        "FX - Grotesquerie Stunt",
+        "Liquid I.V. - Bonnaroo Music Festival",
+        "Peacock - Ted Series Premiere",
+        "Red Bull - Red Bull Symphonic with Metro Boomin",
+        "Cash App - Cash App x Bitcoin Market",
+        "Hulu - Legacy Lakers Press Junket",
+        "Hulu - The Orville Premiere & After Party",
+        "Amazon - Don't Make Me Go Premiere & After Party",
+        "NBA - NBA Influencer House",
+        "Adidas - 4DFWD Press Event"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Associate Producer",
+      "duration": {
+        "start_date": "2022-12-01",
+        "end_date": "2024-01-01",
+        "date_range": "1 year 2 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Senior Production Coordinator",
+      "duration": {
+        "start_date": "2022-01-01",
+        "end_date": "2022-12-01",
+        "date_range": "1 year"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Production Coordinator",
+      "duration": {
+        "start_date": "2020-12-01",
+        "end_date": "2022-01-01",
+        "date_range": "1 year 2 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Production Operations Coordinator",
+      "duration": {
+        "start_date": "2020-01-01",
+        "end_date": "2020-12-01",
+        "date_range": "1 year"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "The Creative Group",
+      "title": "Lead Recruiter / Senior Recruiter",
+      "duration": {
+        "start_date": "2018-09-01",
+        "end_date": "2019-12-01",
+        "date_range": "1 year 4 months"
+      },
+      "location": "Greater Los Angeles Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "The Creative Group",
+      "title": "Creative Recruiter",
+      "duration": {
+        "start_date": "2017-09-01",
+        "end_date": "2018-09-01",
+        "date_range": "1 year 1 month"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "EOS Lounge",
+      "title": "Production Assistant / Marketing Coordinator",
+      "duration": {
+        "start_date": "2016-08-01",
+        "end_date": "2017-07-01",
+        "date_range": "1 year"
+      },
+      "location": "Santa Barbara, California Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "UCSB Enterprise Technology Services",
+      "title": "Administrative Assistant",
+      "duration": {
+        "start_date": "2016-05-01",
+        "end_date": "2017-06-01",
+        "date_range": "1 year 2 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    }
+  ]
+}

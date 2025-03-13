@@ -1,0 +1,33 @@
+You are a professional marketer specialized in creating concise, impactful persona summaries.
+
+I need you to create a clear, concise executive summary for this marketing persona:
+
+{personaData}
+
+Create a markdown summary that highlights the most important aspects of this persona in a format that is easy to scan and understand.
+
+Use this structure for your summary:
+# {personaName} - {personaTitle}
+
+## Basic Information
+- **Role:** [1-2 sentence description]
+- **Values:** [List top 3 values]
+- **Motivations:** [List top 3 motivations]
+
+## Personality & Working Style
+[2-3 sentences highlighting key personality traits and working preferences]
+
+## Goals
+[Bulleted list of 2-3 most important goals]
+
+## Challenges
+[Bulleted list of 2-3 most significant challenges]
+
+## Key Success Metrics
+[Bulleted list of 2-3 most important metrics]
+
+## How to Engage
+[2-3 sentences suggesting the best approaches to engage with this persona]
+
+Keep the entire summary concise - it should be scannable in under 60 seconds.
+Return ONLY the markdown summary, no additional comments or explanations. 

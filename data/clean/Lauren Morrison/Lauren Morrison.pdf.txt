@@ -1,0 +1,67 @@
+{
+   "name": "Lauren Morrison",
+   "title": "Vice President at FleishmanHillard",
+   "location": "San Francisco, California, United States",
+   "key_skills": [
+      "Sports",
+      "Media Training",
+      "Strategic Communications Counsel"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/laurenmorrison1",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "FleishmanHillard",
+         "title": "Vice President",
+         "duration": {
+            "start_date": "2019",
+            "end_date": "Present",
+            "date_range": "4 years"
+         },
+         "location": "San Francisco Bay Area",
+         "description": [
+            "Manages and produces national media and marketing campaigns for a variety of consumer lifestyle, tech, and sports clients",
+            "Specializes in media relations, with a focus on consumer tech/lifestyle/sports media, in support of consumer brand news, product launch campaigns, product reviews coverage",
+            "Develops strategic communication plans for product announcements and news that create awareness, strengthen brand loyalty, and increase market footprint",
+            "Manage global cross-functional teams to meet and exceed campaign goals for product launches and key partnership announcements",
+            "Develops creative concepts for full-service marketing, partnerships, and advertising campaigns from ideation to implementation",
+            "Provides copy and integrated strategy for a range of traditional, digital, and social projects including social content, video, print, promotional/marketing materials, and web",
+            "Works closely with corporate, marketing, communications, digital and creative teams to deliver a consistent brand voice and message across all platforms and mediums",
+            "Coordinates targeted ad buys for print, online and OOH"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "FleishmanHillard",
+         "title": "Managing Supervisor",
+         "duration": {
+            "start_date": "July 2010",
+            "end_date": "Present",
+            "date_range": "14 years 3 months"
+         },
+         "location": "San Francisco Bay Area",
+         "description": [
+            "Strategic Marketing and Communications: Media Relations: Social Media Strategy and Content Development: Copy writing: Sports PR and Event Planning/Management: Partnership Development: Marketing Strategy: Content Development: Influencer Relations: Website Content Development: Photo/Video Shoot Production"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "University of Mary Washington",
+         "title": "Graduate Writing Advisor",
+         "duration": {
+            "start_date": "April 2009",
+            "end_date": "June 2010",
+            "date_range": "1 year 2 months"
+         },
+         "location": null,
+         "description": [
+            "Editor: Tutor: Research Guide: Online Tutoring Specialist: APA style"
+         ],
+         "company_url": null
+      }
+   ]
+}

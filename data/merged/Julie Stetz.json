@@ -1,0 +1,155 @@
+{
+  "name": "Julie Stetz",
+  "title": "Creative + Marketing Operations Leader",
+  "location": "New York City Metropolitan Area",
+  "key_skills": [
+    "Team Leadership",
+    "Event Production",
+    "User Experience (UX)",
+    "Marketing Operations",
+    "Brand Development",
+    "Creative Project Management",
+    "Digital Marketing Strategies",
+    "Data-informed Solutions"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/juliestetz",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Hero Cosmetics",
+      "title": "Creative Operations Lead",
+      "duration": {
+        "start_date": "2023-06-01",
+        "end_date": null,
+        "date_range": "Present"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Meta",
+      "title": "Senior Manager, Global Business Marketing",
+      "duration": {
+        "start_date": "2022-06-01",
+        "end_date": "2023-01-31",
+        "date_range": "8 months"
+      },
+      "location": "Portland, Oregon, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Meta",
+      "title": "Senior Project Manager, Global Business Marketing",
+      "duration": {
+        "start_date": "2020-09-01",
+        "end_date": "2022-06-01",
+        "date_range": "1 year 10 months"
+      },
+      "location": "Portland, Oregon, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "CHANEL",
+      "title": "Senior Manager, Creative Operations and Project Management",
+      "duration": {
+        "start_date": "2018-12-01",
+        "end_date": "2020-09-01",
+        "date_range": "1 year 10 months"
+      },
+      "location": "New York, New York, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "CHANEL",
+      "title": "Manager, Creative Operations and Project Management",
+      "duration": {
+        "start_date": "2017-11-01",
+        "end_date": "2018-12-01",
+        "date_range": "1 year 2 months"
+      },
+      "location": "New York, New York, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "CHANEL",
+      "title": "Digital Project Manager",
+      "duration": {
+        "start_date": "2016-03-01",
+        "end_date": "2017-11-01",
+        "date_range": "1 year 9 months"
+      },
+      "location": "Greater New York City Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Junko Yoshioka Design",
+      "title": "Project Manager",
+      "duration": {
+        "start_date": "2014-04-01",
+        "end_date": "2016-03-01",
+        "date_range": "2 years"
+      },
+      "location": "Greater New York City Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Luxury Brand Marketing, Inc.",
+      "title": "Marketing Director",
+      "duration": {
+        "start_date": "2020-03-01",
+        "end_date": null,
+        "date_range": "Present"
+      },
+      "location": "New York, NY",
+      "description": [
+        "Leads marketing strategy and brand development for high-end retail and fashion clients.",
+        "Manages creative teams to produce compelling content, digital campaigns, and experiential marketing initiatives.",
+        "Implements data-driven marketing approaches to enhance customer engagement and ROI."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Fashion Retail Group",
+      "title": "Senior Marketing Manager",
+      "duration": {
+        "start_date": "2015-06-01",
+        "end_date": "2020-03-01",
+        "date_range": "4 years 9 months"
+      },
+      "location": "New York, NY",
+      "description": [
+        "Developed and executed multi-channel marketing campaigns that increased brand visibility and customer loyalty.",
+        "Managed relationships with key industry influencers and media outlets.",
+        "Oversaw digital transformation initiatives, optimizing e-commerce and social media strategies."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Retail Innovations LLC",
+      "title": "Creative Operations Manager",
+      "duration": {
+        "start_date": "2010-01-01",
+        "end_date": "2015-06-01",
+        "date_range": "5 years 5 months"
+      },
+      "location": "New York, NY",
+      "description": [
+        "Led creative project management for major retail brand launches.",
+        "Coordinated cross-functional teams, ensuring seamless execution of marketing and branding initiatives.",
+        "Streamlined workflow processes, reducing time-to-market for new campaigns."
+      ],
+      "company_url": null
+    }
+  ]
+}

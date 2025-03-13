@@ -1,0 +1,171 @@
+{
+  "name": "Jo Kang",
+  "title": "Group Creative Director",
+  "location": "Los Angeles, California, United States",
+  "key_skills": [
+    "Creative Branding",
+    "Art Direction",
+    "Retail Design",
+    "Identity Design",
+    "Print Design",
+    "Web Design",
+    "Campaign Development",
+    "Advertising",
+    "Packaging Design"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/jo-kang",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Amplify",
+      "title": "Group Creative Director",
+      "duration": {
+        "start_date": "2023-05-01",
+        "end_date": "Present",
+        "date_range": "0 years 5 months"
+      },
+      "location": "Los Angeles, California, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "title": "VP Group Creative Director",
+      "duration": {
+        "start_date": "2022-07-01",
+        "end_date": "2023-06-30",
+        "date_range": "1 year"
+      },
+      "location": "West Coast",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "title": "VP Senior Creative Director",
+      "duration": {
+        "start_date": "2021-05-01",
+        "end_date": "2022-07-31",
+        "date_range": "1 year 2 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "title": "Senior Creative Director",
+      "duration": {
+        "start_date": "2021-03-01",
+        "end_date": "2021-05-31",
+        "date_range": "2 months"
+      },
+      "location": "San Francisco Bay Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "title": "Creative Director",
+      "duration": {
+        "start_date": "2017-07-01",
+        "end_date": "2021-03-31",
+        "date_range": "3 years 8 months"
+      },
+      "location": "San Francisco, California",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "title": "Associate Creative Director",
+      "duration": {
+        "start_date": "2017-02-01",
+        "end_date": "2017-07-31",
+        "date_range": "5 months"
+      },
+      "location": "San Francisco, California",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Freelance Design Director",
+      "title": "Freelance Art Director & Designer",
+      "duration": {
+        "start_date": "2012-04-01",
+        "end_date": "2017-02-28",
+        "date_range": "4 years 10 months"
+      },
+      "location": "London, United Kingdom",
+      "description": [
+        "Art Direction",
+        "Identity Design",
+        "Retail Design",
+        "Print Design",
+        "Web Design",
+        "Campaign Development",
+        "Advertising"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Clear Design",
+      "title": "Senior Designer",
+      "duration": {
+        "start_date": "2010-11-01",
+        "end_date": "2011-11-30",
+        "date_range": "1 year"
+      },
+      "location": "Fitzroy, Australia",
+      "description": [
+        "Art Direction",
+        "Identity Design",
+        "Retail Design",
+        "Print Design",
+        "Web Design",
+        "Campaign Development",
+        "Advertising"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Storeage",
+      "title": "Senior Designer",
+      "duration": {
+        "start_date": "2008-01-01",
+        "end_date": "2009-12-31",
+        "date_range": "2 years"
+      },
+      "location": "Amsterdam Area, Netherlands",
+      "description": [
+        "Art Direction",
+        "Identity Design",
+        "Retail Design",
+        "Print Design",
+        "Web Design",
+        "Packaging Design"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Square Circle Triangle",
+      "title": "Freelance Designer",
+      "duration": {
+        "start_date": "2007-03-01",
+        "end_date": "2007-12-31",
+        "date_range": "9 months"
+      },
+      "location": "Melbourne, Australia",
+      "description": [
+        "Identity Design",
+        "Print Design",
+        "Web Design"
+      ],
+      "company_url": null
+    }
+  ]
+}

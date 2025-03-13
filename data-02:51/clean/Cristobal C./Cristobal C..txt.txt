@@ -1,0 +1,177 @@
+{
+   "name": "Cristobal C.",
+   "title": "Experiential & Integrated Producer",
+   "location": "New York, New York, United States",
+   "key_skills": [
+      "Floor Plans",
+      "Site Visits",
+      "Problem Solving"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/cristobalcuris",
+      "email": "curisce@gmail.com",
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Amplify",
+         "title": "Producer",
+         "duration": {
+            "start_date": "Sep 2023",
+            "end_date": "Present",
+            "date_range": "0 years 1 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "DIZON INC.",
+         "title": "Producer",
+         "duration": {
+            "start_date": "Jun 2023",
+            "end_date": "Oct 2023",
+            "date_range": "0 years 4 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Curate dynamic brand experiences, serving as primary client liaison.",
+            "Oversee sourcing and management of external talent and vendors, aligning with client budgets and expectations."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Happier",
+         "title": "Sr. Manager, Production",
+         "duration": {
+            "start_date": "Jan 2023",
+            "end_date": "Apr 2023",
+            "date_range": "0 years 3 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Led event production for Water Street Associates building (WSA, opened in 2023), a modern 700,000 sq. ft. multi-use building in FiDi.",
+            "Managed and ideated programming for 99 Scott.",
+            "Executed GQ’s Global Creativity Awards dinner & after-party event.",
+            "Worked cross-functionally with sales and design teams to develop future programming."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Imprint Projects",
+         "title": "Producer",
+         "duration": {
+            "start_date": "Jul 2021",
+            "end_date": "Dec 2022",
+            "date_range": "1 years 5 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Clients: Eventbrite, Levi’s, Soundcloud, Stitch Fix, Smashbox, Pinterest, Twitter.",
+            "Managed creative campaign development end-to-end.",
+            "Developed and managed production plans, client proposals, and campaign wrap reports.",
+            "Led budgeting and vendor coordination."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Informa Markets",
+         "title": "Event Operations + Marketing",
+         "duration": {
+            "start_date": "May 2019",
+            "end_date": "Jun 2021",
+            "date_range": "2 years 1 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Events: MAGIC, Coterie, PROJECT, MICAM Americas, Children’s Club.",
+            "Managed multi-million dollar B2B event operations.",
+            "Oversaw budgets and financial reconciliation.",
+            "Leveraged Salesforce to track exhibitor data."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "LUME Studios",
+         "title": "Event Producer + Venue Manager",
+         "duration": {
+            "start_date": "Jun 2018",
+            "end_date": "Apr 2019",
+            "date_range": "0 years 11 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Clients: OVO, Supreme, Puma, Aldo, StockX, Rostrum Records, SVA, Gigi Hadid x Vogue Eyewear, Makeup Forever.",
+            "Produced boutique brand events for over 30 major clients.",
+            "Supervised event production teams."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Paleo f(x)",
+         "title": "Events Producer",
+         "duration": {
+            "start_date": "Feb 2018",
+            "end_date": "Jun 2018",
+            "date_range": "0 years 4 months"
+         },
+         "location": "Austin, Texas Area",
+         "description": [
+            "Worked with founders to produce a wellness conference with over 100 speakers."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "MFA Architecture",
+         "title": "Site Supervisor",
+         "duration": {
+            "start_date": "Aug 2016",
+            "end_date": "Dec 2017",
+            "date_range": "1 years 4 months"
+         },
+         "location": "Secaucus, New Jersey, United States",
+         "description": [
+            "Clients: XPO Logistics, Hartz Mountain, Phosphorus Labs.",
+            "Managed large-scale renovations and reduced project costs."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "UNTITLED, ART",
+         "title": "Onsite Manager | Untitled Miami Beach",
+         "duration": {
+            "start_date": "Nov 2015",
+            "end_date": "Dec 2015",
+            "date_range": "0 years 1 months"
+         },
+         "location": "Brooklyn, NY",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Embassy of Uruguay in the USA",
+         "title": "Cultural Affairs & Programming",
+         "duration": {
+            "start_date": "Sep 2014",
+            "end_date": "Dec 2014",
+            "date_range": "0 years 3 months"
+         },
+         "location": "Washington, DC",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Paul Kasmin Gallery",
+         "title": "Gallery Associate",
+         "duration": {
+            "start_date": "May 2014",
+            "end_date": "Aug 2014",
+            "date_range": "0 years 3 months"
+         },
+         "location": "New York, NY",
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

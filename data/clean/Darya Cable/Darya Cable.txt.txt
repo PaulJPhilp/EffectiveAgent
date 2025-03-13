@@ -1,0 +1,147 @@
+{
+   "name": "Darya Cable",
+   "title": "Senior Project Manager",
+   "location": "Greater Cleveland",
+   "key_skills": [
+      "Process Improvement",
+      "Microsoft Office",
+      "Customer Service"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/darya-cable",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [
+      {
+         "name": "SCRUM Master",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "Active"
+      }
+   ],
+   "experience": [
+      {
+         "company": "Weber Shandwick",
+         "title": "Senior Project Manager",
+         "duration": {
+            "start_date": "Aug 2022",
+            "end_date": "Present",
+            "date_range": "2 years 7 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Fathom",
+         "title": "Senior Project Manager",
+         "duration": {
+            "start_date": "Jul 2022",
+            "end_date": "Aug 2022",
+            "date_range": "2 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Fathom",
+         "title": "Project Manager",
+         "duration": {
+            "start_date": "Nov 2020",
+            "end_date": "Jul 2022",
+            "date_range": "1 year 9 months"
+         },
+         "location": "Cleveland, Ohio, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Publicis Sapient",
+         "title": "Associate Project Manager",
+         "duration": {
+            "start_date": "Nov 2019",
+            "end_date": "Nov 2020",
+            "date_range": "1 year 1 month"
+         },
+         "location": "Cleveland/Akron, Ohio Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Publicis Sapient",
+         "title": "Project Coordinator",
+         "duration": {
+            "start_date": "Jul 2018",
+            "end_date": "Nov 2019",
+            "date_range": "1 year 5 months"
+         },
+         "location": "Cleveland, Ohio",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "ValMark Financial Group",
+         "title": "Marketing Intern",
+         "duration": {
+            "start_date": "Oct 2017",
+            "end_date": "Jul 2018",
+            "date_range": "10 months"
+         },
+         "location": "Akron, Ohio",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Insomnia Cookies",
+         "title": "Marketing Representative",
+         "duration": {
+            "start_date": "Sep 2017",
+            "end_date": "Jun 2018",
+            "date_range": "10 months"
+         },
+         "location": "Akron, Ohio",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "AMERICAN EAGLE OUTFITTERS INC.",
+         "title": "Stylist and Lead Cashier",
+         "duration": {
+            "start_date": "Apr 2014",
+            "end_date": "Oct 2017",
+            "date_range": "3 years 7 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Performance Health",
+         "title": "Specialty Products Marketing Intern",
+         "duration": {
+            "start_date": "Apr 2017",
+            "end_date": "Sep 2017",
+            "date_range": "6 months"
+         },
+         "location": "Akron, Ohio",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Ohio & Erie Canalway Coalition",
+         "title": "Marketing Intern",
+         "duration": {
+            "start_date": "May 2016",
+            "end_date": "Aug 2016",
+            "date_range": "4 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

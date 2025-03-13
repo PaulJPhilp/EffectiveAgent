@@ -1,0 +1,138 @@
+{
+  "name": "Jeff Bardin",
+  "title": "Senior Vice President Experiential Marketing",
+  "location": "Demarest, New Jersey, United States",
+  "key_skills": [
+    "New Media",
+    "Marketing Strategy",
+    "Account Management"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/jeff-bardin-3253a88",
+    "email": null,
+    "company_website": "https://www.pop2life.com"
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "THE MRKT",
+      "title": "Senior Vice President Experiential Marketing",
+      "duration": {
+        "start_date": "2023-01-01",
+        "end_date": "Present",
+        "date_range": "2 years 2 months"
+      },
+      "location": "Los Angeles, California, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "THA Experiential",
+      "title": "Senior Vice President Experiential and Brand Activation",
+      "duration": {
+        "start_date": "2021-04-01",
+        "end_date": "Present",
+        "date_range": "2 years 6 months"
+      },
+      "location": "Los Angeles, California, United States",
+      "description": [
+        "Full-service brand experience agency that creates meaningful engagement for brands with consumers, influencers, and press."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Giant Spoon",
+      "title": "Vice President, Experiential Account Director",
+      "duration": {
+        "start_date": "2019-01-01",
+        "end_date": "2020-12-01",
+        "date_range": "2 years 0 months"
+      },
+      "location": "Greater New York City Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Condé Nast",
+      "title": "Executive Director, Business Development Pop2Life",
+      "duration": {
+        "start_date": "2017-03-01",
+        "end_date": "2019-01-01",
+        "date_range": "1 year 10 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Pop2Life",
+      "title": "SVP, Music + Business Development",
+      "duration": {
+        "start_date": "2014-05-01",
+        "end_date": "2017-03-01",
+        "date_range": "2 years 10 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Pop2Life",
+      "title": "Vice President / General Manager",
+      "duration": {
+        "start_date": "2010-05-01",
+        "end_date": "2014-05-01",
+        "date_range": "4 years 0 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Epic Records",
+      "title": "Vice President Promotion and Operations",
+      "duration": {
+        "start_date": "2002-09-01",
+        "end_date": "2010-04-01",
+        "date_range": "7 years 7 months"
+      },
+      "location": null,
+      "description": [
+        "Developed and implemented promotional, marketing, and advertising strategies with broadcast (radio, TV) and print (trade and consumer publications).",
+        "Managed daily operations of a 20-person promotion team, including all operations and financial planning for the department."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Elektra Records",
+      "title": "Vice President Top 40 Promotion/Field Promotion",
+      "duration": {
+        "start_date": "1994-10-01",
+        "end_date": "2002-09-01",
+        "date_range": "8 years 0 months"
+      },
+      "location": null,
+      "description": [
+        "Conceived and implemented promotional strategies for all Top 40 releases.",
+        "Directed a 14-member promotional field team and managed daily operations, artist events, and regional strategy.",
+        "Developed strong relationships with radio programmers to maximize radio airplay and sales volume."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "EMI Records",
+      "title": "Regional Promotion Manager",
+      "duration": {
+        "start_date": "1991-05-01",
+        "end_date": "1994-04-01",
+        "date_range": "3 years 0 months"
+      },
+      "location": null,
+      "description": [
+        "Implemented promotional strategies for radio stations in the region.",
+        "Developed and maintained relationships with radio programmers to maximize airplay and sales."
+      ],
+      "company_url": null
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "name": "Lucy Wright",
+  "title": "Manager, Regional Marketing",
+  "location": "Indianapolis, Indiana, United States",
+  "key_skills": [
+    "Microsoft Office",
+    "Customer Service",
+    "Leadership"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/lucy-wright4",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Finish Line",
+      "title": "Manager, Regional Marketing",
+      "duration": {
+        "start_date": "2022-02",
+        "end_date": "Present",
+        "date_range": "3 years 1 month"
+      },
+      "location": "Indianapolis, Indiana, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Finish Line",
+      "title": "Regional Marketing Specialist",
+      "duration": {
+        "start_date": "2020-10",
+        "end_date": "2022-03",
+        "date_range": "1 year 6 months"
+      },
+      "location": "Indianapolis, Indiana, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Finish Line",
+      "title": "Retail Marketing Specialist",
+      "duration": {
+        "start_date": "2019-05",
+        "end_date": "2022-03",
+        "date_range": "2 years 11 months"
+      },
+      "location": "Indianapolis, Indiana, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Finish Line",
+      "title": "Marketing Intern",
+      "duration": {
+        "start_date": "2018-05",
+        "end_date": "2019-01",
+        "date_range": "9 months"
+      },
+      "location": "Indianapolis, Indiana, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Houseparty",
+      "title": "College Strategist",
+      "duration": {
+        "start_date": "2018-02",
+        "end_date": "2018-05",
+        "date_range": "4 months"
+      },
+      "location": null,
+      "description": [
+        "Actively use Houseparty and get peers excited about the app",
+        "Plan and coordinate Greek and campus wide marketing activations",
+        "Conduct on-campus market research and usability testing around Houseparty app usage",
+        "Actively participate in conversations with College Strategists at other campuses to provide feedback and solicit new ideas to HQ"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Alpha Phi International Fraternity",
+      "title": "Vice President of Campus Affairs",
+      "duration": {
+        "start_date": "2016-10",
+        "end_date": "2017-11",
+        "date_range": "1 year 2 months"
+      },
+      "location": "West Lafayette, Indiana, United States",
+      "description": [
+        "Leads and directs the Campus Affairs Department and holds regular meetings",
+        "Serves on the Executive Board",
+        "Serves on Program Council",
+        "Oversees and coordinates both community service and campus activities for the chapter",
+        "Implements the marketing plan developed with the Marketing and Membership Recruitment Departments within the Campus Affairs Department and Events"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Gleaners Food Bank of Indiana",
+      "title": "Corporate Partnerships Intern",
+      "duration": {
+        "start_date": "2017-05",
+        "end_date": "2017-08",
+        "date_range": "4 months"
+      },
+      "location": "Indianapolis, Indiana, United States",
+      "description": [
+        "Gained an understanding of all aspects of a corporate partnership department for a non-profit organization.",
+        "Developed communications skills both with internal staff to manage time and stay on task as well as external audiences such as volunteers and community members.",
+        "Developed decision-making abilities.",
+        "Gained or improved upon public speaking skills.",
+        "Gained experience at a non-profit corporation.",
+        "Learn and assist with volunteer management activities:",
+        "Research, create and manage Restaurant Promotions for summer and/or create manual for Fall/Winter promotions",
+        "Research and design possible corporate partnership promotional programs",
+        "Assist in proactive planning, communication and scheduling of all internal and external events",
+        "Plan and coordinate event committee meetings with event consultant"
+      ],
+      "company_url": null
+    }
+  ],
+  "normalization_notes": "Standardized job title; Ensured all company names are consistent; Changed location formats where applicable; Converted dates to ISO format."
+}

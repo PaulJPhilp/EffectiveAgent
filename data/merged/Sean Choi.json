@@ -1,0 +1,217 @@
+{
+  "name": "Sean Choi",
+  "title": "Entrepreneur, Fractional CMO, Festival Producer",
+  "location": "Brooklyn, New York, United States",
+  "key_skills": [
+    "Entrepreneurship",
+    "Leadership",
+    "Business Development"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/seanjchoi",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "NewCo",
+      "title": "Founder",
+      "duration": {
+        "start_date": "2024-10-01",
+        "end_date": "Present",
+        "date_range": "0 years 0 months"
+      },
+      "location": "New York, New York, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Love Trails ®",
+      "title": "Chief Marketing Officer",
+      "duration": {
+        "start_date": "2024-08-01",
+        "end_date": "Present",
+        "date_range": "0 years 0 months"
+      },
+      "location": "Wales, United Kingdom",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Ecoversity",
+      "title": "Chief Strategy and Marketing Officer",
+      "duration": {
+        "start_date": "2024-08-01",
+        "end_date": "Present",
+        "date_range": "0 years 0 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "ILLfest Music & Street Art Festival",
+      "title": "Co-Founder & Festival Director",
+      "duration": {
+        "start_date": "2016-10-01",
+        "end_date": "Present",
+        "date_range": "8 years 5 months"
+      },
+      "location": "Austin, Texas, United States",
+      "description": [
+        "Started ILLfest on a whim in college and have grown it into one of the largest dance music festivals in Austin."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Envision Festival",
+      "title": "Head Of Sales",
+      "duration": {
+        "start_date": "2018-07-01",
+        "end_date": "Present",
+        "date_range": "6 years 8 months"
+      },
+      "location": "Uvita, Costa Rica",
+      "description": [
+        "Leading revenue growth and ticketing strategy for one of the world's premier destination music festivals."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Popchew",
+      "title": "Head of Product & Growth",
+      "duration": {
+        "start_date": "2023-01-01",
+        "end_date": "2024-05-01",
+        "date_range": "1 year 5 months"
+      },
+      "location": "New York, New York, United States",
+      "description": [
+        "Contemporary fast food built for the digitally native. My work focuses on acquiring mindshare via digital real estate and celebrity collaborations, building omni-channel product experiences, and enabling our rapidly-scaling ghost kitchen distribution model."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Popchew",
+      "title": "Head of Growth",
+      "duration": {
+        "start_date": "2022-05-01",
+        "end_date": "2023-02-01",
+        "date_range": "10 months"
+      },
+      "location": "New York, New York, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Onward",
+      "title": "Head of Growth",
+      "duration": {
+        "start_date": "2021-03-01",
+        "end_date": "2022-05-01",
+        "date_range": "1 year 2 months"
+      },
+      "location": null,
+      "description": [
+        "Improving the lives of co-parents and their children through financial services."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Co-Created",
+      "title": "Entrepreneur In Residence",
+      "duration": {
+        "start_date": "2020-08-01",
+        "end_date": "2021-03-01",
+        "date_range": "8 months"
+      },
+      "location": "New York, United States",
+      "description": [
+        "Worked alongside corporate partners (Ikea, Citi, Munich Re, HP, & others) to explore and validate innovative pathways to solving meaningful problems at scale through hypothesis-driven new venture co-creation."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Hoist",
+      "title": "Head of Growth",
+      "duration": {
+        "start_date": "2019-08-01",
+        "end_date": "2020-04-01",
+        "date_range": "9 months"
+      },
+      "location": "Greater New York City Area",
+      "description": [
+        "Developed GTM strategy, executed growth roadmap, and led regulatory compliance.",
+        "Generated over 10,000 applicants for inaugural class of business owners in less than 3 months from stealth launch."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Blue Otter Solutions",
+      "title": "Head Of Marketing Operations",
+      "duration": {
+        "start_date": "2018-09-01",
+        "end_date": "2019-08-01",
+        "date_range": "1 year 0 months"
+      },
+      "location": "Dallas/Fort Worth Area",
+      "description": [
+        "Drove system growth and revenue for the largest home service franchise brands in North America."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Neighborly®",
+      "title": "Franchise Development Marketing",
+      "duration": {
+        "start_date": "2016-01-01",
+        "end_date": "2017-06-01",
+        "date_range": "1 year 5 months"
+      },
+      "location": "Waco, Texas",
+      "description": [
+        "Drove record growth with over 300 new franchises awarded."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Texas Growth Capital Forum",
+      "title": "Analyst",
+      "duration": {
+        "start_date": "2015-11-01",
+        "end_date": "2016-06-01",
+        "date_range": "8 months"
+      },
+      "location": "Austin, Texas Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Texas Entrepreneur Networks",
+      "title": "Intern",
+      "duration": {
+        "start_date": "2015-09-01",
+        "end_date": "2016-06-01",
+        "date_range": "10 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Choice Loyalty",
+      "title": "Co-Founder / Growth",
+      "duration": {
+        "start_date": "2010-02-01",
+        "end_date": "2013-08-01",
+        "date_range": "3 years 6 months"
+      },
+      "location": "Eagan, MN",
+      "description": [
+        "Developed a cash-back rewards program for SMBs and nonprofits, awarding over $50,000 to local organizations."
+      ],
+      "company_url": null
+    }
+  ]
+}

@@ -1,0 +1,140 @@
+{
+   "name": "Kalie Whitsett",
+   "title": "Vice President, Digital and Creative",
+   "location": "Southlake, Texas, United States",
+   "key_skills": [
+      "Account Management",
+      "Advertising",
+      "Sales"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/kaliewhitsett",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Augustine Agency",
+         "title": "Vice President, Digital and Creative",
+         "duration": {
+            "start_date": "2021-09-01",
+            "end_date": "Present",
+            "date_range": "3 years 6 months"
+         },
+         "location": "California, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Lifeblue",
+         "title": "Marketing Account Director",
+         "duration": {
+            "start_date": "2020-06-01",
+            "end_date": "2021-12-01",
+            "date_range": "1 year 6 months"
+         },
+         "location": "Plano, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Eighty Three Creative",
+         "title": "Vice President, Operations",
+         "duration": {
+            "start_date": "2018-11-01",
+            "end_date": "2020-06-01",
+            "date_range": "1 year 7 months"
+         },
+         "location": "Dallas, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "DMN Media",
+         "title": "General Manager, Creative Strategy and Client Services",
+         "duration": {
+            "start_date": "2016-06-01",
+            "end_date": "2017-07-01",
+            "date_range": "1 year 1 month"
+         },
+         "location": "Dallas, Texas, United States",
+         "description": [
+            "Led a team of 70 staff, strategized and developed innovative sales and marketing campaigns through concept development, data mining, asset management and reporting metrics.",
+            "Managed cradle-to-grave account fulfillment including client engagement and final invoicing.",
+            "Spearheaded creation and implementation of Account Management team to deliver exceptional client service and increase revenue.",
+            "Collaborated across multiple business lines to meet customer requirements.",
+            "Performed final quality assurance for client materials.",
+            "Acted as Hiring Manager and staffing policy advisor."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "DMN Media",
+         "title": "Senior Director, Client Services",
+         "duration": {
+            "start_date": "2010-01-01",
+            "end_date": "2016-05-01",
+            "date_range": "6 years 4 months"
+         },
+         "location": "Dallas, Texas, United States",
+         "description": [
+            "Managed and mentored a team of 22 designers, engineers, analysts, and interns.",
+            "Led the transformation of an in-house marketing section to an externally-facing creative agency.",
+            "Managed migration of all systems to deliver an integrated point for all sales engagements.",
+            "Owned end-to-end account fulfillment including creative asset management.",
+            "Managed risks, prioritized programs, and balanced enterprise requirements.",
+            "Participated in requirements gathering, process re-engineering, vendor management and system design."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "A.H. Belo",
+         "title": "Director, Creative Services",
+         "duration": {
+            "start_date": "1994-07-01",
+            "end_date": "2017-06-01",
+            "date_range": "23 years"
+         },
+         "location": "Dallas, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "A.H. Belo",
+         "title": "General Manager, Creative Services",
+         "duration": {
+            "start_date": "1995-01-01",
+            "end_date": "2017-01-01",
+            "date_range": "22 years"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Dallas Morning News",
+         "title": "Client Services Manager",
+         "duration": {
+            "start_date": "2008-05-01",
+            "end_date": "2010-01-01",
+            "date_range": "1 year 8 months"
+         },
+         "location": "Dallas, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Dallas Morning News",
+         "title": "Creative Director",
+         "duration": {
+            "start_date": "1995-01-01",
+            "end_date": "2008-02-01",
+            "date_range": "13 years 1 month"
+         },
+         "location": "Dallas, Texas, United States",
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

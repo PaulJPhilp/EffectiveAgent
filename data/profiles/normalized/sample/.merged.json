@@ -1,0 +1,62 @@
+{
+	"id": "sample-profile-1",
+	"name": "Jane Smith",
+	"title": "Marketing Director",
+	"company": "Acme Corporation",
+	"industry": "Technology",
+	"location": "San Francisco, CA",
+	"skills": [
+		"Digital Marketing",
+		"Brand Strategy",
+		"Content Marketing",
+		"Social Media Marketing",
+		"Marketing Analytics",
+		"Team Leadership",
+		"Budget Management",
+		"Campaign Planning"
+	],
+	"experience": [
+		{
+			"title": "Marketing Director",
+			"company": "Acme Corporation",
+			"duration": "3 years",
+			"description": "Leading a team of 10 marketing professionals to develop and execute comprehensive marketing strategies across digital and traditional channels."
+		},
+		{
+			"title": "Senior Marketing Manager",
+			"company": "Tech Innovations Inc.",
+			"duration": "4 years",
+			"description": "Managed product marketing initiatives and led cross-functional teams to launch new products and services."
+		},
+		{
+			"title": "Marketing Manager",
+			"company": "Digital Solutions",
+			"duration": "2 years",
+			"description": "Developed and implemented digital marketing campaigns to increase brand awareness and drive customer acquisition."
+		}
+	],
+	"education": [
+		{
+			"degree": "MBA, Marketing",
+			"institution": "Stanford University",
+			"year": "2015"
+		},
+		{
+			"degree": "Bachelor of Business Administration",
+			"institution": "University of California, Berkeley",
+			"year": "2010"
+		}
+	],
+	"certifications": [
+		"Google Analytics Certification",
+		"HubSpot Inbound Marketing Certification",
+		"Facebook Blueprint Certification"
+	],
+	"interests": [
+		"Digital Transformation",
+		"Consumer Behavior",
+		"Marketing Technology",
+		"Data-Driven Marketing"
+	],
+	"summary": "Results-driven marketing leader with over 10 years of experience in developing and executing comprehensive marketing strategies. Proven track record of driving business growth through innovative digital marketing initiatives and brand development."
+}

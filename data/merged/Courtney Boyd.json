@@ -1,0 +1,110 @@
+{
+  "name": "Courtney Boyd",
+  "title": "Field Marketing Manager and Food Truck Project & Events Manager",
+  "location": "United States",
+  "key_skills": [
+    "Project Coordination",
+    "Communication",
+    "Digital Project Management"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/courtney-shiau-boyd",
+    "email": null,
+    "company_website": "https://www.portillos.com/community"
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Portillo's Hot Dogs",
+      "title": "Field Marketing Manager",
+      "duration": {
+        "start_date": "Dec 2018",
+        "end_date": "Present",
+        "date_range": "6 years 3 months"
+      },
+      "location": "Greater Chicago Area",
+      "description": [
+        "Assist with the increase of same-store sales.",
+        "Communicating and ensuring proper implementation and execution of marketing initiative objectives and results to restaurant management teams and Market Managers.",
+        "Managing and organizing the day-to-day marketing needs for the Florida and Indiana Portillo’s locations, including fundraising as well as community events and involvement.",
+        "Maintain sponsor partnerships with organizations including the University of South Florida Athletics and the Tampa Bay Lightning (NHL) as well as the Indiana Pacers (NBA)."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Portillo's Hot Dogs",
+      "title": "Field Marketing Coordinator",
+      "duration": {
+        "start_date": "Dec 2017",
+        "end_date": "Dec 2018",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Florida & Indiana",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Beasley Media Group",
+      "title": "Promotions Coordinator",
+      "duration": {
+        "start_date": "Jul 2012",
+        "end_date": "Dec 2017",
+        "date_range": "5 years 6 months"
+      },
+      "location": "Tampa/St. Petersburg, Florida Area",
+      "description": [
+        "Created a cohesive working environment for promotions, programming & sales.",
+        "Ensured the client's remotes and events were staffed and carried out successfully.",
+        "Coordinated the station staff for large station events such as WiLD Splash, Last Damn Show, Orlando's Holiday Toy Drive along with smaller scale events.",
+        "Worked closely with the Promotions Director, Account Executives and Clients to ensure contests were executed in accordance with corporate compliance and FCC regulations."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "CBS Radio",
+      "title": "Promotions Assistant",
+      "duration": {
+        "start_date": "Jul 2011",
+        "end_date": "Jul 2012",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Tampa/St. Petersburg, Florida Area",
+      "description": [
+        "Set up for station remotes and events which included tents, games, sound systems and broadcasting equipment.",
+        "Assisted in the office with administrative and clerical duties.",
+        "Handled prizing and contest execution on-site at remotes and events."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Tween Brands",
+      "title": "Lead Brand Representative",
+      "duration": {
+        "start_date": "Apr 2010",
+        "end_date": "Sep 2011",
+        "date_range": "1 year 6 months"
+      },
+      "location": null,
+      "description": [
+        "Ensured guest satisfaction and empowered young ladies to express their personalities through fashion.",
+        "Store supervisor/manager on-duty/keyholder.",
+        "Achieved daily, weekly and monthly sales goals in addition to customer incentive program goals."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "97.9 WRMF-FM (Palm Beach Broadcasting/Cobalt Broadcasting)",
+      "title": "Promotions Assistant",
+      "duration": {
+        "start_date": "Mar 2007",
+        "end_date": "Jan 2010",
+        "date_range": "2 years 11 months"
+      },
+      "location": "West Palm Beach, Florida Area",
+      "description": [
+        "Part of the WRMF street team."
+      ],
+      "company_url": null
+    }
+  ]
+}

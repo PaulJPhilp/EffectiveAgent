@@ -1,0 +1,239 @@
+{
+   "name": "Holly Roberts",
+   "title": "Senior Account Supervisor at Augustine Agency",
+   "location": "Dallas, Texas, United States",
+   "key_skills": [
+      "Brand Development",
+      "Digital Strategy",
+      "Cross-functional Team Leadership"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/hollyeroberts",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Augustine Agency",
+         "title": "Senior Account Supervisor",
+         "duration": {
+            "start_date": "Mar 2023",
+            "end_date": "Present",
+            "date_range": "2 years 7 months"
+         },
+         "location": null,
+         "description": [
+            "Leadership of the Mission Foods client service team including supervision of the Assistant Account Executive and Account Executive while working closely with the Senior Account Director to meet and exceed client business goals",
+            "Oversight of all Mission Foods initiatives related to creative development, print production, photoshoots, paid media planning and buying, organic social content, influencer marketing, digital campaign reporting, and website development/maintenance",
+            "Identifies incremental account growth opportunities based on SOW performance and shifts within the CPG industry"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Augustine Agency",
+         "title": "Senior Account Executive",
+         "duration": {
+            "start_date": "Dec 2021",
+            "end_date": "Mar 2023",
+            "date_range": "1 year 4 months"
+         },
+         "location": null,
+         "description": [
+            "Primary point of contact for all client requests under the Mission Foods account, balancing management of projects while building client relationships and providing strategic POV across initiatives",
+            "Created and implemented multiple new process improvements related to project management, timeline creation, and organizational tracking documents to streamline internal and client-facing workflows"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Augustine Agency",
+         "title": "Account Executive",
+         "duration": {
+            "start_date": "Aug 2021",
+            "end_date": "Dec 2021",
+            "date_range": "5 months"
+         },
+         "location": null,
+         "description": [
+            "Responsible for day-to-day Mission Foods client communication including the trafficking of deliverables, leading client calls, and actively problem-solving and providing solutions as needed",
+            "Ownership of the internal creative and digital request process from creative brief execution, input of work order and job details, proofing, internal and client feedback, to final release of files"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Hawkeye",
+         "title": "Account Executive",
+         "duration": {
+            "start_date": "Sep 2019",
+            "end_date": "Aug 2021",
+            "date_range": "2 years"
+         },
+         "location": "Dallas, Texas",
+         "description": [
+            "Management of client projects for the Capital One account, from creative concept through delivery including estimating and budget planning, scheduling, execution, tracking and reporting",
+            "Facilitated creative development for a wide variety of initiatives, including but not limited to email, display, direct mail, branding explorations and other CX efforts while maintaining constant adherence to client vision and goals"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "The Pub Productions",
+         "title": "Account Executive",
+         "duration": {
+            "start_date": "May 2020",
+            "end_date": "Nov 2020",
+            "date_range": "7 months"
+         },
+         "location": "Chicago, Illinois, United States",
+         "description": [
+            "Responsible for the preparation, coordination and execution of all lifestyle photoshoots for the ALDI account, including weekly product shoots and seasonal campaign shoots from creative concepting through post-production",
+            "Collaborated directly with client partners as well as internal Account Director, Creative Director, Project Managers, Strategists, Producers, Photographers and Food/Prop Stylists in an extremely fast-paced environment to ensure all project aspects came together cohesively",
+            "Managed day-to-day client communications as well as internal relationships with integrated agency partners to ensure a smooth production process and maintenance of client vision"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Moroch",
+         "title": "Account Executive",
+         "duration": {
+            "start_date": "Mar 2019",
+            "end_date": "Oct 2019",
+            "date_range": "8 months"
+         },
+         "location": "Dallas, Texas",
+         "description": [
+            "Responsible for the development and execution of strategic local marketing plans for the Midas client",
+            "Prepare and present Moroch’s recommendation, point of view, and/or creative product to franchisees in assigned markets, consisting of mid-size DMAs",
+            "Master the dual expectations and business goals of the DMAs, while establishing and building strong working relationships with franchisees and regional operations partners",
+            "Track and communicate results of marketing plans to franchisees, adjust plans as the business requires",
+            "Plan and manage budgets with accuracy and in a timely manner"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Moroch",
+         "title": "Account Coordinator",
+         "duration": {
+            "start_date": "Oct 2017",
+            "end_date": "Mar 2019",
+            "date_range": "1 year 5 months"
+         },
+         "location": "Dallas, Texas",
+         "description": [
+            "Ensure flawless and timely execution of local Midas marketing plans in support of the Account Director and Senior Account Executive, as well as for owned assigned markets",
+            "Primary responsibilities include client/franchisee and vendor communication, print program coordination, media placement, and ongoing budget maintenance",
+            "Requesting, proofreading, and approving all artwork; as well as facilitating all projects between agency creative team, franchisees and vendors",
+            "Maintain accurate media flowcharts for all assigned markets, submit invoices for payment, keep thorough records of all finances, and manage yearly media budgets on behalf of the franchisees"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Javelin Agency",
+         "title": "Account Service Associate",
+         "duration": {
+            "start_date": "Jun 2017",
+            "end_date": "Oct 2017",
+            "date_range": "4 months"
+         },
+         "location": "Irving - Las Colinas, Texas",
+         "description": [
+            "Responsible for the ongoing maintenance and strategic development of multiple direct marketing and email campaigns for the AT&T Customer Retention business",
+            "Assist in management of projects throughout the campaign process, from strategy development and creative conception to execution and reporting, in order to ensure all deliverables meet client expectations",
+            "Ownership of several tactical aspects of assigned projects including creation and management of campaign tracking and reporting tools, as well as quality assurance across multiple campaign elements",
+            "Manage client’s production billing and budgets in both internal and external financial tracking systems",
+            "Act as go-to support for supervising Account Executive and Account Director, as well as entire Account Service team"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Freestyle Creative",
+         "title": "Account Service Intern",
+         "duration": {
+            "start_date": "Jan 2017",
+            "end_date": "May 2017",
+            "date_range": "4 months"
+         },
+         "location": "Oklahoma City, Oklahoma Area",
+         "description": [
+            "Work closely with founder/CEO on client relations, business development and attending client meetings",
+            "Create weekly blog posts for both the Freestyle agency and various clients to maintain brand image",
+            "Strategic planning of weekly social media content calendars for Freestyle and various clients",
+            "Ensuring online content contains strategic keywords to maximize SEO and digital engagement",
+            "Tasks such as generating email newsletters, monitoring online reviews, and editing mailers as needed"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Lindsey + Asp",
+         "title": "Digital Media Strategist",
+         "duration": {
+            "start_date": "Aug 2016",
+            "end_date": "May 2017",
+            "date_range": "10 months"
+         },
+         "location": "Norman, Oklahoma",
+         "description": [
+            "Generate unique and creative social media content for a variety of clients' social channels",
+            "Plan and manage quality social media content calendars to meet clients' needs",
+            "Gather and report on clients' digital analytics and determine ways to enhance campaigns",
+            "Update clients' websites and participate in website creation where applicable",
+            "Contribute to creation and planning of on-campus promotional events"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Ackerman McQueen",
+         "title": "Account Service Intern",
+         "duration": {
+            "start_date": "Aug 2016",
+            "end_date": "Dec 2016",
+            "date_range": "4 months"
+         },
+         "location": "Oklahoma City, Oklahoma Area",
+         "description": [
+            "Assist with the strategic planning of the client 'Adventure Road' initiative, including brand development, measurement, and reporting",
+            "Observing and attending photo and video shoots and coordination of talent releases if necessary, as well as coordinating traffic for on-air commercials",
+            "Help prepare presentation materials for internal agency meetings as well as for client meetings",
+            "Shadow account executives to learn how to coordinate projects to meet the client’s objectives and strategies",
+            "Setting up focus groups, preparing materials, taking notes, writing summary reports, and transcribing focus group recordings",
+            "Pulling estimates and from internal database (Workamajig) and preparing for delivery to client",
+            "Billing tasks including production of cover letters for client invoices, mailing, production of PDFs, filing"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "OMS Technologies",
+         "title": "Marketing Strategist",
+         "duration": {
+            "start_date": "May 2016",
+            "end_date": "Aug 2016",
+            "date_range": "3 months"
+         },
+         "location": "Norman, Oklahoma",
+         "description": [
+            "Responsible for maintaining social media for 25+ accounts including multiple weekly Facebook posts for each",
+            "Creation of Marketing Strategy Plans for clients including brand analysis, target market, and media objectives. Also provide detailed outlines of social media presence, website design, and out-of-home marketing",
+            "Writing weekly blog posts for multiple clients as needed",
+            "Creation of an average of 2-3 email newsletters per week for various clients (Mail Chimp)",
+            "Utilization of Microsoft Publisher to create Timeline Boxes for Facebook posts, as well as other imagery for marketing purposes"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Wayne Works",
+         "title": "Marketing Intern",
+         "duration": {
+            "start_date": "May 2015",
+            "end_date": "Aug 2015",
+            "date_range": "3 months"
+         },
+         "location": "Dallas, Texas",
+         "description": [
+            "Enhanced company’s social media presence by creating a Pinterest, Instagram, Facebook and Twitter company page",
+            "Utilized WordPress to create a company website",
+            "Updated product offerings on WordPress Website, Etsy and Houzz with SKU numbers and product descriptions",
+            "Designed booth at Frisco Mercantile to showcase products"
+         ],
+         "company_url": null
+      }
+   ]
+}

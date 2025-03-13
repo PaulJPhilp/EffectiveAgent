@@ -1,0 +1,132 @@
+{
+  "clusters": [
+    {
+      "title": "Digital Marketing Leaders",
+      "description": "Profiles in this cluster focus on digital marketing strategies, often leading teams to enhance brand awareness and engagement through innovative digital campaigns.",
+      "commonCharacteristics": [
+        "Leadership roles in digital marketing",
+        "Strong background in brand and content strategy",
+        "Experience managing cross-functional teams",
+        "Proven track record in increasing brand visibility",
+        "Focus on consumer lifestyle brands"
+      ],
+      "skills": [
+        "Digital Marketing",
+        "Brand Strategy",
+        "Content Marketing",
+        "Social Media Management",
+        "Project Management"
+      ],
+      "typicalBackground": "Typically possess degrees in Marketing, Communications, or Business, with extensive experience in digital marketing roles.",
+      "percentageOfTotal": 30,
+      "representativeProfiles": [
+        "Tara Scanlon",
+        "Joanne Hsu",
+        "Bianca Myers"
+      ]
+    },
+    {
+      "title": "Experiential Marketing Experts",
+      "description": "This group comprises producers and managers who specialize in creating immersive brand experiences through events and activations.",
+      "commonCharacteristics": [
+        "Experience in event production and management",
+        "Strong organizational skills",
+        "Ability to oversee multi-faceted projects",
+        "Collaboration with clients and vendors",
+        "Hands-on experience with large-scale events"
+      ],
+      "skills": [
+        "Event Management",
+        "Project Coordination",
+        "Budget Management",
+        "Creativity in Branding",
+        "Client Relations"
+      ],
+      "typicalBackground": "Often have a background in Marketing, Communications, or Event Management, with significant experience in experiential marketing roles.",
+      "percentageOfTotal": 25,
+      "representativeProfiles": [
+        "LaTanya Hooker",
+        "Carly Tubridy",
+        "Sean Choi"
+      ]
+    },
+    {
+      "title": "Corporate Communications Professionals",
+      "description": "Members of this cluster are involved in strategic communications, often within corporate environments, focusing on internal and external messaging.",
+      "commonCharacteristics": [
+        "Experience in corporate communication roles",
+        "Focus on strategic planning and execution",
+        "Strong writing and storytelling abilities",
+        "Crisis management expertise",
+        "Proficient in stakeholder engagement"
+      ],
+      "skills": [
+        "Corporate Communications",
+        "Public Relations",
+        "Crisis Management",
+        "Content Strategy",
+        "Brand Management"
+      ],
+      "typicalBackground": "Typically hold degrees in Communications, Public Relations, or related fields, with extensive experience in organizational communication.",
+      "percentageOfTotal": 20,
+      "representativeProfiles": [
+        "Annessa Morley",
+        "Sara Rush Wirth",
+        "Caren Read"
+      ]
+    },
+    {
+      "title": "Marketing Strategists",
+      "description": "This cluster includes professionals focusing on the strategic aspects of marketing functions, facilitating growth and market penetration.",
+      "commonCharacteristics": [
+        "Roles focus on strategic marketing planning",
+        "Experience in B2B/B2C marketing contexts",
+        "Expertise in market analysis and segmentation",
+        "Strong analytical skills",
+        "Proven ability to lead marketing initiatives"
+      ],
+      "skills": [
+        "Marketing Strategy",
+        "Market Research",
+        "Brand Development",
+        "Communication Skills",
+        "Advertising"
+      ],
+      "typicalBackground": "Individuals often have degrees in Marketing, Business, or similar fields and experience in strategy development roles across various industries.",
+      "percentageOfTotal": 15,
+      "representativeProfiles": [
+        "Elizabeth Ervin",
+        "Lucy Wright",
+        "Jeff Bardin"
+      ]
+    },
+    {
+      "title": "Event Production Specialists",
+      "description": "Professionals in this cluster are focused on overseeing and executing events and productions, ensuring excellence in operation and client satisfaction.",
+      "commonCharacteristics": [
+        "Hands-on experience in producing events",
+        "Strong logistical and operational skills",
+        "Ability to work under pressure and manage multiple projects",
+        "Experience in vendor management",
+        "Client-focused approach to event execution"
+      ],
+      "skills": [
+        "Event Production",
+        "Logistics Management",
+        "Problem Solving",
+        "Communication",
+        "Creativity in Event Design"
+      ],
+      "typicalBackground": "Typically possess backgrounds in Event Management, Hospitality, or related fields with a strong portfolio of diverse event projects.",
+      "percentageOfTotal": 10,
+      "representativeProfiles": [
+        "Julianne Wolfe",
+        "Elyse Inferrera",
+        "Ali Parker"
+      ]
+    }
+  ],
+  "analysis": "The clustering results reveal a diverse set of professional profiles, predominantly focused on marketing, event production, and corporate communications. The significant representation of digital marketing professionals signals the evolving landscape of marketing in the digital era. Each cluster indicates the varied paths and expertise individuals can hold within similar fields, highlighting specialization within the broader marketing and communications sectors.",
+  "totalProfiles": 49,
+  "date": "2025-03-07"
+}

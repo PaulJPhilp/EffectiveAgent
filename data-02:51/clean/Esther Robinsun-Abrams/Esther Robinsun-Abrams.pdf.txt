@@ -1,0 +1,208 @@
+{
+   "name": "Esther Robinsun-Abrams",
+   "title": "Experiential Production and Strategy",
+   "location": "United States",
+   "key_skills": [
+      "Social Networking",
+      "Event Planning",
+      "Facebook"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/estherrobinsunabrams",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [
+      {
+         "name": "Communicating with Empathy",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      },
+      {
+         "name": "Building Relationships While Working from Home",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      },
+      {
+         "name": "Project Management: Choosing the Right Online Tool",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      },
+      {
+         "name": "Project Management Simplified",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      },
+      {
+         "name": "Leading Virtual Meetings",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      }
+   ],
+   "experience": [
+      {
+         "company": "Freelance",
+         "title": "Experiential Producer & Consultant",
+         "duration": {
+            "start_date": "August 2021",
+            "end_date": "Present",
+            "date_range": "3 years 7 months"
+         },
+         "location": null,
+         "description": [
+            "Consulting & experiential production for clients including: Spotify, Netflix, BuzzFeed, Under Armour, LVMH, MetaMask, Warner, NFT.NYC, ETHDenver, Avalanche, Nike and more."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Meta",
+         "title": "Program Manager, We The Culture & Dale Tú",
+         "duration": {
+            "start_date": "February 2022",
+            "end_date": "September 2023",
+            "date_range": "1 year 8 months"
+         },
+         "location": "New York City Metropolitan Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Meta",
+         "title": "Project Manager, Community Lab",
+         "duration": {
+            "start_date": "April 2021",
+            "end_date": "March 2022",
+            "date_range": "1 year"
+         },
+         "location": "New York City Metropolitan Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Guayaki Sustainable Rainforest Products, Inc.",
+         "title": "Creative Marketing & Artist Partnerships",
+         "duration": {
+            "start_date": "May 2019",
+            "end_date": "February 2022",
+            "date_range": "2 years 10 months"
+         },
+         "location": "Greater Los Angeles Area",
+         "description": [
+            "Expand cultural reach to new markets through events, targeted outreach and digital marketing content.",
+            "Artist Partnerships: Kehlani, Cuco, Kenny Beats, Rico Nasty, Young Kio + more.",
+            "Events: The Hundreds Family Style Food Festival 2019 + 2021 (Los Angeles), Us Kids Sundance Premiere Party (Park City), Babes Only All Star Weekend Brunch (Chicago), Rexx Life Raj Album Release Party (Oakland)"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Uncover Park City",
+         "title": "Logistics Producer",
+         "duration": {
+            "start_date": "October 2020",
+            "end_date": "December 2020",
+            "date_range": "3 months"
+         },
+         "location": "Park City, Utah, United States",
+         "description": [
+            "Create and execute production strategies for Tony Hsieh's latest innovative arts and culture venture in Park City, UT."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "IHEARTCOMIX",
+         "title": "Manager, Agency Projects & Accounts",
+         "duration": {
+            "start_date": "May 2020",
+            "end_date": "November 2020",
+            "date_range": "7 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "IHEARTCOMIX",
+         "title": "Executive Assistant",
+         "duration": {
+            "start_date": "October 2018",
+            "end_date": "May 2020",
+            "date_range": "1 year 8 months"
+         },
+         "location": "Greater Los Angeles Area",
+         "description": [
+            "Coordinate and implement creative marketing strategies; manage freelance teams; generate and manage end-to-end client relations including Disney, TikTok, Amazon Studios, Beats By Dre + more."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "WeTransfer",
+         "title": "Marketing And Public Relations Assistant",
+         "duration": {
+            "start_date": "February 2018",
+            "end_date": "September 2018",
+            "date_range": "8 months"
+         },
+         "location": "Greater Los Angeles Area",
+         "description": [
+            "Create action points and collecting resources for WeTransfer’s IntoAction that equated to a click through rate of 2.7%, 34K downloads in the span of 2 weeks.",
+            "Serve as PR to secure partners to support WeTransfer’s Against Gun Violence project to showcase how creatives illustrate America’s gun violence issue."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Dash Radio",
+         "title": "Producer / Host / DJ",
+         "duration": {
+            "start_date": "September 2016",
+            "end_date": "August 2017",
+            "date_range": "1 year"
+         },
+         "location": "Hollywood",
+         "description": [
+            "Book and interview guests with co-host Theo Martins including Kari Faux, IDK, Jay Prince, starRo and more."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "UCLA Radio",
+         "title": "Hip Hop Genre Coordinator and Resident DJ / Radio Host",
+         "duration": {
+            "start_date": "October 2014",
+            "end_date": "September 2016",
+            "date_range": "2 years"
+         },
+         "location": "Greater Los Angeles Area",
+         "description": [
+            "Booked and interviewed guests including Snoh Aalegra, Andre Power (Soulection), Duckwrth and many more."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Ankh Marketing",
+         "title": "Marketing Assistant",
+         "duration": {
+            "start_date": "July 2013",
+            "end_date": "September 2014",
+            "date_range": "1 year 3 months"
+         },
+         "location": "San Francisco Bay Area",
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

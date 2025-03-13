@@ -1,0 +1,146 @@
+/**
+ * Prompt templates for the normalizing agent module.
+ * This file contains all the prompt templates used by the normalizing agent.
+ */
+
+/**
+ * Prompt template for normalizing professional profile data.
+ * This prompt guides the AI in standardizing company names, job titles, skills, locations, and dates.
+ */
+export const NORMALIZATION_PROMPT = `# Profile Data Normalization
+
+## Task Definition
+You are tasked with normalizing professional profile data to improve consistency for downstream clustering and analysis. You will receive a JSON profile that follows the ProfileData schema, and you must return a normalized version with standardized values for company names, job titles, skills, locations, and dates.
+
+## Input Data Structure
+Each profile contains personal information, skills, contact details, certificates, and work experience. The primary fields requiring normalization are:
+- \`title\` (job title)
+- \`location\`
+- \`key_skills\` (array of skills)
+- \`experience\` (array of work experiences, each containing):
+  - \`company\` (company name)
+  - \`title\` (job title)
+  - \`duration.start_date\` and \`duration.end_date\` (dates)
+  - \`location\` (work location)
+
+## Normalization Instructions
+
+### 1. Company Names (Highest Priority)
+- Convert to standard capitalization (proper case for most names, preserve well-known acronyms)
+- Remove duplicate spaces and standardize punctuation
+- Standardize common variations (e.g., "Inc." vs "Incorporated")
+- Examples:
+  - "CHANEL" → "Chanel" (unless officially all caps)
+  - "Self-employed" → "Self-Employed"
+  - "FleishmanHillard" → "Fleishman-Hillard"
+  - "LUME studios" → "LUME Studios"
+
+### 2. Job Titles
+- Standardize common role titles (e.g., normalize "Sr.", "Senior", "Sr")
+- Maintain hierarchy prefixes consistently (e.g., "Senior", "Lead", "Associate")
+- Standardize department and function terms (e.g., "Marketing", "Engineering")
+- Examples:
+  - "Marketing Manager" and "Manager, Marketing" → "Marketing Manager"
+  - "Sr. Software Engineer" → "Senior Software Engineer"
+  - "Associate Proj. Manager" → "Associate Project Manager"
+
+### 3. Skills
+- Group skills into a consistent taxonomy where applicable
+- Standardize skill names (e.g., programming languages, tools, methodologies)
+- Normalize skills with different specificity levels
+- Examples:
+  - "Salesforce.com" → "Salesforce"
+  - Various strategy skills → categorize as subtypes of "Strategy" while preserving specificity
+  - "Classroom Management" and "Class Management" → "Classroom Management"
+
+### 4. Locations
+- Format as "City, State/Province, Country" where possible
+- Standardize country names and state/province abbreviations
+- Replace regional descriptions with specific locations when clear
+- Examples:
+  - "Dallas, TX" → "Dallas, Texas, United States"
+  - "Austin, Texas Area" → "Austin, Texas, United States"
+  - "New York, New York, United States" → "New York, New York, United States" (already standard)
+
+### 5. Dates
+- Convert all dates to ISO format (YYYY-MM-DD) where full date is known
+- Use YYYY-MM format for month-year combinations
+- Maintain "Present" for current positions
+- Examples:
+  - "January 2020" → "2020-01"
+  - "Jan 2020 - Present" → "2020-01" to "Present"
+  - "01/2020" → "2020-01"
+
+## Additional Guidelines
+1. If a normalization would lose significant information, preserve the original form but standardize format
+2. Create a \`normalization_notes\` field for any important changes or ambiguities
+3. Ensure all changes maintain the semantic meaning of the original data
+4. When unsure about a company name or specific terminology, use the most common standard form found in authoritative sources
+
+## Expected Output
+Return the complete normalized profile in valid JSON format matching the original schema, with all fields normalized according to these guidelines. Add the \`normalization_notes\` field at the root level of the JSON if needed.
+
+## Example (Input/Output)
+\`\`\`json
+// INPUT EXAMPLE
+{
+  "name": "John Smith",
+  "title": "Sr. Marketing Mgr",
+  "location": "NYC, New York",
+  "key_skills": ["Digital Mktg", "Salesforce.com", "Content Strategy"],
+  "experience": [
+    {
+      "company": "ACME corp.",
+      "title": "Senior Mktg Manager",
+      "duration": {
+        "start_date": "January 2020",
+        "end_date": "Present",
+        "date_range": "3 years 2 months"
+      },
+      "location": "New York City"
+    }
+  ]
+}
+
+// EXPECTED OUTPUT
+{
+  "name": "John Smith",
+  "title": "Senior Marketing Manager",
+  "location": "New York, New York, United States",
+  "key_skills": ["Digital Marketing", "Salesforce", "Content Strategy"],
+  "experience": [
+    {
+      "company": "ACME Corp.",
+      "title": "Senior Marketing Manager",
+      "duration": {
+        "start_date": "2020-01",
+        "end_date": "Present",
+        "date_range": "3 years 2 months"
+      },
+      "location": "New York, New York, United States"
+    }
+  ],
+  "normalization_notes": "Standardized NYC to full city name; Expanded marketing abbreviations"
+}
+\`\`\`
+
+Input profile: {input_profile}
+
+Please process the provided profile and return a normalized version following these guidelines.`
+
+/**
+ * Loads a prompt template and fills it with the provided values.
+ * 
+ * @param template The prompt template to fill
+ * @param values The values to fill the template with
+ * @returns The filled prompt template
+ */
+export function fillPromptTemplate(template: string, values: Record<string, string>): string {
+    let filledTemplate = template;
+
+    for (const [key, value] of Object.entries(values)) {
+        filledTemplate = filledTemplate.replace(new RegExp(`{${key}}`, 'g'), value);
+    }
+
+    return filledTemplate;
+} 

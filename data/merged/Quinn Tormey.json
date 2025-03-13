@@ -1,0 +1,151 @@
+{
+  "name": "Quinn Tormey",
+  "title": "Producer at Cheil North America",
+  "location": "New York City Metropolitan Area",
+  "key_skills": [
+    "Production Planning",
+    "Sports Marketing",
+    "AV management"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/qtormey08",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Cheil North America",
+      "title": "Producer",
+      "duration": {
+        "start_date": "February 2022",
+        "end_date": "Present",
+        "date_range": "1 year 1 month"
+      },
+      "location": null,
+      "description": [
+        "Collaborating with Samsung Electronics America for over 70 events",
+        "Primary point of contact for content and product management",
+        "Creation of event plans and Run of Shows for numerous events",
+        "Travelling to multiple markets for event operations and production",
+        "Co-managed New York and Chicago markets for Samsung’s Rover Touch Campaign",
+        "Production support on two renovations of the Samsung 837 Flagship Store in NY",
+        "Crucial operations support for Samsung’s Integrated Launch Platform activation in NY and San Francisco"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Sunrun",
+      "title": "Project coordinator",
+      "duration": {
+        "start_date": "August 2021",
+        "end_date": "February 2022",
+        "date_range": "6 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Allied Experiential",
+      "title": "Production Coordinator",
+      "duration": {
+        "start_date": "September 2019",
+        "end_date": "April 2020",
+        "date_range": "7 months"
+      },
+      "location": "Greater New York City Area",
+      "description": [
+        "Assist internal production, operations and account-team channels",
+        "Worked on projects for brands such as Amazon, Google, Hulu, Oreo, Huggies, Pampers"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "MAS Event + Design",
+      "title": "Event Production Intern",
+      "duration": {
+        "start_date": "December 2018",
+        "end_date": "June 2019",
+        "date_range": "6 months"
+      },
+      "location": "Greater New York City Area",
+      "description": [
+        "Assisted in production of events and activations for clients such as Google and YouTube",
+        "Production assistant on various programs and summits"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Dayna's Events",
+      "title": "Marketing Manager",
+      "duration": {
+        "start_date": "August 2017",
+        "end_date": "December 2017",
+        "date_range": "4 months"
+      },
+      "location": "Blackwood, NJ",
+      "description": [
+        "Developed a marketing plan and executed social media, live video and content elements"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "David Yurman",
+      "title": "Marketing Logistics Coordinator",
+      "duration": {
+        "start_date": "June 2017",
+        "end_date": "August 2017",
+        "date_range": "2 months"
+      },
+      "location": "Lynhurst, NJ",
+      "description": [
+        "Served as a logistics coordinator within marketing and finance"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Bank of America",
+      "title": "Business/Marketing Operations Specialist",
+      "duration": {
+        "start_date": "May 2017",
+        "end_date": "July 2017",
+        "date_range": "2 months"
+      },
+      "location": "Bergen County, NJ",
+      "description": [
+        "Assisted with planning and execution of inspection audits",
+        "Managed communication and tracked team time-management"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Partnership for Children of Essex",
+      "title": "Marketing Assistant",
+      "duration": {
+        "start_date": "June 2016",
+        "end_date": "August 2016",
+        "date_range": "2 months"
+      },
+      "location": "West Orange, NJ",
+      "description": [
+        "Managed in-office programs and assisted with team organization"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Chocolate Works",
+      "title": "Marketing Assistant",
+      "duration": {
+        "start_date": "May 2015",
+        "end_date": "June 2016",
+        "date_range": "1 year 1 month"
+      },
+      "location": null,
+      "description": [
+        "Assisted with marketing campaigns and social media content marketing"
+      ],
+      "company_url": null
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+   "name": "Aliya Tarmo",
+   "title": "Content Producer",
+   "location": "Greater Vancouver Metropolitan Area",
+   "key_skills": [
+      "Networking",
+      "Producing",
+      "Casting"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/aliya-tarmo-06073a1b",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "123w (One Twenty Three West)",
+         "title": "Senior Producer",
+         "duration": {
+            "start_date": "Dec 2021",
+            "end_date": "Present",
+            "date_range": "1 years 10 months"
+         },
+         "location": "Vancouver, British Columbia, Canada",
+         "description": [
+            "Clients: Destination BC, BC Children's Hospital, Plenty of Fish, Sleeman Breweries, Kal Tire, Hello Fresh, Rocky Mountaineer, Indigenous Tourism BC, Vancouver Fraser Port Authority"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Guerilla Creative",
+         "title": "Senior Producer",
+         "duration": {
+            "start_date": "Apr 2019",
+            "end_date": "Aug 2021",
+            "date_range": "2 years 4 months"
+         },
+         "location": "Melbourne, Australia",
+         "description": [
+            "Clients: Monash University, Amazon, Vic Roads, Westpac, Allianz, CSL, St Vincent De Paul"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Rotor Studios",
+         "title": "Key Account Manager",
+         "duration": {
+            "start_date": "May 2018",
+            "end_date": "Apr 2019",
+            "date_range": "11 months"
+         },
+         "location": "Melbourne, Australia",
+         "description": [
+            "Key Account: Toyota Motor Corporation Australia"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "PurpleMonky",
+         "title": "Producer",
+         "duration": {
+            "start_date": "Dec 2015",
+            "end_date": "May 2018",
+            "date_range": "2 years 5 months"
+         },
+         "location": "Melbourne, Australia",
+         "description": [
+            "Clients: Toyota, Square, VicHealth, V/Line, CBus, Cancer Council, Sukin, LazyBoy Furniture, Heart Foundation"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Trisko Talent Management",
+         "title": "Talent Agent",
+         "duration": {
+            "start_date": "Jan 2012",
+            "end_date": "Dec 2014",
+            "date_range": "2 years"
+         },
+         "location": "Vancouver, Canada Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "VANOC",
+         "title": "Communications Coordinator (Contract)",
+         "duration": {
+            "start_date": "Dec 2009",
+            "end_date": "Mar 2010",
+            "date_range": "3 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Marriott Hotel",
+         "title": "Guest Services/Concierge",
+         "duration": {
+            "start_date": "Feb 2008",
+            "end_date": "Jul 2009",
+            "date_range": "1 years 5 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

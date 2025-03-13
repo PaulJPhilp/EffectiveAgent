@@ -1,0 +1,174 @@
+{
+   "name": "Cristobal C.",
+   "title": "Experiential and Integrated Producer",
+   "location": "New York, New York, United States",
+   "key_skills": [
+      "Floor Plans",
+      "Site Visits",
+      "Problem Solving"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/cristobalcuris",
+      "email": "curisce@gmail.com",
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Amplify",
+         "title": "Producer",
+         "duration": {
+            "start_date": "2023-09-01",
+            "end_date": "Present",
+            "date_range": "1 year 6 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Dizon",
+         "title": "Producer",
+         "duration": {
+            "start_date": "2023-06-01",
+            "end_date": "2023-10-01",
+            "date_range": "5 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Curate dynamic brand experiences, serving as primary client liaison.",
+            "Oversee sourcing and management of external talent and vendors, aligning with client budgets and expectations."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Happier",
+         "title": "Senior Manager, Production",
+         "duration": {
+            "start_date": "2023-01-01",
+            "end_date": "2023-04-01",
+            "date_range": "4 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Led event production for Water Street Associates building (WSA, opened in 2023), a modern 700,000 sq. ft. multi-use building in FiDi, as well as managed and ideated programming for 99 Scott.",
+            "Executed successful transformation of unfinished WSA building site into premiere inaugural event–GQ’s Global Creativity Awards dinner & after-party– including oversight of event design and production as well as the creation and execution of construction & licensing timelines.",
+            "Worked closely with cross-departmental teams (sales, design) to concept upcoming programming at both WSA and 99 Scott properties, serving as the main point of contact for all external partners (clients, production agencies, vendors)."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Imprint Projects",
+         "title": "Producer",
+         "duration": {
+            "start_date": "2021-07-01",
+            "end_date": "2022-12-01",
+            "date_range": "1 year 6 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Managed creative campaign development from end to end, inclusive of production timelines, and overall trafficking of deliverables in harmony with key stakeholders (design, finance, legal, and strategy) to ensure successful execution based on client KPIs.",
+            "Collaborated with internal departments to create and present client-facing documents including proposals, production plans, presentations, and campaign wrap reports.",
+            "Optimized, maintained, and oversaw campaign budgets to ensure maximum efficiencies for both agency and clients.",
+            "Prepared call sheets, run of show, artist agreements, and contractor documents in line with industry and legal best practices.",
+            "Served as key agency contact and manager of freelancers, collaborators, artists, and vendors."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Informa Markets",
+         "title": "Event Operations and Marketing",
+         "duration": {
+            "start_date": "2019-05-01",
+            "end_date": "2021-06-01",
+            "date_range": "2 years 2 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Managed operational work streams for multi-million dollar, fast paced B2B installations.",
+            "Maintained costs and show budgets and reconciled with the Finance Dept. and external vendors.",
+            "Leveraged Salesforce programming to create regular exhibitor reports."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Lume Studios",
+         "title": "Event Producer and Venue Manager",
+         "duration": {
+            "start_date": "2018-06-01",
+            "end_date": "2019-04-01",
+            "date_range": "11 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Produced boutique brand events for portfolio of 30+ nationally and globally renowned clients.",
+            "Supervised production crew throughout entire event cycle including scheduling, briefing, and execution of all client deliverables."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Paleo F(x)",
+         "title": "Events Producer",
+         "duration": {
+            "start_date": "2018-02-01",
+            "end_date": "2018-06-01",
+            "date_range": "5 months"
+         },
+         "location": "Austin, Texas, United States",
+         "description": [
+            "Worked alongside founders to produce wellness conference of 100+ speakers."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "MFA Architecture",
+         "title": "Site Supervisor",
+         "duration": {
+            "start_date": "2016-08-01",
+            "end_date": "2017-12-01",
+            "date_range": "1 year 5 months"
+         },
+         "location": "Secaucus, New Jersey, United States",
+         "description": [
+            "Supervised large-scale renovation projects and regularly reported on performance to clients throughout the process, ultimately reducing spend and accelerating project completion."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Untitled Art",
+         "title": "Onsite Manager",
+         "duration": {
+            "start_date": "2015-11-01",
+            "end_date": "2015-12-01",
+            "date_range": "2 months"
+         },
+         "location": "Brooklyn, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Embassy of Uruguay",
+         "title": "Cultural Affairs and Programming",
+         "duration": {
+            "start_date": "2014-09-01",
+            "end_date": "2014-12-01",
+            "date_range": "4 months"
+         },
+         "location": "Washington, District of Columbia, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Paul Kasmin Gallery",
+         "title": "Gallery Associate",
+         "duration": {
+            "start_date": "2014-05-01",
+            "end_date": "2014-08-01",
+            "date_range": "4 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

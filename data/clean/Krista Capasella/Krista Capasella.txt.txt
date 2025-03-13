@@ -1,0 +1,104 @@
+{
+   "name": "Krista Capasella",
+   "title": "Event Producer",
+   "location": "Somers, New York, United States",
+   "key_skills": [
+      "Management",
+      "Operations Management",
+      "Workload Prioritization"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/krista-capasella-6454419",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Marcy Blum Events",
+         "title": "Event Producer",
+         "duration": {
+            "start_date": "February 2025",
+            "end_date": "Present",
+            "date_range": "0 years 0 months"
+         },
+         "location": "New York, NY",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "N4XT Experiences, Inc.",
+         "title": "VP of Production and Events",
+         "duration": {
+            "start_date": "July 2023",
+            "end_date": "December 2023",
+            "date_range": "0 years 5 months"
+         },
+         "location": null,
+         "description": [
+            "Managed large-scale event productions, including Los Angeles Fashion Week (LAFW)."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Hessney & Co.",
+         "title": "Director Of Production",
+         "duration": {
+            "start_date": "September 2019",
+            "end_date": "June 2022",
+            "date_range": "2 years 9 months"
+         },
+         "location": "New York, NY",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Milk",
+         "title": "Events Director",
+         "duration": {
+            "start_date": "January 2019",
+            "end_date": "September 2019",
+            "date_range": "8 months"
+         },
+         "location": "New York, NY",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "IMG",
+         "title": "Director, Events + Operations",
+         "duration": {
+            "start_date": "April 2017",
+            "end_date": "December 2018",
+            "date_range": "1 year 8 months"
+         },
+         "location": "New York, NY",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "LDJ Productions",
+         "title": "Producer",
+         "duration": {
+            "start_date": "September 2011",
+            "end_date": "June 2016",
+            "date_range": "4 years 9 months"
+         },
+         "location": "NYC",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "LDJ Productions",
+         "title": "Production Assistant",
+         "duration": {
+            "start_date": "September 2010",
+            "end_date": "September 2011",
+            "date_range": "1 year 0 months"
+         },
+         "location": "NYC",
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

@@ -1,0 +1,162 @@
+{
+   "name": "Stephanie Le",
+   "title": "Brand Marketing Coordinator",
+   "location": "Tustin, California, United States",
+   "key_skills": [
+      "Community Service",
+      "Leadership",
+      "Interpersonal Skills"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/stephanieule",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [
+      {
+         "name": "Google Analytics Essential Training",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      },
+      {
+         "name": "SEO Foundations",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      },
+      {
+         "name": "OMCA Certification for Online Marketing Associate Test Prep",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      },
+      {
+         "name": "WordPress 5 Essential Training",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "In Progress"
+      }
+   ],
+   "experience": [
+      {
+         "company": "Morinaga America",
+         "title": "Brand Marketing Coordinator | HI-CHEW",
+         "duration": {
+            "start_date": "Jan 2025",
+            "end_date": "Present",
+            "date_range": "2 months"
+         },
+         "location": "Irvine, California, United States",
+         "description": [
+            "Served as a primary liaison and point of contact for HI-CHEW's external agency partners, ensuring seamless communication, issue resolution, and successful campaign execution.",
+            "Fostered and directly managed strategic brand partnerships between HI-CHEW and multiple high-profile organizations, driving brand awareness and revenue growth through collaborative marketing initiatives.",
+            "Spearheaded the development and execution of a tradeshow booth for the 2024 Sweets & Snacks Expo, successfully showcasing company offerings.",
+            "Managed and executed a number of HI-CHEW's in-person events, ensuring seamless logistics and brand consistency.",
+            "Developed and distributed comprehensive monthly marketing newsletter reports to diverse stakeholders, providing actionable insights and updates on marketing initiatives.",
+            "Leveraged knowledge of pop culture trends to inform strategic decisions and drive innovative campaigns."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Morinaga America",
+         "title": "Brand Marketing Assistant | HI-CHEW",
+         "duration": {
+            "start_date": "Oct 2022",
+            "end_date": "Dec 2024",
+            "date_range": "2 years 3 months"
+         },
+         "location": "Irvine, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "California State University, Fullerton",
+         "title": "Resident Advisor",
+         "duration": {
+            "start_date": "Aug 2021",
+            "end_date": "May 2022",
+            "date_range": "10 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Feedfeed",
+         "title": "Account Coordinator",
+         "duration": {
+            "start_date": "Jun 2021",
+            "end_date": "Dec 2021",
+            "date_range": "7 months"
+         },
+         "location": null,
+         "description": [
+            "Lead development of program results decks to communicate campaign successes.",
+            "Draft client-facing decks to communicate details of sponsored programs.",
+            "Work cross-functionally with Editorial/Production, Social, and Influencer departments."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Feedfeed",
+         "title": "Production Intern",
+         "duration": {
+            "start_date": "Sep 2020",
+            "end_date": "May 2021",
+            "date_range": "9 months"
+         },
+         "location": null,
+         "description": [
+            "Record and systemize sponsored content performance data.",
+            "Assist with digital program and campaign production within various departments.",
+            "Draft and share content across multiple Feedfeed social media verticals."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "California State University, Fullerton",
+         "title": "Resident Advisor",
+         "duration": {
+            "start_date": "Aug 2019",
+            "end_date": "Jun 2020",
+            "date_range": "11 months"
+         },
+         "location": "Fullerton, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Bumble",
+         "title": "Campus Outreach Manager",
+         "duration": {
+            "start_date": "Jul 2019",
+            "end_date": "Jan 2020",
+            "date_range": "7 months"
+         },
+         "location": "Orange County, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Business Inter-Club Council",
+         "title": "Student Intern",
+         "duration": {
+            "start_date": "Dec 2018",
+            "end_date": "Jun 2019",
+            "date_range": "7 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

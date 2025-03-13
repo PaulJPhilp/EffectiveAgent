@@ -1,0 +1,151 @@
+{
+  "clusters": [
+    {
+      "name": "Experiential Marketers",
+      "description": "Professionals focused on creating immersive brand experiences through events, activations, and strategic marketing initiatives.",
+      "commonCharacteristics": [
+        "Strong background in event production",
+        "Experience in managing large-scale events",
+        "Collaboration with creative teams",
+        "High adaptability and problem-solving skills"
+      ],
+      "skills": [
+        "Event Management",
+        "Project Coordination",
+        "Creative Problem Solving",
+        "Campaign Management",
+        "Stakeholder Engagement"
+      ],
+      "typicalBackground": "Often have experience in marketing, communications, or event management, with many holding leadership roles in creative agencies or corporate marketing teams.",
+      "percentageOfTotal": 30,
+      "representativeProfiles": [
+        "Amanda Levine",
+        "Jo Kang",
+        "Elyse Inferrera"
+      ]
+    },
+    {
+      "name": "Strategic Communicators",
+      "description": "Professionals specializing in corporate communications, integrated marketing strategies, and brand management.",
+      "commonCharacteristics": [
+        "Strong writing and verbal communication skills",
+        "Experience in crafting communication strategies",
+        "Management of both internal and external communications",
+        "Focus on building brand loyalty and brand strategy"
+      ],
+      "skills": [
+        "Corporate Communications",
+        "Media Relations",
+        "Strategic Planning",
+        "Brand Management",
+        "Content Strategy"
+      ],
+      "typicalBackground": "Typically come from a communications or journalism background, with significant experience in marketing or PR roles, often progressing to senior positions.",
+      "percentageOfTotal": 25,
+      "representativeProfiles": [
+        "Sara Rush Wirth",
+        "Jennifer Wisinger",
+        "Christine Zaccaro"
+      ]
+    },
+    {
+      "name": "Digital Marketers",
+      "description": "Professionals who leverage digital channels to enhance brand visibility, engagement, and online sales.",
+      "commonCharacteristics": [
+        "Expertise in SEO and content marketing",
+        "Focus on performance metrics and analytics",
+        "Experience managing digital campaigns across multiple platforms",
+        "Strong understanding of e-commerce and online consumer behavior"
+      ],
+      "skills": [
+        "Digital Strategy",
+        "SEO",
+        "Content Marketing",
+        "Social Media Management",
+        "Data Analysis"
+      ],
+      "typicalBackground": "Come from marketing, communications, or related fields with technical expertise in digital tools and analytics, often working in both corporate and agency settings.",
+      "percentageOfTotal": 20,
+      "representativeProfiles": [
+        "Darya Cable",
+        "Lauren Rummel",
+        "Katie Proctor"
+      ]
+    },
+    {
+      "name": "Event Production Professionals",
+      "description": "Individuals specializing in the logistics and execution of various events, ensuring seamless operations.",
+      "commonCharacteristics": [
+        "Detail-oriented and organized",
+        "Experience in managing event logistics and vendor relations",
+        "Strong project management skills",
+        "Ability to work under pressure and handle multiple tasks simultaneously"
+      ],
+      "skills": [
+        "Event Planning",
+        "Project Management",
+        "Vendor Management",
+        "Budget Management",
+        "Logistics Coordination"
+      ],
+      "typicalBackground": "Often have backgrounds in hospitality, event planning, or project management, with many progressing through various levels of event production roles.",
+      "percentageOfTotal": 15,
+      "representativeProfiles": [
+        "Julianne Wolfe",
+        "Ali Parker",
+        "Sean Choi"
+      ]
+    },
+    {
+      "name": "Brand Managers",
+      "description": "Professionals who focus on enhancing brand identity and positioning in competitive markets.",
+      "commonCharacteristics": [
+        "Experience in brand strategy and development",
+        "Collaboration with cross-functional teams",
+        "Understanding of market trends and consumer insights",
+        "Strong leadership and stakeholder management skills"
+      ],
+      "skills": [
+        "Brand Development",
+        "Market Analysis",
+        "Customer Insights",
+        "Advertising",
+        "Public Relations"
+      ],
+      "typicalBackground": "Typically hold degrees in business or marketing with professional experience in brand management within various industries, especially consumer goods.",
+      "percentageOfTotal": 10,
+      "representativeProfiles": [
+        "Tara Scanlon",
+        "Bianca Myers",
+        "Holly Roberts"
+      ]
+    },
+    {
+      "name": "Senior Directors and Executives",
+      "description": "High-level professionals overseeing large teams and strategic initiatives within organizations, often with a focus on growth and innovation.",
+      "commonCharacteristics": [
+        "Extensive experience in leadership roles",
+        "Strong business acumen and strategic insight",
+        "Ability to drive organizational change",
+        "Experience in executive-level decision-making"
+      ],
+      "skills": [
+        "Strategic Leadership",
+        "Change Management",
+        "Financial Acumen",
+        "Operational Oversight",
+        "Team Development"
+      ],
+      "typicalBackground": "Typically have advanced degrees or extensive industry experience, often having held prior management positions, progressively advancing to executive roles.",
+      "percentageOfTotal": 10,
+      "representativeProfiles": [
+        "Steve Alexander",
+        "Darya Cable",
+        "Annessa Morley"
+      ]
+    }
+  ],
+  "analysis": "The analysis of the professional profiles reveals a diverse array of expertise in marketing, event management, and communications. The largest cluster identified consists of experiential marketers who exhibit significant production experience, followed by professionals specialized in strategic communications and digital marketing. There is a clear trend of individuals advancing through various marketing and production roles, illustrating a growth in specialization and leadership in their fields.",
+  "totalProfiles": 49,
+  "date": "2023-10-01"
+}

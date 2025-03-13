@@ -1,0 +1,125 @@
+{
+  "name": "Annessa Morley",
+  "title": "AVP Marketing Engagement & Communications",
+  "location": "Detroit Metropolitan Area",
+  "key_skills": [
+    "Crisis Management",
+    "Creative Ideation",
+    "Key Performance Indicators",
+    "Strategic Planning",
+    "Team Leadership",
+    "Performance Marketing",
+    "Integrated Marketing",
+    "Internal Communications",
+    "Public Relations",
+    "Media Relations",
+    "Storytelling",
+    "Content Strategy",
+    "Technology Integration",
+    "Board of Directors/Non-Profit Management",
+    "Donor Stewardship",
+    "Publications"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/annessamorley",
+    "email": "annessac@gmail.com",
+    "company_website": "https://www.boblobook.com"
+  },
+  "certificates": [
+    {
+      "name": "2023 Best of District V Awards",
+      "issuer": "Annessa Morley",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "Active"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Community Choice Credit Union",
+      "title": "AVP Marketing Engagement & Communications",
+      "duration": {
+        "start_date": "2024-07-01",
+        "end_date": "Present",
+        "date_range": "8 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Stryker",
+      "title": "Corporate Communications Consultant",
+      "duration": {
+        "start_date": "2024-01-01",
+        "end_date": "2025-01-31",
+        "date_range": "1 year 1 month"
+      },
+      "location": null,
+      "description": [
+        "Focused on strategic communications for global audiences, including employees, sales force, and vendors.",
+        "Managed global employee communications, newsletters, product releases, and announcements.",
+        "Advised on special projects such as a new global security command center and employee notification program."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Wayne State University",
+      "title": "Executive Director, WSU Alumni Association & Sr. Director of Alumni Relations",
+      "duration": {
+        "start_date": "2014-04-01",
+        "end_date": "2024-01-31",
+        "date_range": "9 years 9 months"
+      },
+      "location": null,
+      "description": [
+        "Led alumni engagement, communications, services, and volunteer programs for 300,000+ alumni.",
+        "Managed budgetary operations of the WSU Alumni Association and Board of Directors."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Wayne State University",
+      "title": "Magazine Publisher/Executive Editor",
+      "duration": {
+        "start_date": "2014-04-01",
+        "end_date": "2024-01-31",
+        "date_range": "9 years 9 months"
+      },
+      "location": null,
+      "description": [
+        "Oversaw Wayne State Magazine, winning multiple CASE Gold Awards for excellence in alumni publications."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Washtenaw Community College",
+      "title": "Executive Director of Marketing and Public Relations",
+      "duration": {
+        "start_date": "2012-06-01",
+        "end_date": "2014-04-30",
+        "date_range": "1 year 10 months"
+      },
+      "location": null,
+      "description": [
+        "Led recruitment, enrollment management, brand visibility, and advertising campaigns, including digital, radio, and outdoor media."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Detroit Medical Center",
+      "title": "Director of Marketing",
+      "duration": {
+        "start_date": "2002-12-01",
+        "end_date": "2012-06-30",
+        "date_range": "9 years 6 months"
+      },
+      "location": null,
+      "description": [
+        "Managed corporate healthcare marketing, brand strategy, physician group promotions, and corporate image campaigns."
+      ],
+      "company_url": null
+    }
+  ]
+}

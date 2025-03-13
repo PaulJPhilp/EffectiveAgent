@@ -1,0 +1,110 @@
+{
+  "name": "Steve Alexander",
+  "title": "CXO @ MVRK - Integrated + Events + Experiential + Creative Technology",
+  "location": "Orlando, Florida, United States",
+  "key_skills": [
+    "Executive Visibility",
+    "Event Management",
+    "Sales"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/stevealexander7",
+    "email": null,
+    "company_website": "https://www.mvrk.co"
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Startup Grind",
+      "title": "Director, Orlando",
+      "duration": {
+        "start_date": "March 2015",
+        "end_date": "December 2018",
+        "date_range": "3 years 10 months"
+      },
+      "location": "Orlando, Florida Area",
+      "description": [
+        "Powered by Google for Entrepreneurs, Startup Grind is a global startup community designed to educate, inspire, and connect entrepreneurs.",
+        "Startup Grind aims to build a connected network of vibrant startup communities to help fuel innovation, economic growth and prosperity at the local level."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Therewolf",
+      "title": "Co-Founder / Principal",
+      "duration": {
+        "start_date": "August 2014",
+        "end_date": "December 2018",
+        "date_range": "4 years 5 months"
+      },
+      "location": "Orlando, Florida Area",
+      "description": [
+        "Therewolf is a social experience discovery platform allowing consumers to intelligently discover experiences/destinations of interest, while providing real-time analytics to marketers."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "MVRK",
+      "title": "CXO - Creative/Experiential",
+      "duration": {
+        "start_date": "2014",
+        "end_date": "Present",
+        "date_range": "11 years"
+      },
+      "location": "New York / Orlando",
+      "description": [
+        "MVRK, a WPI agency, is an innovative integrated, experiential, and location-based entertainment studio that perfectly blends thoughtful design, strategy, creative technology, and engineering to create unforgettable experiential storytelling.",
+        "Notable partners include: Disney, Hulu, NHL, Amazon, Google, General Mills, The North Face, Intel, and many others."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "BlueWater Technologies",
+      "title": "Director, National Accounts",
+      "duration": {
+        "start_date": "2012",
+        "end_date": "2014",
+        "date_range": "2 years"
+      },
+      "location": "Orlando, Florida",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "etech",
+      "title": "Director of National Accounts",
+      "duration": {
+        "start_date": "January 2010",
+        "end_date": "September 2012",
+        "date_range": "2 years 9 months"
+      },
+      "location": "Orlando, Florida Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Second Star Media",
+      "title": "Vice President",
+      "duration": {
+        "start_date": "2006",
+        "end_date": "2010",
+        "date_range": "4 years"
+      },
+      "location": "Orlando, Florida Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Sony Electronics",
+      "title": "Business Development Executive",
+      "duration": {
+        "start_date": "2004",
+        "end_date": "2006",
+        "date_range": "2 years"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    }
+  ]
+}

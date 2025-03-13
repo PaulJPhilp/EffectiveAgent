@@ -1,0 +1,211 @@
+{
+  "name": "Sarah Joseph",
+  "title": "Experiential Production Coordinator",
+  "location": "New York, New York, United States",
+  "key_skills": [
+    "Management",
+    "Stage Management",
+    "Creative Problem Solving"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/sarahracheljoseph",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [
+    {
+      "name": "Covid Complience Officer Certified",
+      "issuer": "Health & Education Services, Inc.",
+      "date_earned": "Dec 2020",
+      "expiry_date": "Dec 2023",
+      "credential_id": null,
+      "status": "Active"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Giant Spoon",
+      "title": "Production Coordinator",
+      "duration": {
+        "start_date": "Jan 2023",
+        "end_date": "Present",
+        "date_range": "2 years 2 months"
+      },
+      "location": "New York City Metropolitan Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Freelance",
+      "title": "Special Effects Makeup Artist",
+      "duration": {
+        "start_date": "Jan 2017",
+        "end_date": "Present",
+        "date_range": "8 years 2 months"
+      },
+      "location": null,
+      "description": [
+        "SFX makeup is my side passion and creativity outlet :)",
+        "My skills include: Sculpting, Mold Making, Application, Blood Gags, Cuts/Wound creation, Painting, Drag Makeup and beauty.",
+        "I have also lead a deep dive into SFX makeup at my full time position."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Lincoln Center for the Performing Arts",
+      "title": "Production Coordinator",
+      "duration": {
+        "start_date": "May 2022",
+        "end_date": "Jan 2023",
+        "date_range": "9 months"
+      },
+      "location": "New York City Metropolitan Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Freelance",
+      "title": "Production Assistant",
+      "duration": {
+        "start_date": "Apr 2019",
+        "end_date": "Jan 2023",
+        "date_range": "3 years 10 months"
+      },
+      "location": "New York City Metropolitan Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Universal Network Television, LLC - LAW & ORDER",
+      "title": "Covid Production Assistant",
+      "duration": {
+        "start_date": "Jan 2022",
+        "end_date": "May 2022",
+        "date_range": "5 months"
+      },
+      "location": "New York City Metropolitan Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "production glue",
+      "title": "Production Coordinator",
+      "duration": {
+        "start_date": "Sep 2021",
+        "end_date": "Nov 2021",
+        "date_range": "3 months"
+      },
+      "location": "New York City Metropolitan Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "The Misanthrope",
+      "title": "Production Stage Manager",
+      "duration": {
+        "start_date": "Oct 2020",
+        "end_date": "Apr 2021",
+        "date_range": "7 months"
+      },
+      "location": null,
+      "description": [
+        "Working as the Production Stage Manager with 2 Assistant Stage Managers during the COVID pandemic.",
+        "We rehearsal half over zoom and half in person.",
+        "The play will take place in person in February with a limited audience following all guidelines.",
+        "We are prepared to have to take our show completely remote at a moments notice."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Black Words Matter",
+      "title": "Production Stage Manager, Zoom Manager, and Editor",
+      "duration": {
+        "start_date": "Sep 2020",
+        "end_date": "Oct 2020",
+        "date_range": "2 months"
+      },
+      "location": null,
+      "description": [
+        "Black Words Matter is a 2 part online poetry event. I worked as the PSM, scheduling and keeping information flowing.",
+        "I also coordinated zoom calls and recording, helping others understand the platform.",
+        "Both 1 hour shows were edited on IMovie and streamed on Youtube."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "What To Send Up When It Goes Down",
+      "title": "Production Stage Manager",
+      "duration": {
+        "start_date": "Nov 2019",
+        "end_date": "Mar 2020",
+        "date_range": "5 months"
+      },
+      "location": null,
+      "description": [
+        "Worked as the Production Stage Manager during the beginning of the COVID Pandemic.",
+        "Due to constant changes in the world, I needed to be extremely calm and adaptable every day.",
+        "We ended up streaming our show online."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Purchase College Performing Arts Center",
+      "title": "Box Office Assistant",
+      "duration": {
+        "start_date": "Sep 2019",
+        "end_date": "Mar 2020",
+        "date_range": "7 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Mandy Patinkins Diaries",
+      "title": "Production Assistant",
+      "duration": {
+        "start_date": "Dec 2019",
+        "end_date": "Dec 2019",
+        "date_range": "1 month"
+      },
+      "location": null,
+      "description": [
+        "PA for the touring Mandy Patinkins Diaries when it was in its Terrytown Location.",
+        "Talent facing position."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Blood Wedding",
+      "title": "Stage Manager",
+      "duration": {
+        "start_date": "Sep 2019",
+        "end_date": "Nov 2019",
+        "date_range": "3 months"
+      },
+      "location": null,
+      "description": [
+        "Worked as the Stage Manager, 1st assistant to the PSM.",
+        "Led a team of 8 run crew to move six rolling 10ft walls.",
+        "Tracked and organized all props for the show.",
+        "The show involved fog, 8 LED moveable poles, a removable ground cloth and rose petals that fell from the grid."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "American Theatre Wing",
+      "title": "Production Assistant",
+      "duration": {
+        "start_date": "Sep 2018",
+        "end_date": "Sep 2018",
+        "date_range": "1 month"
+      },
+      "location": null,
+      "description": [
+        "Worked as the PA on the 50th Anniversary ATW Gala with Andrew Loyd Webber.",
+        "Helped organize and distribute meals to workers as well as running various errands."
+      ],
+      "company_url": null
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+{
+   "name": "Sean Choi",
+   "title": "Entrepreneur, Fractional CMO, Festival Producer",
+   "location": "Brooklyn, New York, United States",
+   "key_skills": [
+      "Entrepreneurship",
+      "Leadership",
+      "Business Development"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/seanjchoi",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "NewCo",
+         "title": "Founder",
+         "duration": {
+            "start_date": "Oct 2024",
+            "end_date": "Present",
+            "date_range": "5 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Love Trails ®",
+         "title": "Chief Marketing Officer",
+         "duration": {
+            "start_date": "Aug 2024",
+            "end_date": "Present",
+            "date_range": "7 months"
+         },
+         "location": "Wales, United Kingdom",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Ecoversity",
+         "title": "Chief Strategy and Marketing Officer",
+         "duration": {
+            "start_date": "Aug 2024",
+            "end_date": "Present",
+            "date_range": "7 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "ILLfest Music & Street Art Festival",
+         "title": "Co-Founder & Festival Director",
+         "duration": {
+            "start_date": "Oct 2016",
+            "end_date": "Present",
+            "date_range": "8 years 5 months"
+         },
+         "location": "Austin, Texas, United States",
+         "description": [
+            "Started ILLfest on a whim in college and have grown it into one of the largest dance music festivals in Austin."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Envision Festival",
+         "title": "Head Of Sales",
+         "duration": {
+            "start_date": "Jul 2018",
+            "end_date": "Present",
+            "date_range": "6 years 8 months"
+         },
+         "location": "Uvita, Costa Rica",
+         "description": [
+            "Leading revenue growth and ticketing strategy for one of the world's premier destination music festivals."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Popchew",
+         "title": "Head of Product & Growth",
+         "duration": {
+            "start_date": "Jan 2023",
+            "end_date": "May 2024",
+            "date_range": "1 year 5 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [
+            "Contemporary fast food built for the digitally native. My work focuses on acquiring mindshare via digital real estate and celebrity collaborations, building omni-channel product experiences, and enabling our rapidly-scaling ghost kitchen distribution model."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Onward",
+         "title": "Head of Growth",
+         "duration": {
+            "start_date": "Mar 2021",
+            "end_date": "May 2022",
+            "date_range": "1 year 3 months"
+         },
+         "location": null,
+         "description": [
+            "Improving the lives of co-parents and their children through financial services."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Co-Created",
+         "title": "Entrepreneur In Residence",
+         "duration": {
+            "start_date": "Aug 2020",
+            "end_date": "Mar 2021",
+            "date_range": "8 months"
+         },
+         "location": "New York, United States",
+         "description": [
+            "As an Entrepreneur in Residence at Co-Created with prehype, I worked alongside corporate partners (Ikea, Citi, Munich Re, HP, & others) to explore and validate innovative pathways to solving meaningful problems at scale through hypothesis driven new venture co-creation."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Hoist",
+         "title": "Head of Growth",
+         "duration": {
+            "start_date": "Aug 2019",
+            "end_date": "Apr 2020",
+            "date_range": "9 months"
+         },
+         "location": "Greater New York City Area",
+         "description": [
+            "GTM strategy: customer personas, positioning, baseline CAC & hypothesis-driven execution of growth roadmap, regulatory compliance in uncharted territory",
+            "Generated over 10,000 applicants for inaugural class of business owners in less than 3 months from stealth launch",
+            "Created high throughput structured sales process to objectively score and optimize for potential business owners based on success signals"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Blue Otter Solutions",
+         "title": "Head Of Marketing Operations",
+         "duration": {
+            "start_date": "Sep 2018",
+            "end_date": "Aug 2019",
+            "date_range": "1 year"
+         },
+         "location": "Dallas/Fort Worth Area",
+         "description": [
+            "Drove system growth and revenue for the largest home service franchise brands in North America",
+            "Managed a team of freelancers to consistently deliver reductions in cost per lead and cost per acquisition of 50%-80%",
+            "Grew agency retainers by >300%",
+            "Consulted with clients as SME for inbound marketing and digital strategies for franchise system growth"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Neighborly®",
+         "title": "Franchise Development Marketing",
+         "duration": {
+            "start_date": "Jan 2016",
+            "end_date": "Jun 2017",
+            "date_range": "1 year 6 months"
+         },
+         "location": "Waco, Texas",
+         "description": [
+            "Drove a year of record growth with over 300 new franchises awarded, each requiring a $60k-$350k commitment",
+            "Managed $500k+ paid media budget for 11 international brands",
+            "Executed an inbound marketing strategy to increase search traffic by 80%",
+            "Served on special team with CMO to transition Dwyer Group into Neighborly Brands",
+            "Developed experiential marketing campaigns at 25+ trade shows"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Texas Growth Capital Forum",
+         "title": "Analyst",
+         "duration": {
+            "start_date": "Nov 2015",
+            "end_date": "Jun 2016",
+            "date_range": "8 months"
+         },
+         "location": "Austin, Texas Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Texas Entrepreneur Networks",
+         "title": "Intern",
+         "duration": {
+            "start_date": "Sep 2015",
+            "end_date": "Jun 2016",
+            "date_range": "10 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Choice Loyalty",
+         "title": "Co-Founder / Growth",
+         "duration": {
+            "start_date": "Feb 2010",
+            "end_date": "Aug 2013",
+            "date_range": "3 years 7 months"
+         },
+         "location": "Eagan, MN",
+         "description": [
+            "Choice Loyalty was a cash-back rewards program that incentivized shopping at local SMBs as a powerful fundraising tool for non-profit organizations and associations.",
+            "Organically grew a community of over 13,000 cardholders, 90 non-profit partners, and 30 participating businesses",
+            "Awarded over $50,000 to local non-profit organizations in most successful quarter",
+            "Funded much of my private university education; balanced full course load with 30+ hour work weeks & entrepreneurship-focused extracurriculars"
+         ],
+         "company_url": null
+      }
+   ]
+}

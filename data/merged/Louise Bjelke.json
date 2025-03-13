@@ -1,0 +1,71 @@
+{
+  "name": "Louise Bjelke",
+  "title": "Marketing Manager North America",
+  "location": "New York, New York, United States",
+  "key_skills": [
+    "Marketing",
+    "Social Media",
+    "Management",
+    "Marketing Strategy",
+    "Social Media Management",
+    "Event Planning",
+    "Brand Development",
+    "Content Creation"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/louise-bjelke-35580a13a",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Maria Nila",
+      "title": "Marketing Manager North America",
+      "duration": {
+        "start_date": "2021-10-01",
+        "end_date": "Present",
+        "date_range": "3 years 5 months"
+      },
+      "location": "New York, New York, United States",
+      "description": [
+        "Leading marketing initiatives for Maria Nila in North America",
+        "Developing and executing campaigns tailored to regional markets",
+        "Managing brand positioning and partnerships"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Maria Nila",
+      "title": "Marketing Coordinator Nordics",
+      "duration": {
+        "start_date": "2018-11-01",
+        "end_date": "2021-10-31",
+        "date_range": "2 years 11 months"
+      },
+      "location": "New York, New York, United States",
+      "description": [
+        "Oversaw marketing operations across Nordic countries",
+        "Implemented strategic campaigns and social media initiatives"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Accenture",
+      "title": "Marketing Analyst",
+      "duration": {
+        "start_date": "2016-10-01",
+        "end_date": "2018-11-30",
+        "date_range": "2 years 1 month"
+      },
+      "location": "Stockholm, Sweden",
+      "description": [
+        "Created marketing campaigns and managed event planning",
+        "Oversaw social media channels and website content",
+        "Wrote articles and produced marketing materials",
+        "Supported recruitment marketing and rebranding efforts"
+      ],
+      "company_url": null
+    }
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "name": "Kalie Whitsett",
+  "title": "VP | Digital & Creative",
+  "location": "Southlake, Texas, United States",
+  "key_skills": [
+    "Account Management",
+    "Advertising",
+    "Advertising Sales",
+    "Brand Innovation",
+    "Creative Strategy",
+    "Client Services",
+    "Strategy"
+  ],
+  "contact": {
+    "linkedin": "https://www.linkedin.com/in/kaliewhitsett",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [],
+  "experience": [
+    {
+      "company": "Augustine Agency",
+      "title": "VP | Digital & Creative",
+      "duration": {
+        "start_date": "2021-09-01",
+        "end_date": "Present",
+        "date_range": "3 years 6 months"
+      },
+      "location": "California, Nevada, Texas",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Lifeblue",
+      "title": "Marketing Account Director | Brand Innovation | Strategy",
+      "duration": {
+        "start_date": "2020-06-01",
+        "end_date": "2021-12-01",
+        "date_range": "1 year 6 months"
+      },
+      "location": "Plano, Texas, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Eighty Three Creative",
+      "title": "Vice President Operations",
+      "duration": {
+        "start_date": "2018-11-01",
+        "end_date": "2020-06-01",
+        "date_range": "1 year 7 months"
+      },
+      "location": "Dallas, Texas, United States",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "Eighty Three Creative",
+      "title": "Director of Client Services",
+      "duration": {
+        "start_date": "2017-10-01",
+        "end_date": "2018-11-01",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Dallas/Fort Worth Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "DMNmedia",
+      "title": "General Manager of Creative Strategy and Client Services",
+      "duration": {
+        "start_date": "2016-06-01",
+        "end_date": "2017-07-01",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Dallas/Fort Worth Area",
+      "description": [
+        "Led a team of 70 staff, strategized and developed innovative sales and marketing campaigns, managed account fulfillment, and implemented revenue generation strategies."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "DMNmedia",
+      "title": "Senior Director of Client Services",
+      "duration": {
+        "start_date": "2010-01-01",
+        "end_date": "2016-05-01",
+        "date_range": "6 years 4 months"
+      },
+      "location": "Dallas/Fort Worth Area",
+      "description": [
+        "Managed and mentored a team of 22 designers, engineers, analysts, and interns. Expanded market share by 20% in the first year."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "A. H. Belo",
+      "title": "Director of Creative Services",
+      "duration": {
+        "start_date": "1994-07-01",
+        "end_date": "2017-06-01",
+        "date_range": "23 years"
+      },
+      "location": "Dallas/Fort Worth Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "The Dallas Morning News",
+      "title": "Client Services Manager",
+      "duration": {
+        "start_date": "2008-05-01",
+        "end_date": "2010-01-01",
+        "date_range": "1 year 8 months"
+      },
+      "location": "Dallas/Fort Worth Area",
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "The Dallas Morning News",
+      "title": "Creative Director",
+      "duration": {
+        "start_date": "1995-01-01",
+        "end_date": "2008-02-01",
+        "date_range": "13 years 1 month"
+      },
+      "location": "Dallas/Fort Worth Area",
+      "description": [
+        "Led a team of 12 graphic designers and data analysts to create consistent design solutions for multiple sections of The DMN.",
+        "Developed and managed a $2M budget."
+      ],
+      "company_url": null
+    }
+  ]
+}

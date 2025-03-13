@@ -1,0 +1,62 @@
+{
+   "name": "Louise Bjelke",
+   "title": "Marketing Manager",
+   "location": "New York, New York, United States",
+   "key_skills": [
+      "Marketing",
+      "Social Media",
+      "Management"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/louise-bjelke-35580a13a",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Maria Nila",
+         "title": "Marketing Manager",
+         "duration": {
+            "start_date": "2021-10-01",
+            "end_date": "Present",
+            "date_range": "3 years 5 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Maria Nila",
+         "title": "Marketing Coordinator",
+         "duration": {
+            "start_date": "2018-11-01",
+            "end_date": "2021-10-01",
+            "date_range": "3 years"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Accenture",
+         "title": "Marketing Analyst",
+         "duration": {
+            "start_date": "2016-10-01",
+            "end_date": "2018-11-01",
+            "date_range": "2 years 2 months"
+         },
+         "location": "Stockholm, Sweden",
+         "description": [
+            "Work includes creating campaigns",
+            "Arranging events",
+            "Managing social media",
+            "Writing articles",
+            "Photographing",
+            "Managing websites and social platforms",
+            "Doing various kinds of work related to recruitment marketing and rebranding"
+         ],
+         "company_url": null
+      }
+   ]
+}
