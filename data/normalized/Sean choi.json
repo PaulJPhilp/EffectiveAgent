@@ -1,0 +1,167 @@
+{
+  "name": "Sean Choi",
+  "age": 31,
+  "location": "Brooklyn, New York, United States",
+  "gender": "Male",
+  "company": "NewCo",
+  "companyType": "Startup",
+  "companySize": "Unknown",
+  "industry": [
+    "Entrepreneurship",
+    "Marketing",
+    "Music and Arts",
+    "Technology"
+  ],
+  "occupation": [
+    "Entrepreneur",
+    "Fractional CMO",
+    "Festival Producer"
+  ],
+  "interests": [
+    "Technology",
+    "Marketing",
+    "Entrepreneurship",
+    "Music Festivals",
+    "Arts",
+    "Startups"
+  ],
+  "skills": [
+    "Entrepreneurship",
+    "Leadership",
+    "Business Development",
+    "Inbound Marketing",
+    "Google Ads",
+    "Hubspot Marketing Software",
+    "Google Analytics"
+  ],
+  "education": [
+    "Bachelor of Business Administration - BBA, Social Entrepreneurship and Corporate Innovation, Baylor University (2011-2016)",
+    "Startup Foundations, Wasabi Ventures Academy (2015)",
+    "Quantum Leap with Gary Keller (2012-2013)",
+    "Digital Marketing, Advertiser 360 (2011-2012)",
+    "Eagan Senior High School (2011)"
+  ],
+  "experience": [
+    {
+      "company": "NewCo",
+      "position": "Founder",
+      "startDate": "October 2024",
+      "endDate": "Present",
+      "location": "New York, New York, United States",
+      "description": ""
+    },
+    {
+      "company": "Love Trails ®",
+      "position": "Chief Marketing Officer",
+      "startDate": "August 2024",
+      "endDate": "Present",
+      "location": "Wales, United Kingdom",
+      "description": ""
+    },
+    {
+      "company": "Ecoversity",
+      "position": "Chief Strategy and Marketing Officer",
+      "startDate": "August 2024",
+      "endDate": "Present",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "ILLfest Music & Street Art Festival",
+      "position": "Co-Founder & Festival Director",
+      "startDate": "October 2016",
+      "endDate": "Present",
+      "location": "Austin, Texas, United States",
+      "description": "Started ILLfest on a whim in college and have grown it into one of the largest dance music festivals in Austin."
+    },
+    {
+      "company": "Envision Festival",
+      "position": "Head Of Sales",
+      "startDate": "July 2018",
+      "endDate": "Present",
+      "location": "Uvita, Costa Rica",
+      "description": "Leading revenue growth and ticketing strategy for one of the world's premier destination music festivals."
+    },
+    {
+      "company": "Popchew",
+      "position": "Head of Product & Growth",
+      "startDate": "January 2023",
+      "endDate": "May 2024",
+      "location": "New York, New York, United States",
+      "description": "Contemporary fast food built for the digitally native. Focused on acquiring mindshare via digital real estate and celebrity collaborations, building omni-channel product experiences, and enabling rapidly-scaling ghost kitchen distribution model."
+    },
+    {
+      "company": "Popchew",
+      "position": "Head of Growth",
+      "startDate": "May 2022",
+      "endDate": "February 2023",
+      "location": "New York, New York, United States",
+      "description": ""
+    },
+    {
+      "company": "Onward",
+      "position": "Head of Growth",
+      "startDate": "March 2021",
+      "endDate": "May 2022",
+      "location": "",
+      "description": "Improving the lives of co-parents and their children through financial services."
+    },
+    {
+      "company": "Co-Created",
+      "position": "Entrepreneur In Residence",
+      "startDate": "August 2020",
+      "endDate": "March 2021",
+      "location": "New York, United States",
+      "description": "Worked alongside corporate partners (Ikea, Citi, Munich Re, HP, & others) to explore and validate innovative pathways to solve meaningful problems at scale through hypothesis-driven new venture co-creation."
+    },
+    {
+      "company": "Hoist",
+      "position": "Head of Growth",
+      "startDate": "August 2019",
+      "endDate": "April 2020",
+      "location": "Greater New York City Area",
+      "description": "GTM strategy: customer personas, positioning, baseline CAC & hypothesis-driven execution of growth roadmap, regulatory compliance in uncharted territory. Generated over 10,000 applicants for inaugural class of business owners in less than 3 months from stealth launch. Created high throughput structured sales process to objectively score and optimize for potential business owners based on success signals."
+    },
+    {
+      "company": "Blue Otter Solutions",
+      "position": "Head Of Marketing Operations",
+      "startDate": "September 2018",
+      "endDate": "August 2019",
+      "location": "Dallas/Fort Worth Area",
+      "description": "Drove system growth and revenue for the largest home service franchise brands in North America. Managed a team of freelancers to consistently deliver reductions in cost per lead and cost per acquisition of 50%-80%. Grew agency retainers by >300%. Consulted with clients as SME for inbound marketing and digital strategies for franchise system growth."
+    },
+    {
+      "company": "Neighborly®",
+      "position": "Franchise Development Marketing",
+      "startDate": "January 2016",
+      "endDate": "June 2017",
+      "location": "Waco, Texas",
+      "description": "Drove a year of record growth with over 300 new franchises awarded, each requiring a $60k-$350k commitment. Managed $500k+ paid media budget for 11 international brands. Executed an inbound marketing strategy to increase search traffic by 80%. Served on special team with CMO to transition Dwyer Group into Neighborly Brands. Developed experiential marketing campaigns at 25+ trade shows."
+    },
+    {
+      "company": "Texas Growth Capital Forum",
+      "position": "Analyst",
+      "startDate": "November 2015",
+      "endDate": "June 2016",
+      "location": "Austin, Texas Area",
+      "description": ""
+    },
+    {
+      "company": "Texas Entrepreneur Networks",
+      "position": "Intern",
+      "startDate": "September 2015",
+      "endDate": "June 2016",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "Choice Loyalty",
+      "position": "Co-Founder / Growth",
+      "startDate": "February 2010",
+      "endDate": "August 2013",
+      "location": "Eagan, MN",
+      "description": "Choice Loyalty was a cash-back rewards program that incentivized shopping at local SMBs as a powerful fundraising tool for non-profit organizations and associations. Organically grew a community of over 13,000 cardholders, 90 non-profit partners, and 30 participating businesses. Awarded over $50,000 to local non-profit organizations in most successful quarter. Funded much of my private university education; balanced full course load with 30+ hour work weeks & entrepreneurship-focused extracurriculars."
+    }
+  ],
+  "bio": "I strive to be known as someone that leverages technology to push the boundaries of organizational output and forge data-driven paths through uncertainty. Energized when tasked with finding creative solutions to complex problems, I am hungry to scale the impact of my outputs to improve quality of life for others."
+}

@@ -6,24 +6,29 @@
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"type": "module",
-	"files": ["dist", "README.md"],
+	"files": [
+		"dist",
+		"README.md"
+	],
 	"devDependencies": {
 		"@types/bun": "latest",
 		"typescript": "^5.8.2",
 		"vitest": "^1.6.1"
 	},
 	"dependencies": {
-		"@ai-sdk/anthropic": "^1.1.16",
-		"@ai-sdk/google": "^1.1.22",
-		"@ai-sdk/mistral": "^1.1.16",
-		"@ai-sdk/openai": "^1.2.3",
-		"@langchain/community": "^0.3.34",
+		"@ai-sdk/anthropic": "^1.1.17",
+		"@ai-sdk/google": "^1.1.25",
+		"@ai-sdk/mistral": "^1.1.17",
+		"@ai-sdk/openai": "^1.2.5",
+		"@langchain/community": "^0.3.35",
 		"@langchain/core": "^0.3.42",
 		"@langchain/google-genai": "^0.1.10",
-		"@langchain/google-vertexai": "^0.2.1",
+		"@langchain/google-vertexai": "^0.2.2",
 		"@langchain/langgraph": "^0.2.55",
+		"@langchain/langgraph-sdk": "^0.0.54",
 		"@langchain/openai": "^0.4.4",
-		"ai": "^4.1.58",
+		"ai": "^4.1.61",
+		"chalk": "^5.4.1",
 		"dotenv": "^16.4.7",
 		"openai": "^4.87.3",
 		"pdf-parse": "^1.1.1"
@@ -33,7 +38,9 @@
 		"test": "vitest run",
 		"test:watch": "vitest",
 		"studio": "bunx @langchain/langgraph-cli@latest dev",
-		"dev": "RECURSION_LIMIT=100 bun src/persona-generator/createPersonasAgent.ts"
+		"normalize": "RECURSION_LIMIT=100 bun src/normalizing-agent/NormalizationAgent.ts",
+		"cluster": "RECURSION_LIMIT=100 bun src/persona-generator/ClusteringAgent.ts",
+		"evaluate": "RECURSION_LIMIT=100 bun src/persona-evaluator/EvaluationAgent.ts"
 	},
 	"keywords": [
 		"pdf",

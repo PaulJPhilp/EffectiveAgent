@@ -1,0 +1,145 @@
+{
+  "clusters": [
+    {
+      "title": "Corporate Communications and PR Leaders",
+      "description": {
+        "summary": "Senior professionals overseeing public relations, internal communications, and strategic corporate messaging within large organizations.",
+        "commonCharacteristics": [
+          "Hold senior titles such as Director, Vice President",
+          "Manage public relations and internal communications",
+          "Lead teams and departmental activities"
+        ],
+        "skills": [
+          "Strategic communication planning",
+          "Corporate branding and PR",
+          "Team leadership and management"
+        ],
+        "typicalBackground": "Extensive experience in PR and corporate communications, often within large companies or organizations, with a track record of managing corporate messaging and leading communications teams."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sara Rush Wirth",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title includes Director of Public Relations and Internal Communications",
+            "Responsibilities align with corporate communications leadership"
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Title includes AVP Marketing Engagement and Communications",
+            "Experience in strategic communications and marketing leadership"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing and Brand Strategy Professionals",
+      "description": {
+        "summary": "Experts in developing and executing marketing strategies, focusing on brand development, digital marketing campaigns, and content strategy to enhance brand presence and drive business growth.",
+        "commonCharacteristics": [
+          "Titles include Marketing Manager, Brand Manager",
+          "Focus on branding, digital marketing, content strategies",
+          "Manage marketing campaigns and oversee digital presence"
+        ],
+        "skills": [
+          "Branding and positioning",
+          "Digital and content marketing",
+          "Campaign management"
+        ],
+        "typicalBackground": "Experience in brand management and digital marketing roles, often within consumer-focused companies or marketing agencies, with a strong understanding of digital marketing tools and strategies."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Tara Scanlon",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Title includes Vice President, Strategy",
+            "Key skills in Media Planning, Advertising, Marketing Strategy"
+          ]
+        },
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Title includes Managing Director",
+            "Key skills in Integrated Marketing, Digital Marketing"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production and Management Specialists",
+      "description": {
+        "summary": "Professionals specializing in the planning, coordination, and execution of events, managing logistics, production teams, and ensuring successful event delivery.",
+        "commonCharacteristics": [
+          "Titles include Producer, Production Manager, Event Manager",
+          "Handle event logistics, production, team coordination",
+          "May work within agencies or as independent producers"
+        ],
+        "skills": [
+          "Event planning and execution",
+          "Production management",
+          "Team coordination and logistics"
+        ],
+        "typicalBackground": "Experience in event production or management roles, often within PR, marketing agencies, or the entertainment industry, with strong organizational and multitasking abilities."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Title includes Event Producer",
+            "Experience in organizing and executing various events and productions"
+          ]
+        },
+        {
+          "id": "Jason Wozny",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Title includes Partner at marketing agencies",
+            "Experience in event marketing and production management"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative and Content Strategy Leaders",
+      "description": {
+        "summary": "Senior creative professionals leading content creation and strategy, overseeing creative teams, developing content strategies, and ensuring brand consistency across platforms.",
+        "commonCharacteristics": [
+          "Titles include Creative Director, Content Strategist, Chief Creative Officer",
+          "Lead creative content development and strategy",
+          "Oversee creative teams and manage content workflows"
+        ],
+        "skills": [
+          "Content strategy and development",
+          "Creative leadership",
+          "Brand consistency"
+        ],
+        "typicalBackground": "Background in creative roles, typically within marketing agencies or in-house creative departments, with expertise in content creation, creative team management, and strategic content planning."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Christine Zaccaro",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Title includes Senior Producer",
+            "Key skills in Communication, Brand Management, Social Media Marketing"
+          ]
+        },
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Title includes Brand Marketing Specialist",
+            "Skills in Content Optimization, SEO, Project Management"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2023-10-04"
+}

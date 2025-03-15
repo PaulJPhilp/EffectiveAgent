@@ -1,0 +1,204 @@
+{
+  "clusters": [
+    {
+      "title": "Marketing and Communications Executives",
+      "description": {
+        "summary": "This cluster comprises senior-level marketing and communications professionals who lead strategic initiatives to enhance brand presence, drive engagement, and manage comprehensive marketing campaigns. They possess extensive experience in brand management, content strategy, public relations, and integrated marketing communications.",
+        "commonCharacteristics": [
+          "Leadership roles in marketing and communications",
+          "Strategic planning and execution of marketing campaigns",
+          "Expertise in brand management and content strategy"
+        ],
+        "skills": [
+          "Strategic Communications",
+          "Corporate Communications",
+          "Content Strategy",
+          "Public Relations",
+          "Integrated Marketing",
+          "Marketing Strategy",
+          "Media Planning"
+        ],
+        "typicalBackground": "These professionals often hold advanced positions such as Director, Vice President, or Executive roles in marketing and communications departments. They typically have a strong background in managing large-scale marketing campaigns, developing brand strategies, and leading cross-functional teams to achieve organizational goals."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title includes Vice President of Marketing",
+            "Responsibilities include managing national media and marketing campaigns",
+            "Skills in Marketing Strategy and Content Development"
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Title includes Group Account Director",
+            "Experience in strategic planning and brand management",
+            "Skills in Integrated Marketing and Communications"
+          ]
+        },
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Title includes Director of Project Management",
+            "Experience in strategic operations and marketing",
+            "Skills in Strategy and Salesforce"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production and Management Professionals",
+      "description": {
+        "summary": "This cluster encompasses individuals dedicated to the planning, coordination, and execution of events and productions. They possess expertise in event logistics, stage management, vendor coordination, and ensuring seamless event operations. Their roles are critical in delivering memorable and well-organized experiences.",
+        "commonCharacteristics": [
+          "Roles focused on event planning and execution",
+          "Expertise in logistics and vendor management",
+          "Ability to manage multiple events simultaneously"
+        ],
+        "skills": [
+          "Event Planning",
+          "Event Management",
+          "Production Coordination",
+          "Stage Management",
+          "Vendor Coordination",
+          "Logistics Management"
+        ],
+        "typicalBackground": "Professionals in this cluster often hold titles such as Event Producer, Production Manager, or Stage Manager. They have a proven track record in managing various types of events, from corporate functions to large-scale productions, and are adept at coordinating resources and teams to ensure successful event outcomes."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Quinn Tormey",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Title includes Producer",
+            "Responsibilities include managing and executing over 70 events",
+            "Skills in Event Management and AV Management"
+          ]
+        },
+        {
+          "id": "Jenny Ludwigsen",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Title includes Senior Account Supervisor in experiential marketing",
+            "Experience in producing national events and managing experiential activations",
+            "Skills in Event Production and Client Management"
+          ]
+        },
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Title includes Director of Project Management",
+            "Experience in managing marketing operations and event logistics",
+            "Skills in Strategy and Project Coordination"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative Directors and Brand Strategists",
+      "description": {
+        "summary": "This cluster consists of creative leaders who drive the visual and strategic direction of brands. They excel in creative ideation, brand development, and crafting compelling visual narratives. Their expertise ensures that brand messaging is cohesive, engaging, and effectively communicates the brand’s identity.",
+        "commonCharacteristics": [
+          "Leadership roles in creative and brand strategy",
+          "Expertise in creative ideation and visual storytelling",
+          "Focus on brand development and cohesive messaging"
+        ],
+        "skills": [
+          "Creative Direction",
+          "Brand Management",
+          "Art Direction",
+          "Content Strategy",
+          "Logo Design",
+          "Branding and Identity",
+          "Retail Design"
+        ],
+        "typicalBackground": "Individuals in this cluster typically hold titles such as Creative Director, Group Creative Director, or Brand Strategist. They come from backgrounds in graphic design, art direction, or marketing, and have extensive experience in leading creative teams, developing brand identities, and executing visual strategies that resonate with target audiences."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Mark Dalhausser",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Title includes Group Creative Director",
+            "Responsibilities include overseeing creative branding and art direction",
+            "Skills in Creative Branding and Art Direction"
+          ]
+        },
+        {
+          "id": "Jo Kang",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title includes Group Creative Director",
+            "Responsibilities include leading creative direction and brand strategy",
+            "Skills in Creative Branding and Art Direction"
+          ]
+        },
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Title includes Brand Marketing Specialist",
+            "Experience in e-commerce and content optimization",
+            "Skills in SEO and Copywriting"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Account Managers and Business Development Leaders",
+      "description": {
+        "summary": "This cluster includes professionals focused on managing client relationships, driving business growth, and expanding market presence. They excel in account management, client servicing, and developing strategic partnerships. Their roles are essential in maintaining client satisfaction and fostering long-term business relationships.",
+        "commonCharacteristics": [
+          "Roles centered around client relationship management",
+          "Expertise in business development and strategic partnerships",
+          "Focus on driving sales growth and client satisfaction"
+        ],
+        "skills": [
+          "Account Management",
+          "Business Development",
+          "Client Relations",
+          "Strategic Partnerships",
+          "Sales Strategy",
+          "Customer Service",
+          "Negotiation"
+        ],
+        "typicalBackground": "Professionals in this cluster often hold titles such as Account Manager, Account Director, or Vice President of Accounts. They possess strong interpersonal skills, a knack for identifying business opportunities, and a history of successfully managing client accounts to achieve revenue targets and foster growth."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Title includes Managing Director",
+            "Responsibilities include integrated marketing and digital strategy",
+            "Skills in Digital Strategy and Business Development"
+          ]
+        },
+        {
+          "id": "Holly Roberts",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Title includes Senior Account Supervisor",
+            "Experience in managing client accounts and leading teams",
+            "Skills in Brand Development and Digital Strategy"
+          ]
+        },
+        {
+          "id": "Mark Dalhausser",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Title includes Vice President",
+            "Responsibilities include business development and account management",
+            "Skills in Business Development and Account Management"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

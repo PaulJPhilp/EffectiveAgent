@@ -1,0 +1,139 @@
+{
+  "clusters": [
+    {
+      "title": "Agency Creative Leaders",
+      "description": {
+        "summary": "Agency Creative Leaders are seasoned professionals who spearhead creative teams within marketing and advertising agencies. They oversee the development and execution of innovative campaigns, ensuring brand consistency and driving strategic marketing initiatives for diverse clients.",
+        "commonCharacteristics": [
+          "Leadership in creative teams",
+          "Oversee campaign development",
+          "Strategic brand management"
+        ],
+        "skills": [
+          "Creative Branding",
+          "Art Direction",
+          "Strategic Planning",
+          "Team Leadership"
+        ],
+        "typicalBackground": "Extensive experience in marketing or advertising agencies, holding senior roles such as Creative Director or Vice President of Creative, with a proven track record of managing large-scale creative projects and multidisciplinary teams."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Jo Kang",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Title: Group Creative Director indicates leadership in agency creative roles",
+            "Skills related to creative branding and art direction"
+          ]
+        },
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title: Vice President in a marketing agency setting",
+            "Responsibilities include managing national campaigns and creative teams"
+          ]
+        },
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title: Brand Marketing Specialist with focus on e-commerce and content optimization",
+            "Skills align with strategic marketing leadership"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production and Experiential Marketing Professionals",
+      "description": {
+        "summary": "Event Production and Experiential Marketing Professionals specialize in planning, coordinating, and executing events that create immersive brand experiences. They manage event logistics, collaborate with vendors, and ensure seamless onsite operations to deliver memorable experiences for attendees.",
+        "commonCharacteristics": [
+          "Focus on event logistics and execution",
+          "Experience with experiential marketing",
+          "Coordination with vendors and stakeholders"
+        ],
+        "skills": [
+          "Event Planning",
+          "Production Management",
+          "Stage Management",
+          "Vendor Coordination",
+          "Experiential Marketing"
+        ],
+        "typicalBackground": "Background in event production, experiential marketing, or related fields, holding roles such as Producer, Stage Manager, or Production Coordinator, with experience managing live events and brand activations."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Julianne Wolfe",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Title: Producer in experiential marketing",
+            "Experience with organizing live and virtual events"
+          ]
+        },
+        {
+          "id": "Cristobal C.",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title: Experiential and Integrated Producer",
+            "Key responsibilities in creating brand experiences"
+          ]
+        },
+        {
+          "id": "Rebecca B.",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title: Producer with focus on content creation and event management",
+            "Skills in networking and casting align with event production"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Corporate Marketing and Communications Managers",
+      "description": {
+        "summary": "Corporate Marketing and Communications Managers are responsible for developing and implementing marketing and communication strategies within organizations. They handle media relations, internal communications, brand management, and oversee marketing campaigns to support business objectives and enhance brand presence.",
+        "commonCharacteristics": [
+          "Strategic communication roles",
+          "Focus on brand management",
+          "Oversee marketing campaigns"
+        ],
+        "skills": [
+          "Strategic Communications",
+          "Media Relations",
+          "Content Strategy",
+          "Marketing Analytics",
+          "Public Relations"
+        ],
+        "typicalBackground": "Experience in corporate marketing or communications departments, holding roles such as Marketing Manager, Director of Communications, or similar, with a focus on developing and executing marketing strategies aligned with business goals."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Judy Shiao Wirth",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title: Director of Public Relations and Communications",
+            "Focus on corporate communications and investor relations"
+          ]
+        },
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Title: Managing Director with expertise in integrated marketing and digital strategy",
+            "Skills align with corporate marketing responsibilities"
+          ]
+        },
+        {
+          "id": "Caren Read",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Title: Marketing Communications Manager",
+            "Responsibilities include developing marketing communication campaigns and managing sponsorship programs"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2023-10-06"
+}

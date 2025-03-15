@@ -1,0 +1,113 @@
+{
+  "name": "Darya (Dasha) Cable",
+  "age": null,
+  "location": "Greater Cleveland, Ohio, United States",
+  "gender": null,
+  "company": "Weber Shandwick",
+  "companyType": "Public Relations and Marketing",
+  "companySize": "Large",
+  "industry": "Marketing and Public Relations",
+  "occupation": "Senior Project Manager | Digital Marketing",
+  "interests": [],
+  "skills": [
+    "Process Improvement",
+    "Microsoft Office",
+    "Customer Service"
+  ],
+  "education": [
+    "Bachelor of Business Administration (BBA) in Marketing and Sales Management, The University of Akron (2015 - 2018)"
+  ],
+  "experience": [
+    {
+      "company": "Weber Shandwick",
+      "position": "Senior Project Manager",
+      "startDate": "August 2022",
+      "endDate": "Present",
+      "duration": "2 years 7 months",
+      "location": null,
+      "description": null
+    },
+    {
+      "company": "Fathom",
+      "position": "Senior Project Manager",
+      "startDate": "July 2022",
+      "endDate": "August 2022",
+      "duration": "2 months",
+      "location": null,
+      "description": null
+    },
+    {
+      "company": "Fathom",
+      "position": "Project Manager",
+      "startDate": "November 2020",
+      "endDate": "July 2022",
+      "duration": "1 year 9 months",
+      "location": "Cleveland, Ohio, United States",
+      "description": null
+    },
+    {
+      "company": "Publicis Sapient",
+      "position": "Associate Project Manager",
+      "startDate": "November 2019",
+      "endDate": "November 2020",
+      "duration": "1 year 1 month",
+      "location": "Cleveland/Akron, Ohio Area",
+      "description": null
+    },
+    {
+      "company": "Publicis Sapient",
+      "position": "Project Coordinator",
+      "startDate": "July 2018",
+      "endDate": "November 2019",
+      "duration": "1 year 5 months",
+      "location": "Cleveland, Ohio",
+      "description": null
+    },
+    {
+      "company": "ValMark Financial Group",
+      "position": "Marketing Intern",
+      "startDate": "October 2017",
+      "endDate": "July 2018",
+      "duration": "10 months",
+      "location": "Akron, Ohio",
+      "description": null
+    },
+    {
+      "company": "Insomnia Cookies",
+      "position": "Marketing Representative",
+      "startDate": "September 2017",
+      "endDate": "June 2018",
+      "duration": "10 months",
+      "location": "Akron, Ohio",
+      "description": null
+    },
+    {
+      "company": "AMERICAN EAGLE OUTFITTERS INC.",
+      "position": "Stylist and Lead Cashier",
+      "startDate": "April 2014",
+      "endDate": "October 2017",
+      "duration": "3 years 7 months",
+      "location": null,
+      "description": null
+    },
+    {
+      "company": "Performance Health",
+      "position": "Specialty Products Marketing Intern",
+      "startDate": "April 2017",
+      "endDate": "September 2017",
+      "duration": "6 months",
+      "location": "Akron, Ohio",
+      "description": null
+    },
+    {
+      "company": "Ohio & Erie Canalway Coalition",
+      "position": "Marketing Intern",
+      "startDate": "May 2016",
+      "endDate": "August 2016",
+      "duration": "4 months",
+      "location": null,
+      "description": null
+    }
+  ],
+  "bio": "Digital marketing professional with a passion for process improvement."
+}

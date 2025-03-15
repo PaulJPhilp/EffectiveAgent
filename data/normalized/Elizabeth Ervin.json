@@ -1,0 +1,87 @@
+{
+  "name": "Elizabeth Ervin",
+  "age": null,
+  "location": "San Ramon, California, United States",
+  "gender": "Female",
+  "company": "The Food Group",
+  "companyType": "Food Industry",
+  "companySize": "Unknown",
+  "industry": "Food Industry, Marketing",
+  "occupation": "Group Account Director",
+  "interests": [],
+  "skills": [
+    "Integrated Marketing",
+    "Communications Planning",
+    "B2B Marketing",
+    "B2B Marketing Strategy"
+  ],
+  "education": [
+    "Loyola University of Chicago - Bachelor's degree in English"
+  ],
+  "experience": [
+    {
+      "company": "The Food Group",
+      "title": "Group Account Director",
+      "startDate": "August 2021",
+      "endDate": "Present",
+      "duration": "3 years 7 months",
+      "location": "San Ramon, California, United States",
+      "description": ""
+    },
+    {
+      "company": "The Food Group",
+      "title": "Account Director",
+      "startDate": "March 2018",
+      "endDate": "August 2021",
+      "duration": "3 years 6 months",
+      "location": "San Ramon, California, United States",
+      "description": ""
+    },
+    {
+      "company": "Bite Me Media",
+      "title": "Publisher",
+      "startDate": "January 2017",
+      "endDate": "February 2018",
+      "duration": "1 year 2 months",
+      "location": "Chicago, IL",
+      "description": ""
+    },
+    {
+      "company": "Imagination.",
+      "title": "Account Director & National Sales Director",
+      "startDate": "November 2012",
+      "endDate": "January 2017",
+      "duration": "4 years 3 months",
+      "location": "Greater Chicago Area",
+      "description": ""
+    },
+    {
+      "company": "East Coast Home Publishing",
+      "title": "Sales and Marketing Manager",
+      "startDate": "July 2006",
+      "endDate": "November 2012",
+      "duration": "6 years 5 months",
+      "location": "Fairfield, CT",
+      "description": "Responsible for developing new sales strategies and launching local events to market each title. Role included managing all phases of the sales cycle from prospecting partners and developing presentation materials to contract fulfillment. Event coordination required venue selection, local promotion, securing vendors, media outreach and securing designer appearances."
+    },
+    {
+      "company": "Linen Press, LLC",
+      "title": "Marketing Manager",
+      "startDate": "May 2006",
+      "endDate": "November 2012",
+      "duration": "6 years 7 months",
+      "location": "Old Greenwich, CT",
+      "description": "Led the expansion and rebranding of a regional multi-unit retailer. Deliverables included hiring agency partners to update brand identity and develop a website. Facilitated all media outreach and implemented a digital plan that utilized email and social tactics to drive brand awareness, lead generation and customer acquisition."
+    },
+    {
+      "company": "East Coast Home Publishing",
+      "title": "Contributing Editor",
+      "startDate": "June 2006",
+      "endDate": "November 2012",
+      "duration": "6 years 6 months",
+      "location": "Fairfield, CT",
+      "description": "Produced 'To the Trade' a monthly column for East Coast Home + Design and was a frequent contributor to W2W focusing on local restaurant, wellness and travel features."
+    }
+  ],
+  "bio": "Elizabeth leads marketing and product innovation strategy for The Food Group’s consumer, foodservice and industrial ingredients practices. She has 15 years experience advising clients, from start-ups to global leaders, on defining their vision for the future of food. She leads cross functional teams in the planning, development and execution of cutting edge product innovation and creation of transformational sales and marketing plans."
+}

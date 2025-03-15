@@ -1,0 +1,82 @@
+{
+  "name": "Lucy Wright",
+  "age": 26,
+  "location": "Indianapolis, Indiana, United States",
+  "gender": "Female",
+  "company": "Finish Line",
+  "companyType": "Retail",
+  "companySize": "Unknown",
+  "industry": "Marketing",
+  "occupation": "Manager, Regional Marketing",
+  "interests": [
+    "Marketing",
+    "Event Planning",
+    "Community Service",
+    "Non-Profit Organizations",
+    "Leadership"
+  ],
+  "skills": [
+    "Microsoft Office",
+    "Customer Service",
+    "Leadership",
+    "Marketing Strategy",
+    "Event Coordination",
+    "Public Speaking",
+    "Volunteer Management"
+  ],
+  "education": [
+    "Purdue University, Marketing, 2015 - 2019"
+  ],
+  "experience": [
+    {
+      "company": "Finish Line",
+      "position": "Manager, Regional Marketing",
+      "duration": "February 2022 - Present",
+      "location": "Indianapolis, Indiana, United States",
+      "description": ""
+    },
+    {
+      "company": "Finish Line",
+      "position": "Regional Marketing Specialist",
+      "duration": "October 2020 - March 2022",
+      "location": "Indianapolis, Indiana, United States",
+      "description": ""
+    },
+    {
+      "company": "Finish Line",
+      "position": "Retail Marketing Specialist",
+      "duration": "May 2019 - March 2022",
+      "location": "Indianapolis, Indiana",
+      "description": ""
+    },
+    {
+      "company": "Finish Line",
+      "position": "Marketing Intern",
+      "duration": "May 2018 - January 2019",
+      "location": "Indianapolis, Indiana",
+      "description": ""
+    },
+    {
+      "company": "Houseparty",
+      "position": "College Strategist",
+      "duration": "February 2018 - May 2018",
+      "location": "Purdue University",
+      "description": "- Actively used Houseparty and encouraged peers to use the app.\n- Planned and coordinated Greek and campus-wide marketing activations.\n- Conducted on-campus market research and usability testing for app usage.\n- Collaborated with College Strategists at other campuses to provide feedback and generate new ideas for HQ."
+    },
+    {
+      "company": "Alpha Phi International Fraternity",
+      "position": "Vice President of Campus Affairs",
+      "duration": "October 2016 - November 2017",
+      "location": "West Lafayette, IN",
+      "description": "- Led and directed the Campus Affairs Department with regular meetings.\n- Served on the Executive Board and Program Council.\n- Oversaw and coordinated community service and campus activities for the chapter.\n- Implemented marketing plans in collaboration with Marketing and Membership Recruitment Departments."
+    },
+    {
+      "company": "Gleaners Food Bank of Indiana",
+      "position": "Corporate Partnerships Intern",
+      "duration": "May 2017 - August 2017",
+      "location": "Indianapolis, Indiana Area",
+      "description": "- Gained comprehensive understanding of corporate partnerships in a non-profit setting.\n- Developed communication skills with internal staff and external audiences.\n- Enhanced decision-making and public speaking abilities.\n- Assisted with volunteer management activities, including research and management of restaurant promotions.\n- Planned and coordinated event committee meetings with consultants."
+    }
+  ],
+  "bio": "Lucy Wright is a dedicated marketing professional with over five years of experience at Finish Line, currently serving as the Manager of Regional Marketing. She holds a Marketing degree from Purdue University and has a strong background in customer service, leadership, and event coordination. Lucy has demonstrated her ability to lead marketing initiatives, manage corporate partnerships, and engage in community service. Her involvement in various organizations highlights her commitment to excellence and her passion for fostering meaningful connections within the community."
+}

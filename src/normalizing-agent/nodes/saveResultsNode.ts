@@ -35,11 +35,14 @@ export async function saveResultsNode(
         }
     }
 
+    console.log(`Number of Normalized Profiles: ${state.normalizedProfiles.length}`)
+    console.log(`Number of Normalization Results: ${state.normalizationResults.length}`)
+
     try {
         logToRun(state.runInfo, "Saving normalization results")
         const statusUpdate = {
             status: 'saving_results',
-            completedSteps: state.completedSteps ? [...state.completedSteps] : [],
+            completedSteps: state.completedSteps,
             logs: state.logs ? [...state.logs, 'Saving results'] : ['Saving results']
         }
 
@@ -47,14 +50,14 @@ export async function saveResultsNode(
         const outputDir = path.join(
             process.cwd(),
             "data",
-            "normalized",
-            state.runInfo.runId
+            "normalized"
         )
         fs.mkdirSync(outputDir, { recursive: true })
 
         // Save individual profiles
         for (const profile of state.normalizedProfiles) {
             const filePath = path.join(outputDir, `${profile.name}.json`)
+            //console.log(`Saving profile: ${filePath}`)
             fs.writeFileSync(filePath, JSON.stringify(profile, null, 2))
         }
 

@@ -1,0 +1,358 @@
+{
+  "name": "Jess Doren",
+  "age": 35,
+  "location": "New York, New York, United States",
+  "gender": "Not specified",
+  "company": "IHEARTCOMIX",
+  "companyType": "Experiential Marketing",
+  "companySize": "Not specified",
+  "industry": "Marketing and Events",
+  "occupation": "Head of Experiential & Production",
+  "interests": [
+    "Event Leadership",
+    "Experiential Strategy",
+    "Marketing Strategies",
+    "Innovative Experiential Marketing",
+    "Brand Activation"
+  ],
+  "skills": [
+    "Senior Stakeholder Management",
+    "Collaborative Problem Solving",
+    "Experiential Marketing",
+    "Live Experience Design",
+    "Event Production",
+    "Cross-Functional Team Management",
+    "360 Campaign Planning",
+    "Content Development",
+    "Budget Forecasting",
+    "Growth Management",
+    "Team Leadership",
+    "Project Management"
+  ],
+  "education": [
+    "Bachelor of Science in Advertising, University of Florida"
+  ],
+  "experience": [
+    {
+      "company": "IHEARTCOMIX",
+      "position": "Sr Director Head of Experiential & Production",
+      "startDate": "January 2023",
+      "endDate": "Present",
+      "duration": "2 years 2 months",
+      "location": "New York City Metropolitan Area",
+      "responsibilities": [
+        "Lead a team of creative and production professionals to design and execute immersive and engaging experiences for diverse audiences and brands.",
+        "Specialize in live experience design, event production, cross-functional team management and growth, 360 campaign planning, content development and production, and budget forecasting and reconciling."
+      ]
+    },
+    {
+      "company": "TikTok",
+      "position": "Global Experiential Event Production Lead",
+      "startDate": "June 2022",
+      "endDate": "June 2023",
+      "duration": "1 year 1 month",
+      "location": "New York, United States",
+      "responsibilities": [
+        "Successfully launched and managed several high-profile global and regional events and experiences."
+      ]
+    },
+    {
+      "company": "TikTok",
+      "position": "Senior Event Marketing Manager",
+      "startDate": "April 2021",
+      "endDate": "June 2022",
+      "duration": "1 year 3 months",
+      "location": "New York, United States",
+      "responsibilities": []
+    },
+    {
+      "company": "Served Up",
+      "position": "Founder | Head of Production & Partnerships",
+      "startDate": "July 2020",
+      "endDate": "September 2021",
+      "duration": "1 year 3 months",
+      "location": "New York City Metropolitan Area",
+      "responsibilities": [
+        "Founded a socially distant event series to connect talented entrepreneurs with industry leaders while celebrating community builders.",
+        "Launched events in NYC in 2020 and Miami in 2021."
+      ]
+    },
+    {
+      "company": "JessDoren",
+      "position": "Executive Producer / Project Director",
+      "startDate": "March 2015",
+      "endDate": "August 2021",
+      "duration": "6 years 6 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Produced large-scale experiential campaigns for notable brands nationwide.",
+        "Managed integrated teams, including pipeline progress, SOWs, budgets, timelines, and strategy.",
+        "Developed marketing strategies supporting live experiences and expanded reach on digital platforms.",
+        "Consulted on and amplified digital integrations within event platforms.",
+        "Built, managed, and grew multi-level teams nationally.",
+        "Created, managed, and reconciled budgets upwards of $6MM+.",
+        "Led new business development and pitching from initial meetings to award phase and execution."
+      ]
+    },
+    {
+      "company": "IHEARTCOMIX",
+      "position": "Executive Producer",
+      "startDate": "February 2021",
+      "endDate": "May 2021",
+      "duration": "4 months",
+      "location": "Los Angeles Metropolitan Area",
+      "responsibilities": [
+        "Managed Universal’s Nobody Drive Through Experience.",
+        "Oversaw Warner Bros Space Jam Basketball Refurb & Community Events."
+      ]
+    },
+    {
+      "company": "Campfire",
+      "position": "Executive Producer / Sr Project Manager",
+      "startDate": "January 2020",
+      "endDate": "October 2020",
+      "duration": "10 months",
+      "location": "Los Angeles Metropolitan Area",
+      "responsibilities": [
+        "Managed Amazon Prime Video Hunters 3 Day Experience.",
+        "Coordinated Apple TV+ Ghostwriter Content Shoot & Promo.",
+        "Received Drums Chair Award & Product Launch of the Year."
+      ]
+    },
+    {
+      "company": "Superfly",
+      "position": "Lead Producer",
+      "startDate": "April 2019",
+      "endDate": "November 2019",
+      "duration": "8 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Produced Revolt Summit in Atlanta & Los Angeles.",
+        "Managed BeautyCon in Los Angeles.",
+        "Won 2 Ex Awards."
+      ]
+    },
+    {
+      "company": "BuzzFeed",
+      "position": "Senior Project Manager / Executive Producer",
+      "startDate": "July 2019",
+      "endDate": "September 2019",
+      "duration": "3 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Developed integrated partnership experiences with Bank of America, Chase x NY Knicks x RUN DMC."
+      ]
+    },
+    {
+      "company": "BuzzFeed",
+      "position": "Executive Producer / Project Manager",
+      "startDate": "July 2018",
+      "endDate": "December 2018",
+      "duration": "6 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Created integrated partnership experiences with Bank of America, Dunkin."
+      ]
+    },
+    {
+      "company": "We Are BMF",
+      "position": "Executive Producer",
+      "startDate": "October 2018",
+      "endDate": "November 2018",
+      "duration": "2 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Managed Samsung Pop Up Dog Park & Consumer Experience."
+      ]
+    },
+    {
+      "company": "MKG - Experiential Marketing",
+      "position": "Executive Producer",
+      "startDate": "June 2018",
+      "endDate": "July 2018",
+      "duration": "2 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Led Nike Pegasus Shoe Launch."
+      ]
+    },
+    {
+      "company": "The Richards Group",
+      "position": "Executive Producer",
+      "startDate": "May 2018",
+      "endDate": "June 2018",
+      "duration": "2 months",
+      "location": "Greater New York City Area",
+      "responsibilities": []
+    },
+    {
+      "company": "We're Magnetic",
+      "position": "Executive Producer",
+      "startDate": "February 2018",
+      "endDate": "May 2018",
+      "duration": "4 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Managed TLC 3 City Experiential Activation.",
+        "Coordinated Facebook’s Oculus Pop Up in SoHo."
+      ]
+    },
+    {
+      "company": "The Workshop Collective",
+      "position": "Executive Producer / Head of Production",
+      "startDate": "April 2017",
+      "endDate": "January 2018",
+      "duration": "10 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Managed Ketel One Cross Country Festival Tour.",
+        "Oversaw Zacapa Luxury Event Partnerships (Art Basel)."
+      ]
+    },
+    {
+      "company": "MKG - Experiential Marketing",
+      "position": "Senior Producer",
+      "startDate": "February 2017",
+      "endDate": "March 2017",
+      "duration": "2 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Led H&M Coachella Launch with performance by The Atomics at the TSQ location."
+      ]
+    },
+    {
+      "company": "N/A Collective",
+      "position": "Senior Producer",
+      "startDate": "September 2016",
+      "endDate": "January 2017",
+      "duration": "5 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Managed Twitter CES B2B Installation.",
+        "Oversaw Rhone Production Launch & Media Event.",
+        "Won 2017 Gold Ex Award for Best B-to-B Environment."
+      ]
+    },
+    {
+      "company": "Wonderland Events",
+      "position": "Executive Producer",
+      "startDate": "February 2016",
+      "endDate": "July 2016",
+      "duration": "6 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Produced Smirnoff Tales of a Cocktail Immersive Dinner.",
+        "Managed Heineken Tasting Room."
+      ]
+    },
+    {
+      "company": "N/A Collective",
+      "position": "Senior Producer",
+      "startDate": "August 2015",
+      "endDate": "January 2016",
+      "duration": "6 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Led Target & Vogue Fashion Week Experience.",
+        "Managed Twitter NewFronts CES B2B Installation.",
+        "Won 2016 BizBash Style Award for Best Corporate Event Concept.",
+        "Won 2016 Event Design & Technology Silver for Best B-to-B Environment."
+      ]
+    },
+    {
+      "company": "Havas",
+      "position": "Producer & Logistics Manager",
+      "startDate": "March 2015",
+      "endDate": "July 2015",
+      "duration": "5 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Managed Sodexo Quality of Life Conference.",
+        "Coordinated Luxury Education Foundation 10 Year Anniversary Event.",
+        "Oversaw L'Oreal Executive Gala."
+      ]
+    },
+    {
+      "company": "McKinney",
+      "position": "Producer - Project Manager",
+      "startDate": "October 2014",
+      "endDate": "February 2015",
+      "duration": "5 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Managed Samsung 2015 CES Keynote."
+      ]
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "position": "Producer",
+      "startDate": "February 2014",
+      "endDate": "October 2014",
+      "duration": "9 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Coordinated EmblemHealth - NYC Tour & Triborough Walk.",
+        "Managed Candy Crush - Union Sq Takeover.",
+        "Oversaw Capital One & Verizon Wireless - Campus builds."
+      ]
+    },
+    {
+      "company": "George P Johnson Experience Marketing",
+      "position": "Project Manager",
+      "startDate": "November 2013",
+      "endDate": "January 2014",
+      "duration": "3 months",
+      "location": "Greater New York City Area",
+      "responsibilities": [
+        "Managed Samsung Hope For Children Gala."
+      ]
+    },
+    {
+      "company": "TH Productions",
+      "position": "Account Producer",
+      "startDate": "April 2013",
+      "endDate": "October 2013",
+      "duration": "7 months",
+      "location": "New York, New York",
+      "responsibilities": [
+        "Worked with brands including Banana Republic, Miami Tourism, Kate Spade, Rent the Runway, Shinola, Ralph Lauren, Macy's, Old Navy, Comedy Central, Polaroid Fotobar, Vidal Sassoon, Vogue, Crest, Fixodent."
+      ]
+    },
+    {
+      "company": "IMG Live, LLC",
+      "position": "Account Manager",
+      "startDate": "September 2012",
+      "endDate": "April 2013",
+      "duration": "8 months",
+      "location": "New York, NY",
+      "responsibilities": [
+        "Managed accounts for Adobe, Norton Symantec, Starwood."
+      ]
+    },
+    {
+      "company": "Momentum Worldwide",
+      "position": "Account Executive",
+      "startDate": "June 2010",
+      "endDate": "September 2012",
+      "duration": "2 years 4 months",
+      "location": "New York, New York",
+      "responsibilities": [
+        "Worked with brands including AMEX Delta SkyMiles, American Express OPEN, American Express, Porsche.",
+        "Managed estimates and budgets upwards of $3.4M."
+      ]
+    },
+    {
+      "company": "Saatchi & Saatchi",
+      "position": "Account Management Intern",
+      "startDate": "June 2009",
+      "endDate": "August 2009",
+      "duration": "3 months",
+      "location": "New York, New York",
+      "responsibilities": [
+        "Managed General Mills Yoplait Kids products.",
+        "Led True Blue intern team."
+      ]
+    }
+  ],
+  "bio": "Passionate, results-driven executive event leader and award-winning experiential strategist. I have collaborated both in house and agency side, driving marketing strategies and bringing brands to life through innovative experiential marketing campaigns. As the Sr. Director Head of Experiential & Production at IHEARTCOMIX, I lead a team of creative and production professionals to design and execute immersive and engaging experiences for diverse audiences and brands. My unique specialties include live experience design, event production, XFN team management and growth, 360 campaign planning, content development and production, and budget forecasting and reconciling. Previously, I worked at TikTok as the Global Experiential Event Production Lead, where I successfully launched and managed several high-profile global and regional events and experiences. My mission is to create memorable and meaningful experiences that connect brands and consumers, inspire action, and generate impact."
+}

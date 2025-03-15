@@ -1,7 +1,7 @@
 {
   "name": "Ethan Day",
   "title": "Program Supervisor",
-  "location": "Des Moines, Iowa, United States",
+  "location": "Des Moines Metropolitan Area",
   "key_skills": [
     "monday.com",
     "Customer Service",
@@ -16,7 +16,7 @@
     {
       "name": "Dale Carnegie Course",
       "issuer": "Dale Carnegie",
-      "date_earned": "2013-01-01",
+      "date_earned": "2013",
       "expiry_date": null,
       "credential_id": null,
       "status": "Active"
@@ -28,6 +28,22 @@
       "expiry_date": null,
       "credential_id": null,
       "status": "In Progress"
+    },
+    {
+      "name": "Dale Carnegie Course",
+      "issuer": "Dale Carnegie",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "Active"
+    },
+    {
+      "name": "Precision Nutrition Level 1",
+      "issuer": "Precision Nutrition",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "Active"
     }
   ],
   "experience": [
@@ -35,7 +51,7 @@
       "company": "Two Rivers Marketing",
       "title": "Program Supervisor",
       "duration": {
-        "start_date": "2022-01-01",
+        "start_date": "January 2022",
         "end_date": "Present",
         "date_range": "3 years 2 months"
       },
@@ -44,7 +60,8 @@
         "Drives completion of campaign planning",
         "Manages program/campaign timelines",
         "Manages all programs/campaigns on quality (tactical), on time, and on budget",
-        "Maintains and monitors overarching program/campaign budgets"
+        "Manages the consistent successful facilitation of programs/campaigns from estimation through launch and ongoing execution",
+        "Maintains and monitors overarching program/campaign budgets and schedules weekly"
       ],
       "company_url": null
     },
@@ -52,8 +69,8 @@
       "company": "Two Rivers Marketing",
       "title": "Project Manager",
       "duration": {
-        "start_date": "2019-03-01",
-        "end_date": "2022-01-31",
+        "start_date": "March 2019",
+        "end_date": "January 2022",
         "date_range": "2 years 11 months"
       },
       "location": "Des Moines, Iowa",
@@ -64,15 +81,16 @@
       "company": "The Integer Group",
       "title": "Account Executive",
       "duration": {
-        "start_date": "2018-06-01",
-        "end_date": "2019-03-31",
+        "start_date": "June 2018",
+        "end_date": "March 2019",
         "date_range": "10 months"
       },
       "location": "Des Moines, Iowa Area",
       "description": [
         "Lead shopper marketing initiatives for Michelin and BFGoodrich accounts",
-        "Built and maintained strong client relationships",
-        "Ensured projects were delivered on time and within client budgets"
+        "Built and maintained strong relationships with multiple clients",
+        "Ensured projects were delivered on time and within client budgets",
+        "Reviewed deliverables to make sure they were on strategy and met the client expectations"
       ],
       "company_url": null
     },
@@ -80,16 +98,18 @@
       "company": "Archrival",
       "title": "adidas Field Agent",
       "duration": {
-        "start_date": "2015-09-01",
-        "end_date": "2018-02-28",
+        "start_date": "September 2015",
+        "end_date": "February 2018",
         "date_range": "2 years 6 months"
       },
       "location": "Kansas City, Missouri Area",
       "description": [
-        "Executed visual merchandising directives within Dicks Sporting Goods stores",
-        "Educated store staff on adidas products",
-        "Assisted with marketing communications and in-store displays",
-        "Gathered consumer feedback and relayed insights to adidas"
+        "Execute visual merchandising directives within Dicks Sporting Goods stores",
+        "Educate store staff on adidas product at KC area footwear retailers",
+        "Build store and community relationships within the footwear industry",
+        "Assist with marketing communications including setting in store displays",
+        "Gather consumer feedback and relay back to adidas",
+        "Collaborate with adidas running for KU Elite Eight Alphabounce activation"
       ],
       "company_url": null
     },
@@ -97,8 +117,8 @@
       "company": "GNC",
       "title": "Assistant Store Manager",
       "duration": {
-        "start_date": "2015-08-01",
-        "end_date": "2015-09-30",
+        "start_date": "August 2015",
+        "end_date": "September 2015",
         "date_range": "2 months"
       },
       "location": "Overland Park, Kansas",
@@ -107,10 +127,26 @@
     },
     {
       "company": "GNC",
+      "title": "Part Time Associate",
+      "duration": {
+        "start_date": "June 2014",
+        "end_date": "July 2015",
+        "date_range": "1 year 2 months"
+      },
+      "location": "Ames, IA",
+      "description": [
+        "Helping customers find the right products",
+        "Give advice about health and fitness",
+        "Organize products to fit customer needs"
+      ],
+      "company_url": null
+    },
+    {
+      "company": "GNC",
       "title": "Part-Time Associate",
       "duration": {
-        "start_date": "2014-06-01",
-        "end_date": "2015-07-31",
+        "start_date": "Jun 2014",
+        "end_date": "Jul 2015",
         "date_range": "1 year 2 months"
       },
       "location": "Ames, IA",
@@ -125,16 +161,25 @@
       "company": "Iowa State Athletics Department",
       "title": "Marketing Intern",
       "duration": {
-        "start_date": "2013-04-01",
-        "end_date": "2014-05-31",
+        "start_date": "April 2013",
+        "end_date": "May 2014",
         "date_range": "1 year 2 months"
       },
       "location": "Ames, Iowa",
       "description": [
-        "Lead intern for Cyclone Experience and Iowa State Softball Marketing",
-        "Created promotional materials and in-game scripts",
-        "Managed marketing budget and acquired sponsors",
-        "Assisted full-time staff with promotional ideas and office duties"
+        "Lead intern for Cyclone Experience",
+        "Plan each appearance and activity for each game",
+        "Develop promotional items throughout season",
+        "Assign and delegate intern duties for 20 students",
+        "Lead Intern for Iowa State Softball",
+        "Generate promotional materials throughout the season",
+        "Devise game day scripts including in game promotions",
+        "Oversee and assign duties for 2-3 interns each game",
+        "Manage marketing budget",
+        "Acquire sponsors for the season",
+        "Assist Full Time Marketing Staff with promotional ideas and office duties",
+        "Create promotional material using Adobe Design Programs",
+        "Contribute to in-game promotions"
       ],
       "company_url": null
     },
@@ -142,13 +187,14 @@
       "company": "Ames Community Theater",
       "title": "Performer",
       "duration": {
-        "start_date": "2013-02-01",
-        "end_date": "2013-04-30",
+        "start_date": "February 2013",
+        "end_date": "April 2013",
         "date_range": "3 months"
       },
       "location": "Ames, IA",
       "description": [
-        "Played Giles Ralston in The Mousetrap"
+        "The Mousetrap",
+        "Giles Ralston"
       ],
       "company_url": null
     }

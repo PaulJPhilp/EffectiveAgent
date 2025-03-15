@@ -1,0 +1,118 @@
+{
+  "name": "Kalie Whitsett",
+  "age": 50,
+  "location": "Southlake, Texas, United States",
+  "gender": "Female",
+  "company": "Augustine Agency",
+  "companyType": "Digital & Creative Agency",
+  "companySize": "51-200 employees",
+  "industry": "Marketing & Advertising",
+  "occupation": "Vice President | Digital & Creative",
+  "interests": [
+    "Creative Strategy",
+    "Marketing",
+    "Advertising",
+    "Community Service",
+    "Process Improvement",
+    "Mentoring"
+  ],
+  "skills": [
+    "Account Management",
+    "Advertising",
+    "Advertising Sales",
+    "Creative Strategy",
+    "Marketing",
+    "Social Media",
+    "Communications",
+    "Project Management",
+    "Data Analysis",
+    "Process Improvement",
+    "Mentoring"
+  ],
+  "education": [
+    "The University of Texas at Arlington - Bachelor of Arts in Marketing / Business (1991 - 1995)"
+  ],
+  "experience": [
+    {
+      "company": "Augustine Agency",
+      "position": "VP | Digital & Creative",
+      "startDate": "September 2021",
+      "endDate": "Present",
+      "duration": "3 years 6 months",
+      "location": "California | Nevada | Texas"
+    },
+    {
+      "company": "Lifeblue",
+      "position": "Marketing Account Director | Brand Innovation | Strategy",
+      "startDate": "June 2020",
+      "endDate": "December 2021",
+      "duration": "1 year 7 months",
+      "location": "Plano, Texas, United States"
+    },
+    {
+      "company": "Eighty Three Creative",
+      "position": "Vice President Operations",
+      "startDate": "November 2018",
+      "endDate": "June 2020",
+      "duration": "1 year 8 months",
+      "location": "Dallas, Texas, United States"
+    },
+    {
+      "company": "Eighty Three Creative",
+      "position": "Director of Client Services",
+      "startDate": "October 2017",
+      "endDate": "November 2018",
+      "duration": "1 year 2 months",
+      "location": "Dallas/Fort Worth Area"
+    },
+    {
+      "company": "DMNmedia",
+      "position": "General Manager of Creative Strategy and Client Services",
+      "startDate": "June 2016",
+      "endDate": "July 2017",
+      "duration": "1 year 2 months",
+      "location": "Dallas/Fort Worth Area"
+    },
+    {
+      "company": "DMNmedia",
+      "position": "Senior Director of Client Services",
+      "startDate": "January 2010",
+      "endDate": "May 2016",
+      "duration": "6 years 5 months",
+      "location": "Dallas/Fort Worth Area"
+    },
+    {
+      "company": "A. H. Belo",
+      "position": "Director of Creative Services",
+      "startDate": "July 1994",
+      "endDate": "June 2017",
+      "duration": "23 years",
+      "location": "Dallas/Fort Worth Area"
+    },
+    {
+      "company": "A.H. Belo",
+      "position": "General Manager of Creative Services",
+      "startDate": "1995",
+      "endDate": "2017",
+      "duration": "22 years",
+      "location": "Dallas/Fort Worth Area"
+    },
+    {
+      "company": "The Dallas Morning News",
+      "position": "Client Services Manager",
+      "startDate": "May 2008",
+      "endDate": "January 2010",
+      "duration": "1 year 9 months",
+      "location": "Dallas/Fort Worth Area"
+    },
+    {
+      "company": "The Dallas Morning News",
+      "position": "Creative Director",
+      "startDate": "January 1995",
+      "endDate": "February 2008",
+      "duration": "13 years 2 months",
+      "location": "Dallas/Fort Worth Area"
+    }
+  ],
+  "bio": "Highly-accomplished, creative strategy and marketing professional with a quantifiable record of consistent growth in market share, profitability, and client satisfaction. Valued, 20+ year professional with success in the development of project charters, marketing activities, social media content, communications strategies, project milestones, status reports, resource plans, and budgets. An industry expert in the design and delivery of creative development experiences for clients including FD Luxe, Savor Dallas, Custom Publications. Process improvement expert delivering increased efficiency to individual and enterprise-wide products and programs. A key developer of revenue-generating lines of business and increased revenue in existing and new markets. Trusted mentor to the team, division, and departmental managers with a focused effort on professional development. Manager of multi-million dollar budget including purchase and implementation costs. Strong research/data analyst with expert knowledge of industry competition and trends."
+}

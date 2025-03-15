@@ -561,7 +561,7 @@ export interface ClusteringState {
     normalizedProfiles: NormalizedProfile[];
     basicClusters: BasicClusteringResult;
     currentClusterIndex: number,
-    currentPersona: Partial<FullPersona>,
+    inputPersona: Partial<FullPersona>,
     elaboratedPersonas?: Partial<ElaboratedPersona>[],
     error: string;
     status: string;
@@ -573,14 +573,14 @@ export interface ClusteringState {
 
 export interface EvaluationState {
     runInfo: RunConfig;
-    currentPersona: Partial<FullPersona>;
+    inputPersona: Partial<FullPersona>;
     elaboratedPersona: Partial<ElaboratedPersona>,
     evaluation: Partial<Evaluation>,
     executiveSummary: string;
     fullProfile: string;
     summaryReport: string;
     error: string;
-    status: string;
+    status: Array<string>;
     completedSteps: string[];
     logs: string[];
     recommendations: string[];

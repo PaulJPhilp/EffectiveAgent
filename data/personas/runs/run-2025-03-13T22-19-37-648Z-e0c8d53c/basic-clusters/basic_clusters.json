@@ -1,0 +1,153 @@
+{
+  "clusters": [
+    {
+      "title": "Corporate Marketing Leaders",
+      "description": {
+        "summary": "This cluster comprises senior marketing professionals who lead strategic initiatives within corporate environments. They are responsible for overarching marketing strategies, brand management, and corporate communications to drive business growth and brand equity.",
+        "commonCharacteristics": [
+          "Senior-level roles (VP, Director, Managing Director)",
+          "Strategic planning and execution",
+          "Focus on brand management and corporate communications"
+        ],
+        "skills": [
+          "Marketing Strategy",
+          "Brand Management",
+          "Corporate Communications",
+          "Content Strategy",
+          "Strategic Planning"
+        ],
+        "typicalBackground": "Professionals with extensive experience in corporate marketing departments, often holding senior positions overseeing large teams and managing comprehensive marketing campaigns across various channels."
+      },
+      "representativeProfiles": [
+        {
+          "id": "1",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Senior Marketing Director responsible for corporate communications and brand strategy",
+            "Extensive experience in strategic planning and content strategy"
+          ]
+        },
+        {
+          "id": "4",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Managing Director with expertise in integrated marketing and digital strategy",
+            "Leads cross-functional teams to drive brand awareness and revenue growth"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Agency-Based Marketing Professionals",
+      "description": {
+        "summary": "This cluster includes marketing and communications professionals working within agencies. They manage client accounts, develop and execute marketing campaigns, and specialize in areas such as public relations, content creation, and strategic communications to meet diverse client needs.",
+        "commonCharacteristics": [
+          "Roles within marketing and PR agencies",
+          "Client account management",
+          "Execution of multi-channel marketing campaigns"
+        ],
+        "skills": [
+          "Client Management",
+          "Public Relations",
+          "Content Creation",
+          "Campaign Management",
+          "Strategic Communications"
+        ],
+        "typicalBackground": "Individuals with experience in agency settings, adept at handling multiple client accounts, and skilled in delivering tailored marketing and PR solutions to various industries."
+      },
+      "representativeProfiles": [
+        {
+          "id": "2",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Vice President at a major marketing agency managing integrated communication plans",
+            "Specializes in media strategy and advertising for diverse clients"
+          ]
+        },
+        {
+          "id": "5",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Director of Project Management at a communications agency",
+            "Oversees cross-functional teams and manages high-profile client projects"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event and Experiential Production Specialists",
+      "description": {
+        "summary": "Professionals in this cluster are experts in planning, managing, and executing events and experiential marketing initiatives. They handle everything from logistics and vendor coordination to creative direction and on-site management, ensuring memorable and impactful event experiences.",
+        "commonCharacteristics": [
+          "Focus on event planning and production",
+          "Experience with experiential marketing",
+          "Skills in logistics and vendor management"
+        ],
+        "skills": [
+          "Event Planning",
+          "Production Management",
+          "Experiential Marketing",
+          "Logistics Coordination",
+          "Vendor Management"
+        ],
+        "typicalBackground": "Individuals with a strong background in event management, often holding roles such as Producer, Director of Production, or Event Manager. They possess expertise in creating and executing large-scale events and experiential marketing campaigns."
+      },
+      "representativeProfiles": [
+        {
+          "id": "7",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Producer with extensive experience in experiential marketing and event production",
+            "Managed multi-million dollar events and led cross-functional production teams"
+          ]
+        },
+        {
+          "id": "8",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Event Producer with a focus on large-scale productions and creative event concepts",
+            "Led diverse teams to successfully execute high-profile events"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Content and Communications Specialists",
+      "description": {
+        "summary": "This cluster consists of professionals who specialize in content creation, strategic communications, and public relations. They develop and manage content strategies, engage with media, and craft compelling narratives to enhance brand presence and engage target audiences across various platforms.",
+        "commonCharacteristics": [
+          "Roles focused on content strategy and communications",
+          "Expertise in public relations and media engagement",
+          "Strong writing and storytelling abilities"
+        ],
+        "skills": [
+          "Content Strategy",
+          "Public Relations",
+          "Media Engagement",
+          "Copywriting",
+          "Storytelling"
+        ],
+        "typicalBackground": "Professionals with experience in communications, PR, or content creation, holding positions such as Content Producer, Communications Manager, or PR Specialist. They are skilled in crafting narratives and managing content across digital and traditional media."
+      },
+      "representativeProfiles": [
+        {
+          "id": "11",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Brand Marketing Specialist with expertise in content optimization and SEO",
+            "Handles comprehensive content strategies to drive brand engagement"
+          ]
+        },
+        {
+          "id": "12",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Brand Marketing Manager focused on strategic communication and content development",
+            "Manages integrated marketing content across multiple platforms"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2023-10-04"
+}

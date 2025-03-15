@@ -1,6 +1,6 @@
 import * as fs from 'node:fs'
 import * as path from 'node:path'
-import type { ProfileData } from './types'
+import type { ProfileData } from './types.js'
 
 interface NormalizationOpportunity {
     field: string

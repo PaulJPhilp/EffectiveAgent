@@ -15,6 +15,14 @@
   "certificates": [
     {
       "name": "SCRUM Master",
+      "issuer": "",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "Active"
+    },
+    {
+      "name": "SCRUM Master",
       "issuer": "Unknown Issuer",
       "date_earned": null,
       "expiry_date": null,
@@ -27,7 +35,7 @@
       "company": "Weber Shandwick",
       "title": "Senior Project Manager",
       "duration": {
-        "start_date": "2022-08-01",
+        "start_date": "Aug 2022",
         "end_date": "Present",
         "date_range": "2 years 7 months"
       },
@@ -39,11 +47,11 @@
       "company": "Fathom",
       "title": "Senior Project Manager",
       "duration": {
-        "start_date": "2022-07-01",
-        "end_date": "2022-08-01",
+        "start_date": "Jul 2022",
+        "end_date": "Aug 2022",
         "date_range": "2 months"
       },
-      "location": null,
+      "location": "Cleveland, Ohio, United States",
       "description": [],
       "company_url": null
     },
@@ -51,8 +59,8 @@
       "company": "Fathom",
       "title": "Project Manager",
       "duration": {
-        "start_date": "2020-11-01",
-        "end_date": "2022-07-01",
+        "start_date": "Nov 2020",
+        "end_date": "Jul 2022",
         "date_range": "1 year 9 months"
       },
       "location": "Cleveland, Ohio, United States",
@@ -63,8 +71,8 @@
       "company": "Publicis Sapient",
       "title": "Associate Project Manager",
       "duration": {
-        "start_date": "2019-11-01",
-        "end_date": "2020-11-01",
+        "start_date": "Nov 2019",
+        "end_date": "Nov 2020",
         "date_range": "1 year 1 month"
       },
       "location": "Cleveland/Akron, Ohio Area",
@@ -75,8 +83,8 @@
       "company": "Publicis Sapient",
       "title": "Project Coordinator",
       "duration": {
-        "start_date": "2018-07-01",
-        "end_date": "2019-11-01",
+        "start_date": "Jul 2018",
+        "end_date": "Nov 2019",
         "date_range": "1 year 5 months"
       },
       "location": "Cleveland, Ohio",
@@ -87,8 +95,8 @@
       "company": "ValMark Financial Group",
       "title": "Marketing Intern",
       "duration": {
-        "start_date": "2017-10-01",
-        "end_date": "2018-07-01",
+        "start_date": "Oct 2017",
+        "end_date": "Jul 2018",
         "date_range": "10 months"
       },
       "location": "Akron, Ohio",
@@ -99,8 +107,8 @@
       "company": "Insomnia Cookies",
       "title": "Marketing Representative",
       "duration": {
-        "start_date": "2017-09-01",
-        "end_date": "2018-06-01",
+        "start_date": "Sep 2017",
+        "end_date": "Jun 2018",
         "date_range": "10 months"
       },
       "location": "Akron, Ohio",
@@ -108,23 +116,11 @@
       "company_url": null
     },
     {
-      "company": "AMERICAN EAGLE OUTFITTERS INC.",
-      "title": "Stylist and Lead Cashier",
-      "duration": {
-        "start_date": "2014-04-01",
-        "end_date": "2017-10-01",
-        "date_range": "3 years 7 months"
-      },
-      "location": null,
-      "description": [],
-      "company_url": null
-    },
-    {
       "company": "Performance Health",
       "title": "Specialty Products Marketing Intern",
       "duration": {
-        "start_date": "2017-04-01",
-        "end_date": "2017-09-01",
+        "start_date": "Apr 2017",
+        "end_date": "Sep 2017",
         "date_range": "6 months"
       },
       "location": "Akron, Ohio",
@@ -135,9 +131,21 @@
       "company": "Ohio & Erie Canalway Coalition",
       "title": "Marketing Intern",
       "duration": {
-        "start_date": "2016-05-01",
-        "end_date": "2016-08-01",
+        "start_date": "May 2016",
+        "end_date": "Aug 2016",
         "date_range": "4 months"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
+      "company": "AMERICAN EAGLE OUTFITTERS INC.",
+      "title": "Stylist and Lead Cashier",
+      "duration": {
+        "start_date": "Apr 2014",
+        "end_date": "Oct 2017",
+        "date_range": "3 years 7 months"
       },
       "location": null,
       "description": [],

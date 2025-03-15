@@ -1,0 +1,110 @@
+{
+  "name": "Aleksys Arredondo",
+  "age": null,
+  "location": "Burlington, Massachusetts, United States",
+  "gender": null,
+  "company": "Abbott",
+  "companyType": "Medical Devices",
+  "companySize": "Large",
+  "industry": "Healthcare / Medical Devices",
+  "occupation": "Product Analysis Engineer",
+  "interests": [
+    "Engineering Applications",
+    "Medical Devices",
+    "Process Improvement",
+    "Biomedical Engineering",
+    "Technology Advancement"
+  ],
+  "skills": [
+    "Failure Mode and Effects Analysis (FMEA)",
+    "Corrective and Preventive Action (CAPA)",
+    "U.S. Food and Drug Administration (FDA) Compliance",
+    "Process Improvement",
+    "Project Management",
+    "Certified Associate in Project Management (CAPM)®",
+    "Introduction to ISO Global BIM Standards",
+    "AI in Medical Imaging",
+    "Azure Machine Learning",
+    "Data Engineering Foundations",
+    "Spanish (Native or Bilingual)"
+  ],
+  "education": [
+    "Bachelor of Science in Bioengineering and Biomedical Engineering, The University of Texas at Dallas (2019 - 2023)",
+    "Minor in Medical Spanish Biliteracy, The University of Texas Rio Grande Valley (2018 - 2019)"
+  ],
+  "experience": [
+    {
+      "company": "Abbott",
+      "position": "Product Analysis Engineer",
+      "startDate": "November 2024",
+      "endDate": "Present",
+      "duration": "4 months",
+      "location": "Burlington, Massachusetts, United States",
+      "description": "Working in the Heart Failure division of Abbott. Collaborating with other engineers in the Mechanical Circulatory Support (MCS) Product Performance Group (PPG). Directly involved in regulatory compliance of post-market performance of the HeartMate 3™ Left Ventricular Assist Device (LVAD)."
+    },
+    {
+      "company": "Cheil North America",
+      "position": "Associate Producer",
+      "startDate": "May 2023",
+      "endDate": "August 2024",
+      "duration": "1 year 4 months",
+      "location": "Plano, Texas, United States",
+      "description": "Elevated every consumer touch point experience and effectively planned and project managed experiential and event marketing from branded environments, mobile vehicles, on-campus initiatives, influencer, and youth marketing programs. Evaluated project details, costs/budgets, and timelines to make appropriate recommendations or provide alternative solutions. Prepared contracts, reviewed vendor proposals, negotiated contracts/costs, and maintained consistent vision/message/image of client’s brand. Conducted pre- and post-project activities such as cost analysis, invoice reconciliation, project recaps, and researched competitive programs and trends for competitive analysis. Delivered overall project management and ensured quality control for all deliverables."
+    },
+    {
+      "company": "UTDesign",
+      "position": "Biomedical Senior Project Engineer",
+      "startDate": "May 2023",
+      "endDate": "December 2023",
+      "duration": "8 months",
+      "location": "Richardson, Texas, United States",
+      "description": "During Capstone at UT Dallas, involved in the UT Design Studio developing the Coupage Technique for a Coupage Vest medical device for Canine/Feline treatment in veterinary practices. Tasked with automating the technique by creating a controllable vest that could coupage while tracking vital signs. Designed device features including vibration motors controlled through a custom app and monitoring patient’s pulse rate and oxygen saturation using a pulse oximeter. Constructed a coupage vest per specifications from Olive Tree Therapeutics and performed 3D modeling. Major contributions include 3D renders and modeling of final vest components and space allocation for fabrication. Collaborated with cross-functional teams to integrate electronic systems into this first-of-its-kind device. Patent-pending device created by the capstone engineering team: BOLT Biotechnology."
+    },
+    {
+      "company": "Department of Bioengineering - UT Dallas",
+      "position": "Research Engineer",
+      "startDate": "June 2021",
+      "endDate": "September 2023",
+      "duration": "2 years 4 months",
+      "location": "Richardson, Texas, United States",
+      "description": "Worked in the Biomaterials for Osseointegration and Novel Engineering (BONE) Laboratory under the direction of Dr. Danieli Rodrigues, Dr. Sareda Schramm, Dr. Claudia Biguetti, and Anthony Reyes. Engaged in research areas including in vitro co-culture of mammalian and bacterial cells, cell counting methods through imaging software, migration assays using scratch-method/wound healing, and comparison of surface treatments for Titanium implants regarding material integrity and corrosion."
+    },
+    {
+      "company": "PICKUP",
+      "position": "Market Success Coordinator",
+      "startDate": "January 2023",
+      "endDate": "April 2023",
+      "duration": "4 months",
+      "location": "Plano, Texas, United States",
+      "description": "Assisted with incoming and outbound calls, handled logistical support for customers and drivers, dispatched orders across multiple markets, and provided two-way communications while monitoring the grid to maximize on-time performance and minimize service disruptions."
+    },
+    {
+      "company": "PICKUP",
+      "position": "Luxury Delivery Concierge",
+      "startDate": "May 2022",
+      "endDate": "January 2023",
+      "duration": "9 months",
+      "location": "Dallas-Fort Worth Metroplex",
+      "description": "Delivered for Louis Vuitton, responsible for white-glove concierge-style pickup and drop-off of store-bought merchandise purchased online or via phone. Coordinated with store managers for home/office deliveries, handling out-of-store transactions and ensuring premium customer service."
+    },
+    {
+      "company": "Pain Relief Network",
+      "position": "Healthcare Manager",
+      "startDate": "July 2020",
+      "endDate": "June 2021",
+      "duration": "1 year",
+      "location": "McAllen, Texas, United States",
+      "description": "Screened patients and managed teams for telehealth consultations with over 10 physicians. Trained in customer service and sales tactics, reviewed and created new scripts quarterly. Provided consultations via Noble Telehealth for patients requiring pain management assistance and medication."
+    },
+    {
+      "company": "Rio Health Medical Clinic",
+      "position": "Mechanical Engineer",
+      "startDate": "April 2018",
+      "endDate": "June 2019",
+      "duration": "1 year 3 months",
+      "location": "McAllen, Texas, United States",
+      "description": "Worked under Paul Treviño on innovating techniques in physical therapy and engineering applications to orthopedics. Assisted in screening inquiry calls for appointments and workers’ compensation physical therapy. Processed patient medical records electronically for four physicians using Microsoft Office suites."
+    }
+  ],
+  "bio": "Excellence-guided Engineer capable of transforming complex operational challenges into cutting-edge, efficient, and unique solutions. Proficient in streamlining project workflows, leading high-performing teams, delivering exceptional technical support, and coordinating product development. Seeking learning and collaborative opportunities to advance technology through engineering applications."
+}

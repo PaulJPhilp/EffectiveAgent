@@ -1,0 +1,177 @@
+{
+  "clusters": [
+    {
+      "title": "Experiential Marketing and Event Production Leaders",
+      "description": {
+        "summary": "This cluster comprises professionals who lead and manage experiential marketing campaigns, event production, and live activations. They are responsible for the planning, coordination, and execution of events that create memorable brand experiences and engage target audiences effectively.",
+        "commonCharacteristics": [
+          "Leadership in event production",
+          "Strategic planning and execution",
+          "Cross-functional team management"
+        ],
+        "skills": [
+          "Event management",
+          "Experiential marketing",
+          "Production coordination"
+        ],
+        "typicalBackground": "Individuals in this cluster typically have extensive experience in event production, marketing, or communications, holding progressive leadership roles that oversee large-scale events and experiential marketing campaigns."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Amanda Levine",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Senior producer with extensive experience in event production and experiential marketing.",
+            "Responsible for managing large-scale events and coordinating multiple facets of production."
+          ]
+        },
+        {
+          "id": "Jason Wozny",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Partner involved in experiential marketing and event production for major clients.",
+            "Leads multidisciplinary teams to deliver immersive brand experiences."
+          ]
+        },
+        {
+          "id": "Jess D.",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Head of Experiential and Production with a focus on immersive and engaging events.",
+            "Manages creative and production teams to exceed client expectations."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Strategic Marketing and Communications Directors",
+      "description": {
+        "summary": "Professionals in this cluster develop and execute comprehensive marketing and communication strategies aimed at enhancing brand presence, driving market growth, and managing internal and external communications. They ensure that all marketing efforts align with organizational goals and oversee various marketing functions to achieve strategic objectives.",
+        "commonCharacteristics": [
+          "Strategic planners",
+          "Strong leadership and management skills",
+          "Expertise in communications and brand management"
+        ],
+        "skills": [
+          "Marketing strategy",
+          "Brand management",
+          "Communications planning"
+        ],
+        "typicalBackground": "These individuals usually have a background in marketing, communications, or public relations with significant experience in developing and leading strategic marketing initiatives that drive brand growth and market penetration."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sara Rush Wirth",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Director of Public Relations and Communications with strategic oversight responsibilities.",
+            "Leads internal and investor relations, aligning communications with corporate strategy."
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Group Account Director overseeing strategic marketing and communication campaigns.",
+            "Experienced in developing and executing comprehensive marketing strategies for diverse clients."
+          ]
+        },
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.88,
+          "matchReasons": [
+            "Vice President managing national marketing and communications for consumer brands.",
+            "Expertise in strategic planning, media relations, and integrated marketing campaigns."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Content Strategy and Creative Production Specialists",
+      "description": {
+        "summary": "This cluster includes experts in content creation, publishing, and creative production who are responsible for developing compelling narratives, managing content channels, and overseeing the creative aspects of marketing campaigns. They ensure that all content aligns with brand messaging and effectively engages target audiences across various platforms.",
+        "commonCharacteristics": [
+          "Strong creative and storytelling skills",
+          "Expertise in content management and publishing",
+          "Ability to oversee and manage creative processes"
+        ],
+        "skills": [
+          "Content strategy",
+          "Publishing and editing",
+          "Creative direction"
+        ],
+        "typicalBackground": "Individuals in this cluster often have backgrounds in publishing, content marketing, or creative agencies, with a focus on content development, creative production, and managing multi-channel content distribution."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Krista Capasella",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Senior Brand Marketing Manager with a focus on content strategy and digital marketing.",
+            "Oversees 360-degree brand communication, ensuring consistent and engaging content across all channels."
+          ]
+        },
+        {
+          "id": "Christine Zaccaro",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Senior Program Manager responsible for creative program development and experiential campaigns.",
+            "Manages integrated content development across traditional, digital, and social platforms."
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.87,
+          "matchReasons": [
+            "Executive Editor and Publisher overseeing content strategy for Wayne State Magazine.",
+            "Responsible for creating and managing editorial content that aligns with brand messaging."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Account Management and Client Relations Professionals",
+      "description": {
+        "summary": "Professionals in this cluster specialize in managing and nurturing client relationships, ensuring that marketing and event campaigns meet client objectives. They act as the primary point of contact between clients and internal teams, coordinating efforts to deliver successful projects that align with client needs and expectations.",
+        "commonCharacteristics": [
+          "Strong interpersonal and communication skills",
+          "Client-focused approach",
+          "Proficient in managing multiple accounts and projects"
+        ],
+        "skills": [
+          "Client relationship management",
+          "Account supervision",
+          "Project coordination"
+        ],
+        "typicalBackground": "These individuals typically have background in account management, sales, or client services, with experience in handling multiple client accounts, ensuring client satisfaction, and coordinating cross-functional teams to achieve project goals."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Holly Roberts",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Senior Account Supervisor managing key client accounts and leading account teams.",
+            "Expertise in integrated marketing initiatives and client growth strategies."
+          ]
+        },
+        {
+          "id": "Jeff Bardin",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Managing Director overseeing integrated brand experiences and client service initiatives.",
+            "Experienced in account management, business development, and strategic client partnerships."
+          ]
+        },
+        {
+          "id": "Jenny Ludwigsen",
+          "relevanceScore": 0.88,
+          "matchReasons": [
+            "Director of Marketing and Business Development with extensive experience in client relations.",
+            "Expertise in managing marketing strategies and building strong client partnerships."
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

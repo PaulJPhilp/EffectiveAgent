@@ -1,0 +1,245 @@
+{
+  "clusters": [
+    {
+      "title": "Marketing Communications Leaders",
+      "description": {
+        "summary": "This cluster comprises senior professionals specializing in marketing communications, strategic planning, content creation, and brand management. They are adept at developing and executing comprehensive marketing strategies, managing cross-functional teams, and driving brand engagement through various media channels.",
+        "commonCharacteristics": [
+          "Senior-level roles with strategic responsibilities",
+          "Expertise in marketing strategy and communications",
+          "Leadership and team management skills"
+        ],
+        "skills": [
+          "Marketing Strategy",
+          "Content Creation",
+          "Brand Management",
+          "Strategic Communications",
+          "Public Relations"
+        ],
+        "typicalBackground": "Individuals in this cluster typically hold advanced positions in marketing departments or agencies, with extensive experience in developing and implementing marketing campaigns, managing brand portfolios, and leading marketing teams. They often possess strong backgrounds in communications, advertising, and digital marketing."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Senior Vice President role focusing on strategic marketing and communications",
+            "Skills include Marketing Strategy, Content Development, and Public Relations",
+            "Extensive experience in managing cross-functional teams and executing integrated campaigns"
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Group Account Director overseeing strategic marketing and communications",
+            "Skills include Integrated Marketing, Communications Planning, and Strategic Planning",
+            "Long-term experience in leading marketing and communications teams"
+          ]
+        },
+        {
+          "id": "Jenny Ludwigsen",
+          "relevanceScore": 0.88,
+          "matchReasons": [
+            "Vice President of Marketing with expertise in marketing communications and strategic planning",
+            "Skills include Marketing Communications and Strategic Planning",
+            "Extensive experience in developing and directing marketing communication campaigns"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production Specialists",
+      "description": {
+        "summary": "Professionals in this cluster excel in planning, coordinating, and executing large-scale events and experiential marketing initiatives. They possess strong organizational skills, attention to detail, and the ability to manage multiple facets of event production, including logistics, vendor management, and on-site execution.",
+        "commonCharacteristics": [
+          "Roles focused on event planning and production",
+          "Strong organizational and multitasking abilities",
+          "Expertise in managing logistics and on-site operations"
+        ],
+        "skills": [
+          "Event Planning",
+          "Logistics Management",
+          "Vendor Coordination",
+          "Stage Management",
+          "Production Coordination"
+        ],
+        "typicalBackground": "Members of this cluster often have backgrounds in event management, production coordination, or experiential marketing. They typically work within event agencies, production companies, or corporate event departments, and have experience managing both small and large-scale events across various industries."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sarah Rush Wirth",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Director of Public Relations, Internal Communications and Investor Relations with extensive event coordination experience",
+            "Skills include Strategic Communications and Content Strategy relevant to event planning",
+            "Multiple roles involving content deployment and cross-functional team collaboration"
+          ]
+        },
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Director of Project Management with experience in managing projects and events",
+            "Skills include Strategy and Classroom Management applicable to event coordination",
+            "Experience in managing various projects and teams"
+          ]
+        },
+        {
+          "id": "Aliya Tarmo",
+          "relevanceScore": 0.87,
+          "matchReasons": [
+            "Senior Producer specializing in event production with experience in live events and multimedia projects",
+            "Skills include Networking, Producing, and Casting relevant to event management",
+            "Experience working with diverse clients and leading multidisciplinary teams"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Account and Client Relations Managers",
+      "description": {
+        "summary": "This cluster consists of professionals who excel in managing client relationships, overseeing account activities, and ensuring client satisfaction. They are skilled in understanding client needs, developing tailored solutions, and maintaining strong business relationships to drive account growth and retention.",
+        "commonCharacteristics": [
+          "Focus on client relationship management",
+          "Experience in account oversight and client satisfaction",
+          "Strong communication and interpersonal skills"
+        ],
+        "skills": [
+          "Client Relationship Management",
+          "Account Oversight",
+          "Business Development",
+          "Customer Service",
+          "Communication"
+        ],
+        "typicalBackground": "Individuals in this cluster usually have backgrounds in account management, client services, or business development. They often work within agencies, corporate account departments, or as consultants, and are adept at handling multiple clients, developing growth strategies, and ensuring the successful delivery of client projects."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Managing Director role overseeing account management and business development",
+            "Skills include Integrated Marketing and Digital Strategy relevant to client relations",
+            "Experience in managing client relationships and driving account growth"
+          ]
+        },
+        {
+          "id": "Holly Roberts",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Senior Account Supervisor managing client teams and overseeing client initiatives",
+            "Skills include Brand Development and Cross-Functional Team Leadership",
+            "Experience in handling multiple client projects and identifying growth opportunities"
+          ]
+        },
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.85,
+          "matchReasons": [
+            "Field Marketing Manager with responsibilities in managing client partnerships and sponsorships",
+            "Skills include Project Coordination and Communication relevant to account management",
+            "Experience in managing marketing initiatives and client relationships"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative Content Producers",
+      "description": {
+        "summary": "Creators in this cluster specialize in producing engaging and high-quality content across various media platforms. They possess strong creative vision, technical skills in content production, and the ability to translate brand messages into compelling narratives. Their work spans digital content, video production, graphic design, and multimedia storytelling.",
+        "commonCharacteristics": [
+          "Roles centered around content creation and production",
+          "Strong creative and technical skills",
+          "Ability to translate brand messages into engaging content"
+        ],
+        "skills": [
+          "Content Production",
+          "Video Production",
+          "Graphic Design",
+          "Multimedia Storytelling",
+          "Creative Vision"
+        ],
+        "typicalBackground": "Members of this cluster typically have backgrounds in media production, graphic design, digital marketing, or creative arts. They often work within creative agencies, media companies, or in-house marketing departments, and are experienced in using various content creation tools and platforms to produce compelling visual and written content."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Christine Zaccaro",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Senior Program Manager role with a focus on creative program management and experiential campaigns",
+            "Skills include Communication, Brand Management, and Social Media Marketing relevant to content production",
+            "Experience in developing immersive brand experiences and integrated campaigns"
+          ]
+        },
+        {
+          "id": "Jason Bardin",
+          "relevanceScore": 0.88,
+          "matchReasons": [
+            "Chief Experience Officer role focusing on experiential storytelling and creative technology",
+            "Skills include Event Management, Creative Branding, and Multimedia Storytelling",
+            "Extensive experience in creating experiential marketing initiatives and content strategies"
+          ]
+        },
+        {
+          "id": "Julianne Wolfe",
+          "relevanceScore": 0.86,
+          "matchReasons": [
+            "Senior Director, Head of Experiential and Production role focusing on creative and production leadership",
+            "Skills include Experiential Marketing, Content Strategy, and Creative Ideation",
+            "Experience in designing and executing immersive brand activations and content-driven events"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Content Marketing Specialists",
+      "description": {
+        "summary": "Professionals in this cluster focus on developing and implementing content marketing strategies to drive brand engagement and lead generation. They are skilled in content creation, SEO, social media management, and data-driven marketing analysis. Their work supports overall marketing goals by delivering valuable and relevant content to target audiences.",
+        "commonCharacteristics": [
+          "Roles focused on content strategy and marketing",
+          "Expertise in digital content creation and SEO",
+          "Ability to analyze data to inform content decisions"
+        ],
+        "skills": [
+          "Content Marketing",
+          "SEO",
+          "Social Media Management",
+          "Data Analysis",
+          "Copywriting"
+        ],
+        "typicalBackground": "Individuals in this cluster often have backgrounds in digital marketing, communications, or journalism. They typically work within marketing departments, content agencies, or as freelance content strategists, and are proficient in creating content that aligns with marketing objectives and engages target audiences."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Brand Marketing Specialist role with a focus on content marketing and e-commerce",
+            "Skills include SEO, Copywriting, and Content Optimization relevant to content marketing",
+            "Experience in developing and executing content strategies to enhance brand presence online"
+          ]
+        },
+        {
+          "id": "Katie Proctor",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Influencer Strategist role focusing on content strategy and partnership development",
+            "Skills include Content Strategy, Social Media, and Influencer Relations",
+            "Experience in creating and managing content-driven marketing initiatives"
+          ]
+        },
+        {
+          "id": "Caren Read",
+          "relevanceScore": 0.84,
+          "matchReasons": [
+            "Marketing Communications Manager role with responsibilities in content creation and campaign management",
+            "Skills include Marketing Communications and Project Management relevant to content marketing",
+            "Experience in developing and executing marketing campaigns with a content focus"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

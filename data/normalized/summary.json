@@ -1,0 +1,11 @@
+{
+  "totalProfiles": 80,
+  "successfulNormalizations": 79,
+  "failedNormalizations": 1,
+  "errors": [
+    {
+      "profileName": "Profile (1)",
+      "error": "No JSON content found in response"
+    }
+  ]
+}

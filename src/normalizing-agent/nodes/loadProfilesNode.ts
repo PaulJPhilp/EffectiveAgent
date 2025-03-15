@@ -1,8 +1,12 @@
 import type { RunnableConfig } from "@langchain/core/runnables"
 import fs from "node:fs"
 import path from "node:path"
-import type { NormalizationState, ProfileData } from "../types.js"
+import type { NormalizationState } from "../NormalizationState.js"
 import { logToRun } from "../utils.js"
+import { loadFiles } from "../utils.js"
+import { parseProfileData } from "../parseProfile.js"
+import type { Document } from "@langchain/core/documents"
+import type { ProfileData } from "../types.js"
 
 type NormalizationStateUpdate = Partial<NormalizationState>
 
@@ -15,14 +19,15 @@ export async function loadProfilesNode(
 ): Promise<NormalizationStateUpdate> {
     console.log("loadProfilesNode()")
 
+    // Create the status update
+    const statusUpdate: NormalizationStateUpdate = {
+        status: 'loading_profiles',
+        completedSteps: state.completedSteps,
+        logs: [...(state.logs ?? []), 'Loading profiles']
+    }
+
     try {
         logToRun(state.runInfo, "Loading profiles to normalize")
-        // Create the status update
-        const statusUpdate = {
-            status: 'loading_profiles',
-            completedSteps: state.completedSteps ? [...state.completedSteps] : [],
-            logs: state.logs ? [...state.logs, 'Loading profiles'] : ['Loading profiles']
-        }
 
         // Define the path to raw profiles
         const profilesDir = path.join(
@@ -38,32 +43,21 @@ export async function loadProfilesNode(
                 ...statusUpdate,
                 status: 'error',
                 error: errorMsg,
-                logs: state.logs ? [...state.logs, errorMsg] : [errorMsg]
+                logs: [...(state.logs ?? []), errorMsg]
             }
         }
 
-        // Read all JSON files in the directory
-        const profiles: ProfileData[] = []
-        const jsonFiles = fs
-            .readdirSync(profilesDir)
-            .filter(file => file.endsWith('.json'))
+        const files = await loadFiles(profilesDir)
 
-        for (const file of jsonFiles) {
-            try {
-                const profileData = JSON.parse(
-                    fs.readFileSync(path.join(profilesDir, file), "utf8")
-                ) as ProfileData
+        const profiles: Array<Partial<ProfileData>> = []
+        for (const file of files.txt ?? []) { 
+            const profile: Partial<ProfileData> = { name: file.id ?? "No Name", fileText: file.pageContent ?? "", fileType: "text" }
+            profiles.push(profile)
+        }
 
-                if (profileData?.name) {
-                    profiles.push(profileData)
-                } else {
-                    const errorMsg = `Invalid profile data in ${file}: missing name property`
-                    logToRun(state.runInfo, errorMsg, "error")
-                }
-            } catch (error) {
-                const errorMsg = `Error parsing profile ${file}: ${error}`
-                logToRun(state.runInfo, errorMsg, "error")
-            }
+        for (const file of files.pdf ?? []) { 
+            const profile: Partial<ProfileData> = { name: file.id ?? "No Name", fileText: file.pageContent ?? "", fileType: "pdf" }
+            profiles.push(profile)
         }
 
         if (profiles.length === 0) {
@@ -73,13 +67,12 @@ export async function loadProfilesNode(
                 ...statusUpdate,
                 status: 'error',
                 error: errorMsg,
-                logs: state.logs ? [...state.logs, errorMsg] : [errorMsg]
+                logs: [...(state.logs ?? []), errorMsg]
             }
         }
 
         const successMsg = `Successfully loaded ${profiles.length} profiles`
         logToRun(state.runInfo, successMsg)
-
         return {
             ...statusUpdate,
             profiles,
@@ -87,14 +80,14 @@ export async function loadProfilesNode(
             completedSteps: [...(state.completedSteps || []), 'load_profiles'],
             logs: [...(state.logs || []), successMsg]
         }
-
     } catch (error) {
         const errorMsg = `Error loading profiles: ${error instanceof Error ? error.message : String(error)}`
         logToRun(state.runInfo, errorMsg, "error")
         return {
+            ...statusUpdate,
             status: 'error',
             error: errorMsg,
-            logs: state.logs ? [...state.logs, errorMsg] : [errorMsg]
+            logs: [...(state.logs ?? []), errorMsg]
         }
     }
-} 
+}

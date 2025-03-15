@@ -1,0 +1,63 @@
+{
+  "name": "Gianpaolo Grazioli",
+  "age": null,
+  "location": "Auckland, New Zealand",
+  "gender": null,
+  "company": "Giapo Ice Cream",
+  "companyType": "Ice Cream / Food and Beverage",
+  "companySize": null,
+  "industry": "Food and Beverage, Hospitality",
+  "occupation": "Chef, Entrepreneur",
+  "interests": [
+    "Food and Beverage",
+    "Hospitality",
+    "Ice Cream Innovation",
+    "Technology",
+    "Entrepreneurship",
+    "Social Media",
+    "Team Leadership",
+    "Event Management",
+    "Blockchain",
+    "Metaverse",
+    "Culinary Arts",
+    "Scientific Research",
+    "Storytelling"
+  ],
+  "skills": [
+    "Social Media",
+    "Team Leadership",
+    "Event Management"
+  ],
+  "education": [
+    "Applied Science, Food Science, Auckland University of Technology (2010 – 2011)",
+    "CCOS, Commercial Operation and Shipping, London Metropolitan University (2001 – 2002)",
+    "Bachelor of Commerce (BCom), International Economics, Università degli Studi di Napoli 'Parthenope' (1997 – 2001)"
+  ],
+  "experience": [
+    {
+      "company": "Cherlato",
+      "position": "Chief Executive Officer",
+      "duration": "April 2023 – Present",
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "Giapo Ice Cream",
+      "position": "Head Chef",
+      "duration": "February 2007 – Present",
+      "location": "Auckland, New Zealand"
+    },
+    {
+      "company": "Melior Hospitality",
+      "position": "Pastry Chef / Catering",
+      "duration": "February 2006 – May 2008",
+      "location": null
+    },
+    {
+      "company": "Pasticceria Santa Croce",
+      "position": "Assistant Pastry Chef",
+      "duration": "June 2002 – January 2004",
+      "location": "Torre del Greco, Italy"
+    }
+  ],
+  "bio": "Haere Mai, my name is Giapo Grazioli, I am the chef and patron at Giapo Ice Cream. During these years running the kitchen at Giapo, I saw that ice cream had the potential to be more expressive than it had been so far. In my mind, ice cream had to carry a different narrative. I focused my kitchen work on mashing up ideas from all the humanities, including technology, art, and science. I am currently doing scientific research with AUT and Otago University. I run a blog where I write about my kitchen observations and am the co-author of a few published peer-reviewed papers. Come down to Giapo Ice Cream to try one of my creations at 12 Gore St, Auckland, New Zealand. To find out more visit: www.giapo.com"
+}

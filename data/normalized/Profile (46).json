@@ -1,0 +1,161 @@
+{
+  "name": "Ethan Day",
+  "age": null,
+  "location": "Des Moines, Iowa, United States",
+  "gender": null,
+  "company": "Two Rivers Marketing",
+  "companyType": "Marketing Agency",
+  "companySize": "Unknown",
+  "industry": "Marketing and Advertising",
+  "occupation": "Program Supervisor",
+  "interests": [
+    "Retail",
+    "Sports",
+    "Brand Marketing",
+    "Health and Fitness"
+  ],
+  "skills": [
+    "monday.com",
+    "Customer Service",
+    "Facebook",
+    "Campaign Planning",
+    "Project Management",
+    "Visual Merchandising",
+    "Customer Relations",
+    "Effective Communication",
+    "Human Relations",
+    "Adobe Design Programs"
+  ],
+  "education": [
+    "Bachelor of Science (B.S.), Marketing, Iowa State University (2011 - 2015)",
+    "Effective Communication and Human Relations, Dale Carnegie (2013)"
+  ],
+  "experience": [
+    {
+      "title": "Program Supervisor",
+      "company": "Two Rivers Marketing",
+      "startDate": "January 2022",
+      "endDate": "Present",
+      "location": "Des Moines, Iowa, United States",
+      "description": [
+        "Drives completion of campaign planning",
+        "Manages program/campaign timelines",
+        "Ensures programs/campaigns are delivered on quality (tactical), on time, and on budget",
+        "Facilitates programs/campaigns from estimation through launch and ongoing execution",
+        "Maintains and monitors overarching program/campaign budgets and schedules weekly"
+      ]
+    },
+    {
+      "title": "Project Manager",
+      "company": "Two Rivers Marketing",
+      "startDate": "March 2019",
+      "endDate": "January 2022",
+      "location": "Des Moines, Iowa, United States",
+      "description": [
+        "Drives completion of campaign planning",
+        "Manages program/campaign timelines",
+        "Ensures programs/campaigns are delivered on quality (tactical), on time, and on budget",
+        "Facilitates programs/campaigns from estimation through launch and ongoing execution",
+        "Maintains and monitors overarching program/campaign budgets and schedules weekly"
+      ]
+    },
+    {
+      "title": "Account Executive",
+      "company": "The Integer Group",
+      "startDate": "June 2018",
+      "endDate": "March 2019",
+      "location": "Des Moines, Iowa Area",
+      "description": [
+        "Led shopper marketing initiatives for Michelin and BFGoodrich accounts",
+        "Built and maintained strong relationships with multiple clients",
+        "Ensured projects were delivered on time and within client budgets",
+        "Reviewed deliverables to ensure they were on strategy and met client expectations"
+      ]
+    },
+    {
+      "title": "adidas Field Agent",
+      "company": "Archrival",
+      "startDate": "September 2015",
+      "endDate": "February 2018",
+      "location": "Kansas City, Missouri Area",
+      "description": [
+        "Executed visual merchandising directives within Dicks Sporting Goods stores",
+        "Educated store staff on adidas products at KC area footwear retailers",
+        "Built store and community relationships within the footwear industry",
+        "Assisted with marketing communications including setting in-store displays",
+        "Gathered consumer feedback and relayed back to adidas",
+        "Collaborated with adidas running for KU Elite Eight Alphabounce activation"
+      ]
+    },
+    {
+      "title": "adidas Booster Agent",
+      "company": "Archrival",
+      "startDate": "September 2015",
+      "endDate": "February 2018",
+      "location": "Kansas City, Missouri Area",
+      "description": [
+        "Increased sales through adidas footwear try-ons at Finish Line stores",
+        "Engaged consumers at 2016 Boston Marathon Expo, leading to record sales",
+        "Participated in product education event for Scheels Footwear University",
+        "Introduced consumers to the Harden Vol. 1 during the Harden VR Experience"
+      ]
+    },
+    {
+      "title": "Assistant Store Manager",
+      "company": "GNC",
+      "startDate": "August 2015",
+      "endDate": "September 2015",
+      "location": "Overland Park, Kansas",
+      "description": [
+        "Assisted customers in finding the right products",
+        "Provided advice about health and fitness",
+        "Organized products to fit customer needs"
+      ]
+    },
+    {
+      "title": "Part Time Associate",
+      "company": "GNC",
+      "startDate": "June 2014",
+      "endDate": "July 2015",
+      "location": "Ames, IA",
+      "description": [
+        "Assisted customers in finding the right products",
+        "Provided advice about health and fitness",
+        "Organized products to fit customer needs"
+      ]
+    },
+    {
+      "title": "Marketing Intern",
+      "company": "Iowa State Athletics Department",
+      "startDate": "April 2013",
+      "endDate": "May 2014",
+      "location": "Ames, Iowa",
+      "description": [
+        "Led internship for Cyclone Experience",
+        "Planned each appearance and activity for each game",
+        "Developed promotional items throughout the season",
+        "Assigned and delegated intern duties for 20 students",
+        "Led internship for Iowa State Softball",
+        "Generated promotional materials throughout the season",
+        "Devised game day scripts including in-game promotions",
+        "Oversaw and assigned duties for 2-3 interns each game",
+        "Managed marketing budget",
+        "Acquired sponsors for the season",
+        "Assisted full-time marketing staff with promotional ideas and office duties",
+        "Created promotional material using Adobe Design Programs",
+        "Contributed to in-game promotions"
+      ]
+    },
+    {
+      "title": "Performer",
+      "company": "Ames Community Theater",
+      "startDate": "February 2013",
+      "endDate": "April 2013",
+      "location": "Ames, IA",
+      "description": [
+        "Performed in 'The Mousetrap' as Giles Ralston"
+      ]
+    }
+  ],
+  "bio": "Iowa State University Graduate with experience in Retail, Sports, and Brand Marketing."
+}

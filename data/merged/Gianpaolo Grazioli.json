@@ -18,9 +18,9 @@
       "company": "Cherlato",
       "title": "Chief Executive Officer",
       "duration": {
-        "start_date": "2023-04-01",
+        "start_date": "Apr 2023",
         "end_date": "Present",
-        "date_range": "0 years 7 months"
+        "date_range": "1 year 11 months"
       },
       "location": "Los Angeles, California, United States",
       "description": [],
@@ -30,21 +30,21 @@
       "company": "GIAPO",
       "title": "Head Chef",
       "duration": {
-        "start_date": "2007-02-01",
+        "start_date": "Feb 2007",
         "end_date": "Present",
-        "date_range": "16 years 8 months"
+        "date_range": "18 years 1 month"
       },
-      "location": "Auckland, New Zealand",
+      "location": "Auckland",
       "description": [],
-      "company_url": "https://www.giapo.com"
+      "company_url": "http://www.giapo.com/"
     },
     {
       "company": "Melior Hospitality",
       "title": "Pastry Chef / Catering",
       "duration": {
-        "start_date": "2006-02-01",
-        "end_date": "2008-05-01",
-        "date_range": "2 years 3 months"
+        "start_date": "Feb 2006",
+        "end_date": "May 2008",
+        "date_range": "2 years 4 months"
       },
       "location": null,
       "description": [],
@@ -54,11 +54,11 @@
       "company": "Pasticceria Santa Croce",
       "title": "Assistant Pastry Chef",
       "duration": {
-        "start_date": "2002-06-01",
-        "end_date": "2004-01-01",
-        "date_range": "1 year 7 months"
+        "start_date": "Jun 2002",
+        "end_date": "Jan 2004",
+        "date_range": "1 year 8 months"
       },
-      "location": "Torre del Greco, Italy",
+      "location": "Torre del Greco",
       "description": [],
       "company_url": null
     }

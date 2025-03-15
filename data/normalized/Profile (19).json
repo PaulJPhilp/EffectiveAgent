@@ -1,0 +1,127 @@
+{
+  "name": "Jo Kang",
+  "age": null,
+  "location": "Los Angeles, California, United States",
+  "gender": null,
+  "company": "Amplify",
+  "companyType": "Creative Agency",
+  "companySize": null,
+  "industry": "Creative/Advertising",
+  "occupation": "Group Creative Director",
+  "interests": [],
+  "skills": [
+    "Creative Branding",
+    "Art Direction",
+    "Retail Design",
+    "Identity Design",
+    "Print Design",
+    "Web Design",
+    "Campaign Development",
+    "Advertising",
+    "Packaging Design"
+  ],
+  "education": [
+    "Bachelor of Arts - BA, Fashion Design, RMIT University (1994 - 1997)",
+    "Graduate Diploma, Graphic Design, RMIT University (2000 - 2002)",
+    "Master of Arts - MA, Communication Design, RMIT University (2002 - 2004)"
+  ],
+  "experience": [
+    {
+      "company": "Amplify",
+      "role": "Group Creative Director",
+      "startDate": "May 2023",
+      "endDate": "Present",
+      "duration": "1 year 10 months",
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "role": "VP Group Creative Director",
+      "startDate": "July 2022",
+      "endDate": "June 2023",
+      "duration": "1 year",
+      "location": "West Coast"
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "role": "VP Senior Creative Director",
+      "startDate": "May 2021",
+      "endDate": "July 2022",
+      "duration": "1 year 3 months",
+      "location": "San Francisco Bay Area"
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "role": "Senior Creative Director",
+      "startDate": "March 2021",
+      "endDate": "May 2021",
+      "duration": "3 months",
+      "location": "San Francisco Bay Area"
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "role": "Creative Director",
+      "startDate": "July 2017",
+      "endDate": "March 2021",
+      "duration": "3 years 9 months",
+      "location": "San Francisco, California"
+    },
+    {
+      "company": "Jack Morton Worldwide",
+      "role": "Associate Creative Director",
+      "startDate": "February 2017",
+      "endDate": "July 2017",
+      "duration": "6 months",
+      "location": "San Francisco, California"
+    },
+    {
+      "company": "Freelance",
+      "role": "Design Director",
+      "startDate": "April 2012",
+      "endDate": "February 2017",
+      "duration": "4 years 11 months",
+      "location": "London, United Kingdom"
+    },
+    {
+      "company": "Freelance",
+      "role": "Creative Lead",
+      "startDate": "September 2016",
+      "endDate": "November 2016",
+      "duration": "3 months",
+      "location": "Dubai, United Arab Emirates"
+    },
+    {
+      "company": "Freelance",
+      "role": "Designer",
+      "startDate": "January 2001",
+      "endDate": "April 2012",
+      "duration": "11 years 4 months",
+      "location": null
+    },
+    {
+      "company": "Clear Design",
+      "role": "Senior Designer",
+      "startDate": "November 2010",
+      "endDate": "November 2011",
+      "duration": "1 year 1 month",
+      "location": "Fitzroy, Australia"
+    },
+    {
+      "company": "Storeage",
+      "role": "Senior Designer",
+      "startDate": "January 2008",
+      "endDate": "December 2009",
+      "duration": "2 years",
+      "location": "Amsterdam Area, Netherlands"
+    },
+    {
+      "company": "Square Circle Triangle",
+      "role": "Freelance Designer",
+      "startDate": "March 2007",
+      "endDate": "December 2007",
+      "duration": "10 months",
+      "location": "Melbourne, Australia"
+    }
+  ],
+  "bio": "As a freelance Designer and Art Director, I have been working for various clients and studios, developing concepts and overseeing projects from concept development to execution stage. Clients include Nike, Footlocker, World Dutyfree, PriceWaterhouseCoopers, Ernst and Young, PA Consulting Group, Thompson Keene, England’s Regional Development Agencies, Barclays Bank, and Collaborating Artists Foundation. Responsibilities included: Art Direction, Identity Design, Retail Design, Print Design, Web Design, Campaign Development, and Advertising."
+}

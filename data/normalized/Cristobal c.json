@@ -1,0 +1,175 @@
+{
+  "name": "Cristobal C",
+  "age": null,
+  "location": "New York, New York, United States",
+  "gender": null,
+  "company": "Amplify",
+  "companyType": null,
+  "companySize": null,
+  "industry": null,
+  "occupation": "Producer",
+  "interests": [
+    "HBR Management Tip of the Week (Harvard Business Review)",
+    "From Experts To Experts (Barça Innovation Hub)",
+    "Work Link Weekly (Clutch)",
+    "The Braintrust Talent Network (Braintrust)",
+    "What's New in Events (The Vendry by Groupize)",
+    "WFS Digest (World Football Summit)",
+    "Who's Who in Events",
+    "Harvard Business Review Discussion Group",
+    "Event Planning Professionals",
+    "Event Pros",
+    "BizBash—Event Pros Gather",
+    "Event Planners and Coordinators",
+    "Skift Meetings Event Professionals Community",
+    "Elliott School of International Affairs, The George Washington University",
+    "Soccer Business",
+    "Social Enterprise and Development",
+    "Sport for Development Network",
+    "Sports Careers by WorkInSports.com",
+    "SRI | Media & Entertainment - Technology - Sport - Fashion & Sporting Goods - Esports",
+    "Ad Age Discussion Group",
+    "Media & Entertainment Professionals",
+    "Hispanic Professionals",
+    "Experience Marketing",
+    "Outdoor Events, Festivals & Roadshows / Tours",
+    "Event Marketing Worldwide",
+    "Location Scouting"
+  ],
+  "skills": [
+    "Floor Plans",
+    "Site Visits",
+    "Problem Solving"
+  ],
+  "education": [
+    "The George Washington University"
+  ],
+  "experience": [
+    {
+      "title": "Producer",
+      "company": "Amplify",
+      "startDate": "September 2023",
+      "endDate": "Present",
+      "location": "New York, New York, United States",
+      "description": []
+    },
+    {
+      "title": "Producer",
+      "company": "DIZON INC.",
+      "startDate": "June 2023",
+      "endDate": "October 2023",
+      "location": "New York, New York, United States",
+      "description": [
+        "Curate dynamic brand experiences, serving as primary client liaison.",
+        "Oversee sourcing and management of external talent and vendors, aligning with client budgets and expectations."
+      ]
+    },
+    {
+      "title": "Sr. Manager, Production",
+      "company": "Happier",
+      "startDate": "January 2023",
+      "endDate": "April 2023",
+      "location": "New York, New York, United States",
+      "description": [
+        "Led event production for Water Street Associates building (WSA, opened in 2023), a modern 700,000 sq. ft. multi-use building in FiDi.",
+        "Managed and ideated programming for 99 Scott.",
+        "Executed GQ’s Global Creativity Awards dinner & after-party event.",
+        "Worked cross-functionally with sales and design teams to develop future programming."
+      ]
+    },
+    {
+      "title": "Producer",
+      "company": "Imprint Projects",
+      "startDate": "July 2021",
+      "endDate": "December 2022",
+      "location": "New York, New York, United States",
+      "description": [
+        "Clients: Eventbrite, Levi’s, Soundcloud, Stitch Fix, Smashbox, Pinterest, Twitter.",
+        "Managed creative campaign development end-to-end.",
+        "Developed and managed production plans, client proposals, and campaign wrap reports.",
+        "Led budgeting and vendor coordination."
+      ]
+    },
+    {
+      "title": "Event Operations + Marketing",
+      "company": "Informa Markets",
+      "startDate": "May 2019",
+      "endDate": "June 2021",
+      "location": "New York, New York, United States",
+      "description": [
+        "Events: MAGIC, Coterie, PROJECT, MICAM Americas, Children’s Club.",
+        "Managed multi-million dollar B2B event operations.",
+        "Oversaw budgets and financial reconciliation.",
+        "Leveraged Salesforce to track exhibitor data."
+      ]
+    },
+    {
+      "title": "Event Producer + Venue Manager",
+      "company": "LUME Studios",
+      "startDate": "June 2018",
+      "endDate": "April 2019",
+      "location": "New York, New York, United States",
+      "description": [
+        "Clients: OVO, Supreme, Puma, Aldo, StockX, Rostrum Records, SVA, Gigi Hadid x Vogue Eyewear, Makeup Forever.",
+        "Produced boutique brand events for over 30 major clients.",
+        "Supervised event production teams."
+      ]
+    },
+    {
+      "title": "Events Producer",
+      "company": "Paleo f(x)",
+      "startDate": "February 2018",
+      "endDate": "June 2018",
+      "location": "Austin, Texas Area",
+      "description": [
+        "Worked with founders to produce a wellness conference with over 100 speakers."
+      ]
+    },
+    {
+      "title": "Site Supervisor",
+      "company": "MFA Architecture",
+      "startDate": "August 2016",
+      "endDate": "December 2017",
+      "location": "Secaucus, New Jersey, United States",
+      "description": [
+        "Clients: XPO Logistics, Hartz Mountain, Phosphorus Labs.",
+        "Managed large-scale renovations and reduced project costs."
+      ]
+    },
+    {
+      "title": "Onsite Manager",
+      "company": "UNTITLED, ART",
+      "startDate": "November 2015",
+      "endDate": "December 2015",
+      "location": "Brooklyn, NY",
+      "description": [
+        "Untitled Miami Beach"
+      ]
+    },
+    {
+      "title": "Programming and Development",
+      "company": "UNTITLED, ART",
+      "startDate": "May 2015",
+      "endDate": "December 2015",
+      "location": "Brooklyn, NY",
+      "description": []
+    },
+    {
+      "title": "Cultural Affairs & Programming",
+      "company": "Embassy of Uruguay in the USA",
+      "startDate": "September 2014",
+      "endDate": "December 2014",
+      "location": "Washington, DC",
+      "description": []
+    },
+    {
+      "title": "Gallery Associate",
+      "company": "Paul Kasmin Gallery",
+      "startDate": "May 2014",
+      "endDate": "August 2014",
+      "location": "New York, NY",
+      "description": []
+    }
+  ],
+  "bio": "NYC-based integrated producer and creative projects manager with nearly a decade of agency and in-house experience. Whether it’s crafting custom branded content, bespoke IRL experiences, or global trade shows, my passion lies in transforming concepts into realities. Let’s connect!"
+}

@@ -1,0 +1,153 @@
+{
+  "name": "Amanda Levine",
+  "age": null,
+  "location": "Miami Beach, Florida, United States",
+  "gender": "Female",
+  "company": "Dentsu Creative",
+  "companyType": "Creative Agency",
+  "companySize": "Large",
+  "industry": "Event Production/Marketing",
+  "occupation": "Senior Experiential Producer",
+  "interests": [
+    "Charitable Work",
+    "Health and Wellness",
+    "Event Planning",
+    "Continuous Learning",
+    "Leadership Development"
+  ],
+  "skills": [
+    "Marketing",
+    "PowerPoint",
+    "Newsletters",
+    "Event Production",
+    "Leadership",
+    "Financial Management",
+    "Communication",
+    "Interpersonal Skills",
+    "Budget Management",
+    "Vendor Coordination",
+    "Project Management",
+    "Creative Strategy"
+  ],
+  "education": [
+    "BA in Marketing, University of Miami (2002 - 2006)",
+    "Queen Mary, University of London"
+  ],
+  "experience": [
+    {
+      "company": "Dentsu Creative",
+      "position": "Senior Event Producer, Experiential Production",
+      "startDate": "April 2023",
+      "endDate": "Present",
+      "duration": "1 year 11 months",
+      "location": "Miami Beach, Florida",
+      "responsibilities": []
+    },
+    {
+      "company": "Double A Labs",
+      "position": "Executive Producer",
+      "startDate": "October 2021",
+      "endDate": "February 2023",
+      "duration": "1 year 5 months",
+      "location": "Austin, TX + New York, NY",
+      "responsibilities": [
+        "Produced Dell Technologies Mobile Tour with 70+ stops in the US and Canada.",
+        "Managed tour logistics including theme, route, swag, branding, content, and staffing.",
+        "Oversaw a $2.3M budget and secured permits for outdoor venues.",
+        "Produced YouTube Shorts community events in major cities, managing budgets up to $200K per event."
+      ]
+    },
+    {
+      "company": "Wellth Collective",
+      "position": "Senior Event Consultant",
+      "startDate": "May 2020",
+      "endDate": "October 2021",
+      "duration": "1 year 6 months",
+      "location": "Park City, UT and New York",
+      "responsibilities": [
+        "Produced high-end, COVID-safe events for VIP clients.",
+        "Strategized event calendars to maximize press and media interactions.",
+        "Managed logistics including venues, catering, vendors, and budgets."
+      ]
+    },
+    {
+      "company": "ION",
+      "position": "Senior Event Strategist",
+      "startDate": "October 2018",
+      "endDate": "May 2020",
+      "duration": "1 year 8 months",
+      "location": "New York, NY",
+      "responsibilities": [
+        "Produced global events for 1,000+ clients across multiple international locations.",
+        "Collaborated with cross-functional teams to deliver cohesive branding.",
+        "Managed budgets up to $5M and negotiated contracts to maximize ROI."
+      ]
+    },
+    {
+      "company": "Wellth Collective",
+      "position": "Senior Event Producer",
+      "startDate": "December 2016",
+      "endDate": "October 2018",
+      "duration": "1 year 11 months",
+      "location": "New York, NY",
+      "responsibilities": [
+        "Produced wellness programs and events for The Chopra Center.",
+        "Managed all wellness programming at Gurney’s Montauk.",
+        "Utilized sponsors to enhance brand and social awareness."
+      ]
+    },
+    {
+      "company": "DKC",
+      "position": "Senior Production Coordinator",
+      "startDate": "July 2015",
+      "endDate": "December 2016",
+      "duration": "1 year 6 months",
+      "location": "New York, NY",
+      "responsibilities": [
+        "Produced corporate media events with budgets ranging from $50K to $800K.",
+        "Collaborated with high-level officials to ensure event success.",
+        "Managed onsite logistics including scenery, catering, and transportation."
+      ]
+    },
+    {
+      "company": "Metropolitan Pavilion & Metropolitan West",
+      "position": "Senior Event Coordinator",
+      "startDate": "December 2012",
+      "endDate": "July 2015",
+      "duration": "2 years 8 months",
+      "location": "New York, NY",
+      "responsibilities": [
+        "Produced over 50 events annually in multiple venues.",
+        "Coordinated client needs regarding rentals, staffing, and logistics.",
+        "Managed event staffing and facilitated on-site meetings."
+      ]
+    },
+    {
+      "company": "Chezzam Entertainment",
+      "position": "Project Manager",
+      "startDate": "September 2011",
+      "endDate": "December 2012",
+      "duration": "1 year 4 months",
+      "location": "Syosset, NY",
+      "responsibilities": [
+        "Produced corporate, private, and fundraising events from start to finish.",
+        "Managed budgets and negotiated with vendors to stay within client budgets.",
+        "Led production meetings and coordinated technical, costume, and décor teams."
+      ]
+    },
+    {
+      "company": "Guidepoint",
+      "position": "Marketing Manager",
+      "startDate": "January 2008",
+      "endDate": "August 2010",
+      "duration": "2 years 8 months",
+      "location": null,
+      "responsibilities": [
+        "Managed development of promotional materials for the sales team.",
+        "Coordinated large networking events with high-profile speakers.",
+        "Created and distributed quarterly newsletters and email campaigns."
+      ]
+    }
+  ],
+  "bio": "I am an event producer with more than a decade of experience planning, managing, and delivering successful conferences, product launches, networking events, press briefings, and galas. I have produced events for corporations, non-profits, individuals, and charities such as the ALS Association. My charitable work has helped raise over $200,000 through golf outings and cocktail party fundraisers for research into the treatment and cure for Lou Gehrig’s Disease. Always seeking to learn and develop myself, I have achieved high-level leadership, financial, communication, and interpersonal skills. I dedicate myself to delivering events to the satisfaction and delight of my clients."
+}

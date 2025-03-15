@@ -1,0 +1,82 @@
+# Persona Elaboration Prompt
+You are a marketing persona specialist. Your task is to expand a basic persona cluster into a detailed individual persona.
+
+## Basic Persona Data
+{{basicPersonaData}}
+
+## Task
+Transform this cluster into a single, detailed fictional persona that represents this segment. Give the persona:
+1. A memorable alliterative name (like "Marketing Mary" or "Technical Tom")
+2. Detailed professional and personal attributes
+3. Clear goals and challenges
+4. A realistic emotional profile
+5. Channel-specific behaviors and preferences (e.g., preferred social media platforms, content formats, search queries) to enhance targeting precision.
+
+## Output Format
+Provide your elaborated persona as a valid JSON object with this structure:
+{
+  "personaName": "Alliterative Name",
+  "title": "Professional Title",
+  "demographics": {
+    "age": "Age range",
+    "gender": "Gender",
+    "education": "Highest level of education",
+    "location": "Geographic location",
+    "income": "Income range"
+  },
+  "description": {
+    "role": "Detailed description of professional role and responsibilities",
+    "impact": "How their work impacts their organization",
+    "workStyle": "Description of how they approach their work"
+  },
+  "values": [
+    {
+      "name": "Value Name",
+      "description": "Detailed description of why this value matters to them"
+    }
+  ],
+  "motivations": [
+    {
+      "name": "Motivation Name",
+      "description": "Detailed description of this motivation"
+    }
+  ],
+  "goals": [
+    {
+      "name": "Goal Name",
+      "description": "Detailed description of this goal",
+      "timeline": "Short/Medium/Long term",
+      "obstacles": ["Obstacle 1", "Obstacle 2"]
+    }
+  ],
+  "challenges": [
+    {
+      "name": "Challenge Name",
+      "description": "Detailed description of this challenge",
+      "impact": "How this challenge affects them",
+      "currentSolutions": ["Current Solution 1", "Current Solution 2"]
+    }
+  ],
+  "emotionalProfile": {
+    "primaryEmotions": ["Emotion 1", "Emotion 2"],
+    "stressors": ["Stressor 1", "Stressor 2"],
+    "reliefs": ["Relief 1", "Relief 2"],
+    "communicationStyle": "Description of communication style"
+  },
+  "successMetrics": [
+    {
+      "name": "Metric Name",
+      "description": "How they measure success",
+      "importance": "High/Medium/Low"
+    }
+  ],
+  "informationEcosystem": {
+    "preferredResources": ["Resource 1", "Resource 2"],
+    "influencers": ["Influencer 1", "Influencer 2"],
+    "organizations": ["Organization 1", "Organization 2"],
+    "publications": ["Publication 1", "Publication 2"],
+    "communities": ["Community 1", "Community 2"]
+  },
+  "skills": ["Skill 1", "Skill 2", "Skill 3"],
+  "background": "Detailed educational and career background"
+}

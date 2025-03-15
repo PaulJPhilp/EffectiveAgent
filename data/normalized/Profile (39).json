@@ -1,0 +1,92 @@
+{
+  "name": "Lauren Rummel",
+  "age": null,
+  "location": "Orange County, California, United States",
+  "gender": null,
+  "company": "Morinaga America Inc.",
+  "companyType": null,
+  "companySize": null,
+  "industry": "Consumer Goods",
+  "occupation": "Brand Marketing Specialist",
+  "interests": [],
+  "skills": [
+    "Microsoft Office",
+    "Customer Service",
+    "Microsoft Word",
+    "E-commerce",
+    "Content optimization",
+    "SEO",
+    "Copywriting",
+    "Project management"
+  ],
+  "education": [
+    "California State University, Long Beach - Bachelor of Arts (B.A.), Film and Electronic Arts (2010 - 2014)",
+    "Academy of Art University - Post Production (2007 - 2009)"
+  ],
+  "experience": [
+    {
+      "company": "Morinaga America",
+      "role": "Brand Marketing Specialist",
+      "startDate": "March 2023",
+      "endDate": "Present",
+      "duration": "2 years"
+    },
+    {
+      "company": "Li & Fung",
+      "role": "Marketing Specialist",
+      "startDate": "April 2020",
+      "endDate": "February 2023",
+      "duration": "2 years 11 months"
+    },
+    {
+      "company": "Li & Fung",
+      "role": "Marketing Coordinator",
+      "startDate": "April 2018",
+      "endDate": "April 2020",
+      "duration": "2 years 1 month"
+    },
+    {
+      "company": "Li & Fung",
+      "role": "Marketing Assistant",
+      "startDate": "April 2016",
+      "endDate": "April 2018",
+      "duration": "2 years 1 month"
+    },
+    {
+      "company": "Li & Fung",
+      "role": "Executive Assistant",
+      "startDate": "September 2015",
+      "endDate": "April 2016",
+      "duration": "8 months"
+    },
+    {
+      "company": "Test Prep Gurus",
+      "role": "Test Administrator and Office Assistant",
+      "startDate": "August 2014",
+      "endDate": "September 2015",
+      "duration": "1 year 2 months"
+    },
+    {
+      "company": "Caliber Range Corporation",
+      "role": "Social Media and Production Assistant",
+      "startDate": "October 2013",
+      "endDate": "September 2015",
+      "duration": "2 years"
+    },
+    {
+      "company": "Gap Inc./Old Navy",
+      "role": "Sales Associate",
+      "startDate": "October 2012",
+      "endDate": "January 2013",
+      "duration": "4 months"
+    },
+    {
+      "company": "Target",
+      "role": "Planogram and Sales Associate",
+      "startDate": "June 2010",
+      "endDate": "October 2012",
+      "duration": "2 years 5 months"
+    }
+  ],
+  "bio": "Experienced in product and content marketing with a demonstrated history of working in the consumer goods industry. Strong marketing professional skilled in E-commerce, Content optimization, SEO Copywriting, and Project management."
+}

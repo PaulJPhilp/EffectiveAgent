@@ -1,0 +1,275 @@
+{
+  "clusters": [
+    {
+      "title": "Senior Marketing Leaders",
+      "description": {
+        "summary": "This cluster comprises seasoned marketing professionals holding senior roles such as Vice Presidents, Directors, and Managing Directors. They possess extensive experience in strategic marketing, brand management, and leadership, often overseeing large teams and managing significant budgets. Their expertise spans various marketing disciplines, including digital strategy, public relations, and integrated marketing campaigns.",
+        "commonCharacteristics": [
+          "Leadership and team management",
+          "Strategic planning and execution",
+          "Extensive experience in brand and marketing management"
+        ],
+        "skills": [
+          "Strategic Marketing",
+          "Brand Management",
+          "Public Relations",
+          "Digital Strategy",
+          "Team Leadership"
+        ],
+        "typicalBackground": "Professionals in this cluster typically have over a decade of experience in marketing roles, progressing from managerial to executive positions. They often hold advanced degrees in marketing or related fields and have a proven track record of driving brand growth and managing large-scale marketing initiatives."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.98,
+          "matchReasons": [
+            "Holds the title of Vice President with extensive responsibilities in strategic marketing and communications.",
+            "Manages global cross-functional teams and large budgets."
+          ]
+        },
+        {
+          "id": "Jenny Ludwigsen",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Serves as Vice President of Marketing with over 15 years of experience.",
+            "Experienced in strategic planning, brand development, and leadership roles."
+          ]
+        },
+        {
+          "id": "Annessa Robinsun-Abrams",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Holds a senior vice president position overseeing marketing engagement and communications.",
+            "Extensive skills in strategic planning, team leadership, and integrated marketing."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production Specialists",
+      "description": {
+        "summary": "This cluster includes professionals dedicated to planning, managing, and executing events across various sectors. They hold titles such as Event Producer, Production Coordinator, and Stage Manager. Their expertise lies in event coordination, logistics management, and ensuring seamless execution of event elements. They often work in fast-paced environments, handling multiple aspects of event management from conception to completion.",
+        "commonCharacteristics": [
+          "Expertise in event planning and logistics",
+          "Ability to manage multiple projects simultaneously",
+          "Strong organizational and problem-solving skills"
+        ],
+        "skills": [
+          "Event Planning",
+          "Logistics Management",
+          "Stage Management",
+          "Production Coordination",
+          "Vendor Management"
+        ],
+        "typicalBackground": "Individuals in this cluster usually have a background in event management, hospitality, or related fields. They possess hands-on experience in coordinating various types of events, from corporate conferences and product launches to large-scale public events and performances. Their roles often require excellent multitasking abilities and effective communication skills."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sarah Rush Wirth",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Director of Public Relations and Production with significant event coordination responsibilities.",
+            "Experienced in managing internal and external communications for large organizations."
+          ]
+        },
+        {
+          "id": "Chris Beck",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Senior Account Director with a focus on event management and client relations.",
+            "Extensive experience in coordinating and executing marketing events."
+          ]
+        },
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Field Marketing Manager responsible for coordinating marketing events and sponsorships.",
+            "Experienced in managing large-scale promotions and community events."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative and Content Directors",
+      "description": {
+        "summary": "Comprising professionals in high-level creative roles such as Creative Directors, Group Creative Directors, and Senior Content Producers, this cluster focuses on overseeing the creation and execution of creative content and strategies. They are responsible for guiding creative teams, developing content strategies, and ensuring the alignment of creative outputs with brand objectives. Their roles are pivotal in shaping the visual and narrative elements of marketing campaigns.",
+        "commonCharacteristics": [
+          "Leadership in creative team management",
+          "Expertise in content strategy and development",
+          "Strong background in visual and narrative storytelling"
+        ],
+        "skills": [
+          "Creative Direction",
+          "Content Strategy",
+          "Visual Storytelling",
+          "Team Leadership",
+          "Branding and Identity"
+        ],
+        "typicalBackground": "Members of this cluster typically hold advanced degrees in creative disciplines such as graphic design, advertising, or communications. They have extensive experience in leading creative projects, developing comprehensive content strategies, and managing creative teams. Their career paths often progress through various creative roles leading to directorial positions."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Mark Dalhausser",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Group Creative Director with a strong focus on creative branding and art direction.",
+            "Extensive experience in leading creative teams and managing large-scale creative projects."
+          ]
+        },
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Serves as Vice President with responsibilities in creative concept development and campaign strategies.",
+            "Proficient in content creation across multiple platforms."
+          ]
+        },
+        {
+          "id": "Rose Milgrom Kohn",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Head of Impact X focusing on creative and experiential projects.",
+            "Experienced in overseeing creative services and leading impact-driven marketing initiatives."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing and Communications Coordinators",
+      "description": {
+        "summary": "This cluster includes mid-level professionals such as Marketing Managers, Communications Coordinators, and Account Supervisors. They are responsible for executing marketing campaigns, managing communications strategies, and coordinating between different departments or clients. Their roles often involve hands-on work in campaign management, content creation, and maintaining client relationships.",
+        "commonCharacteristics": [
+          "Execution-focused with strong organizational skills",
+          "Ability to manage multiple marketing projects",
+          "Effective communication and coordination abilities"
+        ],
+        "skills": [
+          "Campaign Management",
+          "Content Creation",
+          "Client Relations",
+          "Marketing Communications",
+          "Project Coordination"
+        ],
+        "typicalBackground": "Professionals in this cluster generally hold bachelor's degrees in marketing, communications, or related fields. They have several years of experience in marketing roles, progressing from coordinative to managerial positions. Their expertise lies in managing marketing initiatives, creating content, and facilitating communication between teams and clients."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Jess Doren",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Senior Account Director responsible for managing marketing campaigns and client relationships.",
+            "Experienced in strategic communication and content development."
+          ]
+        },
+        {
+          "id": "Callie Pegadiotes",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Field Marketing Manager with responsibilities in campaign execution and sponsor partnerships.",
+            "Skilled in managing event logistics and marketing initiatives."
+          ]
+        },
+        {
+          "id": "Darya Cable",
+          "relevanceScore": 0.88,
+          "matchReasons": [
+            "Senior Project Manager in Digital Marketing, focusing on process improvement and project coordination.",
+            "Experienced in managing marketing projects and customer service operations."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Digital Marketing and Content Specialists",
+      "description": {
+        "summary": "Professionals in this cluster specialize in digital marketing strategies, content creation, and online communications. Titles include Digital Marketing Manager, Content Strategist, and Marketing Analyst. They focus on developing and executing digital campaigns, managing social media platforms, and creating engaging online content to enhance brand presence and drive engagement.",
+        "commonCharacteristics": [
+          "Expertise in digital platforms and online marketing",
+          "Strong content creation and strategy skills",
+          "Analytical mindset with ability to interpret data"
+        ],
+        "skills": [
+          "Digital Marketing",
+          "Content Strategy",
+          "Social Media Management",
+          "SEO/SEM",
+          "Data Analysis"
+        ],
+        "typicalBackground": "Individuals in this cluster usually have bachelor's degrees in marketing, communications, or digital media. They possess hands-on experience with digital marketing tools and platforms, content management systems, and analytics software. Their roles often involve creating digital content, optimizing online campaigns, and analyzing performance metrics to inform marketing strategies."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Brand Marketing Specialist with skills in e-commerce, content optimization, and SEO.",
+            "Experienced in project management and customer service within digital marketing."
+          ]
+        },
+        {
+          "id": "Christine Zaccaro",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Brand Marketing Manager with a focus on integrated marketing and social media.",
+            "Skilled in developing immersive brand experiences and digital campaign strategies."
+          ]
+        },
+        {
+          "id": "Quinn Tormey",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Content Strategist with expertise in digital content production and storytelling.",
+            "Experienced in managing digital marketing projects for diverse clients."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Account and Client Relationship Managers",
+      "description": {
+        "summary": "This cluster includes professionals responsible for managing client accounts, fostering client relationships, and ensuring client satisfaction. Titles such as Account Manager, Client Services Manager, and Account Director are common. They act as the liaison between clients and the internal teams, ensuring that client needs are met and that projects are delivered successfully.",
+        "commonCharacteristics": [
+          "Strong interpersonal and communication skills",
+          "Ability to manage and nurture client relationships",
+          "Experience in coordinating between clients and internal teams"
+        ],
+        "skills": [
+          "Client Relationship Management",
+          "Account Management",
+          "Communication",
+          "Project Coordination",
+          "Strategic Planning"
+        ],
+        "typicalBackground": "Professionals in this cluster typically hold bachelor's degrees in business, marketing, or related fields. They have several years of experience in client-facing roles, effectively managing multiple accounts and ensuring the successful delivery of services. Their roles require a balance of strategic thinking and hands-on coordination to meet client objectives."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Jenny Ludwigsen",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Vice President with extensive experience in account management and client relations.",
+            "Skilled in strategic planning and integrated marketing communications."
+          ]
+        },
+        {
+          "id": "Caren Read",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Marketing Communications Manager responsible for client-facing communication strategies.",
+            "Experienced in managing marketing campaigns and maintaining client relationships."
+          ]
+        },
+        {
+          "id": "Louise Bjelke",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Vice President of Marketing with a strong background in account management and strategic planning.",
+            "Expertise in client relations and campaign management."
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

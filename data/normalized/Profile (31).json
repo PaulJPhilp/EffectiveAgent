@@ -1,0 +1,133 @@
+{
+  "name": "Katie Proctor",
+  "age": 31,
+  "location": "Kansas City Metropolitan Area",
+  "gender": "Female",
+  "company": "FleishmanHillard",
+  "companyType": "Public Relations and Marketing",
+  "companySize": "Large",
+  "industry": "Influencer Marketing, Food, Agriculture, and Beverage",
+  "occupation": "Senior Vice President, Influencer Marketing, Food, Ag and Beverage",
+  "interests": [
+    "Food & Agriculture Enthusiast",
+    "Connector",
+    "Investor",
+    "Health and Wellness",
+    "Sustainability",
+    "Animal Health"
+  ],
+  "skills": [
+    "Continuing Professional Development",
+    "Communications Strategy",
+    "Business Relationship Management",
+    "Brand Building",
+    "Influencer Marketing",
+    "Content Strategy",
+    "Public Relations",
+    "Consulting",
+    "Social Media and Digital Campaigns",
+    "Nutrition",
+    "Food",
+    "Agriculture",
+    "Sustainability",
+    "Animal Health"
+  ],
+  "education": [
+    "Master of Business Administration (MBA), Marketing, University of Colorado at Boulder, 2013 - 2015",
+    "Dietetic Internship, Vanderbilt University, 2009 - 2010",
+    "Bachelor of Science (BS), Dietetics with Minors in Business and Spanish, Kansas State University, Cum Laude, 2005 - 2009"
+  ],
+  "experience": [
+    {
+      "company": "FleishmanHillard",
+      "position": "Senior Vice President, Influencer Marketing, Food, Ag and Beverage",
+      "startDate": "July 2023",
+      "endDate": "Present",
+      "duration": "1 year 8 months",
+      "location": "Kansas City Metropolitan Area",
+      "description": ""
+    },
+    {
+      "company": "Women On Boards Project",
+      "position": "Committee Leader, Social & Public Relations",
+      "startDate": "January 2022",
+      "endDate": "December 2023",
+      "duration": "2 years",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "Wellevation HQ",
+      "position": "Founder",
+      "startDate": "July 2017",
+      "endDate": "July 2023",
+      "duration": "6 years 1 month",
+      "location": "Greater Denver Area",
+      "description": "Wellevation HQ is a niche consulting group that supports influencers and brands in the wellness industry. We offer our expertise to help you create strategic partnerships that deliver on both results and authenticity while building lasting relationships in the process."
+    },
+    {
+      "company": "Self-Employed",
+      "position": "Business Strategist",
+      "startDate": "August 2015",
+      "endDate": "September 2018",
+      "duration": "3 years 2 months",
+      "location": "",
+      "description": "I helped fellow registered dietitians get recognized and paid for being the experts they are by refining their message, audience and offerings. My end goal was to help RDs stand out in a sea of health and fitness personalities, own their expertise and influence, and become the partner of choice for individuals, brands, businesses, and media."
+    },
+    {
+      "company": "Quinoa Corporation",
+      "position": "Marketing Manager, Ancient Harvest",
+      "startDate": "March 2014",
+      "endDate": "August 2016",
+      "duration": "2 years 6 months",
+      "location": "Boulder, CO",
+      "description": "Designed marketing mix to grow Ancient Harvest brand by generating positive brand and product awareness, creating brand engagement and loyalty, and driving product demand and trial."
+    },
+    {
+      "company": "General Mills",
+      "position": "Integrated Marketing Communications, Small Planet Foods",
+      "startDate": "August 2012",
+      "endDate": "March 2014",
+      "duration": "1 year 8 months",
+      "location": "",
+      "description": "Developed and executed consumer-focused communication strategies through traditional, digital, and social media outlets for two organic food brands – Cascadian Farm and Muir Glen."
+    },
+    {
+      "company": "FleishmanHillard",
+      "position": "Account Executive and Nutrition Specialist",
+      "startDate": "June 2010",
+      "endDate": "September 2012",
+      "duration": "2 years 4 months",
+      "location": "",
+      "description": "Responsible for nutrition communications strategy, program management, material development, event planning, research support, media and influencer relations, social media campaigns, and measurement for global food and agribusiness clients. Clients included B2B ingredient companies, restaurants, major CPG brands, and commodity boards."
+    },
+    {
+      "company": "Weis Markets",
+      "position": "Nutrition Communications Intern",
+      "startDate": "August 2009",
+      "endDate": "March 2010",
+      "duration": "8 months",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "Weber Shandwick",
+      "position": "Food and Nutrition Practice Intern",
+      "startDate": "May 2008",
+      "endDate": "August 2008",
+      "duration": "4 months",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "Kansas City Chiefs and Royals",
+      "position": "Sports Nutrition Intern",
+      "startDate": "May 2007",
+      "endDate": "August 2007",
+      "duration": "4 months",
+      "location": "",
+      "description": ""
+    }
+  ],
+  "bio": "Katie is a self-motivated, entrepreneurial marketing and communications professional and food/nutrition expert. She is currently the U.S. lead for influencer marketing in the food, agriculture and beverage sector for FleishmanHillard. She brings extensive experience in end-to-end influencer campaign management, consumer insights and brand strategy for a variety of clients across the food value chain. She is particularly adept at leveraging the firm’s data-driven, audience-first approach to influencer marketing and activating influence as an integrated solution for both B2C and B2B in food and animal-related industries. Katie returned to FleishmanHillard after spending many years in brand management and digital marketing for CPG companies, including a Fortune 500 company and natural foods start-up. She is an intrapreneur at heart, regularly serving as an internal subject matter expert, tailoring programs and messages for a variety of stakeholders (grocery/retail, restaurant, farmer/producer, supplier, policymakers, etc.) and expanding CSR platforms. In 2017, she founded one of the first influencer-forward talent management agencies focused on food, nutrition and lifestyle creators. She is a true connector and maintains deep relationships with key opinion leaders, credentialed experts and digital influencers across industries. Throughout her career, she has been quoted in top publications such as Fast Company, Elite Daily, USA Today, SHAPE and Forbes on a variety of food, nutrition and business-related topics."
+}

@@ -2,7 +2,7 @@ import type { RunnableConfig } from "@langchain/core/runnables"
 import crypto from "node:crypto"
 import fs from "node:fs"
 import path from "node:path"
-import type { NormalizationState } from "../types.js"
+import type { NormalizationState } from "../NormalizationState.js"
 import { logToRun } from "../utils.js"
 
 type NormalizationStateUpdate = Partial<NormalizationState>
@@ -28,7 +28,7 @@ export async function initializeRunNode(
         // Create run info
         const runInfo = {
             runId,
-            startTime: new Date(),
+            startTime: timestamp,
             outputDir
         }
 
@@ -37,7 +37,7 @@ export async function initializeRunNode(
 
         return {
             runInfo,
-            status: "run_initialized",
+            status: "initializing",
             completedSteps: ["initialize_run"],
             logs: [`Run ${runId} initialized`],
         }

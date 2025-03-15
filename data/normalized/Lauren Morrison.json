@@ -1,0 +1,69 @@
+{
+  "name": "Lauren Morrison",
+  "age": null,
+  "location": "San Francisco, California, United States",
+  "gender": "Female",
+  "company": "FleishmanHillard",
+  "companyType": "Public Relations / Communications Agency",
+  "companySize": null,
+  "industry": "Communications, Public Relations, Marketing",
+  "occupation": "Vice President",
+  "interests": [
+    "Sports",
+    "Media Training",
+    "Strategic Communications Counsel"
+  ],
+  "skills": [
+    "Sports",
+    "Media Training",
+    "Strategic Communications Counsel"
+  ],
+  "education": [
+    "Bachelor of Arts (B.A.), English, Virginia Tech (2004 - 2008)"
+  ],
+  "experience": [
+    {
+      "title": "Vice President",
+      "company": "FleishmanHillard",
+      "duration": "2019 - Present",
+      "responsibilities": [
+        "Manages and produces national media and marketing campaigns for a variety of consumer lifestyle, tech, and sports clients",
+        "Specializes in media relations with a focus on consumer tech/lifestyle/sports media to support consumer brand news, product launch campaigns, and product reviews coverage",
+        "Develops strategic communication plans for product announcements and news to create awareness, strengthen brand loyalty, and increase market footprint",
+        "Manages global cross-functional teams to meet and exceed campaign goals for product launches and key partnership announcements",
+        "Develops creative concepts for full-service marketing, partnerships, and advertising campaigns from ideation to implementation",
+        "Provides copy and integrated strategy for traditional, digital, and social projects including social content, video, print, promotional/marketing materials, and web",
+        "Works closely with corporate, marketing, communications, digital, and creative teams to deliver a consistent brand voice and message across all platforms and mediums",
+        "Coordinates targeted ad buys for print, online, and OOH"
+      ]
+    },
+    {
+      "title": "Managing Supervisor",
+      "company": "FleishmanHillard",
+      "duration": "July 2010 - Present",
+      "responsibilities": [
+        "Manages and produces national media and marketing campaigns for a variety of consumer lifestyle, tech, and sports clients",
+        "Specializes in media relations with a focus on consumer tech/lifestyle/sports media to support consumer brand news, product launch campaigns, and product reviews coverage",
+        "Develops strategic communication plans for product announcements and news to create awareness, strengthen brand loyalty, and increase market footprint",
+        "Manages global cross-functional teams to meet and exceed campaign goals for product launches and key partnership announcements",
+        "Develops creative concepts for full-service marketing, partnerships, and advertising campaigns from ideation to implementation",
+        "Provides copy and integrated strategy for traditional, digital, and social projects including social content, video, print, promotional/marketing materials, and web",
+        "Works closely with corporate, marketing, communications, digital, and creative teams to deliver a consistent brand voice and message across all platforms and mediums",
+        "Coordinates targeted ad buys for print, online, and OOH"
+      ]
+    },
+    {
+      "title": "Graduate Writing Advisor",
+      "company": "University of Mary Washington",
+      "duration": "April 2009 - June 2010",
+      "responsibilities": [
+        "Editor",
+        "Tutor",
+        "Research Guide",
+        "Online Tutoring Specialist",
+        "APA style"
+      ]
+    }
+  ],
+  "bio": "An ambitious leader with 15 years of agency communications experience supporting global brands within sports, consumer/lifestyle and tech industries. I’ve spent my career alongside clients developing world class strategic brand narratives, crafting award-winning integrated communication campaigns, orchestrating needle-moving media strategies, fostering meaningful brand, sports and community partnerships, and launching countless consumer technology products from headphones to wearables."
+}

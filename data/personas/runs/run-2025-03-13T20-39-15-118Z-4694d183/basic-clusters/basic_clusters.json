@@ -1,0 +1,153 @@
+{
+  "clusters": [
+    {
+      "title": "Creative Marketing Leaders",
+      "description": {
+        "summary": "This cluster encompasses seasoned professionals who lead creative initiatives within marketing departments or agencies. They are responsible for overseeing branding, design, and content strategy to ensure cohesive and impactful marketing campaigns.",
+        "commonCharacteristics": [
+          "Leadership in creative teams",
+          "Expertise in branding and design",
+          "Strong background in content strategy"
+        ],
+        "skills": [
+          "Brand Management",
+          "Creative Direction",
+          "Copywriting",
+          "Graphic Design",
+          "Content Strategy"
+        ],
+        "typicalBackground": "Typically have extensive experience in creative agencies or in-house marketing departments, holding senior roles such as Creative Director, Group Creative Director, or Senior Creative Director. They often possess a blend of design, strategic planning, and leadership skills."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Title: Brand Marketing Specialist aligns with creative marketing leadership",
+            "Skills in Branding, Content Strategy, and Project Management"
+          ]
+        },
+        {
+          "id": "Mark Dalhausser",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Title: Experiential Marketing Producer involves creative branding and event-driven marketing",
+            "Skills in Event Management and Public Relations"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production and Management Specialists",
+      "description": {
+        "summary": "Professionals in this cluster specialize in organizing, coordinating, and executing events of various scales. They manage the logistical aspects of event production, ensuring seamless execution and memorable experiences for attendees.",
+        "commonCharacteristics": [
+          "Expertise in event planning and coordination",
+          "Strong organizational and multitasking abilities",
+          "Experience with stage and production management"
+        ],
+        "skills": [
+          "Event Planning",
+          "Production Management",
+          "Stage Management",
+          "Logistics Coordination",
+          "Vendor Management"
+        ],
+        "typicalBackground": "Often have experience working with event management firms, production companies, or within the events departments of large organizations. Roles typically include Event Producer, Production Coordinator, Stage Manager, and similar titles."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sarah Rush Wirth",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Title: Director of Public Relations, Internal Communications and Investor Relations involves event coordination",
+            "Experience with content strategy and organizational leadership"
+          ]
+        },
+        {
+          "id": "Jenny Ludwigsen",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Titles: Senior Vice President, Brand Experience and managing experiential marketing projects",
+            "Skills in Event Management and Brand Activation"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing and Communications Executives",
+      "description": {
+        "summary": "Individuals in this group hold senior roles in marketing and communications, driving strategic initiatives that enhance brand presence and engage target audiences. They oversee marketing campaigns, manage communications teams, and align marketing strategies with business objectives.",
+        "commonCharacteristics": [
+          "Strategic planning and execution",
+          "Leadership of marketing and communications teams",
+          "Focus on brand development and market positioning"
+        ],
+        "skills": [
+          "Marketing Strategy",
+          "Communications Planning",
+          "Team Leadership",
+          "Brand Development",
+          "Integrated Marketing"
+        ],
+        "typicalBackground": "These professionals typically have a robust background in marketing or communications, often working their way up through various managerial roles to executive positions such as Marketing Director, VP of Marketing, or Communications Manager."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Darya Cable",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Title: Senior Project Manager, Digital Marketing signifies executive-level responsibility",
+            "Skills in Strategy, Salesforce, and Marketing Operations"
+          ]
+        },
+        {
+          "id": "Caren Read",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Title: Marketing Communications Manager and Regional Marketing Manager indicate executive roles",
+            "Skills in Marketing Strategy, Communications, and Campaign Management"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "PR and Media Relations Experts",
+      "description": {
+        "summary": "This cluster includes professionals who specialize in managing an organization's public image and media interactions. They develop and execute public relations strategies, handle media inquiries, and cultivate relationships with journalists and media outlets to secure positive coverage.",
+        "commonCharacteristics": [
+          "Expertise in media relations and public relations",
+          "Strong communication and interpersonal skills",
+          "Ability to manage crisis communications"
+        ],
+        "skills": [
+          "Media Relations",
+          "Public Relations",
+          "Crisis Management",
+          "Strategic Communications",
+          "Content Development"
+        ],
+        "typicalBackground": "These individuals often have experience working in PR agencies or in-house communications departments. Common roles include PR Manager, Communications Director, Media Relations Specialist, and similar titles."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Annessa Robinsun-Abrams",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Title: AVP Marketing Engagement and Communications involves media relations",
+            "Skills in Media Relations, Public Relations, and Strategic Communications"
+          ]
+        },
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Title: Vice President relates to high-level PR and media strategy",
+            "Skills in Media Relations, Public Relations, and Marketing Strategy"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

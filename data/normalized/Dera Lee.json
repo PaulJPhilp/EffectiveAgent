@@ -1,0 +1,68 @@
+{
+  "name": "Dera Lee",
+  "age": null,
+  "location": "New York City Metropolitan Area",
+  "gender": null,
+  "company": "DLP Experiential Marketing Agency",
+  "companyType": "Experiential Marketing Agency",
+  "companySize": null,
+  "industry": "Event Production, Marketing",
+  "occupation": "Founder + CEO",
+  "interests": [
+    "Theater Arts",
+    "Event Production",
+    "Marketing Trends",
+    "Story-telling"
+  ],
+  "skills": [
+    "Attention To Detail",
+    "Multitasker",
+    "Customer Relations"
+  ],
+  "education": [
+    "New York University - Bachelor of Fine Arts (BFA), Musical Theatre (1997 - 2001)"
+  ],
+  "experience": [
+    {
+      "company": "DLP Experiential Marketing Agency",
+      "title": "Founder + CEO",
+      "startDate": "August 2015",
+      "endDate": "Present",
+      "duration": "9 years 7 months",
+      "location": "Greater New York City Area"
+    },
+    {
+      "company": "We Are BMF",
+      "title": "Events Director",
+      "startDate": "September 2012",
+      "endDate": "September 2014",
+      "duration": "2 years 1 month",
+      "location": "Greater New York City Area"
+    },
+    {
+      "company": "New York Cruise Lines, Inc.",
+      "title": "Director of Special Events",
+      "startDate": "March 2011",
+      "endDate": "September 2012",
+      "duration": "1 year 7 months",
+      "location": "Greater New York City Area"
+    },
+    {
+      "company": "Shiraz Creative",
+      "title": "Senior Events Manager",
+      "startDate": "November 2006",
+      "endDate": "February 2011",
+      "duration": "4 years 4 months",
+      "location": "Greater New York City Area"
+    },
+    {
+      "company": "BF9 Media",
+      "title": "Event Manager",
+      "startDate": "November 2004",
+      "endDate": "November 2006",
+      "duration": "2 years 1 month",
+      "location": "Greater New York City Area"
+    }
+  ],
+  "bio": "Dera Lee Productions is an award-winning event production and design agency that brings brand campaigns to life through an in-depth understanding of the event industry, theater arts, and marketing trends. With a background in the theater arts, we believe events are all about story-telling. Our promise is that every event has the energy and ingenuity of opening night and the expertise of a 10-year run. Dera Lee Productions approaches every event like it's a Broadway show. Our years of experience mean that we know how to produce detailed, technically precise events that can transport the audience and even be a little magical. We balance the artistic and the technical to produce one-of-a-kind experiences that forge an emotional connection between attendee and brand. If you just saw an experience at a competitor's event, you won't see it ours. We also understand the bottom line is important to you. It's important to us. We deliver on what we promise and maximize your budget, so you'll always know you are getting value for your money."
+}

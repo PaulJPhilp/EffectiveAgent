@@ -1,0 +1,123 @@
+{
+  "name": "Stephanie Le",
+  "age": null,
+  "location": "Tustin, California, United States",
+  "gender": "Female",
+  "company": "Morinaga America",
+  "companyType": "Food & Beverage",
+  "companySize": null,
+  "industry": "Marketing",
+  "occupation": "Brand Marketing Coordinator",
+  "interests": [
+    "Community Service",
+    "Leadership",
+    "Interpersonal Skills"
+  ],
+  "skills": [
+    "Google Analytics Essential Training",
+    "SEO Foundations",
+    "OMCA Certification for Online Marketing Associate Test Prep",
+    "WordPress 5 Essential Training"
+  ],
+  "education": [
+    "Cal State Fullerton, College of Business and Economics - Bachelor of Arts in Business Administration, Marketing",
+    "Arnold O. Beckman High School - High School Diploma"
+  ],
+  "experience": [
+    {
+      "company": "Morinaga America",
+      "position": "Brand Marketing Coordinator | HI-CHEW",
+      "duration": "January 2025 - Present (2 months)",
+      "location": "Irvine, California, United States",
+      "responsibilities": [
+        "Serve as primary liaison for HI-CHEW's external agency partners, ensuring seamless communication and successful campaign execution.",
+        "Manage strategic brand partnerships with high-profile organizations, driving brand awareness and revenue growth.",
+        "Spearhead the development and execution of a 30’x40’ tradeshow booth for the 2024 Sweets & Snacks Expo.",
+        "Manage and execute HI-CHEW's in-person events, including sampling activations and pop-up shops.",
+        "Develop and distribute monthly marketing newsletter reports to stakeholders.",
+        "Leverage pop culture trends and Gen-Z insights to inform strategic decisions and drive innovative campaigns."
+      ]
+    },
+    {
+      "company": "Morinaga America",
+      "position": "Brand Marketing Assistant | HI-CHEW",
+      "duration": "October 2022 - December 2024 (2 years 3 months)",
+      "location": "Irvine, California, United States",
+      "responsibilities": [
+        "Serve as primary liaison for HI-CHEW's external agency partners, ensuring seamless communication and successful campaign execution.",
+        "Manage strategic brand partnerships with high-profile organizations, driving brand awareness and revenue growth.",
+        "Spearhead the development and execution of a 30’x40’ tradeshow booth for the 2024 Sweets & Snacks Expo.",
+        "Manage and execute HI-CHEW's in-person events, including sampling activations and pop-up shops.",
+        "Develop and distribute monthly marketing newsletter reports to stakeholders.",
+        "Leverage pop culture trends and Gen-Z insights to inform strategic decisions and drive innovative campaigns."
+      ]
+    },
+    {
+      "company": "California State University, Fullerton",
+      "position": "Resident Advisor",
+      "duration": "August 2021 - May 2022 (10 months)",
+      "location": "Fullerton, California, United States",
+      "responsibilities": [
+        "Mediated and provided conflict resolution in a professional and timely manner.",
+        "Planned, promoted, and executed diversity and inclusion programs for over 1900 residents and staff.",
+        "Managed administrative duties including maintenance requests and incident reports."
+      ]
+    },
+    {
+      "company": "Feedfeed",
+      "position": "Account Coordinator",
+      "duration": "June 2021 - December 2021 (7 months)",
+      "location": null,
+      "responsibilities": [
+        "Led development of program results decks to communicate campaign successes.",
+        "Drafted client-facing decks detailing sponsored programs.",
+        "Worked cross-functionally with Editorial/Production, Social, and Influencer departments."
+      ]
+    },
+    {
+      "company": "Feedfeed",
+      "position": "Production Intern",
+      "duration": "September 2020 - May 2021 (9 months)",
+      "location": null,
+      "responsibilities": [
+        "Recorded and systemized sponsored content performance data.",
+        "Assisted with digital program and campaign production across various departments.",
+        "Drafted and shared content across multiple social media verticals with over 3MM followers."
+      ]
+    },
+    {
+      "company": "California State University, Fullerton",
+      "position": "Resident Advisor",
+      "duration": "August 2019 - June 2020 (11 months)",
+      "location": "Fullerton, California, United States",
+      "responsibilities": [
+        "Mediated and provided conflict resolution in a professional and timely manner.",
+        "Planned, promoted, and executed diversity and inclusion programs for over 1900 residents and staff.",
+        "Managed administrative duties including maintenance requests and incident reports."
+      ]
+    },
+    {
+      "company": "Bumble",
+      "position": "Campus Outreach Manager",
+      "duration": "July 2019 - January 2020 (7 months)",
+      "location": "Orange County, California, United States",
+      "responsibilities": [
+        "Researched and capitalized on current trends to develop brand recognition.",
+        "Organized and executed community outreach events to increase app growth on campus.",
+        "Developed and maintained relationships with community and campus leaders."
+      ]
+    },
+    {
+      "company": "Business Inter-Club Council",
+      "position": "Student Intern",
+      "duration": "December 2018 - June 2019 (7 months)",
+      "location": "Fullerton, California, United States",
+      "responsibilities": [
+        "Assisted with operations during biweekly council meetings.",
+        "Provided administrative support to ensure productivity and efficiency.",
+        "Co-organized and hosted multiple professional-growth related events."
+      ]
+    }
+  ],
+  "bio": "Bachelor of Arts in Business-Administration with a concentration in Marketing. Eager to increase my professional experience to be applied to the marketing industry. Initiator, adaptable, results-driven."
+}

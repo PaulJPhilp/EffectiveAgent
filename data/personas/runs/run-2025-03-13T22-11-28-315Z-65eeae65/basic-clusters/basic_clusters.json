@@ -1,0 +1,153 @@
+{
+  "clusters": [
+    {
+      "title": "Strategic Marketing and Communications Leaders",
+      "description": {
+        "summary": "This cluster comprises senior marketing and communications professionals who oversee comprehensive marketing strategies, brand development, and strategic communications across various industries. They are responsible for guiding cross-functional teams, driving digital marketing initiatives, and ensuring cohesive brand messaging.",
+        "commonCharacteristics": [
+          "Senior Leadership Roles (Director, Vice President)",
+          "Strategic Planning and Execution",
+          "Cross-functional Team Leadership"
+        ],
+        "skills": [
+          "Marketing Strategy",
+          "Brand Development",
+          "Digital Marketing",
+          "Communications Planning",
+          "Team Leadership"
+        ],
+        "typicalBackground": "Individuals in this cluster typically hold extensive experience in senior marketing roles, such as Director or Vice President. They have a proven track record of developing and implementing comprehensive marketing strategies, leading diverse teams, and enhancing brand presence across multiple channels and platforms."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Louise Bjelke",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Holds a Vice President position overseeing marketing engagement and communications.",
+            "Responsible for strategic planning and cross-functional team leadership."
+          ]
+        },
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Vice President managing national media and marketing campaigns.",
+            "Focuses on strategic communication plans and brand messaging."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event and Experiential Marketing Specialists",
+      "description": {
+        "summary": "Professionals in this cluster specialize in organizing, producing, and managing live events and experiential marketing campaigns. They excel in handling event logistics, coordinating with vendors, and creating immersive brand experiences that engage target audiences.",
+        "commonCharacteristics": [
+          "Expertise in Event Planning and Production",
+          "Strong Organizational and Logistical Skills",
+          "Vendor and Stakeholder Coordination"
+        ],
+        "skills": [
+          "Event Production",
+          "Stage Management",
+          "Experiential Marketing",
+          "Logistics Coordination",
+          "Vendor Management"
+        ],
+        "typicalBackground": "Members of this cluster often have backgrounds in event management or experiential marketing. They possess hands-on experience in producing large-scale events, managing on-site operations, and creating engaging brand experiences. Their roles frequently involve collaborating with various stakeholders to ensure event success."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Cristobal C.",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Experiential and Integrated Producer with a focus on dynamic brand experiences.",
+            "Oversees sourcing and management of external talent and vendors."
+          ]
+        },
+        {
+          "id": "Annessa Robinsun-Abrams",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "AVP Marketing Engagement and Communications with a focus on experiential production.",
+            "Leads teams to design and execute immersive events and activations."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative and Content Marketing Professionals",
+      "description": {
+        "summary": "This cluster includes creative directors, content strategists, and marketing professionals focused on developing engaging content and visual branding. They are responsible for crafting compelling narratives, designing creative campaigns, and ensuring brand consistency across all marketing materials.",
+        "commonCharacteristics": [
+          "Strong Creative Vision and Innovation",
+          "Expertise in Content Development",
+          "Proficiency in Visual Design and Branding"
+        ],
+        "skills": [
+          "Creative Direction",
+          "Content Strategy",
+          "Copywriting",
+          "Branding and Identity",
+          "Visual Design"
+        ],
+        "typicalBackground": "Individuals in this cluster usually have backgrounds in creative roles such as Creative Director or Art Director. They possess a deep understanding of visual storytelling, content creation, and branding. Their roles often involve collaborating with marketing teams to develop and implement creative campaigns that resonate with audiences."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.88,
+          "matchReasons": [
+            "Brand Marketing Specialist with expertise in content strategy and marketing communications.",
+            "Focuses on developing and optimizing brand messaging across various channels."
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Group Account Director overseeing creative services and content development.",
+            "Responsible for strategic content planning and award-winning publication management."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing Operations and Project Management Experts",
+      "description": {
+        "summary": "Professionals in this cluster are adept at managing marketing projects, coordinating cross-functional teams, and ensuring the efficient execution of marketing campaigns. They play a crucial role in bridging the gap between strategic planning and operational execution, facilitating smooth campaign workflows.",
+        "commonCharacteristics": [
+          "Expertise in Project Coordination",
+          "Strong Analytical and Organizational Skills",
+          "Proficiency in Marketing Campaign Management"
+        ],
+        "skills": [
+          "Project Management",
+          "Marketing Campaigns",
+          "Cross-functional Coordination",
+          "Analytics and Reporting",
+          "Process Improvement"
+        ],
+        "typicalBackground": "Members of this cluster typically have experience in managing marketing projects or operations roles. They excel in coordinating between different departments, overseeing the implementation of marketing strategies, and utilizing analytics to measure campaign performance. Their roles often require meticulous planning and the ability to adapt to changing project requirements."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Director of Project Management overseeing Salesforce and strategy.",
+            "Certified Project Management Professional with extensive experience in managing complex marketing projects."
+          ]
+        },
+        {
+          "id": "Darya Cable",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Senior Project Manager in Digital Marketing with expertise in process improvement.",
+            "Manages and executes digital marketing campaigns and projects."
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2023-10-12"
+}

@@ -1,0 +1,74 @@
+# Summarization Prompt
+You are a marketing persona specialist. Your task is to create both an executive summary and a full profile for a marketing persona.
+
+## Persona Data
+{{personaData}}
+
+## Task
+Create two different outputs for this persona:
+1. An executive summary that highlights the most important aspects (for busy executives)
+2. A comprehensive profile that provides all details (for marketing teams)
+
+## Executive Summary Format
+Provide a markdown executive summary that highlights the most important aspects:
+
+# {{personaName}} - Executive Summary
+
+## Basic Information
+- **Role**: {{personaTitle}}
+- **Demographics**: [Key demographics]
+
+## Top Values
+[List 3-5 core values with brief explanations]
+
+## Key Motivations
+[List 3-4 primary motivations with brief descriptions]
+
+## Personality Traits
+[List 5-6 defining personality traits]
+
+## Goals
+[List 3-4 main goals with timelines]
+
+## Challenges
+[List 3-4 significant challenges they face]
+
+## Success Metrics
+[List how they measure success]
+
+## Full Profile Format
+Provide a detailed markdown profile that fully describes this persona:
+
+# {{personaName}} - Full Profile
+
+## Professional Role
+[Detailed description of their role, responsibilities, and impact]
+
+## Core Values
+[Detailed explanation of 3-5 core values with examples of how they manifest]
+
+## Key Motivations
+[Comprehensive analysis of what drives them professionally and personally]
+
+## Personality & Working Style
+[In-depth description of personality traits, communication preferences, and work approach]
+
+## Goals
+[Detailed description of short, medium, and long-term goals with obstacles]
+
+## Challenges
+[Thorough analysis of professional challenges, their impact, and current solutions]
+
+## Emotional Profile
+[Analysis of emotional state, stressors, coping mechanisms, and communication style]
+
+## Success Metrics
+[Detailed explanation of how they measure success and why these metrics matter]
+
+## Information Ecosystem
+[Comprehensive overview of their information sources, influencers, and communities]
+
+## Background & Skills
+[Detailed educational and career background with key skills and expertise areas]
+
+The profile should provide deep insights into this persona, written in a narrative style that brings them to life as a three-dimensional individual.

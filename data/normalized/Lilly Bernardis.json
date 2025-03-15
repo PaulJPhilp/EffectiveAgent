@@ -1,0 +1,54 @@
+{
+  "name": "Lilly Bernardis",
+  "age": null,
+  "location": "Englewood, Colorado, United States",
+  "gender": null,
+  "company": "Outerkind",
+  "companyType": null,
+  "companySize": null,
+  "industry": "Marketing",
+  "occupation": "Account Producer",
+  "interests": [],
+  "skills": [
+    "Digital Marketing",
+    "SEO",
+    "Team Management",
+    "Event Planning",
+    "Activity Development",
+    "Scheduling"
+  ],
+  "education": [
+    "Bachelor's degree in Advertising, University of Colorado Boulder (2018 - 2022)",
+    "Cherry Creek High School (2015 - 2018)"
+  ],
+  "experience": [
+    {
+      "company": "Outerkind",
+      "title": "Account Producer",
+      "startDate": "February 2023",
+      "endDate": "Present",
+      "duration": "2 years 1 month",
+      "location": "Colorado, United States",
+      "description": ""
+    },
+    {
+      "company": "Easy Event Planning",
+      "title": "Digital Marketing and SEO Intern",
+      "startDate": "August 2021",
+      "endDate": "February 2023",
+      "duration": "1 year 7 months",
+      "location": "Remote",
+      "description": ""
+    },
+    {
+      "company": "Club Greenwood",
+      "title": "Kids Camp Coordinator",
+      "startDate": "May 2016",
+      "endDate": "December 2020",
+      "duration": "4 years 8 months",
+      "location": "Greenwood Athletic Club",
+      "description": "Managed 25 camp counselors to ensure they are adhering to their roles and responsibilities. Assembled camp schedule. Created activities and games to entertain and educate children ages 5-13."
+    }
+  ],
+  "bio": ""
+}

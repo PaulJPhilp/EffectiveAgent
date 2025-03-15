@@ -1,9 +1,12 @@
 import type { RunnableConfig } from "@langchain/core/runnables"
 import fs from "node:fs"
 import path from "node:path"
-import { PromptService } from "../../shared/services/prompt/index.js"
 import type { BasicClusteringResult, ClusteringState } from "../types.js"
 import { logToRun, parseJsonFromMarkdown } from "../utils.js"
+import { getPrompt } from "../prompts/index.js"
+import { generateText } from "ai"
+import { getLLM } from "../models.js"
+import chalk from "chalk"
 
 type ClusteringStateUpdate = Partial<ClusteringState>
 
@@ -14,7 +17,7 @@ export async function createBasicClustersNode(
     state: ClusteringState,
     config: RunnableConfig,
 ): Promise<ClusteringStateUpdate> {
-    console.log("createBasicClustersNode()")
+    console.log(chalk.blue("createBasicClustersNode()"))
 
     try {
         // Update status
@@ -44,20 +47,21 @@ export async function createBasicClustersNode(
         logToRun(state.runInfo, "Calling LLM to create basic clusters")
 
         // Get the prompt service
-        const promptService = await PromptService.getInstance()
+        const prompt = getPrompt('basic-clustering', {
+            normalizedProfilesCount: state.normalizedProfiles.length,
+            normalizedProfilesData: JSON.stringify(state.normalizedProfiles, null, 2)
+        })
 
         // Use the prompt service to complete the clustering task
-        const responseText = await promptService.completeClustering(
-            state.normalizedProfiles,
-            {
-                temperature: 0.3 // Slightly higher temperature for more creative clustering
-            }
-        )
+        const responseText = await generateText({
+            model: getLLM("o1-mini"),
+            prompt
+        })
 
         // Add more robust JSON extraction
         let clusteringResult: BasicClusteringResult
         try {
-            clusteringResult = parseJsonFromMarkdown(responseText) as BasicClusteringResult
+            clusteringResult = parseJsonFromMarkdown(responseText.text) as BasicClusteringResult
         } catch (parseError) {
             // Log the full response for debugging
             const debugPath = path.join(
@@ -65,7 +69,7 @@ export async function createBasicClustersNode(
                 "logs",
                 "clustering_response.txt"
             )
-            fs.writeFileSync(debugPath, responseText)
+            fs.writeFileSync(debugPath, responseText.text)
             throw new Error(`Failed to parse LLM response: ${parseError}. Full response saved to ${debugPath}`)
         }
 

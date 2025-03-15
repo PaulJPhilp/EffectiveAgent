@@ -1,0 +1,80 @@
+{
+  "name": "Bianca Myers",
+  "age": null,
+  "location": "Toronto, Ontario, Canada",
+  "gender": null,
+  "company": "SALT XC",
+  "companyType": null,
+  "companySize": null,
+  "industry": "Marketing and Advertising",
+  "occupation": "Managing Director",
+  "interests": [
+    "Animal Welfare",
+    "Arts and Culture",
+    "Children",
+    "Civil Rights",
+    "Social Action",
+    "Branding Insights Exchange",
+    "WPP X Factor & WILL Alumni",
+    "Cossette Toronto Alumni"
+  ],
+  "skills": [
+    "Integrated Marketing",
+    "Digital Strategy"
+  ],
+  "education": [
+    "Post Graduate Diploma, Creative Advertising, Seneca at York (2005 - 2007)",
+    "Bachelor's degree, Semiotics, University of Toronto (2001 - 2005)"
+  ],
+  "experience": [
+    {
+      "title": "Managing Director",
+      "company": "SALT XC",
+      "startDate": "Jan 2024",
+      "endDate": "Present",
+      "employmentType": "Permanent Full-time",
+      "location": "Toronto, Ontario, Canada - Hybrid"
+    },
+    {
+      "title": "VP Managing Director",
+      "company": "123w (One Twenty Three West)",
+      "startDate": "Jun 2022",
+      "endDate": "Jan 2024",
+      "employmentType": "Permanent Full-time",
+      "location": "Toronto, Ontario, Canada"
+    },
+    {
+      "title": "Managing Director",
+      "company": "The Kitchen",
+      "startDate": "Nov 2021",
+      "endDate": "Jun 2022",
+      "employmentType": "Permanent Full-time",
+      "location": "Toronto, Ontario, Canada"
+    },
+    {
+      "title": "Group Director",
+      "company": "lg2",
+      "startDate": "Jul 2019",
+      "endDate": "Oct 2021",
+      "employmentType": null,
+      "location": null
+    },
+    {
+      "title": "Team Lead",
+      "company": "John St.",
+      "startDate": "Feb 2019",
+      "endDate": "Jun 2019",
+      "employmentType": null,
+      "location": null
+    },
+    {
+      "title": "Account Director",
+      "company": null,
+      "startDate": "Apr 2014",
+      "endDate": "Jan 2019",
+      "employmentType": null,
+      "location": null
+    }
+  ],
+  "bio": "Experienced Team Lead with a demonstrated history of working in the marketing and advertising industry. Skilled in Digital Strategy, Customer Insight, Advertising, Integrated Marketing, and Digital Marketing. Strong sales professional with a Post Graduate Diploma focused on Creative Advertising from Seneca at York."
+}

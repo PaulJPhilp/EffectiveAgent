@@ -18,11 +18,11 @@
       "company": "Marcy Blum Events",
       "title": "Event Producer",
       "duration": {
-        "start_date": "2025-02-01",
+        "start_date": "February 2025",
         "end_date": "Present",
-        "date_range": "0 years 0 months"
+        "date_range": "1 month"
       },
-      "location": "New York, NY",
+      "location": "New York, New York, United States",
       "description": [],
       "company_url": null
     },
@@ -30,9 +30,9 @@
       "company": "N4XT Experiences, Inc.",
       "title": "VP of Production and Events",
       "duration": {
-        "start_date": "2023-07-01",
-        "end_date": "2023-12-31",
-        "date_range": "0 years 5 months"
+        "start_date": "July 2023",
+        "end_date": "December 2023",
+        "date_range": "6 months"
       },
       "location": null,
       "description": [
@@ -41,11 +41,23 @@
       "company_url": null
     },
     {
+      "company": "LAFW: Los Angeles Fashion Week Hessney & Co.",
+      "title": "Director Of Production",
+      "duration": {
+        "start_date": "September 2019",
+        "end_date": "June 2022",
+        "date_range": "2 years 10 months"
+      },
+      "location": "New York, New York",
+      "description": [],
+      "company_url": null
+    },
+    {
       "company": "Hessney & Co.",
       "title": "Director Of Production",
       "duration": {
-        "start_date": "2019-09-01",
-        "end_date": "2022-06-30",
+        "start_date": "September 2019",
+        "end_date": "June 2022",
         "date_range": "2 years 9 months"
       },
       "location": "New York, NY",
@@ -56,11 +68,11 @@
       "company": "Milk",
       "title": "Events Director",
       "duration": {
-        "start_date": "2019-01-01",
-        "end_date": "2019-09-30",
-        "date_range": "0 years 8 months"
+        "start_date": "January 2019",
+        "end_date": "September 2019",
+        "date_range": "9 months"
       },
-      "location": "New York, NY",
+      "location": "New York, New York",
       "description": [],
       "company_url": null
     },
@@ -68,11 +80,11 @@
       "company": "IMG",
       "title": "Director, Events + Operations",
       "duration": {
-        "start_date": "2017-04-01",
-        "end_date": "2018-12-31",
-        "date_range": "1 year 8 months"
+        "start_date": "April 2017",
+        "end_date": "December 2018",
+        "date_range": "1 year 9 months"
       },
-      "location": "New York, NY",
+      "location": "New York, New York",
       "description": [],
       "company_url": null
     },
@@ -80,9 +92,9 @@
       "company": "LDJ Productions",
       "title": "Producer",
       "duration": {
-        "start_date": "2011-09-01",
-        "end_date": "2016-06-30",
-        "date_range": "4 years 9 months"
+        "start_date": "September 2011",
+        "end_date": "June 2016",
+        "date_range": "4 years 10 months"
       },
       "location": "NYC",
       "description": [],
@@ -92,9 +104,9 @@
       "company": "LDJ Productions",
       "title": "Production Assistant",
       "duration": {
-        "start_date": "2010-09-01",
-        "end_date": "2011-09-30",
-        "date_range": "1 year 0 months"
+        "start_date": "September 2010",
+        "end_date": "September 2011",
+        "date_range": "1 year 1 month"
       },
       "location": "NYC",
       "description": [],

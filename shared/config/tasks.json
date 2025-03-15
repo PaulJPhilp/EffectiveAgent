@@ -1,0 +1,107 @@
+{
+	"taskMappings": [
+		{
+			"taskName": "clustering",
+			"primaryModelId": "claude-3-opus",
+			"fallbackModelIds": [
+				"o1-mini",
+				"gpt-4"
+			],
+			"temperature": 0.3,
+			"description": "Cluster data into meaningful groups",
+			"requiredCapabilities": [
+				"reasoning"
+			],
+			"contextWindowSize": "large-context-window"
+		},
+		{
+			"taskName": "analysis",
+			"primaryModelId": "claude-3-sonnet",
+			"fallbackModelIds": [
+				"gpt-4",
+				"gemini-1.5-pro"
+			],
+			"temperature": 0.2,
+			"description": "Analyze data and provide insights",
+			"requiredCapabilities": [
+				"reasoning"
+			],
+			"contextWindowSize": "large-context-window"
+		},
+		{
+			"taskName": "summarization",
+			"primaryModelId": "gemini-pro",
+			"fallbackModelIds": [
+				"claude-3-haiku",
+				"gpt-3.5-turbo"
+			],
+			"temperature": 0.3,
+			"description": "Generate concise summaries of text",
+			"requiredCapabilities": [
+				"text-generation"
+			],
+			"contextWindowSize": "medium-context-window"
+		},
+		{
+			"taskName": "image-generation",
+			"primaryModelId": "dall-e-3",
+			"temperature": 1.0,
+			"description": "Generate images from text descriptions",
+			"requiredCapabilities": [
+				"text-to-image"
+			],
+			"contextWindowSize": "small-context-window"
+		},
+		{
+			"taskName": "embeddings",
+			"primaryModelId": "embedding-ada-002",
+			"temperature": 0.0,
+			"description": "Generate vector embeddings for text",
+			"requiredCapabilities": [
+				"embeddings"
+			],
+			"contextWindowSize": "small-context-window"
+		},
+		{
+			"taskName": "ocr",
+			"primaryModelId": "o1-mini",
+			"fallbackModelIds": [
+				"gemini-1.5-pro"
+			],
+			"temperature": 0.0,
+			"description": "Extract text from images",
+			"requiredCapabilities": [
+				"ocr"
+			],
+			"contextWindowSize": "medium-context-window"
+		},
+		{
+			"taskName": "search",
+			"primaryModelId": "gemini-pro",
+			"fallbackModelIds": [
+				"gemini-1.5-pro"
+			],
+			"temperature": 0.2,
+			"description": "Search and retrieve information",
+			"requiredCapabilities": [
+				"search"
+			],
+			"contextWindowSize": "medium-context-window"
+		},
+		{
+			"taskName": "profile-normalization",
+			"primaryModelId": "o1-mini",
+			"fallbackModelIds": [
+				"gpt-4-turbo",
+				"claude-3-5-sonnet"
+			],
+			"temperature": 0.2,
+			"description": "Normalize profile data into a consistent format",
+			"requiredCapabilities": [
+				"text-generation",
+				"reasoning"
+			],
+			"contextWindowSize": "medium-context-window"
+		}
+	]
+}

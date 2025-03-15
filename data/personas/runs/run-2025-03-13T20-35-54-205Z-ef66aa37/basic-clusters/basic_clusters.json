@@ -1,0 +1,157 @@
+{
+  "clusters": [
+    {
+      "title": "Senior Marketing Executives",
+      "description": {
+        "summary": "This cluster comprises high-level marketing professionals who lead strategic initiatives, oversee large teams, and drive brand growth across various industries. They possess extensive experience in strategic planning, brand management, and integrated marketing campaigns.",
+        "commonCharacteristics": [
+          "Leadership and team management",
+          "Strategic planning and execution",
+          "Extensive experience in marketing and brand management"
+        ],
+        "skills": [
+          "Strategic Communications",
+          "Brand Management",
+          "Integrated Marketing",
+          "Media Planning",
+          "Content Strategy",
+          "Business Development"
+        ],
+        "typicalBackground": "Professionals in this cluster typically hold advanced degrees in marketing, business, or related fields and have over a decade of experience in marketing roles. They have progressed from roles like Marketing Manager or Account Director to senior positions such as Vice President or Director of Marketing within organizations ranging from corporate environments to marketing agencies."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Holds a Vice President position overseeing comprehensive marketing and communications strategies.",
+            "Extensive experience in media relations, content development, and strategic marketing."
+          ]
+        },
+        {
+          "id": "Jenny Ludwigsen",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Serves as Vice President of Marketing with over 15 years in marketing leadership roles.",
+            "Skilled in strategic planning, brand development, and integrated marketing communications."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production Professionals",
+      "description": {
+        "summary": "This cluster includes individuals specialized in organizing, planning, and executing events of varying scales. They excel in logistics management, vendor coordination, and creating seamless event experiences, often working in entertainment, marketing, or corporate settings.",
+        "commonCharacteristics": [
+          "Expertise in event logistics and coordination",
+          "Strong project management skills",
+          "Ability to manage multiple stakeholders and vendors"
+        ],
+        "skills": [
+          "Event Management",
+          "Project Coordination",
+          "Vendor Relations",
+          "Stage Management",
+          "Budget Management",
+          "Creative Problem Solving"
+        ],
+        "typicalBackground": "Members of this cluster usually have a background in event planning, production management, or hospitality. They often start in junior roles such as Production Assistant or Event Coordinator and advance to positions like Event Producer or Director of Production. Their experience spans various industries including entertainment, sports, corporate events, and marketing agencies."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sarah Rush Wirth",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Director of Public Relations and Event Management with extensive experience in content strategy and corporate communications.",
+            "Proven track record in managing large-scale public relations and investor relations events."
+          ]
+        },
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Field Marketing Manager with significant experience in managing and executing marketing initiatives and events.",
+            "Skilled in sponsorship management and coordinating community events."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "PR and Communications Specialists",
+      "description": {
+        "summary": "This cluster consists of professionals focused on managing public relations, internal and external communications, and media relations. They are adept at crafting strategic communication plans, handling crisis management, and enhancing brand reputation through various media channels.",
+        "commonCharacteristics": [
+          "Strong focus on media and public relations",
+          "Expertise in content creation and strategic communications",
+          "Ability to manage and mitigate crises"
+        ],
+        "skills": [
+          "Media Relations",
+          "Public Relations",
+          "Content Creation",
+          "Crisis Management",
+          "Strategic Communications",
+          "Internal Communications"
+        ],
+        "typicalBackground": "Individuals in this cluster often hold degrees in communications, public relations, journalism, or related fields. They have developed their careers in PR firms, corporate communications departments, or as freelance consultants. Their roles have evolved from Communications Specialists to senior positions like Director of Communications or Vice President of PR, managing comprehensive PR campaigns and communication strategies."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Director of Project Management with a strong background in strategic communications and Salesforce.",
+            "Certified Project Management Professional, indicating expertise in managing complex communication projects."
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Group Account Director focusing on integrated marketing and communications strategies.",
+            "Extensive experience in managing public relations and content development for various clients."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Account Management in Marketing Agencies",
+      "description": {
+        "summary": "Professionals in this cluster are responsible for managing client relationships, overseeing marketing campaigns, and ensuring the successful delivery of agency services. They excel in client communication, project coordination, and balancing multiple accounts to meet client needs and agency goals.",
+        "commonCharacteristics": [
+          "Strong client relationship management",
+          "Ability to oversee and coordinate multiple campaigns",
+          "Proficient in project management and budgeting"
+        ],
+        "skills": [
+          "Client Relations",
+          "Campaign Management",
+          "Project Coordination",
+          "Budget Oversight",
+          "Strategic Planning",
+          "Team Leadership"
+        ],
+        "typicalBackground": "These individuals typically have experience working in account management roles within marketing or PR agencies. They often hold titles such as Account Manager, Account Director, or Senior Account Supervisor. Their career paths involve progressing from junior account roles to managing larger accounts and leading account teams, ensuring the alignment of client objectives with agency deliverables."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Mark Dalhausser",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Holds the position of Senior Vice President, Experiential Marketing, overseeing client relationships and integrated campaign strategies.",
+            "Proven ability to manage and grow client accounts in a dynamic marketing agency environment."
+          ]
+        },
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Regional Marketing Manager responsible for overseeing marketing initiatives and managing regional accounts.",
+            "Experience in managing sponsorships and community events aligns with account management responsibilities."
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

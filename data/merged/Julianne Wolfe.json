@@ -18,8 +18,8 @@
       "company": "NVE Experience Agency",
       "title": "Producer",
       "duration": {
-        "start_date": "2024-01-01",
-        "end_date": null,
+        "start_date": "Jan 2024",
+        "end_date": "Present",
         "date_range": "1 year 2 months"
       },
       "location": "Los Angeles, California, United States",
@@ -45,23 +45,23 @@
       "company": "NVE Experience Agency",
       "title": "Associate Producer",
       "duration": {
-        "start_date": "2022-12-01",
-        "end_date": "2024-01-01",
+        "start_date": "Dec 2022",
+        "end_date": "Jan 2024",
         "date_range": "1 year 2 months"
       },
-      "location": null,
+      "location": "Los Angeles, California, United States",
       "description": [],
       "company_url": null
     },
     {
       "company": "NVE Experience Agency",
-      "title": "Senior Production Coordinator",
+      "title": "Sr. Production Coordinator",
       "duration": {
-        "start_date": "2022-01-01",
-        "end_date": "2022-12-01",
+        "start_date": "Jan 2022",
+        "end_date": "Dec 2022",
         "date_range": "1 year"
       },
-      "location": null,
+      "location": "Los Angeles Metropolitan Area",
       "description": [],
       "company_url": null
     },
@@ -69,11 +69,11 @@
       "company": "NVE Experience Agency",
       "title": "Production Coordinator",
       "duration": {
-        "start_date": "2020-12-01",
-        "end_date": "2022-01-01",
+        "start_date": "Dec 2020",
+        "end_date": "Jan 2022",
         "date_range": "1 year 2 months"
       },
-      "location": null,
+      "location": "Los Angeles, California, United States",
       "description": [],
       "company_url": null
     },
@@ -81,20 +81,20 @@
       "company": "NVE Experience Agency",
       "title": "Production Operations Coordinator",
       "duration": {
-        "start_date": "2020-01-01",
-        "end_date": "2020-12-01",
+        "start_date": "Jan 2020",
+        "end_date": "Dec 2020",
         "date_range": "1 year"
       },
-      "location": null,
+      "location": "Greater Los Angeles Area",
       "description": [],
       "company_url": null
     },
     {
       "company": "The Creative Group",
-      "title": "Lead Recruiter / Senior Recruiter",
+      "title": "Lead Recruiter / Sr. Recruiter",
       "duration": {
-        "start_date": "2018-09-01",
-        "end_date": "2019-12-01",
+        "start_date": "Sep 2018",
+        "end_date": "Dec 2019",
         "date_range": "1 year 4 months"
       },
       "location": "Greater Los Angeles Area",
@@ -105,11 +105,11 @@
       "company": "The Creative Group",
       "title": "Creative Recruiter",
       "duration": {
-        "start_date": "2017-09-01",
-        "end_date": "2018-09-01",
+        "start_date": "Sep 2017",
+        "end_date": "Sep 2018",
         "date_range": "1 year 1 month"
       },
-      "location": null,
+      "location": "Greater Los Angeles Area",
       "description": [],
       "company_url": null
     },
@@ -117,8 +117,8 @@
       "company": "EOS Lounge",
       "title": "Production Assistant / Marketing Coordinator",
       "duration": {
-        "start_date": "2016-08-01",
-        "end_date": "2017-07-01",
+        "start_date": "Aug 2016",
+        "end_date": "Jul 2017",
         "date_range": "1 year"
       },
       "location": "Santa Barbara, California Area",
@@ -129,11 +129,11 @@
       "company": "UCSB Enterprise Technology Services",
       "title": "Administrative Assistant",
       "duration": {
-        "start_date": "2016-05-01",
-        "end_date": "2017-06-01",
+        "start_date": "May 2016",
+        "end_date": "Jun 2017",
         "date_range": "1 year 2 months"
       },
-      "location": null,
+      "location": "Program Management Office",
       "description": [],
       "company_url": null
     }

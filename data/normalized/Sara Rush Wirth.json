@@ -1,0 +1,123 @@
+{
+  "name": "Sara Rush Wirth",
+  "age": null,
+  "location": "Greater Chicago Area",
+  "gender": "Female",
+  "company": "Portillo's",
+  "companyType": "Restaurant Chain",
+  "companySize": "1000+ employees",
+  "industry": "Public Relations and Communications",
+  "occupation": "Director, PR, Internal Communications & IR",
+  "interests": [],
+  "skills": [
+    "Strategic Communications",
+    "Corporate Communications",
+    "Content Strategy"
+  ],
+  "education": [
+    "Bachelor of Arts (B.A.), English Language and Literature/Letters, University of Wisconsin-Madison (2004 - 2008)",
+    "Certificate, Professional Cookery, Kendall College"
+  ],
+  "experience": [
+    {
+      "title": "Director, PR, Internal Communications & IR",
+      "company": "Portillo's",
+      "startDate": "March 2020",
+      "endDate": "Present",
+      "duration": "5 years",
+      "location": "Greater Chicago Area",
+      "description": ""
+    },
+    {
+      "title": "Content Director, Foodservice",
+      "company": "Winsight, LLC",
+      "startDate": "June 2019",
+      "endDate": "March 2020",
+      "duration": "10 months",
+      "location": "Chicago",
+      "description": "Organizational leader of the Foodservice team, driving the content and content strategy as well as overseeing the editorial teams for Restaurant Business and FoodService Director, including collaborative creation and execution of print and digital products that drive digital metrics. This role includes working cross-functionally with a range of teams to ideate and develop strategies that drive engagement and assure the right content is on the right platform, in the right forum, using the right multimedia or in-person strategy and pushed out the right way to the right audience."
+    },
+    {
+      "title": "Executive Editor, Restaurant Business Magazine",
+      "company": "Winsight, LLC",
+      "startDate": "August 2018",
+      "endDate": "May 2019",
+      "duration": "10 months",
+      "location": "Chicago",
+      "description": "Focused on leading the content strategy and deployment initiatives for the Restaurant Business team, successfully driving brand loyalty and readership, audience engagement and digital metrics in a fast-paced, deadline-oriented environment."
+    },
+    {
+      "title": "Managing Editor, Restaurant Business Magazine",
+      "company": "Winsight, LLC",
+      "startDate": "May 2016",
+      "endDate": "August 2018",
+      "duration": "2 years 4 months",
+      "location": "Chicago",
+      "description": "Managed print and digital projects for Restaurant Business from ideation to execution, working cross-functionally with various departments and stakeholders to achieve high engagement metrics. Curated and developed editorial content and editorial processes, with a focus on technology and data; presented at a range of restaurant industry events."
+    },
+    {
+      "title": "Senior Editor, Restaurant Business Magazine",
+      "company": "Winsight, LLC",
+      "startDate": "July 2015",
+      "endDate": "May 2016",
+      "duration": "11 months",
+      "location": "Greater Chicago Area",
+      "description": "Developed and edited print and digital content for Restaurant Business, with a focus on technology and data-driven projects and packages. Moderated and presented at various restaurant industry conferences."
+    },
+    {
+      "title": "Senior Associate Editor, Restaurant Business Magazine",
+      "company": "Winsight, LLC",
+      "startDate": "December 2014",
+      "endDate": "July 2015",
+      "duration": "8 months",
+      "location": "Chicago",
+      "description": ""
+    },
+    {
+      "title": "Associate Editor, Restaurant Business Magazine",
+      "company": "Winsight, LLC",
+      "startDate": "October 2013",
+      "endDate": "December 2014",
+      "duration": "1 year 3 months",
+      "location": "Chicago",
+      "description": ""
+    },
+    {
+      "title": "Editor",
+      "company": "Publications International",
+      "startDate": "August 2012",
+      "endDate": "October 2013",
+      "duration": "1 year 3 months",
+      "location": "",
+      "description": "Editor—Cookbook and Cooking Magazine Division"
+    },
+    {
+      "title": "Associate Editor",
+      "company": "Technomic, Inc.",
+      "startDate": "April 2010",
+      "endDate": "August 2012",
+      "duration": "2 years 5 months",
+      "location": "",
+      "description": "• Write/edit weekly, monthly, quarterly and annual publications including newsletters and analytical reports • Answer reporter inquiries and contribute to marketing efforts such as press releases and sell sheets • Help develop and produce custom published products • Create, compile and manage industry publications and social-media outlets for vice presidents and EVP • Aid in training and coaching newer staff members and interns"
+    },
+    {
+      "title": "All Clad Demonstrator/Representative",
+      "company": "Smith Marketing",
+      "startDate": "November 2009",
+      "endDate": "November 2010",
+      "duration": "1 year 1 month",
+      "location": "Chicago, IL",
+      "description": ""
+    },
+    {
+      "title": "Lead Patient Service Representative",
+      "company": "Northwestern Memorial Physicians Group",
+      "startDate": "September 2008",
+      "endDate": "April 2010",
+      "duration": "1 year 8 months",
+      "location": "",
+      "description": ""
+    }
+  ],
+  "bio": ""
+}

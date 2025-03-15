@@ -1,0 +1,146 @@
+{
+  "name": "Joanne Hsu",
+  "age": 38,
+  "location": "La Puente, California, USA",
+  "gender": "Female",
+  "company": "Morinaga America",
+  "companyType": "Food & Beverage",
+  "companySize": "",
+  "industry": "Fast Moving Consumer Goods, Food & Beverage, Airline",
+  "occupation": "Senior Brand Marketing Manager",
+  "interests": [
+    "Traveling",
+    "Cross-cultural experiences",
+    "Brand management",
+    "Strategic marketing",
+    "Product management"
+  ],
+  "skills": [
+    "Digital Marketing",
+    "Integrated Marketing",
+    "Content Marketing",
+    "Mandarin",
+    "Chinese",
+    "Taiwanese",
+    "English",
+    "Strategic Thinking",
+    "Brand Marketing",
+    "Content Strategy",
+    "Brand & Product Launches",
+    "Integrated Marketing Communication",
+    "Social Media Marketing",
+    "Product Management"
+  ],
+  "education": [
+    "Master’s Degree in Integrated Marketing, New York University (2015 - 2017)",
+    "MBA in Executive Management and Entrepreneurship, California Institute of Advanced Management (CIAM) (2018 - 2020)",
+    "Bachelor’s Degree in Journalism & Communication Studies, Fu Jen Catholic University"
+  ],
+  "experience": [
+    {
+      "company": "Morinaga America",
+      "position": "Senior Brand Marketing Manager",
+      "duration": "June 2022 - Present",
+      "location": "Irvine, California, USA",
+      "description": [
+        "Leading Brand Marketing Team and overseeing HI-CHEW brand marketing strategy and activities to grow brand awareness and household penetration.",
+        "Overseeing 360-degree brand communication and content across social media, PR, digital advertising, CRM, TV/CTV, sampling, licensing/partnerships, traditional and trade advertising programs, CSR, tradeshows, etc.",
+        "Building a powerful short-term and mid-term brand communication strategy to strengthen the brand's core message with the target audience and optimize resources through different channels.",
+        "Managing multiple agency partners and internal marketing team members to ensure the brand messages are consistent and cohesive across channels.",
+        "Guiding new product strategies and opportunities through conducting consumer research, analyzing category trends and sales data.",
+        "Managing D2C e-commerce business strategy to seize growth opportunities and optimize business efficiencies.",
+        "Overseeing Customer Relations Management to ensure customer satisfaction and constant improvement of complaints handling procedures."
+      ]
+    },
+    {
+      "company": "Lee Kum Kee USA",
+      "position": "Strategic Planning Manager",
+      "duration": "October 2020 - April 2022",
+      "location": "Los Angeles, California, USA",
+      "description": [
+        "Planning, managing, and coordinating cross-departmental projects to support the Americas zone’s development and execution of long-term strategies and improvement in sales & operation efficiency.",
+        "Leading and managing the New Product Development process and projects.",
+        "Developing strategic initiatives and following through action plans for all key functions and operation units to ensure strategic alignment and synergy, addressing key business issues.",
+        "Overseeing and managing marketing budget across channels in the Americas zone to improve efficiency."
+      ]
+    },
+    {
+      "company": "Eastland Food Corporation",
+      "position": "Brand Manager",
+      "duration": "October 2017 - September 2020",
+      "location": "Los Angeles, California, USA",
+      "description": [
+        "Managing numerous food & beverage brands including beverages, snacks, coffee, ready-to-eat, and frozen categories.",
+        "Building brand equity by developing high-impact integrated marketing strategies using social media, online ads, TV ads, influencer marketing, trade shows, trade promotions, and demo events.",
+        "Managing global supplier relationships and collaborating with five nationwide branches to streamline workflow and maximize business profit."
+      ]
+    },
+    {
+      "company": "Sweetist",
+      "position": "Marketing Manager",
+      "duration": "June 2016 - August 2016",
+      "location": "New York City Metropolitan Area",
+      "description": [
+        "Managed all social media accounts for Sweetist, including devising content strategy and developing editorial content calendar.",
+        "Created strategic and quality content to ensure consistency with the brand’s voice.",
+        "Identified consumer insights using Google Analytics and implemented social listening.",
+        "Designed social media analytics reports providing performance tracking, insights, and recommendations to the CEO for improvement."
+      ],
+      "accomplishments": [
+        "Created weekly content for all social media channels - Facebook, Twitter, Instagram, and Tumblr.",
+        "Raised Sweetist Facebook followers by 9% in three months by creating user-focused content.",
+        "Decreased email bounce rate by 30.4% through content strategy and A/B testing."
+      ]
+    },
+    {
+      "company": "Uzeeum",
+      "position": "Marketing Specialist",
+      "duration": "June 2016 - August 2016",
+      "location": "New York City Metropolitan Area",
+      "description": [
+        "Analyzed and improved Uzeeum site’s UI/UX using Google Analytics.",
+        "Made recommendations for website feature improvement, content optimization, and functionality enhancement to increase site traffic.",
+        "Defined and tracked success metrics and created actionable reports and dashboards to support business objectives."
+      ],
+      "accomplishments": [
+        "Increased site traffic by 16.93% by improving UX and implementing competitive analysis.",
+        "Attained 11.72% new users by optimizing acquisition channels and enhancing SEO strategies.",
+        "Increased page views by 14.57% and average session duration by 9.31% by optimizing site content."
+      ]
+    },
+    {
+      "company": "O Theater",
+      "position": "Marketing Project Manager",
+      "duration": "March 2015 - July 2015",
+      "location": "Taipei, Taiwan",
+      "description": [
+        "Managed a project-based marketing plan to promote the show “Goodbye, Molly” and boost ticket sales.",
+        "Increased public awareness of the show by crafting media pitches and obtaining news reports.",
+        "Managed marketing collateral production and enhanced target audience engagement through social media content strategy."
+      ],
+      "accomplishments": [
+        "Grew ticket sales by 35% by implementing Facebook paid ads, online promotions, and PR strategy.",
+        "Increased total sales by 27.65% by executing promotion plans and developing branded products.",
+        "Secured sponsorship from L'Occitane and Taiwan Life Insurance."
+      ]
+    },
+    {
+      "company": "Ogilvy",
+      "position": "Public Relations Account Manager",
+      "duration": "December 2010 - December 2014",
+      "location": "Taipei, Taiwan",
+      "description": [
+        "Led a team of four specialists to manage a diverse retainer and project-based client portfolio.",
+        "Provided PR consulting services for new brand/product launches, branding strategies, crisis management including press conferences, media gatherings, consumer events, seminars, CSR, media training, and media interviews.",
+        "Developed strategic communication plans with solid brand messaging frameworks, channel strategies, and implementation plans."
+      ],
+      "accomplishments": [
+        "Managed and led 30 projects for over 20 international brands such as L’OREAL, Unilever, EVA Airline, McDonald’s, LINE, PepsiCo, Pfizer, Philips, and Otterbox.",
+        "Grew division revenue by 68% in a year by winning new business.",
+        "Created two award-winning campaigns: 2013 EVA Airline ‘I See You’ brand image communication IMC campaign and 2011-2014 L’OREAL Taiwan Outstanding Women in Science CSR campaign.",
+        "Won Ogilvy Asia Pacific’s Young Stars in 2014."
+      ]
+    }
+  ],
+  "bio": "A brand equity builder and product marketer with a unique combination of analytical and creative capabilities. Accumulated 9 years of professional and academic experience in marketing, focusing on brand management, integrated marketing, digital marketing, and content marketing. Enjoys uncovering consumer insights and building connections between consumers and brands. Passionate about helping brands communicate in a smart, efficient, and powerful way through savvy marketing strategies. A keen traveler with cross-cultural experience in managing international brands across the U.S. and Asia. Constantly seeking new career challenges and fully bilingual in English and Chinese."
+}

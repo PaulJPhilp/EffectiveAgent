@@ -1,0 +1,156 @@
+{
+  "name": "Caren Read",
+  "age": null,
+  "location": "Lakeland, Florida, United States",
+  "gender": null,
+  "company": "Publix Super Markets",
+  "companyType": "Retail",
+  "companySize": "200,000+ Employees",
+  "industry": "Retail",
+  "occupation": "Corporate Marketing Communications Manager",
+  "interests": [
+    "Liz Ryan – Coach and creator, CEO of Human Workplace",
+    "Scott Galloway – Professor of Marketing, NYU Stern",
+    "Reid Hoffman – Co-Founder, LinkedIn",
+    "Gary Vaynerchuk – Entrepreneur and author",
+    "Brené Brown – Researcher and storyteller",
+    "Ad Age Discussion Group",
+    "Social Media Today",
+    "Marketing & Communication Network",
+    "National Restaurant Association",
+    "Field Marketing Professionals",
+    "Building Experience Brands – Jack Morton Worldwide",
+    "Unspoken Rules of Leadership – Jamie Turner",
+    "All Points PR Quarterly – All Points Public Relations"
+  ],
+  "skills": [
+    "Business-to-Business (B2B)",
+    "Business Relationship Management",
+    "Campaigns",
+    "Brand Building and Integration",
+    "Project Management",
+    "Marketing Strategy/Strategic Planning",
+    "Sponsorship Negotiations",
+    "Special Event Management",
+    "Digital/Social Media",
+    "Media Planning and Analysis",
+    "Corporate Communications/Spokesperson",
+    "Market Activation",
+    "Market Research/Competitive Analysis",
+    "Multi-Unit Franchise Management"
+  ],
+  "education": [
+    "University of Florida – Graduate Studies in Advertising",
+    "Florida Southern College – BA, Marketing/International Management"
+  ],
+  "experience": [
+    {
+      "company": "Publix Super Markets",
+      "position": "Corporate Marketing Communications Manager",
+      "startDate": "August 2021",
+      "endDate": "Present",
+      "location": "Lakeland, Florida, United States",
+      "responsibilities": [
+        "Develop and direct marketing communication campaigns to leverage corporate and multi-divisional strategies.",
+        "Write marketing strategy briefs for customer-directed campaigns.",
+        "Lead channel execution of strategic corporate marketing campaigns.",
+        "Manage corporate and multi-divisional marketing sponsorship programs."
+      ]
+    },
+    {
+      "company": "Publix Super Markets",
+      "position": "Regional Marketing Manager",
+      "startDate": "May 2019",
+      "endDate": "July 2021",
+      "location": "Lakeland, Florida, United States",
+      "responsibilities": [
+        "Managed and executed Title Sponsorships and Promotional Activities, including the NFL/Tampa Bay Buccaneers Pewter Partnership for 300+ stores.",
+        "Analyzed marketing research data, market share, and sales trends to increase sales.",
+        "Managed multi-million-dollar marketing budget.",
+        "Executed Grand Opening and Competitive Intrusion plans.",
+        "Partnered with advertising agencies and vendors to identify sales opportunities.",
+        "Developed and activated Multi-Cultural Campaigns.",
+        "Created a Corporately Awarded Super Bowl LV Campaign with the Buccaneers."
+      ]
+    },
+    {
+      "company": "Soccer Shots Franchising",
+      "position": "Vice President of Marketing and Franchise Development",
+      "startDate": "2018",
+      "endDate": "2018",
+      "location": "Harrisburg, Pennsylvania, United States",
+      "responsibilities": [
+        "Created and managed execution of marketing plans addressing national branding and increasing YOY local enrollments in 200+ markets.",
+        "Provided leadership to Franchise Sales team to identify, attract, and approve candidates.",
+        "Ensured effective brand representation in all marketing and communication materials."
+      ]
+    },
+    {
+      "company": "FOCUS Brands",
+      "position": "National Director of Marketing - McAlister's Deli",
+      "startDate": "2016",
+      "endDate": "2017",
+      "location": "Greater Atlanta Area, United States",
+      "responsibilities": [
+        "Provided leadership for Field Marketing Team overseeing 400+ restaurants.",
+        "Developed and implemented marketing programs and processes contributing to sales growth.",
+        "Created a grand opening manual for new restaurants to provide a scalable roadmap."
+      ]
+    },
+    {
+      "company": "Domino's Pizza",
+      "position": "Area Leader - Field Marketing, Southeast Region",
+      "startDate": "2014",
+      "endDate": "2015",
+      "location": "Greater Nashville Area, TN, United States",
+      "responsibilities": [
+        "Developed and implemented DMA-level marketing plans.",
+        "Served as a local market spokesperson and community representative."
+      ]
+    },
+    {
+      "company": "Dunkin' Brands",
+      "position": "Field Marketing Manager - Baskin-Robbins, East Region",
+      "startDate": "2013",
+      "endDate": "2014",
+      "location": "Greater Atlanta Area, United States",
+      "responsibilities": [
+        "Created and communicated marketing programs to franchisees, increasing advertising spend and sales growth."
+      ]
+    },
+    {
+      "company": "TGI Fridays",
+      "position": "Marketing Manager - Southeast and West Regions",
+      "startDate": "2010",
+      "endDate": "2013",
+      "location": "Greater Atlanta Area, United States",
+      "responsibilities": [
+        "Managed local store marketing programs, increasing beverage sales by 5% YOY.",
+        "Developed local marketing plans leading to 5-7% YOY restaurant sales increases."
+      ]
+    },
+    {
+      "company": "Papa John's",
+      "position": "Regional Marketing Director - Southeast",
+      "startDate": "2000",
+      "endDate": "2010",
+      "location": "Greater Atlanta Area, United States",
+      "responsibilities": [
+        "Managed a $17M media budget across 42 DMAs with 709 restaurants.",
+        "Led NASCAR, NFL, NBA, MLB, and NHL activation programs.",
+        "Increased YOY online sales by 15%."
+      ]
+    },
+    {
+      "company": "Carat",
+      "position": "National Account Supervisor - Church's Chicken",
+      "startDate": "1999",
+      "endDate": "2000",
+      "location": "Greater Atlanta Area, United States",
+      "responsibilities": [
+        "Managed $22M budget, provided strategic guidance, and led a team of eight account executives."
+      ]
+    }
+  ],
+  "bio": "Innovative and strategic marketer with proven leadership skills leading to elevated brand awareness, improved brand loyalty, and increased sales. Brand Ambassador known for an ability to develop strategic partnerships that lead to trusted partner status. Broad-based experience in both client-side and agency roles. Deep knowledge of marketing analytics and consumer behavior resulting in more targeted campaigns, effective use of marketing budgets, and improved ROI. Servant leader committed to employee development, coaching, mentoring, and team success."
+}

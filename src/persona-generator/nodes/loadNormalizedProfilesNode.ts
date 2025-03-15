@@ -1,8 +1,9 @@
 import type { RunnableConfig } from "@langchain/core/runnables"
 import fs from "node:fs"
 import path from "node:path"
-import type { ClusteringState } from "../types.js"
+import type { ClusteringState, NormalizedProfile } from "../types.js"
 import { logToRun, parseJsonFromMarkdown } from "../utils.js"
+import chalk from "chalk"
 
 type ClusteringStateUpdate = Partial<ClusteringState>
 
@@ -13,7 +14,7 @@ export async function loadNormalizedProfilesNode(
     state: ClusteringState,
     config: RunnableConfig
 ): Promise<ClusteringStateUpdate> {
-    console.log("loadNormalizedProfilesNode()")
+    console.log(chalk.blue("loadNormalizedProfilesNode()"))
 
     try {
         logToRun(state.runInfo, "Loading normalized profiles")
@@ -42,44 +43,21 @@ export async function loadNormalizedProfilesNode(
             }
         }
 
-        // Read all directories
-        const profileDirs = fs
-            .readdirSync(normalizedProfilesDir, { withFileTypes: true })
-            .filter((dirent) => dirent.isDirectory())
-            .map((dirent) => dirent.name)
+        const normalizedProfiles: NormalizedProfile[] = []
+        const jsonFiles = fs
+            .readdirSync(normalizedProfilesDir)
+            .filter((file) => file.endsWith(".json"))
 
-        const normalizedProfiles = []
+        const preloadMsg = `Preloading normalized profiles: ${jsonFiles.length} files found`
+        logToRun(state.runInfo, preloadMsg)
 
-        for (const profileDir of profileDirs) {
-            const profilePath = path.join(normalizedProfilesDir, profileDir)
-            const mergedJsonPath = path.join(profilePath, ".merged.json")
-
-            if (fs.existsSync(mergedJsonPath)) {
-                try {
-                    const profileData = parseJsonFromMarkdown(
-                        fs.readFileSync(mergedJsonPath, "utf8"),
-                    )
-                    normalizedProfiles.push(profileData)
-                } catch (error) {
-                    const errorMsg = `Error parsing merged profile ${profileDir}: ${error}`
-                    logToRun(state.runInfo, errorMsg, "error")
-                }
-            } else {
-                const jsonFiles = fs
-                    .readdirSync(profilePath)
-                    .filter((file) => file.endsWith(".json"))
-
-                if (jsonFiles.length > 0) {
-                    try {
-                        const profileData = parseJsonFromMarkdown(
-                            fs.readFileSync(path.join(profilePath, jsonFiles[0]), "utf8"),
-                        )
-                        normalizedProfiles.push(profileData)
-                    } catch (error) {
-                        const errorMsg = `Error parsing profile ${profileDir}: ${error}`
-                        logToRun(state.runInfo, errorMsg, "error")
-                    }
-                }
+        for (const jsonFile of jsonFiles) {
+            try {
+                const profileData = JSON.parse(fs.readFileSync(path.join(normalizedProfilesDir, jsonFile), "utf8")) as NormalizedProfile
+                normalizedProfiles.push(profileData)
+            } catch (error) {
+                const errorMsg = `Error parsing profile ${jsonFile}: ${error instanceof Error ? error.message : String(error)}`
+                logToRun(state.runInfo, errorMsg, "error")
             }
         }
 
@@ -99,7 +77,7 @@ export async function loadNormalizedProfilesNode(
 
         const returnValue: ClusteringStateUpdate = {
             runInfo: state.runInfo,
-            normalizedProfiles,
+            normalizedProfiles: normalizedProfiles as NormalizedProfile[],
             basicClusters: state.basicClusters,
             error: state.error,
             status: 'profiles_loaded',

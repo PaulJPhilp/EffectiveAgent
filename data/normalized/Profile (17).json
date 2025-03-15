@@ -1,0 +1,100 @@
+{
+  "name": "Jeff Bardin",
+  "age": null,
+  "location": "Demarest, New Jersey, United States",
+  "gender": "Male",
+  "company": "THE MRKT",
+  "companyType": "Experiential Marketing Agency",
+  "companySize": "Unknown",
+  "industry": "Experiential Marketing",
+  "occupation": "Senior Vice President Experiential Marketing",
+  "interests": [
+    "Entertainment",
+    "Media",
+    "Marketing",
+    "Business Development"
+  ],
+  "skills": [
+    "New Media",
+    "Marketing Strategy",
+    "Account Management"
+  ],
+  "education": [
+    "Bachelor of the Arts in Radio, TV and Film, University of Maryland College Park (1987 - 1991)"
+  ],
+  "experience": [
+    {
+      "title": "Senior Vice President Experiential Marketing",
+      "company": "THE MRKT",
+      "startDate": "January 2023",
+      "endDate": "Present",
+      "location": "Los Angeles, California, United States",
+      "description": ""
+    },
+    {
+      "title": "Senior Vice President Experiential and Brand Activation",
+      "company": "THA Experiential",
+      "startDate": "April 2021",
+      "endDate": "Present",
+      "location": "Los Angeles, California, United States",
+      "description": "We are an accomplished, full-service brand experience agency led by a team who believes that creative ideas, flawless execution and remarkable customer service is everything. We help bold brands create meaningful engagement with consumers, influencers and press, and we’ll do whatever it takes to make that happen."
+    },
+    {
+      "title": "Vice President, Experiential Account Director",
+      "company": "Giant Spoon",
+      "startDate": "January 2019",
+      "endDate": "December 2020",
+      "location": "Greater New York City Area",
+      "description": ""
+    },
+    {
+      "title": "Executive Director, Business Development Pop2Life",
+      "company": "Condé Nast",
+      "startDate": "March 2017",
+      "endDate": "January 2019",
+      "location": "",
+      "description": ""
+    },
+    {
+      "title": "SVP, Music + Business Development",
+      "company": "Pop2Life",
+      "startDate": "May 2014",
+      "endDate": "March 2017",
+      "location": "",
+      "description": ""
+    },
+    {
+      "title": "Vice President / General Manager",
+      "company": "Pop2Life",
+      "startDate": "May 2010",
+      "endDate": "May 2014",
+      "location": "",
+      "description": ""
+    },
+    {
+      "title": "Vice President Promotion and Operations",
+      "company": "Epic Records",
+      "startDate": "September 2002",
+      "endDate": "April 2010",
+      "location": "",
+      "description": "Develop and implement promotional, marketing, and advertising strategies with broadcast (radio, TV) and print (trade and consumer publications). Utilize strong strategic planning and execution skills; write advertising copy. Initiate ideas to create buzz around new product launches. Formulate and implement programs for radio contests, retail promotions, and event tie-ins. Manage daily operations of 20 person promotion team inclusive of all operations and financial planning for the entire department."
+    },
+    {
+      "title": "Vice President Top 40 Promotion/Field Promotion",
+      "company": "Elektra Records",
+      "startDate": "October 1994",
+      "endDate": "September 2002",
+      "location": "",
+      "description": "Regional Promotion Manager Chicago 1994-1997 Regional Promotion Manager New York 1997-1999 Direction Top 40 Promotion 1999-2000 VP Top 40 Field Promotion 2000-2002. Conceived and implemented promotional strategies for all Top 40 releases. Directed a 14-member promotional field team, managed daily operations, travel, artist events, regional strategy and planning, created advertising plans for artists in trade magazines, and maintained and developed strong relationships with radio programmers nationwide to maximize radio airplay and sales volume."
+    },
+    {
+      "title": "Regional Promotion Manager",
+      "company": "EMI Records",
+      "startDate": "May 1991",
+      "endDate": "April 1994",
+      "location": "",
+      "description": "Assistant SBK Records (New York 1991). Local Promotion Manager in Chicago (1991-1992) and Cleveland (1993-94). Implemented promotional strategies for radio stations in my region, developed and maintained relationships with radio programmers to maximize radio airplay and sales volume."
+    }
+  ],
+  "bio": "Award-winning experiential sales and agency account leader with a 30-year career in entertainment and media. Relationship builder, and sales hunter with a proven track record of driving revenue, winning complex pitches, and retaining clients. Proven ability to lead account/creative/strategy teams, close deals, and secure creative partnerships. Highly competitive and creative self-starter with long-term industry relationships and a dedicated following."
+}

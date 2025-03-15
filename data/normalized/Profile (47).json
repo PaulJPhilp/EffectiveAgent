@@ -1,0 +1,122 @@
+{
+  "name": "Chris Beck",
+  "age": 47,
+  "location": "Des Moines Metropolitan Area",
+  "gender": "Male",
+  "company": "Two Rivers Marketing",
+  "companyType": "Marketing Agency",
+  "companySize": "",
+  "industry": "Marketing, Public Relations, Advertising",
+  "occupation": "Sr. Account Director and New Business Development",
+  "interests": [
+    "Integrated Marketing Strategy",
+    "Brand Development",
+    "Digital Marketing",
+    "Content Marketing",
+    "Public Relations",
+    "Media Relations",
+    "Event Management",
+    "Video Development",
+    "Channel Marketing"
+  ],
+  "skills": [
+    "B2B Marketing Strategy",
+    "Presentations",
+    "Marketing Campaigns",
+    "Integrated Marketing Strategy",
+    "Brand Development/Management",
+    "Digital Marketing/Advertising",
+    "Content Marketing",
+    "Public Relations/Media Relations",
+    "Event Management",
+    "Video Development",
+    "Channel Marketing"
+  ],
+  "education": [
+    "Bachelor of Arts in Public Relations and Theatre, Coe College (1999 - 2003)"
+  ],
+  "experience": [
+    {
+      "company": "Two Rivers Marketing",
+      "position": "New Business Development",
+      "startDate": "April 2023",
+      "endDate": "Present",
+      "duration": "1 year 11 months",
+      "location": "Des Moines, Iowa, United States",
+      "description": "Drive growth and expansion of the agency's client base. Responsible for identifying, pursuing, and securing new and organic business opportunities that align with the company’s strategic goals."
+    },
+    {
+      "company": "Two Rivers Marketing",
+      "position": "Sr. Account Director",
+      "startDate": "February 2022",
+      "endDate": "Present",
+      "duration": "3 years 1 month",
+      "location": "United States",
+      "description": "Provide strategic and tactical B2B marketing guidance for a variety of companies in various industries. Lead annual planning, client relationships, team management, and measure success of activities. Offer ongoing client consultation and account management leadership."
+    },
+    {
+      "company": "Two Rivers Marketing",
+      "position": "Account Director",
+      "startDate": "June 2016",
+      "endDate": "February 2022",
+      "duration": "5 years 9 months",
+      "location": "",
+      "description": "Client lead providing strategic and tactical B2B marketing guidance for companies in industries including animal health, electrical wiring systems, audiovisual, construction materials, banking, financial services, large equipment manufacturing, and insurance services."
+    },
+    {
+      "company": "Two Rivers Marketing",
+      "position": "Account Supervisor",
+      "startDate": "July 2014",
+      "endDate": "June 2016",
+      "duration": "2 years",
+      "location": "",
+      "description": "Provided strategic and tactical B2B marketing guidance for companies in industries such as large equipment manufacturing, industrial and municipal wastewater equipment, mineral exploration products and services, and steel manufacturing."
+    },
+    {
+      "company": "Two Rivers Marketing",
+      "position": "Public Relations Supervisor and Account Service",
+      "startDate": "February 2012",
+      "endDate": "July 2014",
+      "duration": "2 years 6 months",
+      "location": "",
+      "description": "Directed and managed public relations efforts for external B2B clients. Developed PR strategies and plans, facilitated brand audits, secured editorial placements, attended trade shows, hosted editors, and wrote editorial content."
+    },
+    {
+      "company": "Science Center of Iowa",
+      "position": "Director of Marketing",
+      "startDate": "February 2010",
+      "endDate": "January 2012",
+      "duration": "2 years",
+      "location": "",
+      "description": "Oversaw marketing and messaging direction. Developed strategic marketing plans for traveling exhibits and brand marketing. Implemented tactical plans across digital, public relations, media buying, event, guerrilla, and grassroots disciplines."
+    },
+    {
+      "company": "Des Moines Radio Group",
+      "position": "Marketing Director and Internship Manager",
+      "startDate": "September 2006",
+      "endDate": "February 2010",
+      "duration": "3 years 6 months",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "PPG Industries",
+      "position": "Assistant Manager, PPG Paint Store",
+      "startDate": "August 2003",
+      "endDate": "February 2007",
+      "duration": "3 years 7 months",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "KB Toys",
+      "position": "Assistant Manager",
+      "startDate": "August 1997",
+      "endDate": "December 2000",
+      "duration": "3 years 5 months",
+      "location": "",
+      "description": ""
+    }
+  ],
+  "bio": "An experienced B2B/B2C marketing professional with a demonstrated history of working in the marketing, public relations, and advertising industries. Skilled in integrated marketing strategy, brand development/management, digital marketing/advertising, content marketing, public relations/media relations, event management, video development, and channel marketing. Knowledge of animal health, electrical wiring systems, audiovisual, manufacturing, construction materials, insurance, financial investment, banking, mining, and wastewater industries. Strong marketing professional with a Bachelor of Arts focused in Public Relations and Theatre from Coe College."
+}

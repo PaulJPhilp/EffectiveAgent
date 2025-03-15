@@ -11,7 +11,7 @@ import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { FileGroup, MyState, PdfFile, ProfileData, RunInfo } from "./types.ts";
+import type { FileGroup, PdfFile, ProfileData, RunInfo } from "./types.ts";
 
 /**
  * Helper function to extract text content from a complex message.
@@ -92,22 +92,24 @@ export async function loadChatModel(modelName: string): Promise<BaseChatModel> {
     }
 }
 
-export function isPdfFile(file: PdfFile): boolean {
-    return file.pageContent !== undefined;
+export function isPdfFile(file: Document): boolean {
+    return file.metadata?.pdf !== undefined;
 }
 
-export function isTxtFile(file: PdfFile): boolean {
-    return file.pageContent === undefined;
+export function isTxtFile(file: Document): boolean {
+    return file.metadata?.source.endsWith(".txt");
 }
 
-function groupByType(items: PdfFile[]): FileGroup {
+function groupByType(items: Document[]): FileGroup {
+
     return items.reduce((groups, file) => {
         const type = isPdfFile(file) ? "pdf" : "txt";
         groups[type] = groups[type] || [];
         if (file.pageContent) {
             groups[type].push({
                 pageContent: file.pageContent,
-                metadata: file.metadata || {}
+                metadata: file.metadata ?? {},
+                id: file?.id
             } as Document);
         }
         return groups;
@@ -136,13 +138,15 @@ export async function loadFiles(path: string): Promise<FileGroup> {
 
         console.log(`[FILES] Starting to load documents from ${path}`);
         const docs = await directoryLoader.load();
+        for (const doc of docs) {
+            doc.id = extractPersonNameFromPath(doc.metadata.source)
+        }
         console.log(`[FILES] Loaded ${docs.length} documents total`);
 
-        const groupedDocs: FileGroup = groupByType(docs as PdfFile[]);
+        const groupedDocs = groupByType(docs);
         console.log(
-            `[FILES] Grouped documents: ${groupedDocs.pdf.length} PDFs, ${groupedDocs.txt.length} TXTs`,
+            `[FILES] Grouped documents: ${groupedDocs.pdf?.length ?? 0} PDFs, ${groupedDocs.txt?.length ?? 0} TXTs`,
         );
-
         return groupedDocs;
     } catch (error) {
         console.error("[FILES] ERROR in loadFiles:", error);
@@ -150,16 +154,6 @@ export async function loadFiles(path: string): Promise<FileGroup> {
         return { pdf: [], txt: [] };
     }
 }
-
-// Helper to safely check message type
-export function isMessageType(message: BaseMessage, type: string): boolean {
-    return "type" in message && message.type === type;
-}
-
-// Define your condition function
-export const shouldContinue = (state: MyState) => {
-    return state.shouldContinue ? "continue" : "end";
-};
 
 /**
  * Checks if a number is even

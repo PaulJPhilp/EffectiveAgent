@@ -3,8 +3,9 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { NORMALIZATION_PROMPT, fillPromptTemplate } from "./prompts/index.js";
 import type { ProfileData } from "./types.js";
-import { DataCleaningModel } from "./types.js";
 import { loadChatModel, logProfile } from "./utils.js";
+import { generateText } from "ai";
+import { getLLM } from "./models.js";
 
 /**
  * Extracts JSON content from LLM response
@@ -57,6 +58,7 @@ function checkExistingNormalizedProfile(profileName: string): ProfileData | null
 export async function normalizeProfile(
     profile: ProfileData,
 ): Promise<ProfileData> {
+    console.log("normalizeProfile()")
     if (!profile || !profile.name) {
         throw new Error('Invalid profile data: Profile must have a name property');
     }
@@ -71,8 +73,6 @@ export async function normalizeProfile(
     }
 
     try {
-        // Load the chat model
-        const model = await loadChatModel(DataCleaningModel);
 
         // Build the prompt with the profile data
         const prompt = fillPromptTemplate(NORMALIZATION_PROMPT, {
@@ -82,12 +82,12 @@ export async function normalizeProfile(
         // Send to the model
         const messages = [{ role: "user", content: prompt }];
         console.log(`Sending request to model for ${profile.name}`);
-        const response: AIMessage = await model.invoke(messages);
+        const response = await generateText({ model: getLLM("gpt-4o"), prompt: prompt });
         console.log(`Received response from model for ${profile.name}`);
 
         // Extract JSON content from the response
-        const jsonContent = extractJsonFromResponse(response.content.toString());
-
+        const jsonContent = extractJsonFromResponse(response.text);
+   
         // Parse the JSON
         try {
             console.log(`Parsing response for ${profile.name}`);
@@ -98,7 +98,7 @@ export async function normalizeProfile(
         } catch (parseError) {
             console.error(`Error parsing JSON response for ${profile.name}:`, parseError);
             console.log(
-                `Response content for ${profile.name}: ${response.content.toString().substring(0, 500)}...`,
+                `Response content for ${profile.name}: ${response.text.substring(0, 500)}...`,
             );
             if (parseError instanceof Error) {
                 throw new Error(`Failed to parse model response: ${parseError.message}`);

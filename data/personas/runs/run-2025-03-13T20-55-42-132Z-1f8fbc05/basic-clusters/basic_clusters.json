@@ -1,0 +1,189 @@
+{
+  "clusters": [
+    {
+      "title": "Experiential and Event Producers",
+      "description": {
+        "summary": "Professionals specializing in the planning, production, and execution of live events and experiential marketing campaigns. They ensure that events are engaging, well-coordinated, and align with brand objectives, often working with diverse teams and managing multiple projects simultaneously.",
+        "commonCharacteristics": [
+          "Event Management",
+          "Experiential Marketing",
+          "Production Coordination",
+          "Vendor Management"
+        ],
+        "skills": [
+          "Project Management",
+          "Event Planning",
+          "Team Leadership",
+          "Content Production",
+          "Budget Management"
+        ],
+        "typicalBackground": "Background in event production, marketing, or related fields with experience managing large-scale events, leading production teams, and executing experiential marketing strategies."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Amanda Levine",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Senior Producer role focused on event production",
+            "Experience managing high-profile projects and large-scale events"
+          ]
+        },
+        {
+          "id": "Cristobal C.",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Experiential and Integrated Producer with experience in brand experiences",
+            "Managed production across multiple projects and client sectors"
+          ]
+        },
+        {
+          "id": "Krista Capasella",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Title of Event Producer with extensive experience in event planning and management",
+            "Demonstrated ability to handle multiple events and logistics"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing Managers and Directors",
+      "description": {
+        "summary": "Professionals responsible for developing and executing comprehensive marketing strategies to promote products or services. They oversee marketing campaigns, manage marketing teams, analyze market data, and ensure alignment with overall business goals to drive growth and brand recognition.",
+        "commonCharacteristics": [
+          "Strategic Marketing",
+          "Campaign Management",
+          "Team Leadership",
+          "Market Analysis"
+        ],
+        "skills": [
+          "Digital Marketing",
+          "Content Strategy",
+          "Brand Management",
+          "Budget Management",
+          "Analytics"
+        ],
+        "typicalBackground": "Experience in various marketing roles, progressing to managerial or director positions, with strong skills in strategy development, digital marketing, and team management."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Joanne Hsu",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Senior Brand Marketing Manager overseeing comprehensive marketing strategies",
+            "Experience in integrated marketing and managing multiple agency partnerships"
+          ]
+        },
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Managing Director role in integrated marketing with a focus on digital strategy",
+            "Led cross-functional teams to drive brand and performance marketing efforts"
+          ]
+        },
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Director of Project Management with a focus on digital marketing",
+            "Managed multiple projects and teams to optimize business efficiencies"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "PR and Communications Strategists",
+      "description": {
+        "summary": "Experts in managing a company's public image and communication strategies. They handle media relations, corporate communications, content development, and reputation management to engage stakeholders and maintain a positive brand presence.",
+        "commonCharacteristics": [
+          "Media Relations",
+          "Corporate Communications",
+          "Content Strategy",
+          "Reputation Management"
+        ],
+        "skills": [
+          "Public Relations",
+          "Strategic Communication",
+          "Content Development",
+          "Crisis Management",
+          "Stakeholder Engagement"
+        ],
+        "typicalBackground": "Background in public relations, communications, or marketing with experience in managing corporate communications, media relations, and strategic content creation."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sara Rush Wirth",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Director of Public Relations, Internal Communications, and Investor Relations",
+            "Extensive experience in corporate communications and media strategy"
+          ]
+        },
+        {
+          "id": "Jeff Bardin",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Senior Vice President role with a focus on experiential marketing and communications",
+            "Experience managing client communications and strategic partnerships"
+          ]
+        },
+        {
+          "id": "Holly Roberts",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Senior Account Supervisor with experience in managing client communications",
+            "Handled PR and media relations for multiple accounts"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative Directors and Content Producers",
+      "description": {
+        "summary": "Creative leaders focused on developing and executing creative strategies, content creation, and brand development. They oversee creative teams, manage content production across various media, and ensure that all creative outputs align with the brand's vision and marketing goals.",
+        "commonCharacteristics": [
+          "Creative Leadership",
+          "Content Creation",
+          "Brand Development",
+          "Visual Design"
+        ],
+        "skills": [
+          "Art Direction",
+          "Graphic Design",
+          "Content Strategy",
+          "Creative Concepting",
+          "Multimedia Production"
+        ],
+        "typicalBackground": "Background in creative fields such as graphic design, multimedia production, or advertising with experience in leading creative projects and managing content production teams."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Kalie Whitsett",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Vice President, Digital and Creative overseeing creative strategies",
+            "Experience in creative direction and digital content production"
+          ]
+        },
+        {
+          "id": "Mark Dalhausser",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Chief Experience Officer with a focus on creative branding and storytelling",
+            "Led creative projects and partnerships for experiential marketing"
+          ]
+        },
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Vice President role with responsibilities in creative marketing and content strategy",
+            "Experience in developing integrated marketing and advertising campaigns"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2023-10-05"
+}

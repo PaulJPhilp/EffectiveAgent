@@ -1,0 +1,127 @@
+{
+  "name": "Julianne Wolfe",
+  "age": null,
+  "location": "Los Angeles, California, United States",
+  "gender": null,
+  "company": "NVE Experience Agency",
+  "companyType": "Experiential Marketing Agency",
+  "companySize": null,
+  "industry": "Experiential Marketing, Event Production",
+  "occupation": "Producer",
+  "interests": [
+    "Experiential Marketing",
+    "Event Production",
+    "Music Industry",
+    "Entertainment Industry"
+  ],
+  "skills": [
+    "Event Planning",
+    "Social Networking",
+    "Customer Service",
+    "Advertising",
+    "Strategy Development",
+    "Communications"
+  ],
+  "education": [
+    "Bachelor’s Degree in Psychology and Communications, University of California, Santa Barbara (2013 - 2017)"
+  ],
+  "experience": [
+    {
+      "company": "NVE Experience Agency",
+      "title": "Producer",
+      "startDate": "January 2024",
+      "endDate": "Present",
+      "duration": "1 year 2 months",
+      "location": "Los Angeles, California, United States",
+      "projects": [
+        "Revolve Festival 2024 & 2023",
+        "SiriusXM - Jack Harlow, John Legend, John Mayer, Pitbull",
+        "Billboard - Golden Globes After Party",
+        "Billboard - Samsung x Sabrina Carpenter",
+        "FX - Grotesquerie Stunt",
+        "Liquid I.V. - Bonnaroo Music Festival",
+        "Peacock - Ted Series Premiere",
+        "Red Bull - Red Bull Symphonic with Metro Boomin",
+        "Cash App - Cash App x Bitcoin Market",
+        "Hulu - Legacy Lakers Press Junket",
+        "Hulu - The Orville Premiere & After Party",
+        "Amazon - Don't Make Me Go Premiere & After Party",
+        "NBA - NBA Influencer House",
+        "Adidas - 4DFWD Press Event"
+      ]
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Associate Producer",
+      "startDate": "December 2022",
+      "endDate": "January 2024",
+      "duration": "1 year 2 months",
+      "location": "Los Angeles, California, United States",
+      "projects": []
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Sr. Production Coordinator",
+      "startDate": "January 2022",
+      "endDate": "December 2022",
+      "duration": "1 year",
+      "location": "Los Angeles Metropolitan Area",
+      "projects": []
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Production Coordinator",
+      "startDate": "December 2020",
+      "endDate": "January 2022",
+      "duration": "1 year 2 months",
+      "location": "Los Angeles, California, United States",
+      "projects": []
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Production Operations Coordinator",
+      "startDate": "January 2020",
+      "endDate": "December 2020",
+      "duration": "1 year",
+      "location": "Greater Los Angeles Area",
+      "projects": []
+    },
+    {
+      "company": "The Creative Group",
+      "title": "Lead Recruiter / Sr. Recruiter",
+      "startDate": "September 2018",
+      "endDate": "December 2019",
+      "duration": "1 year 4 months",
+      "location": "Greater Los Angeles Area",
+      "projects": []
+    },
+    {
+      "company": "The Creative Group",
+      "title": "Creative Recruiter",
+      "startDate": "September 2017",
+      "endDate": "September 2018",
+      "duration": "1 year 1 month",
+      "location": "Greater Los Angeles Area",
+      "projects": []
+    },
+    {
+      "company": "EOS Lounge",
+      "title": "Production Assistant / Marketing Coordinator",
+      "startDate": "August 2016",
+      "endDate": "July 2017",
+      "duration": "1 year",
+      "location": "Santa Barbara, California Area",
+      "projects": []
+    },
+    {
+      "company": "UCSB Enterprise Technology Services",
+      "title": "Administrative Assistant",
+      "startDate": "May 2016",
+      "endDate": "June 2017",
+      "duration": "1 year 2 months",
+      "location": "Program Management Office",
+      "projects": []
+    }
+  ],
+  "bio": "Producer at an award-winning experiential marketing agency with expertise in leading large-scale events valued at $2M+. Experienced across the consumer, entertainment, and music industries, with a proven track record of driving team success and identifying budget efficiencies. Strong background in advertising, strategy development, and communications, backed by dual Bachelor’s Degrees in Psychology and Communications from the University of California, Santa Barbara."
+}

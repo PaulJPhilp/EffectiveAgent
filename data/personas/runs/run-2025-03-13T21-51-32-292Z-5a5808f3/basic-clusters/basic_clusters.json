@@ -1,0 +1,245 @@
+{
+  "clusters": [
+    {
+      "title": "Senior Marketing Executives",
+      "description": {
+        "summary": "This cluster comprises high-level marketing professionals who oversee comprehensive marketing strategies, brand management, and communications within their organizations. They possess extensive experience in leadership roles, strategic planning, and managing cross-functional teams to drive business growth and brand presence.",
+        "commonCharacteristics": [
+          "Leadership and team management",
+          "Strategic planning and execution",
+          "Extensive experience in marketing and communications"
+        ],
+        "skills": [
+          "Strategic Planning",
+          "Brand Management",
+          "Communications Strategy",
+          "Team Leadership",
+          "Integrated Marketing"
+        ],
+        "typicalBackground": "Professionals in this cluster typically have over a decade of experience in marketing and communications, holding senior roles such as Vice President, Director, or Group Creative Director. They often have a background in managing large teams, developing and implementing marketing strategies, and overseeing brand initiatives across multiple channels."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Louise Bjelke",
+          "relevanceScore": 0.98,
+          "matchReasons": [
+            "Holds the title of Vice President of Marketing",
+            "Extensive experience in strategic marketing and communications",
+            "Leads comprehensive marketing campaigns and manages global teams"
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Serves as Group Account Director",
+            "Oversees multi-disciplinary teams and strategic planning",
+            "Long tenure in senior marketing roles"
+          ]
+        },
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Holds the title of Vice President at FleishmanHillard",
+            "Manages national marketing campaigns for various clients",
+            "Specializes in strategic communications and media relations"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production Professionals",
+      "description": {
+        "summary": "Individuals in this cluster specialize in planning, coordinating, and executing events of varying scales. They possess strong organizational skills, attention to detail, and the ability to manage multiple aspects of event production, from logistics and vendor management to on-site coordination and post-event analysis.",
+        "commonCharacteristics": [
+          "Expertise in event planning and management",
+          "Strong organizational and multitasking abilities",
+          "Experience with live events, conferences, and marketing activations"
+        ],
+        "skills": [
+          "Event Planning",
+          "Project Coordination",
+          "Vendor Management",
+          "Stage Management",
+          "Budgeting and Scheduling"
+        ],
+        "typicalBackground": "Professionals in this cluster often have a background in event management, production coordination, or related fields. They typically hold titles such as Producer, Production Coordinator, or Stage Manager and have experience working with event agencies, corporate event teams, or independently managing events."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sarah Rush Wirth",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Director of Public Relations, Internal Communications and Investor Relations with extensive event coordination experience",
+            "Managed both internal and external communications for multiple roles",
+            "Experience in organizing cross-functional events and communications"
+          ]
+        },
+        {
+          "id": "Jenny Ludwigsen",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Senior Account Supervisor with a focus on experiential and production",
+            "Oversees agency production and event delivery for various campaigns",
+            "Extensive experience in managing creative and production teams for events"
+          ]
+        },
+        {
+          "id": "Quinn Tormey",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Experienced Producer with roles in event management for sports and corporate clients",
+            "Managed large-scale event operations and production logistics",
+            "Worked with major brands on high-profile event activations"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative and Design Leaders",
+      "description": {
+        "summary": "This cluster includes professionals who lead creative and design initiatives within organizations or agencies. They are responsible for developing creative concepts, overseeing design projects, and ensuring that visual communications align with brand strategies. Their expertise lies in art direction, graphic design, and innovative branding solutions.",
+        "commonCharacteristics": [
+          "Strong background in creative design and art direction",
+          "Leadership in developing and executing creative projects",
+          "Expertise in visual storytelling and brand identity"
+        ],
+        "skills": [
+          "Art Direction",
+          "Graphic Design",
+          "Creative Concept Development",
+          "Branding and Identity",
+          "Design Software Proficiency (e.g., Adobe Suite)"
+        ],
+        "typicalBackground": "Individuals in this cluster usually have a degree in graphic design, fine arts, or a related field. They hold titles such as Creative Director, Group Creative Director, or Art Director and have experience working in creative agencies or in-house marketing teams, leading design projects and creative teams."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Mark Dalhausser",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Group Creative Director with extensive experience in creative branding and design",
+            "Leads creative initiatives and oversees design projects for multiple clients",
+            "Expertise in art direction and retail design"
+          ]
+        },
+        {
+          "id": "Lauren Morrison",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Vice President with responsibilities including creative concept development",
+            "Oversees creative direction for marketing campaigns",
+            "Involved in copywriting and integrated strategy for content projects"
+          ]
+        },
+        {
+          "id": "Julianne Wolfe",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Senior Creative Director managing creative and production teams",
+            "Develops creative strategies and oversees brand activations",
+            "Experience in integrated marketing and content development"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "PR and Communications Specialists",
+      "description": {
+        "summary": "Professionals in this cluster focus on managing public relations, media communications, and strategic messaging for their organizations or clients. They excel in building media relationships, handling crisis communications, and developing comprehensive communication strategies to enhance brand reputation and engagement.",
+        "commonCharacteristics": [
+          "Expertise in media relations and public communications",
+          "Ability to manage crisis communications effectively",
+          "Strong writing and strategic messaging skills"
+        ],
+        "skills": [
+          "Media Relations",
+          "Crisis Management",
+          "Strategic Communications",
+          "Public Relations",
+          "Content Strategy"
+        ],
+        "typicalBackground": "These specialists often hold degrees in communications, public relations, journalism, or related fields. They hold titles such as PR Manager, Communications Director, or Media Relations Specialist and have experience working in PR agencies or corporate communications departments, managing media campaigns and public messaging."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Tara Scanlon",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Vice President of Strategy with a focus on communications planning",
+            "Oversees media strategy and integrates communications across business units",
+            "Experience in managing cross-functional media teams"
+          ]
+        },
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.88,
+          "matchReasons": [
+            "Director of Project Management with a PMP certification",
+            "Handles strategy and operations which include communications management",
+            "Focus on customer relations and strategic planning"
+          ]
+        },
+        {
+          "id": "Darya Cable",
+          "relevanceScore": 0.85,
+          "matchReasons": [
+            "Senior Project Manager in Digital Marketing with a SCRUM Master certification",
+            "Manages strategic projects including communications planning",
+            "Focus on process improvement and customer service"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing Coordinators and Managers",
+      "description": {
+        "summary": "This cluster consists of mid-level marketing professionals who coordinate and manage marketing campaigns and initiatives. They are adept at project management, digital marketing, and executing marketing strategies that align with organizational goals. Their roles often involve collaborating with various departments, managing marketing budgets, and analyzing campaign performance.",
+        "commonCharacteristics": [
+          "Proficient in campaign management and execution",
+          "Strong project management and organizational skills",
+          "Experience in digital marketing and analytics"
+        ],
+        "skills": [
+          "Campaign Management",
+          "Digital Marketing",
+          "Project Coordination",
+          "Budget Management",
+          "Marketing Analytics"
+        ],
+        "typicalBackground": "Professionals in this cluster usually have several years of experience in marketing roles, holding titles such as Marketing Manager, Marketing Coordinator, or Digital Marketing Specialist. They often have a background in executing marketing campaigns, managing budgets, and utilizing digital tools for marketing analytics and strategy."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Carly Tubridy",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Marketing Manager at Maria Nila",
+            "Experienced in coordinating marketing campaigns and digital strategies",
+            "Skilled in social media management and content marketing"
+          ]
+        },
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.86,
+          "matchReasons": [
+            "Brand Marketing Specialist with expertise in e-commerce and SEO",
+            "Manages brand marketing strategies and content optimization",
+            "Experience in project management and customer service"
+          ]
+        },
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.84,
+          "matchReasons": [
+            "Field Marketing Manager for Portillo's Hot Dogs",
+            "Handles marketing initiatives and community events",
+            "Experience in sponsorship management and budget oversight"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

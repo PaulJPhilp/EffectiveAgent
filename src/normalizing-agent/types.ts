@@ -1,12 +1,8 @@
-import type { BaseMessage } from "@langchain/core/messages";
-import { Annotation, messagesStateReducer } from "@langchain/langgraph";
 import type { Document } from "langchain/document";
 import type { z } from "zod";
 
-// biome-ignore lint/suspicious/noExplicitAny: Catching all errors
-export type AnyRecord = Record<string, any>;
-
 export type FileType = "pdf" | "text";
+
 export interface FileGroup {
     pdf: Document[];
     txt: Document[];
@@ -40,56 +36,8 @@ export interface PdfFile {
     pageContent?: string;
 }
 
-export type MessageType = "user" | "system" | "tool" | "assistent";
-export type ShouldContinue = { continue: boolean; reason?: string };
-
-export interface MyState {
-    user_id: string;
-    message: string;
-    email: string;
-    data: FileGroup;
-    completed: boolean;
-    loopStep: number;
-    extractionSchema: ExtractionSchema;
-    messages: BaseMessage;
-    shouldContinue: ShouldContinue;
-    pdfCount: number;
-    txtCouint: number;
-    currentFile: PdfFile;
-    activeTasks: number;
-    personaClusters: ClusteringResult;
-}
-
-export interface DualProfiles {
-    pdf?: Record<string, unknown>;
-    txt?: Record<string, unknown>;
-}
-
 export interface ExtractionSchema
     extends z.ZodObject<Record<string, z.ZodType>> { }
-
-export const MyStateAnnotation = Annotation.Root({
-    user_id: Annotation<string>(),
-    message: Annotation<string>(),
-    email: Annotation<string>(),
-    data: Annotation<FileGroup>(),
-    completed: Annotation<boolean>(),
-    loopStep: Annotation<number>(),
-    extractionSchema: Annotation<ExtractionSchema>(),
-    messages: Annotation<BaseMessage[]>({
-        reducer: messagesStateReducer,
-        default: () => [],
-    }),
-    shouldContinue: Annotation<ShouldContinue>(),
-    pdfCount: Annotation<number>(),
-    txtCount: Annotation<number>(),
-    currentPdfFile: Annotation<PdfFile>(),
-    currentTxtFile: Annotation<PdfFile>(),
-    profiles: Annotation<Map<string, DualProfiles>>(),
-    personaClusters: Annotation<ClusteringResult>(),
-});
-
-export const DataCleaningModel = "openai/gpt-4o-mini";
 
 export interface Duration {
     start_date: string;
@@ -119,15 +67,17 @@ export interface Experience {
     description: string[];
 }
 
-export interface ProfileData extends Record<string, unknown> {
+export interface ProfileData{
     name: string;
     title: string;
-    location: string | null;
+    location: string;
     key_skills: string[];
     contact: ContactInformation;
     certificates: Certificate[];
     experience: Experience[];
-    sourceFile?: string;
+    sourceFile: string;
+    fileText: string;
+    fileType: FileType;
 }
 
 // Schema for a single persona cluster
@@ -156,22 +106,6 @@ export interface RunInfo {
     runId: string
     startTime: string
     outputDir: string
-}
-
-/**
- * Raw profile data structure
- */
-export interface ProfileData {
-    name: string
-    age?: number
-    location?: string
-    occupation?: string
-    interests?: string[]
-    skills?: string[]
-    education?: string[]
-    experience?: string[]
-    bio?: string
-    [key: string]: unknown
 }
 
 /**
@@ -216,11 +150,11 @@ export type NormalizationStatus =
 export interface NormalizationState {
     runInfo: RunInfo
     status: NormalizationStatus
-    profiles?: ProfileData[]
-    normalizedProfiles?: ProfileData[]
-    normalizationResults?: NormalizationResult[]
-    summary?: NormalizationSummary
-    completedSteps?: string[]
-    error?: string
-    logs?: string[]
+    profiles: ProfileData[]
+    normalizedProfiles: ProfileData[]
+    normalizationResults: NormalizationResult[]
+    summary: NormalizationSummary
+    completedSteps: string[]
+    error: string
+    logs: string[]
 }

@@ -1,0 +1,245 @@
+{
+  "clusters": [
+    {
+      "title": "Senior Marketing Executives",
+      "description": {
+        "summary": "This cluster comprises high-level marketing professionals who lead strategic initiatives, oversee large teams, and drive comprehensive marketing campaigns across various industries. They possess extensive experience in brand management, strategic planning, and integrated marketing communications.",
+        "commonCharacteristics": [
+          "Leadership and team management",
+          "Strategic planning and execution",
+          "Expertise in brand management and integrated marketing"
+        ],
+        "skills": [
+          "Strategic Communications",
+          "Corporate Communications",
+          "Content Strategy",
+          "Marketing Strategy",
+          "Team Leadership"
+        ],
+        "typicalBackground": "Professionals in this cluster typically hold senior roles such as Vice President, Director, or Chief Marketing Officer. They have a decade or more of experience in marketing or communications, often within large organizations or agencies. Their career trajectory shows progression from specialized roles to executive leadership positions."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sara Rush Wirth",
+          "relevanceScore": 0.98,
+          "matchReasons": [
+            "Director of Public Relations and Communications",
+            "Strategic Communications and Corporate Communications expertise",
+            "Extensive experience managing large teams and multiple projects"
+          ]
+        },
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Director of Project Management with PMP certification",
+            "Experience in managing large-scale projects and strategic initiatives",
+            "Leadership in coordinating cross-functional teams"
+          ]
+        },
+        {
+          "id": "Holly Roberts",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Senior Account Supervisor overseeing major client initiatives",
+            "Experience in brand development and digital strategy",
+            "Leadership role managing multiple integrated marketing campaigns"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production Professionals",
+      "description": {
+        "summary": "Event Production Professionals are skilled in coordinating, managing, and executing events from conception to completion. They possess strong organizational skills, attention to detail, and expertise in logistics, vendor management, and on-site event coordination.",
+        "commonCharacteristics": [
+          "Strong organizational and multitasking abilities",
+          "Expertise in event logistics and vendor coordination",
+          "Ability to manage on-site event operations effectively"
+        ],
+        "skills": [
+          "Event Management",
+          "Production Planning",
+          "Vendor Coordination",
+          "Stage Management",
+          "Logistics Management"
+        ],
+        "typicalBackground": "Individuals in this cluster typically hold roles such as Producer, Production Manager, or Event Coordinator. They have several years of experience in event production, often within agencies or as freelancers. Their career paths show growth from entry-level event assistants to senior production roles managing large-scale events."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Cristobal C.",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Experiential and Integrated Producer managing dynamic brand experiences",
+            "Expertise in sourcing and managing talent and vendors",
+            "Experience in overseeing event budgets and logistics"
+          ]
+        },
+        {
+          "id": "Carly Tubridy",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Event Producer handling multiple high-profile events",
+            "Strong skills in production planning and stage management",
+            "Experience in coordinating large teams and managing event logistics"
+          ]
+        },
+        {
+          "id": "Quinn Tormey",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Experienced Producer managing major events for clients like Samsung",
+            "Expertise in event operations and production coordination",
+            "Proven track record in managing multi-market event projects"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Public Relations and Communications Specialists",
+      "description": {
+        "summary": "This cluster includes professionals dedicated to managing and enhancing the public image of organizations through strategic communication, media relations, and content creation. They excel in crafting compelling narratives, handling crisis communications, and maintaining strong media relationships.",
+        "commonCharacteristics": [
+          "Exceptional written and verbal communication skills",
+          "Strong media relations and networking abilities",
+          "Proficiency in content creation and strategic communication planning"
+        ],
+        "skills": [
+          "Media Relations",
+          "Content Strategy",
+          "Crisis Management",
+          "Public Relations",
+          "Strategic Communications"
+        ],
+        "typicalBackground": "Professionals in this cluster often hold titles such as PR Manager, Communications Director, or Media Relations Specialist. They have a background in public relations, journalism, or communications, with several years of experience in managing communication strategies and media partnerships. Their roles focus on enhancing brand reputation and managing external communications."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Managing Director with expertise in integrated marketing and digital strategy",
+            "Strong background in media relations and content strategy",
+            "Experience in leading communication initiatives for diverse clients"
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Group Account Director specializing in brand experience",
+            "Experience in strategic marketing and communications",
+            "Proven ability to lead cross-functional teams in integrated marketing campaigns"
+          ]
+        },
+        {
+          "id": "Annessa Robinsun-Abrams",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Director of Marketing Engagement and Communications",
+            "Expertise in strategic communications and internal communications",
+            "Experience in managing comprehensive communication programs"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing Coordinators and Specialists",
+      "description": {
+        "summary": "Marketing Coordinators and Specialists are adept at executing marketing campaigns, managing content creation, and supporting strategic marketing initiatives. They possess strong organizational skills, attention to detail, and the ability to handle multiple tasks efficiently within dynamic environments.",
+        "commonCharacteristics": [
+          "Detail-oriented and highly organized",
+          "Proficient in campaign execution and content management",
+          "Ability to collaborate effectively with cross-functional teams"
+        ],
+        "skills": [
+          "Campaign Management",
+          "Content Creation",
+          "Digital Marketing",
+          "Project Coordination",
+          "Social Media Management"
+        ],
+        "typicalBackground": "Individuals in this cluster typically hold roles such as Marketing Coordinator, Marketing Specialist, or Content Manager. They have a few years of experience in marketing or communications roles, often within corporate settings or agencies. Their career trajectories show growth through acquiring specialized skills in digital marketing, content strategy, and campaign management."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Lucy Wright",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Regional Marketing Manager with expertise in customer service and marketing communications",
+            "Experience in managing marketing initiatives and sponsorship programs",
+            "Strong skills in strategic planning and execution of marketing campaigns"
+          ]
+        },
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Field Marketing Manager with experience in sponsorship and community events",
+            "Proficient in managing relationships with partners and executing marketing strategies",
+            "Strong organizational and project management skills"
+          ]
+        },
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Brand Marketing Specialist with skills in e-commerce, SEO, and content optimization",
+            "Experience in managing brand marketing strategies and digital content",
+            "Proven ability to drive brand awareness and optimize business efficiencies"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Public Relations and Communications Specialists",
+      "description": {
+        "summary": "This cluster includes professionals dedicated to managing and enhancing the public image of organizations through strategic communication, media relations, and content creation. They excel in crafting compelling narratives, handling crisis communications, and maintaining strong media relationships.",
+        "commonCharacteristics": [
+          "Exceptional written and verbal communication skills",
+          "Strong media relations and networking abilities",
+          "Proficiency in content creation and strategic communication planning"
+        ],
+        "skills": [
+          "Media Relations",
+          "Content Strategy",
+          "Crisis Management",
+          "Public Relations",
+          "Strategic Communications"
+        ],
+        "typicalBackground": "Professionals in this cluster often hold titles such as PR Manager, Communications Director, or Media Relations Specialist. They have a background in public relations, journalism, or communications, with several years of experience in managing communication strategies and media partnerships. Their roles focus on enhancing brand reputation and managing external communications."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Managing Director with expertise in integrated marketing and digital strategy",
+            "Strong background in media relations and content strategy",
+            "Experience in leading communication initiatives for diverse clients"
+          ]
+        },
+        {
+          "id": "Elizabeth Ervin",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Group Account Director specializing in brand experience",
+            "Experience in strategic marketing and communications",
+            "Proven ability to lead cross-functional teams in integrated marketing campaigns"
+          ]
+        },
+        {
+          "id": "Annessa Robinsun-Abrams",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Director of Marketing Engagement and Communications",
+            "Expertise in strategic communications and internal communications",
+            "Experience in managing comprehensive communication programs"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

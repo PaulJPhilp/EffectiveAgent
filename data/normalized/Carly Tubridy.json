@@ -1,0 +1,89 @@
+{
+  "name": "Carly Tubridy",
+  "age": 45,
+  "location": "South Elgin, Illinois, United States",
+  "gender": "Female",
+  "company": "The Food Group",
+  "companyType": "Food Industry",
+  "companySize": "Unknown",
+  "industry": "Marketing and Advertising",
+  "occupation": "Account Supervisor",
+  "interests": [
+    "Client Relationship Building",
+    "Strategic Problem Solving",
+    "Digital Marketing",
+    "Team Leadership"
+  ],
+  "skills": [
+    "Client Presentation",
+    "Microsoft PowerPoint",
+    "Microsoft Excel",
+    "Strategic Communications",
+    "Content Strategy",
+    "SEO Strategy",
+    "CMS Management",
+    "Team Leadership"
+  ],
+  "education": [
+    "Bachelor's degree in Journalism with an emphasis in Strategic Communications, University of Missouri-Columbia (August 2012 - May 2016)"
+  ],
+  "experience": [
+    {
+      "company": "The Food Group",
+      "position": "Account Supervisor",
+      "startDate": "February 2023",
+      "endDate": "Present",
+      "duration": "2 years 1 month",
+      "description": "Building strong client relationships, providing strategic problem solving, and growing project scopes to ensure client success through partnership built on trust and open communication."
+    },
+    {
+      "company": "GROUP EAST",
+      "position": "Senior Account Manager",
+      "startDate": "July 2022",
+      "endDate": "February 2023",
+      "duration": "8 months",
+      "description": "Managed corporate communications for Bayer Crop Science, establishing Bayer as a thought leader in agriculture. Developed channel and content strategies, led website content initiatives, and acted as the web expert liaison."
+    },
+    {
+      "company": "Paradowski Creative",
+      "position": "Senior Account Manager",
+      "startDate": "March 2022",
+      "endDate": "July 2022",
+      "duration": "5 months",
+      "description": "Focused on corporate communications for Bayer Crop Science, developing strategies to position the agency as a trusted partner and expanding scope through strong client relationships."
+    },
+    {
+      "company": "Paradowski Creative",
+      "position": "Account Manager",
+      "startDate": "March 2020",
+      "endDate": "March 2022",
+      "duration": "2 years 1 month",
+      "description": "Managed B2B communications for Bayer Crop Science, leading the launch of the Bayer PLUS Rewards program and establishing a strategic communications plan that increased product sales by 25% year-over-year."
+    },
+    {
+      "company": "Brighton Agency",
+      "position": "Account Executive",
+      "startDate": "August 2018",
+      "endDate": "December 2019",
+      "duration": "1 year 5 months",
+      "description": "Supported B2B communications for Bayer Crop Science, led the launch of the Bayer PLUS Rewards program, managed creative teams, and developed integrated multi-channel campaigns that grew business by 1100%."
+    },
+    {
+      "company": "The Food Group",
+      "position": "Account Executive",
+      "startDate": "July 2017",
+      "endDate": "August 2018",
+      "duration": "1 year 2 months",
+      "description": "Managed integrated marketing campaigns for clients including MARS WRIGLEY, Kraft Heinz, Saputo, and Nestlé. Coordinated production of marketing materials and managed a media investment exceeding half a million dollars."
+    },
+    {
+      "company": "The Food Group",
+      "position": "Account Coordinator",
+      "startDate": "August 2016",
+      "endDate": "July 2017",
+      "duration": "1 year",
+      "description": "Assisted in managing B2B campaigns, maintaining client relationships, coordinating marketing material production, and participating in initiatives supporting gender equality and sustainable development goals."
+    }
+  ],
+  "bio": "Account Supervisor with a demonstrated history of building strong client relationships, providing strategic problem solving, and growing scope. Passionate about understanding client and brand needs to achieve success through partnership built on trust and open communication."
+}

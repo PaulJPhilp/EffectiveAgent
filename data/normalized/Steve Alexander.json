@@ -1,0 +1,92 @@
+{
+  "name": "Steve Alexander",
+  "age": null,
+  "location": "Orlando, Florida, United States",
+  "gender": "Male",
+  "company": "MVRK",
+  "companyType": "Integrated, Experiential, and Entertainment Agency",
+  "companySize": "Unknown",
+  "industry": "Entertainment / Experiential Marketing",
+  "occupation": "CXO - Creative/Experiential",
+  "interests": [
+    "Entrepreneurship",
+    "Event Planning",
+    "Technology",
+    "Storytelling",
+    "Startups"
+  ],
+  "skills": [
+    "Executive Visibility",
+    "Event Management",
+    "Sales"
+  ],
+  "education": [
+    "University of Central Florida - Bachelor's degree in Radio/Television & Digital Media"
+  ],
+  "experience": [
+    {
+      "company": "MVRK",
+      "position": "CXO - Creative/Experiential",
+      "startDate": "2014",
+      "endDate": "Present",
+      "duration": "11 years",
+      "location": "New York / Orlando",
+      "description": "MVRK, a WPI agency, is an innovative integrated, experiential, and location-based entertainment studio that perfectly blends thoughtful design, strategy, creative technology, and engineering to create unforgettable experiential storytelling. Notable partners include: Disney, Hulu, NHL, Amazon, Google, General Mills, The North Face, Intel, and many others."
+    },
+    {
+      "company": "Startup Grind",
+      "position": "Director, Orlando",
+      "startDate": "March 2015",
+      "endDate": "December 2018",
+      "duration": "3 years 10 months",
+      "location": "Orlando, Florida Area",
+      "description": "Powered by Google for Entrepreneurs, Startup Grind is a global startup community designed to educate, inspire, and connect entrepreneurs. Startup Grind aims to build a connected network of vibrant startup communities to help fuel innovation, economic growth and prosperity at the local level."
+    },
+    {
+      "company": "Therewolf",
+      "position": "Co-Founder / Principal",
+      "startDate": "August 2014",
+      "endDate": "December 2018",
+      "duration": "4 years 5 months",
+      "location": "Orlando, Florida Area",
+      "description": "Therewolf is a social experience discovery platform allowing consumers to intelligently discover experiences/destinations of interest, while providing real-time analytics to marketers."
+    },
+    {
+      "company": "BlueWater Technologies",
+      "position": "Director, National Accounts",
+      "startDate": "2012",
+      "endDate": "2014",
+      "duration": "2 years",
+      "location": "Orlando, Florida",
+      "description": null
+    },
+    {
+      "company": "etech",
+      "position": "Director of National Accounts",
+      "startDate": "January 2010",
+      "endDate": "September 2012",
+      "duration": "2 years 9 months",
+      "location": "Orlando, Florida Area",
+      "description": null
+    },
+    {
+      "company": "Second Star Media",
+      "position": "Vice President",
+      "startDate": "2006",
+      "endDate": "2010",
+      "duration": "4 years",
+      "location": "Orlando, Florida Area",
+      "description": null
+    },
+    {
+      "company": "Sony Electronics",
+      "position": "Business Development Executive",
+      "startDate": "2004",
+      "endDate": "2006",
+      "duration": "2 years",
+      "location": null,
+      "description": null
+    }
+  ],
+  "bio": "Steve Alexander is the CXO at MVRK, a WPI agency based in Orlando, Florida, specializing in integrated, experiential, and creative technology solutions. With over 11 years of experience at MVRK and a background in executive roles across various startups and technology companies, Steve has been recognized with a 40 Under 40 honor. He holds a Bachelor's degree in Radio/Television & Digital Media from the University of Central Florida and is passionate about event management, sales, and driving executive visibility."
+}

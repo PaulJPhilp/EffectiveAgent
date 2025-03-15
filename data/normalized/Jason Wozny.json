@@ -1,0 +1,97 @@
+{
+  "name": "Jason Wozny",
+  "age": null,
+  "location": "Denver, Colorado, United States",
+  "gender": null,
+  "company": "Øuterkind",
+  "companyType": "Marketing Agency",
+  "companySize": "51-200 employees",
+  "industry": "Marketing",
+  "occupation": "Partner",
+  "interests": [],
+  "skills": [
+    "Event Marketing",
+    "Sponsorship",
+    "Social Media"
+  ],
+  "education": [
+    "University of Denver - Digital Marketing Certification, Digital Marketing (March 2021 - July 2021)",
+    "Northern Arizona University, College of Business Administration - Masters of Business Administration, Marketing/Marketing Management, General (1999 - 2000)",
+    "Northern Arizona University - BSBA, Marketing Management (1995 - 1999)"
+  ],
+  "experience": [
+    {
+      "position": "Partner",
+      "company": "Øuterkind",
+      "location": "Denver, Colorado, United States",
+      "startDate": "December 2021",
+      "endDate": "Present",
+      "duration": "3 years 3 months"
+    },
+    {
+      "position": "Member Board Of Directors",
+      "company": "Road Warrior Foundation",
+      "location": "",
+      "startDate": "July 2021",
+      "endDate": "Present",
+      "duration": "3 years 8 months"
+    },
+    {
+      "position": "Marketing Strategy & Innovation",
+      "company": "Woz Consulting",
+      "location": "Colorado, United States",
+      "startDate": "November 2020",
+      "endDate": "December 2021",
+      "duration": "1 year 2 months"
+    },
+    {
+      "position": "Executive Vice President",
+      "company": "Match Marketing Group",
+      "location": "Boulder, CO",
+      "startDate": "August 2018",
+      "endDate": "November 2020",
+      "duration": "2 years 4 months"
+    },
+    {
+      "position": "Managing Director",
+      "company": "Match Marketing Group",
+      "location": "Boulder",
+      "startDate": "February 2017",
+      "endDate": "November 2020",
+      "duration": "3 years 10 months"
+    },
+    {
+      "position": "Vice-President, Accounts",
+      "company": "matchmg",
+      "location": "3020 Carbon Place Boulder, CO",
+      "startDate": "January 2013",
+      "endDate": "February 2017",
+      "duration": "4 years 2 months"
+    },
+    {
+      "position": "Account Director",
+      "company": "matchmg",
+      "location": "",
+      "startDate": "November 2010",
+      "endDate": "December 2012",
+      "duration": "2 years 2 months"
+    },
+    {
+      "position": "Account Supervisor",
+      "company": "matchmg",
+      "location": "",
+      "startDate": "March 2006",
+      "endDate": "November 2010",
+      "duration": "4 years 9 months"
+    },
+    {
+      "position": "Corporate Sales Manager",
+      "company": "Phoenix International Raceway",
+      "location": "",
+      "startDate": "March 2003",
+      "endDate": "May 2006",
+      "duration": "3 years 3 months"
+    }
+  ],
+  "bio": "Every day I get to work with a brilliant team of creative minds and marketing wizards. After years of working in the agency world, it's been a breath of fresh air to get to think about the industry differently. We get to challenge the status quo every day and deliver innovative campaigns across branding initiatives, launch campaigns and experiential marketing. Our clients are innovative and they trust us to tell their story and launch their idea. It’s a daily challenge. It’s awesome. A big thank you to NASCAR, CATERPILLAR, Ford, Red Bull, Polaris, Volcon, Rider Justice, HRB, Mifroma, Kind and Cairlinn Bay!"
+}

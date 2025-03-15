@@ -1,0 +1,92 @@
+{
+  "name": "Quinn Tormey",
+  "age": 29,
+  "location": "New York City Metropolitan Area",
+  "gender": "",
+  "company": "Cheil North America",
+  "companyType": "Marketing Communications Agency",
+  "companySize": "1000+ employees",
+  "industry": "Marketing and Advertising",
+  "occupation": "Producer",
+  "interests": [
+    "Event Marketing",
+    "Experiential Marketing",
+    "Sports Marketing",
+    "AV Management"
+  ],
+  "skills": [
+    "Production Planning",
+    "Sports Marketing",
+    "AV Management",
+    "Event Marketing Planning",
+    "Coordination",
+    "Logistics",
+    "Sourcing",
+    "Execution",
+    "Account Management",
+    "Client Service",
+    "Content Management",
+    "Product Management",
+    "Creating Flawless Live Experiences"
+  ],
+  "education": [
+    "Rowan University, Bachelor's degree in Marketing (2014 - 2018)"
+  ],
+  "experience": [
+    {
+      "company": "Cheil North America",
+      "position": "Producer",
+      "duration": "February 2022 - Present (3 years 1 month)",
+      "description": "Collaborating with Samsung Electronics America for over 70 events, including CES, NFT Week, Fashion Week, Newfronts, Rover Touch Campaign, Jaden Smith Activations, and Samsung Galaxy Creator Collective. Managed content and product management, created event plans and Run of Shows, and traveled to multiple markets for event operations and production. Key achievements include co-managing New York and Chicago markets for Samsung’s Rover Touch Campaign, supporting the renovation of the Samsung 837 Flagship Store in NY, and aiding Samsung’s Integrated Launch Platform activation in NY and San Francisco."
+    },
+    {
+      "company": "Sunrun",
+      "position": "Project Coordinator",
+      "duration": "August 2021 - February 2022 (7 months)",
+      "description": ""
+    },
+    {
+      "company": "Allied Experiential",
+      "position": "Production Coordinator",
+      "duration": "September 2019 - April 2020 (8 months)",
+      "description": "Assisted internal production, operations, and account teams within an award-winning experiential marketing agency. Worked on projects for brands such as Amazon Treasure Truck, Google, Hulu, Oreo, Huggies, and Pampers."
+    },
+    {
+      "company": "MAS Event + Design",
+      "position": "Event Production Intern",
+      "duration": "December 2018 - June 2019 (7 months)",
+      "description": "Assisted in the production of events and activations for clients like Google, YouTube, Facebook, BMW, Unilever, Investcorp, and Jigsaw. Responsibilities included event planning, coordination, logistics, sourcing, execution, account management, client service, and social media content planning."
+    },
+    {
+      "company": "Dayna's Events",
+      "position": "Marketing Manager",
+      "duration": "August 2017 - December 2017 (5 months)",
+      "description": "Developed and executed a marketing plan, including social media and live video content, as part of a school project implemented by the company."
+    },
+    {
+      "company": "David Yurman",
+      "position": "Marketing Logistics Coordinator",
+      "duration": "June 2017 - August 2017 (3 months)",
+      "description": "Coordinated logistics within the marketing and finance teams, attended staff meetings, and executed individual and group programs in a dynamic work environment."
+    },
+    {
+      "company": "Bank of America",
+      "position": "Business/Marketing Operations Specialist",
+      "duration": "May 2017 - July 2017 (3 months)",
+      "description": "Coordinated pre-audit activities, planned and executed inspection audits across 15 branches, managed communication, tracked team time-management, and liaised with the Chicago office on program goals and performance."
+    },
+    {
+      "company": "Partnership for Children of Essex",
+      "position": "Marketing Assistant",
+      "duration": "June 2016 - August 2016 (3 months)",
+      "description": "Assisted with managing in-office programs and day-to-day activities, team organization, and information transfer within a non-profit organization serving families in need."
+    },
+    {
+      "company": "Chocolate Works",
+      "position": "Marketing Assistant",
+      "duration": "May 2015 - June 2016 (1 year 2 months)",
+      "description": "Assisted with marketing campaigns and promotion activations for a retail chain outlet, created social media campaigns and content marketing, and participated in sales meetings and event development."
+    }
+  ],
+  "bio": "Event and experiential marketing producer with extensive experience executing campaigns for major brands such as Samsung, Amazon, YouTube, BMW, Unilever, Facebook, and Google within high-energy agency environments. Expertise includes event marketing planning, coordination, logistics, sourcing, execution, account management, client service, content and product management, and creating seamless live experiences for clients."
+}

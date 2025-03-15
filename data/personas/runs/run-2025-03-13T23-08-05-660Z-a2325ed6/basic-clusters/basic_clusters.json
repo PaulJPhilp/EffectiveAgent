@@ -1,0 +1,185 @@
+{
+  "clusters": [
+    {
+      "title": "Senior Marketing Executives",
+      "description": {
+        "summary": "This cluster comprises high-level marketing professionals who oversee strategic marketing initiatives, lead cross-functional teams, and drive brand growth. They possess extensive experience in marketing strategy, communications, and leadership, often holding titles such as Vice President, Director, or Managing Director.",
+        "commonCharacteristics": [
+          "Leadership and team management",
+          "Strategic planning and execution",
+          "Extensive experience in marketing and communications"
+        ],
+        "skills": [
+          "Strategic Planning",
+          "Team Leadership",
+          "Marketing Strategy",
+          "Public Relations",
+          "Brand Management"
+        ],
+        "typicalBackground": "Professionals in this cluster typically have a solid background in marketing or communications, with progressive responsibility leading to senior roles. They often have experience managing large teams and budgets, developing comprehensive marketing strategies, and executing high-impact campaigns for diverse industries."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sara Rush Wirth",
+          "relevanceScore": 0.98,
+          "matchReasons": [
+            "Holds a Director position overseeing Public Relations, Internal Communications, and Investor Relations.",
+            "Demonstrates leadership in strategic communications and corporate strategies."
+          ]
+        },
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Director of Project Management with extensive experience in strategy and operations.",
+            "Manages large-scale projects and teams, indicating senior-level responsibility."
+          ]
+        },
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Managing Director role with responsibility for integrated marketing and digital strategy.",
+            "Leads business development and oversees multiple facets of marketing operations."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Content and Creative Professionals",
+      "description": {
+        "summary": "This cluster includes individuals responsible for creating, managing, and executing content and creative strategies. They play a pivotal role in storytelling, content production, and ensuring brand consistency across various mediums. Titles in this cluster include Creative Director, Content Manager, and Producer.",
+        "commonCharacteristics": [
+          "Strong focus on content creation and storytelling",
+          "Expertise in multimedia production",
+          "Ability to manage creative projects and teams"
+        ],
+        "skills": [
+          "Content Strategy",
+          "Creative Direction",
+          "Multimedia Production",
+          "Storytelling",
+          "Project Management"
+        ],
+        "typicalBackground": "Professionals typically have backgrounds in media, communications, design, or related fields. They possess skills in content creation, digital media, and creative project management, and often work in dynamic environments requiring collaboration across different departments."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Joanne Hsu",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Senior Brand Marketing Manager overseeing comprehensive content and brand strategies.",
+            "Experience in managing creative teams and executing multimedia campaigns."
+          ]
+        },
+        {
+          "id": "Cristobal C.",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Experiential and Integrated Producer with expertise in creating dynamic brand experiences.",
+            "Handles content curation and management, aligning with client budgets and expectations."
+          ]
+        },
+        {
+          "id": "Christine Zaccaro",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Senior Producer role focusing on brand partnerships and experiential campaigns.",
+            "Demonstrates strong skills in creative ideation and strategic content development."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing Managers and Coordinators",
+      "description": {
+        "summary": "Comprising mid-level marketing professionals, this cluster focuses on managing marketing campaigns, coordinating between departments, and executing strategic initiatives. These individuals often hold titles such as Marketing Manager, Account Manager, or Coordinator and are integral to the day-to-day operations of marketing activities.",
+        "commonCharacteristics": [
+          "Hands-on management of marketing campaigns",
+          "Coordination between multiple teams",
+          "Execution of strategic marketing plans"
+        ],
+        "skills": [
+          "Campaign Management",
+          "Project Coordination",
+          "Digital Marketing",
+          "Account Management",
+          "Strategic Planning"
+        ],
+        "typicalBackground": "Individuals usually have a bachelor's degree in marketing, communications, or a related field, with several years of experience in marketing roles. They are adept at managing projects, coordinating with various stakeholders, and executing marketing strategies to achieve business objectives."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Tara Scanlon",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Vice President, Strategy role involving integrated communication planning and media strategy.",
+            "Oversees cross-functional media teams and manages client relationships."
+          ]
+        },
+        {
+          "id": "Anne Marie Frazee",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Marketing Manager role with responsibilities in brand management and digital marketing.",
+            "Coordinates marketing initiatives and manages project timelines effectively."
+          ]
+        },
+        {
+          "id": "Caren Read",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Marketing Communications Manager overseeing comprehensive marketing campaigns.",
+            "Responsible for strategic marketing plans and managing sponsorship programs."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production and Management Professionals",
+      "description": {
+        "summary": "This cluster is made up of professionals who specialize in planning, coordinating, and executing events. They ensure that events run smoothly from conception to completion, handling logistics, vendor relationships, and on-site management. Titles include Event Producer, Production Manager, and Stage Manager.",
+        "commonCharacteristics": [
+          "Expertise in event logistics and coordination",
+          "Strong organizational and multitasking skills",
+          "Ability to manage vendor and stakeholder relationships"
+        ],
+        "skills": [
+          "Event Planning",
+          "Logistics Coordination",
+          "Vendor Management",
+          "On-site Management",
+          "Project Execution"
+        ],
+        "typicalBackground": "Typically holding degrees in event management, hospitality, or related fields, these professionals have extensive experience in organizing various types of events, from corporate conferences to large-scale festivals. They excel in problem-solving, time management, and maintaining high levels of organizational efficiency."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Annessa Morley",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "AVP Marketing Engagement and Communications role with a focus on event strategy and execution.",
+            "Extensive experience in managing large-scale events and communications."
+          ]
+        },
+        {
+          "id": "Jess D.",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Head of Experiential and Production role overseeing immersive event experiences.",
+            "Manages creative and production teams to deliver high-impact events."
+          ]
+        },
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Field Marketing Manager role involving event coordination and sponsorship management.",
+            "Experienced in organizing community events and managing marketing initiatives."
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2023-10-27"
+}

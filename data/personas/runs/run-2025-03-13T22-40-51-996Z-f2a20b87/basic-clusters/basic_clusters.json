@@ -1,0 +1,270 @@
+{
+  "clusters": [
+    {
+      "title": "Senior Marketing Leaders",
+      "description": {
+        "summary": "This cluster comprises high-level marketing professionals responsible for strategic communications, brand management, and integrated marketing campaigns. They hold senior titles such as Vice President, Director, or Senior Manager and lead teams to achieve organizational marketing goals.",
+        "commonCharacteristics": [
+          "Senior leadership roles",
+          "Strategic planning and execution",
+          "Extensive experience in marketing and communications",
+          "Team leadership and management"
+        ],
+        "skills": [
+          "Strategic Communications",
+          "Integrated Marketing",
+          "Brand Management",
+          "Media Strategy"
+        ],
+        "typicalBackground": "Professionals with extensive experience in marketing and communications, often progressing through mid-level roles to attain senior positions. They typically possess strong educational backgrounds in marketing, business, or related fields and have led significant marketing initiatives and teams."
+      },
+      "representativeProfiles": [
+        {
+          "id": "1",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Senior titles: Director of Public Relations, Vice President roles",
+            "Skills in Strategic Communications and Integrated Marketing",
+            "Extensive leadership experience in marketing and communications"
+          ]
+        },
+        {
+          "id": "2",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Vice President title with strategic responsibilities",
+            "Expertise in Media Planning and Advertising",
+            "Leadership in integrated communication planning"
+          ]
+        },
+        {
+          "id": "13",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Vice President and Director level positions",
+            "Skills in Brand Development and Integrated Marketing",
+            "Extensive experience managing large marketing teams and campaigns"
+          ]
+        },
+        {
+          "id": "18",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Senior Vice President and Director titles",
+            "Skills in Strategic Marketing and Communications",
+            "Leadership in developing and executing comprehensive marketing strategies"
+          ]
+        },
+        {
+          "id": "25",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Vice President of Marketing position",
+            "Skills in Marketing Communications and Strategic Planning",
+            "Extensive experience in leading marketing teams and initiatives"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production Specialists",
+      "description": {
+        "summary": "This cluster consists of professionals dedicated to the planning, coordination, and execution of events and experiential marketing activities. They hold roles such as Producer, Creative Director, Stage Manager, or Production Coordinator and excel in event logistics, creative ideation, and on-site management.",
+        "commonCharacteristics": [
+          "Roles focused on event planning and production",
+          "Strong creative and logistical skillsets",
+          "Experience managing events of varying scales",
+          "Titles include Producer, Creative Director, Stage Manager"
+        ],
+        "skills": [
+          "Event Planning",
+          "Production Management",
+          "Creative Ideation",
+          "Stage Management"
+        ],
+        "typicalBackground": "Individuals with backgrounds in event management, production, or creative roles, often advancing to senior event production positions. They typically have experience coordinating events, managing vendors and logistics, and leading creative teams to deliver engaging experiences."
+      },
+      "representativeProfiles": [
+        {
+          "id": "4",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Director of Public Relations and Event Production responsibilities",
+            "Skills in Strategic Communications and Content Strategy",
+            "Extensive experience in managing large-scale events and communications"
+          ]
+        },
+        {
+          "id": "5",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Roles such as Senior Producer and Creative Director",
+            "Expertise in content creation and event design",
+            "Experience coordinating complex production projects"
+          ]
+        },
+        {
+          "id": "9",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Title: Senior Producer with event production focus",
+            "Skills in producing and managing multimedia and live events",
+            "Experience with high-profile client projects"
+          ]
+        },
+        {
+          "id": "15",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Roles include Producer and Creative Director",
+            "Skills in event planning and production management",
+            "Experience leading creative teams for major events"
+          ]
+        },
+        {
+          "id": "22",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Titles like Producer and Production Manager",
+            "Skills in event logistics and creative production",
+            "Experience managing large-scale events and cross-functional teams"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Account Management Professionals",
+      "description": {
+        "summary": "This cluster includes professionals focused on managing client relationships, strategic account planning, and ensuring client satisfaction. They hold titles such as Account Manager, Account Director, or Account Supervisor and excel in client communications, project management, and strategic account growth.",
+        "commonCharacteristics": [
+          "Roles centered around client relationship management",
+          "Strong strategic and project management skills",
+          "Experience managing multiple client accounts",
+          "Titles include Account Manager, Account Director, Account Supervisor"
+        ],
+        "skills": [
+          "Client Relationship Management",
+          "Strategic Account Planning",
+          "Project Management",
+          "Communication"
+        ],
+        "typicalBackground": "Professionals with backgrounds in marketing, communications, or sales, advancing to roles that require managing multiple client accounts. They typically excel in maintaining client satisfaction, managing projects, and identifying growth opportunities within existing accounts."
+      },
+      "representativeProfiles": [
+        {
+          "id": "10",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Titles such as Senior Account Supervisor and Account Director",
+            "Experience in client relationship management and strategic planning",
+            "Skills in overseeing client accounts and executing marketing initiatives"
+          ]
+        },
+        {
+          "id": "17",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Roles include Account Supervisor and Account Director",
+            "Skills in client communication and account growth",
+            "Experience managing large client portfolios"
+          ]
+        },
+        {
+          "id": "24",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Titles like Account Manager and Account Director",
+            "Expertise in client relations and strategic account management",
+            "Experience in handling multiple marketing campaigns for clients"
+          ]
+        },
+        {
+          "id": "30",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Positions such as Account Executive and Account Director",
+            "Skills in client communications and campaign management",
+            "Experience managing client accounts and marketing initiatives"
+          ]
+        },
+        {
+          "id": "35",
+          "relevanceScore": 0.89,
+          "matchReasons": [
+            "Roles include Account Supervisor and Account Director",
+            "Skills in client management and strategic account planning",
+            "Experience leading client-focused marketing projects"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Content and Creative Professionals",
+      "description": {
+        "summary": "This cluster encompasses professionals dedicated to creating, managing, and strategizing content across various platforms. They hold roles such as Content Producer, Creative Director, or Senior Content Manager and possess expertise in content strategy, creative ideation, copywriting, and multimedia production.",
+        "commonCharacteristics": [
+          "Roles focused on content creation and creative strategy",
+          "Strong skills in copywriting, graphic design, and multimedia production",
+          "Experience managing content projects and creative teams",
+          "Titles include Content Producer, Creative Director, Senior Content Manager"
+        ],
+        "skills": [
+          "Content Strategy",
+          "Creative Ideation",
+          "Copywriting",
+          "Graphic Design",
+          "Multimedia Production"
+        ],
+        "typicalBackground": "Individuals with backgrounds in creative disciplines such as writing, graphic design, or multimedia production, advancing to roles that require strategic content management and creative leadership. They typically excel in developing engaging content that aligns with brand objectives and resonates with target audiences."
+      },
+      "representativeProfiles": [
+        {
+          "id": "12",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Title: Senior Producer with content production focus",
+            "Skills in content strategy and creative ideation",
+            "Experience in managing content projects for diverse clients"
+          ]
+        },
+        {
+          "id": "19",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Roles include Content Producer and Creative Director",
+            "Skills in content creation, copywriting, and multimedia production",
+            "Experience leading creative teams and managing content strategies"
+          ]
+        },
+        {
+          "id": "28",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Titles such as Creative Director and Senior Creative Director",
+            "Expertise in content strategy, copywriting, and graphic design",
+            "Experience managing creative projects and content initiatives"
+          ]
+        },
+        {
+          "id": "33",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Roles include Content Producer and Creative Director",
+            "Skills in multimedia production and creative content development",
+            "Experience in producing engaging content across various platforms"
+          ]
+        },
+        {
+          "id": "40",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Titles like Content Producer and Creative Director",
+            "Skills in creative ideation, content strategy, and multimedia production",
+            "Experience managing content projects for branding and marketing campaigns"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

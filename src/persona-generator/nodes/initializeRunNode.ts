@@ -5,6 +5,7 @@ import path from "node:path"
 import { getLLM } from "../models.js"
 import type { ClusteringState } from "../types.js"
 import { logToRun, saveRunMetadata } from "../utils.js"
+import chalk from "chalk"
 
 type ClusteringStateUpdate = Partial<ClusteringState>
 
@@ -15,7 +16,7 @@ export async function initializeRunNode(
     state: ClusteringState,
     config: RunnableConfig,
 ): Promise<ClusteringStateUpdate> {
-    console.log("initializeRunNode()")
+    console.log(chalk.blue("initializeRunNode()"))
 
     try {
         // Generate a unique run ID (timestamp + random chars)
@@ -48,7 +49,7 @@ export async function initializeRunNode(
             logs: [`Run ${runId} initialized`],
         }
     } catch (error) {
-        console.error("[CLUSTER GRAPH] Error in initializeRunNode:", error)
+        console.error(chalk.red("[CLUSTER GRAPH] Error in initializeRunNode:"), error)
         return {
             status: "error",
             error: `Error initializing run: ${error instanceof Error ? error.message : String(error)}`,

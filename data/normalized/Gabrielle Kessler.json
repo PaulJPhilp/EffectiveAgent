@@ -1,0 +1,125 @@
+{
+  "name": "Gabrielle Kessler",
+  "age": null,
+  "location": "Los Angeles, California, United States",
+  "gender": null,
+  "company": "We Are Social + Narrative",
+  "companyType": "Marketing Agency",
+  "companySize": null,
+  "industry": "Marketing, Brand Experience",
+  "occupation": "SVP Brand Experience",
+  "interests": [],
+  "skills": [
+    "Experiential",
+    "Content",
+    "Mentor",
+    "Publications"
+  ],
+  "education": [
+    "Tisch School of the Arts, NYU, Drama (2001 - 2005)"
+  ],
+  "experience": [
+    {
+      "company": "We Are Social + Narrative",
+      "title": "SVP Brand Experience & Production",
+      "startDate": "October 2021",
+      "endDate": "Present",
+      "duration": "3 years 5 months",
+      "location": "United States",
+      "description": "Senior leader overseeing agency production and delivery across content, partnerships and earned-led activations. Experiential SME."
+    },
+    {
+      "company": "Future",
+      "title": "SVP Brand Experience",
+      "startDate": "September 2021",
+      "endDate": "May 2023",
+      "duration": "1 year 9 months",
+      "description": "Oversees all B2C integrated program solutions and revenue opportunities for Future PLC, the global media company specializing in the Tech, Gaming, Music, and Knowledge verticals."
+    },
+    {
+      "company": "Future",
+      "title": "VP Client Solutions",
+      "startDate": "April 2020",
+      "endDate": "September 2021",
+      "duration": "1 year 6 months",
+      "description": "Oversees all B2C integrated program solutions and revenue opportunities for Future PLC, the global media company specializing in the Tech, Gaming, Music, and Knowledge verticals."
+    },
+    {
+      "company": "Future",
+      "title": "VP Experiential",
+      "startDate": "November 2018",
+      "endDate": "April 2020",
+      "duration": "1 year 6 months",
+      "description": ""
+    },
+    {
+      "company": "The Visionary Group",
+      "title": "Creative Director",
+      "startDate": "November 2016",
+      "endDate": "November 2018",
+      "duration": "2 years 1 month",
+      "location": "Culver City, CA",
+      "description": ""
+    },
+    {
+      "company": "What's Trending",
+      "title": "Head of Strategy, Partnerships & Revenue",
+      "startDate": "January 2016",
+      "endDate": "November 2016",
+      "duration": "11 months",
+      "description": "Primetime Emmy-nominated content-driven media company focusing on digital, viral videos and personalities. Managed branded content activations with Fortune 500 brands and coordinated social good and charitable programs."
+    },
+    {
+      "company": "Omnia Media, Inc.",
+      "title": "Head of Integrated Marketing & Director Brand Partnerships",
+      "startDate": "June 2014",
+      "endDate": "December 2015",
+      "duration": "1 year 7 months",
+      "location": "Los Angeles, California",
+      "description": "Built IM department from the ground-up at the fastest growing independent MCN. Oversaw creative ideation, process, and execution of brand integration campaigns across multiple content verticals including lifestyle, entertainment, gaming, and music."
+    },
+    {
+      "company": "Something Massive",
+      "title": "Director of Business Development",
+      "startDate": "June 2013",
+      "endDate": "June 2014",
+      "duration": "1 year 1 month",
+      "description": "Led development of new business and maintained key agency relationships. Contributed to the development and refinement of the company's vision and strategy."
+    },
+    {
+      "company": "Something Massive",
+      "title": "Senior Accounts Manager",
+      "startDate": "June 2011",
+      "endDate": "June 2013",
+      "duration": "2 years 1 month",
+      "location": "Los Angeles, California",
+      "description": "Managed multiple client accounts, maintained client relationships from pitch to delivery, developed high-level digital strategies, and oversaw social community management teams."
+    },
+    {
+      "company": "Video Army",
+      "title": "Project Manager",
+      "startDate": "2009",
+      "endDate": "2011",
+      "duration": "2 years",
+      "location": "Venice, CA",
+      "description": "Managed projects for a start-up video marketing agency, established online presence for clients through video production, distribution, social media, and SEO/VSEO marketing. Handled business development, strategy, production responsibilities, budgets, and timelines."
+    },
+    {
+      "company": "Storyboards Inc",
+      "title": "Marketing",
+      "startDate": "July 2008",
+      "endDate": "August 2009",
+      "duration": "1 year 2 months",
+      "description": "Acted as liaison between Art Directors and contract artists in Advertising, Commercial Production, and Feature Film Production. Managed internal brand marketing, created visual marketing materials, edited video reels, managed website operations and SEO marketing, and expanded the artist roster."
+    },
+    {
+      "company": "Folio Photography",
+      "title": "Owner/Operator",
+      "startDate": "January 2004",
+      "endDate": "September 2008",
+      "duration": "4 years 9 months",
+      "description": "Provided commercial photography, graphic design, logo and branding services for clients including musicians, actors, independent film production companies, high-end interior designers, and restaurateurs."
+    }
+  ],
+  "bio": "Well-rounded marketing professional with 10+ years creating innovative solutions for clients across multiple verticals."
+}

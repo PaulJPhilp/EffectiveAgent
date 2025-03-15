@@ -3,6 +3,7 @@ import fs from "node:fs"
 import path from "node:path"
 import type { ClusteringState } from "../types.js"
 import { logToRun } from "../utils.js"
+import chalk from "chalk"
 
 type ClusteringStateUpdate = Partial<ClusteringState>
 
@@ -13,16 +14,16 @@ export async function collectPersonaResultsNode(
     state: ClusteringState,
     config: RunnableConfig,
 ): Promise<ClusteringStateUpdate> {
-    console.log("collectPersonaResultsNode()")
+    console.log(chalk.magenta("collectPersonaResultsNode()"))
 
     try {
         // At this point, all personas have been processed
-        console.log("All personas have been processed, collecting results")
+        console.log(chalk.magenta("All personas have been processed, collecting results"))
 
         // Check if we have elaborated personas
         if (!state.elaboratedPersonas || state.elaboratedPersonas.length === 0) {
             const warningMsg = "No elaborated personas found in state, using basic personas instead"
-            console.warn(warningMsg)
+            console.warn(chalk.yellow(warningMsg))
             logToRun(state.runInfo, warningMsg, "warn")
         }
 

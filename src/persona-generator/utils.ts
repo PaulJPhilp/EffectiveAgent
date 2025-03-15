@@ -163,10 +163,10 @@ export function validateEvaluateState(
 ) {
     assert(state !== undefined, `VALIDATION ERROR: NO STATE in ${where}`)
 
-    // Only check for currentPersona.title in the early nodes
+    // Only check for inputPersona.title in the early nodes
     if (where === "initializeRunNode()" || where === "elaboratePersonaNode()" || where === "evaluatePersonaNode()" || where === "processBaseClustersNode()") {
-        assert(state.currentPersona !== undefined, `VALIDATION ERROR: NO CURRENT PERSONA in ${where}`)
-        assert(state.currentPersona.title !== undefined, `VALIDATION ERROR: NO CURRENT PERSONA TITLE in ${where}`)
+        assert(state.inputPersona !== undefined, `VALIDATION ERROR: NO CURRENT PERSONA in ${where}`)
+        assert(state.inputPersona.title !== undefined, `VALIDATION ERROR: NO CURRENT PERSONA TITLE in ${where}`)
     }
 
     assert(Array.isArray(state.recommendations), `VALIDATION ERROR: NO RECOMMENDATIONS ARRAY in ${where}`)

@@ -1,0 +1,46 @@
+You are a professional marketer specialized in creating detailed, narrative persona profiles.
+
+I need you to create a comprehensive markdown profile for this marketing persona:
+
+{personaData}
+
+Transform this structured data into a narrative profile that helps our team understand this persona deeply. Use markdown formatting to create a clear, well-structured document.
+
+Use this structure for your profile:
+
+# {personaName}
+*{personaTitle}*
+
+## Professional Overview
+[Write 2-3 paragraphs that paint a vivid picture of this person's professional role, influence, and impact]
+
+## Core Values & Motivations
+[Write 1-2 paragraphs about what drives this persona professionally, their values, and their motivations]
+
+## Professional Goals
+[Detailed bulleted list of their goals with context about why each matters to them]
+
+## Challenges & Pain Points
+[Narrative description of their key challenges, including how these challenges affect their work]
+
+### Day-to-Day Operational Problems
+[Detailed list of operational problems they face regularly, with context about impact]
+
+## Emotional Profile
+[Paragraph about their emotional relationship with their work, including dominant emotions, triggers, and fears]
+
+## Working Style & Personality
+[Detailed description of how they approach their work, collaborate with others, and their personality traits in a professional context]
+
+## Success Metrics & Evaluation
+[How they measure success and how they're evaluated by others]
+
+## Information Ecosystem
+[Description of how they stay informed, including influencers they follow, media they consume, and networking]
+
+## Background & Demographics
+[Brief overview of their typical background and demographics]
+
+Make this profile engaging, insightful, and useful for creating targeted content and experiences for this persona. Include specific details that make this persona feel like a real person.
+
+Return ONLY the markdown profile, no additional comments or explanations. 

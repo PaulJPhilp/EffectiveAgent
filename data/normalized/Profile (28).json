@@ -1,0 +1,113 @@
+{
+  "name": "Mark Dalhausser",
+  "age": null,
+  "location": "Los Angeles, California, United States",
+  "gender": null,
+  "company": "Cartwheel and Co. Marketing",
+  "companyType": "Marketing",
+  "companySize": null,
+  "industry": "Marketing",
+  "occupation": "Senior Director, Experiences",
+  "interests": [],
+  "skills": [
+    "Relationship Marketing",
+    "Event Management",
+    "Public Relations"
+  ],
+  "education": [
+    "University of Florida - Bachelor of Applied Science (BASc), Public Relations, Advertising, and Applied Communication (2000 - 2005)"
+  ],
+  "experience": [
+    {
+      "company": "Cartwheel and Co. Marketing",
+      "position": "Senior Director, Experiences",
+      "startDate": "August 2021",
+      "endDate": "Present",
+      "duration": "3 years 7 months",
+      "location": "Los Angeles, California, United States",
+      "description": ""
+    },
+    {
+      "company": "Freelance",
+      "position": "Freelance Event Producer & Creative Strategist",
+      "startDate": "December 2018",
+      "endDate": "Present",
+      "duration": "6 years 3 months",
+      "location": "Greater Los Angeles Area",
+      "description": "Partner with clients to concept, develop creative and produce events on a freelance basis. Brands / studios include: Amazon Prime Video, Peacock, Universal Pictures, FX Networks, YouTube, Facebook, Amazon 4-Star, Taco Bell and Nintendo of America."
+    },
+    {
+      "company": "Allied Experiential",
+      "position": "Senior Director",
+      "startDate": "July 2016",
+      "endDate": "November 2018",
+      "duration": "2 years 5 months",
+      "location": "Greater Los Angeles Area",
+      "description": ""
+    },
+    {
+      "company": "Allied Experiential",
+      "position": "Account Director",
+      "startDate": "June 2015",
+      "endDate": "June 2016",
+      "duration": "1 year 1 month",
+      "location": "Greater Los Angeles Area",
+      "description": ""
+    },
+    {
+      "company": "Allied Experiential",
+      "position": "Senior Manager",
+      "startDate": "April 2014",
+      "endDate": "June 2015",
+      "duration": "1 year 3 months",
+      "location": "Greater Los Angeles Area",
+      "description": ""
+    },
+    {
+      "company": "Escalate",
+      "position": "Senior Account Manager",
+      "startDate": "June 2013",
+      "endDate": "January 2014",
+      "duration": "8 months",
+      "location": null,
+      "description": ""
+    },
+    {
+      "company": "PMK*BNC",
+      "position": "Operations Manager",
+      "startDate": "February 2013",
+      "endDate": "August 2013",
+      "duration": "7 months",
+      "location": null,
+      "description": ""
+    },
+    {
+      "company": "Escalate",
+      "position": "Senior Account Manager",
+      "startDate": "July 2010",
+      "endDate": "November 2012",
+      "duration": "2 years 5 months",
+      "location": "New York, NY",
+      "description": ""
+    },
+    {
+      "company": "Escalate",
+      "position": "Account Manager",
+      "startDate": "December 2007",
+      "endDate": "July 2010",
+      "duration": "2 years 8 months",
+      "location": "New York, NY",
+      "description": ""
+    },
+    {
+      "company": "Escalate",
+      "position": "Assistant Account Manager",
+      "startDate": "July 2006",
+      "endDate": "December 2007",
+      "duration": "1 year 6 months",
+      "location": "New York, NY",
+      "description": ""
+    }
+  ],
+  "bio": "Mark Dalhausser is an Experiential Marketing Producer based in Los Angeles, California, with over 15 years of experience in marketing, event management, and public relations. He currently serves as the Senior Director of Experiences at Cartwheel and Co. Marketing and works as a Freelance Event Producer & Creative Strategist, collaborating with major brands such as Amazon and Universal Pictures."
+}

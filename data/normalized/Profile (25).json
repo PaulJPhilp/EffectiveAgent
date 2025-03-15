@@ -1,0 +1,185 @@
+{
+  "name": "Holly Roberts",
+  "age": 25,
+  "location": "Dallas, Texas, United States",
+  "gender": "Female",
+  "company": "Augustine Agency",
+  "companyType": "Marketing/Advertising Agency",
+  "companySize": "Unknown",
+  "industry": "Marketing and Advertising",
+  "occupation": "Senior Account Supervisor",
+  "interests": [
+    "Brand Development",
+    "Digital Strategy",
+    "Cross-functional Team Leadership",
+    "Creativity",
+    "Data-driven Strategy",
+    "Collaborative Environments"
+  ],
+  "skills": [
+    "Brand Development",
+    "Digital Strategy",
+    "Cross-functional Team Leadership",
+    "Team Leadership",
+    "Project Management",
+    "Client Relationship Management",
+    "Creative Development",
+    "Paid Media Planning",
+    "Influencer Marketing",
+    "Digital Campaign Reporting",
+    "Website Development",
+    "Process Improvement",
+    "Strategic Planning",
+    "Budget Management",
+    "Social Media Management",
+    "Content Creation",
+    "SEO Optimization"
+  ],
+  "education": [
+    "Bachelor of Arts (B.A.), Advertising, University of Oklahoma, 2013-2017"
+  ],
+  "experience": [
+    {
+      "company": "Augustine Agency",
+      "role": "Senior Account Supervisor",
+      "duration": "March 2023 - Present (2 years)",
+      "responsibilities": [
+        "Lead the Mission Foods client service team, supervising Assistant Account Executive and Account Executive.",
+        "Collaborate with Senior Account Director to achieve client business goals.",
+        "Oversee initiatives related to creative development, print production, photoshoots, paid media planning and buying, organic social content, influencer marketing, digital campaign reporting, and website development/maintenance.",
+        "Identify account growth opportunities based on SOW performance and CPG industry trends."
+      ]
+    },
+    {
+      "company": "Augustine Agency",
+      "role": "Senior Account Executive",
+      "duration": "December 2021 - March 2023 (1 year 4 months)",
+      "responsibilities": [
+        "Primary contact for all client requests under the Mission Foods account.",
+        "Manage projects while building client relationships and providing strategic perspectives.",
+        "Implemented process improvements for project management and workflow efficiency."
+      ]
+    },
+    {
+      "company": "Augustine Agency",
+      "role": "Account Executive",
+      "duration": "August 2021 - December 2021 (5 months)",
+      "responsibilities": [
+        "Managed day-to-day client communications for Mission Foods.",
+        "Handled trafficking of deliverables, led client calls, and provided solutions as needed.",
+        "Owned the internal creative and digital request process from brief execution to final file release."
+      ]
+    },
+    {
+      "company": "Hawkeye",
+      "role": "Account Executive",
+      "duration": "September 2019 - August 2021 (2 years)",
+      "location": "Dallas, Texas",
+      "responsibilities": [
+        "Managed client projects for the Capital One account from concept to delivery.",
+        "Facilitated creative development for various initiatives including email, display, direct mail, and branding.",
+        "Maintained adherence to client vision and goals."
+      ]
+    },
+    {
+      "company": "The Pub Productions",
+      "role": "Account Executive",
+      "duration": "May 2020 - November 2020 (7 months)",
+      "location": "Chicago, Illinois, United States",
+      "responsibilities": [
+        "Prepared, coordinated, and executed lifestyle photoshoots for the ALDI account.",
+        "Collaborated with client partners and internal teams to ensure cohesive project execution.",
+        "Managed client communications and maintained client vision during the production process."
+      ]
+    },
+    {
+      "company": "Moroch",
+      "role": "Account Executive",
+      "duration": "March 2019 - October 2019 (8 months)",
+      "location": "Dallas, Texas",
+      "responsibilities": [
+        "Developed and executed strategic local marketing plans for the Midas client.",
+        "Presented recommendations and creative products to franchisees in assigned markets.",
+        "Managed budgets and tracked marketing plan results."
+      ]
+    },
+    {
+      "company": "Moroch",
+      "role": "Account Coordinator",
+      "duration": "October 2017 - March 2019 (1 year 6 months)",
+      "location": "Dallas, Texas",
+      "responsibilities": [
+        "Ensured timely execution of local Midas marketing plans.",
+        "Handled client and vendor communications, media placement, and budget maintenance.",
+        "Facilitated projects between creative teams, franchisees, and vendors."
+      ]
+    },
+    {
+      "company": "Javelin Agency",
+      "role": "Account Service Associate",
+      "duration": "June 2017 - October 2017 (5 months)",
+      "location": "Irving - Las Colinas, Texas",
+      "responsibilities": [
+        "Maintained and developed direct marketing and email campaigns for AT&T Customer Retention.",
+        "Managed campaign tracking and reporting tools.",
+        "Handled production billing and budgets."
+      ]
+    },
+    {
+      "company": "Freestyle Creative",
+      "role": "Account Service Intern",
+      "duration": "January 2017 - May 2017 (5 months)",
+      "location": "Oklahoma City, Oklahoma Area",
+      "responsibilities": [
+        "Assisted with client relations and business development.",
+        "Created weekly blog posts and social media content calendars.",
+        "Managed email newsletters and monitored online reviews."
+      ]
+    },
+    {
+      "company": "Lindsey + Asp",
+      "role": "Digital Media Strategist",
+      "duration": "August 2016 - May 2017 (10 months)",
+      "location": "Norman, Oklahoma",
+      "responsibilities": [
+        "Generated social media content for various clients.",
+        "Managed social media content calendars and gathered digital analytics.",
+        "Updated client websites and assisted in website creation."
+      ]
+    },
+    {
+      "company": "Ackerman McQueen",
+      "role": "Account Service Intern",
+      "duration": "August 2016 - December 2016 (5 months)",
+      "location": "Oklahoma City, Oklahoma Area",
+      "responsibilities": [
+        "Assisted in strategic planning for the Adventure Road initiative.",
+        "Coordinated photo and video shoots and managed talent releases.",
+        "Prepared presentation materials for agency and client meetings."
+      ]
+    },
+    {
+      "company": "OMS Technologies",
+      "role": "Marketing Strategist",
+      "duration": "May 2016 - August 2016 (4 months)",
+      "location": "Norman, Oklahoma",
+      "responsibilities": [
+        "Maintained social media for 25+ accounts.",
+        "Created marketing strategy plans including brand analysis and media objectives.",
+        "Produced email newsletters and marketing imagery."
+      ]
+    },
+    {
+      "company": "Wayne Works",
+      "role": "Marketing Intern",
+      "duration": "May 2015 - August 2015 (4 months)",
+      "location": "Dallas, Texas",
+      "responsibilities": [
+        "Enhanced social media presence across multiple platforms.",
+        "Created and updated the company website using WordPress.",
+        "Designed product showcases and managed online product listings."
+      ]
+    }
+  ],
+  "bio": "Ambitious, adaptable marketing professional with over 6 years of experience helping brands tell their story in a meaningful way. I have a proven track record of leading talented teams to deliver successful marketing campaigns that resonate across audiences and generate impactful results. With a passion for the sweet spot where creativity and data-driven strategy meet, I get just as excited about the bigger picture as I do about the day-to-day details. I thrive in collaborative environments, working with multiple disciplines to reach a united goal and deliver exceptional work."
+}

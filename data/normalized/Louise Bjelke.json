@@ -1,0 +1,51 @@
+{
+  "name": "Louise Bjelke",
+  "age": 36,
+  "location": "New York, New York, United States",
+  "gender": "Female",
+  "company": "Maria Nila",
+  "companyType": "Fashion",
+  "companySize": "Medium",
+  "industry": "Fashion",
+  "occupation": "Marketing Manager",
+  "interests": [],
+  "skills": [
+    "Marketing",
+    "Social Media",
+    "Management"
+  ],
+  "education": [
+    "Massachusetts Institute of Technology - Sloan School of Management, Executive Education in International Fashion and Luxury Management (2017 - 2018)",
+    "Stockholms universitet, Bachelor's degree in Marketing Communications and IT (2014 - 2017)"
+  ],
+  "experience": [
+    {
+      "company": "Maria Nila Stockholm",
+      "position": "Marketing Manager North America",
+      "location": "New York, New York, United States",
+      "startDate": "October 2021",
+      "endDate": "Present",
+      "duration": "3 years 5 months",
+      "description": "Responsible for creating campaigns, arranging events, managing social media, writing articles, photographing, managing websites and social platforms, recruitment marketing, and rebranding."
+    },
+    {
+      "company": "Maria Nila Stockholm",
+      "position": "Marketing Coordinator Nordics",
+      "location": "New York, New York, United States",
+      "startDate": "November 2018",
+      "endDate": "October 2021",
+      "duration": "3 years",
+      "description": "Coordinated marketing activities across the Nordics, including campaign creation, event management, and social media oversight."
+    },
+    {
+      "company": "Accenture",
+      "position": "Marketing Analyst",
+      "location": "Stockholm, Sweden",
+      "startDate": "October 2016",
+      "endDate": "November 2018",
+      "duration": "2 years 2 months",
+      "description": "Analyzed marketing data, supported campaign development, and contributed to various marketing projects."
+    }
+  ],
+  "bio": "Experienced Marketing Manager with over six years in the fashion industry, specializing in campaign creation, event management, and digital marketing strategies. Proven track record in managing social media platforms, executing rebranding initiatives, and driving recruitment marketing efforts."
+}

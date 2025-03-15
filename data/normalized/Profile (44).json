@@ -1,0 +1,106 @@
+{
+  "name": "Ali Parker",
+  "age": 44,
+  "location": "Atlanta, Georgia, United States",
+  "gender": "",
+  "company": "The Broad Collective",
+  "companyType": "Experiential & Brand Marketing, Strategy and Production",
+  "companySize": "1-10",
+  "industry": "Experiential Marketing, Brand Marketing",
+  "occupation": "Co-Founder and Co-Owner",
+  "interests": [
+    "Event Management",
+    "Marketing",
+    "Brand Strategy",
+    "Business Development",
+    "Sports Marketing"
+  ],
+  "skills": [
+    "Event Management",
+    "Event Planning",
+    "Sports Marketing",
+    "Strategic Marketing",
+    "Business Development",
+    "Brand Strategy",
+    "Creative Direction",
+    "Team Management"
+  ],
+  "education": [
+    "Michigan State University - Bachelor of Arts in Marketing (2005 - 2009)"
+  ],
+  "experience": [
+    {
+      "title": "Co-founder / Co-owner",
+      "company": "The Broad Collective",
+      "location": "Austin, Texas Area",
+      "startDate": "January 2018",
+      "endDate": "Present",
+      "duration": "7 years 2 months",
+      "description": "Built an agency from the ground up by optimizing existing relationships, creating new partnerships, and leveraging 10+ years of industry knowledge to grow revenue over 60% year over year (pre COVID-19)."
+    },
+    {
+      "title": "Experiential and Creative Producer",
+      "company": "Freelance",
+      "location": "Greater Chicago Area",
+      "startDate": "April 2017",
+      "endDate": "December 2017",
+      "duration": "9 months",
+      "description": "Conceptualized and produced experiential marketing campaigns to increase brand awareness among key demographics. Led a team of creative freelancers and managed multiple projects simultaneously, resulting in repeated recruitment by the same clients."
+    },
+    {
+      "title": "Director of Production",
+      "company": "BeCore",
+      "location": "Greater Los Angeles Area",
+      "startDate": "January 2016",
+      "endDate": "March 2017",
+      "duration": "1 year 3 months",
+      "description": "Managed 12 key accounts and a team of 10+ at an experiential marketing agency. Influenced company strategy, improved employee retention by advocating for updated benefits, orchestrated cross-functional collaboration, and represented the executive team at events to oversee production and seek new business opportunities."
+    },
+    {
+      "title": "Account Director",
+      "company": "BeCore",
+      "location": "",
+      "startDate": "October 2014",
+      "endDate": "December 2015",
+      "duration": "1 year 3 months",
+      "description": "Oversaw accounts and directed internal production and creative teams to align with brand teams for Mark Anthony Brands and Teva. Grew account revenues by building client relationships, identifying new opportunities, and exceeding project KPIs, resulting in increased budgets and profit margins."
+    },
+    {
+      "title": "Senior Producer",
+      "company": "BeCore",
+      "location": "Greater Los Angeles Area",
+      "startDate": "January 2013",
+      "endDate": "September 2014",
+      "duration": "1 year 9 months",
+      "description": "Strategized and executed over 30 events for major brands including Red Bull, Nike, and NASCAR. Trained a team of assistant producers and project coordinators, consistently met client expectations, and achieved project-specific KPIs, leading to repeat projects and client retention."
+    },
+    {
+      "title": "Event Director || Warrior Dash",
+      "company": "Red Frog Events",
+      "location": "",
+      "startDate": "May 2010",
+      "endDate": "October 2012",
+      "duration": "2 years 6 months",
+      "description": "Planned and executed over 25 domestic and international events in the entertainment industry. Developed event strategies, built vendor relationships resulting in significant savings, and led a team to manage P&L and analytics for flagship events."
+    },
+    {
+      "title": "Production Manager || Firefly Music Festival",
+      "company": "Firefly Music Festival",
+      "location": "Chicago, IL",
+      "startDate": "January 2010",
+      "endDate": "May 2010",
+      "duration": "5 months",
+      "description": "Created on-site logistics and operations plans for a three-day festival with 30K daily attendance. Led the BOH production team, researched and vetted key vendors, and was a core member of the initial planning team responsible for site visits, permitting, and operations."
+    },
+    {
+      "title": "Manager/Visual Merchandiser",
+      "company": "Mad Eagle: A Unique Boutique",
+      "location": "",
+      "startDate": "November 2005",
+      "endDate": "December 2009",
+      "duration": "4 years 2 months",
+      "description": "Assisted in discovering new product lines, designed window and in-store displays, hosted private events, styled outfits for shoots and clients, acted as a personal shopper, and created advertisements to promote sales and promotions."
+    }
+  ],
+  "bio": "Strategic marketing and business development leader with 10+ years of experience and a demonstrated history of internal strategy, experiential marketing, brand strategy, creative direction, and team management. Out-of-the-box thinker with a talent for connecting people, teams, and brands to bring ideas to life."
+}

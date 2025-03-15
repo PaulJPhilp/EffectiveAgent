@@ -1,0 +1,122 @@
+{
+  "name": "Aliya Tarmo",
+  "age": null,
+  "location": "Greater Vancouver Metropolitan Area",
+  "gender": null,
+  "company": "123w (One Twenty Three West)",
+  "companyType": "",
+  "companySize": "",
+  "industry": "Media and Entertainment",
+  "occupation": "Senior Producer",
+  "interests": [
+    "Wired Woman",
+    "Film & TV Tech Professionals",
+    "Idea Citizen",
+    "AI",
+    "Marketing",
+    "Social Media",
+    "Startups",
+    "Blockchain",
+    "Human Resources",
+    "Metaverse",
+    "Diversity and Inclusion Leadership",
+    "Media & Entertainment",
+    "Hotel Industry",
+    "Business",
+    "Vancouver Film School Alumni"
+  ],
+  "skills": [
+    "Networking",
+    "Producing",
+    "Casting"
+  ],
+  "education": [
+    "Vancouver Film School – Business Diploma, Entertainment Business Management (2010 - 2012)",
+    "Vancouver Community College – Business Diploma, Tourism and Hospitality (2008 - 2010)"
+  ],
+  "experience": [
+    {
+      "company": "123w (One Twenty Three West)",
+      "position": "Senior Producer",
+      "startDate": "December 2021",
+      "endDate": "Present",
+      "location": "Vancouver, British Columbia, Canada",
+      "clients": [
+        "Destination BC",
+        "BC Children's Hospital",
+        "Plenty of Fish",
+        "Sleeman Breweries",
+        "Kal Tire",
+        "Hello Fresh",
+        "Rocky Mountaineer",
+        "Indigenous Tourism BC",
+        "Vancouver Fraser Port Authority"
+      ]
+    },
+    {
+      "company": "Guerilla Creative",
+      "position": "Senior Producer",
+      "startDate": "April 2019",
+      "endDate": "August 2021",
+      "location": "Melbourne, Australia",
+      "clients": [
+        "Monash University",
+        "Amazon",
+        "Vic Roads",
+        "Westpac",
+        "Allianz",
+        "CSL",
+        "St Vincent De Paul"
+      ]
+    },
+    {
+      "company": "Rotor Studios",
+      "position": "Key Account Manager",
+      "startDate": "May 2018",
+      "endDate": "April 2019",
+      "location": "Melbourne, Australia",
+      "keyAccount": "Toyota Motor Corporation Australia"
+    },
+    {
+      "company": "PurpleMonky",
+      "position": "Producer",
+      "startDate": "December 2015",
+      "endDate": "May 2018",
+      "location": "Melbourne, Australia",
+      "clients": [
+        "Toyota",
+        "Square",
+        "VicHealth",
+        "V/Line",
+        "CBus",
+        "Cancer Council",
+        "Sukin",
+        "LazyBoy Furniture",
+        "Heart Foundation"
+      ]
+    },
+    {
+      "company": "Trisko Talent Management",
+      "position": "Talent Agent",
+      "startDate": "January 2012",
+      "endDate": "December 2014",
+      "location": "Vancouver, Canada Area"
+    },
+    {
+      "company": "VANOC",
+      "position": "Communications Coordinator",
+      "startDate": "December 2009",
+      "endDate": "March 2010",
+      "location": "",
+      "contract": true
+    },
+    {
+      "company": "Marriott Hotel",
+      "position": "Guest Services/Concierge",
+      "startDate": "February 2008",
+      "endDate": "July 2009",
+      "location": ""
+    }
+  ],
+  "bio": "Senior Producer with an international footprint across Australia and North America. 10+ years of industry experience in captaining Live Action, CG, and Augmented Reality projects across various platforms and formats.\n\nBroad experience working hand in hand with clients within health, government, automotive, not-for-profit, and tech sectors. Distilling complex problems and briefs into compelling campaigns.\n\nExperience in leading multidisciplinary teams, nurturing the growth of both individuals and companies."
+}

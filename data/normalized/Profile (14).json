@@ -1,0 +1,159 @@
+{
+  "name": "Rose Milgrom Kohn",
+  "age": null,
+  "location": "New York, New York, United States",
+  "gender": null,
+  "company": "RapportWW",
+  "companyType": null,
+  "companySize": null,
+  "industry": "Advertising/Marketing",
+  "occupation": "Head of IMPACT X, US",
+  "interests": [],
+  "skills": [
+    "InDesign",
+    "Illustrator",
+    "Photoshop"
+  ],
+  "education": [
+    "Boston University, Bachelors of Communication, Advertising, Art History (2008 - 2011)",
+    "The Latin School of Chicago, High School Diploma (2004 - 2008)"
+  ],
+  "experience": [
+    {
+      "company": "RapportWW",
+      "position": "Head of IMPACT X, US",
+      "startDate": "April 2024",
+      "endDate": "Present",
+      "duration": "11 months",
+      "location": "New York, United States",
+      "description": ""
+    },
+    {
+      "company": "RapportWW",
+      "position": "Director, IMPACT X",
+      "startDate": "October 2021",
+      "endDate": "April 2024",
+      "duration": "2 years 7 months",
+      "location": "New York, New York, United States",
+      "description": ""
+    },
+    {
+      "company": "RapportWW",
+      "position": "Associate Director, Creative Services",
+      "startDate": "October 2019",
+      "endDate": "October 2021",
+      "duration": "2 years 1 month",
+      "location": "Greater New York City Area",
+      "description": ""
+    },
+    {
+      "company": "RapportWW",
+      "position": "Production Studio Manager",
+      "startDate": "July 2017",
+      "endDate": "October 2019",
+      "duration": "2 years 4 months",
+      "location": "Greater New York City Area",
+      "description": ""
+    },
+    {
+      "company": "RapportWW",
+      "position": "Studio Production Designer",
+      "startDate": "December 2014",
+      "endDate": "June 2017",
+      "duration": "2 years 7 months",
+      "location": "Greater New York City Area",
+      "description": ""
+    },
+    {
+      "company": "BBDO",
+      "position": "Production Artist",
+      "startDate": "September 2013",
+      "endDate": "December 2014",
+      "duration": "1 year 4 months",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "ISM",
+      "position": "Studio Artist/Junior Art Director",
+      "startDate": "February 2012",
+      "endDate": "July 2013",
+      "duration": "1 year 6 months",
+      "location": "",
+      "description": "Handled internal creative design requests including building mechanical print files, re-sizing creative and designing web banners and e-mails, as well as creative concepting and execution for clients such as Emirates Airline, American Express Travel and Four Seasons."
+    },
+    {
+      "company": "Freelance Designer",
+      "position": "Creative Intern",
+      "startDate": "September 2011",
+      "endDate": "December 2011",
+      "duration": "4 months",
+      "location": "",
+      "description": "Assisted the Creative team with various print, interactive and studio design work."
+    },
+    {
+      "company": "Boston University AdLab",
+      "position": "Interactive VP",
+      "startDate": "May 2011",
+      "endDate": "December 2011",
+      "duration": "8 months",
+      "location": "Boston, MA",
+      "description": "Monitored and assisted with the work of the interactive designers and their AdLab teams."
+    },
+    {
+      "company": "BU Central @ Boston University",
+      "position": "General Manager",
+      "startDate": "April 2010",
+      "endDate": "December 2011",
+      "duration": "1 year 9 months",
+      "location": "Boston, MA",
+      "description": "Managed the planning, coordination and marketing of over 40 weekend events each semester at Boston University’s on-campus, late-night entertainment venue."
+    },
+    {
+      "company": "Boston University Electrical & Computer Engineering Office",
+      "position": "Office Assistant",
+      "startDate": "January 2010",
+      "endDate": "December 2011",
+      "duration": "2 years",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "Phoenix Media/Communications Group",
+      "position": "Advertising Design Intern",
+      "startDate": "May 2011",
+      "endDate": "August 2011",
+      "duration": "4 months",
+      "location": "Boston, MA",
+      "description": "Designed advertisements for the Boston, Portland and Providence Phoenix publications as well as STUFF Magazine."
+    },
+    {
+      "company": "Gilt City",
+      "position": "Intern",
+      "startDate": "March 2011",
+      "endDate": "June 2011",
+      "duration": "4 months",
+      "location": "Boston, MA",
+      "description": "Prospected local restaurants, spas and events to be featured on giltcity.com, contributed to Gilt City social media outlets and assisted with local event coordination and execution."
+    },
+    {
+      "company": "Motozuma",
+      "position": "Marketing Intern",
+      "startDate": "November 2009",
+      "endDate": "January 2010",
+      "duration": "3 months",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "Central Driving Academy",
+      "position": "Administrative Assistant",
+      "startDate": "June 2007",
+      "endDate": "August 2009",
+      "duration": "2 years 3 months",
+      "location": "",
+      "description": ""
+    }
+  ],
+  "bio": "Specialties: Illustrator, InDesign, Photoshop, Apple Software, Mechanical Print Files, Presentation Design, Graphic Design, Logo Design, Branding & Identity, Out of Home Campaigns"
+}

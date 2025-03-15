@@ -1,0 +1,165 @@
+{
+  "name": "Sarah Joseph",
+  "age": 33,
+  "location": "New York, New York, United States",
+  "gender": "Female",
+  "company": "Giant Spoon",
+  "companyType": "Unknown",
+  "companySize": "Unknown",
+  "industry": "Production/Entertainment",
+  "occupation": "Experiential Production Coordinator",
+  "interests": [
+    "Theater",
+    "Events",
+    "Special Effects Makeup",
+    "Creative Problem Solving",
+    "Stage Management",
+    "Management"
+  ],
+  "skills": [
+    "Management",
+    "Stage Management",
+    "Creative Problem Solving",
+    "Sculpting",
+    "Mold Making",
+    "Application",
+    "Blood Gags",
+    "Cuts/Wound Creation",
+    "Painting",
+    "Drag Makeup",
+    "Beauty"
+  ],
+  "education": [
+    "Purchase College, SUNY - Bachelor of Fine Arts (BFA), Design Technology - Stage Management",
+    "Cheshire High School"
+  ],
+  "experience": [
+    {
+      "company": "Giant Spoon",
+      "position": "Production Coordinator",
+      "startDate": "January 2023",
+      "endDate": "Present",
+      "duration": "2 years 2 months",
+      "location": "New York City Metropolitan Area",
+      "description": ""
+    },
+    {
+      "company": "Freelance",
+      "position": "Special Effects Makeup Artist",
+      "startDate": "January 2017",
+      "endDate": "Present",
+      "duration": "8 years 2 months",
+      "location": "",
+      "description": "SFX makeup is my side passion and creativity outlet :). Skills include sculpting, mold making, application, blood gags, cuts/wound creation, painting, drag makeup, and beauty. I have also led a deep dive into SFX makeup at my full-time position."
+    },
+    {
+      "company": "Health & Education Services, Inc.",
+      "position": "Covid Compliance Officer Certified",
+      "startDate": "December 2020",
+      "endDate": "December 2023",
+      "duration": "3 years 1 month",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "Lincoln Center for the Performing Arts",
+      "position": "Production Coordinator",
+      "startDate": "May 2022",
+      "endDate": "January 2023",
+      "duration": "9 months",
+      "location": "New York City Metropolitan Area",
+      "description": ""
+    },
+    {
+      "company": "Freelance",
+      "position": "Production Assistant",
+      "startDate": "April 2019",
+      "endDate": "January 2023",
+      "duration": "3 years 10 months",
+      "location": "New York City Metropolitan Area",
+      "description": ""
+    },
+    {
+      "company": "Universal Network Television, LLC - LAW & ORDER",
+      "position": "Covid Production Assistant",
+      "startDate": "January 2022",
+      "endDate": "May 2022",
+      "duration": "5 months",
+      "location": "New York City Metropolitan Area",
+      "description": ""
+    },
+    {
+      "company": "production glue",
+      "position": "Production Coordinator",
+      "startDate": "September 2021",
+      "endDate": "November 2021",
+      "duration": "3 months",
+      "location": "New York City Metropolitan Area",
+      "description": ""
+    },
+    {
+      "company": "The Misanthrope",
+      "position": "Production Stage Manager",
+      "startDate": "October 2020",
+      "endDate": "April 2021",
+      "duration": "7 months",
+      "location": "SUNY Purchase",
+      "description": "Worked as the Production Stage Manager with 2 Assistant Stage Managers during the COVID pandemic. Rehearsed half over Zoom and half in person. Prepared for in-person performances with limited audience and the ability to switch to remote if necessary."
+    },
+    {
+      "company": "Black Words Matter",
+      "position": "Production Stage Manager, Zoom Manager, and Editor",
+      "startDate": "September 2020",
+      "endDate": "October 2020",
+      "duration": "2 months",
+      "location": "",
+      "description": "Managed scheduling and information flow for a two-part online poetry event. Coordinated Zoom calls and recordings, assisted others with the platform, edited shows on iMovie, and streamed on YouTube."
+    },
+    {
+      "company": "What To Send Up When It Goes Down",
+      "position": "Production Stage Manager",
+      "startDate": "November 2019",
+      "endDate": "March 2020",
+      "duration": "5 months",
+      "location": "SUNY Purchase",
+      "description": "Managed production during the onset of the COVID pandemic. Maintained calm and adaptability amidst constant changes. Transitioned the show to an online stream."
+    },
+    {
+      "company": "Purchase College Performing Arts Center",
+      "position": "Box Office Assistant",
+      "startDate": "September 2019",
+      "endDate": "March 2020",
+      "duration": "7 months",
+      "location": "",
+      "description": ""
+    },
+    {
+      "company": "Mandy Patinkins Diaries",
+      "position": "Production Assistant",
+      "startDate": "December 2019",
+      "endDate": "December 2019",
+      "duration": "1 month",
+      "location": "Terrytown Music Hall",
+      "description": "Assisted as a Production Assistant for the touring Mandy Patinkins Diaries during its Terrytown location. Held a talent-facing position."
+    },
+    {
+      "company": "Blood Wedding",
+      "position": "Stage Manager",
+      "startDate": "September 2019",
+      "endDate": "November 2019",
+      "duration": "3 months",
+      "location": "SUNY Purchase",
+      "description": "Served as Stage Manager and first assistant to the Production Stage Manager. Led a team of 8 run crew to move six rolling 10ft walls. Organized all props for the show, which included fog, 8 LED movable poles, a removable ground cloth, and rose petals falling from the grid."
+    },
+    {
+      "company": "American Theatre Wing",
+      "position": "Production Assistant",
+      "startDate": "September 2018",
+      "endDate": "September 2018",
+      "duration": "1 month",
+      "location": "",
+      "description": "Assisted as a Production Assistant for the 50th Anniversary ATW Gala with Andrew Lloyd Webber. Helped organize and distribute meals to workers and ran various errands."
+    }
+  ],
+  "bio": "Hello! I am a Production Coordinator based in New York City with a background in theater and a passion for events. I am always actively looking for new ways to continue growing. Personally, I manage through creativity, adaptability, and respect. Please feel free to contact me and form a personal connection."
+}

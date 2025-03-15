@@ -15,10 +15,11 @@
     "Media Relations",
     "Storytelling",
     "Content Strategy",
-    "Technology Integration",
-    "Board of Directors/Non-Profit Management",
+    "Technology integration",
     "Donor Stewardship",
-    "Publications"
+    "Publications",
+    "Technology Integration",
+    "Board of Directors/Non-Profit Management"
   ],
   "contact": {
     "linkedin": "https://www.linkedin.com/in/annessamorley",
@@ -33,6 +34,14 @@
       "expiry_date": null,
       "credential_id": null,
       "status": "Active"
+    },
+    {
+      "name": "2023 Best of District V Awards",
+      "issuer": "Unknown Issuer",
+      "date_earned": null,
+      "expiry_date": null,
+      "credential_id": null,
+      "status": "Active"
     }
   ],
   "experience": [
@@ -40,7 +49,7 @@
       "company": "Community Choice Credit Union",
       "title": "AVP Marketing Engagement & Communications",
       "duration": {
-        "start_date": "2024-07-01",
+        "start_date": "July 2024",
         "end_date": "Present",
         "date_range": "8 months"
       },
@@ -52,15 +61,46 @@
       "company": "Stryker",
       "title": "Corporate Communications Consultant",
       "duration": {
-        "start_date": "2024-01-01",
-        "end_date": "2025-01-31",
+        "start_date": "January 2024",
+        "end_date": "January 2025",
         "date_range": "1 year 1 month"
       },
       "location": null,
       "description": [
-        "Focused on strategic communications for global audiences, including employees, sales force, and vendors.",
-        "Managed global employee communications, newsletters, product releases, and announcements.",
-        "Advised on special projects such as a new global security command center and employee notification program."
+        "Focus on strategic communications for global audience including employees, sales force and vendors.",
+        "Assist with global employee communications including weekly enewsletter, product releases and announcements.",
+        "Responsible for editorial planning, scheduling and writing.",
+        "Advise and strategize with global security team on special projects including pilot, launch and comms plan for new global security command center and employee notification program."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Wayne State University",
+      "title": "Executive Director WSU Alumni Association; Sr. Director of Alumni Relations",
+      "duration": {
+        "start_date": "April 2014",
+        "end_date": "January 2024",
+        "date_range": "9 years 10 months"
+      },
+      "location": "Detroit",
+      "description": [
+        "Built and led a multi-disciplinary team in the strategic planning, creation, delivery, and maintenance of a comprehensive suite of alumni programs, communications, services, and volunteer opportunities.",
+        "Served as Executive Director and Treasurer of the WSU Alumni Association, managing all budgetary operations of separate 501(c)(3) association and governance of volunteer Board of Directors."
+      ],
+      "company_url": null
+    },
+    {
+      "company": "Wayne State University",
+      "title": "Magazine Publisher/Executive Editor",
+      "duration": {
+        "start_date": "April 2014",
+        "end_date": "January 2024",
+        "date_range": "9 years 10 months"
+      },
+      "location": null,
+      "description": [
+        "Leveraged expertise in storytelling, content strategy, and publications as the Publisher and Executive Editor of Wayne State Magazine.",
+        "The magazine won multiple CASE Gold Awards at the regional and international levels."
       ],
       "company_url": null
     },
@@ -68,8 +108,8 @@
       "company": "Wayne State University",
       "title": "Executive Director, WSU Alumni Association & Sr. Director of Alumni Relations",
       "duration": {
-        "start_date": "2014-04-01",
-        "end_date": "2024-01-31",
+        "start_date": "April 2014",
+        "end_date": "January 2024",
         "date_range": "9 years 9 months"
       },
       "location": null,
@@ -80,30 +120,17 @@
       "company_url": null
     },
     {
-      "company": "Wayne State University",
-      "title": "Magazine Publisher/Executive Editor",
-      "duration": {
-        "start_date": "2014-04-01",
-        "end_date": "2024-01-31",
-        "date_range": "9 years 9 months"
-      },
-      "location": null,
-      "description": [
-        "Oversaw Wayne State Magazine, winning multiple CASE Gold Awards for excellence in alumni publications."
-      ],
-      "company_url": null
-    },
-    {
       "company": "Washtenaw Community College",
       "title": "Executive Director of Marketing and Public Relations",
       "duration": {
-        "start_date": "2012-06-01",
-        "end_date": "2014-04-30",
-        "date_range": "1 year 10 months"
+        "start_date": "June 2012",
+        "end_date": "April 2014",
+        "date_range": "1 year 11 months"
       },
-      "location": null,
+      "location": "Ann Arbor, MI",
       "description": [
-        "Led recruitment, enrollment management, brand visibility, and advertising campaigns, including digital, radio, and outdoor media."
+        "Led all marketing and public relations strategies including recruitment, enrollment and retention management.",
+        "Chief strategist for all internal and external communications."
       ],
       "company_url": null
     },
@@ -111,13 +138,14 @@
       "company": "Detroit Medical Center",
       "title": "Director of Marketing",
       "duration": {
-        "start_date": "2002-12-01",
-        "end_date": "2012-06-30",
-        "date_range": "9 years 6 months"
+        "start_date": "December 2002",
+        "end_date": "June 2012",
+        "date_range": "9 years 7 months"
       },
       "location": null,
       "description": [
-        "Managed corporate healthcare marketing, brand strategy, physician group promotions, and corporate image campaigns."
+        "Developed detailed strategic plans to boost market share for individual service lines, hospitals, physician group.",
+        "Advanced corporate image/brand management."
       ],
       "company_url": null
     }

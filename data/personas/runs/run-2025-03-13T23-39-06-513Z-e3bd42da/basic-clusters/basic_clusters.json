@@ -1,0 +1,221 @@
+{
+  "clusters": [
+    {
+      "title": "Marketing and Communications Leaders",
+      "description": {
+        "summary": "This cluster comprises senior-level professionals overseeing comprehensive marketing and communications strategies within their organizations. They possess expertise in brand management, strategic planning, media relations, and leading cross-functional teams to drive business growth and enhance brand presence.",
+        "commonCharacteristics": [
+          "Senior-level roles (VP, Director, Managing Director)",
+          "Leadership and team management",
+          "Strategic planning and execution"
+        ],
+        "skills": [
+          "Strategic Communications",
+          "Corporate Communications",
+          "Content Strategy",
+          "Marketing Strategy",
+          "Brand Management",
+          "Media Relations"
+        ],
+        "typicalBackground": "Professionals in this cluster typically have extensive experience in marketing and communications, often progressing from managerial roles to executive positions. They have a strong track record of developing and implementing effective marketing campaigns, managing large teams, and fostering relationships with key stakeholders and media partners."
+      },
+      "representativeProfiles": [
+        {
+          "id": "1",
+          "relevanceScore": 0.98,
+          "matchReasons": [
+            "Director of Public Relations with strategic communications expertise",
+            "Oversees internal and investor relations, indicating high-level responsibilities"
+          ]
+        },
+        {
+          "id": "5",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Director of Project Management with PMP certification",
+            "Handles large-scale project oversight and strategic planning"
+          ]
+        },
+        {
+          "id": "13",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Senior Account Supervisor managing multiple client accounts",
+            "Expertise in brand development and digital strategy"
+          ]
+        },
+        {
+          "id": "22",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Vice President of Marketing with extensive experience in strategic planning",
+            "Managed multi-million-dollar marketing budgets and large teams"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative Directors and Art Directors",
+      "description": {
+        "summary": "Creative leaders who drive the artistic vision and creative strategy of their organizations. They specialize in branding, design, content creation, and ensuring that all creative outputs align with the brand’s identity and goals. These professionals lead creative teams and collaborate closely with marketing and product departments.",
+        "commonCharacteristics": [
+          "Roles focused on creative leadership and direction",
+          "Expertise in design and branding",
+          "Collaboration with cross-functional teams"
+        ],
+        "skills": [
+          "Creative Branding",
+          "Art Direction",
+          "Graphic Design",
+          "Content Strategy",
+          "Branding and Identity",
+          "Design Software (InDesign, Illustrator, Photoshop)"
+        ],
+        "typicalBackground": "Individuals in this cluster often have a background in graphic design, fine arts, or related fields. They progress through creative roles, building a portfolio of successful branding and design projects, before moving into senior creative leadership positions where they oversee the creative output of their teams."
+      },
+      "representativeProfiles": [
+        {
+          "id": "12",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Senior Program Manager with a focus on program development and creative strategy",
+            "Experience in managing comprehensive creative campaigns"
+          ]
+        },
+        {
+          "id": "29",
+          "relevanceScore": 0.99,
+          "matchReasons": [
+            "Group Creative Director with extensive experience in creative branding and art direction",
+            "Led creative teams at multiple agencies, overseeing branding and design projects"
+          ]
+        },
+        {
+          "id": "25",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Senior Creative Director with a strong focus on content strategy and storytelling",
+            "Managed creative projects for major brands, ensuring alignment with brand identity"
+          ]
+        },
+        {
+          "id": "30",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Vice President of Marketing with significant experience in creative direction",
+            "Led creative initiatives and managed branding efforts for diverse clients"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Producers and Managers",
+      "description": {
+        "summary": "Professionals specializing in the planning, coordination, and execution of events and productions across various industries, including entertainment, sports, corporate, and non-profit sectors. They manage all aspects of event logistics, vendor relations, and ensure that events meet their intended objectives and deliver memorable experiences.",
+        "commonCharacteristics": [
+          "Focus on event planning and production",
+          "Strong organizational and logistical skills",
+          "Experience across multiple event types and industries"
+        ],
+        "skills": [
+          "Event Management",
+          "Production Planning",
+          "Vendor Coordination",
+          "Logistics Management",
+          "Client Relations",
+          "Budget Management"
+        ],
+        "typicalBackground": "Individuals in this cluster often have backgrounds in event management, hospitality, or production. They gain experience by coordinating smaller events before taking on larger, more complex projects. Their career trajectory typically involves roles of increasing responsibility, leading to senior production or event management positions."
+      },
+      "representativeProfiles": [
+        {
+          "id": "6",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Senior Brand Marketing Manager with extensive experience in event coordination",
+            "Oversees large-scale brand events and partnerships"
+          ]
+        },
+        {
+          "id": "17",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Head of Experiential and Production role with a focus on immersive experiences",
+            "Manages creative and production teams to deliver high-impact events"
+          ]
+        },
+        {
+          "id": "19",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Head of Impact X, overseeing experiential campaigns",
+            "Specializes in creating meaningful engagement through events"
+          ]
+        },
+        {
+          "id": "24",
+          "relevanceScore": 0.98,
+          "matchReasons": [
+            "Producer with a strong background in event production and coordination",
+            "Handles large-scale projects for diverse clients"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Marketing Analysts and Project Managers",
+      "description": {
+        "summary": "Mid to senior-level professionals focused on the analysis of marketing data, project coordination, and the management of marketing initiatives. They ensure that marketing campaigns are executed efficiently, meet strategic objectives, and are optimized based on performance metrics. These individuals bridge the gap between strategy and execution through meticulous planning and data-driven decision-making.",
+        "commonCharacteristics": [
+          "Roles centered on data analysis and project coordination",
+          "Strong organizational and multitasking abilities",
+          "Proficiency in marketing software and analytics tools"
+        ],
+        "skills": [
+          "Marketing Analytics",
+          "Project Management",
+          "Data Analysis",
+          "Strategic Planning",
+          "Budget Management",
+          "Microsoft Office"
+        ],
+        "typicalBackground": "Professionals in this cluster typically hold degrees in marketing, business administration, or related fields. They advance through roles that require strong analytical skills and the ability to manage multiple projects simultaneously. Their career paths often lead to positions where they oversee complex marketing projects and utilize data to drive strategic decisions."
+      },
+      "representativeProfiles": [
+        {
+          "id": "10",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Senior Project Manager with PMP certification",
+            "Focus on process improvement and project coordination within marketing"
+          ]
+        },
+        {
+          "id": "15",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Vice President, Digital and Creative with a focus on operations and strategy",
+            "Balances creative and analytical aspects of marketing projects"
+          ]
+        },
+        {
+          "id": "27",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "VP of Marketing with experience in strategic planning and communications",
+            "Handles multi-disciplinary marketing programs and strategic initiatives"
+          ]
+        },
+        {
+          "id": "28",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Head of Marketing Engagement and Communications with a focus on strategic marketing",
+            "Manages comprehensive marketing and communications strategies"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2023-10-23"
+}

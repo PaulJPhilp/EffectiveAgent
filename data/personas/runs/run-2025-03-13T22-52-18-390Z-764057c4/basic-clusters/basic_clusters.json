@@ -1,0 +1,253 @@
+{
+  "clusters": [
+    {
+      "title": "Senior Marketing Leaders",
+      "description": {
+        "summary": "This cluster comprises high-level marketing professionals who oversee strategic planning, brand management, and integrated marketing campaigns. They possess extensive experience in leading cross-functional teams, developing marketing strategies, and managing large-scale marketing budgets to drive business growth and brand recognition.",
+        "commonCharacteristics": [
+          "Leadership and team management",
+          "Strategic planning and execution",
+          "Extensive experience in marketing and communications"
+        ],
+        "skills": [
+          "Strategic Communications",
+          "Corporate Communications",
+          "Content Strategy",
+          "Marketing Strategy",
+          "Brand Management",
+          "Integrated Marketing"
+        ],
+        "typicalBackground": "Professionals in this cluster typically hold senior roles such as Director, Vice President, or Head of Marketing within large organizations or specialized agencies. They have a proven track record of developing and executing successful marketing campaigns, managing significant budgets, and leading diverse teams to achieve organizational goals."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Sara Rush Wirth",
+          "relevanceScore": 0.98,
+          "matchReasons": [
+            "Director-level position overseeing Public Relations, Internal Communications, and Investor Relations.",
+            "Extensive skills in strategic and corporate communications, content strategy."
+          ]
+        },
+        {
+          "id": "Tara Scanlon",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Vice President role focusing on strategy and media planning.",
+            "Expertise in media strategy, advertising, and integrated marketing."
+          ]
+        },
+        {
+          "id": "Jennifer Wisinger",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Director of Project Management with active PMP certification.",
+            "Skills in Salesforce, strategy, and operations management."
+          ]
+        },
+        {
+          "id": "Holly Roberts",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Senior Account Supervisor overseeing brand development and digital strategy.",
+            "Expertise in integrated marketing and cross-functional team leadership."
+          ]
+        },
+        {
+          "id": "Jennifer Ervin",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "AVP role in Marketing Engagement and Communications.",
+            "Extensive skills in strategic planning, team leadership, and communications."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Event Production Specialists",
+      "description": {
+        "summary": "This cluster includes professionals dedicated to planning, coordinating, and executing events of various scales. They possess strong organizational skills, attention to detail, and the ability to manage multiple aspects of event production, from logistics and vendor management to on-site coordination and post-event analysis.",
+        "commonCharacteristics": [
+          "Strong organizational and multitasking abilities",
+          "Expertise in event logistics and vendor management",
+          "Ability to manage on-site event operations"
+        ],
+        "skills": [
+          "Event Management",
+          "Production Planning",
+          "Stage Management",
+          "Logistics Coordination",
+          "Vendor Relations",
+          "Crisis Management"
+        ],
+        "typicalBackground": "Individuals in this cluster often hold titles such as Producer, Stage Manager, Production Coordinator, or Event Manager. They have hands-on experience in managing the full lifecycle of events, including pre-production planning, execution, and post-event evaluation. Their backgrounds span various industries, including entertainment, sports, corporate events, and nonprofit organizations."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Joanne Hsu",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Senior Brand Marketing Manager overseeing brand strategy and event execution.",
+            "Experience in managing large-scale marketing and trade show events."
+          ]
+        },
+        {
+          "id": "Cristobal C.",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Experienced in producing and coordinating brand experiences and events.",
+            "Skills in dynamic event production and budget management."
+          ]
+        },
+        {
+          "id": "Amy Lee",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Director roles focused on event marketing and communications.",
+            "Experience in managing event logistics and team coordination."
+          ]
+        },
+        {
+          "id": "Jo Kang",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Group Creative Director with extensive experience in event production.",
+            "Skills in creative branding and event design."
+          ]
+        },
+        {
+          "id": "Jason Wozny",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Partner and Senior Producer specializing in event marketing and sponsorship.",
+            "Experience in managing high-profile events and large teams."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Creative Content Professionals",
+      "description": {
+        "summary": "This cluster is composed of creative individuals who specialize in content creation, design, and storytelling across various media platforms. They excel in developing engaging content strategies, managing creative projects, and producing high-quality visual and written materials that resonate with target audiences.",
+        "commonCharacteristics": [
+          "Strong creative and storytelling abilities",
+          "Expertise in content strategy and production",
+          "Proficiency in design and multimedia tools"
+        ],
+        "skills": [
+          "Creative Branding",
+          "Art Direction",
+          "Content Strategy",
+          "Copywriting",
+          "Graphic Design",
+          "Video Production"
+        ],
+        "typicalBackground": "Professionals in this cluster often hold roles such as Creative Director, Content Producer, Graphic Designer, or Art Director. They have backgrounds in design, multimedia production, communications, or related fields, and possess a portfolio demonstrating their ability to create compelling content for marketing campaigns, brand building, digital platforms, and various advertising mediums."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Christine Zaccaro",
+          "relevanceScore": 0.96,
+          "matchReasons": [
+            "Senior Producer with a focus on brand partnerships and experiential campaigns.",
+            "Skills in creative development and integrated marketing."
+          ]
+        },
+        {
+          "id": "Louise Bjelke",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Vice President of Marketing with expertise in creative branding and art direction.",
+            "Extensive experience in integrated marketing and content development."
+          ]
+        },
+        {
+          "id": "Lauren Rummel",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Brand Marketing Specialist with skills in content optimization and SEO.",
+            "Experience in e-commerce and digital marketing strategies."
+          ]
+        },
+        {
+          "id": "Aliya Tarmo",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Content Producer with expertise in creative ideation and multimedia content.",
+            "Skills in storytelling and visual content creation."
+          ]
+        },
+        {
+          "id": "Alex Criscuolo Bonilla",
+          "relevanceScore": 0.91,
+          "matchReasons": [
+            "Director of Production overseeing creative and experiential projects.",
+            "Strong background in content strategy and multimedia production."
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Account Management Experts",
+      "description": {
+        "summary": "This cluster consists of professionals who specialize in managing client relationships, overseeing account portfolios, and ensuring the successful delivery of services and products. They are adept at understanding client needs, coordinating with internal teams, and driving account growth through strategic initiatives and effective communication.",
+        "commonCharacteristics": [
+          "Strong client relationship management",
+          "Expertise in account growth and retention",
+          "Proficiency in coordinating cross-functional teams"
+        ],
+        "skills": [
+          "Client Relationship Management",
+          "Strategic Account Planning",
+          "Sales Operations",
+          "Project Coordination",
+          "Budget Management",
+          "Performance Metrics"
+        ],
+        "typicalBackground": "Individuals in this cluster typically hold positions such as Account Manager, Account Director, Senior Account Executive, or Managing Director in marketing agencies or corporate settings. They have experience in sales, client services, and strategic account management, with a focus on driving client satisfaction and business growth."
+      },
+      "representativeProfiles": [
+        {
+          "id": "Bianca Myers",
+          "relevanceScore": 0.97,
+          "matchReasons": [
+            "Managing Director with expertise in integrated and digital marketing.",
+            "Strong focus on client relationships and business development."
+          ]
+        },
+        {
+          "id": "Jen Wisinger",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Director of Project Management overseeing sales operations and strategy.",
+            "Skills in salesforce, strategy, and operational management."
+          ]
+        },
+        {
+          "id": "Caren Read",
+          "relevanceScore": 0.94,
+          "matchReasons": [
+            "Marketing Communications Manager with extensive experience in strategic communications.",
+            "Proven ability in managing marketing campaigns and sponsorships."
+          ]
+        },
+        {
+          "id": "Jason Wozny",
+          "relevanceScore": 0.93,
+          "matchReasons": [
+            "Partner and Senior Vice President with a focus on account management and business development.",
+            "Expertise in marketing engagement and strategic communications."
+          ]
+        },
+        {
+          "id": "Courtney Boyd",
+          "relevanceScore": 0.92,
+          "matchReasons": [
+            "Field Marketing Manager managing regional marketing initiatives and partnerships.",
+            "Experience in managing marketing needs for multiple locations."
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2023-11-24"
+}

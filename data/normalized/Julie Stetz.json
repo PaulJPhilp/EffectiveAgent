@@ -1,0 +1,70 @@
+{
+  "name": "Julie Stetz",
+  "age": null,
+  "location": "Vienna, Virginia, United States",
+  "gender": null,
+  "company": "Hero Cosmetics",
+  "companyType": "Cosmetics",
+  "companySize": "",
+  "industry": "Cosmetics",
+  "occupation": "Creative Operations Lead",
+  "interests": [],
+  "skills": [
+    "Team Leadership",
+    "Event Production",
+    "User Experience (UX)"
+  ],
+  "education": [
+    "Penn State University, Bachelor of Science - BS, Biobehavioral Health, Focus in Women's Studies"
+  ],
+  "experience": [
+    {
+      "company": "Hero Cosmetics",
+      "position": "Creative Operations Lead",
+      "duration": "June 2023 - Present (1 year 9 months)"
+    },
+    {
+      "company": "Meta",
+      "position": "Senior Manager PMO, Global Business Marketing",
+      "duration": "June 2022 - January 2023 (8 months)",
+      "location": "Portland, Oregon, United States"
+    },
+    {
+      "company": "Meta",
+      "position": "Senior Project Manager, Global Business Marketing",
+      "duration": "September 2020 - June 2022 (1 year 10 months)",
+      "location": "Portland, Oregon, United States"
+    },
+    {
+      "company": "CHANEL",
+      "position": "Senior Manager, Creative Operations and Project Management",
+      "duration": "December 2018 - September 2020 (1 year 10 months)",
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "CHANEL",
+      "position": "Manager, Creative Operations and Project Management",
+      "duration": "November 2017 - December 2018 (1 year 2 months)",
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "CHANEL",
+      "position": "Digital Project Manager",
+      "duration": "March 2016 - November 2017 (1 year 9 months)",
+      "location": "Greater New York City Area"
+    },
+    {
+      "company": "Junko Yoshioka Design",
+      "position": "Project Manager",
+      "duration": "April 2014 - March 2016 (2 years)",
+      "location": "Greater New York City Area"
+    },
+    {
+      "company": "Chanel",
+      "position": "Creative Assistant, Artistic Direction",
+      "duration": "July 2011 - January 2014 (2 years 7 months)",
+      "location": "New York, New York"
+    }
+  ],
+  "bio": "Highly motivated, hands-on leader in creative operations and project management with proven success in achieving strategic objectives through passion, commitment and expertise. Thrives in a collaborative environment; a strategic thinker, a creative problem solver and a team player."
+}

@@ -1,0 +1,7 @@
+{
+  "runId": "run-2025-03-13T22-20-48-118Z-25b9e34e",
+  "startTime": "2025-03-13T22:20:48.118Z",
+  "endTime": "2025-03-13T22:20:48.119Z",
+  "model": "OpenAIChatLanguageModel",
+  "description": "Persona generation run"
+}

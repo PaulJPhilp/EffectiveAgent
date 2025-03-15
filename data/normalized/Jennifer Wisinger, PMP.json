@@ -1,0 +1,136 @@
+{
+  "name": "Jennifer Wisinger, PMP",
+  "age": 47,
+  "location": "Midlothian, Texas, United States",
+  "gender": "Female",
+  "company": "Augustine Agency",
+  "companyType": "Marketing/Project Management Agency",
+  "companySize": "Not Specified",
+  "industry": "Project Management",
+  "occupation": "Director of Project Management",
+  "interests": [
+    "Classroom Management",
+    "Lesson Plans",
+    "Assessments",
+    "Small Group Instruction",
+    "Differentiated Instruction",
+    "Parent Communication",
+    "Engaging Educational Experiences"
+  ],
+  "skills": [
+    "Salesforce.com",
+    "Sales Operations",
+    "Strategy",
+    "Classroom Management",
+    "Lesson Planning",
+    "Assessments",
+    "Differentiated Instruction",
+    "Parent Communication",
+    "Project Management",
+    "ESL Instruction",
+    "STEM Integration",
+    "Formative and Summative Assessments"
+  ],
+  "education": [
+    {
+      "degree": "Bachelor of Business Administration (BBA)",
+      "field": "Business Administration and Management, General",
+      "institution": "The University of Texas at Arlington - College of Business",
+      "years": "1994 - 1998"
+    },
+    {
+      "degree": "Educator Alternative Certification",
+      "field": "Elementary Education, EC-6",
+      "institution": "Texas A&M University-Commerce",
+      "years": "2012 - 2014"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Augustine Agency",
+      "title": "Director of Project Management",
+      "startDate": "February 2024",
+      "endDate": "Present",
+      "duration": "1 year 1 month",
+      "location": "Irving, Texas, United States"
+    },
+    {
+      "company": "Augustine Agency",
+      "title": "Associate Project Manager",
+      "startDate": "December 2021",
+      "endDate": "February 2024",
+      "duration": "2 years 3 months",
+      "location": "Irving, Texas, United States"
+    },
+    {
+      "company": "Russell P Schupmann Elementary",
+      "title": "Teacher",
+      "startDate": "August 2021",
+      "endDate": "December 2021",
+      "duration": "5 months",
+      "location": "Red Oak, Texas"
+    },
+    {
+      "company": "Sam Houston Dual Language Elementary School",
+      "title": "Teacher",
+      "startDate": "August 2016",
+      "endDate": "October 2021",
+      "duration": "5 years 3 months",
+      "location": "Corsicana, Texas, United States",
+      "roles": [
+        "First Grade Teacher (2016 - Present)",
+        "Team Lead (2017 - Present)",
+        "ESL Certified"
+      ]
+    },
+    {
+      "company": "Mildred Elementary School",
+      "title": "Teacher",
+      "startDate": "August 2014",
+      "endDate": "May 2016",
+      "duration": "1 year 10 months",
+      "location": "Mildred, Texas",
+      "roles": [
+        "Second Grade Teacher (2015 - 2016)",
+        "Kindergarten Teacher (2014 - 2015)"
+      ]
+    },
+    {
+      "company": "Candy Cane Corner",
+      "title": "Pre-K Teacher",
+      "startDate": "August 2011",
+      "endDate": "June 2014",
+      "duration": "2 years 11 months",
+      "location": "Corsicana, Texas"
+    },
+    {
+      "company": "The Dallas Morning News",
+      "title": "Sales Operations Manager",
+      "startDate": "June 2008",
+      "endDate": "April 2011",
+      "duration": "2 years 11 months"
+    },
+    {
+      "company": "The Dallas Morning News",
+      "title": "Customer Fulfillment Manager",
+      "startDate": "April 2005",
+      "endDate": "June 2008",
+      "duration": "3 years 3 months"
+    },
+    {
+      "company": "The Dallas Morning News",
+      "title": "Advertising Operations Assistant/Analyst",
+      "startDate": "November 1999",
+      "endDate": "April 2005",
+      "duration": "5 years 6 months"
+    },
+    {
+      "company": "The Dallas Morning News",
+      "title": "Graphic Artist Coordinator",
+      "startDate": "April 1998",
+      "endDate": "November 1999",
+      "duration": "1 year 8 months"
+    }
+  ],
+  "bio": "Jennifer Wisinger, PMP is the Director of Project Management at Augustine Agency in Midlothian, Texas. With a robust background in both project management and education, Jennifer has successfully transitioned from teaching roles into leadership positions within the project management field. She is recognized for her classroom management skills, strategic lesson planning, and ability to engage both students and stakeholders effectively. Jennifer holds a BBA from The University of Texas at Arlington and an Educator Alternative Certification from Texas A&M University-Commerce. Her diverse experience spans teaching, sales operations, and project management, showcasing her versatility and dedication to fostering growth and excellence in every role she undertakes."
+}

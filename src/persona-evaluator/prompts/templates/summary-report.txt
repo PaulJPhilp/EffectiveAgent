@@ -1,0 +1,34 @@
+# Summary Report Prompt
+Create a comprehensive summary report of the marketing personas we've generated.
+
+## Personas List
+{{personasList}}
+
+## Personas Data
+{{personasData}}
+
+## Output Format
+Create a markdown report with the following sections:
+
+# Marketing Personas Summary Report
+**Generated on: {{generationDate}}**
+
+## Executive Summary
+[1-2 paragraphs summarizing the overall findings and value of the personas]
+
+## Methodology
+[Brief explanation of how these personas were created]
+
+## Persona Overview
+[Summary of each persona with key distinguishing characteristics]
+
+## Key Patterns & Insights
+[Analysis of patterns, commonalities, and differences across personas]
+
+## Recommendations for Engagement
+[Actionable recommendations for effectively engaging with each persona]
+
+## Next Steps
+[Suggestions for further refining or utilizing these personas]
+
+Make the report business-focused, insightful, and actionable for marketing teams. Focus on the practical applications of these personas for marketing strategy and content creation.

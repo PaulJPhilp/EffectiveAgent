@@ -1,0 +1,42 @@
+# Full Profile Prompt
+Create a comprehensive marketing persona profile for {{personaName}}, who works as a {{personaTitle}}.
+
+## Persona Data
+{{personaData}}
+
+## Output Format
+Provide a detailed markdown profile that fully describes this persona:
+
+# {{personaName}} - Full Profile
+
+## Professional Role
+[Detailed description of their role, responsibilities, and impact]
+
+## Core Values
+[Detailed explanation of 3-5 core values with examples of how they manifest]
+
+## Key Motivations
+[Comprehensive analysis of what drives them professionally and personally]
+
+## Personality & Working Style
+[In-depth description of personality traits, communication preferences, and work approach]
+
+## Goals
+[Detailed description of short, medium, and long-term goals with obstacles]
+
+## Challenges
+[Thorough analysis of professional challenges, their impact, and current solutions]
+
+## Emotional Profile
+[Analysis of emotional state, stressors, coping mechanisms, and communication style]
+
+## Success Metrics
+[Detailed explanation of how they measure success and why these metrics matter]
+
+## Information Ecosystem
+[Comprehensive overview of their information sources, influencers, and communities]
+
+## Background & Skills
+[Detailed educational and career background with key skills and expertise areas]
+
+The profile should provide deep insights into this persona, written in a narrative style that brings them to life as a three-dimensional individual. Include specific details that make the persona feel authentic and relatable.

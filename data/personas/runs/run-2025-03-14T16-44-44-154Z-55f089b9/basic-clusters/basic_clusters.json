@@ -1,0 +1,95 @@
+{
+  "clusters": [
+    {
+      "title": "Event Production Coordinators",
+      "description": {
+        "summary": "Professionals responsible for planning, managing, and executing events and productions within the entertainment industry. They ensure all aspects of an event run smoothly from conception to completion.",
+        "commonCharacteristics": [
+          "Strong organizational skills",
+          "Ability to manage multiple projects simultaneously",
+          "Excellent communication and coordination abilities"
+        ],
+        "skills": [
+          "Project Management",
+          "Stage Management",
+          "Creative Problem Solving",
+          "Event Planning",
+          "Team Leadership"
+        ],
+        "typicalBackground": "Individuals typically have a background in event management, production coordination, or related fields, often holding degrees in arts, communications, or business."
+      },
+      "representativeProfiles": [
+        {
+          "id": "profile_1",
+          "relevanceScore": 0.95,
+          "matchReasons": [
+            "Current role as Production Coordinator at Giant Spoon",
+            "Extensive experience in managing productions and events",
+            "Skills in management, stage management, and creative problem solving"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Special Effects Makeup Artists",
+      "description": {
+        "summary": "Creative professionals specializing in the application of makeup and prosthetics to create dramatic and realistic special effects for theater, film, and events.",
+        "commonCharacteristics": [
+          "High level of creativity and artistic ability",
+          "Attention to detail",
+          "Proficiency in various makeup techniques and materials"
+        ],
+        "skills": [
+          "Sculpting",
+          "Mold Making",
+          "Application of SFX Makeup",
+          "Blood Gags and Wound Creation",
+          "Painting and Drag Makeup"
+        ],
+        "typicalBackground": "Individuals often have training in makeup artistry, theater arts, or visual arts, with hands-on experience in special effects makeup."
+      },
+      "representativeProfiles": [
+        {
+          "id": "profile_1",
+          "relevanceScore": 0.9,
+          "matchReasons": [
+            "Freelance experience as a Special Effects Makeup Artist",
+            "Skills in sculpting, mold making, and SFX application",
+            "Passion for creativity and beauty in makeup"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Stage Management Professionals",
+      "description": {
+        "summary": "Experts in overseeing the logistical and operational aspects of theater productions, ensuring seamless performances by coordinating between various departments and managing backstage activities.",
+        "commonCharacteristics": [
+          "Excellent organizational and multitasking abilities",
+          "Strong leadership and team management skills",
+          "Ability to remain calm under pressure"
+        ],
+        "skills": [
+          "Stage Management",
+          "Team Leadership",
+          "Scheduling and Coordination",
+          "Crisis Management",
+          "Technical Knowledge of Stage Operations"
+        ],
+        "typicalBackground": "Typically hold degrees in theater arts or stage management, with significant hands-on experience in managing live performances and coordinating production teams."
+      },
+      "representativeProfiles": [
+        {
+          "id": "profile_1",
+          "relevanceScore": 0.85,
+          "matchReasons": [
+            "Experience as Production Stage Manager and Stage Manager",
+            "Skills in stage management and team leadership",
+            "Background in theater and live event coordination"
+          ]
+        }
+      ]
+    }
+  ],
+  "analysisDate": "2024-04-27"
+}

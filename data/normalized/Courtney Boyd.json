@@ -1,0 +1,82 @@
+{
+  "name": "Courtney Boyd",
+  "age": null,
+  "location": "Greater Chicago Area, United States",
+  "gender": "Female",
+  "company": "Portillo's Hot Dogs",
+  "companyType": "Restaurant Chain",
+  "companySize": "Large",
+  "industry": "Food Service / Marketing",
+  "occupation": "Field Marketing Manager and Food Truck Project & Events Manager",
+  "interests": [
+    "Promotions",
+    "Marketing",
+    "Entertainment",
+    "Restaurant Industry",
+    "Partnership Marketing",
+    "Food Truck Logistics",
+    "Event Management",
+    "Radio Promotions",
+    "Media Relations"
+  ],
+  "skills": [
+    "Project Coordination",
+    "Communication",
+    "Digital Project Management",
+    "Partnership Marketing",
+    "Food Truck Logistics Planning",
+    "Event Management",
+    "Radio Promotions",
+    "Media Relations"
+  ],
+  "education": [
+    "University of South Florida, Bachelor of Arts in Psychology (2010 - 2011)",
+    "Palm Beach State College, Associate of Arts in Psychology and Education (2007 - 2009)",
+    "G Star School of the Arts, High School Diploma in Film/Cinema/Video Studies (2003 - 2007)"
+  ],
+  "experience": [
+    {
+      "company": "Portillo's Hot Dogs",
+      "position": "Field Marketing Manager",
+      "duration": "December 2018 - Present (6 years 3 months)",
+      "location": "Greater Chicago Area",
+      "description": "Assist with the increase of same-store sales. Communicating and ensuring proper implementation and execution of marketing initiative objectives and results to restaurant management teams and Market Managers. Managing and organizing the day-to-day marketing needs for the Florida and Indiana Portillo’s locations, including fundraising as well as community events and involvement. Maintain sponsor partnerships with organizations including the University of South Florida Athletics and the Tampa Bay Lightning (NHL) as well as the Indiana Pacers (NBA)."
+    },
+    {
+      "company": "Portillo's Hot Dogs",
+      "position": "Field Marketing Coordinator",
+      "duration": "December 2017 - December 2018 (1 year 1 month)",
+      "location": "Florida & Indiana",
+      "description": "Assist with the increase of same-store sales. Communicating and ensuring proper implementation and execution of marketing initiative objectives and results to restaurant management teams and Market Managers. Managing and organizing the day-to-day marketing needs for the Florida and Indiana Portillo’s locations, including fundraising as well as community events and involvement. Maintain sponsor partnerships with organizations including the University of South Florida Athletics and the Tampa Bay Lightning (NHL) as well as the Indiana Pacers (NBA)."
+    },
+    {
+      "company": "Beasley Media Group",
+      "position": "Promotions Coordinator",
+      "duration": "July 2012 - December 2017 (5 years 6 months)",
+      "location": "Tampa/St. Petersburg, Florida Area",
+      "description": "Created a cohesive working environment for promotions, programming & sales. Ensured the client's remotes and events were staffed and carried out successfully and that all parties were happy with the results. Coordinated the station staff for large station events such as WiLD Splash, Last Damn Show, Orlando's Holiday Toy Drive along with smaller scale events. Worked closely with the Promotions Director, Account Executives and Clients to ensure that contests were executed in accordance with corporate compliance and FCC regulations to all parties' satisfaction."
+    },
+    {
+      "company": "CBS Radio",
+      "position": "Promotions Assistant",
+      "duration": "July 2011 - July 2012 (1 year 1 month)",
+      "location": "Tampa/St. Petersburg, Florida Area",
+      "description": "Set up for station remotes and events which included tents, games, sound systems, and broadcasting equipment. Assisted in the office with administrative and clerical duties. Handled prizing and contest execution on-site at remotes and events."
+    },
+    {
+      "company": "Tween Brands",
+      "position": "Lead Brand Representative",
+      "duration": "April 2010 - September 2011 (1 year 6 months)",
+      "location": "Unknown",
+      "description": "Ensured guest satisfaction and empowered young ladies to express their personalities through fashion! Store supervisor/manager on-duty/keyholder. Achieved daily, weekly, and monthly sales goals in addition to customer incentive program goals."
+    },
+    {
+      "company": "97.9 WRMF-FM (Palm Beach Broadcasting/Cobalt Broadcasting)",
+      "position": "Promotions Assistant",
+      "duration": "March 2007 - January 2010 (2 years 11 months)",
+      "location": "West Palm Beach, Florida Area",
+      "description": "WRMF street team."
+    }
+  ],
+  "bio": "Courtney is experienced in Promotions and Marketing with a demonstrated history of working in the entertainment and restaurant industries. Skilled in Partnership Marketing, Food Truck logistics planning, Event Management, Radio Promotions, and Media Relations. She is a strong marketing professional with a Bachelor of Arts (B.A.) in Psychology from the University of South Florida."
+}
