@@ -2,7 +2,7 @@
 
 import { ModelService } from "../../../shared/services/model/modelService.js";
 import { ModelRegistryService } from "../../../shared/services/model/modelRegistryService.js";
-import { TaskRegistryService } from "../../../shared/implementations/task/taskRegistry.js";
+import { TaskRegistryService } from "../../../shared/services/task/taskRegistry.js";
 
 // Global error handler
 process.on('unhandledRejection', (reason, promise) => {
@@ -16,7 +16,7 @@ async function testModelService() {
     try {
         // Step 1: Initialize model registry
         console.log("\n--- Initializing ModelRegistryService ---");
-        const modelRegistry = await ModelRegistryService.getInstance();
+        const modelRegistry = new ModelRegistryService();
         const models = modelRegistry.getAllModels();
         console.log(`Found ${models.length} models in registry`);
         
@@ -32,7 +32,7 @@ async function testModelService() {
         console.log(`Found ${tasks.length} tasks in registry`);
         
         const normalizationTask = tasks.find(task => 
-            task.name === "profile_normalization");
+            task.taskName === "profile-normalization");
             
         if (!normalizationTask) {
             throw new Error("Profile normalization task not found");
@@ -42,7 +42,7 @@ async function testModelService() {
         
         // Step 3: Initialize model service
         console.log("\n--- Initializing ModelService ---");
-        const modelService = await ModelService.getInstance();
+        const modelService = new ModelService();
         console.log("ModelService initialized successfully");
         
         // Step 4: Test direct model retrieval

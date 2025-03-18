@@ -1,6 +1,6 @@
 import type { BaseMessage } from "@langchain/core/messages";
 import { Annotation, messagesStateReducer } from "@langchain/langgraph";
-import type { LanguageModelV1 } from "ai";
+import type { LanguageModelV1, ImageModel } from "ai";
 import type { Document } from "langchain/document";
 import { z } from "zod";
 import type { NormalizationStatus } from "../normalizing-agent/types.js";
@@ -274,7 +274,7 @@ export interface PersonaGenerationResult {
 export interface RunConfig {
     runId: string;
     startTime: Date;
-    model: LanguageModelV1;
+    model: LanguageModelV1 | ImageModel;
     description?: string;
     outputDir: string;
 }

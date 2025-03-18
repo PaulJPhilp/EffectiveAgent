@@ -1,10 +1,14 @@
-import type { TaskModelMapping } from '../../schemas/taskConfig.js';
+
 import type { ModelCompletionOptions } from '../provider/modelProvider.js';
 import { ModelSelectionFactory } from '../model/modelSelectionFactory.js';
 import { ModelService } from '../model/modelService.js';
 import { PromptService } from '../prompt/promptService.js';
 import { TaskRegistryService } from './taskRegistryService.js';
-import type { TaskConfig } from '../../interfaces/task.js';
+import type { TaskDefinition } from './schemas/taskConfig.js';
+import * as fs from 'fs';
+import { join } from 'path';
+
+type Task = TaskDefinition;
 
 /**
  * Options for task execution
@@ -20,6 +24,7 @@ export interface TaskExecutionOptions {
  * Result of task execution
  */
 export interface TaskExecutionResult {
+    metadata: any;
     taskName: string;
     result: string;
     modelId?: string;
@@ -31,24 +36,37 @@ export interface TaskExecutionResult {
 }
 
 /**
+ * Service options for TaskService
+ */
+export interface TaskServiceOptions {
+    readonly configPath: string;
+}
+
+/**
  * Service for managing and executing tasks
  */
 export class TaskService {
-    private modelService: ModelService;
-    private modelSelectionFactory: ModelSelectionFactory;
-    private promptService: PromptService;
-    private taskRegistry: TaskRegistryService;
+    private readonly modelService: ModelService;
+    private readonly modelSelectionFactory: ModelSelectionFactory;
+    private readonly promptService: PromptService;
+    private readonly taskRegistry: TaskRegistryService;
+    private readonly configPath: string = '';
+    private readonly config: { tasks: Task[] };
 
-    private constructor(
-        modelService: ModelService,
-        modelSelectionFactory: ModelSelectionFactory,
-        promptService: PromptService,
-        taskRegistry: TaskRegistryService
-    ) {
-        this.modelService = modelService;
-        this.modelSelectionFactory = modelSelectionFactory;
-        this.promptService = promptService;
-        this.taskRegistry = taskRegistry;
+    constructor(options: TaskServiceOptions) {
+        console.log(`[TaskService] Initializing with config path: ${options.configPath}`);
+        this.modelService = new ModelService({ configPath: options.configPath });
+        this.modelSelectionFactory = new ModelSelectionFactory({ modelsConfigPath: options.configPath });
+        this.promptService = new PromptService({ configPath: options.configPath });
+        this.taskRegistry = new TaskRegistryService({ tasksConfigPath: options.configPath });
+        this.configPath = options.configPath;
+        this.config = this.loadConfig();
+    }
+
+    private loadConfig(): { tasks: Task[] } {
+        console.log(`[TaskService] Loading config from ${join(this.configPath, 'tasks.json')}`);
+        const config = fs.readFileSync(join(this.configPath, 'tasks.json'), 'utf-8');
+        return JSON.parse(config) as { tasks: Task[] };
     }
 
     /**
@@ -56,58 +74,36 @@ export class TaskService {
      */
     public async executeTask(
         taskName: string,
-        input: string | Record<string, unknown>,
         options: TaskExecutionOptions = {}
     ): Promise<TaskExecutionResult> {
-        // Get task configuration
         console.log(`[TaskService] Executing task: ${taskName}`);
-        const taskConfig = await this.taskRegistry.getTaskConfig(taskName);
-        if (!taskConfig) {
-            throw new Error(`Task not found: ${taskName}`);
-        }
+        try {
+            const task = this.config.tasks.find(t => t.taskName === taskName);
+            if (!task) {
+                throw new Error(`Task not found: ${taskName}`);
+            }
+            const promptName = task.promptName;
 
-        console.log(`[TaskService] Task config:`, JSON.stringify(taskConfig, null, 2));
-        
-        // Debug raw models
-        const allModels = this.modelSelectionFactory.getAllModels();
-        console.log(`[TaskService] All available models:`, 
-            JSON.stringify(allModels.map(m => ({ 
-                id: m.id, 
-                contextWindowSize: m.contextWindowSize,
-                thinkingLevel: m.thinkingLevel
-            })), null, 2));
-
-        // Generate prompt from template if available
-        const prompt = typeof input === 'string'
-            ? input
-            : await this.promptService.generatePrompt(
-                taskName, 
-                input as Record<string, string>, 
+            // Generate prompt from template if available
+            const prompt = await this.promptService.generatePrompt(
+                { templateName: promptName },
+                options.variables ?? {},
                 options
             );
 
-        console.log(`[TaskService] Selecting model with requirements:`, 
-            JSON.stringify({
-                contextWindowSize: taskConfig.contextWindowSize,
-                thinkingLevel: taskConfig.thinkingLevel,
-                preferredModelId: taskConfig.primaryModelId
-            }, null, 2)
-        );
-
-        try {
-            // Skip model selection and directly use the primary model ID
-            console.log(`[TaskService] Directly using primary model: ${taskConfig.primaryModelId}`);
-            
-            // Execute the task using the primary model
             const completionOptions: ModelCompletionOptions = {
                 prompt,
                 systemPrompt: options.systemPrompt,
-                temperature: options.temperature ?? taskConfig.temperature,
+                temperature: options.temperature ?? task.temperature,
                 maxTokens: options.maxTokens
             };
 
+            if (task.thinkingLevel) {
+                completionOptions.thinkingLevel = task.thinkingLevel;
+            }
+
             const response = await this.modelService.completeWithModel(
-                taskConfig.primaryModelId,
+                { modelId: task.primaryModelId },
                 completionOptions
             );
 
@@ -115,7 +111,8 @@ export class TaskService {
                 taskName,
                 result: response.text,
                 modelId: response.modelId,
-                usage: response.usage
+                usage: response.usage,
+                metadata: {}
             };
         } catch (error) {
             console.error(`[TaskService] Error selecting or using model:`, error);
@@ -126,14 +123,22 @@ export class TaskService {
     /**
      * Get all available tasks
      */
-    public async getAvailableTasks(): Promise<TaskConfig[]> {
+    public async getAvailableTasks(): Promise<Task[]> {
         return this.taskRegistry.getAllTaskConfigs();
     }
 
     /**
      * Get task configuration by name
      */
-    public async getTaskConfig(taskName: string): Promise<TaskConfig | undefined> {
-        return this.taskRegistry.getTaskConfig(taskName);
+    /**
+     * Get task by name
+     * @throws {Error} If task not found
+     */
+    public async getTaskByName(taskName: string): Promise<Task> {
+        const task = await this.taskRegistry.getTaskConfig(taskName);
+        if (!task) {
+            throw new Error(`Task not found: ${taskName}`);
+        }
+        return task;
     }
 } 

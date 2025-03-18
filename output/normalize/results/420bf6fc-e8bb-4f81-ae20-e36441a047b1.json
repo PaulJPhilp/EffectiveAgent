@@ -1,0 +1,352 @@
+[
+  {
+    "profileId": "993064b8-b022-4c94-8047-268c86c96ded",
+    "success": true,
+    "duration": 8321,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5f96a51c-68d8-40ef-bcd8-29ffe6f739c0",
+    "success": true,
+    "duration": 3903,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dadab4f6-e4c1-414e-a254-4435bc4bd3b7",
+    "success": true,
+    "duration": 6536,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f7cbd336-c114-4a60-ba5b-ba967c3dd280",
+    "success": true,
+    "duration": 5838,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1767523c-aa52-47d1-96e5-a00238fbd700",
+    "success": true,
+    "duration": 7476,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c719bb22-64a6-416e-b2bc-e8ce195c4baa",
+    "success": true,
+    "duration": 7107,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "15407080-a3fe-4529-9d7c-3d4ac428b82c",
+    "success": true,
+    "duration": 5897,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2225f95e-d92e-42c7-8332-1e6f71a229f6",
+    "success": true,
+    "duration": 7268,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5a8b8fb1-7d0f-4ee9-b970-3a39ba04b01a",
+    "success": true,
+    "duration": 9848,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a186bf67-7755-4382-933e-50043ead0dfb",
+    "success": true,
+    "duration": 8776,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "576d01d9-6aae-4942-aee7-be067afe04cb",
+    "success": true,
+    "duration": 5679,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "57e0fb87-bad8-45b3-be78-ce2cbf987790",
+    "success": true,
+    "duration": 17154,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8c09ddd6-89fe-4e09-ad0b-ea42d6bf58a6",
+    "success": true,
+    "duration": 6064,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "916102ba-bd0d-4ce0-9809-141cb51f3217",
+    "success": true,
+    "duration": 5887,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "17a4808b-7bf7-40e4-aa3b-75c8d1a7d854",
+    "success": true,
+    "duration": 3837,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ee4e0e71-7f4b-4841-b7e3-34b0081f0e39",
+    "success": true,
+    "duration": 5899,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b6d0ac32-b837-4ee5-9ae2-a2342cd9a49e",
+    "success": true,
+    "duration": 5014,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c479f35d-0409-4318-b173-de661e337da4",
+    "success": true,
+    "duration": 8384,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fb5df44f-f1b4-4a95-abfc-e6ff5b2355f6",
+    "success": true,
+    "duration": 8698,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "747e859a-fdc4-4149-98d2-ea95cd91ada9",
+    "success": true,
+    "duration": 6352,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "903baadb-329a-4f4c-b687-9018d8619f11",
+    "success": true,
+    "duration": 5994,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "12dc0a62-e07c-4e03-bc9c-16e68a21d71e",
+    "success": true,
+    "duration": 5835,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1aab6b3f-509b-457a-8641-1a1381fa908c",
+    "success": true,
+    "duration": 8746,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "330b1480-4d13-484f-b43e-90b5ffff0f03",
+    "success": true,
+    "duration": 7707,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5aff5850-efe2-4ad6-a780-1c3275e2f77c",
+    "success": true,
+    "duration": 7215,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7925c70c-e073-471a-b5fa-0e109520360b",
+    "success": true,
+    "duration": 8701,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dea31f37-3015-45db-bf3e-a30277cfc309",
+    "success": true,
+    "duration": 9351,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4ea433de-8706-43c1-98d5-687ad721c0fa",
+    "success": true,
+    "duration": 11971,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "26e324ea-d131-4720-a80d-27227479ea4d",
+    "success": true,
+    "duration": 6472,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d56de729-c56a-49bf-bab8-7f8b6c8a3758",
+    "success": true,
+    "duration": 5635,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c56aadfb-d650-4259-8deb-d4464f55442b",
+    "success": true,
+    "duration": 4585,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "701d7632-5b40-457f-a93d-514a5ffa5bb6",
+    "success": true,
+    "duration": 8458,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ae9068e1-250f-484e-b663-271ce6337e21",
+    "success": true,
+    "duration": 11251,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "41f888ed-668f-435a-b50a-411bfe4321ad",
+    "success": true,
+    "duration": 5180,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "17643e61-7b3d-4945-9169-66702adbeedb",
+    "success": true,
+    "duration": 8098,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f7732513-5200-4ee4-a3b2-4c7c9c7b38c9",
+    "success": true,
+    "duration": 10095,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "398c99d6-29ff-44b4-9aa3-1ab4f98dc063",
+    "success": true,
+    "duration": 12567,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e1cc0149-a7c6-474a-a7f4-0021d4c056b0",
+    "success": true,
+    "duration": 6068,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8d09bf7d-8a16-4596-b118-263cbc2cffba",
+    "success": true,
+    "duration": 5587,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "92820a71-6988-4ea9-8c62-adfa4f0f2d6f",
+    "success": true,
+    "duration": 4657,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "326c90cc-0b1f-4492-9db8-30f2fee63c47",
+    "success": true,
+    "duration": 5324,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5ffae602-f600-4d83-8408-a8b6b864e6fe",
+    "success": true,
+    "duration": 5494,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2df058fe-79e8-44b4-81dd-e658fa317998",
+    "success": true,
+    "duration": 7305,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9fb0e5b2-e97b-4e27-b475-deacb6ebdb61",
+    "success": true,
+    "duration": 8205,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "010f4cc4-c5e5-445f-806e-6bce725dd634",
+    "success": true,
+    "duration": 6625,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "262e3012-330e-43a6-8b32-0dfc533a3bcf",
+    "success": true,
+    "duration": 7185,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0f3f5511-6e6e-454d-8b9e-d57fd246385e",
+    "success": true,
+    "duration": 4521,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f76fd099-08a9-4b49-9701-ff5785412679",
+    "success": true,
+    "duration": 5717,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "72d44de6-789d-491e-ac30-c8c22882a5df",
+    "success": true,
+    "duration": 5276,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3135c3f9-c597-43ff-8186-f4a4388aa253",
+    "success": true,
+    "duration": 5990,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

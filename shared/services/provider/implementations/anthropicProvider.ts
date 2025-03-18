@@ -1,51 +1,80 @@
-import type { ModelCompletionOptions, ModelCompletionResponse, 
-    ImageGenerationOptions, ImageGenerationResponse } from "../modelProvider.js";
+import { generateText } from "ai";
+import type { ModelConfig } from "../../model/schemas/modelConfig.js";
+import type {
+    HandlerConfig,
+    ImageGenerationOptions, ImageGenerationResponse,
+    ModelCompletionOptions, ModelCompletionResponse,
+    RunnableTask
+} from "../modelProvider.js";
 import { BaseModelProvider } from "../modelProvider.js";
-import type { ModelConfig } from "../../../schemas/modelConfig.js";
+import { anthropic, createAnthropic } from "@ai-sdk/anthropic";
 
 /**
  * Provider implementation for Anthropic models
  */
 export class AnthropicProvider extends BaseModelProvider {
     private apiKey: string;
+    private anthropicProvider: ReturnType<typeof createAnthropic>;
 
-    constructor(modelConfig: ModelConfig, apiKey: string) {
+    /**
+     * Creates a new AnthropicProvider instance
+     * @param modelConfig - Configuration for the model
+     */
+    constructor(modelConfig: ModelConfig) {
         super(modelConfig);
+        
+        // Get API key from environment variables
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        
+        if (!apiKey) {
+            throw new Error(
+                'ANTHROPIC_API_KEY environment variable is not set'
+            );
+        }
+        
         this.apiKey = apiKey;
+        
+        // Initialize the Anthropic provider with API key
+        this.anthropicProvider = createAnthropic({
+            apiKey: this.apiKey
+        });
     }
 
     /**
-     * Complete a prompt with the given model
-     */
+         * Complete a prompt with the model
+         * Implements the abstract method from BaseModelProvider
+         */
     public async complete(
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
-        console.log(`[ANTHROPIC] Completing prompt with model ${this.modelConfig.id}`);
-        
-        try {
-            // Apply default options based on model configuration
-            const optionsWithDefaults = this.applyDefaultOptions(options);
-            
-            // In a real implementation, this would call the Anthropic API
-            // For now, we'll simulate a successful response
-            const response = {
-                text: `This is a simulated response from Anthropic model 
-                       ${this.modelConfig.id}. I'm responding to your prompt: 
-                       ${optionsWithDefaults.prompt?.substring(0, 50)}...`,
-                modelId: this.modelConfig.id,
-                usage: {
-                    promptTokens: 100,
-                    completionTokens: 150,
-                    totalTokens: 250,
-                }
-            };
-            
-            return this.addModelIdToResponse(response);
-        } catch (error) {
-            console.error(`[ANTHROPIC] Error completing prompt: ${error}`);
-            throw new Error(`Failed to complete prompt with Anthropic: ${error}`);
-        }
-    }
+        const taskId = new Date().toISOString();
+        console.log(`[OPENAI][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+
+        const handlerConfig: HandlerConfig = {
+            retries: 0,
+            maxRetries: options.maxRetries ?? 4,
+            error: null,
+            options: options,
+        };
+
+        const completeTask: RunnableTask = async (opts) => {
+            //console.log(`[OPENAI][${taskId}] Running task with model ${this.modelConfig.id}`);
+            const optionsWithDefaults = this.applyDefaultOptions(opts);
+            const response = generateText({
+                model: anthropic(this.modelConfig.id),
+                prompt: optionsWithDefaults.prompt,
+                temperature: optionsWithDefaults.temperature ?? 0.2,
+                maxRetries: 0 // We'll handle retries ourselves
+            });
+            //console.log(`[OPENAI][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            return this.wrapResponse(await response);
+        };
+
+        // Leverage the runTask method to ensure validation and retry logic
+        const result = await this.runTask(completeTask, handlerConfig);
+        return result;
+    }/**
+     
 
     /**
      * Generate an image with the given model

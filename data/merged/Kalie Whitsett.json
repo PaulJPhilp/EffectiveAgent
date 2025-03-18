@@ -114,6 +114,18 @@
       "company_url": null
     },
     {
+      "company": "A.H. Belo",
+      "title": "General Manager of Creative Services",
+      "duration": {
+        "start_date": "1995",
+        "end_date": "2017",
+        "date_range": "22 years"
+      },
+      "location": null,
+      "description": [],
+      "company_url": null
+    },
+    {
       "company": "The Dallas Morning News",
       "title": "Creative Director",
       "duration": {
@@ -126,18 +138,6 @@
         "Led a team of 12 graphic designers and data analysts to create consistent design solutions for multiple sections of The DMN.",
         "Developed and managed a $2M budget."
       ],
-      "company_url": null
-    },
-    {
-      "company": "A.H. Belo",
-      "title": "General Manager of Creative Services",
-      "duration": {
-        "start_date": "1995",
-        "end_date": "2017",
-        "date_range": "22 years"
-      },
-      "location": null,
-      "description": [],
       "company_url": null
     },
     {

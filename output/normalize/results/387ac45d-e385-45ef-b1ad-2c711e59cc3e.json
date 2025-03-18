@@ -1,0 +1,10 @@
+[
+  {
+    "profileId": "39eaeb6a-d571-4dc7-bea0-f8281a2eef09",
+    "success": false,
+    "error": "undefined is not an object (evaluating 'taskResult.metadata.confidence')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

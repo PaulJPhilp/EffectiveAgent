@@ -1,0 +1,402 @@
+[
+  {
+    "profileId": "c516089c-6ded-486f-91de-7dd0011efeaa",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5e595432-5532-4d69-93e6-82f53e2168fb",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a52dcfec-abb1-43bc-8db7-d91aaadb8256",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f5506d4d-cc04-4c1b-9c1a-c57915f763fe",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "152b9d16-aeb5-46c5-bb21-8aba0cedbc12",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "13cc305a-2201-48cb-91e6-ea137daf4b54",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8a47e277-1f93-4fea-acf9-ff30bd89a29d",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d6f57ff1-307a-4e2d-973f-8be595b04973",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5819c6e4-84eb-4777-ab51-1f2ed5275452",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4fd6896e-a585-43db-af8b-d8aea45e1032",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e07e60b-99f7-4ee8-8604-8d47f82cec37",
+    "success": false,
+    "error": "Template not found",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1e7dea30-3335-40a1-ba0f-d0621936752b",
+    "success": false,
+    "error": "Template not found",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3b92bec1-c4dd-4b4e-9614-2f22b29259c8",
+    "success": false,
+    "error": "Template not found",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "249c9c98-cc17-4e5c-8513-14ad58916f5e",
+    "success": false,
+    "error": "Template not found",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ac1d95b0-086a-48d4-b9eb-fe19f2be085e",
+    "success": false,
+    "error": "Template not found",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c414fb0b-64ef-4b7b-ad0b-2fd92a8ad9f5",
+    "success": false,
+    "error": "Template not found",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d439934f-45d4-43f3-930a-ae18d7c63d0f",
+    "success": false,
+    "error": "Template not found",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1c203d22-fef0-4b36-b74c-6da00ea3712f",
+    "success": false,
+    "error": "Template not found",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9afd11ea-0141-4420-bc40-4ef71fc4f022",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e3e0ec76-93eb-4ed2-9f13-0ced157b1f11",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "245820cb-1428-495a-a739-71e9c5363f23",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c33629ae-f598-4198-905d-1bda1bdb3405",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "50984063-d913-4dca-ae93-9e6c0282d772",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c3832dfa-4d93-4522-b6cf-6f62b230abe2",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "52fcd8dd-9400-49fb-b98e-90acfee15437",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "71e2463d-069a-4e02-b4fa-2cee3410d2af",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "de993147-4483-42ba-96d5-fa7de098560e",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5eca1928-2520-4f7c-a552-40dea139c331",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "418efa0d-9d36-4962-a210-44c8e964f7ec",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "12cfb7c2-a278-4a82-a835-46fcfea1d7bf",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fc8d59b5-7b1e-4b9f-b090-c095330a4aa8",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "36f10edd-50d2-4295-9230-efaab246be06",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7ad3d200-41a5-40b0-b1fb-79505c2a747e",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f6400fe9-c34a-41e1-b9e1-391a982a4db8",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5864eb5e-ebfd-495b-acd2-6981f77dd6d6",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "67454279-d8b1-4d7b-951d-37ea7d7724e5",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d128f989-255b-47c8-96cd-4a6e24f39aca",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "37e6b17e-5c77-4a88-91ea-93f5afa1eb2a",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ef245030-f658-4a35-942e-21ab4c0d76b2",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "edd710a1-84b2-4d94-8ef1-c5c046821e7c",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "6feed2f8-bc7b-4d26-8605-57321d38976f",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "99225d1b-5348-4a6d-be08-168ddb036f9a",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "cbebee77-3c7c-4b12-afea-dda52b1be687",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "983e3f6a-9115-425e-8731-05bef602cd97",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bf6aa27d-fef7-4880-a342-607fc272ba13",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "479227c5-0aa5-4b9f-877e-e3c6b017e966",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "49b01bb3-7b48-43f9-a856-0e2b885fb9a4",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f78d3653-1046-4175-8ae5-03ec2a48be07",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "248b53d8-7603-4b5f-9626-1d402dad2489",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c1c9b5e2-3961-48b2-a92e-9e1c0d3b3035",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

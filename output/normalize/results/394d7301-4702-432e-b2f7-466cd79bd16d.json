@@ -1,0 +1,402 @@
+[
+  {
+    "profileId": "39d6abd2-988d-4068-a04c-ca0f8cd3dc86",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: This model's maximum context length is 128000 tokens. However, you requested 129216 tokens (1216 in the messages, 128000 in the completion). Please reduce the length of the messages or completion.",
+    "duration": 7083,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2afeb55c-10da-45ad-9085-38554ceedf16",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29531, Requested 8172. Please try again in 15.405s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7059,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7904233d-0ff5-4337-93c6-87f3c7888e03",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: This model's maximum context length is 128000 tokens. However, you requested 129216 tokens (1216 in the messages, 128000 in the completion). Please reduce the length of the messages or completion.",
+    "duration": 874,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b247ca9e-4c2b-4f80-8dad-988430cf2d8b",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: This model's maximum context length is 128000 tokens. However, you requested 129216 tokens (1216 in the messages, 128000 in the completion). Please reduce the length of the messages or completion.",
+    "duration": 872,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ca88ff73-2ee9-4732-b382-0172641ebaf0",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29485, Requested 8172. Please try again in 15.313s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7134,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b66353a2-7bb0-453b-b359-d73c3b03a41c",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29486, Requested 8172. Please try again in 15.315s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7134,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0981114b-55e4-4d2a-bda8-fb0dd9c4d751",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29475, Requested 8172. Please try again in 15.294s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7146,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d47a22ad-60b0-423f-b100-67eedc622d3f",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29483, Requested 8172. Please try again in 15.31s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7133,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1f5d9ae0-8cb2-45ab-8c4e-632a4e124724",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: This model's maximum context length is 128000 tokens. However, you requested 129216 tokens (1216 in the messages, 128000 in the completion). Please reduce the length of the messages or completion.",
+    "duration": 887,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "856e9f3f-51b0-4b0a-9d0e-ce52ae16875e",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29435, Requested 8172. Please try again in 15.214s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7233,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a8224cc0-687c-4a4a-9097-9cae166b8904",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26312, Requested 8172. Please try again in 8.968s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6237,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0844c702-9351-48d8-8598-6127df608e48",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26278, Requested 8172. Please try again in 8.9s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6324,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a14b29e2-7959-4c7b-9183-ebf988a0ed88",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26273, Requested 8172. Please try again in 8.89s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6318,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "610d85aa-3321-43d0-bf1e-bf0dfb2b9fa1",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26312, Requested 8172. Please try again in 8.968s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6238,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "60d20736-3317-4645-877e-757f57b8c649",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26292, Requested 8172. Please try again in 8.928s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6310,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "33d9bf65-4d60-4558-873d-a4f00e1b3f1f",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26309, Requested 8172. Please try again in 8.962s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6241,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "aec1ed58-d727-4b31-93f8-0ebaae2155f7",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26308, Requested 8172. Please try again in 8.96s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6244,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "19b90650-9639-4d61-a89f-3fcb3e792cda",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26309, Requested 8172. Please try again in 8.962s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6249,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f1445243-6883-4bb5-a07d-09a444a3178f",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26306, Requested 8172. Please try again in 8.956s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6251,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "94eee1fc-01ac-4047-9645-6d208fb3c96b",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 26274, Requested 8172. Please try again in 8.892s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6325,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "57aa36cb-b74a-4c2f-afcc-5bc24a92266d",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23156, Requested 8172. Please try again in 2.656s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6237,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7dbfbc08-1c75-4155-80b6-bcbea2640b3a",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23151, Requested 8172. Please try again in 2.646s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6233,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5e98887f-4a04-494d-9946-f3fce54efe0d",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23144, Requested 8172. Please try again in 2.632s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6249,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4759f378-7593-44cd-9242-6007b030c242",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23152, Requested 8172. Please try again in 2.648s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6234,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dbbaff84-3d2c-4c67-af28-a6693349fff8",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23145, Requested 8172. Please try again in 2.634s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6245,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8fe27e4d-f2b9-4a81-b55a-d68db872c523",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23153, Requested 8172. Please try again in 2.65s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6230,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c6902d31-25cf-4777-ae0b-53f045e5dad9",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23149, Requested 8172. Please try again in 2.642s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6237,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4f3e332d-00bb-421f-8ecd-54502e7ef347",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23140, Requested 8172. Please try again in 2.624s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6254,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4f6fb84e-16e4-483c-8e8d-e6fe5b5d29b7",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23140, Requested 8172. Please try again in 2.624s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6283,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "41127132-3188-43f9-be2f-1d773991de39",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 23135, Requested 8172. Please try again in 2.614s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6262,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e569854-62c7-4e21-8fcf-b7cd151881cf",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28187, Requested 8172. Please try again in 12.718s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6228,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c1d8e018-6ad5-4eec-b103-2181dbc91262",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: This model's maximum context length is 128000 tokens. However, you requested 129216 tokens (1216 in the messages, 128000 in the completion). Please reduce the length of the messages or completion.",
+    "duration": 6260,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "968564c3-3f6a-4c06-a54c-8d7d1a0d1625",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28173, Requested 8172. Please try again in 12.69s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6249,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c3e7ed01-7302-4e16-a026-ab95c2a6db1d",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28197, Requested 8172. Please try again in 12.738s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6227,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "38c902e0-95da-43fe-b1d6-e26a0e8ae19e",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28175, Requested 8172. Please try again in 12.694s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6248,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0bbe73ba-6111-424f-8528-8c556fa8de44",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28178, Requested 8172. Please try again in 12.7s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6242,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fd3c3154-1c4d-473a-b03e-9563f7659c46",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28186, Requested 8172. Please try again in 12.716s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6220,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5a6f8bdb-acb8-4be3-960f-78a0e6ac4777",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28174, Requested 8172. Please try again in 12.692s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6248,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f25a72ec-65ad-4172-ad20-df6b1d27cd45",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28185, Requested 8172. Please try again in 12.714s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6226,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e4cc1529-44cb-4e1d-a084-49dc7cd1b7cd",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28180, Requested 8172. Please try again in 12.704s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6242,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4513ad97-0cc2-4e7b-a0a7-61703f151441",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25068, Requested 8172. Please try again in 6.48s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6227,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "03f9f6d6-6058-4a28-b9c2-f9bc0ec842e1",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25059, Requested 8172. Please try again in 6.462s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6227,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dd83715d-5ae5-423e-8bf8-91bd70740abd",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25057, Requested 8172. Please try again in 6.458s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6230,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9aebb56d-f579-4bfa-9a90-157352da87f5",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25019, Requested 8172. Please try again in 6.382s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6295,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4e74c40b-d2f7-4b90-b66e-9a939cd402e7",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25052, Requested 8172. Please try again in 6.448s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6234,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0f879f9b-0250-4b07-b3a7-a7825b37180e",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25057, Requested 8172. Please try again in 6.458s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6235,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b0787d66-4561-47ff-b007-188354c7f31d",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 24740, Requested 8172. Please try again in 5.824s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6855,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "309167eb-3f31-42ee-82ce-a5795c1f87fc",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25048, Requested 8172. Please try again in 6.44s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6243,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "22acff82-e770-41a1-b8de-0453078404b4",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25012, Requested 8172. Please try again in 6.368s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6318,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1b158592-58b4-4b35-8a30-b25e97bf30cf",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_RetryError: Failed after 3 attempts. Last error: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 25060, Requested 8172. Please try again in 6.464s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 6227,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

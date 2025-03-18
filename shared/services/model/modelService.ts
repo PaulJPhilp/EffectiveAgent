@@ -1,5 +1,6 @@
 // Import ModelCompletionOptions and related types from our modelProvider.js file
 // to ensure type compatibility
+import type { ModelIdentifier } from "./types.js";
 import type {
     BaseModelProvider,
     EmbeddingOptions,
@@ -9,78 +10,85 @@ import type {
     ModelCompletionOptions,
     ModelCompletionResponse
 } from "../provider/modelProvider.js";
-import { ModelSelectionFactory } from "./modelSelectionFactory.js";
-import { ModelRegistryService } from "./modelRegistryService.js";
-import type { ThinkingLevel } from "../../schemas/modelConfig.js";
 import { ProviderFactory } from "../provider/providerFactory.js";
+import { ModelRegistryService } from "./modelRegistryService.js";
+import type { ThinkingLevel } from "./schemas/modelConfig.js";
 
 /**
  * Service for interacting with AI models
  */
-export class ModelService {
-    private providerFactory: ProviderFactory;
-    private modelRegistry: ModelRegistryService;
+interface ModelServiceOptions {
+    readonly configPath: string;
+}
 
-    constructor(
-    ) {
-        this.providerFactory = new ProviderFactory();
-        this.modelRegistry = new ModelRegistryService();
+interface ModelErrorOptions {
+    readonly message: string;
+    readonly modelId?: string;
+}
+
+class ModelError extends Error {
+    readonly code: string = 'MODEL_ERROR';
+    readonly modelId?: string;
+
+    constructor({ message, modelId }: ModelErrorOptions) {
+        super(message); 
+        this.name = 'ModelError';
+        this.modelId = modelId;
+    }
+}
+
+export class ModelService {
+    private readonly providerFactory: ProviderFactory;
+    private readonly modelRegistry: ModelRegistryService;
+    private readonly configPath: string = "";
+
+    constructor(options: ModelServiceOptions) {
+        console.log(`[ModelService] Initializing with config path: ${options.configPath}`);
+        this.providerFactory = new ProviderFactory({ configPath: options.configPath });
+        this.modelRegistry = new ModelRegistryService({ modelsConfigPath: options.configPath });
+        this.configPath = options.configPath;
+    }
+
+    private createModelError(message: string, modelId?: string): ModelError {
+        return new ModelError({ message, modelId });
+    }
+
+    private async getDefaultModel(): Promise<ModelIdentifier> {
+        const models = this.modelRegistry.getAllModels();
+        const defaultModel = models[0];
+        if (!defaultModel) {
+            throw this.createModelError('No models available in registry');
+        }
+        return { modelId: defaultModel.id };
+    }
+
+    private async createProvider(modelId: string): Promise<BaseModelProvider> { 
+        try {
+            console.log(`[ModelService] Creating provider for model: ${modelId}`);
+            const provider = this.providerFactory.createProviderForModelId(modelId);
+            return provider;
+        } catch (error) {
+            const message = error instanceof Error ?
+                error.message :
+                'Unknown error creating provider';
+            throw this.createModelError(
+                `Failed to create provider: ${message}`,
+                modelId
+            );
+        }
     }
 
     /**
      * Complete a prompt using a specific model by ID
      */
     public async completeWithModel(
-        modelId: string,
+        { modelId }: ModelIdentifier,
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
-        console.log(`[ModelService] Starting completion with model ID: ${modelId}`);
-        
-        try {
-            // Create provider directly from the factory
-            const provider = this.providerFactory.createProviderForModelId(modelId);
-            console.log(`[ModelService] Provider created for model: ${modelId}`);
-            
-            // Complete the prompt
-            const response = await provider.complete(options);
-            console.log(`[ModelService] Received response from provider`);
-            
-            if (!response || !response.text) {
-                console.warn(`[ModelService] Warning: Empty or invalid response received`);
-            } else {
-                console.log(`[ModelService] Response length: ${response.text.length} chars`);
-            }
-            
-            return {
-                ...response,
-                modelId
-            };
-        } catch (error) {
-            console.error(`[ModelService] Error completing with model ${modelId}:`,
-                error instanceof Error ? error.message : String(error));
-            console.error(error instanceof Error ? error.stack : 'No stack trace available');
-            throw error;
-        }
-    }
-
-    /**
-     * Complete a prompt using a model with a specific thinking level
-     */
-    public async completeWithThinkingLevel(
-        options: ModelCompletionOptions,
-        minThinkingLevel: ThinkingLevel
-    ): Promise<ModelCompletionResponse> {
-        // Get the first available model without using selectModel
-        const models = await this.modelRegistry.getAllModels();
-        const defaultModel = models.length > 0 ? models[0] : null;
-        
-        if (!defaultModel) {
-            throw new Error("No models available in registry");
-        }
-        
-        const modelId = defaultModel.id;
-        const provider = this.providerFactory.createProviderForModelId(modelId);
-        return provider.complete(options);
+        console.log(`[ModelService] Completing prompt for model: ${modelId}`);
+        const provider = await this.createProvider(modelId);
+        const response = await provider.complete(options);
+        return { ...response, modelId };
     }
 
     /**
@@ -89,26 +97,22 @@ export class ModelService {
     public async generateImage(
         options: ImageGenerationOptions
     ): Promise<ImageGenerationResponse> {
-        // Get the first available model without using selectModel
-        const models = await this.modelRegistry.getAllModels();
-        const defaultModel = models.length > 0 ? models[0] : null;
-        
-        if (!defaultModel) {
-            throw new Error("No models available in registry");
-        }
-        
-        const modelId = defaultModel.id;
-        const provider = this.providerFactory.createProviderForModelId(modelId);
+        const { modelId } = await this.getDefaultModel();
+        const provider = await this.createProvider(modelId);
 
-        if (!("generateImage" in provider)) {
-            throw new Error(
-                `Provider for model ${modelId} does not support image generation`
+        if (!('generateImage' in provider)) {
+            throw this.createModelError(
+                `Provider for model ${modelId} does not support image generation`,
+                modelId
             );
         }
 
-        // Use the any type to safely bypass the type checking issue
-        // since we've already verified the method exists
-        return (provider as any).generateImage(options);
+        // Type assertion after runtime check
+        const imageProvider = provider as BaseModelProvider & {
+            generateImage: (opts: ImageGenerationOptions) =>
+                Promise<ImageGenerationResponse>
+        };
+        return imageProvider.generateImage(options);
     }
 
     /**
@@ -117,26 +121,22 @@ export class ModelService {
     public async generateEmbedding(
         options: EmbeddingOptions
     ): Promise<EmbeddingResponse> {
-        // Get the first available model without using selectModel
-        const models = await this.modelRegistry.getAllModels();
-        const defaultModel = models.length > 0 ? models[0] : null;
-        
-        if (!defaultModel) {
-            throw new Error("No models available in registry");
-        }
-        
-        const modelId = defaultModel.id;
-        const provider = this.providerFactory.createProviderForModelId(modelId);
+        const { modelId } = await this.getDefaultModel();
+        const provider = await this.createProvider(modelId);
 
-        if (!("generateEmbedding" in provider)) {
-            throw new Error(
-                `Provider for model ${modelId} does not support embeddings`
+        if (!('generateEmbedding' in provider)) {
+            throw this.createModelError(
+                `Provider for model ${modelId} does not support embeddings`,
+                modelId
             );
         }
 
-        // Use the any type to safely bypass the type checking issue
-        // since we've already verified the method exists
-        return (provider as any).generateEmbedding(options);
+        // Type assertion after runtime check
+        const embeddingProvider = provider as BaseModelProvider & {
+            generateEmbedding: (opts: EmbeddingOptions) =>
+                Promise<EmbeddingResponse>
+        };
+        return embeddingProvider.generateEmbedding(options);
     }
 
     /**
@@ -145,20 +145,9 @@ export class ModelService {
     public async completeWithDefaultModel(
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
-        // Get the first available model without using selectModel
-        const models = await this.modelRegistry.getAllModels();
-        const defaultModel = models.length > 0 ? models[0] : null;
-        
-        if (!defaultModel) {
-            throw new Error("No models available in registry");
-        }
-        
-        const modelId = defaultModel.id;
-        const provider = this.providerFactory.createProviderForModelId(modelId);
+        const { modelId } = await this.getDefaultModel();
+        const provider = await this.createProvider(modelId);
         const response = await provider.complete(options);
-        return {
-            ...response,
-            modelId
-        };
+        return { ...response, modelId };
     }
 } 

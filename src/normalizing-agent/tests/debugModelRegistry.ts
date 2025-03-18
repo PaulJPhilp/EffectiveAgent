@@ -1,7 +1,7 @@
 // Simple debug script to verify model registry and task registry functionality
 
 import { ModelRegistryService } from "../../../shared/services/model/modelRegistryService.js";
-import { TaskRegistryService } from "../../../shared/implementations/task/taskRegistry.js";
+import { TaskRegistryService } from "../../../shared/services/task/taskRegistry.js";
 
 // Set up global error handler to catch unhandled rejections
 process.on('unhandledRejection', (reason, promise) => {
@@ -15,7 +15,7 @@ async function debugModelRegistry() {
     try {
         // Initialize model registry
         console.log("Initializing Model Registry...");
-        const modelRegistry = await ModelRegistryService.getInstance();
+        const modelRegistry = new ModelRegistryService();
         
         // Check if we have models
         const models = modelRegistry.getAllModels();
@@ -38,18 +38,18 @@ async function debugModelRegistry() {
         
         // Find the profile normalization task
         const normalizationTask = tasks.find(task => 
-            task.name === "profile_normalization");
+            task.taskName === "profile_normalization");
         
         if (normalizationTask) {
             console.log("\nProfile Normalization Task:");
             console.log(JSON.stringify(normalizationTask, null, 2));
             
             // Try to get the primary model
-            if (normalizationTask.preferredModelIds?.[0]) {
-                console.log(`\nPreferred model ID: ${normalizationTask.preferredModelIds[0]}`);
+            if (normalizationTask.primaryModelId) {
+                console.log(`\nPrimary model ID: ${normalizationTask.primaryModelId}`);
                 try {
                     const model = modelRegistry.getModelById(
-                        normalizationTask.preferredModelIds[0]
+                        normalizationTask.primaryModelId
                     );
                     console.log(`Found preferred model: ${model.id}`);
                 } catch (error) {

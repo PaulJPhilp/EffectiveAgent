@@ -1,16 +1,16 @@
 import fs from "node:fs";
-import path from "node:path";
+import path, { join } from "node:path";
 import { z } from "zod";
-import type { TaskModelMapping } from "../../schemas/taskConfig.js";
-import { TaskModelMappingSchema } from "../../schemas/taskConfig.js";
-import type { ITaskRegistryService, TaskConfig } from "../../interfaces/task.js";
+import type { ITaskRegistryService, Task } from "../../interfaces/task.js";
+import type { TaskDefinition } from "./schemas/taskConfig.js";
+import { TaskDefinitionSchema } from "./schemas/taskConfig.js";
 
 interface TaskRegistryConfig {
-    taskMappings: TaskModelMapping[];
+    tasks: TaskDefinition[];
 }
 
 interface TaskRegistryServiceOptions {
-    tasksConfigPath?: string;
+    tasksConfigPath: string;
 }
 
 /**
@@ -20,45 +20,43 @@ export class TaskRegistryService implements ITaskRegistryService {
     private config: TaskRegistryConfig;
     private tasksConfigPath: string;
     private isInitialized = false;
+    private path: string = path.join(process.cwd(), "shared", "config", "tasks.json");
 
-    constructor(options: TaskRegistryServiceOptions = {}) {
-        this.tasksConfigPath =
-            options.tasksConfigPath ||
-            path.join(process.cwd(), "src", "shared", "config", "tasks.json");
-        this.config = {
-            taskMappings: []
-        };
+    constructor(options: TaskRegistryServiceOptions) {
+        console.log(`[TaskRegistryService] Initializing with config path: ${options.tasksConfigPath}`);
+        this.tasksConfigPath = join(options.tasksConfigPath, "tasks.json");
+        this.config = { tasks: [] };
+        this.initialize();
+        console.log(`[TaskRegistryService] Task service initialized`);
     }
 
     /**
      * Initialize the task registry by loading configuration
      */
     private async initialize(): Promise<void> {
+        console.log(`[TaskRegistryService] Initializing with config path: ${this.tasksConfigPath}`);
         if (this.isInitialized) {
             return;
         }
 
         try {
-            const tasksData = await fs.promises.readFile(this.tasksConfigPath, "utf-8");
+            if (!fs.existsSync(this.tasksConfigPath)) {
+                throw new Error(`Tasks configuration file not found: ${this.tasksConfigPath}`);
+            }
+            const tasksData = fs.readFileSync(this.tasksConfigPath, "utf-8");
             const parsedTasks = JSON.parse(tasksData);
 
             // Validate against schema
             const validatedConfig = z.object({
-                taskMappings: z.array(TaskModelMappingSchema)
+                tasks: z.array(TaskDefinitionSchema)
             }).parse(parsedTasks);
 
             this.config = validatedConfig;
             this.isInitialized = true;
-
             console.log(
-                `Task registry initialized with ${this.config.taskMappings.length} task mappings`
+                `Task registry initialized with ${this.config.tasks.length} tasks`
             );
         } catch (error) {
-            if (error instanceof z.ZodError) {
-                console.error("Invalid task registry configuration:", error.format());
-                throw new Error("Failed to validate task registry configuration");
-            }
-
             console.error("Failed to load task registry:", error);
             throw new Error("Failed to initialize task registry");
         }
@@ -69,37 +67,24 @@ export class TaskRegistryService implements ITaskRegistryService {
     }
 
     /**
-     * Get all available task mappings
+     * Get all available task configurations
      */
-    public getAllTaskMappings(): TaskModelMapping[] {
-        this.ensureInitialized();
-        return [...this.config.taskMappings];
+    public getAllTaskConfigs() {
+        return this.config.tasks;
     }
 
     /**
      * Get task configuration by name
      */
-    public getTaskConfig(taskName: string): TaskConfig {
-        const taskConfig = this.config.taskMappings.find(task => task.taskName === taskName)
-        if (!taskConfig) {
-            throw new Error(`Task configuration not found for task: ${taskName}`)
-        }
-        return taskConfig
-    }
-
-    /**
-     * Get all available task configurations
-     */
-    public getAllTaskConfigs(): TaskConfig[] {
-        this.ensureInitialized();
-        return [...this.config.taskMappings];
+    public getTaskConfig(taskName: string): Task | undefined {
+        return this.config.tasks.find(task => task.taskName === taskName);
     }
 
     /**
      * Validate task configuration
      */
-    public validateTaskConfig(config: TaskConfig): boolean {
-        return TaskModelMappingSchema.safeParse(config).success;
+    public validateTaskConfig(config: Task): boolean {
+        return TaskDefinitionSchema.safeParse(config).success;
     }
 
     /**

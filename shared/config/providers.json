@@ -27,6 +27,26 @@
 			"rateLimit": {
 				"requestsPerMinute": 1000
 			}
+		},
+		{
+			"id": "grok",
+			"name": "Grok AI",
+			"type": "grok",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 500,
+				"tokensPerMinute": 150000
+			}
+		},
+		{
+			"id": "deepseek",
+			"name": "DeepSeek AI",
+			"type": "deepseek",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 800,
+				"tokensPerMinute": 200000
+			}
 		}
 	],
 	"defaultProviderId": "openai"

@@ -1,11 +1,9 @@
 import fs from "node:fs";
-import path from "node:path";
+import { join } from "node:path";
 import { z } from "zod";
-import type { ModelConfig, ModelCapability } from "../../schemas/modelConfig.js";
-import { ModelConfigSchema } from "../../schemas/modelConfig.js";
-import type { IModelSelectionService } from "../../interfaces/model.js";
-import type { BaseModelProvider } from "../../interfaces/provider.js";
-import type { ModelSelectionResult } from "./modelSelectionFactory.js";
+import type { IModelSelectionService } from "./types.js";
+import type { ModelCapability, ModelConfig } from "./schemas/modelConfig.js";
+import { ModelConfigSchema } from "./schemas/modelConfig.js";
 
 interface ModelRegistryConfig {
     models: ModelConfig[];
@@ -14,7 +12,7 @@ interface ModelRegistryConfig {
 }
 
 interface ModelRegistryServiceOptions {
-    modelsConfigPath?: string;
+    modelsConfigPath: string;
 }
 
 /**
@@ -26,15 +24,24 @@ export class ModelRegistryService implements IModelSelectionService {
     private modelsConfigPath: string;
     private isInitialized = false;
 
-    constructor(options: ModelRegistryServiceOptions = {}) {
-        this.modelsConfigPath =
-            options.modelsConfigPath ||
-            path.join(process.cwd(), "src", "shared", "config", "models.json");
+    constructor(options: ModelRegistryServiceOptions) {
+        console.log(`[ModelRegistryService] Initializing with config path: ${options.modelsConfigPath}`);
+        this.modelsConfigPath = options.modelsConfigPath;
+        if (!fs.opendirSync(this.modelsConfigPath)) {
+            throw new Error(`Model registry config file not found: ${this.modelsConfigPath}`);
+        }
+        
         this.config = {
             models: [],
             defaultModelId: "",
             defaultTemperature: 0.2
         };
+        this.initialize();
+        const availableModels = this.config.models.map(model => model.id).join(', ');
+        console.log(`[ModelRegistryService] Available models: |${availableModels}|`);
+        if (availableModels.length === 0) {
+            throw new Error("No models found in registry");
+        }
     }
 
     /**
@@ -45,9 +52,10 @@ export class ModelRegistryService implements IModelSelectionService {
             return;
         }
 
+        console.log(`[ModelRegistryService] Initialize() with config path: ${this.modelsConfigPath}`);
         try {
-            // Load and parse models config
-            const modelsData = await fs.promises.readFile(this.modelsConfigPath, "utf-8");
+            const configFilename = join(this.modelsConfigPath, "models.json")
+            const modelsData = fs.readFileSync(configFilename, "utf-8");
             const parsedModels = JSON.parse(modelsData);
 
             // Validate against schema
@@ -74,9 +82,10 @@ export class ModelRegistryService implements IModelSelectionService {
         }
     }
 
-
+    /**
+     * Get models with a specific capability ID
+     */
     public getModelsWithCapabilityId(modelId: string): ModelConfig[] {
-        this.ensureInitialized();
         return this.config.models.filter(model => model.id === modelId);
     }
 
@@ -85,8 +94,10 @@ export class ModelRegistryService implements IModelSelectionService {
      * @throws Error if model not found
      */
     public getModelById(modelId: string): ModelConfig {
-        this.ensureInitialized();
-        const model = this.config.models.find((model) => model.id === modelId);
+        console.log(`[ModelRegistryService] Getting model by ID: |${modelId}|`);
+        console.log(`[ModelRegistryService] Available models: |${this.config.models.map(model => model.id).join('|, |')}|`);
+
+        const model = this.config.models.find((model) => model.id.trim().toLowerCase() === modelId.trim().toLowerCase());
         if (!model) {
             throw new Error(`Model not found with ID: ${modelId}`);
         }
@@ -98,7 +109,7 @@ export class ModelRegistryService implements IModelSelectionService {
      * @throws Error if default model not found
      */
     public getDefaultModel(): ModelConfig {
-        this.ensureInitialized();
+
         // getModelById will already throw if model not found
         return this.getModelById(this.config.defaultModelId);
     }
@@ -107,7 +118,7 @@ export class ModelRegistryService implements IModelSelectionService {
      * Get the default temperature
      */
     public getDefaultTemperature(): number {
-        this.ensureInitialized();
+
         return this.config.defaultTemperature;
     }
 
@@ -115,16 +126,16 @@ export class ModelRegistryService implements IModelSelectionService {
      * Get all available models
      */
     public getAllModels(): ModelConfig[] {
-        this.ensureInitialized();
+
         return [...this.config.models];
     }
-    
+
     /**
      * Get all models with a specific capability
      */
     public getModelsWithCapability(capability: ModelCapability): ModelConfig[] {
-        this.ensureInitialized();
-        return this.config.models.filter(model => 
+
+        return this.config.models.filter(model =>
             model.capabilities?.includes(capability)
         );
     }

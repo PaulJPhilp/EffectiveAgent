@@ -1,0 +1,10 @@
+[
+  {
+    "profileId": "2ceb2be3-5423-4e23-9bfa-84e88dd35c02",
+    "success": false,
+    "error": "Template not found",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

@@ -8,9 +8,9 @@ async function testDirectModelSelection() {
   const taskRegistry = new TaskRegistryService();
   
   // Get task config for profile normalization
-  const taskConfig = await taskRegistry.getTaskConfig("profile_normalization");
+  const taskConfig = await taskRegistry.getTaskConfig("profile-normalization");
   if (!taskConfig) {
-    console.error("Task config not found for profile_normalization");
+    console.error("Task config not found for profile-normalization");
     return;
   }
   

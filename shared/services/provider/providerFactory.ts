@@ -1,118 +1,168 @@
-import type { ModelConfig } from "../../schemas/modelConfig.js"
-import type { TaskModelMapping } from "../../schemas/taskConfig.js"
-import type { BaseModelProvider } from "../provider/modelProvider.js"
 import { ModelRegistryService } from "../model/modelRegistryService.js"
-import { TaskRegistryService } from "../task/taskRegistryService.js"
+import type { ModelConfig } from "../model/schemas/modelConfig.js"
+import type { BaseModelProvider } from "../provider/modelProvider.js"
+import type { TaskDefinition } from "../task/schemas/taskConfig.js"
 import { AnthropicProvider } from "./implementations/anthropicProvider.js"
+import { DeepSeekProvider } from "./implementations/deepseekProvider.js"
 import { GoogleProvider } from "./implementations/googleProvider.js"
+import { GrokProvider } from "./implementations/grokProvider.js"
 import { OpenAIProvider } from "./implementations/openaiProvider.js"
 import { ProviderRegistryService } from "./providerRegistry.js"
 
 interface ProviderWithConfig {
-    provider: BaseModelProvider
-    temperature: number
-    taskMapping?: TaskModelMapping
+    readonly provider: BaseModelProvider;
+    readonly temperature: number;
+    readonly taskMapping?: TaskDefinition;
 }
+
+interface ProviderFactoryOptions {
+    readonly configPath: string;
+}
+
+interface TaskIdentifier {
+    readonly taskName: string;
+}
+
+interface ModelIdentifier {
+    readonly modelId: string;
+}
+
+class ProviderError extends Error {
+    readonly code: string;
+    readonly taskName?: string;
+    readonly modelId?: string;
+    readonly providerType?: string;
+
+    constructor(message: string, details: {
+        readonly taskName?: string;
+        readonly modelId?: string;
+        readonly providerType?: string;
+    }) {
+        super(message);
+        this.name = 'ProviderError';
+        this.code = 'PROVIDER_ERROR';
+        this.taskName = details.taskName;
+        this.modelId = details.modelId;
+        this.providerType = details.providerType;
+    }
+}
+
+const DEFAULT_TEMPERATURE = 0.2 as const;
 
 /**
  * Factory for creating model providers
  */
 export class ProviderFactory {
-    private modelRegistry: ModelRegistryService
-    private taskRegistry: TaskRegistryService
-    private providerRegistry: ProviderRegistryService
+    private readonly modelRegistry: ModelRegistryService;
+    private readonly providerRegistry: ProviderRegistryService;
 
-    constructor() {
-        this.modelRegistry = new ModelRegistryService()
-        this.taskRegistry = new TaskRegistryService()
-        this.providerRegistry = new ProviderRegistryService()
+    constructor(options: ProviderFactoryOptions) {
+        console.log(`[ProviderFactory] Initializing with config path: ${options.configPath}`);
+        this.modelRegistry = new ModelRegistryService({ modelsConfigPath: options.configPath });
+        this.providerRegistry = new ProviderRegistryService({ providersConfigPath: options.configPath });
+        console.log(`[ProviderFactory] Provider factory initialized`);
     }
 
-    /**
-     * Create a provider for a specific task
-     */
-    public createProviderForTask(taskName: string): ProviderWithConfig {
-        const taskConfig = this.taskRegistry.getTaskConfig(taskName)
-        if (!taskConfig) {
-            throw new Error(`No configuration found for task: ${taskName}`)
-        }
-
-        const modelConfig = this.modelRegistry.getModelById(taskConfig.primaryModelId)
-        if (!modelConfig) {
-            throw new Error(
-                `Model not found for task ${taskName}: ${taskConfig.primaryModelId}`
-            )
-        }
-
-        const providerConfig = this.providerRegistry.getProviderConfig(modelConfig.provider)
-        if (!providerConfig) {
-            throw new Error(`Provider not found for model ${modelConfig.id}: ${modelConfig.provider}`)
-        }
-
-        return {
-            provider: this.createProvider(modelConfig, providerConfig.type),
-            temperature: taskConfig.temperature ?? 0.2
-        }
+    private createProviderError(message: string, details: {
+        readonly taskName?: string;
+        readonly modelId?: string;
+        readonly providerType?: string;
+    }): ProviderError {
+        return new ProviderError(message, details);
     }
 
     /**
      * Create a provider for a specific model ID
      */
-    public createProviderForModelId(modelId: string): BaseModelProvider {
-        const modelConfig = this.modelRegistry.getModelById(modelId)
+    public createProviderForModelId(
+        modelIdOrIdentifier: string | ModelIdentifier
+    ): BaseModelProvider {
+        console.log(`[ProviderFactory] Creating provider for model: ${modelIdOrIdentifier}`);
+        const modelId = typeof modelIdOrIdentifier === 'string' ?
+            modelIdOrIdentifier :
+            modelIdOrIdentifier.modelId;
+        
+        const modelConfig = this.modelRegistry.getModelById(modelId);
+
         if (!modelConfig) {
-            throw new Error(`Model not found: ${modelId}`)
+            throw this.createProviderError('Model not found', { modelId });
         }
+        console.log(`[ProviderFactory] Model config: ${JSON.stringify(modelConfig)}`);
 
-        const providerConfig = this.providerRegistry.getProviderConfig(modelConfig.provider)
+        const providerConfig = this.providerRegistry.getProviderConfig(
+            modelConfig.provider
+        );
+        console.log(`[ProviderFactory] Provider config: ${JSON.stringify(providerConfig)}`);
         if (!providerConfig) {
-            throw new Error(`Provider not found for model ${modelId}: ${modelConfig.provider}`)
+            throw this.createProviderError(
+                'Provider not found for model',
+                {
+                    modelId,
+                    providerType: modelConfig.provider
+                }
+            );
         }
 
-        return this.createProvider(modelConfig, providerConfig.type)
+        return this.createProvider(modelConfig, providerConfig.type);
     }
 
     /**
      * Create a default provider
      */
     public createDefaultProvider(): ProviderWithConfig {
-        const modelConfig = this.modelRegistry.getDefaultModel()
+        const modelConfig = this.modelRegistry.getDefaultModel();
         if (!modelConfig) {
-            throw new Error('Default model not found in model registry')
+            throw this.createProviderError(
+                'Default model not found in registry',
+                {}
+            );
         }
-        
+
         const providerConfig = this.providerRegistry.getProviderConfig(
             modelConfig.provider
-        )
+        );
         if (!providerConfig) {
-            throw new Error(
-                `Provider not found for default model: ${modelConfig.provider}`
-            )
+            throw this.createProviderError(
+                `Provider not found for default model: ${modelConfig.provider}`,
+                { providerType: modelConfig.provider }
+            );
         }
 
         return {
-            provider: this.createProvider(modelConfig, providerConfig.type),
+            provider: this.createProvider(
+                modelConfig,
+                providerConfig.type
+            ),
             temperature: this.modelRegistry.getDefaultTemperature()
-        }
+        };
     }
 
     /**
      * Create a provider instance based on type
      */
-    private createProvider(modelConfig: ModelConfig, providerType: string): BaseModelProvider {
-        // For testing purposes, we'll use mock API keys
-        // In a real implementation, these would come from environment variables
-        const mockApiKey = "test-api-key-12345";
+    private createProvider(
+        modelConfig: ModelConfig,
+        providerType: string
+    ): BaseModelProvider {
+        console.log(`[ProviderFactory] Creating provider for model: ${modelConfig.provider}`);
         
+        // API keys are now retrieved from environment variables in each provider
         switch (providerType) {
-            case "openai":
-                return new OpenAIProvider(modelConfig, mockApiKey)
-            case "anthropic":
-                return new AnthropicProvider(modelConfig, mockApiKey)
-            case "google":
-                return new GoogleProvider(modelConfig, mockApiKey)
+            case 'openai':
+                return new OpenAIProvider(modelConfig);
+            case 'anthropic':
+                return new AnthropicProvider(modelConfig);
+            case 'google':
+                return new GoogleProvider(modelConfig);
+            case 'grok':
+                return new GrokProvider(modelConfig);
+            case 'deepseek':
+                return new DeepSeekProvider(modelConfig);
             default:
-                throw new Error(`Unsupported provider type: ${providerType}`)
+                throw this.createProviderError(
+                    'Unsupported provider type',
+                    { providerType }
+                );
         }
     }
 } 

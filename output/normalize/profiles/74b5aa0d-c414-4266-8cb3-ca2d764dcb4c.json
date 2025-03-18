@@ -1,0 +1,6 @@
+{
+  "id": "74b5aa0d-c414-4266-8cb3-ca2d764dcb4c",
+  "sourceProfileId": "21cf9bc9-3de1-42da-a886-b04010fe4a4a",
+  "content": "To normalize the provided profile data, I'll follow the guidelines outlined in the task definition. Let's go through each field that requires normalization:\n\n1. **Company Names**: Ensure proper capitalization, standardize common variations, and remove duplicate spaces or punctuation.\n2. **Job Titles**: Standardize common role titles and maintain consistent hierarchy prefixes.\n3. **Skills**: Group skills into a consistent taxonomy and standardize skill names.\n4. **Locations**: Format as \"City, State/Province, Country\" and standardize country names and state/province abbreviations.\n5. **Dates**: Convert all dates to ISO format (YYYY-MM-DD) or YYYY-MM for month-year combinations.\n\nAdditionally, I'll add a `normalization_notes` field to document any significant changes or ambiguities.\n\nPlease provide the specific input profile data so I can proceed with the normalization process.",
+  "normalizedFields": {}
+}

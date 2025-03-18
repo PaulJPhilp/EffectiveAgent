@@ -1,13 +1,15 @@
 {
 	"compilerOptions": {
 		// Enable latest features
-		"lib": ["ESNext", "DOM"],
+		"lib": [
+			"ESNext",
+			"DOM"
+		],
 		"target": "ES2022",
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		"jsx": "react-jsx",
 		"allowJs": true,
-
 		// Bundler mode
 		"esModuleInterop": true,
 		"strict": true,
@@ -16,15 +18,21 @@
 		"skipLibCheck": true,
 		"forceConsistentCasingInFileNames": true,
 		"verbatimModuleSyntax": true,
-
 		// Best practices
 		"noFallthroughCasesInSwitch": true,
-
 		// Some stricter flags (disabled by default)
 		"noUnusedLocals": false,
 		"noUnusedParameters": false,
 		"noPropertyAccessFromIndexSignature": false
 	},
-	"include": ["src/**/*", "*.ts"],
-	"exclude": ["node_modules", "dist", "**/*.test.ts"]
+	"include": [
+		"src/**/*",
+		"*.ts",
+		"agents/normalizing/prompts/prompts"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"**/*.test.ts"
+	]
 }

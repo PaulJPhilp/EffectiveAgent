@@ -1,160 +1,217 @@
-import type { ModelConfig } from '../../schemas/modelConfig.js'
 
-/**
- * Interface for function definition in model completion
- */
+import type { ModelConfig, ThinkingLevel } from '../model/schemas/modelConfig.js';
+import { APICallError, type GenerateTextResult, type ToolSet } from "ai";
+
 export interface FunctionDefinition {
-    name: string
-    description?: string
-    parameters?: Record<string, unknown>
+    name: string;
+    description?: string;
+    parameters?: Record<string, unknown>;
 }
 
-/**
- * Interface for function call result
- */
 export interface FunctionCallResult {
-    name: string
-    arguments: Record<string, unknown>
+    name: string;
+    arguments: Record<string, unknown>;
 }
 
-/**
- * Interface for model completion request options
- */
 export interface ModelCompletionOptions {
-    prompt: string
-    systemPrompt?: string
-    maxTokens?: number
-    temperature?: number
-    functions?: FunctionDefinition[]
-    functionCall?: string | { name: string }
-    stopSequences?: string[]
-    [key: string]: unknown
+    prompt: string;
+    systemPrompt?: string;
+    maxTokens?: number;
+    temperature?: number;
+    thinkingLevel?: ThinkingLevel;
+    maxRetries?: number;
+    functions?: FunctionDefinition[];
+    functionCall?: string | { name: string };
+    stopSequences?: string[];
 }
 
-/**
- * Interface for model completion response
- */
 export interface ModelCompletionResponse {
-    text: string
+    text: string;
     usage: {
-        promptTokens: number
-        completionTokens: number
-        totalTokens: number
-    }
-    functionCalls?: FunctionCallResult[]
-    modelId: string
-    [key: string]: unknown
+        promptTokens: number;
+        completionTokens: number;
+        totalTokens: number;
+    };
+    functionCalls?: FunctionCallResult[];
+    modelId: string;
+    providerResponse: GenerateTextResult<ToolSet, unknown>;
 }
 
-/**
- * Options for image generation
- */
 export interface ImageGenerationOptions {
-    prompt: string
-    size?: string // e.g., "1024x1024"
-    quality?: string // e.g., "standard", "hd"
-    style?: string // e.g., "vivid", "natural"
-    numberOfImages?: number
-    [key: string]: unknown
+    prompt: string;
+    size?: string;
+    quality?: string;
+    style?: string;
+    numberOfImages?: number;
 }
 
-/**
- * Response from image generation
- */
 export interface ImageGenerationResponse {
-    images: string[] // URLs or base64-encoded images
+    images: string[];
     usage: {
-        promptTokens: number
-        totalTokens: number
-    }
-    [key: string]: unknown
+        promptTokens: number;
+        totalTokens: number;
+    };
+    [key: string]: unknown;
 }
 
-/**
- * Options for embedding generation
- */
 export interface EmbeddingOptions {
-    input: string | string[]
-    model?: string
-    [key: string]: unknown
+    input: string | string[];
+    model?: string;
+    [key: string]: unknown;
 }
 
-/**
- * Response from embedding generation
- */
 export interface EmbeddingResponse {
-    embeddings: number[][]
+    embeddings: number[][];
     usage: {
-        promptTokens: number
-        totalTokens: number
-    }
-    [key: string]: unknown
+        promptTokens: number;
+        totalTokens: number;
+    };
+    [key: string]: unknown;
 }
 
-/**
- * Interface for model providers
- */
+export type RunnableTask = (
+    options: ModelCompletionOptions
+) => Promise<ModelCompletionResponse>;
+
+export interface HandlerConfig {
+    retries: number;
+    maxRetries: number;
+    error: unknown;
+    options: ModelCompletionOptions;
+}
+
+function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export interface ModelProvider {
-    /**
-     * Get the model configuration
-     */
-    getModelConfig(): Record<string, unknown>
-
-    /**
-     * Complete a prompt with the model
-     */
-    complete(options: ModelCompletionOptions): Promise<ModelCompletionResponse>
-
-    generateImage?(options: ImageGenerationOptions): Promise<ImageGenerationResponse>
-
-    generateEmbedding?(options: EmbeddingOptions): Promise<EmbeddingResponse>
+    getModelConfig(): Record<string, unknown>;
+    complete(
+        options: ModelCompletionOptions
+    ): Promise<ModelCompletionResponse>;
+    generateImage?(options: ImageGenerationOptions): Promise<ImageGenerationResponse>;
+    generateEmbedding?(options: EmbeddingOptions): Promise<EmbeddingResponse>;
 }
 
-/**
- * Abstract base class for model providers
- */
 export abstract class BaseModelProvider implements ModelProvider {
-    protected modelConfig: ModelConfig
+    protected modelConfig: ModelConfig;
 
     constructor(modelConfig: ModelConfig) {
-        this.modelConfig = modelConfig
+        this.modelConfig = modelConfig;
     }
 
-    /**
-     * Get the model configuration
-     */
+    private extractWaitTime(errorMessage: string): number | null {
+        const match = errorMessage.match(/Please try again in ([0-9.]+)s/);
+        if (match && match[1]) {
+            return Math.ceil(parseFloat(match[1]) * 1000) + 100;
+        }
+        return null;
+    }
+
+    private isRateLimitError(error: unknown): boolean {
+        if (error instanceof APICallError) {
+            const data = error.data as { error: { code: string } };
+            const isRateLimit = data.error?.code?.includes('rate_limit');
+            if (!isRateLimit) {
+                console.warn(`[OPENAI] Unexpected error: ${JSON.stringify(data, null, 2)}`);
+                throw error
+            }
+            return isRateLimit;
+        }
+        return false;
+    }
+
+    protected validateOptions(options: ModelCompletionOptions): void {
+        if (options.maxTokens !== undefined && options.maxTokens <= 0) {
+            throw new Error('Invalid maxTokens value');
+        }
+        if (
+            options.temperature !== undefined &&
+            (options.temperature < 0 || options.temperature > 1)
+        ) {
+            throw new Error('Temperature must be between 0 and 1');
+        }
+        if (!options.prompt || options.prompt.trim().length === 0) {
+            throw new Error('Empty prompt is not allowed');
+        }
+    }
+
+    protected async runTask(
+        task: RunnableTask,
+        handlerConfig: HandlerConfig
+    ): Promise<ModelCompletionResponse> {
+        // console.log(`[ModelProvider] Running task with model ${this.modelConfig.id}`);
+        this.validateOptions(handlerConfig.options);
+        try {
+            const result = await task(handlerConfig.options);
+            // console.log(`[ModelProvider] Task completed with model ${this.modelConfig.id}`);
+            return result;
+        } catch (error: any) {
+            return this.handleError(error, handlerConfig, task);
+        }
+    }
+
+    protected async handleError(
+        error: Error,
+        handlerConfig: HandlerConfig,
+        task: RunnableTask
+    ): Promise<ModelCompletionResponse> {
+        //console.error(`[ModelProvider] Error on model ${this.modelConfig.id}:`, error.message);
+
+        if (this.isRateLimitError(error)) {
+            let waitTime = this.extractWaitTime(error.message) || 1000;
+            waitTime *= handlerConfig.retries;
+            await sleep(waitTime);
+        }
+
+        if (handlerConfig.retries < handlerConfig.maxRetries) {
+            handlerConfig.retries += 1;
+            //console.log(`[ModelProvider] Retrying task (${handlerConfig.retries}/${handlerConfig.maxRetries}) for model ${this.modelConfig.id}`);
+            try {
+                return await task(handlerConfig.options);
+            } catch (err) {
+                return this.handleError(err as Error, handlerConfig, task);
+            }
+        } else {
+            //console.error(`[ModelProvider] Reached maxRetries (${handlerConfig.maxRetries}) for model ${this.modelConfig.id}`);
+            throw error;
+        }
+    }
+
     public getModelConfig(): Record<string, unknown> {
-        return this.modelConfig
+        return this.modelConfig;
     }
 
-    /**
-     * Complete a prompt with the model
-     * Must be implemented by concrete providers
-     */
     public abstract complete(
-        options: ModelCompletionOptions,
-    ): Promise<ModelCompletionResponse>
+        options: ModelCompletionOptions
+    ): Promise<ModelCompletionResponse>;
 
-    /**
-     * Apply default options based on model configuration
-     */
     protected applyDefaultOptions(
-        options: ModelCompletionOptions,
+        options: ModelCompletionOptions
     ): ModelCompletionOptions {
-        return {
+        const optionsWithDefaults = {
             ...options,
-            maxTokens: options.maxTokens || this.modelConfig.maxTokens,
+            maxTokens: options.maxTokens ?? this.modelConfig.maxTokens,
             temperature: options.temperature !== undefined ? options.temperature : 0.2,
+            maxRetries: options.maxRetries !== undefined ? options.maxRetries : 0
+        };
+        if (options.systemPrompt) {
+            optionsWithDefaults.systemPrompt = options.systemPrompt.trim();
         }
+        if (options.thinkingLevel) {
+            optionsWithDefaults.thinkingLevel = options.thinkingLevel;
+        }
+        return optionsWithDefaults;
     }
 
-    /**
-     * Add model ID to response
-     */
-    protected addModelIdToResponse(response: ModelCompletionResponse): ModelCompletionResponse {
+    protected wrapResponse(
+        response: GenerateTextResult<ToolSet, unknown>
+    ): ModelCompletionResponse {
         return {
-            ...response,
-            modelId: this.modelConfig.id
-        }
+            text: response.text,
+            usage: response.usage,
+            modelId: this.modelConfig.id,
+            providerResponse: response
+        };
     }
-} 
+}

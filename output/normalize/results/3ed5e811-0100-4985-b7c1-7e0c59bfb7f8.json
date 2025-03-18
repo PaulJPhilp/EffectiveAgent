@@ -1,0 +1,10 @@
+[
+  {
+    "profileId": "8756e3e8-287e-4643-81d2-8ca3b0163487",
+    "success": false,
+    "error": "Failed to create provider: Model registry service is not initialized",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

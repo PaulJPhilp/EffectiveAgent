@@ -1,0 +1,402 @@
+[
+  {
+    "profileId": "09a1ac46-a782-428d-ae88-f772c200ba44",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 2,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f9116d37-b440-4ebb-8d66-fbfcad1aa98e",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "55c3a9f2-5cab-4145-8c66-fc90078ab3f4",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "692f9398-1dc3-4d3f-8adb-fdb2f2177517",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "232e0beb-02dc-4504-9a9c-b4f01570a577",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c1ac36b5-0a6e-4853-bdff-cee5894fe1da",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8cbc18a5-15b7-4c72-af31-ea51013de6e0",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4f8bd3da-3574-4c26-afb7-5ed842c033ab",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2e05b8be-37a1-4a64-94ba-c4dadfb973ba",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f0897715-6c73-48b1-aa1c-923bae80d881",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fd51440f-7564-43da-8671-4f072f0d84b6",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1e5c59f4-e9f1-4cb6-8a61-d6a982a8ce01",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "cb70b7de-63f8-4a9f-ac4e-758562f219b4",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d1f15924-e57d-4444-a097-b7683b43e5ec",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "861931b1-09b0-4940-9089-caf91a4056a9",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "979c6818-6664-4636-b44e-f531b97fedd8",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "12dd7b28-1701-4430-99f3-d23734f18705",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a6589a51-178c-4d44-ba2b-8eb4fec3c770",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "27360a00-f399-4255-9511-0a75ac4b8859",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "573e664f-c8ce-42f5-9cb7-8e52a10e4eb1",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e409f07-7dc5-4479-a2e8-18cd34b9e365",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "05235082-afbd-48d8-9cbd-8f292bc26bdb",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e9b1e3d6-ec5d-4543-bdfe-3a30ad4bcee6",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "de3398ae-fae7-42d1-a402-4971a9e9cb52",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e5e6afc9-955c-49d0-849d-270ccd417fa1",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3bead378-beee-4045-be6f-c6b50f8aa999",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bb5332bb-8a4b-4425-be82-6d70f3eee62c",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f6dd4d21-1f42-40b1-8a39-f99d8bbc29c2",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "de2ea5c6-969d-48fc-8ee6-a6355824900d",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "aed1ac9f-ad01-47a5-ad05-7123a60b530a",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1ad18b42-996a-4c3c-a54b-61c8583f087e",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2954fff6-020a-46e7-bc82-06c2beac05ba",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0002eed8-2ef3-4dff-bc9d-2938295640cd",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bb429ed4-c642-461b-b3d9-286e0607df0f",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5d527350-c8c4-4f0a-989a-89a2891db340",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "84687cde-2baf-46b3-b67f-c49bab8250f5",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "230c8fcd-3f82-4582-92da-995cad59a920",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ba46be14-be51-408b-8195-41cb60ccd83a",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "81a0caf2-3abd-459a-8c54-a77d94087a8b",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5038322c-0966-492c-a150-a2e28a0f8995",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "47f19ada-a91a-451b-a8c3-757d4f1260b3",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a7917d44-ac2e-47b7-9279-096381aca88d",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3a6f1741-f744-4335-ab8f-158fa34d7a92",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ce38a589-d642-4721-bc56-3b2c541eef09",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "33d74328-c126-4241-afe4-3586cd741316",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b15ac623-9142-43ff-9fee-f31ef5b62f8c",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c25d78d3-6a38-4d55-8a34-3384ec37f40f",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "890ad1ff-f34b-4a59-aa2c-f917a0580561",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ed246aa0-bbb7-4823-80a6-1d95f3d0ee23",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "00a99793-e4a3-4f38-a65b-43dc3c545ada",
+    "success": false,
+    "error": "ENOENT: no such file or directory, open '../config/tasks.json'",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

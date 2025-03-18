@@ -1,7 +1,14 @@
-import type { ModelCompletionOptions, ModelCompletionResponse,
-    ImageGenerationOptions, ImageGenerationResponse } from "../modelProvider.js";
+import { APICallError, generateText } from "ai";
+import { experimental_generateImage as generateImage } from 'ai';
+import type { ModelConfig } from "../../model/schemas/modelConfig.js";
+import type {
+    ImageGenerationOptions, ImageGenerationResponse,
+    ModelCompletionOptions, ModelCompletionResponse
+} from "../modelProvider.js";
 import { BaseModelProvider } from "../modelProvider.js";
-import type { ModelConfig } from "../../../schemas/modelConfig.js";
+import { openai } from "@ai-sdk/openai"
+import type { HandlerConfig, RunnableTask } from "../modelProvider.js";
+
 
 /**
  * Provider implementation for OpenAI models
@@ -9,10 +16,24 @@ import type { ModelConfig } from "../../../schemas/modelConfig.js";
 export class OpenAIProvider extends BaseModelProvider {
     private apiKey: string;
 
-    constructor(modelConfig: ModelConfig, apiKey: string) {
+    /**
+     * Creates a new OpenAIProvider instance
+     * @param modelConfig - Configuration for the model
+     */
+    constructor(modelConfig: ModelConfig) {
         super(modelConfig);
+
+        // Get API key from environment variables
+        const apiKey = process.env.OPENAI_API_KEY;
+
+        if (!apiKey) {
+            throw new Error('OPENAI_API_KEY environment variable is not set');
+        }
+
         this.apiKey = apiKey;
     }
+
+
 
     /**
      * Complete a prompt with the model
@@ -21,36 +42,34 @@ export class OpenAIProvider extends BaseModelProvider {
     public async complete(
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
-        console.log(`[OPENAI] Completing prompt with model ${this.modelConfig.id}`);
-        
-        try {
-            // Apply default options based on model configuration
-            const optionsWithDefaults = this.applyDefaultOptions(options);
-            
-            // In a real implementation, this would call the OpenAI API
-            // For now, we'll simulate a successful response
-            
-            // You can add a debugger statement here if needed for debugging
-            // debugger;
-            
-            const response = {
-                text: `This is a simulated response from OpenAI model 
-                       ${this.modelConfig.id}. I'm responding to your prompt: 
-                       ${optionsWithDefaults.prompt?.substring(0, 50)}...`,
-                modelId: this.modelConfig.id,
-                usage: {
-                    promptTokens: 150,
-                    completionTokens: 200,
-                    totalTokens: 350,
-                }
-            };
-            
-            return this.addModelIdToResponse(response);
-        } catch (error) {
-            console.error(`[OPENAI] Error completing prompt: ${error}`);
-            throw new Error(`Failed to complete prompt with OpenAI: ${error}`);
-        }
+        const taskId = new Date().toISOString();
+        console.log(`[OPENAI][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+
+        const handlerConfig: HandlerConfig = {
+            retries: 0,
+            maxRetries: options.maxRetries ?? 4,
+            error: null,
+            options: options,
+        };
+
+        const completeTask: RunnableTask = async (opts) => {
+            //console.log(`[OPENAI][${taskId}] Running task with model ${this.modelConfig.id}`);
+            const optionsWithDefaults = this.applyDefaultOptions(opts);
+            const response = generateText({
+                model: openai(this.modelConfig.id),
+                prompt: optionsWithDefaults.prompt,
+                temperature: optionsWithDefaults.temperature ?? 0.2,
+                maxRetries: 0 // We'll handle retries ourselves
+            });
+            //console.log(`[OPENAI][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            return this.wrapResponse(await response);
+        };
+
+        // Leverage the runTask method to ensure validation and retry logic
+        const result = await this.runTask(completeTask, handlerConfig);
+        return result;
     }
+
 
     /**
      * Generate an image with the model
@@ -58,11 +77,25 @@ export class OpenAIProvider extends BaseModelProvider {
     public async generateImage(
         options: ImageGenerationOptions
     ): Promise<ImageGenerationResponse> {
-        console.log(`[OPENAI] Generating image with model ${this.modelConfig.id}`);
-        
+        const taskId = new Date().toISOString();
+        console.log(`[OPENAI][${taskId}] Generating image with model ${this.modelConfig.id}`);
+
+        // Validate inputs
+        if (options.size && !['256x256', '512x512', '1024x1024'].includes(options.size)) {
+            throw new Error('Invalid image size');
+        }
+        if (!options.prompt || options.prompt.trim().length === 0) {
+            throw new Error('Empty prompt is not allowed');
+        }
+
         try {
             // In a real implementation, this would call the OpenAI API
             // For now, we'll simulate a successful response
+            const response = await generateImage({
+                model: openai.image(this.modelConfig.id),
+                prompt: options.prompt
+            });
+
             return {
                 images: ["https://example.com/simulated-openai-image.png"],
                 modelId: this.modelConfig.id,

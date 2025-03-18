@@ -1,0 +1,53 @@
+{
+    "name": "normalizing-agent",
+    "version": "1.0.0",
+    "description": "Agent for normalizing and extracting metadata from PDF content",
+    "configFiles": {
+        "providers": "providers.json",
+        "models": "models.json",
+        "tasks": "tasks.json"
+    },
+    "functionSchemas": {
+        "normalizeText": {
+            "name": "normalizeText",
+            "description": "Normalize text extracted from PDF into a consistent format",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "Raw text extracted from PDF"
+                    },
+                    "format": {
+                        "type": "string",
+                        "enum": ["markdown", "plain", "html"],
+                        "default": "markdown",
+                        "description": "Output format for normalized text"
+                    }
+                },
+                "required": ["text"]
+            }
+        },
+        "extractMetadata": {
+            "name": "extractMetadata",
+            "description": "Extract structured metadata from normalized text",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "text": {
+                        "type": "string",
+                        "description": "Normalized text content"
+                    },
+                    "fields": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        },
+                        "description": "List of metadata fields to extract"
+                    }
+                },
+                "required": ["text", "fields"]
+            }
+        }
+    }
+}

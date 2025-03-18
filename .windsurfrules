@@ -1,0 +1,49 @@
+My build system is bun.
+My testing framework is vitest.
+I am building AI agents using LangGraph in TypeScript and Node.js.
+I am using the Vercel AI SDK for model interactions.
+When I ask about programming concepts (e.g., "What is a hook?"), give me a direct and clear explanation.
+I am using TypeScript for development.
+I am using Node.js for runtime.
+I am using bun for development.
+I am using dotenv for environment variables.
+I am using pdf-parse for PDF parsing.
+I am using biome for code formatting and linting.
+Follow the shared services architecture.
+Follow the DRY and SOLID principles.
+Do not make any changes to the shared services.
+
+# General Code Style & Formatting
+- Use English for all code and documentation.
+- Always declare the type of each variable and function (parameters and return value).
+- Avoid using any.
+- Create necessary types.
+- Use JSDoc to document public classes and methods.
+- Don't leave blank lines within a function.
+- One export per file.
+
+# Naming Conventions
+- Use PascalCase for classes.
+- Use camelCase for variables, functions, and methods.
+- Use kebab-case for file and directory names.
+- Use UPPERCASE for environment variables.
+- Avoid magic numbers and define constants.
+
+# Functions & Logic
+- Keep functions short and single-purpose (<20 lines).
+- Avoid deeply nested blocks by:
+- Use early returns.
+- Extract logic into utility functions.
+- Use higher-order functions (map, filter, reduce) to simplify logic.
+- Use arrow functions for simple cases (<3 instructions), named functions otherwise.
+- Use default parameter values instead of null/undefined checks.
+- Use RO-RO (Receive Object, Return Object) for passing and returning multiple parameters.
+
+# Data Handling
+- Avoid excessive use of primitive types; encapsulate data in composite types.
+- Avoid placing validation inside functions—use classes with internal validation instead.
+- Prefer immutability for data:
+- Use readonly for immutable properties.
+- Use as const for literals that never change.
+- Use type guards to validate data types.
+- Prefer 'for...of' loops over 'forEach' for iteration.

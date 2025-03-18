@@ -5,8 +5,8 @@ import { ModelService } from "../../../shared/services/model/modelService.js"
 import type { ModelCompletionOptions } from "../../../shared/services/provider/modelProvider.js"
 import { TaskService } from "../../../shared/services/task/taskService.js"
 import type { NormalizationResult, NormalizationState, ProfileData } from "../types.js"
-import { extractJsonFromResponse, logToRun } from "../utils.js"
-import type { ModelConfig } from "../../../shared/schemas/modelConfig.js"
+import { logToRun } from "../utils.js"
+import type { ModelIdentifier } from "../../../shared/interfaces/model.js"
 
 const modelService = new ModelService()
 
@@ -147,7 +147,7 @@ export async function normalizeProfilesNode(
         for (let i = 0; i < state.profiles.length; i += batchSize) {
             const batch = state.profiles.slice(i, i + batchSize)
             const batchResults = await Promise.all(
-                batch.map(profile => normalizeProfile(profile, "o1-mini"))
+                batch.map(profile => normalizeProfile(profile, { modelId: "o1-mini" }))
             )
 
             results.push(...batchResults)
@@ -185,7 +185,7 @@ export async function normalizeProfilesNode(
 
 async function normalizeProfile(
     profile: ProfileData,
-    model: string
+    model: ModelIdentifier
 ): Promise<NormalizationResult> {
     console.log(`Normalizing profile: ${profile.name}`)
 
@@ -246,16 +246,8 @@ async function normalizeProfile(
         maxTokens: 1500
     }
 
-    console.log("Directly calling taskService.executeTask with:", {
-        taskName: "profile_normalization",
-        options: completionOptions
-    });
-
     try {
-
-        const normalized = await modelService.completeWithModel(model, {
-            prompt: prompt
-        })
+        const normalized = await modelService.completeWithModel(model, completionOptions)
 
         const normalizedProfile = JSON.parse(normalized.text) as ProfileData
 

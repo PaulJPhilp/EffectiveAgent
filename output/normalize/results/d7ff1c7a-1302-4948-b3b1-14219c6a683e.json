@@ -1,0 +1,10 @@
+[
+  {
+    "profileId": "97a694bb-e652-4019-be4b-cd17c1a911dc",
+    "success": false,
+    "error": "Failed to create provider: Model not found with ID: normalize",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

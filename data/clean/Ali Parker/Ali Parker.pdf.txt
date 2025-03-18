@@ -1,0 +1,30 @@
+{
+  "name": "Ali Parker",
+  "title": "Senior Software Engineer",
+  "location": "San Francisco, CA",
+  "key_skills": [
+    "TypeScript",
+    "Node.js",
+    "React",
+    "AWS"
+  ],
+  "contact": {
+    "linkedin": "https://linkedin.com/in/aliparker",
+    "email": null,
+    "company_website": null
+  },
+  "certificates": [
+    "AWS Certified Solutions Architect"
+  ],
+  "experience": [
+    {
+      "company": "Tech Corp",
+      "title": "Senior Software Engineer",
+      "duration": "2020-01 - Present",
+      "description": [
+        "Led development of cloud-native applications",
+        "Implemented CI/CD pipelines"
+      ]
+    }
+  ]
+}

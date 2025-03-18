@@ -1,0 +1,402 @@
+[
+  {
+    "profileId": "06a663f9-bf8c-49c2-94b6-226378b3b537",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 2,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dea19bce-d107-47db-b51a-8e460847df11",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "101aa271-f4ad-437e-94a2-d20369a9f629",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fed36fa7-94a1-4cf0-82ce-d8a39f640925",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8bd90592-31ab-423d-b178-bb31807bbba8",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2869a931-29df-4d86-a57b-a429c51cf871",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "72688967-2855-4987-9871-b95c987a0952",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "20f8f789-1171-469e-a6bb-f544a407ecfb",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ed5f97c1-070b-4dad-8efa-2c6686ee2bf3",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "52558ae2-f2e7-4eaa-80c4-0877da8e26ea",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bfb0a892-4b8f-438c-843f-c82701b854ee",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7d12add8-9607-4561-aa07-c67a88b212f2",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a86dc636-69ad-4c12-9e55-01ce1d512d8a",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "788c05ad-0e54-4551-86ef-0d95b9396fd1",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4ed590f5-39d5-4f65-ba49-926a3d549cc2",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "16a7621b-5112-445e-9cf9-b81b99793763",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c6176aff-1eb1-4d98-8235-521c637cc554",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a7aaf632-0846-4622-aede-8dc3cc105d90",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9abd67c1-25f4-47df-85cc-8c686d77667e",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a356db10-c2de-4f0f-9c74-f155624190e3",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b38ce9ba-77ad-449b-82ba-9ec64bb7833e",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9d17c7ca-80c0-4390-8353-e38e07beed51",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fc899e34-b719-41f1-bd54-a6ecb65b689e",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "73a38d8f-b5c8-4479-bf75-4a7c1cfb81f2",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "41968a98-e2d7-4bfe-84ff-e2e83ff4d992",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2db41d51-cc66-4a93-8786-e713a66447c2",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b0a6c16e-5ea8-4e4b-a07c-828826e82cf3",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8afe4412-8097-4542-8133-b2e3120c0df4",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "51813f1b-dbaf-4773-828d-4f82cdfb7f29",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4c85373e-7051-40ca-9a45-a06ce43bdbb7",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "89f5b279-cb94-4e5a-98a8-45940e7a99e4",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "26047e14-f46f-42d0-9386-5a5dcea3454b",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "685ea285-7068-4aae-a7d9-898a5b0fd429",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8cb8dfcc-0ed4-4122-89a9-5100522efd26",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "509178d0-5229-484c-943a-26f88c7c5803",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "823024bd-2179-43e5-9f95-df554135f8a7",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "895d242b-c961-40e1-9706-ee80b1a334ad",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "009e7339-0a03-4b58-99de-20cfe30e7890",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "871590c8-9c77-48f8-ab28-df2423e34c1d",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "23b6e8d8-6931-4767-89c3-74f7fc327aea",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d6f67b62-e278-423b-b624-5e94402963d8",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0c1b7a82-9a95-421a-b694-ec4b47b1f12f",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b50c4ffd-6a28-40e1-8d89-9d874a9a6998",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fb54dfff-3211-4fc0-b9e6-52e7a2d4c647",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d76bf5d1-3442-4213-a551-07be317a97be",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4b1f0ebc-5aeb-48a2-bb3f-fb5c93d4f655",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dd9ce644-dc56-40e5-ad99-38bac831e7f6",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c5fb2cfa-d960-43d3-90e1-5517b17569cf",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "547c8782-4dbd-44fc-931c-b42f843259fb",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2e82aba4-48e8-4d3d-8c2a-e0c9874df243",
+    "success": false,
+    "error": "undefined is not an object (evaluating '(await import(this.configPath)).tasks.find')",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

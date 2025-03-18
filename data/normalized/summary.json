@@ -5,7 +5,7 @@
   "errors": [
     {
       "profileName": "Profile (1)",
-      "error": "No JSON content found in response"
+      "error": "Model registry service is not initialized"
     }
   ]
 }

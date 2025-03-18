@@ -4,8 +4,6 @@ import path from "node:path"
 import type { NormalizationState } from "../NormalizationState.js"
 import { logToRun } from "../utils.js"
 import { loadFiles } from "../utils.js"
-import { parseProfileData } from "../parseProfile.js"
-import type { Document } from "@langchain/core/documents"
 import type { ProfileData } from "../types.js"
 
 type NormalizationStateUpdate = Partial<NormalizationState>
@@ -30,11 +28,7 @@ export async function loadProfilesNode(
         logToRun(state.runInfo, "Loading profiles to normalize")
 
         // Define the path to raw profiles
-        const profilesDir = path.join(
-            process.cwd(),
-            "data",
-            "raw",
-        )
+        const profilesDir = path.join(process.cwd(), "data", "raw")
         // Check if directory exists
         if (!fs.existsSync(profilesDir)) {
             const errorMsg = `Raw profiles directory not found: ${profilesDir}`

@@ -1,11 +1,10 @@
-import type { AIMessage } from "@langchain/core/messages";
+import { generateText } from "ai";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { NORMALIZATION_PROMPT, fillPromptTemplate } from "./prompts/index.js";
-import type { ProfileData } from "./types.js";
-import { loadChatModel, logProfile } from "./utils.js";
-import { generateText } from "ai";
+import { NORMALIZATION_PROMPT, fillPromptTemplate } from "../../agents/normalizing/prompts/prompts/index.js";
 import { getLLM } from "./models.js";
+import type { ProfileData } from "./types.js";
+import { logProfile } from "./utils.js";
 
 /**
  * Extracts JSON content from LLM response
@@ -87,7 +86,7 @@ export async function normalizeProfile(
 
         // Extract JSON content from the response
         const jsonContent = extractJsonFromResponse(response.text);
-   
+
         // Parse the JSON
         try {
             console.log(`Parsing response for ${profile.name}`);

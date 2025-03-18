@@ -1,7 +1,22 @@
 {
-	"taskMappings": [
+	"tasks": [
 		{
 			"taskName": "clustering",
+			"primaryModelId": "o3-mini",
+			"fallbackModelIds": [
+				"o1-mini",
+				"gpt-4"
+			],
+			"temperature": 0.3,
+			"description": "Cluster data into meaningful groups",
+			"requiredCapabilities": [
+				"reasoning"
+			],
+			"contextWindowSize": "large-context-window",
+			"promptName": "normalize"
+		},
+		{
+			"taskName": "profile-normalization",
 			"primaryModelId": "claude-3-opus",
 			"fallbackModelIds": [
 				"o1-mini",
@@ -12,7 +27,8 @@
 			"requiredCapabilities": [
 				"reasoning"
 			],
-			"contextWindowSize": "large-context-window"
+			"contextWindowSize": "large-context-window",
+			"promptName": "normalize"
 		},
 		{
 			"taskName": "analysis",
@@ -26,7 +42,8 @@
 			"requiredCapabilities": [
 				"reasoning"
 			],
-			"contextWindowSize": "large-context-window"
+			"contextWindowSize": "large-context-window",
+			"promptName": "analyze"
 		},
 		{
 			"taskName": "summarization",
@@ -40,7 +57,8 @@
 			"requiredCapabilities": [
 				"text-generation"
 			],
-			"contextWindowSize": "medium-context-window"
+			"contextWindowSize": "medium-context-window",
+			"promptName": "summarize"
 		},
 		{
 			"taskName": "image-generation",
@@ -50,7 +68,8 @@
 			"requiredCapabilities": [
 				"text-to-image"
 			],
-			"contextWindowSize": "small-context-window"
+			"contextWindowSize": "small-context-window",
+			"promptName": "generate-image"
 		},
 		{
 			"taskName": "embeddings",
@@ -60,7 +79,8 @@
 			"requiredCapabilities": [
 				"embeddings"
 			],
-			"contextWindowSize": "small-context-window"
+			"contextWindowSize": "small-context-window",
+			"promptName": "embed"
 		},
 		{
 			"taskName": "ocr",
@@ -73,7 +93,8 @@
 			"requiredCapabilities": [
 				"ocr"
 			],
-			"contextWindowSize": "medium-context-window"
+			"contextWindowSize": "medium-context-window",
+			"promptName": "ocr"
 		},
 		{
 			"taskName": "search",
@@ -86,7 +107,8 @@
 			"requiredCapabilities": [
 				"search"
 			],
-			"contextWindowSize": "medium-context-window"
+			"contextWindowSize": "medium-context-window",
+			"promptName": "search"
 		},
 		{
 			"taskName": "profile-normalization",
@@ -101,7 +123,8 @@
 				"text-generation",
 				"reasoning"
 			],
-			"contextWindowSize": "medium-context-window"
+			"contextWindowSize": "medium-context-window",
+			"promptName": "normalize"
 		}
 	]
 }

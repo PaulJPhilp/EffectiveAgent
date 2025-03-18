@@ -1,0 +1,33 @@
+{
+  "name": "Ali Parker",
+  "title": "Staff Software Engineer",
+  "location": "San Francisco Bay Area",
+  "key_skills": [
+    "TypeScript",
+    "Node.js",
+    "React",
+    "System Design",
+    "Team Leadership"
+  ],
+  "contact": {
+    "linkedin": "https://linkedin.com/in/aliparker",
+    "email": "ali.parker@example.com",
+    "company_website": "https://techcorp.com"
+  },
+  "certificates": [
+    "AWS Certified Solutions Architect",
+    "Google Cloud Professional Developer"
+  ],
+  "experience": [
+    {
+      "company": "Tech Corp",
+      "title": "Senior Software Engineer",
+      "duration": "2020-01 - Present",
+      "description": [
+        "Led development of cloud-native applications using TypeScript and Node.js",
+        "Implemented CI/CD pipelines with GitHub Actions and AWS CodePipeline",
+        "Mentored junior engineers and conducted technical interviews"
+      ]
+    }
+  ]
+}

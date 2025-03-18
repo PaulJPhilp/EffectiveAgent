@@ -1,0 +1,10 @@
+[
+  {
+    "profileId": "dcedfbd2-6cd2-4cd3-b1be-cd17e97818fe",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to create provider: Provider not found for model",
+    "duration": 3,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

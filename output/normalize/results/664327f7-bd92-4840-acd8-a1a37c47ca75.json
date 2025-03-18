@@ -1,0 +1,357 @@
+[
+  {
+    "profileId": "bac9260f-bf6c-4167-8165-044989aea840",
+    "success": true,
+    "duration": 7048,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1346e4c3-6e59-4ecd-9b1d-ce5a34e67d1f",
+    "success": true,
+    "duration": 7742,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f5ccda2b-9023-4e15-8452-489523422345",
+    "success": true,
+    "duration": 6726,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0191f9ae-25f2-40d8-aeac-256cf6346a1f",
+    "success": true,
+    "duration": 5910,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5f6126fd-d367-4795-ad6e-1e65f6f913c6",
+    "success": true,
+    "duration": 5302,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d5893f2b-4a51-48b5-88f1-940056f1b5f6",
+    "success": true,
+    "duration": 5461,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "82683da6-c59d-440a-b6c7-c806f91d810a",
+    "success": true,
+    "duration": 6540,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "43124e7c-d72f-4835-bc19-45ef7010a23d",
+    "success": true,
+    "duration": 6348,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e8c8822-37b4-44b5-a384-08bcb4470b45",
+    "success": true,
+    "duration": 4556,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "953b3d08-d2b3-4d16-b23b-c59f41b30420",
+    "success": true,
+    "duration": 6669,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a89fd276-e59a-4024-af50-2de32d2a11d9",
+    "success": true,
+    "duration": 16110,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bad4aef6-6196-4e6d-8263-37d0e2f30dd0",
+    "success": true,
+    "duration": 8719,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3af8b4f0-3749-4850-a111-7fd95d45a6da",
+    "success": true,
+    "duration": 11731,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ac38b6e3-7288-4f2a-a549-be902c28fad5",
+    "success": true,
+    "duration": 12138,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e97987f-710d-494b-a650-f805a9e53d61",
+    "success": true,
+    "duration": 10920,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9c0d87fe-dc08-4bcd-b903-44f5098f2608",
+    "success": true,
+    "duration": 12434,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "de0b9c23-1e65-4f3c-9147-deed9d88bb5d",
+    "success": true,
+    "duration": 5683,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b2282aa0-e613-4f0b-9b27-c2cc9e78ece4",
+    "success": true,
+    "duration": 7254,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "02b81f17-5153-4f02-bbf7-4fdaf3adaf11",
+    "success": true,
+    "duration": 10235,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "929ddc3b-2524-4f73-ad6a-96fc511d3b76",
+    "success": true,
+    "duration": 7278,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0c92fa95-7d01-450f-b000-feb51b4d98d0",
+    "success": true,
+    "duration": 6380,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7c419540-2fae-4154-863b-fc102164ce5d",
+    "success": true,
+    "duration": 5836,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "636742c7-c054-4703-a0d7-9ccb28dd0e3f",
+    "success": true,
+    "duration": 6124,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5619c878-5782-46c2-ba8c-c88b52f4fb0b",
+    "success": true,
+    "duration": 7453,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "cc0a7ee0-304d-4b80-ae36-6becb80d8cdc",
+    "success": true,
+    "duration": 5822,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bccaba9f-1689-4a2d-b22f-c4343fa6fdb2",
+    "success": true,
+    "duration": 5819,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "155a4dc9-5db1-4a71-ada3-52fdf7a2277e",
+    "success": true,
+    "duration": 8643,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b2022d58-e929-40d4-86e7-7e8681ec8cb2",
+    "success": true,
+    "duration": 5166,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0b8fa1e4-19ab-44f8-9b3d-d593330c025b",
+    "success": true,
+    "duration": 4528,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "62c01e2a-8a1b-4cb4-a70a-fdbd65035cb5",
+    "success": true,
+    "duration": 6325,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "383d3e3d-cd12-4790-a1b8-5aca72b1d725",
+    "success": true,
+    "duration": 6576,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0efadb05-dedb-44c1-8ec6-71a1fa8c1c51",
+    "success": true,
+    "duration": 8113,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "12a3353b-0d46-44b9-bc5b-b00db0cdd0f2",
+    "success": true,
+    "duration": 7330,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "67d13f5a-1f0e-4536-9024-aed08174473a",
+    "success": true,
+    "duration": 7205,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "98e01576-3d3c-471a-9487-fa1253741595",
+    "success": true,
+    "duration": 5917,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9769a566-d380-4ac5-b752-6b7890301158",
+    "success": true,
+    "duration": 8286,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "08f3e6c8-fbf1-4804-9ade-9c029bc69a19",
+    "success": true,
+    "duration": 5906,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1f20742c-bbbe-4ccf-b1b2-83479afdfc29",
+    "success": true,
+    "duration": 5726,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "058cf6a2-8077-43a6-b7d8-6470b41488e9",
+    "success": true,
+    "duration": 7856,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "02029de9-de8a-42a5-81aa-30c21806bf16",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29192, Requested 1288. Please try again in 960ms. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 109,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8efb15c6-1a1b-4f24-9a18-6c35edd9934c",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29390, Requested 1288. Please try again in 1.356s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 106,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "299b06fa-cc5f-4bbe-99f2-95289fcb86ba",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29394, Requested 1288. Please try again in 1.364s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 86,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f01c3222-eda2-4321-aa3d-403b3c7862d0",
+    "success": true,
+    "duration": 8840,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "22d82b4f-4968-4e90-a276-40848e3c2420",
+    "success": true,
+    "duration": 8148,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2f60e45b-0ecb-42ac-98d5-42f1edf43001",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28735, Requested 1288. Please try again in 46ms. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 79,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ff2d1a30-2149-4877-bc08-5bbad549b1c3",
+    "success": true,
+    "duration": 8808,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d4718aab-36f3-4039-95a0-8ccc6be26af5",
+    "success": true,
+    "duration": 4918,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "645f16b1-1700-4996-8cea-3c6e6304545b",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 28736, Requested 1288. Please try again in 48ms. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 78,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d761f5f7-801b-44d4-bcff-e18d5d205bb5",
+    "success": true,
+    "duration": 8103,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9dc101c0-d279-4a86-8e7a-741d65141ac3",
+    "success": true,
+    "duration": 7915,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

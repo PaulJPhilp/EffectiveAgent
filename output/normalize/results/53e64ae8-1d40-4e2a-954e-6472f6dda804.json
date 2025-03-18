@@ -1,0 +1,372 @@
+[
+  {
+    "profileId": "83b6af6c-e01b-44d8-88f5-76d08d734dff",
+    "success": true,
+    "duration": 7752,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f73806c6-607d-4634-b0e9-25c66d228164",
+    "success": true,
+    "duration": 8696,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "65c28d4b-0c46-4913-8194-8231f0fa9b31",
+    "success": true,
+    "duration": 6276,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fa36d19e-a37c-4669-9792-44eb72dede88",
+    "success": true,
+    "duration": 5332,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e7bea967-6b74-42ba-ac92-ced97c75f95d",
+    "success": true,
+    "duration": 6335,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9f911ecb-268d-4d9b-a3b5-1b82cb84f0a4",
+    "success": true,
+    "duration": 6592,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7c0458d4-0dd2-4e46-9f90-80a22d0fee2b",
+    "success": true,
+    "duration": 8989,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e489711f-724b-4bc1-8648-707dd183e0c6",
+    "success": true,
+    "duration": 7468,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0531b4c7-6b7c-4693-9221-797b6d57ddfb",
+    "success": true,
+    "duration": 5733,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9c53e19a-5779-494f-a643-2d07eb640c4a",
+    "success": true,
+    "duration": 6546,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c8019380-7e46-4ca4-ab53-e5cf6719dd2d",
+    "success": true,
+    "duration": 6602,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bcfe8ef1-7e26-4725-b0bc-537115934510",
+    "success": true,
+    "duration": 6009,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5d9c79d5-37d6-436b-84f4-03fd9ab37857",
+    "success": true,
+    "duration": 9109,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "86e867fa-7b63-41b8-871b-df492808f436",
+    "success": true,
+    "duration": 5547,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9f277da1-997a-46b9-934a-57c02862acc8",
+    "success": true,
+    "duration": 4893,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "00dab6cd-0495-441b-846f-fd86643c9014",
+    "success": true,
+    "duration": 5221,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "18e9ba2f-ed5b-4dda-8461-649bb77bf63c",
+    "success": true,
+    "duration": 6874,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e015de6-30f1-44b7-9b12-30eaf57661b4",
+    "success": true,
+    "duration": 5591,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c8220c1d-2299-41d9-96c3-ed0c3cb53d64",
+    "success": true,
+    "duration": 6095,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1f66ced2-7178-4ddf-a299-233fe9fd115e",
+    "success": true,
+    "duration": 4951,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ac580389-0917-4f04-84c4-4dddc5577338",
+    "success": true,
+    "duration": 14042,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f1478d3e-cf00-44a1-9236-4a9c05565490",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29912, Requested 1288. Please try again in 2.4s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5521,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "eec7cfdf-f0f7-4824-b211-86d6ef8097b6",
+    "success": true,
+    "duration": 8508,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3cf1da2c-9ef6-4e0c-bbdb-84402372e89a",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29925, Requested 1288. Please try again in 2.426s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5522,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "aa33e210-50f6-4fd9-b8ac-55725d3272f4",
+    "success": true,
+    "duration": 7182,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bcc8110a-ae52-4527-9116-666610e69712",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29912, Requested 1288. Please try again in 2.4s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5520,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "873d341e-37e9-4c76-98b6-154ddc1460c1",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29906, Requested 1288. Please try again in 2.388s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5530,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "acb11757-e913-455d-b7dc-827a12b5aac8",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29920, Requested 1288. Please try again in 2.416s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5519,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a1ce8cc3-fa0c-461a-a07c-a434206dbbb8",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29924, Requested 1288. Please try again in 2.424s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5525,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e487d184-4a4b-492f-b2f1-f09a6a1c6261",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29923, Requested 1288. Please try again in 2.422s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5524,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e89ba5a5-3ddd-4424-8b37-a9b9cfc23511",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29252, Requested 1288. Please try again in 1.08s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7763,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ebf076b0-b872-4b9c-a2a3-19d925d14b89",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29267, Requested 1288. Please try again in 1.11s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7735,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "849ff453-787e-42d6-87b5-6f3da73df38e",
+    "success": true,
+    "duration": 6451,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "73006fc1-8124-4c6f-96e0-7a187125c6f9",
+    "success": true,
+    "duration": 6382,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "11c5f215-dc84-4b96-b6fc-43ef68d9a5fc",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29266, Requested 1288. Please try again in 1.108s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7749,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c28cc00e-f356-458d-b807-f0864105c96b",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29266, Requested 1288. Please try again in 1.108s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7739,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "eb7c80da-d252-4d34-bc56-31f721f80713",
+    "success": true,
+    "duration": 9613,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e672c20d-4d93-44b3-9998-db9e9c1d6efe",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29274, Requested 1288. Please try again in 1.124s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7717,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c44c44de-6421-4d13-b233-0fa8b3907183",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29260, Requested 1288. Please try again in 1.096s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 7753,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7d6161a8-fa88-47e2-ae49-38564cf42c48",
+    "success": true,
+    "duration": 11059,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "14a5fda7-c4a7-4476-8b9e-b18af4609b3f",
+    "success": true,
+    "duration": 7992,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f4090ea9-6276-4bf4-a017-0ff2352dbfda",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29914, Requested 1288. Please try again in 2.404s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5820,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "51d9333a-1111-4820-8e0b-bf45ab699d88",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29912, Requested 1288. Please try again in 2.4s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5812,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "22e1d4c2-5560-4380-9dad-c055d78661e4",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29904, Requested 1288. Please try again in 2.384s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5832,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8eed550e-430a-4ccb-8fb3-7cbd7501a514",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29908, Requested 1288. Please try again in 2.392s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5819,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "17bea219-e26e-4e32-b57e-4484bf42d069",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29917, Requested 1288. Please try again in 2.41s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5818,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "70b5e4bc-38e4-4fbc-bc56-86af25097706",
+    "success": true,
+    "duration": 12522,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "16b1ba6c-bcf1-4929-990c-ae2fc15b1c39",
+    "success": true,
+    "duration": 10649,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2525527d-a441-4e45-89e8-3624251dff1e",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29917, Requested 1288. Please try again in 2.41s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5825,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5c058b6b-50a5-43e0-8d70-f0aae78d7d1e",
+    "success": false,
+    "error": "Error executing task normalize-text: Failed to complete prompt with OpenAI: AI_APICallError: Rate limit reached for gpt-4o in organization org-vxpgIKtt7iP5mGDzm0eFfP4O on tokens per min (TPM): Limit 30000, Used 29907, Requested 1288. Please try again in 2.39s. Visit https://platform.openai.com/account/rate-limits to learn more.",
+    "duration": 5825,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]
