@@ -763,7 +763,7 @@
 			"provider": "openai",
 			"modelName": "o3-mini",
 			"maxTokens": 100000,
-			"contextWindowSize": "very-large-context-window",
+			"contextWindowSize": "extra-large-context-window",
 			"costPer1kTokens": 0.0001,
 			"capabilities": [
 				"text-generation",

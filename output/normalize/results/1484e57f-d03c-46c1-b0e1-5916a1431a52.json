@@ -1,0 +1,363 @@
+[
+  {
+    "profileId": "7139c34f-90f1-4d12-b65a-07186909a974",
+    "success": true,
+    "duration": 8307,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1f070834-06d8-4289-aa1e-2322ec477653",
+    "success": true,
+    "duration": 8302,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "99d59d37-592b-4ae9-be70-d966c319ebcb",
+    "success": true,
+    "duration": 7483,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8cd68596-453c-4694-864e-fe440094dfee",
+    "success": true,
+    "duration": 6074,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5955668b-04cf-4acc-b71a-905407a887a6",
+    "success": true,
+    "duration": 7423,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "6a736d7b-c925-497e-8e3a-7715c9aca957",
+    "success": true,
+    "duration": 8127,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4226c5eb-b746-41fa-af7d-999897ade579",
+    "success": true,
+    "duration": 7366,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e5e9fc4-10d4-418c-896e-6a7d46ad94a4",
+    "success": true,
+    "duration": 9281,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "81ba782b-1fb2-474c-a695-7d8f1156048c",
+    "success": true,
+    "duration": 7983,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b377e939-0da2-459c-8c55-ea036eab437d",
+    "success": true,
+    "duration": 8836,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4300eae1-801c-4436-a9f4-88e921ffd620",
+    "success": true,
+    "duration": 7949,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "08f0d484-c094-4d3a-b0e7-793eaedda96f",
+    "success": true,
+    "duration": 7995,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "de18f481-5077-406e-8256-6d1f0444a8c9",
+    "success": true,
+    "duration": 9452,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9c8d7e36-bcd4-4744-b960-4dd2e72fcc9e",
+    "success": true,
+    "duration": 8558,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "cbe3c7fc-3347-4fc0-a8b3-c1061b69c956",
+    "success": true,
+    "duration": 9436,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "977a9e5e-6a82-458d-a1a3-49fa7599b849",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 82,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e6e13eb0-ab4d-4a07-b970-018ca5408a19",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 93,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "38bb8c2b-4f96-45ff-bd7e-b4a38c07f6da",
+    "success": true,
+    "duration": 6212,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "25efcf35-fa72-40e9-b13f-b0b100246a35",
+    "success": true,
+    "duration": 7751,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d728be3a-3114-4178-9cf3-3b6cbf50df5b",
+    "success": true,
+    "duration": 8943,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7a0d32d9-f4f8-4e67-88e1-36286b131133",
+    "success": true,
+    "duration": 6990,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f4a54fb0-94d9-4dad-9c45-1bc6a355f725",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 76,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c27c8335-eac7-4f5c-9044-a7e962c811d8",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 73,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4d3560a6-593b-40fd-815e-5981a6abf7da",
+    "success": true,
+    "duration": 8991,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "230a3235-bd0e-4c6a-aeae-10cc6199e210",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 78,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3b0d4277-d953-4299-b01a-e4fe0ba97c29",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 77,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7d3d4669-db3a-40e2-91be-c2696d99f4e1",
+    "success": true,
+    "duration": 6155,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "01e69589-2b93-408d-9a9f-ae88dcf3fb41",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 83,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "36288346-4c32-49f1-a920-b13932450c33",
+    "success": true,
+    "duration": 5824,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "017a1905-a107-41a8-933a-4001b3866e6d",
+    "success": true,
+    "duration": 6495,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a66bd2b8-5aef-45b3-91bb-743526cc01d7",
+    "success": true,
+    "duration": 6496,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "de35ea89-f4c8-43dd-aa55-2691936415b8",
+    "success": true,
+    "duration": 7621,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e991c57-c53e-4059-b15e-364859a4e775",
+    "success": true,
+    "duration": 8193,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0bb3940d-58df-45ef-8f88-440e6bbfd476",
+    "success": true,
+    "duration": 8783,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fb515afe-890e-402a-91c9-72b2214c24fa",
+    "success": true,
+    "duration": 8248,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "204fa8c5-aa58-4383-9a9b-56a5dac791e1",
+    "success": true,
+    "duration": 9634,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "155f169d-5c00-4160-bc90-a776112a74d0",
+    "success": true,
+    "duration": 7055,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "516f1d9b-19af-4afe-be62-51da22db8c9d",
+    "success": true,
+    "duration": 8210,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bc39aab0-21a4-48c2-8e4d-c05a9b149e98",
+    "success": true,
+    "duration": 6564,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3f1fa806-7fa4-4bf1-9a27-fad65af7b10d",
+    "success": true,
+    "duration": 7727,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "024eff2e-2649-44ec-a667-9663128bdd1e",
+    "success": true,
+    "duration": 6467,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "60efebf9-64e7-4247-80d0-de619e20b2de",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 76,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9a5f9967-93a3-44a2-98b9-a1fca3b80429",
+    "success": true,
+    "duration": 8863,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f840b83c-7c5a-401f-903e-117aafd9b5b4",
+    "success": true,
+    "duration": 8608,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "91fdd5a4-3b82-4df9-8e20-2160cf1078e8",
+    "success": true,
+    "duration": 8323,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4057c6f5-e2f8-407b-b7f8-7a3e9a2de4cd",
+    "success": true,
+    "duration": 7387,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a4493b74-5c08-4a18-a27c-22d84c7e4ca7",
+    "success": true,
+    "duration": 8816,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d1196822-f611-4712-a56f-3cf3ba73467f",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 71,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "860e7f46-ea35-4951-9c96-51e89b4b643c",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 71,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4d7fa19e-e851-4e7e-b47e-8537e883e301",
+    "success": false,
+    "error": "Error executing task normalize-text: data.error?.code?.includes is not a function. (In 'data.error?.code?.includes(\"rate_limit\")', 'data.error?.code?.includes' is undefined)",
+    "duration": 60,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

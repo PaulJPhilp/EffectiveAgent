@@ -47,7 +47,9 @@ export class DeepSeekProvider extends BaseModelProvider {
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
         const taskId = new Date().toISOString();
-        console.log(`[OPENAI][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+        if (this.debug) {
+            console.log(`[DeepSeek][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+        }
 
         const handlerConfig: HandlerConfig = {
             retries: 0,
@@ -57,7 +59,9 @@ export class DeepSeekProvider extends BaseModelProvider {
         };
 
         const completeTask: RunnableTask = async (opts) => {
-            //console.log(`[OPENAI][${taskId}] Running task with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[DeepSeek][${taskId}] Running task with model ${this.modelConfig.id}`);
+            }
             const optionsWithDefaults = this.applyDefaultOptions(opts);
             const response = generateText({
                 model: this.deepseekProvider(this.modelConfig.id),
@@ -65,7 +69,9 @@ export class DeepSeekProvider extends BaseModelProvider {
                 temperature: optionsWithDefaults.temperature ?? 0.2,
                 maxRetries: 0 // We'll handle retries ourselves
             });
-            //console.log(`[OPENAI][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[DeepSeek][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            }
             return this.wrapResponse(await response);
         };
 

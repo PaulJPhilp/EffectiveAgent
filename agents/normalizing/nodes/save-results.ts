@@ -8,6 +8,7 @@ import type { NormalizedProfile, NormalizationResult } from '../types';
  * Handles saving normalized profiles and results
  */
 export class ResultsSaver {
+  private readonly debug: boolean = false;
   /**
    * Creates output directories if they don't exist
    * @param outputDir Base output directory

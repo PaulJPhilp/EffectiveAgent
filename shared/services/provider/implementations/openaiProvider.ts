@@ -43,7 +43,9 @@ export class OpenAIProvider extends BaseModelProvider {
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
         const taskId = new Date().toISOString();
-        console.log(`[OPENAI][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+        if (this.debug) {
+            console.log(`[OPENAI][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+        }
 
         const handlerConfig: HandlerConfig = {
             retries: 0,
@@ -53,7 +55,9 @@ export class OpenAIProvider extends BaseModelProvider {
         };
 
         const completeTask: RunnableTask = async (opts) => {
-            //console.log(`[OPENAI][${taskId}] Running task with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[OPENAI][${taskId}] Running task with model ${this.modelConfig.id}`);
+            }
             const optionsWithDefaults = this.applyDefaultOptions(opts);
             const response = generateText({
                 model: openai(this.modelConfig.id),
@@ -61,7 +65,9 @@ export class OpenAIProvider extends BaseModelProvider {
                 temperature: optionsWithDefaults.temperature ?? 0.2,
                 maxRetries: 0 // We'll handle retries ourselves
             });
-            //console.log(`[OPENAI][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[OPENAI][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            }
             return this.wrapResponse(await response);
         };
 
@@ -78,7 +84,9 @@ export class OpenAIProvider extends BaseModelProvider {
         options: ImageGenerationOptions
     ): Promise<ImageGenerationResponse> {
         const taskId = new Date().toISOString();
-        console.log(`[OPENAI][${taskId}] Generating image with model ${this.modelConfig.id}`);
+        if (this.debug) {
+            console.log(`[OPENAI][${taskId}] Generating image with model ${this.modelConfig.id}`);
+        }
 
         // Validate inputs
         if (options.size && !['256x256', '512x512', '1024x1024'].includes(options.size)) {

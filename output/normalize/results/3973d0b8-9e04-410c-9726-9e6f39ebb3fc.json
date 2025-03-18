@@ -1,0 +1,357 @@
+[
+  {
+    "profileId": "09f57cb9-e78a-4d74-919b-bf5bd3e3fbf2",
+    "success": true,
+    "duration": 6986,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "afff45e4-19bd-4dc3-b74d-0e163980fb89",
+    "success": true,
+    "duration": 6315,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9141c88a-6e4b-44f9-ab78-0573775bdc17",
+    "success": true,
+    "duration": 8517,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1b500dc9-5ea4-47e7-a47d-6369899d273c",
+    "success": true,
+    "duration": 7902,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c0b070f6-9be5-4235-b620-f0839290130c",
+    "success": true,
+    "duration": 8893,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f696863b-854e-4691-9bd4-e392230cad22",
+    "success": true,
+    "duration": 9524,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "cb76c0c3-6934-4875-92af-985aedef4859",
+    "success": true,
+    "duration": 8264,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fe889e36-2a9c-4174-a112-2bdd4677b104",
+    "success": true,
+    "duration": 8285,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2606b827-cf50-4ff6-873f-4a0d4a5b1094",
+    "success": true,
+    "duration": 7976,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d32abc34-b836-46be-855e-8931f5d4a260",
+    "success": true,
+    "duration": 9305,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dff3a426-dee9-43e2-8b5d-419ac2d7f406",
+    "success": true,
+    "duration": 9236,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f54517bd-e6d5-4f3a-9fa0-1cf552042e2e",
+    "success": true,
+    "duration": 36059,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0e38a3a2-a322-4c9f-8ed9-ef9848f9fef5",
+    "success": true,
+    "duration": 8467,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ec1960a0-0c14-4951-9733-6c11628d8c91",
+    "success": true,
+    "duration": 8140,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "155a187a-ca3f-4488-bfa8-786ef6d7d79f",
+    "success": true,
+    "duration": 10106,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "6faff8cf-b3aa-441b-993e-9aa713bc5cda",
+    "success": true,
+    "duration": 7516,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5c4931c8-ae25-4867-9ce7-735ba2613e6f",
+    "success": true,
+    "duration": 8903,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3a8f4a86-2efb-4aa2-b43e-77e5ea194265",
+    "success": true,
+    "duration": 5853,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "48bfea9c-786d-432c-9aca-5ca2ca616715",
+    "success": true,
+    "duration": 10051,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "055c4fdd-d890-4d4e-8d53-a65b966c65cf",
+    "success": true,
+    "duration": 8450,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "19b1dcbd-9d4d-450f-9036-7b522e44ece0",
+    "success": true,
+    "duration": 6405,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "750489fc-281f-4948-ab42-a5f19827642c",
+    "success": true,
+    "duration": 8847,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c736a37b-721b-40c7-a6f5-740421df1ba4",
+    "success": true,
+    "duration": 8493,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "eea1d988-17c6-43ed-8a9d-9a9e8db64672",
+    "success": true,
+    "duration": 11409,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b26c953e-a5ba-4a58-918c-46c598703bfc",
+    "success": true,
+    "duration": 6560,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "73b66156-9192-48db-bb04-efe993f05629",
+    "success": true,
+    "duration": 8445,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b269adcc-b9a2-4500-a696-0c8ee2bcfc9d",
+    "success": true,
+    "duration": 8770,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0ca64855-b8f2-47f3-845a-987ef5f65d02",
+    "success": true,
+    "duration": 9435,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "699535ca-b325-4548-957b-e9408cf5ac3a",
+    "success": true,
+    "duration": 8747,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bc607875-c3d4-4e9f-a090-088ba3395240",
+    "success": true,
+    "duration": 7021,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7b95b52e-819f-4f28-b30d-93b01d499d13",
+    "success": true,
+    "duration": 8757,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "36a01355-c451-490f-924f-04bda2dd1c2b",
+    "success": true,
+    "duration": 7519,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dc0fa2ec-4d08-4b82-a9f2-d93aa2598a8c",
+    "success": true,
+    "duration": 6445,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3b1a029f-d305-465e-9b39-8d78cd5e36e2",
+    "success": true,
+    "duration": 8797,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "958300d7-dc4d-4a25-a507-c41d6de5f7f1",
+    "success": true,
+    "duration": 9411,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ee9caa95-f59c-4cb8-bd70-493a46a3b5cb",
+    "success": true,
+    "duration": 7796,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e6c0629f-0246-4a29-ad3e-8b872738a450",
+    "success": true,
+    "duration": 8499,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b7f778ac-81c1-402b-b4bf-a78829e74db2",
+    "success": true,
+    "duration": 9294,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a54cd8a7-43da-4fdb-aba2-0f1f27c2c696",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 67,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "aa47de46-0c23-4583-bee1-8347cc0f341f",
+    "success": true,
+    "duration": 8147,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5e4bda1c-d001-4707-9dd5-3021a1273c60",
+    "success": true,
+    "duration": 13282,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "eb04eb39-ad28-4978-b36d-5427dba51d05",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 67,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1fc8c009-ea5c-4a8b-9dd9-bb00a8bec18a",
+    "success": true,
+    "duration": 10675,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4045ec1e-819d-4893-832e-255511ad26a5",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 69,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0dad5dba-a54f-426a-b988-036a261d466e",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 56,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "25b35f9e-dee7-495b-81c5-9677b06c5eee",
+    "success": true,
+    "duration": 8162,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "856b3aeb-b4d2-46c0-af97-903f21de5e80",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 59,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "320bc1c8-c316-4b42-83d4-b25bcffa17f1",
+    "success": true,
+    "duration": 9393,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "aa0a033d-e617-4c2a-b62a-92c11d624431",
+    "success": true,
+    "duration": 9401,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bff68100-ec03-44fa-8b2b-1bfe461475b2",
+    "success": true,
+    "duration": 8290,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

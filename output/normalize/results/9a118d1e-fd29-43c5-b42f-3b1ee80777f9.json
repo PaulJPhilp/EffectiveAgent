@@ -1,0 +1,58 @@
+[
+  {
+    "profileId": "b8489a7c-a83b-49b7-a8bf-76667ddc276e",
+    "success": true,
+    "duration": 20451,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9448555e-b8fe-460e-bae3-d393551f60b4",
+    "success": true,
+    "duration": 25654,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fd6349e2-ca1a-4d61-90ce-c2b057497c22",
+    "success": true,
+    "duration": 28483,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "953dfe31-f8ff-4719-a799-8e6bfe80dafc",
+    "success": true,
+    "duration": 28748,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0d73ace4-d29c-4635-8d96-6090ecb6b7b0",
+    "success": true,
+    "duration": 42590,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "218cc7f7-ee22-4114-af44-8a803b3a50b7",
+    "success": true,
+    "duration": 50361,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d9756668-1985-4481-8167-5b4dd9620cb9",
+    "success": true,
+    "duration": 39573,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "df230f27-e8e6-41f9-8431-03b821f605fe",
+    "success": true,
+    "duration": 44567,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

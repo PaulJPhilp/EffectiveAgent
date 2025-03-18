@@ -20,12 +20,15 @@ interface ModelRegistryServiceOptions {
  * Implements IModelSelectionService interface for direct model access
  */
 export class ModelRegistryService implements IModelSelectionService {
+    private debug: boolean = false;
     private config: ModelRegistryConfig;
     private modelsConfigPath: string;
     private isInitialized = false;
 
     constructor(options: ModelRegistryServiceOptions) {
-        console.log(`[ModelRegistryService] Initializing with config path: ${options.modelsConfigPath}`);
+        if (this.debug) {
+            console.log(`[ModelRegistryService] Initializing with config path: ${options.modelsConfigPath}`);
+        }
         this.modelsConfigPath = options.modelsConfigPath;
         if (!fs.opendirSync(this.modelsConfigPath)) {
             throw new Error(`Model registry config file not found: ${this.modelsConfigPath}`);
@@ -52,7 +55,9 @@ export class ModelRegistryService implements IModelSelectionService {
             return;
         }
 
-        console.log(`[ModelRegistryService] Initialize() with config path: ${this.modelsConfigPath}`);
+        if (this.debug) {
+            console.log(`[ModelRegistryService] Initialize() with config path: ${this.modelsConfigPath}`);
+        }
         try {
             const configFilename = join(this.modelsConfigPath, "models.json")
             const modelsData = fs.readFileSync(configFilename, "utf-8");
@@ -68,9 +73,11 @@ export class ModelRegistryService implements IModelSelectionService {
             this.config = validatedConfig;
             this.isInitialized = true;
 
-            console.log(
-                `Model registry initialized with ${this.config.models.length} models`
-            );
+            if (this.debug) {
+                console.log(
+                    `Model registry initialized with ${this.config.models.length} models`
+                );
+            }
         } catch (error) {
             if (error instanceof z.ZodError) {
                 console.error("Invalid model registry configuration:", error.format());
@@ -94,8 +101,10 @@ export class ModelRegistryService implements IModelSelectionService {
      * @throws Error if model not found
      */
     public getModelById(modelId: string): ModelConfig {
-        console.log(`[ModelRegistryService] Getting model by ID: |${modelId}|`);
-        console.log(`[ModelRegistryService] Available models: |${this.config.models.map(model => model.id).join('|, |')}|`);
+        if (this.debug) {
+            console.log(`[ModelRegistryService] Getting model by ID: |${modelId}|`);
+            console.log(`[ModelRegistryService] Available models: |${this.config.models.map(model => model.id).join('|, |')}|`);
+        }
 
         const model = this.config.models.find((model) => model.id.trim().toLowerCase() === modelId.trim().toLowerCase());
         if (!model) {

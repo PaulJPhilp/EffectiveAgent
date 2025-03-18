@@ -12,6 +12,7 @@ export interface ProviderRegistryOptions {
  * Service for managing provider configurations
  */
 export class ProviderRegistryService {
+    private readonly debug: boolean = false;
     private config: ProvidersConfig = {
         providers: [],
         defaultProviderId: "openai"
@@ -33,14 +34,17 @@ export class ProviderRegistryService {
         if (this.isInitialized) return
 
         try {
-            console.log(`[ProviderRegistryService] Initialize() with config path: ${this.providersConfigPath}`);
+            if (this.debug) {
+                console.log(`[ProviderRegistryService] Initialize() with config path: ${this.providersConfigPath}`);
+            }
             const configPath = join(this.providersConfigPath, "providers.json")
-            console.log(`[ProviderRegistryService] Config path: ${configPath}`);
             if (!fs.existsSync(configPath)) {
                 throw new Error(`Providers configuration file not found: ${configPath}`);
             }
             const configData = fs.readFileSync(configPath, "utf-8")
-            console.log(`[ProviderRegistryService] Config data: ${JSON.stringify(configData)}`);
+            if (this.debug) {
+                console.log(`[ProviderRegistryService] Config data: ${JSON.stringify(configData)}`);
+            }
             const parsedConfig = JSON.parse(configData)
             this.config = ProvidersConfigSchema.parse(parsedConfig)
             this.isInitialized = true
@@ -54,8 +58,10 @@ export class ProviderRegistryService {
      * Get provider configuration by ID
      */
     public getProviderConfig(providerId: string): ProviderConfig | undefined {
-        console.log(`[ProviderRegistryService] Getting provider by ID: |${providerId}|`);
-        console.log(`[ProviderRegistryService] Available providers: |${this.config.providers.map(p => p.id).join('|, |')}|`);
+        if (this.debug) {
+            console.log(`[ProviderRegistryService] Getting provider by ID: |${providerId}|`);
+            console.log(`[ProviderRegistryService] Available providers: |${this.config.providers.map(p => p.id).join('|, |')}|`);
+        }
         return this.config.providers.find(p => p.id === providerId)
     }
 

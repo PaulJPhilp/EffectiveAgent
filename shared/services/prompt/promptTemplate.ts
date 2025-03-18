@@ -16,10 +16,14 @@ interface PromptTemplateServiceOptions {
  * Service for managing prompt templates and generating prompts
  */
 export class PromptTemplateService implements IPromptTemplateService {
+    readonly debug: boolean = false;
     private readonly templates: Map<string, PromptDefinition>;
 
     constructor(options?: PromptTemplateServiceOptions) {
-        console.log(`[PromptTemplateService] Initializing with config path: ${options?.promptPath}`);
+        if (this.debug) {
+            console.log(`[PromptTemplateService] Initializing with config path: ${options?.promptPath}`);
+        }
+        this.templates = new Map();
         this.templates = new Map();
         if (options?.promptPath) {
             this.loadTemplates(path.join(options.promptPath, 'prompts'));
@@ -40,7 +44,9 @@ export class PromptTemplateService implements IPromptTemplateService {
     }
 
     private loadTemplate(templateDirPath: string, templateName: string): PromptDefinition {
-        console.log(`[PromptTemplateService] Loading template: ${templateName}`);
+        if (this.debug) {
+            console.log(`[PromptTemplateService] Loading template: ${templateName}`);
+        }
         const templatePath = path.join(templateDirPath, `${templateName}.json`);
         if (!fs.existsSync(templatePath)) {
             throw new PromptError(
@@ -60,8 +66,10 @@ export class PromptTemplateService implements IPromptTemplateService {
     }
 
     public getTemplate(identifier: TemplateIdentifier): PromptDefinition {
-        console.log(`[PromptTemplateService] Getting template: ${identifier.templateName}`);
-        console.log(`[PromptTemplateService] Available templates: ${Array.from(this.templates.keys())}`);
+        if (this.debug) {
+            console.log(`[PromptTemplateService] Getting template: ${identifier.templateName}`);
+            console.log(`[PromptTemplateService] Available templates: ${Array.from(this.templates.keys())}`);
+        }
         const template = this.templates.get(identifier.templateName);
         if (!template) {
             throw new PromptError(
@@ -69,7 +77,9 @@ export class PromptTemplateService implements IPromptTemplateService {
                 { templateName: identifier.templateName }
             );
         }
-        console.log(`[PromptTemplateService] Returning template: ${identifier.templateName}`);
+        if (this.debug) {
+            console.log(`[PromptTemplateService] Returning template: ${identifier.templateName}`);
+        }
         return template;
     }
 
@@ -77,10 +87,14 @@ export class PromptTemplateService implements IPromptTemplateService {
         identifier: TemplateIdentifier,
         variables: PromptVariables
     ): string {
-        console.log(`[PromptTemplateService] Building prompt for template: ${identifier.templateName}`);
+        if (this.debug) {
+            console.log(`[PromptTemplateService] Building prompt for template: ${identifier.templateName}`);
+        }
         const template = this.getTemplate(identifier);
         if (template) {
-            console.log(`[PromptTemplateService] Using template: ${identifier.templateName}`);
+            if (this.debug) {
+                console.log(`[PromptTemplateService] Using template: ${identifier.templateName}`);
+            }
             return template.systemPrompt.promptTemplate ?? '';
         }
         const sortedSubprompts = this.getSortedSubprompts(template);

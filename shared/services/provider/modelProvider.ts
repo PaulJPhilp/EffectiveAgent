@@ -94,6 +94,7 @@ export interface ModelProvider {
 }
 
 export abstract class BaseModelProvider implements ModelProvider {
+    protected debug: boolean = false;
     protected modelConfig: ModelConfig;
 
     constructor(modelConfig: ModelConfig) {
@@ -110,13 +111,15 @@ export abstract class BaseModelProvider implements ModelProvider {
 
     private isRateLimitError(error: unknown): boolean {
         if (error instanceof APICallError) {
-            const data = error.data as { error: { code: string } };
-            const isRateLimit = data.error?.code?.includes('rate_limit');
-            if (!isRateLimit) {
-                console.warn(`[OPENAI] Unexpected error: ${JSON.stringify(data, null, 2)}`);
+            const data = error.data as { error: { code: string | number, status: string } };
+            if (!data.error) {
+                console.warn(`[ModelProvider] Unexpected error: ${JSON.stringify(data, null, 2)}`);
                 throw error
             }
-            return isRateLimit;
+            if (typeof data.error.code === 'number') {  // Google Error
+                return data.error.status === 'RESOURCES_EXHAUSTED';
+            }
+            return data.error.code === 'rate_limit_exceeded';
         }
         return false;
     }
@@ -140,11 +143,15 @@ export abstract class BaseModelProvider implements ModelProvider {
         task: RunnableTask,
         handlerConfig: HandlerConfig
     ): Promise<ModelCompletionResponse> {
-        // console.log(`[ModelProvider] Running task with model ${this.modelConfig.id}`);
+        if (this.debug) {
+            console.log(`[ModelProvider] Running task with model ${this.modelConfig.id}`);
+        }
         this.validateOptions(handlerConfig.options);
         try {
             const result = await task(handlerConfig.options);
-            // console.log(`[ModelProvider] Task completed with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[ModelProvider] Task completed with model ${this.modelConfig.id}`);
+            }
             return result;
         } catch (error: any) {
             return this.handleError(error, handlerConfig, task);
@@ -156,7 +163,9 @@ export abstract class BaseModelProvider implements ModelProvider {
         handlerConfig: HandlerConfig,
         task: RunnableTask
     ): Promise<ModelCompletionResponse> {
-        //console.error(`[ModelProvider] Error on model ${this.modelConfig.id}:`, error.message);
+        if (this.debug) {
+            console.error(`[ModelProvider] Error on model ${this.modelConfig.id}:`, error.message);
+        }
 
         if (this.isRateLimitError(error)) {
             let waitTime = this.extractWaitTime(error.message) || 1000;
@@ -166,14 +175,18 @@ export abstract class BaseModelProvider implements ModelProvider {
 
         if (handlerConfig.retries < handlerConfig.maxRetries) {
             handlerConfig.retries += 1;
-            //console.log(`[ModelProvider] Retrying task (${handlerConfig.retries}/${handlerConfig.maxRetries}) for model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[ModelProvider] Retrying task (${handlerConfig.retries}/${handlerConfig.maxRetries}) for model ${this.modelConfig.id}`);
+            }
             try {
                 return await task(handlerConfig.options);
             } catch (err) {
                 return this.handleError(err as Error, handlerConfig, task);
             }
         } else {
-            //console.error(`[ModelProvider] Reached maxRetries (${handlerConfig.maxRetries}) for model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.error(`[ModelProvider] Reached maxRetries (${handlerConfig.maxRetries}) for model ${this.modelConfig.id}`);
+            }
             throw error;
         }
     }

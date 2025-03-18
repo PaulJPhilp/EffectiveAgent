@@ -45,7 +45,9 @@ export class GrokProvider extends BaseModelProvider {
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
         const taskId = new Date().toISOString();
-        console.log(`[GROK][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+        if (this.debug) {
+            console.log(`[GROK][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+        }
 
         const handlerConfig: HandlerConfig = {
             retries: 0,
@@ -55,7 +57,9 @@ export class GrokProvider extends BaseModelProvider {
         };
 
         const completeTask: RunnableTask = async (opts) => {
-            //console.log(`[OPENAI][${taskId}] Running task with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[GROK][${taskId}] Running task with model ${this.modelConfig.id}`);
+            }
             const optionsWithDefaults = this.applyDefaultOptions(opts);
             const response = generateText({
                 model: this.xaiProvider(this.modelConfig.id),
@@ -63,7 +67,9 @@ export class GrokProvider extends BaseModelProvider {
                 temperature: optionsWithDefaults.temperature ?? 0.2,
                 maxRetries: 0 // We'll handle retries ourselves
             });
-            //console.log(`[OPENAI][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[GROK][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            }
             return this.wrapResponse(await response);
         };
 
@@ -72,5 +78,3 @@ export class GrokProvider extends BaseModelProvider {
         return result;
     }
 }
-
-

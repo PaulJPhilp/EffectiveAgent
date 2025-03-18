@@ -15,7 +15,9 @@ export const ModelCapabilities = [
     "embeddings",
     "tool-use",
     "ocr",
-    "search"
+    "search",
+    "math",
+    "code"
 ] as const;
 
 export type ModelCapability = typeof ModelCapabilities[number];

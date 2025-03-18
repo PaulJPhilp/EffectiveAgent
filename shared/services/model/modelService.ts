@@ -27,6 +27,7 @@ interface ModelErrorOptions {
 }
 
 class ModelError extends Error {
+
     readonly code: string = 'MODEL_ERROR';
     readonly modelId?: string;
 
@@ -38,12 +39,15 @@ class ModelError extends Error {
 }
 
 export class ModelService {
+    readonly debug: boolean = false;
     private readonly providerFactory: ProviderFactory;
     private readonly modelRegistry: ModelRegistryService;
     private readonly configPath: string = "";
 
     constructor(options: ModelServiceOptions) {
-        console.log(`[ModelService] Initializing with config path: ${options.configPath}`);
+        if (this.debug) {
+            console.log(`[ModelService] Initializing with config path: ${options.configPath}`);
+        }
         this.providerFactory = new ProviderFactory({ configPath: options.configPath });
         this.modelRegistry = new ModelRegistryService({ modelsConfigPath: options.configPath });
         this.configPath = options.configPath;
@@ -64,7 +68,9 @@ export class ModelService {
 
     private async createProvider(modelId: string): Promise<BaseModelProvider> { 
         try {
-            console.log(`[ModelService] Creating provider for model: ${modelId}`);
+            if (this.debug) {
+                console.log(`[ModelService] Creating provider for model: ${modelId}`);
+            }
             const provider = this.providerFactory.createProviderForModelId(modelId);
             return provider;
         } catch (error) {
@@ -85,7 +91,9 @@ export class ModelService {
         { modelId }: ModelIdentifier,
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
-        console.log(`[ModelService] Completing prompt for model: ${modelId}`);
+        if (this.debug) {
+            console.log(`[ModelService] Completing prompt for model: ${modelId}`);
+        }
         const provider = await this.createProvider(modelId);
         const response = await provider.complete(options);
         return { ...response, modelId };

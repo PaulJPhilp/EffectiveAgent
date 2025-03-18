@@ -22,6 +22,7 @@ interface ModelSelectionFactoryOptions {
  * Factory for selecting appropriate models based on requirements
  */
 export class ModelSelectionFactory {
+    readonly debug: boolean = false;
     private modelRegistry: ModelRegistryService;
     constructor(options: ModelSelectionFactoryOptions) {
         this.modelRegistry = new ModelRegistryService({ modelsConfigPath: options.modelsConfigPath });
@@ -34,13 +35,17 @@ export class ModelSelectionFactory {
     private meetsContextWindowRequirement(model: ModelConfig, requiredSize?: ContextWindowSize): boolean {
         // If no requirement is specified, any model meets the requirement
         if (!requiredSize) {
-            console.log(`No context window size requirement for ${model.id}`);
+            if (this.debug) {
+                console.log(`No context window size requirement for ${model.id}`);
+            }
             return true;
         }
 
-        console.log(`Context window check for ${model.id}:`);
-        console.log(`- Required size: "${requiredSize}" (type: ${typeof requiredSize})`);
-        console.log(`- Model size: "${model.contextWindowSize}" (type: ${typeof model.contextWindowSize})`);
+        if (this.debug) {
+            console.log(`Context window check for ${model.id}:`);
+            console.log(`- Required size: "${requiredSize}" (type: ${typeof requiredSize})`);
+            console.log(`- Model size: "${model.contextWindowSize}" (type: ${typeof model.contextWindowSize})`);
+        }
 
         // If model has contextWindowSize, use direct comparison
         if (model.contextWindowSize) {
@@ -59,17 +64,24 @@ export class ModelSelectionFactory {
         }
 
         // Legacy fallback using token count
-        if (!model.contextWindow) return false;
+        if (!model.contextWindowSize) {
+            if (this.debug) {
+                console.log(`Legacy check for ${model.id} with context window ${model.contextWindowSize} meets requirement ${requiredSize}`);
+            }
+            return false;
+        }
 
-        console.log(`Legacy check for ${model.id} with context window ${model.contextWindow} meets requirement ${requiredSize}`);
+        if (this.debug) {
+            console.log(`Legacy check for ${model.id} with context window ${model.contextWindowSize} meets requirement ${requiredSize}`);
+        }
 
         switch (requiredSize) {
             case "small-context-window":
-                return model.contextWindow >= 4096; // Minimum 4K tokens
+                return model.contextWindowSize >= 4096; // Minimum 4K tokens
             case "medium-context-window":
-                return model.contextWindow >= 32000; // Minimum 32K tokens
+                return model.contextWindowSize >= 32000; // Minimum 32K tokens
             case "large-context-window":
-                return model.contextWindow >= 100000; // Minimum 100K tokens
+                return model.contextWindowSize >= 100000; // Minimum 100K tokens
             default:
                 return false;
         }
@@ -84,15 +96,21 @@ export class ModelSelectionFactory {
      * @throws Error if no models are available
      */
     public getModel(modelId?: string, temperature?: number): ModelSelectionResult {
-        console.log(`[ModelSelectionFactory] Direct model selection`);
+        if (this.debug) {
+            console.log(`[ModelSelectionFactory] Direct model selection`);
+        }
 
         // If model ID is specified, use it directly
         if (modelId) {
             const model = this.modelRegistry.getModelById(modelId);
-            console.log(`[ModelSelectionFactory] Checking for model: ${modelId}`);
+            if (this.debug) {
+                console.log(`[ModelSelectionFactory] Checking for model: ${modelId}`);
+            }
 
             if (model) {
-                console.log(`[ModelSelectionFactory] Using model: ${model.id}`);
+                if (this.debug) {
+                    console.log(`[ModelSelectionFactory] Using model: ${model.id}`);
+                }
                 return {
                     model,
                     temperature: temperature ??
@@ -103,8 +121,10 @@ export class ModelSelectionFactory {
 
         // If no model ID or not found, use the first available model
         const allModels = this.getAllModels();
-        console.log('[ModelSelectionFactory] Available models:',
-            JSON.stringify(allModels.map(m => m.id), null, 2));
+        if (this.debug) {
+            console.log('[ModelSelectionFactory] Available models:',
+                JSON.stringify(allModels.map(m => m.id), null, 2));
+        }
 
         if (allModels.length === 0) {
             console.error('[ModelSelectionFactory] No models available');
@@ -112,7 +132,9 @@ export class ModelSelectionFactory {
         }
 
         // Simply use the first available model
-        console.log(`[ModelSelectionFactory] Using first available model: ${allModels[0].id}`);
+        if (this.debug) {
+            console.log(`[ModelSelectionFactory] Using first available model: ${allModels[0].id}`);
+        }
         return {
             model: allModels[0],
             temperature: temperature ?? this.modelRegistry.getDefaultTemperature()
@@ -129,8 +151,10 @@ export class ModelSelectionFactory {
         temperature?: number;
         preferredModelId?: string;
     }): ModelSelectionResult {
-        console.log(`[ModelSelectionFactory] Selecting model with requirements:`,
-            JSON.stringify(requirements, null, 2));
+        if (this.debug) {
+            console.log(`[ModelSelectionFactory] Selecting model with requirements:`,
+                JSON.stringify(requirements, null, 2));
+        }
 
         // If preferred model ID is provided and exists, use it directly
         if (requirements.preferredModelId) {
@@ -138,7 +162,9 @@ export class ModelSelectionFactory {
                 const model = this.modelRegistry.getModelById(
                     requirements.preferredModelId
                 );
-                console.log(`[ModelSelectionFactory] Using preferred model: ${model.id}`);
+                if (this.debug) {
+                    console.log(`[ModelSelectionFactory] Using preferred model: ${model.id}`);
+                }
 
                 return {
                     model,
@@ -162,30 +188,19 @@ export class ModelSelectionFactory {
             );
         }
 
-        // Filter by thinking level if required
-        if (requirements.thinkingLevel) {
-            candidateModels = candidateModels.filter(model =>
-                this.meetsThinkingLevelRequirement(
-                    model.thinkingLevel || 'low',
-                    requirements.thinkingLevel!
-                )
-            );
-        }
-
         // Filter by context window size if required
         if (requirements.contextWindowSize) {
             // Map context window size to numeric values
             const sizeMap = {
                 'small-context-window': 4000,
                 'medium-context-window': 8000,
-                'large-context-window': 16000
-            };
-            const requiredSize = sizeMap[requirements.contextWindowSize] || 4000;
+                'large-context-window': 16000,
+                'extra-large-context-window': 128000
+            }
 
-            candidateModels = candidateModels.filter(model => {
-                const modelSize = model.contextWindow || 0;
-                return modelSize >= requiredSize;
-            });
+            candidateModels = candidateModels.filter(model =>
+                model.contextWindowSize === requirements.contextWindowSize
+               );
         }
 
         console.log(`[ModelSelectionFactory] Found ${candidateModels.length} candidate models`);
@@ -204,15 +219,6 @@ export class ModelSelectionFactory {
             temperature: requirements.temperature ??
                 this.modelRegistry.getDefaultTemperature()
         };
-    }
-
-    /**
-     * Check if a model's thinking level meets the minimum requirement
-     * @private
-     */
-    private meetsThinkingLevelRequirement(modelLevel: ThinkingLevel, requiredLevel: ThinkingLevel): boolean {
-        const levels = { "low": 1, "medium": 2, "high": 3 };
-        return levels[modelLevel] >= levels[requiredLevel];
     }
 
     /**

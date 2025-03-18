@@ -9,6 +9,7 @@ import type { ProfileData } from '../types';
  * Loads profile data from PDF files in the input directory
  */
 export class ProfileLoader {
+  private readonly debug: boolean = false;
   /**
    * Reads and parses a PDF file into profile data
    * @param filePath Path to the PDF file
@@ -40,9 +41,13 @@ export class ProfileLoader {
   public async loadProfiles(inputDir: string): Promise<ProfileData[]> {
     try {
       const files = await readdir(inputDir);
-      console.log(`Found ${files.length} files in ${inputDir}`);
+      if (this.debug) {
+        console.log(`Found ${files.length} files in ${inputDir}`);
+      }
       const pdfFiles = files.filter((file) => file.toLowerCase().endsWith('.pdf'));
-      console.log(`Found ${pdfFiles.length} PDF files in ${inputDir}`);
+      if (this.debug) {
+        console.log(`Found ${pdfFiles.length} PDF files in ${inputDir}`);
+      }
 
       if (pdfFiles.length === 0) {
         throw new Error(`No PDF files found in ${inputDir}`);
@@ -54,7 +59,9 @@ export class ProfileLoader {
           const profile = await this.loadProfileFromPdf(join(inputDir, file));
           profiles.push(profile);
         } catch (error) {
-          console.error(`Failed to load ${file}: ${error}`);
+          if (this.debug) {
+            console.error(`Failed to load ${file}: ${error}`);
+          }
           // Continue loading other files even if one fails
         }
       }
@@ -65,6 +72,9 @@ export class ProfileLoader {
 
       return profiles;
     } catch (error) {
+      if (this.debug) {
+        console.error(`Failed to load profiles from ${inputDir}: ${error}`);
+      }
       throw new Error(`Failed to load profiles from ${inputDir}: ${error}`);
     }
   }

@@ -48,7 +48,9 @@ export class GoogleProvider extends BaseModelProvider {
         options: ModelCompletionOptions
     ): Promise<ModelCompletionResponse> {
         const taskId = new Date().toISOString();
-        console.log(`[OPENAI][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+        if (this.debug) {
+            console.log(`[OPENAI][${taskId}] Completing prompt with model ${this.modelConfig.id}`);
+        }
 
         const handlerConfig: HandlerConfig = {
             retries: 0,
@@ -58,7 +60,9 @@ export class GoogleProvider extends BaseModelProvider {
         };
 
         const completeTask: RunnableTask = async (opts) => {
-            //console.log(`[OPENAI][${taskId}] Running task with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[OPENAI][${taskId}] Running task with model ${this.modelConfig.id}`);
+            }
             const optionsWithDefaults = this.applyDefaultOptions(opts);
             const response = generateText({
                 model: google(this.modelConfig.id),
@@ -66,7 +70,9 @@ export class GoogleProvider extends BaseModelProvider {
                 temperature: optionsWithDefaults.temperature ?? 0.2,
                 maxRetries: 0 // We'll handle retries ourselves
             });
-            //console.log(`[OPENAI][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            if (this.debug) {
+                console.log(`[OPENAI][${taskId}] Task completed with model ${this.modelConfig.id}`);
+            }
             return this.wrapResponse(await response);
         };
 
@@ -81,7 +87,10 @@ export class GoogleProvider extends BaseModelProvider {
     public async generateImage(
         options: ImageGenerationOptions
     ): Promise<ImageGenerationResponse> {
-        console.log(`[GOOGLE] Generating image with model ${this.modelConfig.id}`);
+        const taskId = new Date().toISOString();
+        if (this.debug) {
+            console.log(`[GOOGLE][${taskId}] Generating image with model ${this.modelConfig.id}`);
+        }
 
         try {
             // In a real implementation, this would call the Google API
@@ -95,7 +104,9 @@ export class GoogleProvider extends BaseModelProvider {
                 }
             };
         } catch (error) {
-            console.error(`[GOOGLE] Error generating image: ${error}`);
+            if (this.debug) {
+                console.error(`[GOOGLE][${taskId}] Error generating image: ${error}`);
+            }
             throw new Error(`Failed to generate image with Google: ${error}`);
         }
     }

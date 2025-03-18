@@ -13,12 +13,13 @@ import { chunkArray } from '../utils';
  * Handles profile normalization using LLM models
  */
 export class ProfileNormalizer {
+  private readonly debug: boolean = false;
   private readonly taskService: TaskService;
 
   constructor() {
-    console.log(`[ProfileNormalizer] Initializing with config path: ${getCwd()}/agents/normalizing/config`);
+    console.log(`[ProfileNormalizer] Initializing with config path: ${process.cwd()}/agents/normalizing/config`);
     this.taskService = new TaskService({
-      configPath: getCwd() + '/agents/normalizing/config',
+      configPath: process.cwd() + '/agents/normalizing/config',
     });
     console.log(`[ProfileNormalizer] Task service initialized`);
   }
@@ -37,7 +38,9 @@ export class ProfileNormalizer {
     const startTime = Date.now();
 
     try {
-      console.log(`Normalizing profile ${profile.id}`);
+      if (this.debug) {
+        console.log(`Normalizing profile ${profile.id}`);
+      }
       const taskResult = await this.taskService.executeTask('normalize-text', {
         variables: {
           text: profile.content,
@@ -45,7 +48,9 @@ export class ProfileNormalizer {
         },
       });
 
-      console.log(`Completed normalizing profile ${profile.id}`);
+      if (this.debug) {
+        console.log(`Completed normalizing profile ${profile.id}`);
+      }
 
       const normalizedProfile: NormalizedProfile = {
         id: randomUUID(),
@@ -91,7 +96,7 @@ export class ProfileNormalizer {
   }> {
 
     const chunkSize = 4;
-    const chunks = chunkArray<Readonly<ProfileData>>(profiles, chunkSize);
+    const chunks = chunkArray<Readonly<ProfileData>>(profiles, chunkSize).slice(0, 2);
     const outcomes: {
       readonly result: NormalizationResult;
       readonly normalizedProfile: NormalizedProfile | null;
@@ -102,7 +107,9 @@ export class ProfileNormalizer {
         batch.map(profile => this.normalizeProfile(profile))
       )
       outcomes.push(...batchResults);
-      console.log("Batch results:", outcomes.length);
+      if (this.debug) {
+        console.log("Batch results:", outcomes.length);
+      }
     }
 
     return {
@@ -147,8 +154,5 @@ export const normalizeProfilesNode: RunnableFunc<NormalizationState, Normalizati
       ),
     },
   };
-};
-function getCwd() {
-  return process.cwd();
 }
 

@@ -46,6 +46,7 @@ export interface TaskServiceOptions {
  * Service for managing and executing tasks
  */
 export class TaskService {
+    readonly debug: boolean = false;
     private readonly modelService: ModelService;
     private readonly modelSelectionFactory: ModelSelectionFactory;
     private readonly promptService: PromptService;
@@ -54,7 +55,9 @@ export class TaskService {
     private readonly config: { tasks: Task[] };
 
     constructor(options: TaskServiceOptions) {
-        console.log(`[TaskService] Initializing with config path: ${options.configPath}`);
+        if (this.debug) {
+            console.log(`[TaskService] Initializing with config path: ${options.configPath}`);
+        }
         this.modelService = new ModelService({ configPath: options.configPath });
         this.modelSelectionFactory = new ModelSelectionFactory({ modelsConfigPath: options.configPath });
         this.promptService = new PromptService({ configPath: options.configPath });
@@ -64,7 +67,9 @@ export class TaskService {
     }
 
     private loadConfig(): { tasks: Task[] } {
-        console.log(`[TaskService] Loading config from ${join(this.configPath, 'tasks.json')}`);
+        if (this.debug) {
+            console.log(`[TaskService] Loading config from ${join(this.configPath, 'tasks.json')}`);
+        }
         const config = fs.readFileSync(join(this.configPath, 'tasks.json'), 'utf-8');
         return JSON.parse(config) as { tasks: Task[] };
     }
@@ -76,7 +81,9 @@ export class TaskService {
         taskName: string,
         options: TaskExecutionOptions = {}
     ): Promise<TaskExecutionResult> {
-        console.log(`[TaskService] Executing task: ${taskName}`);
+        if (this.debug) {
+            console.log(`[TaskService] Executing task: ${taskName}`);
+        }
         try {
             const task = this.config.tasks.find(t => t.taskName === taskName);
             if (!task) {
@@ -115,7 +122,9 @@ export class TaskService {
                 metadata: {}
             };
         } catch (error) {
-            console.error(`[TaskService] Error selecting or using model:`, error);
+            if (this.debug) {
+                console.error(`[TaskService] Error selecting or using model:`, error);
+            }
             throw new Error(`Error executing task ${taskName}: ${error instanceof Error ? error.message : String(error)}`);
         }
     }

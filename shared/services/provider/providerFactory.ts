@@ -53,14 +53,19 @@ const DEFAULT_TEMPERATURE = 0.2 as const;
  * Factory for creating model providers
  */
 export class ProviderFactory {
+    private readonly debug: boolean = false;
     private readonly modelRegistry: ModelRegistryService;
     private readonly providerRegistry: ProviderRegistryService;
 
     constructor(options: ProviderFactoryOptions) {
-        console.log(`[ProviderFactory] Initializing with config path: ${options.configPath}`);
+        if (this.debug) {
+            console.log(`[ProviderFactory] Initializing with config path: ${options.configPath}`);
+        }
         this.modelRegistry = new ModelRegistryService({ modelsConfigPath: options.configPath });
         this.providerRegistry = new ProviderRegistryService({ providersConfigPath: options.configPath });
-        console.log(`[ProviderFactory] Provider factory initialized`);
+        if (this.debug) {
+            console.log(`[ProviderFactory] Provider factory initialized`);
+        }
     }
 
     private createProviderError(message: string, details: {
@@ -77,7 +82,9 @@ export class ProviderFactory {
     public createProviderForModelId(
         modelIdOrIdentifier: string | ModelIdentifier
     ): BaseModelProvider {
-        console.log(`[ProviderFactory] Creating provider for model: ${modelIdOrIdentifier}`);
+        if (this.debug) {
+            console.log(`[ProviderFactory] Creating provider for model: ${modelIdOrIdentifier}`);
+        }
         const modelId = typeof modelIdOrIdentifier === 'string' ?
             modelIdOrIdentifier :
             modelIdOrIdentifier.modelId;
@@ -87,12 +94,16 @@ export class ProviderFactory {
         if (!modelConfig) {
             throw this.createProviderError('Model not found', { modelId });
         }
-        console.log(`[ProviderFactory] Model config: ${JSON.stringify(modelConfig)}`);
+        if (this.debug) {
+            console.log(`[ProviderFactory] Model config: ${JSON.stringify(modelConfig)}`);
+        }
 
         const providerConfig = this.providerRegistry.getProviderConfig(
             modelConfig.provider
         );
-        console.log(`[ProviderFactory] Provider config: ${JSON.stringify(providerConfig)}`);
+        if (this.debug) {
+            console.log(`[ProviderFactory] Provider config: ${JSON.stringify(providerConfig)}`);
+        }
         if (!providerConfig) {
             throw this.createProviderError(
                 'Provider not found for model',
@@ -144,7 +155,9 @@ export class ProviderFactory {
         modelConfig: ModelConfig,
         providerType: string
     ): BaseModelProvider {
-        console.log(`[ProviderFactory] Creating provider for model: ${modelConfig.provider}`);
+        if (this.debug) {
+            console.log(`[ProviderFactory] Creating provider for model: ${modelConfig.provider}`);
+        }
         
         // API keys are now retrieved from environment variables in each provider
         switch (providerType) {

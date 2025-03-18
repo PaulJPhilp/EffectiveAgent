@@ -51,11 +51,14 @@ interface PromptServiceOptions {
  * Service for managing and generating prompts
  */
 export class PromptService {
+    readonly debug: boolean = false;
     private readonly modelService: ModelService;
     private readonly templateService: PromptTemplateService;
 
     constructor(options: PromptServiceOptions) {
-        console.log(`[PromptService] Initializing with config path: ${options.configPath}`);
+        if (this.debug) {
+            console.log(`[PromptService] Initializing with config path: ${options.configPath}`);
+        }
         this.modelService = new ModelService({ configPath: options.configPath });
         this.templateService = new PromptTemplateService({ promptPath: options.configPath });
     }
@@ -75,7 +78,9 @@ export class PromptService {
         variables: PromptVariables,
         options: PromptOptions = {}
     ): Promise<string> {
-        console.log(`[PromptService] Generating prompt for template: ${templateName}`);
+        if (this.debug) {
+            console.log(`[PromptService] Generating prompt for template: ${templateName}`);
+        }
         const template = this.templateService.getTemplate({ templateName });
         if (!template) {
             throw this.createPromptError(
@@ -102,7 +107,9 @@ export class PromptService {
         prompt: string,
         options: PromptOptions = {}
     ): Promise<string> {
-        console.log(`[PromptService] Completing prompt for model: ${modelId}`);
+        if (this.debug) {
+            console.log(`[PromptService] Completing prompt for model: ${modelId}`);
+        }
         const completionOptions: ModelCompletionOptions = {
             prompt,
             systemPrompt: options.systemPrompt,

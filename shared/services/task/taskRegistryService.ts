@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path, { join } from "node:path";
 import { z } from "zod";
-import type { ITaskRegistryService, Task } from "../../interfaces/task.js";
+import type { ITaskRegistryService, Task } from "./types.js";
 import type { TaskDefinition } from "./schemas/taskConfig.js";
 import { TaskDefinitionSchema } from "./schemas/taskConfig.js";
 
@@ -17,24 +17,25 @@ interface TaskRegistryServiceOptions {
  * Service for managing task registry and configurations
  */
 export class TaskRegistryService implements ITaskRegistryService {
+    private debug = false;
     private config: TaskRegistryConfig;
     private tasksConfigPath: string;
     private isInitialized = false;
     private path: string = path.join(process.cwd(), "shared", "config", "tasks.json");
 
     constructor(options: TaskRegistryServiceOptions) {
-        console.log(`[TaskRegistryService] Initializing with config path: ${options.tasksConfigPath}`);
+        if (this.debug) console.log(`[TaskRegistryService] Initializing with config path: ${options.tasksConfigPath}`);
         this.tasksConfigPath = join(options.tasksConfigPath, "tasks.json");
         this.config = { tasks: [] };
         this.initialize();
-        console.log(`[TaskRegistryService] Task service initialized`);
+        if (this.debug) console.log(`[TaskRegistryService] Task service initialized`);
     }
 
     /**
      * Initialize the task registry by loading configuration
      */
     private async initialize(): Promise<void> {
-        console.log(`[TaskRegistryService] Initializing with config path: ${this.tasksConfigPath}`);
+        if (this.debug) console.log(`[TaskRegistryService] Initializing with config path: ${this.tasksConfigPath}`);
         if (this.isInitialized) {
             return;
         }
@@ -53,11 +54,11 @@ export class TaskRegistryService implements ITaskRegistryService {
 
             this.config = validatedConfig;
             this.isInitialized = true;
-            console.log(
+            if (this.debug) console.log(
                 `Task registry initialized with ${this.config.tasks.length} tasks`
             );
         } catch (error) {
-            console.error("Failed to load task registry:", error);
+            if (this.debug) console.error("Failed to load task registry:", error);
             throw new Error("Failed to initialize task registry");
         }
     }
