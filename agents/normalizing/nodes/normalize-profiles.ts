@@ -8,6 +8,7 @@ import type {
 import { TaskService } from '../../../shared/services/task/taskService';
 import { randomUUID } from 'crypto';
 import { chunkArray } from '../utils';
+import { extractJsonFromResponse } from '../../utils';
 
 /**
  * Handles profile normalization using LLM models
@@ -15,13 +16,15 @@ import { chunkArray } from '../utils';
 export class ProfileNormalizer {
   private readonly debug: boolean = false;
   private readonly taskService: TaskService;
+  private readonly state: NormalizationState;
 
-  constructor() {
-    console.log(`[ProfileNormalizer] Initializing with config path: ${process.cwd()}/agents/normalizing/config`);
+  constructor(state: NormalizationState) {
+    if (this.debug) console.log(`[ProfileNormalizer] Initializing with config path: ${process.cwd()}/agents/normalizing/config`);
     this.taskService = new TaskService({
       configPath: process.cwd() + '/agents/normalizing/config',
     });
-    console.log(`[ProfileNormalizer] Task service initialized`);
+    if (this.debug) console.log(`[ProfileNormalizer] Task service initialized`);
+    this.state = state;
   }
 
   /**
@@ -29,35 +32,27 @@ export class ProfileNormalizer {
    * @param profile Profile data to normalize
    * @returns Normalization result and normalized profile
    */
-  private async normalizeProfile(
-    profile: ProfileData
-  ): Promise<{
+  private async normalizeProfile(profile: ProfileData): Promise<{
     readonly result: NormalizationResult;
     readonly normalizedProfile: NormalizedProfile | null;
   }> {
     const startTime = Date.now();
 
     try {
-      if (this.debug) {
-        console.log(`Normalizing profile ${profile.id}`);
-      }
+      if (this.debug) console.log(`Normalizing profile ${profile.id}`);
       const taskResult = await this.taskService.executeTask('normalize-text', {
         variables: {
-          text: profile.content,
-          format: 'markdown',
+          input_profile: profile.content,
+          format: 'json',
         },
       });
 
-      if (this.debug) {
-        console.log(`Completed normalizing profile ${profile.id}`);
-      }
+      if (this.debug) console.log(`Completed normalizing profile ${profile.id}`);
 
-      const normalizedProfile: NormalizedProfile = {
-        id: randomUUID(),
-        sourceProfileId: profile.id,
-        content: taskResult.result,
-        normalizedFields: {},
-      };
+      const jsonContent = extractJsonFromResponse(taskResult.result);
+      const normalizedProfile: NormalizedProfile = JSON.parse(jsonContent) as NormalizedProfile;
+      normalizedProfile.id = randomUUID();
+      normalizedProfile.sourceProfileId = profile.id;
 
       const normalizationResult: NormalizationResult = {
         profileId: profile.id,
@@ -69,7 +64,7 @@ export class ProfileNormalizer {
 
       return { result: normalizationResult, normalizedProfile };
     } catch (error) {
-      console.error(`Failed to normalize profile ${profile.id}: ${error}`);
+      if (this.debug) console.error(`Failed to normalize profile ${profile.id}: ${error}`);
       const normalizationResult: NormalizationResult = {
         profileId: profile.id,
         success: false,
@@ -85,18 +80,16 @@ export class ProfileNormalizer {
 
   /**
    * Normalizes multiple profiles in parallel
-   * @param profiles Array of profiles to normalize
    * @returns Arrays of results and normalized profiles
    */
-  public async normalizeProfiles(
-    profiles: readonly ProfileData[]
-  ): Promise<{
+  public async normalizeProfiles(): Promise<{
     readonly results: readonly NormalizationResult[];
     readonly normalizedProfiles: readonly NormalizedProfile[];
   }> {
 
-    const chunkSize = 4;
-    const chunks = chunkArray<Readonly<ProfileData>>(profiles, chunkSize).slice(0, 2);
+    const profiles = this.state.profiles;
+    const chunkSize = 2;
+    const chunks = chunkArray<Readonly<ProfileData>>(profiles, chunkSize);
     const outcomes: {
       readonly result: NormalizationResult;
       readonly normalizedProfile: NormalizedProfile | null;
@@ -107,9 +100,8 @@ export class ProfileNormalizer {
         batch.map(profile => this.normalizeProfile(profile))
       )
       outcomes.push(...batchResults);
-      if (this.debug) {
-        console.log("Batch results:", outcomes.length);
-      }
+      if (this.debug) console.log("Batch results:", outcomes.length);
+      await new Promise(resolve => setTimeout(resolve, 3000));
     }
 
     return {
@@ -129,14 +121,10 @@ export class ProfileNormalizer {
 export const normalizeProfilesNode: RunnableFunc<NormalizationState, NormalizationState> = async (
   state: NormalizationState
 ): Promise<NormalizationState> => {
-  const normalizer = new ProfileNormalizer();
-  const { results, normalizedProfiles } = await normalizer.normalizeProfiles(
-    state.profiles
-  );
+  const normalizer = new ProfileNormalizer(state);
+  const { results, normalizedProfiles } = await normalizer.normalizeProfiles();
 
-  const successfulNormalizations = results.filter(
-    (result) => result.success
-  ).length;
+  const successfulNormalizations = results.filter((result) => result.success).length;
 
   return {
     ...state,

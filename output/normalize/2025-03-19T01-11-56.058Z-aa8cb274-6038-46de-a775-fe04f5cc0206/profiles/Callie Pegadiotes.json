@@ -1,0 +1,51 @@
+{
+  "name": "Callie Pegadiotes",
+  "title": "Experiential Producer",
+  "location": "San Diego, California, United States",
+  "summary": "I am a seasoned brand marketer turned freelance experiential Producer based in San Diego. I spent the first half of my career immersed in brand management and marketing and then transitioned into the production world where I thrive most and am able to apply my experience of being on the client side to how we pitch and produce experiential events. I also freelance in the music world managing AR onsite for major music festivals. I love collaborating, managing budgets and multitasking. I do best in fast paced environments and love being onsite.",
+  "key_skills": [
+    "Team Building",
+    "Skilled Multi-tasker",
+    "Pre-production"
+  ],
+  "languages": [
+    "English (Native or Bilingual)"
+  ],
+  "experience": [
+    {
+      "company": "Creative Riff",
+      "title": "Producer",
+      "duration": {
+        "start_date": "2024-04",
+        "end_date": "Present",
+        "date_range": "11 months"
+      },
+      "location": null,
+      "projects": [
+        "Hulu Boba Truck Comic Con 2024",
+        "Fox Universal Basic Guys Comic Con 2024 & NFL Games 2024",
+        "Good Morning America at D23 2024",
+        "Fox The Saints presented by Martin Scorcese 2024"
+      ]
+    },
+    {
+      "company": "Freelance",
+      "title": "Freelance Event Producer | Artist Relations | Festival & Event Operations",
+      "duration": {
+        "start_date": "2020-01",
+        "end_date": "Present",
+        "date_range": "5 years 2 months"
+      },
+      "location": "San Diego Metropolitan Area, California, United States",
+      "description": "I am a highly motivated and organized go-getter who thrives in the chaos of event production. I love to be creative and collaborate/lead teams to bring brand activations and music festivals to life. I specialize in event management (logistics + site ops) and artist relations, but always love to have my hands in anything that needs it.",
+      "projects": [
+        "Google I/O 2023",
+        "Olivia Rodrigo’s Vampire Premier Party 2023",
+        "YouTube Kids Reunion 2023"
+      ]
+    }
+  ],
+  "normalization_notes": "Standardized date formats; Added 'United States' to San Diego location; Added location to Freelance experience.",
+  "id": "3ea78567-4a39-437c-a9c4-8bc25dba0924",
+  "sourceProfileId": "26493404-da63-4608-8124-6078d764ce1a"
+}

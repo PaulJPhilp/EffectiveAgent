@@ -1,0 +1,67 @@
+{
+  "name": "Elizabeth Ervin",
+  "title": "Group Account Director",
+  "location": "San Ramon, California, United States",
+  "summary": "Elizabeth leads marketing and product innovation strategy for The Food Group’s consumer, foodservice and industrial ingredients practices. She has 15 years experience advising clients, from start-ups to global leaders, on defining their vision for the future of food. She leads cross functional teams in the planning, development and execution of cutting edge product innovation and creation of transformational sales and marketing plans.",
+  "key_skills": [
+    "Integrated Marketing",
+    "Communications Planning",
+    "B2B Marketing",
+    "B2B Marketing Strategy"
+  ],
+  "experience": [
+    {
+      "company": "The Food Group",
+      "title": "Group Account Director",
+      "duration": {
+        "start_date": "2021-08",
+        "end_date": "Present",
+        "date_range": "3 years 7 months"
+      },
+      "location": "Greater Chicago Area"
+    },
+    {
+      "company": "The Food Group",
+      "title": "Account Director",
+      "duration": {
+        "start_date": "2018-03",
+        "end_date": "2021-08",
+        "date_range": "3 years 6 months"
+      },
+      "location": "Greater Chicago Area"
+    },
+    {
+      "company": "Bite Me Media",
+      "title": "Publisher",
+      "duration": {
+        "start_date": "2017-01",
+        "end_date": "2018-02",
+        "date_range": "1 year 2 months"
+      },
+      "location": "Chicago, Illinois, United States"
+    },
+    {
+      "company": "Imagination",
+      "title": "Account Director & National Sales Director",
+      "duration": {
+        "start_date": "2012-11",
+        "end_date": "2017-01",
+        "date_range": "4 years 3 months"
+      },
+      "location": "Greater Chicago Area"
+    },
+    {
+      "company": "East Coast Home Publishing",
+      "title": "Sales and Marketing Manager",
+      "duration": {
+        "start_date": "2006-07",
+        "end_date": "2012-11",
+        "date_range": "6 years 5 months"
+      },
+      "location": "Fairfield, Connecticut, United States"
+    }
+  ],
+  "normalization_notes": "Standardized dates to YYYY-MM format; Added United States to Chicago and Fairfield locations; Company Imagination. was shortened to Imagination; Location 'Greater Chicago Area' was preserved as is due to lack of specific city information.",
+  "id": "2c825a74-3b53-47ab-9476-3bd18ea914f1",
+  "sourceProfileId": "d5721d9d-e79c-4aa9-98a8-7108e599de75"
+}

@@ -61,7 +61,7 @@ export interface IPromptTemplateService {
 	buildPrompt(
 		identifier: TemplateIdentifier,
 		variables: PromptVariables
-	): string;
+	): Promise<string>;
 	registerTemplate(template: PromptDefinition): void;
 }
 

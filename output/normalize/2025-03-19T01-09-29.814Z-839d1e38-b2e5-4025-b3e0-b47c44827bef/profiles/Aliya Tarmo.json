@@ -1,0 +1,36 @@
+{
+  "name": "Aliya Tarmo",
+  "title": "Content Producer",
+  "location": "Vancouver, British Columbia, Canada",
+  "key_skills": [
+    "Networking",
+    "Producing",
+    "Casting"
+  ],
+  "summary": "Senior Producer with an international footprint across Australia and North America. 10+ years of industry experience in captaining Live Action, CG and Augmented Reality projects across various platforms and formats.\nBroad experience working hand in hand with clients within health, government, automotive, not-for-profit, and tech sectors. Distilling complex problems and briefs into compelling campaigns.\nExperience in leading multidisciplinary teams, nurturing the growth of both individuals and companies.",
+  "experience": [
+    {
+      "company": "123w (One Twenty Three West)",
+      "title": "Senior Producer",
+      "duration": {
+        "start_date": "2021-12",
+        "end_date": "Present",
+        "date_range": "3 years 3 months"
+      },
+      "location": "Vancouver, British Columbia, Canada"
+    },
+    {
+      "company": "Guerilla Creative",
+      "title": "Senior Producer",
+      "duration": {
+        "start_date": "2019-04",
+        "end_date": "2021-08",
+        "date_range": "2 years 5 months"
+      },
+      "location": "Melbourne, Victoria, Australia"
+    }
+  ],
+  "normalization_notes": "Company name '123w (One Twenty Three West)' preserved as is; Location standardized to City, Province/State, Country format.",
+  "id": "6631a834-8ed5-47ad-b463-5c26648533d5",
+  "sourceProfileId": "f57d2645-064b-41c3-800a-de01b8482099"
+}

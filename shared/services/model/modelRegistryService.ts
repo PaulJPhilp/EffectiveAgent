@@ -41,7 +41,7 @@ export class ModelRegistryService implements IModelSelectionService {
         };
         this.initialize();
         const availableModels = this.config.models.map(model => model.id).join(', ');
-        console.log(`[ModelRegistryService] Available models: |${availableModels}|`);
+        if (this.debug) console.log(`[ModelRegistryService] Available models: |${availableModels}|`);
         if (availableModels.length === 0) {
             throw new Error("No models found in registry");
         }

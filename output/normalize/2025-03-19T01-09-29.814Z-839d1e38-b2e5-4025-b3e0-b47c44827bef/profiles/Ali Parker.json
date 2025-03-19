@@ -1,0 +1,47 @@
+{
+  "name": "Ali Parker",
+  "title": "Co Founder at The Broad Collective || Experiential & Brand Marketing, Strategy and Production",
+  "location": "Atlanta, Georgia, United States",
+  "key_skills": [
+    "Event Management",
+    "Event Planning",
+    "Sports Marketing"
+  ],
+  "certificates": [
+    "Launch Event Coordinator Exam",
+    "Wedding Assistant Exam",
+    "Launch Event Assistant Exam"
+  ],
+  "experience": [
+    {
+      "company": "The Broad Collective",
+      "title": "Co-founder / Co-owner || Experiential & Brand Marketing, Strategy and Production",
+      "duration": {
+        "start_date": "2018-01",
+        "end_date": "Present",
+        "date_range": "7 years 2 months"
+      },
+      "location": "Austin, Texas, United States"
+    },
+    {
+      "company": "Freelance",
+      "title": "Experiential and Creative Producer",
+      "duration": {
+        "start_date": "2017-04",
+        "end_date": "2017-12",
+        "date_range": "9 months"
+      },
+      "location": "Greater Chicago Area"
+    },
+    {
+      "company": "BeCore",
+      "title": "Director of Production",
+      "duration": {
+        "date_range": "4 years 3 months"
+      }
+    }
+  ],
+  "normalization_notes": "Standardized dates to YYYY-MM format; Normalized locations to City, State, Country format; Retained original title as it is specific; Standardized company names.",
+  "id": "c9061cc9-c886-41f1-aa0e-8d25b8d3c88b",
+  "sourceProfileId": "5f9f223d-b786-4644-8553-bf8d17633b8b"
+}

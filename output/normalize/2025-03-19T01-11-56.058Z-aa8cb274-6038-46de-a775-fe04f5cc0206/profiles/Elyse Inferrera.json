@@ -1,0 +1,37 @@
+{
+  "name": "Elyse Inferrera",
+  "title": "Event Producer | Game Presentation | Sports Entertainment | Live Event Entertainment",
+  "location": "Rancho Palos Verdes, California, United States",
+  "key_skills": [
+    "Accounting",
+    "Event Planning",
+    "Event Management"
+  ],
+  "experience": [
+    {
+      "company": "United Football League (UFL)",
+      "title": "UFL Game Day Entertainment and Fan Experience Consultant",
+      "duration": {
+        "start_date": "2022-10",
+        "end_date": "Present",
+        "date_range": "2 years 5 months"
+      },
+      "location": null,
+      "description": "Organize, advance, and execute game days for all 8 markets in the league and\nproduce special events beyond normal game operations: Draft, Town Halls,\nplayoffs, and Championship. Create all game scripts in ShoFlo and create/\ndeliver time sheets to Broadcast, Football Ops, and league staff. Oversee\nthe game day, operations crew, and stage managers, including scheduling,\nevent confirmations, and payroll. Manage all sponsorship inventory and ensure\naccurate execution and all markets relating to videos, signage, and graphics."
+    },
+    {
+      "company": "Los Angeles Football Club (LAFC)",
+      "title": "Stage Manager",
+      "duration": {
+        "start_date": "2018-04",
+        "end_date": "Present",
+        "date_range": "6 years 11 months"
+      },
+      "location": "Greater Los Angeles Area, California, United States",
+      "description": "Organize and facilitate in-stadium production and events. Work directly with\nshow producer to ensure pre-game and half-time events are properly executed\nOutside LAFC Events:\n- MLS All Star Game 2021 \n- CONCACAF Championship 2023\n- Copa Angelina 2022 & 2023\n- Leagues Cup 2023"
+    }
+  ],
+  "normalization_notes": "Standardized dates to YYYY-MM format; Added 'California, United States' to Los Angeles location; Added description fields to experience entries.",
+  "id": "44d34d04-f6db-452d-9753-eb47a5e681cb",
+  "sourceProfileId": "cf5c0960-e119-47d9-b1f7-be62f1777074"
+}

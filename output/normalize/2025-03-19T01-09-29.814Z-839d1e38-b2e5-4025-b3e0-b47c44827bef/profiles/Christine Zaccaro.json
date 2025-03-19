@@ -1,0 +1,50 @@
+{
+  "name": "Christine Zaccaro",
+  "title": "Brand and Experiential Marketing Genie",
+  "location": "Los Angeles, California, United States",
+  "key_skills": [
+    "Communication",
+    "Brand Management",
+    "Social Media Marketing"
+  ],
+  "summary": "I am an expert brand and experiential marketer passionate about driving culture and innovation forward. As an expert in the experiential space, I thrive on creating memorable, FOMO-inducing activations with great attention to detail and execution, allowing for high-impact campaigns. Ultimately, I excel at developing a creative brainchild and bringing it to life, creating long-term connections amongst clients, vendors, brands, and consumers.\nCLIFTON STRENGTHS: ACHIEVER | COMPETITIVE | FUTURISTIC | FOCUSED | RESPONSIBILE",
+  "experience": [
+    {
+      "company": "RapportWW",
+      "title": "Senior Producer, IMPACT X",
+      "duration": {
+        "start_date": "2024-04",
+        "end_date": "Present",
+        "date_range": "11 months"
+      },
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "RMNG",
+      "title": "Senior Program Manager",
+      "duration": {
+        "start_date": "2022-01",
+        "end_date": "2024-04",
+        "date_range": "2 years 4 months"
+      },
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "RMNG",
+      "title": "Senior Producer",
+      "duration": {
+        "start_date": "2019-07",
+        "end_date": "2021-12",
+        "date_range": "2 years 6 months"
+      },
+      "location": "West Hollywood, California, United States"
+    }
+  ],
+  "contact": {
+    "email": "christinezaccaro@gmail.com",
+    "linkedin": "www.linkedin.com/in/christinezaccaro"
+  },
+  "normalization_notes": "Standardized dates to YYYY-MM format; Standardized locations to City, State, Country format.",
+  "id": "21d3ecc0-dc49-4eb0-9744-62ebf9aa26fc",
+  "sourceProfileId": "f9c1aaec-c540-46f7-9623-d6573a1f5ac1"
+}

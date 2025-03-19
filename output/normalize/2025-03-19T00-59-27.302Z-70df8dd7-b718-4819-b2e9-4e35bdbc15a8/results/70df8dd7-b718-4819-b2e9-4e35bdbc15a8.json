@@ -1,0 +1,402 @@
+[
+  {
+    "profileId": "4569fb19-6afb-4844-a898-e8e0b7834788",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 741,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e0d6ad3d-ca1f-44b3-83a3-2ef4f96ce7dc",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 737,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8cbc0cc3-00f0-41df-b48b-ce0a857ad7ff",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 725,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "90a446e3-5eb0-48c0-b993-9a81c83ba961",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 734,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2c7d1e8e-8c37-4c05-829f-6143fccc66c2",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 347,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "83a5be2d-cbf8-4a0b-8f8f-63df3ff1fbb1",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 339,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "020c2f47-cdb7-45dd-ab5c-814e000d5d3e",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 389,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b2c6506e-c98a-41f7-a7f6-08bb66d1e08f",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 388,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bc1ba4d0-f16c-48da-be4e-c87c6f07d73d",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 352,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "89b6c689-3c8a-45f3-8900-6fbcd3d1b8fd",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 767,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fe54e4e4-6079-468a-9200-5653d027bb5e",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 385,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bcaab2b7-9233-474c-a697-ebe20b1bdb82",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 345,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ef38756f-673a-48a3-99df-5fd866ce4830",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 358,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d4a89011-d4d6-4d0d-966e-cc47f2f6e9ae",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 361,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "34e61aaf-302b-4ccd-a5ba-413e14dbf95a",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 386,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "dc98b4b6-65b1-405c-a5e9-2626d5de4ef8",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 349,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8028e4e1-9223-4af1-832e-9afafabc3686",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 379,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "28303821-0ac6-46c4-b0e8-a3ff13024142",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 370,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fec0d9c0-c742-4581-a240-c75b10a2e72e",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 377,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9549db50-59d4-4213-b027-4952dc57849e",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 392,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0bd600b3-bf83-4f77-9941-38b6e77f0645",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 379,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "189e2611-6aac-46ba-8aec-99271d5c13fe",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 335,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d2432682-5917-465f-96fb-a30b974e515b",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 390,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e776bfc-8f78-4a33-a524-d069564077bb",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 406,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b59f3c01-9029-4e4f-a8ab-5f4822603aed",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 345,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "720d27ed-6cb6-4910-88d4-56d0b63c9edc",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 362,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8a0fc641-9c68-41b7-8d29-4c3217e992fc",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 350,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7392d95e-ca30-4f13-9344-c528abe82a59",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 342,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "00d3fa82-bd0a-4461-bd16-13f0656464b6",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 424,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c7b2fe6c-53d5-4d38-9840-df8b130b266e",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 346,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "84da5781-7e18-49e1-bf8f-3d414775baf4",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 356,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a9bec624-a509-4eb1-9889-b7344bbd6d21",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 355,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "cbda528d-d069-49b0-87c7-3aaaeaa60d56",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 344,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ee09fc07-e36b-4d0d-a3f7-2ce52ae113a9",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 373,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9476006f-b2ee-4cf9-9a89-cdc767b311b7",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 340,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8af1973d-811f-4795-9759-d669b14748f0",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 340,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b2b69969-3f79-40e1-8d97-b737fc2239da",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 359,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "adce989c-1b12-4d4d-89d8-2d41893a589d",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 376,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5c4231e5-bb4b-4b13-a39d-6a07226e8d78",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 429,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0939ea83-aac7-4493-91b9-29f2da11b435",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 356,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8d5caa58-21b0-4b0e-983d-0d92f812f5e7",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 348,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a62bf061-5613-4d78-8260-0a67c9bd3e44",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 379,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "44ce6827-122b-46e5-960d-49fa4702852d",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 347,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "6a3807dc-3fd7-4b65-a702-b85709a30d09",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 340,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e4cc1b56-ed61-4307-a46c-1e214804c273",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 371,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d08bb2b2-6b27-4561-b024-340735b222a5",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 390,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "20d14f0c-acd3-40ca-aa60-7cb8cab4077a",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 355,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "74c914f2-f83f-4768-8414-48d6a33d736b",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 362,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "368effa5-10b8-45de-843a-e8490bc9fe72",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 328,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b6d0af40-cd9d-48ec-b6c4-21cd7607611b",
+    "success": false,
+    "error": "Error executing task normalize-text: You exceeded your current quota, please check your plan and billing details. For more information on this error, read the docs: https://platform.openai.com/docs/guides/error-codes/api-errors.",
+    "duration": 350,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

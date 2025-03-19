@@ -128,6 +128,6 @@ Return the complete normalized profile in valid JSON format matching the origina
     }
 \`\`\`
 
-Input profile: {input_profile}
+Input profile: {{input_profile}}
 
 Please process the provided profile and return a normalized version following these guidelines.`

@@ -1,0 +1,57 @@
+{
+  "name": "Courtney Boyd",
+  "title": "Field Marketing Manager and Food Truck Project & Events Manager",
+  "location": "United States",
+  "key_skills": [
+    "Project Coordination",
+    "Communication",
+    "Digital Project Management",
+    "Chinese",
+    "Mandarin Chinese"
+  ],
+  "experience": [
+    {
+      "company": "Portillo's Hot Dogs",
+      "title": "Field Marketing Manager",
+      "duration": {
+        "start_date": "2018-12",
+        "end_date": "Present",
+        "date_range": "6 years 3 months"
+      },
+      "location": "Greater Chicago Area, Illinois, United States"
+    },
+    {
+      "company": "Portillo's Hot Dogs",
+      "title": "Field Marketing Coordinator",
+      "duration": {
+        "start_date": "2017-12",
+        "end_date": "2018-12",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Florida, United States & Indiana, United States"
+    },
+    {
+      "company": "Beasley Media Group",
+      "title": "Promotions Coordinator",
+      "duration": {
+        "start_date": "2012-07",
+        "end_date": "2017-12",
+        "date_range": "5 years 6 months"
+      },
+      "location": "Tampa/St. Petersburg, Florida, United States"
+    }
+  ],
+  "certifications": [
+    "AI Studio Foundations Skill Badge",
+    "Generative AI for Digital Marketers",
+    "AI for Work Skill Badge",
+    "Asana Foundations Skill Badge",
+    "Workflow Specialist Certificate"
+  ],
+  "honors_awards": [
+    "President's List Honors"
+  ],
+  "normalization_notes": "Standardized company name; Added state and country to locations where possible; Converted dates to YYYY-MM format; Simplified language skills.",
+  "id": "e42f1681-d0ea-48cf-b36d-e72895ac84b5",
+  "sourceProfileId": "42ef5373-6ebe-4e88-afe0-5fc85250edee"
+}

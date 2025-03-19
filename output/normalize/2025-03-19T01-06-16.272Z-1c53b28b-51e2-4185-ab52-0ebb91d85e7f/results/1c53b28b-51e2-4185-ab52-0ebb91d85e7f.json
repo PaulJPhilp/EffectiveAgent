@@ -1,0 +1,375 @@
+[
+  {
+    "profileId": "703f6fae-bdc1-4c23-bb93-91060e5b70b1",
+    "success": true,
+    "duration": 4656,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "475caabb-5371-4724-9e78-6eec3fec6b06",
+    "success": true,
+    "duration": 2289,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f53adf51-7b3c-44df-b67e-41e725ac1f46",
+    "success": true,
+    "duration": 1937,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f4f30fbc-01ef-48ae-8801-8cac8a3104f3",
+    "success": true,
+    "duration": 2589,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "078cc91b-7328-490b-9ca6-be87ec3e063a",
+    "success": true,
+    "duration": 2503,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f0314cbb-8fcd-4465-8e1f-5bf59c41041f",
+    "success": true,
+    "duration": 3579,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "df530ef3-6d66-46c1-9f8f-a7ee2351bef6",
+    "success": true,
+    "duration": 1174,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9f4d093e-da91-4b1d-88f7-9b33f5bb7cd1",
+    "success": true,
+    "duration": 2147,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "6cc00d35-febb-490b-8bbd-bea0e49b6325",
+    "success": true,
+    "duration": 3868,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "42ef5373-6ebe-4e88-afe0-5fc85250edee",
+    "success": true,
+    "duration": 2585,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "18a9a5f9-43a3-410d-843c-88239bfd3d56",
+    "success": true,
+    "duration": 3583,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2fd3a31e-d2d3-4e20-bdc4-1a7f9a3e2917",
+    "success": true,
+    "duration": 4442,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9a4e984c-7342-48e7-b394-743968398a6b",
+    "success": true,
+    "duration": 2712,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "b992541d-9e23-4b6e-8071-a8f7b27546e4",
+    "success": true,
+    "duration": 2852,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f80408cd-b1c3-44b4-bc5d-7c9fa7f4acdb",
+    "success": true,
+    "duration": 1882,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7b677028-1fbd-4b7a-bf80-f6f5f2e4e606",
+    "success": true,
+    "duration": 2417,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "170d8f76-0cb0-4eba-8b7d-84ac4ae89bf4",
+    "success": true,
+    "duration": 2825,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f1e65857-9829-4f8c-8214-f211b4f3d56e",
+    "success": true,
+    "duration": 3626,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ba16b364-c894-4927-8f5b-4dfc1237b144",
+    "success": true,
+    "duration": 2915,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "03413204-db4c-4fcc-a91a-efa76c321a6f",
+    "success": true,
+    "duration": 3349,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ee2246c1-0375-4270-8728-1aff3e4abaea",
+    "success": true,
+    "duration": 2140,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c0950894-1dcc-4e91-aa37-f3c9172a670c",
+    "success": true,
+    "duration": 3383,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e2a4a9c3-b97f-47f2-b2a7-1c701ebc2a66",
+    "success": true,
+    "duration": 2996,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3a3cf7dc-77b1-4542-955e-4e6b8606cfc2",
+    "success": true,
+    "duration": 2809,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8605d534-7e52-4a4c-8946-80a93c5c77fa",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 369,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4a6139cb-3204-426b-bf74-9ac949538d41",
+    "success": true,
+    "duration": 3274,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a31602f9-d9a5-4d67-a5e0-72b4a294b878",
+    "success": true,
+    "duration": 3805,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fae2152e-dfc8-45bd-982d-b879c6fc75cb",
+    "success": true,
+    "duration": 2848,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e7cc9d7a-ec21-4d60-aefa-75cda75d27e6",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 334,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2bcbd7d8-ac07-45a0-b868-1ee899072f7f",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 348,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2cc22bf9-5dea-4830-a466-5fd7c25cfd45",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 331,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "de599e0a-84ae-4122-973a-35f9bc6c1be1",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 490,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "892868e1-d2f0-4781-b64f-531a8625f9cc",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 481,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "baa92829-02b0-4992-8ca3-8a02ad22adad",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 373,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "020d178a-b956-495b-a54a-7a2d955755ec",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 354,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fd36307b-d868-40ad-8bd0-6b11343838d4",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 433,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "503ada04-8eda-4d69-88f5-828e4aece3cb",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 322,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "fba3337e-d0ab-43e5-a7ab-4ec705f9c6f2",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 364,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ccd720b4-4957-4ed0-aa63-220632488a2e",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 312,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2c761a99-6009-40f3-a165-f1e7c6439b46",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 353,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "785faf28-8615-419c-8b5c-860aff774a56",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 355,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ba095ebc-61c7-4ffa-8e89-e8fffa16bef8",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 318,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5cd6a07e-d335-4df0-9a4a-fc16ad8c9f76",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 352,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "024309ba-a348-4cf7-a4ff-84b33d86d992",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 316,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "86148843-adc9-4a2a-ab15-94eb4416acd4",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 308,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "8cf4f37f-9846-42a4-b573-3ef5f2f3e9fd",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 388,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "72001479-2fbb-4f7c-95b1-a4f9011d99eb",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 356,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "db4ea274-29cc-4110-82ab-34e0e9d491e6",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 313,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ebd1edb6-18a6-4e77-975b-61b0e4a0b91e",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 337,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e5146c0f-4b59-4a4f-aa61-60dd1784662f",
+    "success": false,
+    "error": "Error executing task normalize-text: Resource has been exhausted (e.g. check quota).",
+    "duration": 303,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

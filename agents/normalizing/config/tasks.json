@@ -2,7 +2,7 @@
     "tasks": [
         {
             "taskName": "normalize-text",
-            "primaryModelId": "gpt-4o",
+            "primaryModelId": "gemini-2.0-flash",
             "fallbackModelIds": ["gemini-2.0-flash"],
             "temperature": 0.2,
             "requiredCapabilities": [

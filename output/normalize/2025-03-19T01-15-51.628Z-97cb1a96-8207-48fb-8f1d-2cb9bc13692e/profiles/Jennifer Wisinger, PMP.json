@@ -1,0 +1,68 @@
+{
+  "name": "Jennifer Wisinger, PMP",
+  "title": "Director of Project Management",
+  "location": "Midlothian, Texas, United States",
+  "key_skills": [
+    "Salesforce",
+    "Sales Operations",
+    "Strategy",
+    "Classroom Management",
+    "Lesson Planning",
+    "Assessment",
+    "Small Group Instruction",
+    "Differentiated Instruction",
+    "Parent Communication"
+  ],
+  "certifications": [
+    "Project Management Professional (PMP)"
+  ],
+  "honors_awards": [
+    "Rising Star",
+    "Distinguished Teacher of the Year"
+  ],
+  "experience": [
+    {
+      "company": "Augustine Agency",
+      "title": "Director of Project Management",
+      "duration": {
+        "start_date": "2024-02",
+        "end_date": "Present",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Irving, Texas, United States"
+    },
+    {
+      "company": "Augustine Agency",
+      "title": "Associate Project Manager",
+      "duration": {
+        "start_date": "2021-12",
+        "end_date": "2024-02",
+        "date_range": "2 years 3 months"
+      },
+      "location": "Irving, Texas, United States"
+    },
+    {
+      "company": "Russell P Schupmann Elementary",
+      "title": "Teacher",
+      "duration": {
+        "start_date": "2021-08",
+        "end_date": "2021-12",
+        "date_range": "5 months"
+      },
+      "location": "Red Oak, Texas, United States"
+    },
+    {
+      "company": "Sam Houston Dual Language Elementary School",
+      "title": "Teacher",
+      "duration": {
+        "start_date": "2016-08",
+        "end_date": "2021-10",
+        "date_range": "5 years 3 months"
+      },
+      "location": "Corsicana, Texas, United States"
+    }
+  ],
+  "normalization_notes": "Standardized company names; Normalized job titles; Standardized skill names and grouped related skills; Converted dates to ISO format; Added missing skills from description.",
+  "id": "1be3d099-8afa-4cc8-b520-ae4728e1943a",
+  "sourceProfileId": "605da9ae-61ae-4d26-b5be-4f0cfc57b9f5"
+}

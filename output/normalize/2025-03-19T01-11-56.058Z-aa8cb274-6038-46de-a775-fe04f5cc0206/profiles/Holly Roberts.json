@@ -1,0 +1,47 @@
+{
+  "name": "Holly Roberts",
+  "title": "Senior Account Supervisor",
+  "location": "Dallas, Texas, United States",
+  "summary": "Ambitious, adaptable marketing professional with over 6 years of experience helping brands tell their story in a meaningful way. I have a proven track record of leading talented teams to deliver successful marketing campaigns that resonate across audiences and generate impactful results. With a passion for the sweet spot where creativity and data-driven strategy meet, I get just as excited about the bigger picture as I do about the day-to-day details. I thrive in collaborative environments, working with multiple disciplines to reach a united goal and deliver exceptional work.",
+  "key_skills": [
+    "Brand Development",
+    "Digital Strategy",
+    "Cross-functional Team Leadership"
+  ],
+  "languages": [
+    "English"
+  ],
+  "honors_awards": [
+    "Dean's List",
+    "Dean's List",
+    "President's Honor Roll",
+    "Dean's List",
+    "Dean's List"
+  ],
+  "experience": [
+    {
+      "company": "Augustine Agency",
+      "title": "Senior Account Supervisor",
+      "duration": {
+        "start_date": "2023-03",
+        "end_date": "Present",
+        "date_range": "2 years"
+      },
+      "location": "Dallas, Texas, United States",
+      "description": "Leadership of the Mission Foods client service team including supervision of the Assistant Account Executive and Account Executive while working closely with the Senior Account Director to meet and exceed client business goals \n• Oversight of all Mission Foods initiatives related to creative development, print production, photoshoots, paid media planning and buying, organic social content, influencer marketing, digital campaign reporting, and website development/maintenance \n• Identifies incremental account growth opportunities based on SOW performance and shifts within the CPG industry"
+    },
+    {
+      "company": "Augustine Agency",
+      "title": "Senior Account Executive",
+      "duration": {
+        "start_date": "2021-12",
+        "end_date": "2023-03",
+        "date_range": "1 year 4 months"
+      },
+      "location": "Dallas, Texas, United States",
+      "description": "Primary point of contact for all client requests under the Mission Foods account, balancing management of projects while building client relationships and providing strategic POV across initiatives"
+    }
+  ],
+  "id": "e5199988-272a-427f-aed8-8b01afdd81b8",
+  "sourceProfileId": "95364904-3d25-492e-b063-69f55217b8e5"
+}

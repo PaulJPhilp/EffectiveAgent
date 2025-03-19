@@ -1,0 +1,85 @@
+{
+  "name": "Mark Dalhausser",
+  "title": "Experiential Marketing Producer",
+  "location": "Los Angeles, California, United States",
+  "key_skills": [
+    "Relationship Marketing",
+    "Event Management",
+    "Public Relations"
+  ],
+  "experience": [
+    {
+      "company": "Cartwheel and Co. Marketing",
+      "title": "Senior Director, Experiences",
+      "duration": {
+        "start_date": "2021-08",
+        "end_date": "Present",
+        "date_range": "3 years 7 months"
+      },
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "Self-Employed",
+      "title": "Freelance Event Producer & Creative Strategist",
+      "duration": {
+        "start_date": "2018-12",
+        "end_date": "Present",
+        "date_range": "6 years 3 months"
+      },
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "Allied Experiential",
+      "title": "Senior Director",
+      "duration": {
+        "start_date": "2016-07",
+        "end_date": "2018-11",
+        "date_range": "2 years 5 months"
+      },
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "Allied Experiential",
+      "title": "Account Director",
+      "duration": {
+        "start_date": "2015-06",
+        "end_date": "2016-06",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "Allied Experiential",
+      "title": "Senior Manager",
+      "duration": {
+        "start_date": "2014-04",
+        "end_date": "2015-06",
+        "date_range": "1 year 3 months"
+      },
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "Escalate",
+      "title": "Senior Account Manager",
+      "duration": {
+        "start_date": "2013-06",
+        "end_date": "2014-01",
+        "date_range": "8 months"
+      },
+      "location": null
+    },
+    {
+      "company": "PMK*BNC",
+      "title": "Operations Manager",
+      "duration": {
+        "start_date": "2013-02",
+        "end_date": "2013-08",
+        "date_range": "7 months"
+      },
+      "location": null
+    }
+  ],
+  "normalization_notes": "Standardized company names; Converted dates to YYYY-MM format; Replaced 'Greater Los Angeles Area' with 'Los Angeles, California, United States' where applicable; Changed 'Freelance' company to 'Self-Employed'.",
+  "id": "99856a15-9abc-4884-b578-9722a90287a8",
+  "sourceProfileId": "0cc2a4aa-f003-424b-8d04-49503dc2ee53"
+}

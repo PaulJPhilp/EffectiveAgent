@@ -47,6 +47,7 @@ export type ProfileData = z.infer<typeof ProfileDataSchema>;
  */
 export const NormalizedProfileSchema = z.object({
   id: z.string(),
+  name: z.string(),
   sourceProfileId: z.string(),
   content: z.string(),
   normalizedFields: z.record(z.unknown()),

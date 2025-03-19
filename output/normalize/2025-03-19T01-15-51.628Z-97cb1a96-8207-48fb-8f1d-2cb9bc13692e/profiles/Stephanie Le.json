@@ -1,0 +1,40 @@
+{
+  "name": "Stephanie Le",
+  "title": "Brand Marketing Coordinator",
+  "location": "Tustin, California, United States",
+  "key_skills": [
+    "Community Service",
+    "Leadership",
+    "Interpersonal Skills"
+  ],
+  "certifications": [
+    "Google Analytics Essential Training",
+    "SEO Foundations",
+    "OMCA Certification for Online Marketing Associate Test Prep",
+    "WordPress 5 Essential Training"
+  ],
+  "experience": [
+    {
+      "company": "Morinaga America",
+      "title": "Brand Marketing Coordinator",
+      "duration": {
+        "start_date": "2025-01",
+        "end_date": "Present",
+        "date_range": "2 months"
+      },
+      "location": "Irvine, California, United States"
+    },
+    {
+      "company": "Morinaga America",
+      "title": "Brand Marketing Assistant",
+      "duration": {
+        "start_date": "2022-10",
+        "end_date": "2024-12",
+        "date_range": "2 years 3 months"
+      },
+      "location": "Irvine, California, United States"
+    }
+  ],
+  "id": "04cd6e87-1405-4011-93ab-2bfe107cd22c",
+  "sourceProfileId": "a1aa03d1-ded4-466f-8027-40ae198c85ee"
+}

@@ -1,0 +1,67 @@
+{
+  "name": "Esther Robinsun-Abrams",
+  "title": "Experiential Production and Strategy",
+  "location": "United States",
+  "key_skills": [
+    "Social Networking",
+    "Event Planning",
+    "Facebook"
+  ],
+  "languages": [
+    "English"
+  ],
+  "certifications": [
+    "Communicating with Empathy",
+    "Building Relationships While Working from Home",
+    "Project Management: Choosing the Right Online Tool",
+    "Project Management Simplified",
+    "Leading Virtual Meetings"
+  ],
+  "experience": [
+    {
+      "company": "Self-Employed",
+      "title": "Experiential Producer & Consultant",
+      "duration": {
+        "start_date": "2021-08",
+        "end_date": "Present",
+        "date_range": "3 years 7 months"
+      },
+      "location": null,
+      "description": "Consulting & experiential production for clients including: Spotify, Netflix, BuzzFeed, Under Armour, LVMH, MetaMask, Warner, NFT.NYC, ETHDenver, Avalanche, Nike and more."
+    },
+    {
+      "company": "Meta",
+      "title": "Program Manager, We The Culture & Dale Tú",
+      "duration": {
+        "start_date": "2022-02",
+        "end_date": "2023-09",
+        "date_range": "1 year 8 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "Meta",
+      "title": "Project Manager, Community Lab",
+      "duration": {
+        "start_date": "2021-04",
+        "end_date": "2022-03",
+        "date_range": "1 year"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "Guayaki Sustainable Rainforest Products, Inc.",
+      "title": "Creative Marketing & Artist Partnerships",
+      "duration": {
+        "start_date": "2019-05",
+        "end_date": "2022-02",
+        "date_range": "2 years 10 months"
+      },
+      "location": "Greater Los Angeles Area",
+      "description": "Expand cultural reach to new markets through events, targeted outreach and digital marketing content.\nArtist Partnerships: Kehlani, Cuco, Kenny Beats, Rico Nasty, Young Kio + more"
+    }
+  ],
+  "normalization_notes": "Standardized company name 'Self-Employed'; Normalized dates to YYYY-MM format; Standardized location to City, State, Country where possible; Added descriptions from experience sections.",
+  "id": "ec32a5a2-fe47-43d9-a1f9-9010a488de29",
+  "sourceProfileId": "e4135506-d599-498a-b34a-691f7f87ac37"
+}

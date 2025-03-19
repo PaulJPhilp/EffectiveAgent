@@ -1,0 +1,58 @@
+{
+  "name": "Gabrielle Kessler",
+  "title": "SVP Brand Experience at We Are Social + Narrative",
+  "location": "Los Angeles, California, United States",
+  "summary": "Well-rounded marketing professional with 10+ years creating innovative solutions for clients across multiple verticals.",
+  "key_skills": [
+    "Experiential",
+    "Content",
+    "Mentor"
+  ],
+  "experience": [
+    {
+      "company": "We Are Social",
+      "title": "SVP Brand Experience & Production",
+      "duration": {
+        "start_date": "2021-10",
+        "end_date": "Present"
+      },
+      "location": "United States"
+    },
+    {
+      "company": "Narrative",
+      "title": "SVP Brand Experience",
+      "duration": {
+        "start_date": "2021-09",
+        "end_date": "2023-05"
+      }
+    },
+    {
+      "company": "Future",
+      "title": "VP Client Solutions",
+      "duration": {
+        "start_date": "2020-04",
+        "end_date": "2021-09"
+      }
+    },
+    {
+      "company": "Future",
+      "title": "VP Experiential",
+      "duration": {
+        "start_date": "2018-11",
+        "end_date": "2020-04"
+      }
+    },
+    {
+      "company": "The Visionary Group",
+      "title": "Creative Director",
+      "duration": {
+        "start_date": "2016-11",
+        "end_date": "2018-11"
+      },
+      "location": "Culver City, California, United States"
+    }
+  ],
+  "normalization_notes": "Standardized company names; Converted dates to ISO format; Added United States to Culver City location.",
+  "id": "bd944396-89ec-4553-bc46-142e5ff88ebe",
+  "sourceProfileId": "b6fca3ca-2153-44e1-855f-cbe9381f52a7"
+}

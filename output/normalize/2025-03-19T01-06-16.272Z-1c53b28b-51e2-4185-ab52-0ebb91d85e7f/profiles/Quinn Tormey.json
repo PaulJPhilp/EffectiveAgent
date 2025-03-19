@@ -1,0 +1,33 @@
+{
+  "name": "Quinn Tormey",
+  "title": "Producer",
+  "location": "New York City Metropolitan Area",
+  "key_skills": [
+    "Production Planning",
+    "Sports Marketing",
+    "AV Management"
+  ],
+  "summary": "Event/experiential marketing producer with experience working on campaigns for Samsung, Amazon, YouTube, BMW, Unilever, Facebook, Google, and more within high-energy agency environments. Skillset spans:\no Event marketing planning, coordination, logistics, sourcing, execution\no Account management and client service\no Content and Product Management in large volumes\no Creating flawless live experiences for clients",
+  "experience": [
+    {
+      "company": "Cheil North America",
+      "title": "Producer",
+      "duration": {
+        "start_date": "2022-02",
+        "end_date": "Present",
+        "date_range": "3 years 1 month"
+      },
+      "location": "New York City Metropolitan Area",
+      "description": "Collaborating with Samsung Electronics America for over 70 events, to bring flawless experiential events to consumers including: CES, NFT Week, Fashion Week, Newfronts, Rover Touch Campaign, Jaden Smith Activations, Samsung Galaxy Creator Collective, and more.\nPrimary point of contact for content and product management.\nCreation of event plans and Run of Shows for numerous events.\nTravelling to multiple markets for event operations and production.\nKey Achievements: Co-managed New York and Chicago markets for Samsung’s Rover Touch Campaign,\nProduction support on two renovations of the Samsung 837 Flagship Store in NY, Crucial operations support for Samsung’s Integrated Launch Platform activation in NY and San Francisco."
+    }
+  ],
+  "contact": [
+    {
+      "type": "LinkedIn",
+      "url": "www.linkedin.com/in/qtormey08"
+    }
+  ],
+  "normalization_notes": "Standardized date format; No specific location provided, kept 'New York City Metropolitan Area'.",
+  "id": "e95784c9-1144-4ff6-9c42-1c99c7f400f5",
+  "sourceProfileId": "7b677028-1fbd-4b7a-bf80-f6f5f2e4e606"
+}

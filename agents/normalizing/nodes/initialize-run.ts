@@ -28,9 +28,10 @@ export const initializeRunNode: RunnableFunc<NormalizationState, NormalizationSt
     startTime: timestamp,
     outputDir
   }
+
   return {
     ...state,
-    status: 'loading',
+    status: 'loading'
   };
 };
 

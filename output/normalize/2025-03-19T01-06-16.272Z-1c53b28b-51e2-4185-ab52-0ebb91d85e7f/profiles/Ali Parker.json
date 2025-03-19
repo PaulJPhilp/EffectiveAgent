@@ -1,0 +1,55 @@
+{
+  "name": "Ali Parker",
+  "title": "Co Founder at The Broad Collective || Experiential & Brand Marketing, Strategy and Production",
+  "location": "Atlanta, Georgia, United States",
+  "key_skills": [
+    "Event Management",
+    "Event Planning",
+    "Sports Marketing"
+  ],
+  "experience": [
+    {
+      "company": "The Broad Collective",
+      "title": "Co-founder / Co-owner || Experiential & Brand Marketing, Strategy and Production",
+      "duration": {
+        "start_date": "2018-01",
+        "end_date": "Present",
+        "date_range": "7 years 2 months"
+      },
+      "location": "Austin, Texas, United States"
+    },
+    {
+      "company": "Self-Employed",
+      "title": "Experiential and Creative Producer",
+      "duration": {
+        "start_date": "2017-04",
+        "end_date": "2017-12",
+        "date_range": "9 months"
+      },
+      "location": "Greater Chicago Area"
+    },
+    {
+      "company": "BeCore",
+      "title": "Director of Production",
+      "duration": {
+        "start_date": null,
+        "end_date": null,
+        "date_range": "4 years 3 months"
+      },
+      "location": null
+    }
+  ],
+  "certifications": [
+    "Launch Event Coordinator Exam",
+    "Wedding Assistant Exam",
+    "Launch Event Assistant Exam"
+  ],
+  "contact": {
+    "linkedin": "www.linkedin.com/in/ali-parker-79191427",
+    "personal_website": "www.alilouiseparker.com"
+  },
+  "summary": "Strategic marketing and business development leader with 10+ years of experience and a demonstrated history of internal strategy, experiential marketing, brand strategy, creative direction and team management. Out-of-the-box thinker with a talent for connecting people, teams, and brands to bring ideas to life.",
+  "normalization_notes": "Standardized location formats; Normalized company name for freelance role; Added contact details and certifications to the main JSON object; Added summary to the main JSON object",
+  "id": "35c3a32a-0b16-4f84-83c1-ca39bf0ef008",
+  "sourceProfileId": "b992541d-9e23-4b6e-8071-a8f7b27546e4"
+}

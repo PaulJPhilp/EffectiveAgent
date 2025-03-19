@@ -1,0 +1,45 @@
+{
+  "name": "Tara Scanlon",
+  "title": "VP, Strategy",
+  "location": "Greater Boston, Massachusetts, United States",
+  "key_skills": [
+    "Media Planning",
+    "Media Strategy",
+    "Advertising"
+  ],
+  "experience": [
+    {
+      "company": "dentsu X",
+      "title": "VP, Strategy",
+      "duration": {
+        "start_date": "2022-06",
+        "end_date": "Present",
+        "date_range": "2 years 9 months"
+      },
+      "location": "Greater Boston, Massachusetts, United States"
+    },
+    {
+      "company": "dentsu X",
+      "title": "VP, Planning",
+      "duration": {
+        "start_date": "2021-02",
+        "end_date": "2022-06",
+        "date_range": "1 year 5 months"
+      },
+      "location": "Greater Boston, Massachusetts, United States"
+    },
+    {
+      "company": "360i",
+      "title": "Group Director, Planning",
+      "duration": {
+        "start_date": "2019-06",
+        "end_date": "2021-02",
+        "date_range": "1 year 9 months"
+      },
+      "location": "New York, New York, United States"
+    }
+  ],
+  "normalization_notes": "Standardized dates to YYYY-MM format; Added state and country to locations where possible; Retained 'Greater Boston' as specific location not available; Maintained VP title as is.",
+  "id": "7a89ebcd-01a4-4e53-bdcc-3b97a7d6d115",
+  "sourceProfileId": "1a1cce04-3868-4010-9e79-9e2bb58a1eb5"
+}

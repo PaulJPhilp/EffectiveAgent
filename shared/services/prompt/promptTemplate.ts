@@ -5,9 +5,10 @@ import type {
     PromptDefinition,
     PromptVariables,
     TemplateIdentifier
-} from './prompt.js';
-import { PromptError } from './prompt.js';
+} from './types.js';
+import { PromptError } from './types.js';
 import { PromptDefinitionSchema, type SubpromptDefinition } from './schemas/promptConfig.js';
+import { Liquid } from 'liquidjs';
 
 interface PromptTemplateServiceOptions {
     readonly promptPath?: string;
@@ -30,7 +31,7 @@ export class PromptTemplateService implements IPromptTemplateService {
         } else {
             this.loadTemplates(path.join(__dirname, 'prompts'));
         }
-        console.log(`[PromptTemplateService] Loaded ${this.templates.size} templates`);
+        if (this.debug) console.log(`[PromptTemplateService] Loaded ${this.templates.size} templates`);
     }
 
     private loadTemplates(templateDirPath: string): PromptDefinition[] {
@@ -83,19 +84,25 @@ export class PromptTemplateService implements IPromptTemplateService {
         return template;
     }
 
-    public buildPrompt(
+    public async buildPrompt(
         identifier: TemplateIdentifier,
         variables: PromptVariables
-    ): string {
+       ): Promise<string> {
         if (this.debug) {
             console.log(`[PromptTemplateService] Building prompt for template: ${identifier.templateName}`);
+            console.log(`[PromptTemplateService] Available variables: ${JSON.stringify(variables, null, 2)}`);
         }
         const template = this.getTemplate(identifier);
         if (template) {
             if (this.debug) {
-                console.log(`[PromptTemplateService] Using template: ${identifier.templateName}`);
+                console.log(`[PromptTemplateService] Using template: ${JSON.stringify(variables, null, 2)}`);
             }
-            return template.systemPrompt.promptTemplate ?? '';
+            const liquid = new Liquid();
+            const parsedTemplate = await liquid.parseAndRender(template.systemPrompt?.promptTemplate ?? '', variables);
+            if (this.debug) {
+                console.log(`[PromptTemplateService] Built prompt: ${parsedTemplate}`);
+            }
+            return parsedTemplate;
         }
         const sortedSubprompts = this.getSortedSubprompts(template);
         const builtSubprompts = this.buildSubprompts(
@@ -127,7 +134,7 @@ export class PromptTemplateService implements IPromptTemplateService {
         subprompts: readonly SubpromptDefinition[],
         variables: PromptVariables,
         templateName: string
-    ): readonly string[] {
+    ): string[] {
         return subprompts.map(subprompt => {
             try {
                 return this.buildSubprompt(subprompt, variables);

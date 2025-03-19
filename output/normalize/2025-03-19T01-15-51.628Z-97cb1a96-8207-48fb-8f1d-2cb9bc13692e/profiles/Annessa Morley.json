@@ -1,0 +1,56 @@
+{
+  "name": "Annessa Morley",
+  "title": "AVP Marketing Engagement & Communications",
+  "location": "Detroit Metropolitan Area, Michigan, United States",
+  "key_skills": [
+    "Crisis Management",
+    "Creative Ideation",
+    "Key Performance Indicators",
+    "Strategic Planning",
+    "Team Leadership",
+    "Performance Marketing",
+    "Integrated Marketing",
+    "Internal Communications",
+    "Public Relations",
+    "Media Relations",
+    "Storytelling",
+    "Content Strategy",
+    "Technology Integration",
+    "Board of Directors/Non-profit Management",
+    "Donor Stewardship"
+  ],
+  "experience": [
+    {
+      "company": "Community Choice Credit Union",
+      "title": "AVP Marketing Engagement & Communications",
+      "duration": {
+        "start_date": "2024-07",
+        "end_date": "Present",
+        "date_range": "8 months"
+      },
+      "location": "Detroit Metropolitan Area, Michigan, United States"
+    },
+    {
+      "company": "Stryker",
+      "title": "Corporate Communications Consultant",
+      "duration": {
+        "start_date": null,
+        "end_date": null,
+        "date_range": null
+      },
+      "location": null
+    }
+  ],
+  "contact": {
+    "email": "annessac@gmail.com",
+    "linkedin": "www.linkedin.com/in/annessamorley",
+    "personal_website": "www.boblobook.com"
+  },
+  "certifications": [
+    "2023 Best of District V Awards"
+  ],
+  "summary": "An innovative leader in strategic communications planning and execution with demonstrated success in Marcom campaigns, branding, and reputation management for complex organizations. Developer of high performing, goal-oriented, diverse teams that drive innovative and effective marketing and communications strategies tied to organizational goals.",
+  "normalization_notes": "Added United States to Detroit location.  Converted date to YYYY-MM format. Added contact details. Added summary. Added certifications. Added null values for Stryker duration and location due to missing information.",
+  "id": "9f554cfd-612c-4015-9389-8178990f81bc",
+  "sourceProfileId": "13b1b69a-342d-4c91-aaa2-05b89e7a1c9d"
+}

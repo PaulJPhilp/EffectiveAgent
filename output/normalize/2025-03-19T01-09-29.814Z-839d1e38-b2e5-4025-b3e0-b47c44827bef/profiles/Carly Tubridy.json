@@ -1,0 +1,63 @@
+{
+  "name": "Carly Tubridy",
+  "title": "Account Supervisor",
+  "location": "South Elgin, Illinois, United States",
+  "summary": "Account Supervisor with a demonstrated history of building strong client relationships, providing strategic problem solving, and growing scope. I am passionate about understanding not only what the client (or brand) wants, but what they need to succeed. Success is only reached through partnership built on trust and open communication.",
+  "key_skills": [
+    "Client Presentation",
+    "Microsoft PowerPoint",
+    "Microsoft Excel"
+  ],
+  "languages": [
+    "Spanish (Limited Working)"
+  ],
+  "certifications": [
+    "Certified Digital Marketing Associate",
+    "PCM® Digital Marketing and Certified Digital Marketing Professional",
+    "Team Leadership Certificate"
+  ],
+  "honors_awards": [
+    "Blue Wildcat Scholarship",
+    "Mark Twain Scholarship",
+    "Rotary Club Scholarship",
+    "Direct Admittance into the Journalism School",
+    "Dean's List"
+  ],
+  "experience": [
+    {
+      "company": "The Food Group",
+      "title": "Account Supervisor",
+      "duration": {
+        "start_date": "2023-02",
+        "end_date": "Present",
+        "date_range": "2 years 1 month"
+      },
+      "location": null
+    },
+    {
+      "company": "Group East",
+      "title": "Senior Account Manager",
+      "duration": {
+        "start_date": "2022-07",
+        "end_date": "2023-02",
+        "date_range": "8 months"
+      },
+      "location": null
+    },
+    {
+      "company": "Paradowski Creative",
+      "title": "Senior Account Manager",
+      "duration": {
+        "start_date": "2022-03",
+        "end_date": "2022-07",
+        "date_range": "2 years 5 months"
+      },
+      "location": null,
+      "description": "Focusing on corporate communications, I have worked to establish and maintain Bayer as a thought leader and trusted partner in agriculture within the ag stakeholder audience. Through my strategic work, I have established strong relationships with clients positioning the agency as an integral partner and opening opportunities to grow scope. \n- Developed channel and content strategy for reputation management.   \n- Led Crop Science Corporate website content - through innovative and interactive web pieces, our team has brought forth Bayer’s commitments to innovation and sustainability.  \n- Acted as the account team web expert and liaison internally and externally through an in-depth knowledge of the CMS, SEO strategy, and content strategy. Used JIRA, Drupal and Google Analytics."
+    }
+  ],
+  "contact": "www.linkedin.com/in/carly-tubridy",
+  "normalization_notes": "Standardized company names; Converted dates to YYYY-MM format; Removed redundant location data within experience entries as it was not provided.",
+  "id": "305eae84-f841-4e35-a1e2-4782a7d05ff4",
+  "sourceProfileId": "f189d360-fa65-44bd-922e-d0ef6e675b8e"
+}

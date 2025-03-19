@@ -1,0 +1,61 @@
+{
+  "name": "Cristobal C.",
+  "title": "Experiential & Integrated Producer",
+  "location": "New York, New York, United States",
+  "summary": "NYC-based integrated producer and creative projects manager with nearly a decade in agency and in-house experience. Whether it’s crafting custom branded content, bespoke IRL experiences, or global trade shows, my passion lies in transforming concepts into realities. Let’s connect!",
+  "key_skills": [
+    "Floor Plans",
+    "Site Visits",
+    "Problem Solving"
+  ],
+  "languages": [
+    "English (Native or Bilingual)",
+    "Spanish (Native or Bilingual)"
+  ],
+  "certifications": [
+    "The Fundamentals of Digital Marketing",
+    "Critical Thinking",
+    "Fast Track to Digital Marketing"
+  ],
+  "contact": {
+    "email": "curisce@gmail.com",
+    "linkedin": "www.linkedin.com/in/cristobalcuris"
+  },
+  "experience": [
+    {
+      "company": "Amplify",
+      "title": "Producer",
+      "duration": {
+        "start_date": "2023-09",
+        "end_date": "Present",
+        "date_range": "1 year 6 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "DIZON Inc.",
+      "title": "Producer",
+      "duration": {
+        "start_date": "2023-06",
+        "end_date": "2023-10",
+        "date_range": "5 months"
+      },
+      "location": "New York, New York, United States",
+      "description": "Curate dynamic brand experiences, serving as primary client liaison. Oversee sourcing and management of external talent and vendors, aligning with client budgets and expectations."
+    },
+    {
+      "company": "Happier",
+      "title": "Senior Manager, Production",
+      "duration": {
+        "start_date": "2023-01",
+        "end_date": "2023-04",
+        "date_range": "4 months"
+      },
+      "location": "New York, New York, United States",
+      "description": "Led event production for Water Street Associates building (WSA, opened in 2023), a modern 700,000 sq. ft. multi-use building in FiDi, as well as managed and ideated programming for 99 Scott"
+    }
+  ],
+  "normalization_notes": "Standardized company names; Converted dates to YYYY-MM format; Standardized location format.",
+  "id": "c593ade6-8e44-460e-8a3b-a737fd092790",
+  "sourceProfileId": "d1cef84e-4254-4b22-9b12-a05ea87ee45a"
+}

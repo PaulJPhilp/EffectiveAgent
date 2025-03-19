@@ -1,6 +1,0 @@
-{
-  "id": "c7b90ee5-0776-489c-8ed9-03a5546739c2",
-  "sourceProfileId": "c5ff5a8b-bc63-4ce6-8bac-5a27bcc4a8da",
-  "content": "To normalize the provided profile data, I'll follow the specified guidelines for each field. Let's go through the process step-by-step:\n\n1. **Company Names**: Ensure proper capitalization and standardize common variations.\n2. **Job Titles**: Standardize role titles and maintain hierarchy prefixes.\n3. **Skills**: Group skills into a consistent taxonomy and standardize names.\n4. **Locations**: Format as \"City, State/Province, Country\" and standardize names.\n5. **Dates**: Convert to ISO format where possible.\n\nLet's apply these rules to the input profile. Please provide the JSON profile you want me to normalize, and I'll process it accordingly.",
-  "normalizedFields": {}
-}

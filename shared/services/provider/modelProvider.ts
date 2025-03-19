@@ -94,7 +94,7 @@ export interface ModelProvider {
 }
 
 export abstract class BaseModelProvider implements ModelProvider {
-    protected debug: boolean = false;
+    protected debug: boolean = true;
     protected modelConfig: ModelConfig;
 
     constructor(modelConfig: ModelConfig) {

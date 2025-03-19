@@ -1,0 +1,76 @@
+{
+  "name": "Julie Stetz",
+  "title": "Creative + Marketing Operations Leader",
+  "location": "Vienna, Virginia, United States",
+  "summary": "Highly motivated, hands-on leader in creative operations and project management with proven success in achieving strategic objectives through passion, commitment and expertise. Thrives in a collaborative environment; a strategic thinker, a creative problem solver and a team player.",
+  "key_skills": [
+    "Team Leadership",
+    "Event Production",
+    "User Experience (UX)"
+  ],
+  "experience": [
+    {
+      "company": "Hero Cosmetics",
+      "title": "Creative Operations Lead",
+      "duration": {
+        "start_date": "2023-06",
+        "end_date": "Present",
+        "date_range": "1 year 9 months"
+      },
+      "location": null
+    },
+    {
+      "company": "Meta",
+      "title": "Senior Manager, Project Management Office, Global Business Marketing",
+      "duration": {
+        "start_date": "2022-06",
+        "end_date": "2023-01",
+        "date_range": "8 months"
+      },
+      "location": "Portland, Oregon, United States"
+    },
+    {
+      "company": "Meta",
+      "title": "Senior Project Manager, Global Business Marketing",
+      "duration": {
+        "start_date": "2020-09",
+        "end_date": "2022-06",
+        "date_range": "1 year 10 months"
+      },
+      "location": "Portland, Oregon, United States"
+    },
+    {
+      "company": "Chanel",
+      "title": "Senior Manager, Creative Operations and Project Management",
+      "duration": {
+        "start_date": "2018-12",
+        "end_date": "2020-09",
+        "date_range": "1 year 10 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "Chanel",
+      "title": "Manager, Creative Operations and Project Management",
+      "duration": {
+        "start_date": "2017-11",
+        "end_date": "2018-12",
+        "date_range": "1 year 2 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "Chanel",
+      "title": "Digital Project Manager",
+      "duration": {
+        "start_date": "2016-03",
+        "end_date": "2017-11",
+        "date_range": "1 year 9 months"
+      },
+      "location": "New York, New York, United States"
+    }
+  ],
+  "normalization_notes": "Standardized company names; Converted dates to YYYY-MM format; Expanded PMO to Project Management Office; Standardized location for Chanel experience.",
+  "id": "d9dfa56d-4a77-45c2-904b-33f75c052412",
+  "sourceProfileId": "d9eba229-49a6-4fc9-a318-383e29840ed2"
+}

@@ -1,0 +1,53 @@
+{
+  "name": "Kalie Whitsett",
+  "title": "VP | Digital & Creative",
+  "location": "Southlake, Texas, United States",
+  "summary": "Highly-accomplished, creative strategy and marketing professional with a quantifiable record of consistent growth in market share, profitability, and client satisfaction. Valued, 20+ year professional with success in the development of project charters, marketing activities, social media content, communications strategies, project milestones, status reports, resource plans, and budgets. An industry expert in the design and delivery of creative development experiences for clients including FD Luxe, Savor Dallas, Custom Publications. Process improvement expert delivering increased efficiency to individual and enterprise-wide products and programs. A key developer of revenue-generating lines of business and increased revenue in existing and new markets. Trusted mentor to the team, division, and departmental managers with a focused effort on professional development. Manager of multi-million dollar budget including purchase and implementation costs.  Strong research/data analyst with expert knowledge of industry competition and trends.",
+  "key_skills": [
+    "Account Management",
+    "Advertising",
+    "Advertising Sales"
+  ],
+  "honors_awards": [
+    "INMA Best Public Relations of Community Service Campaign - Second Place",
+    "United States Charity Campaign Design Award Inland Press Association Award",
+    "Bronze Award",
+    "STAR Award Recipient"
+  ],
+  "experience": [
+    {
+      "company": "Augustine Agency",
+      "title": "VP | Digital & Creative",
+      "duration": {
+        "start_date": "2021-09",
+        "end_date": "Present",
+        "date_range": "3 years 6 months"
+      },
+      "location": "California, United States"
+    },
+    {
+      "company": "Lifeblue",
+      "title": "Marketing Account Director | Brand Innovation | Strategy",
+      "duration": {
+        "start_date": "2020-06",
+        "end_date": "2021-12",
+        "date_range": "1 year 7 months"
+      },
+      "location": "Plano, Texas, United States"
+    },
+    {
+      "company": "Eighty Three Creative",
+      "title": "Vice President Operations",
+      "duration": {
+        "start_date": "2018-11",
+        "end_date": "2020-06",
+        "date_range": "1 year 8 months"
+      },
+      "location": "Dallas, Texas, United States"
+    }
+  ],
+  "contact": "www.linkedin.com/in/kaliewhitsett",
+  "normalization_notes": "Standardized dates to YYYY-MM format. Consolidated Augustine Agency locations to California, United States as it's the most prominent location mentioned.",
+  "id": "aedaa560-e2ed-48ce-a00f-8858ec62ea29",
+  "sourceProfileId": "a1fe47a0-5f5d-4d5b-9cdf-29e3e471885d"
+}

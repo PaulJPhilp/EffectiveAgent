@@ -1,0 +1,47 @@
+{
+  "name": "Aleksys Arredondo",
+  "title": "Engineer",
+  "location": "Burlington, Massachusetts, United States",
+  "key_skills": [
+    "Failure Mode and Effects Analysis (FMEA)",
+    "Corrective and Preventive Action (CAPA)",
+    "U.S. Food and Drug Administration (FDA)",
+    "Spanish"
+  ],
+  "languages": [
+    "Spanish"
+  ],
+  "certifications": [
+    "Introduction to ISO Global BIM Standards",
+    "Certified Associate in Project Management (CAPM)® Exam Tips",
+    "AI Show: Medical Imaging with Azure Machine Learning",
+    "Data Engineering Foundations",
+    "Process Improvement Foundations"
+  ],
+  "summary": "Excellence-guided Engineer capable of transforming complex operational challenges into cutting-edge, efficient and unique solutions. Proficient in streamlining project workflows, leading high-performing teams, delivering exceptional technical support, and coordinating product development. Seeking learning and collaborative opportunities to advance technology through engineering applications.",
+  "experience": [
+    {
+      "company": "Abbott",
+      "title": "Product Analysis Engineer",
+      "duration": {
+        "start_date": "2024-11",
+        "end_date": "Present",
+        "date_range": "4 months"
+      },
+      "location": "Burlington, Massachusetts, United States"
+    },
+    {
+      "company": "Cheil North America",
+      "title": "Associate Producer",
+      "duration": {
+        "start_date": "2023-05",
+        "end_date": "2024-08",
+        "date_range": "1 year 4 months"
+      },
+      "location": "Plano, Texas, United States"
+    }
+  ],
+  "normalization_notes": "Standardized dates to YYYY-MM format.  Retained full skill names where acronyms are commonly used.  No changes to certifications as they appear to be specific course titles.  Languages moved to a separate 'languages' field.",
+  "id": "f5c54d42-d4c5-44ea-8d90-d398d4d7f2b4",
+  "sourceProfileId": "eb24d095-7b3b-4d23-96d3-ba4cb2957d3e"
+}

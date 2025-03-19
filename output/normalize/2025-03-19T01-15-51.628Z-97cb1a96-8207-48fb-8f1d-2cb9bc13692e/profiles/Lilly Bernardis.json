@@ -1,0 +1,54 @@
+{
+  "name": "Lilly Bernardis",
+  "title": "Account Producer",
+  "location": "Englewood, Colorado, United States",
+  "key_skills": [],
+  "experience": [
+    {
+      "company": "Outerkind",
+      "title": "Account Producer",
+      "duration": {
+        "start_date": "2023-02",
+        "end_date": "Present",
+        "date_range": "2 years 1 month"
+      },
+      "location": "Colorado, United States"
+    },
+    {
+      "company": "Easy Event Planning",
+      "title": "Digital Marketing and SEO Intern",
+      "duration": {
+        "start_date": "2021-08",
+        "end_date": "2023-02",
+        "date_range": "1 year 7 months"
+      },
+      "location": "Remote"
+    },
+    {
+      "company": "Club Greenwood",
+      "title": "Kids Camp Coordinator",
+      "duration": {
+        "start_date": "2016-05",
+        "end_date": "2020-12",
+        "date_range": "4 years 8 months"
+      },
+      "location": "Greenwood Athletic Club"
+    }
+  ],
+  "education": [
+    {
+      "institution": "University of Colorado Boulder",
+      "degree": "Bachelor's degree",
+      "major": "Advertising",
+      "start_date": "2018",
+      "end_date": "2022"
+    },
+    {
+      "institution": "Cherry Creek High School",
+      "start_date": "2015",
+      "end_date": "2018"
+    }
+  ],
+  "id": "07bd2c12-c047-437a-a32f-28ee957b75f6",
+  "sourceProfileId": "cd7cd57d-d8d0-47ed-9661-e9652bb2fe2e"
+}

@@ -1,0 +1,72 @@
+{
+  "name": "Krista Capasella",
+  "title": "Event Producer",
+  "location": "Somers, New York, United States",
+  "key_skills": [
+    "Management",
+    "Operations Management",
+    "Workload Prioritization"
+  ],
+  "summary": "Focused event operations and production professional with 14+ years of experience and a proven knowledge of creation, conception, budgeting, and execution of large-scale custom programs for fashion, beauty, entertainment, and tech accounts, for both client and partnership/collaboration.",
+  "experience": [
+    {
+      "company": "Marcy Blum Events",
+      "title": "Event Producer",
+      "duration": {
+        "start_date": "2025-02",
+        "end_date": "Present",
+        "date_range": "1 month"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "N4XT Experiences, Inc.",
+      "title": "VP of Production and Events",
+      "duration": {
+        "start_date": "2023-07",
+        "end_date": "2023-12",
+        "date_range": "6 months"
+      },
+      "location": "Los Angeles, California, United States"
+    },
+    {
+      "company": "Hessney & Co.",
+      "title": "Director of Production",
+      "duration": {
+        "start_date": "2019-09",
+        "end_date": "2022-06",
+        "date_range": "2 years 10 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "Milk",
+      "title": "Events Director",
+      "duration": {
+        "start_date": "2019-01",
+        "end_date": "2019-09",
+        "date_range": "9 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "IMG",
+      "title": "Director, Events + Operations",
+      "duration": {
+        "start_date": "2017-04",
+        "end_date": "2018-12",
+        "date_range": "1 year 9 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "LDJ Productions",
+      "title": null,
+      "duration": null,
+      "location": null
+    }
+  ],
+  "normalization_notes": "Standardized company names; Converted dates to ISO format; Added missing location for N4XT Experiences based on LAFW context; Added missing location for Hessney & Co.",
+  "id": "fae7fc50-fc8c-4179-9954-c41170295f69",
+  "sourceProfileId": "60e2e6bd-3815-4325-abee-777b917ef66f"
+}

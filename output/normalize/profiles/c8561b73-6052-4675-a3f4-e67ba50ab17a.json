@@ -1,6 +1,0 @@
-{
-  "id": "c8561b73-6052-4675-a3f4-e67ba50ab17a",
-  "sourceProfileId": "e2783bc5-642c-43e0-aa21-302f310ae3e6",
-  "content": "To normalize the provided profile data, I'll follow the guidelines outlined for company names, job titles, skills, locations, and dates. I'll also add a `normalization_notes` field if necessary to document any significant changes or ambiguities. \n\nPlease provide the input profile data so I can proceed with the normalization process.",
-  "normalizedFields": {}
-}

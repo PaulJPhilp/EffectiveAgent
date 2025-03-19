@@ -1,0 +1,35 @@
+{
+  "name": "Jess D.",
+  "title": "Head of Experiential & Production",
+  "location": "New York, New York, United States",
+  "key_skills": [
+    "Senior Stakeholder Management",
+    "Collaborative Problem Solving",
+    "Experiential Marketing"
+  ],
+  "experience": [
+    {
+      "company": "IHEARTCOMIX",
+      "title": "Senior Director Head of Experiential & Production",
+      "duration": {
+        "start_date": "2023-01",
+        "end_date": "Present",
+        "date_range": "2 years 2 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "TikTok",
+      "title": "Global Experiential Event Production Lead",
+      "duration": {
+        "start_date": "2022-06",
+        "end_date": "2023-06",
+        "date_range": "1 year 1 month"
+      },
+      "location": "New York, New York, United States"
+    }
+  ],
+  "normalization_notes": "Standardized dates to YYYY-MM format; Standardized location to City, State, Country format; Standardized job title to proper case.",
+  "id": "750e95c0-7c46-464f-a384-c960b0daf7d5",
+  "sourceProfileId": "5d180abd-5c44-4900-bd12-998ffeaaee2c"
+}

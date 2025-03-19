@@ -1,0 +1,88 @@
+{
+  "name": "Darya (Dasha) Cable",
+  "title": "Senior Project Manager | Digital Marketing",
+  "location": "Greater Cleveland, Ohio, United States",
+  "key_skills": [
+    "Process Improvement",
+    "Microsoft Office",
+    "Customer Service"
+  ],
+  "certifications": [
+    "SCRUM Master"
+  ],
+  "experience": [
+    {
+      "company": "Weber Shandwick",
+      "title": "Senior Project Manager",
+      "duration": {
+        "start_date": "2022-08",
+        "end_date": "Present",
+        "date_range": "2 years 7 months"
+      },
+      "location": "Greater Cleveland, Ohio, United States"
+    },
+    {
+      "company": "Fathom",
+      "title": "Senior Project Manager",
+      "duration": {
+        "start_date": "2022-07",
+        "end_date": "2022-08",
+        "date_range": "2 months"
+      },
+      "location": "Cleveland, Ohio, United States"
+    },
+    {
+      "company": "Fathom",
+      "title": "Project Manager",
+      "duration": {
+        "start_date": "2020-11",
+        "end_date": "2022-07",
+        "date_range": "1 year 9 months"
+      },
+      "location": "Cleveland, Ohio, United States"
+    },
+    {
+      "company": "Publicis Sapient",
+      "title": "Associate Project Manager",
+      "duration": {
+        "start_date": "2019-11",
+        "end_date": "2020-11",
+        "date_range": "1 year 1 month"
+      },
+      "location": "Cleveland/Akron, Ohio, United States"
+    },
+    {
+      "company": "Publicis Sapient",
+      "title": "Project Coordinator",
+      "duration": {
+        "start_date": "2018-07",
+        "end_date": "2019-11",
+        "date_range": "1 year 5 months"
+      },
+      "location": "Cleveland, Ohio, United States"
+    },
+    {
+      "company": "ValMark Financial Group",
+      "title": "Marketing Intern",
+      "duration": {
+        "start_date": "2017-10",
+        "end_date": "2018-07",
+        "date_range": "10 months"
+      },
+      "location": "Akron, Ohio, United States"
+    },
+    {
+      "company": "Insomnia Cookies",
+      "title": null,
+      "duration": {
+        "start_date": null,
+        "end_date": null,
+        "date_range": null
+      },
+      "location": null
+    }
+  ],
+  "normalization_notes": "Standardized dates to YYYY-MM format; Added United States to locations; Corrected company names to proper case; Added Greater to Cleveland location for Weber Shandwick; Added null values for Insomnia Cookies entry due to lack of information.",
+  "id": "979d68e2-a33b-43fe-a52e-f068a02f6e75",
+  "sourceProfileId": "2938eed7-d3a5-41ff-b7bf-a8b5ff7ce65a"
+}

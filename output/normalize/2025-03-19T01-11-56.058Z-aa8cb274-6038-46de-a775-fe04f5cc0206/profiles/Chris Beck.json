@@ -1,0 +1,45 @@
+{
+  "name": "Chris Beck",
+  "title": "Senior Account Director and New Business Development",
+  "location": "Des Moines, Iowa, United States",
+  "key_skills": [
+    "B2B Marketing Strategy",
+    "Presentations",
+    "Marketing Campaigns"
+  ],
+  "experience": [
+    {
+      "company": "Two Rivers Marketing",
+      "title": "New Business Development",
+      "duration": {
+        "start_date": "2023-04",
+        "end_date": "Present",
+        "date_range": "1 year 11 months"
+      },
+      "location": "Des Moines, Iowa, United States"
+    },
+    {
+      "company": "Two Rivers Marketing",
+      "title": "Senior Account Director",
+      "duration": {
+        "start_date": "2022-02",
+        "end_date": "Present",
+        "date_range": "3 years 1 month"
+      },
+      "location": "United States"
+    },
+    {
+      "company": "Two Rivers Marketing",
+      "title": "Account Director",
+      "duration": {
+        "start_date": "2016-06",
+        "end_date": "2022-02",
+        "date_range": "5 years 9 months"
+      },
+      "location": null
+    }
+  ],
+  "normalization_notes": "Standardized job titles; Converted dates to ISO format; Added United States to location where applicable; Location for Account Director experience was null as it was not specified.",
+  "id": "6aaaff62-f2b9-44cd-9f1d-cf5ae580794b",
+  "sourceProfileId": "677c8214-bdd3-4a35-b5d7-4fd00536faa3"
+}

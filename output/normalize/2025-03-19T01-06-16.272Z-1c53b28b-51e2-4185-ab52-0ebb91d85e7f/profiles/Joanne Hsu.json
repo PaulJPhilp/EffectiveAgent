@@ -1,0 +1,25 @@
+{
+  "name": "Joanne Hsu",
+  "title": "Senior Brand Marketing Manager",
+  "location": "La Puente, California, United States",
+  "key_skills": [
+    "Digital Marketing",
+    "Integrated Marketing",
+    "Content Marketing",
+    "Strategic Thinking"
+  ],
+  "experience": [
+    {
+      "company": "Morinaga America",
+      "title": "Senior Brand Marketing Manager",
+      "duration": {
+        "start_date": "2022-06",
+        "end_date": "Present"
+      },
+      "location": "Irvine, California, United States"
+    }
+  ],
+  "normalization_notes": "Converted date format to ISO; Standardized location format; Capitalized company name.",
+  "id": "f1fa72be-6c50-4c76-830d-67e26588551b",
+  "sourceProfileId": "df530ef3-6d66-46c1-9f8f-a7ee2351bef6"
+}

@@ -1,0 +1,96 @@
+{
+  "name": "Sean Choi",
+  "title": "Entrepreneur, Fractional CMO, Festival Producer",
+  "location": "Brooklyn, New York, United States",
+  "key_skills": [
+    "Entrepreneurship",
+    "Leadership",
+    "Business Development",
+    "Korean",
+    "French",
+    "Inbound Marketing",
+    "Google Ads",
+    "HubSpot Marketing Software",
+    "Google Analytics"
+  ],
+  "experience": [
+    {
+      "company": "NewCo",
+      "title": "Founder",
+      "duration": {
+        "start_date": "2024-10",
+        "end_date": "Present",
+        "date_range": "5 months"
+      },
+      "location": "New York, New York, United States"
+    },
+    {
+      "company": "Love Trails",
+      "title": "Chief Marketing Officer",
+      "duration": {
+        "start_date": "2024-08",
+        "end_date": "Present",
+        "date_range": "7 months"
+      },
+      "location": "Wales, United Kingdom"
+    },
+    {
+      "company": "Ecoversity",
+      "title": "Chief Strategy and Marketing Officer",
+      "duration": {
+        "start_date": "2024-08",
+        "end_date": "Present",
+        "date_range": "7 months"
+      },
+      "location": null
+    },
+    {
+      "company": "ILLfest Music & Street Art Festival",
+      "title": "Co-Founder & Festival Director",
+      "duration": {
+        "start_date": "2016-10",
+        "end_date": "Present",
+        "date_range": "8 years 5 months"
+      },
+      "location": "Austin, Texas, United States"
+    },
+    {
+      "company": "Envision Festival",
+      "title": "Head of Sales",
+      "duration": {
+        "start_date": "2018-07",
+        "end_date": "Present",
+        "date_range": "6 years 8 months"
+      },
+      "location": "Uvita, Costa Rica"
+    }
+  ],
+  "certifications": [
+    "Inbound",
+    "Google Ads",
+    "Hubspot Marketing Software",
+    "Google Analytics"
+  ],
+  "honors_awards": [
+    "Winner of the Baylor CEO Elevator Pitch Competition",
+    "National Merit",
+    "Baylor Study Abroad Photo Contest Winner '14-'15 (People and Places)",
+    "Semi-Finalist in Baylor New Venture Competition"
+  ],
+  "publications": [
+    "Founder Zen: Becoming One with Your Startup",
+    "Modern Solutions for Secure E-mail",
+    "Startup Texas",
+    "Series B and Beyond Reflections - Closing the Funding Gap",
+    "Startup Waco"
+  ],
+  "summary": "I strive to be known as someone that leverages technology to push the boundaries of organizational output and forge data-driven paths through uncertainty. Energized when tasked with finding creative solutions to complex problems, I am hungry to scale the impact of my outputs to improve quality of life for others.",
+  "contact": "www.linkedin.com/in/seanjchoi",
+  "languages": [
+    "Korean (Limited Working)",
+    "French (Limited Working)"
+  ],
+  "normalization_notes": "Standardized date formats to YYYY-MM.  Added 'Marketing' to Inbound, HubSpot to standardize skill names.  Removed '®' from Love Trails company name.  Set Ecoversity location to null as it was not provided.",
+  "id": "bfc05608-6c97-4b17-96bb-56081ecabfac",
+  "sourceProfileId": "ace32f9d-47a5-4ab4-b4ef-638d3ce3cb13"
+}

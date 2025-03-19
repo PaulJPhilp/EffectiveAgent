@@ -1,0 +1,42 @@
+{
+  "name": "Julianne Wolfe",
+  "title": "Producer | Experiential Marketing | Event Production",
+  "location": "Los Angeles, California, United States",
+  "summary": "Producer at an award-winning experiential marketing agency with expertise in leading large-scale events valued at $2M+. Experienced across the consumer, entertainment, and music industries, with a proven track record of driving team success and identifying budget efficiencies. Strong background in advertising, strategy development, and communications, backed by dual Bachelor’s Degrees in Psychology and Communications from the University of California, Santa Barbara.",
+  "key_skills": [
+    "Event Planning",
+    "Social Networking",
+    "Customer Service"
+  ],
+  "languages": [
+    "English"
+  ],
+  "honors_awards": [
+    "College of Letters & Science Honors Program"
+  ],
+  "experience": [
+    {
+      "company": "NVE Experience Agency",
+      "title": "Producer",
+      "duration": {
+        "start_date": "2024-01",
+        "end_date": "Present",
+        "date_range": "1 year 2 months"
+      },
+      "location": "Los Angeles, California, United States",
+      "description": "Notable Projects:\nRevolve - Revolve Festival 2024 & 2023\nSiriusXM - Jack Harlow, John Legend, John Mayer, Pitbull\nBillboard - Golden Globes After Party\nBillboard - Samsung x Sabrina Carpenter\nFX - Grotesquerie Stunt\nLiquid I.V. - Bonnaroo Music Festival\nPeacock - Ted Series Premiere \nRed Bull - Red Bull Symphonic with Metro Boomin\nCash App - Cash App x Bitcoin Market \nHulu - Legacy Lakers Press Junket \nHulu - The Orville Premiere & After Party\nAmazon - Don't Make Me Go Premiere & After Party\nNBA - NBA Influencer House\nAdidas - 4DFWD Press Event"
+    },
+    {
+      "company": "NVE Experience Agency",
+      "title": "Associate Producer",
+      "duration": {
+        "start_date": "2022-12",
+        "end_date": "2024-01",
+        "date_range": "1 year 2 months"
+      },
+      "location": "Los Angeles, California, United States"
+    }
+  ],
+  "id": "dbae4dc9-4523-4e1f-9794-0d11e9f3988e",
+  "sourceProfileId": "955b4c70-c425-47c1-8985-1232d57f75ab"
+}
