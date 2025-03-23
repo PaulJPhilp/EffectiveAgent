@@ -1,0 +1,25 @@
+{
+    "name": "persona-generator-prompts",
+    "version": "1.0.0",
+    "description": "Prompt configurations for the persona generator agent",
+    "prompts": {
+        "generate-persona": {
+            "name": "Generate Persona",
+            "description": "Generates a persona based on provided attributes",
+            "systemPrompt": "You are an expert at creating detailed, realistic personas. Your task is to generate a persona based on the provided attributes. The persona should be well-rounded, with clear characteristics, behaviors, and preferences.",
+            "userPrompt": "Generate a persona with the following attributes:\nName: {name}\nAge: {age}\nInterests: {interests}\n\nPlease provide a detailed description of this persona, including:\n1. Personality traits\n2. Background and history\n3. Goals and motivations\n4. Daily routines and habits\n5. Communication style\n6. Decision-making process"
+        },
+        "cluster-personas": {
+            "name": "Cluster Personas",
+            "description": "Clusters similar personas together based on attributes",
+            "systemPrompt": "You are an expert at analyzing and grouping personas based on their characteristics. Your task is to identify patterns and similarities among personas and group them into meaningful clusters.",
+            "userPrompt": "Analyze the following personas and group them into clusters based on their characteristics:\n\n{personas}\n\nFor each cluster, provide:\n1. Common characteristics\n2. Key differences\n3. Cluster size and composition\n4. Representative personas"
+        },
+        "elaborate-persona": {
+            "name": "Elaborate Persona",
+            "description": "Elaborates on a persona's details and characteristics",
+            "systemPrompt": "You are an expert at expanding and enriching persona descriptions. Your task is to take an existing persona and add more depth and detail to their characteristics.",
+            "userPrompt": "Elaborate on the following persona:\n\n{persona}\n\nPlease provide additional details about:\n1. Psychological profile\n2. Social relationships\n3. Professional life\n4. Personal development\n5. Future aspirations\n6. Potential challenges"
+        }
+    }
+} 

@@ -1,0 +1,257 @@
+{
+  "runInfo": {
+    "runId": "run-2025-03-20T00-18-41-814Z-90a6e8c7",
+    "startTime": "2025-03-20T00:18:41.816Z",
+    "outputDir": "/Users/paul/projects/pdf-loader/data/personas/runs/run-2025-03-20T00-18-41-814Z-90a6e8c7",
+    "inputDir": "/Users/paul/projects/pdf-loader/data/normalized"
+  },
+  "personas": [
+    {
+      "personaName": "Data-Driven David",
+      "title": "Marketing Analyst",
+      "description": {
+        "role": "David is a Marketing Analyst responsible for collecting, analyzing, and interpreting marketing data to provide actionable insights and recommendations. He works closely with marketing managers and other stakeholders to optimize campaigns, improve ROI, and drive business growth. He is responsible for creating reports, dashboards, and presentations that communicate key findings and trends.",
+        "impact": "David's analysis directly impacts marketing campaign effectiveness by identifying areas for improvement and optimization. His insights help the marketing team make data-driven decisions, leading to increased ROI and better business outcomes. He also helps to track and measure the success of marketing initiatives.",
+        "workStyle": ""
+      },
+      "values": [],
+      "motivations": [],
+      "goals": [],
+      "skills": [
+        "Data analysis",
+        "Statistical modeling",
+        "Data visualization",
+        "Marketing analytics",
+        "Communication"
+      ],
+      "toolsUsed": [],
+      "challenges": [],
+      "learningStyle": {
+        "preferredMethods": [],
+        "resources": [],
+        "paceOfLearning": ""
+      },
+      "background": "",
+      "informationEcosystem": {
+        "preferredResources": [],
+        "influencers": [],
+        "organizations": [],
+        "publications": [],
+        "communities": []
+      },
+      "personalityProfile": "David is a detail-oriented and analytical individual with a passion for data. He is a problem-solver who enjoys finding patterns and insights in complex datasets. He is a strong communicator who can explain technical concepts to non-technical audiences. He is also a team player who is willing to collaborate with others to achieve common goals. He prefers a structured and organized work environment.",
+      "commonCharacteristics": [
+        "Proficient in data analysis tools (e.g., Excel, SQL, R, Python)",
+        "Strong analytical and problem-solving skills",
+        "Excellent communication and presentation skills",
+        "Detail-oriented and organized",
+        "Passionate about data and marketing"
+      ],
+      "typicalBackground": "David typically has a bachelor's degree in marketing, statistics, economics, or a related field. He may also have a master's degree in marketing analytics or business analytics. He has 2-5 years of experience in a marketing analytics role.",
+      "percentageOfTotal": 15,
+      "representativeProfiles": [
+        "LinkedIn profile of a Marketing Analyst",
+        "Job description for a Marketing Analyst"
+      ]
+    },
+    {
+      "personaName": "Data-Driven David",
+      "title": "Marketing Analyst",
+      "description": {
+        "role": "David is a Marketing Analyst responsible for collecting, analyzing, and interpreting marketing data to provide actionable insights and recommendations. He works closely with marketing managers and other stakeholders to optimize campaigns, improve ROI, and drive business growth.",
+        "impact": "David's analysis directly impacts marketing campaign performance, budget allocation, and overall marketing strategy. His insights help the team make informed decisions, avoid costly mistakes, and maximize the return on investment for marketing initiatives.",
+        "workStyle": ""
+      },
+      "values": [],
+      "motivations": [],
+      "goals": [],
+      "skills": [
+        "Data analysis",
+        "Statistical modeling",
+        "Data visualization",
+        "SQL",
+        "Marketing automation platforms",
+        "A/B testing",
+        "Communication"
+      ],
+      "toolsUsed": [],
+      "challenges": [],
+      "learningStyle": {
+        "preferredMethods": [],
+        "resources": [],
+        "paceOfLearning": ""
+      },
+      "background": "",
+      "informationEcosystem": {
+        "preferredResources": [],
+        "influencers": [],
+        "organizations": [],
+        "publications": [],
+        "communities": []
+      },
+      "personalityProfile": "David is a detail-oriented and analytical individual with a passion for data. He is a strong problem-solver and enjoys finding patterns and insights in complex datasets. He is a collaborative team player and is always willing to share his knowledge and expertise with others. He prefers a structured and organized work environment and values accuracy and precision in his work.",
+      "commonCharacteristics": [
+        "Analytical",
+        "Detail-oriented",
+        "Problem-solver",
+        "Collaborative",
+        "Curious"
+      ],
+      "typicalBackground": "David typically has a bachelor's degree in statistics, mathematics, economics, or a related field. He may also have a master's degree in marketing analytics or business analytics. He has 2-5 years of experience in a marketing analytics role.",
+      "percentageOfTotal": 15,
+      "representativeProfiles": [
+        "https://www.linkedin.com/in/examplemarketinganalyst"
+      ]
+    },
+    {
+      "personaName": "Data-Driven David",
+      "title": "Marketing Analyst",
+      "description": {
+        "role": "David is a Marketing Analyst responsible for collecting, analyzing, and interpreting marketing data to provide actionable insights and recommendations. He works closely with marketing managers and other stakeholders to optimize campaigns, improve ROI, and drive business growth.",
+        "impact": "David's analysis helps the marketing team make informed decisions, optimize campaigns for better performance, and identify new opportunities for growth. He provides crucial insights that directly impact the company's bottom line.",
+        "workStyle": ""
+      },
+      "values": [],
+      "motivations": [],
+      "goals": [],
+      "skills": [
+        "Data analysis",
+        "Statistical modeling",
+        "Data visualization",
+        "SQL",
+        "Marketing automation platforms",
+        "A/B testing",
+        "Predictive analytics"
+      ],
+      "toolsUsed": [],
+      "challenges": [],
+      "learningStyle": {
+        "preferredMethods": [],
+        "resources": [],
+        "paceOfLearning": ""
+      },
+      "background": "",
+      "informationEcosystem": {
+        "preferredResources": [],
+        "influencers": [],
+        "organizations": [],
+        "publications": [],
+        "communities": []
+      },
+      "personalityProfile": "David is a detail-oriented and analytical individual who enjoys solving complex problems with data. He is a strong communicator and is able to explain complex data insights in a clear and concise manner. He is a team player and is always willing to help others. He prefers a structured and organized work environment and values accuracy and precision.",
+      "commonCharacteristics": [
+        "Analytical",
+        "Detail-oriented",
+        "Problem-solver",
+        "Communicative",
+        "Team player"
+      ],
+      "typicalBackground": "David typically has a bachelor's degree in statistics, mathematics, economics, or a related field. He may also have a master's degree in marketing analytics or data science. He has 2-5 years of experience in a marketing analytics role.",
+      "percentageOfTotal": 15,
+      "representativeProfiles": [
+        "https://www.linkedin.com/in/examplemarketinganalyst1/",
+        "https://www.linkedin.com/in/examplemarketinganalyst2/"
+      ]
+    },
+    {
+      "personaName": "Data-Driven David",
+      "title": "Marketing Analyst",
+      "description": {
+        "role": "David is a Marketing Analyst responsible for collecting, analyzing, and interpreting marketing data to provide actionable insights and recommendations. He works closely with marketing managers and other stakeholders to optimize campaigns, improve ROI, and drive business growth.",
+        "impact": "David's analysis directly impacts marketing campaign effectiveness by identifying areas for improvement and optimization. His insights help the marketing team make informed decisions, allocate resources efficiently, and achieve better results.",
+        "workStyle": ""
+      },
+      "values": [],
+      "motivations": [],
+      "goals": [],
+      "skills": [
+        "Data analysis",
+        "Statistical modeling",
+        "Data visualization",
+        "SQL",
+        "Marketing automation platforms"
+      ],
+      "toolsUsed": [],
+      "challenges": [],
+      "learningStyle": {
+        "preferredMethods": [],
+        "resources": [],
+        "paceOfLearning": ""
+      },
+      "background": "",
+      "informationEcosystem": {
+        "preferredResources": [],
+        "influencers": [],
+        "organizations": [],
+        "publications": [],
+        "communities": []
+      },
+      "personalityProfile": "David is a detail-oriented and analytical individual who enjoys solving complex problems. He is a strong communicator and is able to explain technical concepts in a clear and concise manner. He is a team player and is always willing to help others. He prefers a structured and organized work environment and values accuracy and precision in his work.",
+      "commonCharacteristics": [
+        "Proficient in data analysis tools",
+        "Strong analytical skills",
+        "Excellent communication skills",
+        "Detail-oriented",
+        "Problem-solver"
+      ],
+      "typicalBackground": "Bachelor's degree in Marketing, Statistics, or a related field. 2-3 years of experience in a marketing analytics role.",
+      "percentageOfTotal": 15,
+      "representativeProfiles": [
+        "LinkedIn profiles of Marketing Analysts with similar experience and skills."
+      ]
+    },
+    {
+      "personaName": "Data-Driven David",
+      "title": "Senior Marketing Analyst",
+      "description": {
+        "role": "David is a Senior Marketing Analyst responsible for collecting, analyzing, and interpreting marketing data to provide actionable insights and recommendations to improve marketing campaign performance and ROI. He works closely with marketing managers and other stakeholders to understand their needs and translate data into strategic decisions.",
+        "impact": "David's analysis and insights directly impact marketing campaign performance, leading to increased ROI, improved targeting, and more effective messaging. He helps the marketing team make data-driven decisions, reducing reliance on gut feelings and assumptions.",
+        "workStyle": ""
+      },
+      "values": [],
+      "motivations": [],
+      "goals": [],
+      "skills": [
+        "Data analysis",
+        "SQL",
+        "Excel",
+        "Data visualization (Tableau, Power BI)",
+        "Statistical modeling",
+        "Marketing automation platforms (e.g., Marketo, HubSpot)",
+        "A/B testing",
+        "Attribution modeling"
+      ],
+      "toolsUsed": [],
+      "challenges": [],
+      "learningStyle": {
+        "preferredMethods": [],
+        "resources": [],
+        "paceOfLearning": ""
+      },
+      "background": "",
+      "informationEcosystem": {
+        "preferredResources": [],
+        "influencers": [],
+        "organizations": [],
+        "publications": [],
+        "communities": []
+      },
+      "personalityProfile": "David is a detail-oriented and analytical individual with a passion for data. He is a strong communicator and enjoys collaborating with others to solve complex problems. He is also a self-starter and is always looking for ways to improve his skills and knowledge. He prefers a structured and organized work environment and values clear communication and expectations.",
+      "commonCharacteristics": [
+        "Proficient in data analysis tools (e.g., Excel, SQL, Python)",
+        "Strong analytical and problem-solving skills",
+        "Excellent communication and presentation skills",
+        "Detail-oriented and organized",
+        "Collaborative and team-oriented"
+      ],
+      "typicalBackground": "Bachelor's degree in Marketing, Statistics, Economics, or a related field. 3-5 years of experience in marketing analytics or a similar role. Experience working with marketing data and analytics tools.",
+      "percentageOfTotal": 15,
+      "representativeProfiles": [
+        "https://www.linkedin.com/in/examplemarketinganalyst1/",
+        "https://www.linkedin.com/in/examplemarketinganalyst2/"
+      ]
+    }
+  ],
+  "summary": "```markdown\n# Sarah Chen - Marketing Manager\n\n## Basic Information\n- **Role:** Sarah is responsible for developing and executing marketing campaigns to drive lead generation and brand awareness for a B2B SaaS company. She manages a small team and reports to the VP of Marketing.\n- **Values:** Data-driven decision making, efficiency, collaboration\n- **Motivations:** Achieving measurable results, career advancement, contributing to company growth\n\n## Personality & Working Style\nSarah is analytical and results-oriented, preferring data to gut feelings. She values clear communication and efficient processes, and appreciates tools and resources that help her streamline her workflow and demonstrate ROI. She is collaborative but ultimately accountable for her team's performance.\n\n## Goals\n* Increase qualified leads by 20% in the next quarter.\n* Improve marketing campaign ROI by 15%.\n\n## Challenges\n* Limited budget and resources to execute ambitious marketing plans.\n* Difficulty tracking and attributing marketing efforts to revenue.\n\n## Key Success Metrics\n* Lead generation volume and quality\n* Marketing ROI\n* Website traffic and engagement\n\n## How to Engage\nEngage Sarah by providing data-backed insights and solutions that demonstrate a clear ROI. Focus on efficiency and ease of implementation, and offer resources that help her track and measure success. Highlight case studies and testimonials from similar companies.\n```",
+  "completedAt": "2025-03-20T00:19:37.700Z"
+}

@@ -1,0 +1,8 @@
+{
+  "runId": "run-2025-03-20T20-57-07-754Z-05e94234",
+  "startTime": "2025-03-20T20:57:07.756Z",
+  "endTime": "2025-03-20T20:57:07.777Z",
+  "status": "completing",
+  "input": "Hello from the echo agent",
+  "output": "[2025-03-20T20:57:07.774Z] Echo: Hello from the echo agent"
+}

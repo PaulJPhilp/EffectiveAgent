@@ -1,0 +1,36 @@
+{
+  "name": "Test User 3",
+  "title": "Software Engineer",
+  "location": "San Francisco, CA",
+  "key_skills": [
+    "TypeScript",
+    "Node.js",
+    "React"
+  ],
+  "contact": {
+    "email": "test3@example.com",
+    "linkedin": "https://linkedin.com/in/test3",
+    "company_website": "https://example.com"
+  },
+  "certificates": [
+    {
+      "status": "Active",
+      "name": "AWS Certified Developer",
+      "issuing_organization": "Amazon Web Services",
+      "issue_date": "2023-01-01",
+      "expiration_date": "2026-01-01",
+      "credential_id": "AWS-3"
+    }
+  ],
+  "experience": [
+    {
+      "company": "Example Corp",
+      "title": "Senior Software Engineer",
+      "duration": "2020-2023",
+      "description": [
+        "Led development of key features",
+        "Mentored junior developers"
+      ]
+    }
+  ]
+}

@@ -10,7 +10,7 @@ import {
 } from './nodes';
 import { join } from 'path';
 import { type ChannelReducer } from '../types';
-import * as fs from 'fs';
+import { ConfigLoader, type BaseAgentConfig } from '../config';
 
 interface NormalizationStateChannels {
   readonly runInfo: ChannelReducer<NormalizationState['runInfo']>;
@@ -25,10 +25,12 @@ interface NormalizationStateChannels {
  */
 export class NormalizingAgent {
   private readonly graph: ReturnType<typeof this.createGraph>;
-  private readonly config: Promise<Record<string, unknown>>;
+  private readonly config: BaseAgentConfig;
+  private readonly configLoader: ConfigLoader;
 
   constructor({ configPath }: { configPath: string }) {
-    this.config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+    this.configLoader = new ConfigLoader(configPath);
+    this.config = this.configLoader.loadAgentConfig();
     this.graph = this.createGraph();
   }
 

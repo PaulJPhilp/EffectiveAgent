@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import type {
     IPromptTemplateService,
     PromptDefinition,
@@ -10,9 +10,8 @@ import { PromptError } from './types.js';
 import { PromptDefinitionSchema, type SubpromptDefinition } from './schemas/promptConfig.js';
 import { Liquid } from 'liquidjs';
 
-interface PromptTemplateServiceOptions {
-    readonly promptPath?: string;
-}
+import type { AgentConfig } from "../../../agents/config/config-types.js";
+
 /**
  * Service for managing prompt templates and generating prompts
  */
@@ -20,18 +19,16 @@ export class PromptTemplateService implements IPromptTemplateService {
     readonly debug: boolean = false;
     private readonly templates: Map<string, PromptDefinition>;
 
-    constructor(options?: PromptTemplateServiceOptions) {
+    constructor(config: AgentConfig) {
         if (this.debug) {
-            console.log(`[PromptTemplateService] Initializing with config path: ${options?.promptPath}`);
+            console.log(`[PromptTemplateService] Initializing for agent: ${config.name}`);
         }
         this.templates = new Map();
-        this.templates = new Map();
-        if (options?.promptPath) {
-            this.loadTemplates(path.join(options.promptPath, 'prompts'));
-        } else {
-            this.loadTemplates(path.join(__dirname, 'prompts'));
+        const promptsPath = path.join(config.agentPath, 'prompts');
+        this.loadTemplates(promptsPath);
+        if (this.debug) {
+            console.log(`[PromptTemplateService] Loaded ${this.templates.size} templates from ${promptsPath}`);
         }
-        if (this.debug) console.log(`[PromptTemplateService] Loaded ${this.templates.size} templates`);
     }
 
     private loadTemplates(templateDirPath: string): PromptDefinition[] {
@@ -87,7 +84,7 @@ export class PromptTemplateService implements IPromptTemplateService {
     public async buildPrompt(
         identifier: TemplateIdentifier,
         variables: PromptVariables
-       ): Promise<string> {
+    ): Promise<string> {
         if (this.debug) {
             console.log(`[PromptTemplateService] Building prompt for template: ${identifier.templateName}`);
             console.log(`[PromptTemplateService] Available variables: ${JSON.stringify(variables, null, 2)}`);
@@ -154,7 +151,7 @@ export class PromptTemplateService implements IPromptTemplateService {
         subprompt: SubpromptDefinition,
         variables: PromptVariables
     ): string {
-        let result = subprompt.promptTemplate;
+        const result = subprompt.promptTemplate;
         if (!result) {
             return '';
         }

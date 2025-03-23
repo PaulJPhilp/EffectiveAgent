@@ -1,0 +1,106 @@
+# Prompt Service Architecture
+
+## Overview
+The Prompt Service manages prompt templates, generation, and configuration for AI interactions. It provides a type-safe interface for template management and prompt generation, following the project's shared services architecture pattern.
+
+## Interface Definitions
+
+### PromptService
+Main service for prompt management and generation.
+
+```typescript
+interface PromptVariables {
+    readonly [key: string]: unknown;
+}
+
+interface PromptOptions {
+    readonly systemPrompt?: string;
+    readonly temperature?: number;
+    readonly maxTokens?: number;
+}
+
+interface PromptTemplate {
+    name: string;
+    content: string;
+    variables: string[];
+    subprompts: SubpromptDefinition[];
+}
+
+class PromptService {
+    constructor(config: AgentConfig);
+    generatePrompt(
+        identifier: TemplateIdentifier,
+        variables: PromptVariables,
+        options?: PromptOptions
+    ): Promise<string>;
+    getTemplate(identifier: TemplateIdentifier): PromptTemplate;
+}
+```
+
+## Error Types
+1. Template Not Found Error
+   - Thrown when requested template doesn't exist
+   - Error code: PROMPT_TEMPLATE_NOT_FOUND
+
+2. Variable Resolution Error
+   - Thrown when required variables are missing
+   - Error code: PROMPT_VARIABLE_ERROR
+
+3. Template Validation Error
+   - Thrown when template is invalid
+   - Error code: PROMPT_TEMPLATE_VALIDATION_ERROR
+
+## Implementation Details
+
+### Design Patterns
+1. Template Method Pattern
+   - Standardized prompt generation pipeline
+   - Extensible template processing
+
+2. Factory Pattern
+   - Template creation and instantiation
+   - Ensures proper template initialization
+
+3. Registry Pattern
+   - Centralized template management
+   - Type-safe template registration
+
+### Key Components
+1. Template Registry
+   - Manages prompt templates
+   - Validates template schemas using Zod
+   - Supports hierarchical template organization
+
+2. Variable Resolution System
+   - Type-safe variable substitution
+   - Support for nested variables
+   - Default value handling
+
+3. Template Processing Pipeline
+   - Template loading and validation
+   - Variable substitution
+   - Subprompt integration
+
+### Error Handling
+- Custom error types with context
+- Detailed validation messages
+- Proper error propagation
+
+### Type Safety
+- Strong TypeScript typing
+- Runtime schema validation
+- Immutable interfaces
+
+### Template Features
+1. Variable Substitution
+   - Type-safe variable replacement
+   - Support for complex data types
+
+2. Subprompts
+   - Modular prompt composition
+   - Optional and required subprompts
+   - Order-aware processing
+
+3. Configuration Integration
+   - Uses shared configuration system
+   - Environment-aware template loading

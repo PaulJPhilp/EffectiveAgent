@@ -12,8 +12,7 @@ import type {
 } from "../provider/modelProvider.js";
 import { ProviderFactory } from "../provider/providerFactory.js";
 import { ModelRegistryService } from "./modelRegistryService.js";
-import type { ThinkingLevel } from "./schemas/modelConfig.js";
-
+import type { AgentConfig } from "../../../agents/config/config-types.js";
 /**
  * Service for interacting with AI models
  */
@@ -42,15 +41,15 @@ export class ModelService {
     readonly debug: boolean = false;
     private readonly providerFactory: ProviderFactory;
     private readonly modelRegistry: ModelRegistryService;
-    private readonly configPath: string = "";
+    private readonly config: AgentConfig;
 
-    constructor(options: ModelServiceOptions) {
+    constructor(config: AgentConfig) {
         if (this.debug) {
-            console.log(`[ModelService] Initializing with config path: ${options.configPath}`);
+            console.log(`[ModelService] Initializing with config path: ${config.models}`);
         }
-        this.providerFactory = new ProviderFactory({ configPath: options.configPath });
-        this.modelRegistry = new ModelRegistryService({ modelsConfigPath: options.configPath });
-        this.configPath = options.configPath;
+        this.providerFactory = new ProviderFactory(config);
+        this.modelRegistry = new ModelRegistryService(config);
+        this.config = config;
     }
 
     private createModelError(message: string, modelId?: string): ModelError {

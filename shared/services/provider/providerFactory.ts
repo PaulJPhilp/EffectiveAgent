@@ -1,3 +1,4 @@
+import type { AgentConfig } from "../../../agents/config/config-types.js"
 import { ModelRegistryService } from "../model/modelRegistryService.js"
 import type { ModelConfig } from "../model/schemas/modelConfig.js"
 import type { BaseModelProvider } from "../provider/modelProvider.js"
@@ -13,10 +14,6 @@ interface ProviderWithConfig {
     readonly provider: BaseModelProvider;
     readonly temperature: number;
     readonly taskMapping?: TaskDefinition;
-}
-
-interface ProviderFactoryOptions {
-    readonly configPath: string;
 }
 
 interface TaskIdentifier {
@@ -57,14 +54,14 @@ export class ProviderFactory {
     private readonly modelRegistry: ModelRegistryService;
     private readonly providerRegistry: ProviderRegistryService;
 
-    constructor(options: ProviderFactoryOptions) {
+    constructor(config: AgentConfig) {
         if (this.debug) {
-            console.log(`[ProviderFactory] Initializing with config path: ${options.configPath}`);
+            console.log('[ProviderFactory] Initializing');
         }
-        this.modelRegistry = new ModelRegistryService({ modelsConfigPath: options.configPath });
-        this.providerRegistry = new ProviderRegistryService({ providersConfigPath: options.configPath });
+        this.modelRegistry = new ModelRegistryService(config);
+        this.providerRegistry = new ProviderRegistryService(config);
         if (this.debug) {
-            console.log(`[ProviderFactory] Provider factory initialized`);
+            console.log("[ProviderFactory] Provider factory initialized");
         }
     }
 

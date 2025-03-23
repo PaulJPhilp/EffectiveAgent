@@ -1,0 +1,90 @@
+# Task Service Architecture
+
+## Overview
+The Task Service provides a unified interface for managing and executing AI tasks within the system. It integrates with the model, prompt, and configuration services to handle task execution with appropriate models and prompts.
+
+## Interface Definitions
+
+### TaskService
+Main service for task execution and management.
+
+```typescript
+interface TaskExecutionOptions {
+    temperature?: number;
+    maxTokens?: number;
+    systemPrompt?: string;
+    variables?: Record<string, string>;
+    format?: "text" | "json" | "image" | "embedding";
+}
+
+interface TaskExecutionResult {
+    metadata: any;
+    taskName: string;
+    result: string;
+    modelId?: string;
+    usage?: {
+        promptTokens: number;
+        completionTokens: number;
+        totalTokens: number;
+    };
+}
+
+class TaskService {
+    constructor(config: AgentConfig);
+    executeTask(taskName: string, options?: TaskExecutionOptions): Promise<TaskExecutionResult>;
+    getAvailableTasks(): Promise<Task[]>;
+    getTaskByName(taskName: string): Promise<Task>;
+}
+```
+
+## Error Types
+1. Task Not Found Error
+   - Thrown when requested task doesn't exist
+   - Error code: TASK_NOT_FOUND
+
+2. Task Execution Error
+   - Thrown when task execution fails
+   - Error code: TASK_EXECUTION_ERROR
+
+3. Invalid Task Configuration
+   - Thrown when task configuration is invalid
+   - Error code: TASK_CONFIG_ERROR
+
+## Implementation Details
+
+### Design Patterns
+1. Factory Pattern
+   - Uses ModelSelectionFactory for model instantiation
+   - Ensures proper model selection based on task requirements
+
+2. Dependency Injection
+   - Services (ModelService, PromptService) injected via constructor
+   - Improves testability and maintainability
+
+3. Registry Pattern
+   - TaskRegistryService maintains task definitions
+   - Provides centralized task management
+
+### Key Components
+1. Task Registry
+   - Manages task definitions and configurations
+   - Validates task schemas using Zod
+
+2. Task Execution Pipeline
+   - Model selection
+   - Prompt generation
+   - Result extraction and formatting
+
+3. Configuration Integration
+   - Uses shared configuration system
+   - Type-safe configuration using Zod schemas
+
+### Error Handling
+- Comprehensive error handling with custom error types
+- Detailed error messages for debugging
+- Error propagation with proper context
+
+### Type Safety
+- Strict TypeScript types for all interfaces
+- Zod schema validation for configurations
+- Runtime type checking for critical operations

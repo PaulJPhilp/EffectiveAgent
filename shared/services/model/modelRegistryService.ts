@@ -1,99 +1,30 @@
-import fs from "node:fs";
-import { join } from "node:path";
-import { z } from "zod";
-import type { IModelSelectionService } from "./types.js";
+import type { ModelSelectionService } from "./types.js";
 import type { ModelCapability, ModelConfig } from "./schemas/modelConfig.js";
-import { ModelConfigSchema } from "./schemas/modelConfig.js";
-
-interface ModelRegistryConfig {
-    models: ModelConfig[];
-    defaultModelId: string;
-    defaultTemperature: number;
-}
-
-interface ModelRegistryServiceOptions {
-    modelsConfigPath: string;
-}
+import type { AgentConfig } from "../../../agents/config/config-types.js";
 
 /**
  * Service for managing model registry
  * Implements IModelSelectionService interface for direct model access
  */
-export class ModelRegistryService implements IModelSelectionService {
-    private debug: boolean = false;
-    private config: ModelRegistryConfig;
-    private modelsConfigPath: string;
+export class ModelRegistryService implements ModelSelectionService {
+    private debug = false;
+    private config: AgentConfig;
     private isInitialized = false;
 
-    constructor(options: ModelRegistryServiceOptions) {
+    constructor(config: AgentConfig) {
         if (this.debug) {
-            console.log(`[ModelRegistryService] Initializing with config path: ${options.modelsConfigPath}`);
+            console.log('[ModelRegistryService] Initializing');
         }
-        this.modelsConfigPath = options.modelsConfigPath;
-        if (!fs.opendirSync(this.modelsConfigPath)) {
-            throw new Error(`Model registry config file not found: ${this.modelsConfigPath}`);
+        this.config = config;
+        const textModels = Object.keys(config.models.text);
+        const embeddingModels = Object.keys(config.models.embedding);
+        if (this.debug) {
+            console.log(`[ModelRegistryService] Available text models: |${textModels.join(', ')}|`);
+            console.log(`[ModelRegistryService] Available embedding models: |${embeddingModels.join(', ')}|`);
         }
-        
-        this.config = {
-            models: [],
-            defaultModelId: "",
-            defaultTemperature: 0.2
-        };
-        this.initialize();
-        const availableModels = this.config.models.map(model => model.id).join(', ');
-        if (this.debug) console.log(`[ModelRegistryService] Available models: |${availableModels}|`);
-        if (availableModels.length === 0) {
+        if (textModels.length === 0 && embeddingModels.length === 0) {
             throw new Error("No models found in registry");
         }
-    }
-
-    /**
-     * Initialize the model registry by loading configuration
-     */
-    public async initialize(): Promise<void> {
-        if (this.isInitialized) {
-            return;
-        }
-
-        if (this.debug) {
-            console.log(`[ModelRegistryService] Initialize() with config path: ${this.modelsConfigPath}`);
-        }
-        try {
-            const configFilename = join(this.modelsConfigPath, "models.json")
-            const modelsData = fs.readFileSync(configFilename, "utf-8");
-            const parsedModels = JSON.parse(modelsData);
-
-            // Validate against schema
-            const validatedConfig = z.object({
-                models: z.array(ModelConfigSchema),
-                defaultModelId: z.string(),
-                defaultTemperature: z.number().min(0).max(1).default(0.2)
-            }).parse(parsedModels);
-
-            this.config = validatedConfig;
-            this.isInitialized = true;
-
-            if (this.debug) {
-                console.log(
-                    `Model registry initialized with ${this.config.models.length} models`
-                );
-            }
-        } catch (error) {
-            if (error instanceof z.ZodError) {
-                console.error("Invalid model registry configuration:", error.format());
-                throw new Error("Failed to validate model registry configuration");
-            }
-
-            console.error("Failed to load model registry:", error);
-            throw new Error("Failed to initialize model registry");
-        }
-    }
-
-    /**
-     * Get models with a specific capability ID
-     */
-    public getModelsWithCapabilityId(modelId: string): ModelConfig[] {
-        return this.config.models.filter(model => model.id === modelId);
     }
 
     /**
@@ -103,50 +34,91 @@ export class ModelRegistryService implements IModelSelectionService {
     public getModelById(modelId: string): ModelConfig {
         if (this.debug) {
             console.log(`[ModelRegistryService] Getting model by ID: |${modelId}|`);
-            console.log(`[ModelRegistryService] Available models: |${this.config.models.map(model => model.id).join('|, |')}|`);
         }
-
-        const model = this.config.models.find((model) => model.id.trim().toLowerCase() === modelId.trim().toLowerCase());
+        const model = this.config.models.text[modelId] || this.config.models.embedding[modelId];
         if (!model) {
             throw new Error(`Model not found with ID: ${modelId}`);
         }
-        return model;
+        const isEmbedding = modelId in this.config.models.embedding;
+        const provider = model.provider as "openai" | "anthropic" | "google" | "local" | "grok" | "deepseek";
+        return {
+            id: modelId,
+            provider,
+            modelName: model.model,
+            contextWindowSize: isEmbedding ? "small-context-window" : "large-context-window",
+            capabilities: isEmbedding ? ["embeddings"] : ["text-generation", "function-calling", "chat"],
+            maxTokens: model.maxTokens,
+            metadata: {
+                thinkingLevel: isEmbedding ? "none" : "high",
+                description: `${isEmbedding ? 'Embedding model' : 'Model'} ${model.model} from ${provider}`,
+                tags: [`provider:${provider}`, `type:${isEmbedding ? 'embedding' : 'text'}`]
+            }
+        };
     }
 
     /**
      * Get the default model
-     * @throws Error if default model not found
+     * @throws Error if no text models are available
      */
     public getDefaultModel(): ModelConfig {
-
-        // getModelById will already throw if model not found
-        return this.getModelById(this.config.defaultModelId);
+        const textModels = Object.keys(this.config.models.text);
+        if (textModels.length === 0) {
+            throw new Error("No text models available in registry");
+        }
+        return this.getModelById(textModels[0]);
     }
 
     /**
      * Get the default temperature
      */
     public getDefaultTemperature(): number {
+        return 0.7; // Standard default temperature
+    }
 
-        return this.config.defaultTemperature;
+    /**
+     * Get all models with a specific capability
+     * @param capability The capability to filter models by
+     * @returns Array of model configurations with the specified capability
+     */
+    public getModelsWithCapability(capability: ModelCapability): ModelConfig[] {
+        const models: ModelConfig[] = [];
+        
+        // For text models
+        if (capability === "text-generation" || 
+            capability === "function-calling" || 
+            capability === "chat") {
+            for (const modelId of Object.keys(this.config.models.text)) {
+                models.push(this.getModelById(modelId));
+            }
+        }
+
+        // For embedding models
+        if (capability === "embeddings") {
+            for (const modelId of Object.keys(this.config.models.embedding)) {
+                models.push(this.getModelById(modelId));
+            }
+        }
+
+        return models;
     }
 
     /**
      * Get all available models
      */
     public getAllModels(): ModelConfig[] {
-
-        return [...this.config.models];
-    }
-
-    /**
-     * Get all models with a specific capability
-     */
-    public getModelsWithCapability(capability: ModelCapability): ModelConfig[] {
-
-        return this.config.models.filter(model =>
-            model.capabilities?.includes(capability)
-        );
+        const models: ModelConfig[] = [];
+        
+        // Add text models
+        for (const modelId of Object.keys(this.config.models.text)) {
+            models.push(this.getModelById(modelId));
+        }
+        
+        // Add embedding models
+        for (const modelId of Object.keys(this.config.models.embedding)) {
+            models.push(this.getModelById(modelId));
+        }
+        
+        return models;
     }
 
     /**

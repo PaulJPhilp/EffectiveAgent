@@ -31,7 +31,7 @@ class PromptError extends Error {
 }
 import { ModelService } from '../model/modelService.js';
 import type { ModelCompletionOptions } from '../provider/modelProvider.js';
-import type { PromptVariables } from './prompt.js';
+import type { PromptVariables } from './types.js';
 import { PromptTemplateService } from './promptTemplate.js';
 
 /**
@@ -43,9 +43,7 @@ export interface PromptOptions {
     readonly maxTokens?: number;
 }
 
-interface PromptServiceOptions {
-    readonly configPath: string;
-}
+import type { AgentConfig } from "../../../agents/config/config-types.js";
 
 /**
  * Service for managing and generating prompts
@@ -55,12 +53,12 @@ export class PromptService {
     private readonly modelService: ModelService;
     private readonly templateService: PromptTemplateService;
 
-    constructor(options: PromptServiceOptions) {
+    constructor(config: AgentConfig) {
         if (this.debug) {
-            console.log(`[PromptService] Initializing with config path: ${options.configPath}`);
+            console.log(`[PromptService] Initializing for agent: ${config.name}`);
         }
-        this.modelService = new ModelService({ configPath: options.configPath });
-        this.templateService = new PromptTemplateService({ promptPath: options.configPath });
+        this.modelService = new ModelService(config);
+        this.templateService = new PromptTemplateService(config);
     }
 
     private createPromptError(message: string, details: {

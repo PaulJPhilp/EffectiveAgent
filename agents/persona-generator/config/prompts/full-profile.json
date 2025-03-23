@@ -1,0 +1,9 @@
+  {
+    "name": "full-profile",
+    "description": "Create full profile from persona clusters",
+    "subprompts": [],
+    "temperature": 0.2,
+    "systemPrompt": {
+      "promptFileName": "full-profile.prompt"
+    }
+  }

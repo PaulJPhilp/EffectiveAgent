@@ -1,4 +1,5 @@
 import { z } from "zod"
+import type { BaseConfig } from "../../configuration/types/configTypes.js";
 
 export const ProviderConfigSchema = z.object({
     id: z.string().describe("Unique identifier for the provider"),
@@ -11,13 +12,18 @@ export const ProviderConfigSchema = z.object({
         requestsPerMinute: z.number(),
         tokensPerMinute: z.number().optional()
     }).optional().describe("Rate limiting configuration")
-})
+});
 
-export type ProviderConfig = z.infer<typeof ProviderConfigSchema>
+export type ProviderConfig = z.infer<typeof ProviderConfigSchema>;
 
 export const ProvidersConfigSchema = z.object({
-    providers: z.array(ProviderConfigSchema),
-    defaultProviderId: z.string()
-})
+    name: z.string().describe("Configuration name"),
+    version: z.string().describe("Configuration version"),
+    providers: z.array(ProviderConfigSchema).describe("List of provider configurations"),
+    defaultProviderId: z.string().describe("Default provider ID")
+});
 
-export type ProvidersConfig = z.infer<typeof ProvidersConfigSchema> 
+export interface ProvidersConfig extends BaseConfig {
+    readonly providers: ProviderConfig[];
+    readonly defaultProviderId: string;
+} 

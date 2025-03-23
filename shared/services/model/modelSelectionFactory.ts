@@ -1,3 +1,4 @@
+import type { AgentConfig } from "../../../agents/config/config-types.js";
 import { ModelRegistryService } from "./modelRegistryService.js";
 import type {
     ContextWindowSize,
@@ -24,8 +25,11 @@ interface ModelSelectionFactoryOptions {
 export class ModelSelectionFactory {
     readonly debug: boolean = false;
     private modelRegistry: ModelRegistryService;
-    constructor(options: ModelSelectionFactoryOptions) {
-        this.modelRegistry = new ModelRegistryService({ modelsConfigPath: options.modelsConfigPath });
+    private config: AgentConfig;
+
+    constructor(config: AgentConfig) {
+        this.config = config;
+        this.modelRegistry = new ModelRegistryService(config);
     }
 
     /**
@@ -54,10 +58,6 @@ export class ModelSelectionFactory {
 
             // Try both strict and loose equality
             const strictEqual = model.contextWindowSize === requiredSize;
-            const looseEqual = model.contextWindowSize == requiredSize;
-
-            console.log(`- Strict equality (===): ${strictEqual}`);
-            console.log(`- Loose equality (==): ${looseEqual}`);
 
             // Return strict equality result
             return strictEqual;
@@ -97,7 +97,7 @@ export class ModelSelectionFactory {
      */
     public getModel(modelId?: string, temperature?: number): ModelSelectionResult {
         if (this.debug) {
-            console.log(`[ModelSelectionFactory] Direct model selection`);
+            console.log("[ModelSelectionFactory] Direct model selection");
         }
 
         // If model ID is specified, use it directly
@@ -152,7 +152,7 @@ export class ModelSelectionFactory {
         preferredModelId?: string;
     }): ModelSelectionResult {
         if (this.debug) {
-            console.log(`[ModelSelectionFactory] Selecting model with requirements:`,
+            console.log("[ModelSelectionFactory] Selecting model with requirements:",
                 JSON.stringify(requirements, null, 2));
         }
 
@@ -182,7 +182,7 @@ export class ModelSelectionFactory {
 
         if (requirements.capabilities && requirements.capabilities.length > 0) {
             candidateModels = candidateModels.filter(model =>
-                requirements.capabilities!.every(cap =>
+                requirements.capabilities?.every(cap =>
                     model.capabilities?.includes(cap) || false
                 )
             );

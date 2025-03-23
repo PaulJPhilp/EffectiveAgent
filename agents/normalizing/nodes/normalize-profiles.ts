@@ -7,7 +7,7 @@ import type {
 } from '../types';
 import { TaskService } from '../../../shared/services/task/taskService';
 import { randomUUID } from 'crypto';
-import { chunkArray } from '../utils';
+import { chunkArray } from '../../utils';
 import { extractJsonFromResponse } from '../../utils';
 
 /**
@@ -42,9 +42,9 @@ export class ProfileNormalizer {
       if (this.debug) console.log(`Normalizing profile ${profile.id}`);
       const taskResult = await this.taskService.executeTask('normalize-text', {
         variables: {
-          input_profile: profile.content,
-          format: 'json',
+          input_profile: profile.content
         },
+        format: 'json' // Specify format at top level
       });
 
       if (this.debug) console.log(`Completed normalizing profile ${profile.id}`);

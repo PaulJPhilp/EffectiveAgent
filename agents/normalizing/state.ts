@@ -1,18 +1,18 @@
-import type { StateGraph } from '@langchain/langgraph';
+
+import type { RunConfig } from '../types';
 import type {
   NormalizationStatus,
   ProfileData,
   NormalizedProfile,
   NormalizationResult,
   NormalizationSummary,
-  RunInfo,
 } from './types';
 
 /**
  * Represents the state of a normalization run
  */
 export interface NormalizationState {
-  readonly runInfo: RunInfo;
+  readonly runInfo: RunConfig;
   readonly status: NormalizationStatus;
   readonly profiles: readonly ProfileData[];
   readonly normalizedProfiles: readonly NormalizedProfile[];

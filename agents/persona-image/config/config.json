@@ -1,0 +1,14 @@
+{
+    "name": "persona-image-agent",
+    "description": "Agent for generating persona images from normalized profiles",
+    "version": "1.0.0",
+    "defaultModel": "text.default",
+    "maxConcurrency": 3,
+    "maxRetries": 3,
+    "retryDelay": 2000,
+    "configFiles": {
+        "tasks": "tasks.json",
+        "providers": "../../../providers.json",
+        "models": "../../../models.json"
+    }
+}

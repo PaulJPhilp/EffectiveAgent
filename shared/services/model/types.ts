@@ -28,7 +28,7 @@ export interface ModelSelectionResult {
 /**
  * Interface for model selection service
  */
-export interface IModelSelectionService {
+export interface ModelSelectionService {
 	getModelById(modelId: string): ModelConfig
 	getAllModels(): ModelConfig[]
 	getModelsWithCapability(capability: ModelCapability): ModelConfig[]

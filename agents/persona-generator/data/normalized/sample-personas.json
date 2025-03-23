@@ -1,0 +1,31 @@
+{
+  "personas": [
+    {
+      "id": "p1",
+      "name": "Sarah Chen",
+      "age": 28,
+      "interests": ["technology", "sustainable living", "yoga", "cooking"],
+      "occupation": "Software Engineer",
+      "location": "San Francisco",
+      "personality": "Analytical, environmentally conscious, health-focused"
+    },
+    {
+      "id": "p2",
+      "name": "Michael Rodriguez",
+      "age": 35,
+      "interests": ["sports", "photography", "travel", "community service"],
+      "occupation": "Marketing Director",
+      "location": "Austin",
+      "personality": "Outgoing, creative, community-oriented"
+    },
+    {
+      "id": "p3",
+      "name": "Emma Thompson",
+      "age": 42,
+      "interests": ["art", "literature", "meditation", "gardening"],
+      "occupation": "Art Teacher",
+      "location": "Portland",
+      "personality": "Creative, introspective, nurturing"
+    }
+  ]
+} 

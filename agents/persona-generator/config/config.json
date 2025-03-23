@@ -1,0 +1,27 @@
+{
+    "name": "persona-generator",
+    "version": "1.0.0",
+    "description": "Agent for persona generation",
+    "rootPath": "/Users/paul/projects/pdf-loader/agents/persona-generator",
+    "agentPath": "/Users/paul/projects/pdf-loader/agents/persona-generator",
+    "inputPath": "/Users/paul/projects/pdf-loader/data/normalized",
+    "outputPath": "/Users/paul/projects/pdf-loader/output",
+    "logPath": "/Users/paul/projects/pdf-loader/logs",
+    "maxConcurrency": 5,
+    "maxRetries": 3,
+    "retryDelay": 1000,
+    "configFiles": {
+        "providers": {
+            "path": "../../../agents/config/providers.json"
+        },
+        "models": {
+            "path": "../../../agents/config/models.json"
+        },
+        "tasks": {
+            "path": "tasks.json"
+        },
+        "prompts": {
+            "path": "prompts.json"
+        }
+    }
+}

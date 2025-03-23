@@ -5,12 +5,10 @@ import type { ITaskRegistryService, Task } from "./types.js";
 import type { TaskDefinition } from "./schemas/taskConfig.js";
 import { TaskDefinitionSchema } from "./schemas/taskConfig.js";
 
+import type { AgentConfig } from "../../../agents/config/config-types.js";
+
 interface TaskRegistryConfig {
     tasks: TaskDefinition[];
-}
-
-interface TaskRegistryServiceOptions {
-    tasksConfigPath: string;
 }
 
 /**
@@ -19,73 +17,84 @@ interface TaskRegistryServiceOptions {
 export class TaskRegistryService implements ITaskRegistryService {
     private debug = false;
     private config: TaskRegistryConfig;
-    private tasksConfigPath: string;
     private isInitialized = false;
-    private path: string = path.join(process.cwd(), "shared", "config", "tasks.json");
 
-    constructor(options: TaskRegistryServiceOptions) {
-        if (this.debug) console.log(`[TaskRegistryService] Initializing with config path: ${options.tasksConfigPath}`);
-        this.tasksConfigPath = join(options.tasksConfigPath, "tasks.json");
-        this.config = { tasks: [] };
-        this.initialize();
-        if (this.debug) console.log(`[TaskRegistryService] Task service initialized`);
-    }
-
-    /**
-     * Initialize the task registry by loading configuration
-     */
-    private async initialize(): Promise<void> {
-        if (this.debug) console.log(`[TaskRegistryService] Initializing with config path: ${this.tasksConfigPath}`);
-        if (this.isInitialized) {
-            return;
+    constructor(config: AgentConfig) {
+        if (this.debug) {
+            console.log(`[TaskRegistryService] Initializing for agent: ${config.name}`);
         }
+        
+        // Transform and validate tasks from AgentConfig
+        const validatedTasks = config.tasks?.map(task => ({
+            taskName: task.taskName,
+            description: task.description || "",
+            primaryModelId: task.primaryModelId,
+            fallbackModelIds: task.fallbackModelIds || [],
+            requiredCapabilities: task.requiredCapabilities || [
+                "text-generation",
+                "function-calling"
+            ],
+            contextWindowSize: task.contextWindowSize || "8k",
+            thinkingLevel: task.thinkingLevel || "basic",
+            promptName: task.promptName || task.taskName,
+            maxAttempts: task.maxAttempts || 3,
+            timeout: task.timeout || 30000,
+            temperature: task.temperature || 0.7,
+            frequencyPenalty: task.frequencyPenalty || 0,
+            presencePenalty: task.presencePenalty || 0,
+            maxTokens: task.maxTokens || 4096,
+            provider: task.provider,
+            model: task.model
+        })) || [];
 
-        try {
-            if (!fs.existsSync(this.tasksConfigPath)) {
-                throw new Error(`Tasks configuration file not found: ${this.tasksConfigPath}`);
-            }
-            const tasksData = fs.readFileSync(this.tasksConfigPath, "utf-8");
-            const parsedTasks = JSON.parse(tasksData);
+        // Validate tasks against schema
+        this.config = {
+            tasks: validatedTasks.map(task => TaskDefinitionSchema.parse(task))
+        };
+        this.isInitialized = true;
 
-            // Validate against schema
-            const validatedConfig = z.object({
-                tasks: z.array(TaskDefinitionSchema)
-            }).parse(parsedTasks);
-
-            this.config = validatedConfig;
-            this.isInitialized = true;
-            if (this.debug) console.log(
-                `Task registry initialized with ${this.config.tasks.length} tasks`
-            );
-        } catch (error) {
-            if (this.debug) console.error("Failed to load task registry:", error);
-            throw new Error("Failed to initialize task registry");
+        if (this.debug) {
+            console.log(`[TaskRegistryService] Initialized with ${this.config.tasks.length} tasks`);
         }
     }
 
-    public async loadTaskConfigurations(): Promise<void> {
-        await this.initialize();
-    }
-
     /**
-     * Get all available task configurations
+     * Load task configurations
      */
-    public getAllTaskConfigs() {
-        return this.config.tasks;
+    public loadTaskConfigurations(): void {
+        // Tasks are already loaded in constructor
+        return;
     }
 
     /**
      * Get task configuration by name
+     * @param taskName Name of the task to retrieve
+     * @returns Task configuration or undefined if not found
      */
     public getTaskConfig(taskName: string): Task | undefined {
         return this.config.tasks.find(task => task.taskName === taskName);
     }
 
     /**
+     * Get all available task configurations
+     * @returns Array of task configurations
+     */
+    public getAllTaskConfigs(): Task[] {
+        return this.config.tasks;
+    }
+
+    /**
      * Validate task configuration
+     * @param config Task configuration to validate
+     * @returns True if valid, false otherwise
      */
     public validateTaskConfig(config: Task): boolean {
-        return TaskDefinitionSchema.safeParse(config).success;
+        try {
+            TaskDefinitionSchema.parse(config);
+            return true;
+        } catch {
+            return false;
+        }
     }
 
     /**

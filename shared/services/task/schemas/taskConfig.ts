@@ -1,4 +1,5 @@
 import { z } from "zod";
+import type { BaseConfig } from '../../configuration/types/configTypes.js';
 import {
     ContextWindowSizes,
     ModelCapabilities,
@@ -22,4 +23,30 @@ export const TaskDefinitionSchema = z.object({
     prompt: PromptDefinitionSchema.optional()
 });
 
-export type TaskDefinition = z.infer<typeof TaskDefinitionSchema>; 
+export type TaskDefinition = z.infer<typeof TaskDefinitionSchema>;
+
+/**
+ * Schema for task configuration
+ */
+export const TasksConfigSchema = z.object({
+    name: z.string().describe("Configuration name"),
+    version: z.string().describe("Configuration version"),
+    updated: z.string().describe("Last update timestamp"),
+    groups: z.record(z.object({
+        name: z.string().describe("Group name"),
+        description: z.string().describe("Group description"),
+        tasks: z.record(z.string(), TaskDefinitionSchema).describe("Tasks in this group")
+    })).describe("Task groups")
+});
+
+/**
+ * Task configuration type
+ */
+export interface TasksConfig extends BaseConfig {
+    readonly updated: string;
+    readonly groups: Record<string, {
+        readonly name: string;
+        readonly description: string;
+        readonly tasks: Record<string, TaskDefinition>;
+    }>;
+} 

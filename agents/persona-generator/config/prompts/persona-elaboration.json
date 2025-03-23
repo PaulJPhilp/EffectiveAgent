@@ -1,0 +1,9 @@
+  {
+    "name": "persona-elaboration",
+    "description": "Create basic persona clusters from normalized profiles",
+    "subprompts": [],
+    "temperature": 0.2,
+    "systemPrompt": {
+      "promptFileName": "persona-elaboration.prompt"
+    }
+  }

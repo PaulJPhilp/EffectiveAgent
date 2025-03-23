@@ -23,10 +23,14 @@ export interface ModelCompletionOptions {
     functions?: FunctionDefinition[];
     functionCall?: string | { name: string };
     stopSequences?: string[];
+    format?: "text" | "json" | "image" | "embedding";
 }
 
 export interface ModelCompletionResponse {
-    text: string;
+    text?: string;
+    json?: Record<string, unknown>;
+    image?: string;
+    embedding?: number[];
     usage: {
         promptTokens: number;
         completionTokens: number;
@@ -43,6 +47,7 @@ export interface ImageGenerationOptions {
     quality?: string;
     style?: string;
     numberOfImages?: number;
+    maxImagesPerCall?: number;
 }
 
 export interface ImageGenerationResponse {
@@ -94,7 +99,7 @@ export interface ModelProvider {
 }
 
 export abstract class BaseModelProvider implements ModelProvider {
-    protected debug: boolean = true;
+    protected debug = false;
     protected modelConfig: ModelConfig;
 
     constructor(modelConfig: ModelConfig) {
@@ -153,8 +158,8 @@ export abstract class BaseModelProvider implements ModelProvider {
                 console.log(`[ModelProvider] Task completed with model ${this.modelConfig.id}`);
             }
             return result;
-        } catch (error: any) {
-            return this.handleError(error, handlerConfig, task);
+        } catch (error) {
+            return this.handleError(error as Error, handlerConfig, task);
         }
     }
 

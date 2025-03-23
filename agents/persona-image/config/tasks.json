@@ -1,0 +1,37 @@
+{
+    "tasks": [
+        {
+            "taskName": "generate-image",
+            "primaryModelId": "gemini-2.0-flash",
+            "fallbackModelIds": ["gemini-2.0-flash"],
+            "temperature": 0.2,
+            "requiredCapabilities": [
+                "text-generation",
+                "chat",
+                "function-calling",
+                "tool-use"
+            ],
+            "contextWindowSize": "large-context-window",
+            "thinkingLevel": "high",
+            "description": "Generate an image from normalized text content",
+            "promptName": "generate-image"
+        },
+        {
+            "taskName": "extract-metadata",
+            "primaryModelId": "claude-3-opus",
+            "fallbackModelIds": ["gpt-4-turbo"],
+            "temperature": 0.1,
+            "requiredCapabilities": [
+                "text-generation",
+                "chat",
+                "function-calling",
+                "reasoning",
+                "tool-use"
+            ],
+            "contextWindowSize": "large-context-window",
+            "thinkingLevel": "high",
+            "description": "Extract metadata from generated image content",
+            "promptName": "extract-metadata"
+        }
+    ]
+}
