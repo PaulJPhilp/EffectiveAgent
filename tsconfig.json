@@ -21,14 +21,24 @@
 		// Best practices
 		"noFallthroughCasesInSwitch": true,
 		// Some stricter flags (disabled by default)
-		"noUnusedLocals": false,
-		"noUnusedParameters": false,
-		"noPropertyAccessFromIndexSignature": false
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noPropertyAccessFromIndexSignature": true,
+		// Path aliases
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"],
+			"@services/*": ["src/shared/services/*"],
+			"@agents/*": ["src/agents/*"],
+			"@shared/*": ["src/shared/*"]
+		},
+		"resolveJsonModule": true,
+		"allowImportingTsExtensions": true,
+		"noEmit": true
 	},
 	"include": [
-		"src/**/*",
-		"*.ts",
-		"agents/normalizing/prompts/prompts"
+		"src/**/*.ts",
+		"src/**/*.tsx"
 	],
 	"exclude": [
 		"node_modules",

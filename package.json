@@ -10,10 +10,22 @@
 		"dist",
 		"README.md"
 	],
+	"compilerOptions": {
+		"baseUrl": ".",
+		"paths": {
+			"@services/*": ["shared/services/*"],
+			"@agents/*": ["agents/*"]
+		}
+	},
+	"include": [
+		"services/*",
+		"agents/*"
+	],
 	"devDependencies": {
 		"@types/bun": "latest",
 		"ajv-cli": "^5.0.0",
 		"typescript": "^5.8.2",
+		"vite-tsconfig-paths": "^5.1.4",
 		"vitest": "^1.6.1"
 	},
 	"dependencies": {
@@ -45,13 +57,13 @@
 		"build": "tsc",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"lint:shared": "biome lint shared",
-		"lint:agents": "biome lint agents",
+		"lint:shared": "bunx biome lint shared",
+		"lint:agents": "bunx biome lint agents",
 		"studio": "bunx @langchain/langgraph-cli@latest dev",
-		"normalize": "RECURSION_LIMIT=100 bun agents/normalizing/run.ts data/raw output/normalize",
-		"cluster": "RECURSION_LIMIT=100 bun agents/persona-generator/run.ts data output",
-		"evaluate": "RECURSION_LIMIT=100 bun agents/persona-evaluator/run.ts data output",
-		"image": "RECURSION_LIMIT=100 bun agents/persona-image/run.ts data output",
+		"normalize": "RECURSION_LIMIT=100 bun agents/normalizing-new/run.ts data/raw output/normalize",
+		"cluster": "RECURSION_LIMIT=100 bun agents/persona-generator-new/run.ts data output",
+		"evaluate": "RECURSION_LIMIT=100 bun agents/persona-evaluator-new/run.ts data output",
+		"image": "RECURSION_LIMIT=100 bun agents/persona-image-new/run.ts data output",
 		"create-agent": "bun tools/create-agent-v3.ts"
 	},
 	"keywords": [

@@ -16,7 +16,7 @@ const createDirectoryStructure = async (agentPath: string): Promise<void> => {
         'nodes',
         '__tests__'
     ];
-    
+
     for (const dir of directories) {
         await fs.mkdir(path.join(agentPath, dir), { recursive: true });
     }
@@ -31,38 +31,56 @@ const createConfigFiles = async (
         name: template.name,
         description: template.description,
         version: '0.1.0',
-        provider: 'openai',
-        model: 'text-default',
+        rootPath: process.cwd(),
+        agentPath: agentPath,
+        inputPath: path.join(agentPath, 'input'),
+        outputPath: path.join(agentPath, 'output'),
+        logPath: path.join(agentPath, 'logs'),
+        maxConcurrency: 1,
         maxRetries: 3,
-        timeoutMs: 30000
-    };
-
-    // Task definitions
-    const tasksContent = {
-        tasks: {
-            'test-agent-v3': {
-                description: 'Test agent task configuration',
-                steps: [
-                    {
-                        name: 'initialize',
-                        description: 'Initialize agent run',
-                        type: 'system'
-                    },
-                    {
-                        name: 'process',
-                        description: 'Process input',
-                        type: 'llm',
-                        model: 'text-default',
-                        provider: 'openai'
-                    },
-                    {
-                        name: 'complete',
-                        description: 'Complete agent run',
-                        type: 'system'
-                    }
-                ]
+        retryDelay: 1000,
+        configFiles: {
+            tasks: path.join(agentPath, 'config', 'tasks.json'),
+            models: path.join(agentPath, 'config', 'models.json'),
+            providers: path.join(agentPath, 'config', 'providers.json')
+        },
+        tasksConfigPath: path.join(agentPath, 'config', 'tasks.json'),
+        taskType: 'test-agent-v3',
+        tasks: [
+            {
+                name: 'initialize',
+                taskName: 'initialize',
+                primaryModelId: 'text-default',
+                fallbackModelIds: [],
+                temperature: 0,
+                requiredCapabilities: ['text-generation'],
+                maxTokens: 1000,
+                description: 'Initialize agent run',
+                type: 'system'
+            },
+            {
+                name: 'process',
+                taskName: 'process',
+                primaryModelId: 'text-default',
+                fallbackModelIds: [],
+                temperature: 0.7,
+                requiredCapabilities: ['text-generation'],
+                maxTokens: 2000,
+                description: 'Process input',
+                type: 'llm'
+            },
+            {
+                name: 'complete',
+                taskName: 'complete',
+                primaryModelId: 'text-default',
+                fallbackModelIds: [],
+                temperature: 0,
+                requiredCapabilities: ['text-generation'],
+                maxTokens: 1000,
+                description: 'Complete agent run',
+                type: 'system'
             }
-        }
+        ]
     };
 
     // Create config directory and subdirectories
@@ -78,7 +96,6 @@ const createConfigFiles = async (
     };
 
     await writeConfig('config', configContent);
-    await writeConfig('tasks', tasksContent);
 };
 
 const createTypeFile = async (agentPath: string): Promise<void> => {
@@ -149,7 +166,7 @@ const createAgentFile = async (agentPath: string): Promise<void> => {
 import type { RunnableConfig } from '@langchain/core/runnables';
 import type { State } from './types';
 import { createInitialState } from './state';
-import { TaskRegistryService } from '../../shared/services/task/taskRegistryService';
+import { TaskRegistryService } from '@shared/services/task/taskRegistryService';
 import { type ChannelReducer } from '../types';
 import { initializeNode } from './nodes/initialize';
 import { processNode } from './nodes/process';
@@ -378,7 +395,7 @@ export { completeNode } from './complete';`
     };
 
     await fs.mkdir(path.join(agentPath, 'nodes'), { recursive: true });
-    
+
     for (const [name, content] of Object.entries(nodes)) {
         await fs.writeFile(
             path.join(agentPath, `nodes/${name}.ts`),

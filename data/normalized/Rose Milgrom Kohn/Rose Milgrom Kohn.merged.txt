@@ -1,0 +1,215 @@
+{
+   "name": "Rose Milgrom Kohn",
+   "title": "Head of Impact X, US at Rapport WorldWide",
+   "location": "New York, New York, United States",
+   "key_skills": [
+      "InDesign",
+      "Illustrator",
+      "Photoshop",
+      "Apple Software",
+      "Mechanical Print Files",
+      "Presentation Design",
+      "Graphic Design",
+      "Logo Design",
+      "Branding and Identity",
+      "Out of Home Campaigns"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/rosearlene",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Rapport WorldWide",
+         "title": "Head of Impact X, US",
+         "duration": {
+            "start_date": "2024-04-01",
+            "end_date": "Present",
+            "date_range": "0 years 11 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Rapport WorldWide",
+         "title": "Director of Impact X",
+         "duration": {
+            "start_date": "2021-10-01",
+            "end_date": "2024-04-01",
+            "date_range": "2 years 7 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Rapport WorldWide",
+         "title": "Associate Director of Creative Services",
+         "duration": {
+            "start_date": "2019-10-01",
+            "end_date": "2021-10-01",
+            "date_range": "2 years 1 month"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Rapport WorldWide",
+         "title": "Production Studio Manager",
+         "duration": {
+            "start_date": "2017-07-01",
+            "end_date": "2019-10-01",
+            "date_range": "2 years 4 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Rapport WorldWide",
+         "title": "Studio Production Designer",
+         "duration": {
+            "start_date": "2014-12-01",
+            "end_date": "2017-06-01",
+            "date_range": "2 years 7 months"
+         },
+         "location": "New York, New York, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "BBDO",
+         "title": "Production Artist",
+         "duration": {
+            "start_date": "2013-09-01",
+            "end_date": "2014-12-01",
+            "date_range": "1 year 4 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "ISM",
+         "title": "Studio Artist/Junior Art Director",
+         "duration": {
+            "start_date": "2012-02-01",
+            "end_date": "2013-07-01",
+            "date_range": "1 year 5 months"
+         },
+         "location": null,
+         "description": [
+            "Handled internal creative design requests including building mechanical print files, resizing creative and designing web banners and emails, as well as creative concepting and execution for clients such as Emirates Airline, American Express Travel and Four Seasons."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Freelance Designer",
+         "title": "Freelance Designer",
+         "duration": {
+            "start_date": "2011-12-01",
+            "end_date": "2012-02-01",
+            "date_range": "3 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Boston University AdLab",
+         "title": "Interactive Vice President",
+         "duration": {
+            "start_date": "2011-05-01",
+            "end_date": "2011-12-01",
+            "date_range": "8 months"
+         },
+         "location": "Boston, Massachusetts, United States",
+         "description": [
+            "Monitored and assisted with the work of the interactive designers and their AdLab teams."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "BU Central at Boston University",
+         "title": "General Manager",
+         "duration": {
+            "start_date": "2010-04-01",
+            "end_date": "2011-12-01",
+            "date_range": "1 year 8 months"
+         },
+         "location": "Boston, Massachusetts, United States",
+         "description": [
+            "Managed the planning, coordination and marketing of over 40 weekend events each semester at Boston University's on-campus, late-night entertainment venue."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Boston University Electrical and Computer Engineering Office",
+         "title": "Office Assistant",
+         "duration": {
+            "start_date": "2010-01-01",
+            "end_date": "2011-12-01",
+            "date_range": "2 years"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Phoenix Media/Communications Group",
+         "title": "Advertising Design Intern",
+         "duration": {
+            "start_date": "2011-05-01",
+            "end_date": "2011-08-01",
+            "date_range": "4 months"
+         },
+         "location": "Boston, Massachusetts, United States",
+         "description": [
+            "Designed advertisements for the Boston, Portland and Providence Phoenix publications as well as STUFF Magazine."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Gilt City",
+         "title": "Intern",
+         "duration": {
+            "start_date": "2011-03-01",
+            "end_date": "2011-06-01",
+            "date_range": "4 months"
+         },
+         "location": "Boston, Massachusetts, United States",
+         "description": [
+            "Prospected local restaurants, spas and events to be featured on giltcity.com, contributed to Gilt City social media outlets and assisted with local event coordination and execution."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Motozuma",
+         "title": "Marketing Intern",
+         "duration": {
+            "start_date": "2009-11-01",
+            "end_date": "2010-01-01",
+            "date_range": "3 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Central Driving Academy",
+         "title": "Administrative Assistant",
+         "duration": {
+            "start_date": "2007-06-01",
+            "end_date": "2009-08-01",
+            "date_range": "2 years 2 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

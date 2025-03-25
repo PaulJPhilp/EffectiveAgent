@@ -1,9 +1,0 @@
-  {
-    "name": "executive-summary",
-    "description": "Create executive summary from persona clusters",
-    "subprompts": [],
-    "temperature": 0.2,
-    "systemPrompt": {
-      "promptFileName": "executive-summary.prompt"
-    }
-  }

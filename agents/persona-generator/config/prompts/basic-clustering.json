@@ -1,6 +1,0 @@
-  {
-    "name": "basic-clustering",
-    "description": "Create basic persona clusters from normalized profiles",
-    "subprompts": [],
-    "systemPrompt": {"promptFileName": "basic-clustering.prompt"}
-  }

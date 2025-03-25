@@ -1,0 +1,23 @@
+{
+    "gpt-4-turbo": {
+        "name": "gpt-4-turbo",
+        "description": "GPT-4 Turbo model for text generation",
+        "provider": "openai",
+        "modelId": "gpt-4-turbo-preview",
+        "config": {
+            "temperature": 0.7,
+            "maxTokens": 4096
+        }
+    },
+    "dalle-3": {
+        "name": "dalle-3",
+        "description": "DALL-E 3 model for image generation",
+        "provider": "dalle",
+        "modelId": "dall-e-3",
+        "config": {
+            "quality": "standard",
+            "size": "1024x1024",
+            "style": "natural"
+        }
+    }
+} 

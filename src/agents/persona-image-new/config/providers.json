@@ -1,0 +1,20 @@
+{
+    "openai": {
+        "name": "openai",
+        "description": "OpenAI API provider",
+        "type": "openai",
+        "config": {
+            "apiKey": "${OPENAI_API_KEY}",
+            "organization": "${OPENAI_ORG_ID}"
+        }
+    },
+    "dalle": {
+        "name": "dalle",
+        "description": "DALL-E image generation provider",
+        "type": "dalle",
+        "config": {
+            "apiKey": "${OPENAI_API_KEY}",
+            "organization": "${OPENAI_ORG_ID}"
+        }
+    }
+} 

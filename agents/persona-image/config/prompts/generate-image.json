@@ -1,9 +1,0 @@
-  {
-    "name": "normalize",
-    "description": "Profile Data Normalization",
-    "subprompts": [],
-    "temperature": 0.2,
-    "systemPrompt": {
-      "promptFileName": "normalize.prompt"
-    }
-  }

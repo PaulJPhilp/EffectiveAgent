@@ -1,0 +1,23 @@
+{
+  "providers": [
+    {
+      "id": "openai",
+      "name": "OpenAI",
+      "type": "openai",
+      "apiKeyEnvVar": "OPENAI_API_KEY"
+    },
+    {
+      "id": "anthropic",
+      "name": "Anthropic",
+      "type": "anthropic",
+      "apiKeyEnvVar": "ANTHROPIC_API_KEY"
+    },
+    {
+      "id": "google",
+      "name": "Google",
+      "type": "google",
+      "apiKeyEnvVar": "GOOGLE_API_KEY"
+    }
+  ],
+  "defaultProviderId": "openai"
+}

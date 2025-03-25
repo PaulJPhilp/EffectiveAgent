@@ -1,0 +1,140 @@
+{
+   "name": "Jeff Bardin",
+   "title": "Experiential Marketing | Business Development | Account Management",
+   "location": "Demarest, New Jersey, United States",
+   "key_skills": [
+      "New Media",
+      "Marketing Strategy",
+      "Account Management"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/jeff-bardin-3253a88",
+      "email": null,
+      "company_website": "https://www.pop2life.com"
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "THE MRKT",
+         "title": "Senior Vice President Experiential Marketing",
+         "duration": {
+            "start_date": "Jan 2023",
+            "end_date": "Present",
+            "date_range": "2 years 2 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "THA Experiential",
+         "title": "Senior Vice President Experiential and Brand Activation",
+         "duration": {
+            "start_date": "Apr 2021",
+            "end_date": "Present",
+            "date_range": "3 years 11 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "We are an accomplished, full-service brand experience agency led by a team who believes that creative ideas, flawless execution and remarkable customer service is everything.",
+            "We help bold brands create meaningful engagement with consumers, influencers and press, and we’ll do whatever it takes to make that happen."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Giant Spoon",
+         "title": "Vice President, Experiential Account Director",
+         "duration": {
+            "start_date": "Jan 2019",
+            "end_date": "Dec 2020",
+            "date_range": "2 years"
+         },
+         "location": "Greater New York City Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Condé Nast",
+         "title": "Executive Director, Business Development Pop2Life",
+         "duration": {
+            "start_date": "Mar 2017",
+            "end_date": "Jan 2019",
+            "date_range": "1 year 11 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Pop2Life",
+         "title": "SVP, Music + Business Development",
+         "duration": {
+            "start_date": "May 2014",
+            "end_date": "Mar 2017",
+            "date_range": "2 years 11 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Pop2Life",
+         "title": "Vice President / General Manager",
+         "duration": {
+            "start_date": "May 2010",
+            "end_date": "May 2014",
+            "date_range": "4 years 1 month"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Epic Records",
+         "title": "Vice President Promotion and Operations",
+         "duration": {
+            "start_date": "Sep 2002",
+            "end_date": "Apr 2010",
+            "date_range": "7 years 8 months"
+         },
+         "location": null,
+         "description": [
+            "Develop and implement promotional, marketing, and advertising strategies with broadcast (radio, TV) and print (trade and consumer publications).",
+            "Utilize strong strategic planning and execution skills; write advertising copy.",
+            "Initiate ideas to create buzz around new product launches.",
+            "Formulate and implement programs for radio contests, retail promotions, and event tie-ins.",
+            "Manage daily operations of 20 person promotion team inclusive of all operations and financial planning for the entire department."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Elektra Records",
+         "title": "Vice President Top 40 Promotion/Field Promotion",
+         "duration": {
+            "start_date": "Oct 1994",
+            "end_date": "Sep 2002",
+            "date_range": "8 years"
+         },
+         "location": null,
+         "description": [
+            "Conceived and implemented promotional strategies for all Top 40 releases.",
+            "Directed a 14-member promotional field team, managed daily operations, travel, artist events, regional strategy and planning, created advertising plans for artists in trade magazines, maintained and developed strong relationships with radio programmers nationwide to maximize radio airplay and sales volume."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "EMI Records",
+         "title": "Regional Promotion Manager",
+         "duration": {
+            "start_date": "May 1991",
+            "end_date": "Apr 1994",
+            "date_range": "3 years"
+         },
+         "location": null,
+         "description": [
+            "Implemented promotional strategies for radio station in my region, developed and maintained relationships with radio programmers to maximize radio airplay and sales volume."
+         ],
+         "company_url": null
+      }
+   ]
+}

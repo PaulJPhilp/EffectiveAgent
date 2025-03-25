@@ -1,0 +1,14 @@
+{
+    "normalize-profile": {
+        "name": "normalize-profile",
+        "description": "Normalizes a profile by extracting structured information",
+        "template": "Given the following profile content, extract and normalize the information into a structured format:\n\n{content}\n\nPlease extract the following fields:\n- Name\n- Title\n- Company\n- Location\n- Skills\n- Experience\n- Education\n\nProvide the output in JSON format.",
+        "inputVariables": ["content"]
+    },
+    "extract-metadata": {
+        "name": "extract-metadata",
+        "description": "Extracts metadata from a document",
+        "template": "Given the following document content, extract relevant metadata:\n\n{content}\n\nPlease extract:\n- Document type\n- Creation date\n- Last modified date\n- Author(s)\n- Keywords/tags\n\nProvide the output in JSON format.",
+        "inputVariables": ["content"]
+    }
+} 

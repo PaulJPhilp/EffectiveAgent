@@ -1,9 +1,0 @@
-{
-    "name": "normalizing-agent",
-    "description": "Agent for normalizing and extracting metadata from PDF content",
-    "version": "1.0.0",
-    "defaultModel": "text.structured",
-    "maxConcurrency": 5,
-    "maxRetries": 3,
-    "retryDelay": 1000
-}

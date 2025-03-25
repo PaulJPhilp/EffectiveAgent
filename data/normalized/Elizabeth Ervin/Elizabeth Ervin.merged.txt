@@ -1,0 +1,114 @@
+{
+   "name": "Elizabeth Ervin",
+   "title": "Group Account Director",
+   "location": "San Ramon, California, United States",
+   "key_skills": [
+      "Integrated Marketing",
+      "Communications Planning",
+      "B2B Marketing",
+      "B2B Marketing Strategy"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/elizabeth-ervin-4448663",
+      "email": null,
+      "company_website": "https://imaginepub.com"
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "The Food Group",
+         "title": "Group Account Director",
+         "duration": {
+            "start_date": "2021-08-01",
+            "end_date": "Present",
+            "date_range": "3 years 7 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Food Group",
+         "title": "Account Director",
+         "duration": {
+            "start_date": "2018-03-01",
+            "end_date": "2021-08-01",
+            "date_range": "3 years 6 months"
+         },
+         "location": "Chicago, Illinois, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Bite Me Media",
+         "title": "Publisher",
+         "duration": {
+            "start_date": "2017-01-01",
+            "end_date": "2018-02-01",
+            "date_range": "1 year 2 months"
+         },
+         "location": "Chicago, Illinois, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Imagination",
+         "title": "Account Director",
+         "duration": {
+            "start_date": "2012-11-01",
+            "end_date": "2017-01-01",
+            "date_range": "4 years 2 months"
+         },
+         "location": "Chicago, Illinois, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "East Coast Home Publishing",
+         "title": "Sales and Marketing Manager",
+         "duration": {
+            "start_date": "2006-07-01",
+            "end_date": "2012-11-01",
+            "date_range": "6 years 4 months"
+         },
+         "location": "Fairfield, Connecticut, United States",
+         "description": [
+            "Responsible for developing new sales strategies and launching local events to market each title.",
+            "Managed all phases of the sales cycle from prospecting partners to contract fulfillment.",
+            "Coordinated events including venue selection, local promotion, securing vendors, and media outreach."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "East Coast Home Publishing",
+         "title": "Contributing Editor",
+         "duration": {
+            "start_date": "2006-06-01",
+            "end_date": "2012-11-01",
+            "date_range": "6 years 5 months"
+         },
+         "location": "Fairfield, Connecticut, United States",
+         "description": [
+            "Produced 'To the Trade' monthly column for East Coast Home + Design.",
+            "Frequent contributor to W2W focusing on local restaurant, wellness, and travel features."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Linen Press",
+         "title": "Marketing Manager",
+         "duration": {
+            "start_date": "2006-05-01",
+            "end_date": "2012-11-01",
+            "date_range": "6 years 6 months"
+         },
+         "location": "Old Greenwich, Connecticut, United States",
+         "description": [
+            "Led the expansion and rebranding of a regional multi-unit retailer.",
+            "Hired agency partners to update brand identity and develop a website.",
+            "Implemented digital plan utilizing email and social tactics to drive brand awareness."
+         ],
+         "company_url": null
+      }
+   ]
+}

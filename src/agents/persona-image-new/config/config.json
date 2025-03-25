@@ -1,0 +1,19 @@
+{
+    "name": "persona-image",
+    "description": "Agent for generating images for personas",
+    "version": "1.0.0",
+    "rootPath": "./agents/persona-image-new",
+    "agentPath": "./agents/persona-image-new",
+    "inputPath": "./input",
+    "outputPath": "./output",
+    "logPath": "./logs",
+    "maxConcurrency": 2,
+    "maxRetries": 3,
+    "retryDelay": 3000,
+    "configFiles": {
+        "providers": "providers.json",
+        "models": "models.json",
+        "prompts": "prompts.json",
+        "tasks": "tasks.json"
+    }
+} 

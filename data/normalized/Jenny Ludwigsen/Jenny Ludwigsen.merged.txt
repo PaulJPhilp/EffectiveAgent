@@ -1,0 +1,78 @@
+{
+   "name": "Jenny Ludwigsen",
+   "title": "Vice President of Marketing",
+   "location": "Farmington Hills, Michigan, United States",
+   "key_skills": [
+      "Customer Service",
+      "Marketing Communications",
+      "Strategic Planning"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/jennyludwigsen",
+      "email": null,
+      "company_website": "https://www.communitychoicecu.com"
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Community Choice Credit Union",
+         "title": "Vice President of Marketing",
+         "duration": {
+            "start_date": "2017-02-01",
+            "end_date": "Present",
+            "date_range": "8 years 1 month"
+         },
+         "location": "Farmington Hills, Michigan, United States",
+         "description": [],
+         "company_url": "https://www.communitychoicecu.com"
+      },
+      {
+         "company": "Dort Financial Credit Union",
+         "title": "Director of Marketing and Business Development",
+         "duration": {
+            "start_date": "2002-01-01",
+            "end_date": "2017-02-01",
+            "date_range": "15 years"
+         },
+         "location": "Michigan, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Plante and Moran",
+         "title": "Marketing Consultant",
+         "duration": {
+            "start_date": "2001-01-01",
+            "end_date": "2002-01-01",
+            "date_range": "1 year"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Stout Risius Ross",
+         "title": "Marketing Consultant",
+         "duration": {
+            "start_date": "1999-01-01",
+            "end_date": "2001-01-01",
+            "date_range": "2 years"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "National Council of Teachers of Mathematics",
+         "title": "Communications Officer",
+         "duration": {
+            "start_date": "1998-01-01",
+            "end_date": "1999-01-01",
+            "date_range": "1 year"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

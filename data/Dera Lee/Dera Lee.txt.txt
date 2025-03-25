@@ -1,0 +1,78 @@
+{
+   "name": "Dera Lee",
+   "title": "Founder + CEO",
+   "location": "New York City Metropolitan Area",
+   "key_skills": [
+      "Attention to Detail",
+      "Multitasker",
+      "Customer Relations"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/deralee",
+      "email": null,
+      "company_website": "https://www.deralee.com"
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "DLP Experiential Marketing Agency",
+         "title": "Founder + CEO",
+         "duration": {
+            "start_date": "August 2015",
+            "end_date": "Present",
+            "date_range": "8 years 7 months"
+         },
+         "location": "Greater New York City Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "We Are BMF",
+         "title": "Events Director",
+         "duration": {
+            "start_date": "September 2012",
+            "end_date": "September 2014",
+            "date_range": "2 years 0 months"
+         },
+         "location": "Greater New York City Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "New York Cruise Lines, Inc.",
+         "title": "Director of Special Events",
+         "duration": {
+            "start_date": "March 2011",
+            "end_date": "September 2012",
+            "date_range": "1 year 6 months"
+         },
+         "location": "Greater New York City Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Shiraz Creative",
+         "title": "Senior Events Manager",
+         "duration": {
+            "start_date": "November 2006",
+            "end_date": "February 2011",
+            "date_range": "4 years 3 months"
+         },
+         "location": "Greater New York City Area",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "BF9 Media",
+         "title": "Event Manager",
+         "duration": {
+            "start_date": "November 2004",
+            "end_date": "November 2006",
+            "date_range": "2 years 0 months"
+         },
+         "location": "Greater New York City Area",
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

@@ -1,23 +1,53 @@
 {
-  "providers": [
-    {
-      "id": "openai",
-      "name": "OpenAI",
-      "type": "openai",
-      "apiKeyEnvVar": "OPENAI_API_KEY"
-    },
-    {
-      "id": "anthropic",
-      "name": "Anthropic",
-      "type": "anthropic",
-      "apiKeyEnvVar": "ANTHROPIC_API_KEY"
-    },
-    {
-      "id": "google",
-      "name": "Google",
-      "type": "google",
-      "apiKeyEnvVar": "GOOGLE_API_KEY"
-    }
-  ],
-  "defaultProviderId": "openai"
+	"providers": [
+		{
+			"id": "openai",
+			"name": "OpenAI",
+			"type": "openai",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 3500,
+				"tokensPerMinute": 250000
+			}
+		},
+		{
+			"id": "anthropic",
+			"name": "Anthropic",
+			"type": "anthropic",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 1000
+			}
+		},
+		{
+			"id": "google",
+			"name": "Google AI",
+			"type": "google",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 1000
+			}
+		},
+		{
+			"id": "grok",
+			"name": "Grok AI",
+			"type": "grok",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 500,
+				"tokensPerMinute": 150000
+			}
+		},
+		{
+			"id": "deepseek",
+			"name": "DeepSeek AI",
+			"type": "deepseek",
+			"apiVersion": "v1",
+			"rateLimit": {
+				"requestsPerMinute": 800,
+				"tokensPerMinute": 200000
+			}
+		}
+	],
+	"defaultProviderId": "openai"
 }

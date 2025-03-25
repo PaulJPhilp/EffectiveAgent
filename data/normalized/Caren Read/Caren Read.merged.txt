@@ -1,0 +1,172 @@
+{
+   "name": "Caren Read",
+   "title": "Marketing Communications Manager",
+   "location": "Lakeland, Florida, United States",
+   "key_skills": [
+      "Business-to-Business (B2B)",
+      "Business Relationship Management",
+      "Campaign Management",
+      "Brand Building",
+      "Project Management",
+      "Marketing Strategy",
+      "Sponsorship Negotiation",
+      "Event Management",
+      "Digital Marketing",
+      "Media Planning",
+      "Corporate Communications",
+      "Market Activation",
+      "Market Research",
+      "Multi-Unit Franchise Management"
+   ],
+   "contact": {
+      "linkedin": null,
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Publix Super Markets",
+         "title": "Marketing Communications Manager",
+         "duration": {
+            "start_date": "2021-08-01",
+            "end_date": "Present",
+            "date_range": "2 years 2 months"
+         },
+         "location": "Lakeland, Florida, United States",
+         "description": [
+            "Develop and direct marketing communication campaigns to leverage corporate and multi-divisional strategies.",
+            "Write marketing strategy briefs for customer-directed campaigns.",
+            "Lead channel execution of strategic corporate marketing campaigns.",
+            "Manage corporate and multi-divisional marketing sponsorship programs."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Publix Super Markets",
+         "title": "Regional Marketing Manager",
+         "duration": {
+            "start_date": "2019-05-01",
+            "end_date": "2021-07-31",
+            "date_range": "2 years 2 months"
+         },
+         "location": "Lakeland, Florida, United States",
+         "description": [
+            "Managed and executed title sponsorships and promotional activities, including the NFL/Tampa Bay Buccaneers partnership for 300+ stores.",
+            "Analyzed marketing research data, market share, and sales trends to increase sales.",
+            "Managed multi-million-dollar marketing budget.",
+            "Executed grand opening and competitive intrusion plans.",
+            "Partnered with advertising agencies and vendors to identify sales opportunities.",
+            "Developed and activated multicultural campaigns.",
+            "Created an award-winning Super Bowl LV campaign with the Buccaneers."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Soccer Shots Franchising",
+         "title": "Vice President of Marketing and Franchise Development",
+         "duration": {
+            "start_date": "2018-01-01",
+            "end_date": "2018-12-31",
+            "date_range": "0 years 0 months"
+         },
+         "location": "Harrisburg, Pennsylvania, United States",
+         "description": [
+            "Created and managed execution of marketing plans addressing national branding and increasing year-over-year local enrollments in 200+ markets.",
+            "Provided leadership to the franchise sales team to identify, attract, and approve candidates.",
+            "Ensured effective brand representation in all marketing and communication materials."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Focus Brands",
+         "title": "National Director of Marketing - McAlister's Deli",
+         "duration": {
+            "start_date": "2016-01-01",
+            "end_date": "2017-12-31",
+            "date_range": "1 year 0 months"
+         },
+         "location": "Atlanta, Georgia, United States",
+         "description": [
+            "Provided leadership for Field Marketing Team overseeing 400+ restaurants.",
+            "Developed and implemented marketing programs contributing to sales growth.",
+            "Created a grand opening manual for new restaurants to provide a scalable roadmap."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Domino's Pizza",
+         "title": "Area Leader - Field Marketing, Southeast Region",
+         "duration": {
+            "start_date": "2014-01-01",
+            "end_date": "2015-12-31",
+            "date_range": "1 year 0 months"
+         },
+         "location": "Nashville, Tennessee, United States",
+         "description": [
+            "Developed and implemented DMA-level marketing plans.",
+            "Served as a local market spokesperson and community representative."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Dunkin' Brands",
+         "title": "Field Marketing Manager - Baskin-Robbins, East Region",
+         "duration": {
+            "start_date": "2013-01-01",
+            "end_date": "2014-12-31",
+            "date_range": "1 year 0 months"
+         },
+         "location": "Atlanta, Georgia, United States",
+         "description": [
+            "Created and communicated marketing programs to franchisees, increasing advertising spending and sales growth."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "TGI Fridays",
+         "title": "Marketing Manager - Southeast and West Regions",
+         "duration": {
+            "start_date": "2010-01-01",
+            "end_date": "2013-12-31",
+            "date_range": "3 years 0 months"
+         },
+         "location": "Atlanta, Georgia, United States",
+         "description": [
+            "Managed local store marketing programs, increasing beverage sales by 5% year-over-year.",
+            "Developed local marketing plans leading to 5-7% year-over-year restaurant sales increases."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Papa John's",
+         "title": "Regional Marketing Director - Southeast",
+         "duration": {
+            "start_date": "2000-01-01",
+            "end_date": "2010-12-31",
+            "date_range": "10 years 0 months"
+         },
+         "location": "Atlanta, Georgia, United States",
+         "description": [
+            "Managed a $17 million media budget across 42 DMAs with 709 restaurants.",
+            "Led NASCAR, NFL, NBA, MLB, and NHL activation programs.",
+            "Increased year-over-year online sales by 15%."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Carat",
+         "title": "National Account Supervisor - Church's Chicken",
+         "duration": {
+            "start_date": "1999-01-01",
+            "end_date": "2000-12-31",
+            "date_range": "0 years 11 months"
+         },
+         "location": "Atlanta, Georgia, United States",
+         "description": [
+            "Managed a $22 million budget, provided strategic guidance, and led a team of eight account executives."
+         ],
+         "company_url": null
+      }
+   ]
+}

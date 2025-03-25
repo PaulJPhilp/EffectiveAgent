@@ -1,0 +1,78 @@
+{
+    "tasks": [
+        {
+            "taskName": "normalize-text",
+            "primaryModelId": "gpt-4o",
+            "fallbackModelIds": ["claude-3-opus"],
+            "temperature": 0.2,
+            "requiredCapabilities": [
+                "text-generation",
+                "chat",
+                "function-calling",
+                "tool-use"
+            ],
+            "contextWindowSize": "large-context-window",
+            "thinkingLevel": "high",
+            "description": "Normalize text content from PDFs into a consistent format",
+            "promptName": "normalize",
+            "functionSchema": {
+                "name": "normalizeText",
+                "description": "Normalize text extracted from PDF into a consistent format",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "text": {
+                            "type": "string",
+                            "description": "Raw text extracted from PDF"
+                        },
+                        "format": {
+                            "type": "string",
+                            "enum": ["markdown", "plain", "html"],
+                            "default": "markdown",
+                            "description": "Output format for normalized text"
+                        }
+                    },
+                    "required": ["text"]
+                }
+            }
+        },
+        {
+            "taskName": "extract-metadata",
+            "primaryModelId": "claude-3-opus",
+            "fallbackModelIds": ["gpt-4-turbo"],
+            "temperature": 0.1,
+            "requiredCapabilities": [
+                "text-generation",
+                "chat",
+                "function-calling",
+                "reasoning",
+                "tool-use"
+            ],
+            "contextWindowSize": "large-context-window",
+            "thinkingLevel": "high",
+            "description": "Extract metadata from normalized text content",
+            "promptName": "extract-metadata",
+            "functionSchema": {
+                "name": "extractMetadata",
+                "description": "Extract structured metadata from normalized text",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "text": {
+                            "type": "string",
+                            "description": "Normalized text content"
+                        },
+                        "fields": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            },
+                            "description": "List of metadata fields to extract"
+                        }
+                    },
+                    "required": ["text", "fields"]
+                }
+            }
+        }
+    ]
+}

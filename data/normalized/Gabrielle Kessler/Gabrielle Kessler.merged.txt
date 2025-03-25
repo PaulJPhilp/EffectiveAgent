@@ -1,0 +1,183 @@
+{
+   "name": "Gabrielle Kessler",
+   "title": "Senior Vice President, Brand Experience",
+   "location": "Los Angeles, California, United States",
+   "key_skills": [
+      "Experiential",
+      "Content",
+      "Mentoring"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/gabriellekessler",
+      "email": null,
+      "company_website": "https://visionarygroupla.com"
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "We Are Social",
+         "title": "Senior Vice President, Brand Experience",
+         "duration": {
+            "start_date": "2021-10-01",
+            "end_date": "Present",
+            "date_range": "3 years 5 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "Senior leader overseeing agency production and delivery across content, partnerships and earned led activations.",
+            "Experiential Subject Matter Expert."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Narrative",
+         "title": "Senior Vice President, Brand Experience",
+         "duration": {
+            "start_date": "2021-09-01",
+            "end_date": "2023-05-31",
+            "date_range": "1 year 9 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Future",
+         "title": "Vice President, Client Solutions",
+         "duration": {
+            "start_date": "2020-04-01",
+            "end_date": "2021-09-30",
+            "date_range": "1 year 6 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "Oversees all B2C integrated program solutions and revenue opportunities for Future PLC, the global media company specializing in the Tech, Gaming, Music, and Knowledge verticals."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Future",
+         "title": "Vice President, Experiential",
+         "duration": {
+            "start_date": "2018-11-01",
+            "end_date": "2020-04-30",
+            "date_range": "1 year 6 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Visionary Group",
+         "title": "Creative Director",
+         "duration": {
+            "start_date": "2016-11-01",
+            "end_date": "2018-11-30",
+            "date_range": "2 years 1 month"
+         },
+         "location": "Culver City, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "What’s Trending",
+         "title": "Head of Strategy, Partnerships, and Revenue",
+         "duration": {
+            "start_date": "2016-01-01",
+            "end_date": "2016-11-30",
+            "date_range": "11 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "Bringing audiences the hottest videos and personalities from the digital, viral world every day.",
+            "Develop notable branded content activations with Fortune 500 brand advertisers including Samsung, Ford, Marriott, and AT&T."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Omnia Media",
+         "title": "Head of Integrated Marketing and Director of Brand Partnerships",
+         "duration": {
+            "start_date": "2014-06-01",
+            "end_date": "2015-12-31",
+            "date_range": "1 year 7 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "Built Integrated Marketing department from the ground up at the fastest growing independent MCN in the marketplace.",
+            "Oversees creative ideation, process, and execution of brand integration campaigns across multiple content verticals."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Something Massive",
+         "title": "Director of Business Development",
+         "duration": {
+            "start_date": "2013-06-01",
+            "end_date": "2014-06-30",
+            "date_range": "1 year 1 month"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "Lead and oversee the development of new business and maintain effective key agency relationships.",
+            "Contribute to the development and refinement of Something Massive's future vision and strategy."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Something Massive",
+         "title": "Senior Accounts Manager",
+         "duration": {
+            "start_date": "2011-06-01",
+            "end_date": "2013-06-30",
+            "date_range": "2 years 1 month"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "Manage day-to-day operation of multiple client accounts, owning client relationships from pitch to delivery.",
+            "Develop strategy and oversee social community management teams for multiple brands."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Video Army",
+         "title": "Project Manager",
+         "duration": {
+            "start_date": "2009-01-01",
+            "end_date": "2011-12-31",
+            "date_range": "2 years"
+         },
+         "location": "Venice, California, United States",
+         "description": [
+            "Worked with clients to establish online presence through original video production, distribution, social media, and SEO/VSEO marketing."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Storyboards",
+         "title": "Marketing Specialist",
+         "duration": {
+            "start_date": "2008-07-01",
+            "end_date": "2009-08-31",
+            "date_range": "1 year 2 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Folio Photography",
+         "title": "Owner/Operator",
+         "duration": {
+            "start_date": "2004-01-01",
+            "end_date": "2008-09-30",
+            "date_range": "4 years 9 months"
+         },
+         "location": "Los Angeles, California, United States",
+         "description": [
+            "Commercial photography, graphic design, logo and branding services for clients including musicians and actors."
+         ],
+         "company_url": null
+      }
+   ]
+}

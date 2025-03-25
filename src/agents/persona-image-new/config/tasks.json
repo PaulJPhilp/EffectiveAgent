@@ -1,0 +1,33 @@
+{
+    "generate-image": {
+        "name": "generate-image",
+        "description": "Task for generating an image for a persona",
+        "steps": [
+            {
+                "name": "generate-image-description",
+                "description": "Generate a detailed image description from the profile",
+                "prompt": "generate-image-prompt",
+                "variables": {
+                    "name": "{{input_profile.name}}",
+                    "description": "{{input_profile.description}}",
+                    "bio": "{{input_profile.bio}}",
+                    "interests": "{{input_profile.interests}}",
+                    "skills": "{{input_profile.skills}}",
+                    "traits": "{{input_profile.traits}}"
+                }
+            },
+            {
+                "name": "generate-image",
+                "description": "Generate the actual image using DALL-E",
+                "prompt": "generate-image",
+                "variables": {
+                    "image_description": "{{steps.generate-image-description.result}}"
+                }
+            }
+        ],
+        "output": {
+            "type": "image",
+            "format": "url"
+        }
+    }
+} 

@@ -1,0 +1,127 @@
+{
+   "name": "Carly Tubridy",
+   "title": "Account Supervisor",
+   "location": "South Elgin, Illinois, United States",
+   "key_skills": [
+      "Client Presentation",
+      "Microsoft PowerPoint",
+      "Microsoft Excel"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/carly-tubridy",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [
+      {
+         "name": "Certified Digital Marketing Associate",
+         "issuer": "PCM Digital Marketing",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "Active"
+      },
+      {
+         "name": "Team Leadership Certificate",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "Active"
+      }
+   ],
+   "experience": [
+      {
+         "company": "The Food Group",
+         "title": "Account Supervisor",
+         "duration": {
+            "start_date": "2023-02-01",
+            "end_date": "Present",
+            "date_range": "1 year 1 month"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Group East",
+         "title": "Senior Account Manager",
+         "duration": {
+            "start_date": "2022-07-01",
+            "end_date": "2023-02-01",
+            "date_range": "8 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Paradowski Creative",
+         "title": "Senior Account Manager",
+         "duration": {
+            "start_date": "2022-03-01",
+            "end_date": "2022-07-01",
+            "date_range": "5 months"
+         },
+         "location": null,
+         "description": [
+            "Focusing on corporate communications, I have worked to establish and maintain Bayer as a thought leader and trusted partner in agriculture within the ag stakeholder audience.",
+            "Developed channel and content strategy for reputation management.",
+            "Led Crop Science Corporate website content - through innovative and interactive web pieces, our team has brought forth Bayer’s commitments to innovation and sustainability.",
+            "Acted as the account team web expert and liaison internally and externally through an in-depth knowledge of the CMS, SEO strategy, and content strategy. Used JIRA, Drupal and Google Analytics."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Brighton Agency",
+         "title": "Account Manager",
+         "duration": {
+            "start_date": "2020-03-01",
+            "end_date": "2022-03-01",
+            "date_range": "2 years 1 month"
+         },
+         "location": null,
+         "description": [
+            "At Brighton I supported B2B communications for Bayer Crop Science with a focus on US farmers. In under five months, I was trusted to lead the launch of the brand new Bayer PLUS Rewards program.",
+            "Developed a strategic communications plan to successfully launch a new rewards program and manage the delivery of integrated, multi-channel campaign. To date, the program has increased product sales by 25% YOY.",
+            "Established strong client relationship through understanding their business needs, resulting in growing the business by 1100%.",
+            "Managed the creative team in the development and implementation of a new brand, including full brand guidelines and launch tactics: print, TV, radio, direct mail, tradeshow materials, sales team resources and promotional videos.",
+            "Consistently provided proactive, strategic solutions, positioning myself and the agency as an important partner."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "The Food Group",
+         "title": "Account Executive",
+         "duration": {
+            "start_date": "2017-07-01",
+            "end_date": "2018-08-01",
+            "date_range": "1 year 1 month"
+         },
+         "location": "Chicago, Illinois, United States",
+         "description": [
+            "In two years with The Food Group, I developed strong client management skills and proved my ability to manage a multitude of integrated marketing campaigns and clients at once maintaining a high level of success and professionalism. Clients included Mars Wrigley, Kraft Heinz, Saputo, and Nestlé.",
+            "Supported senior account members with B2B campaigns and maintaining the highest level of client service.",
+            "Established and maintain strong client and internal relationships to ensure quality strategic results.",
+            "Managed the coordination, production, and execution for a variety of marketing materials including print and digital ad units, brochures, how-to guides, promotional materials, content marketing, and event marketing.",
+            "Managed over a half a million-dollar media investment, including 5 campaigns with over 200 individual insertions from creation of ad unit through to ROI quarterly reports with minimal supervision.",
+            "Compiled and analyze market data and trends to present to sales team in concise, comprehensive package.",
+            "Assisted in establishing a number of agency documents to improve inter-team communication and work flow.",
+            "Participated in WPP-wide initiative on gender equality in support of the United Nations Sustainable Development Goals."
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Brighton Agency",
+         "title": "Account Coordinator",
+         "duration": {
+            "start_date": "2016-08-01",
+            "end_date": "2017-07-01",
+            "date_range": "1 year"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

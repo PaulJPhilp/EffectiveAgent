@@ -7,10 +7,10 @@
     "Event Production",
     "User Experience (UX)",
     "Marketing Operations",
-    "Creative Leadership",
     "Brand Development",
     "Creative Project Management",
-    "Digital Marketing Strategies"
+    "Digital Marketing Strategies",
+    "Data-informed Solutions"
   ],
   "contact": {
     "linkedin": "https://www.linkedin.com/in/juliestetz",
@@ -59,7 +59,7 @@
       "company": "Luxury Brand Marketing, Inc.",
       "title": "Marketing Director",
       "duration": {
-        "start_date": "March 2020",
+        "start_date": "Mar 2020",
         "end_date": "Present",
         "date_range": "3 years 7 months"
       },
@@ -111,8 +111,8 @@
       "company": "Fashion Retail Group",
       "title": "Senior Marketing Manager",
       "duration": {
-        "start_date": "June 2015",
-        "end_date": "March 2020",
+        "start_date": "Jun 2015",
+        "end_date": "Mar 2020",
         "date_range": "4 years 9 months"
       },
       "location": "New York, NY",
@@ -151,8 +151,8 @@
       "company": "Retail Innovations LLC",
       "title": "Creative Operations Manager",
       "duration": {
-        "start_date": "January 2010",
-        "end_date": "June 2015",
+        "start_date": "Jan 2010",
+        "end_date": "Jun 2015",
         "date_range": "5 years 5 months"
       },
       "location": "New York, NY",

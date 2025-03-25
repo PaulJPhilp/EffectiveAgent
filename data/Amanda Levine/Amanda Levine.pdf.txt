@@ -1,0 +1,187 @@
+{
+   "name": "Amanda Levine",
+   "title": "Senior Experiential Producer",
+   "location": "Miami Beach, Florida, United States",
+   "key_skills": [
+      "Marketing",
+      "PowerPoint",
+      "Newsletters"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/amanda-levine-1230565",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [],
+   "experience": [
+      {
+         "company": "Dentsu Creative",
+         "title": "Senior Event Producer, Experiential Production",
+         "duration": {
+            "start_date": "April 2023",
+            "end_date": "Present",
+            "date_range": "1 year 11 months"
+         },
+         "location": null,
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Double A Labs",
+         "title": "Executive Producer",
+         "duration": {
+            "start_date": "October 2021",
+            "end_date": "February 2023",
+            "date_range": "1 year 5 months"
+         },
+         "location": "Austin, TX + New York, NY",
+         "description": [
+            "Produce a mobile tour for Dell Technologies with 70+ stops throughout the United States and Canada over 9 months including the fabrication of two 53' trailers into a Dell Tech Product Showcase",
+            "Manage all facets of the tour including theme, route, swag, branding, content, product placement, venue scouting and staffing",
+            "Work closely with the client providing daily updates on the progress of the build and tour",
+            "Oversee a team of five plus the logistics provider ensuring the tour runs smoothly",
+            "Build, maintain and reconcile a $2.3M budget",
+            "Secure permits and outdoor venues with a 120'x80' footprint for the trailers and outdoor activations",
+            "Create unique activations within the trailer leading to higher engagement with the product and services displayed"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Wellth Collective",
+         "title": "Senior Event Consultant",
+         "duration": {
+            "start_date": "May 2020",
+            "end_date": "October 2021",
+            "date_range": "1 year 6 months"
+         },
+         "location": null,
+         "description": [
+            "Produce high end, COVID safe events for VIP clients and their networks in Park City, UT and New York",
+            "Strategize and compile a calendar of events, ensuring clients garner maximum press, media and social media interactions",
+            "Ideate innovative and unique activations promoting health and wellness within communities throughout the country",
+            "Manage all logistics surrounding production of events including venues, catering, vendors and budgets"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "ION",
+         "title": "Senior Event Strategist",
+         "duration": {
+            "start_date": "October 2018",
+            "end_date": "May 2020",
+            "date_range": "1 year 8 months"
+         },
+         "location": "New York, NY",
+         "description": [
+            "Produce and run an annual series of global events for 1,000+ clients in Orlando, London, Vienna, Singapore and Sydney",
+            "Collaborate with cross-functional teams internally to deliver a cohesive brand across 50+ global industry events throughout the Americas and EMEA region, optimizing leads in order to garner new business",
+            "Liaise with hotel venues and vendors to ensure branding, AV, room blocks, F&B and furniture are on brand and in line with budgets of up to $2M",
+            "Negotiate contracts with venues and vendors ensuring the highest ROI for each event",
+            "Reconcile annual budgets of up to $5M throughout the year measuring ROI for the year to date",
+            "Report on the status and analytic aspects of industry events, using the data to improve on how to execute future events",
+            "Strategize with leadership to create ideal and profitable ways for clients and potential clients to interact with the ION brand"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Wellth Collective",
+         "title": "Senior Event Producer",
+         "duration": {
+            "start_date": "December 2016",
+            "end_date": "October 2018",
+            "date_range": "1 year 11 months"
+         },
+         "location": "New York, NY",
+         "description": [
+            "Produce wellness programs and events such as private fitness classes, fitness retreats, and forums for The Chopra Center, including a (3) day experience with Deepak Chopra and Fred Matser at Deepak Restore",
+            "Run and manage all wellness programing at Gurney’s Montauk, including summer fitness scheduling and winter getaways",
+            "Strategize how best to utilize sponsors giving our partners best brand and social awareness"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "DKC",
+         "title": "Senior Production Coordinator",
+         "duration": {
+            "start_date": "July 2015",
+            "end_date": "December 2016",
+            "date_range": "1 year 6 months"
+         },
+         "location": "New York, NY",
+         "description": [
+            "Produced corporate media events with budgets ranging from $50K to $800K including: Jaguar Land Rover press conferences, New Balance product launches, L’Oreal League Influencer launch, and a meeting for Pope Francis with immigrants and refugees in Harlem in conjunction with Catholic Charities",
+            "Worked with high-level officials such as the Executive Director of Catholic Charities and the Director of Design at Jaguar Land Rover to ensure suitable press accommodations",
+            "Transformed a raw space in the Meat Packing District of NYC into a cocktail party/press briefing for senior personnel of Jaguar Land Rover, highlighting their new Special Vehicle Operations line of automobiles",
+            "Brought the New Balance Fall Press Preview to life in the former Bowery Subway Station, taking inspiration from NYC streets and the subway, highlighting their upcoming Fall and Winter footwear and apparel",
+            "Managed several events that require work weeks exceeding 90 hours and notable domestic travel to: Chicago, Los Angeles and Washington, D.C.",
+            "Sourced potential vendors including: caterers, audio-visual production companies, staffing agencies; prepared evaluations based on quality, price and professionalism",
+            "Researched and updated team on new venues, vendors and products in key markets",
+            "Worked with local law enforcement and the New York City Government and Parks Department to obtain permits",
+            "Participated in brainstorming sessions and contributed ideas regarding event concepts",
+            "Assisted in creation, design and writing of copy for proposal decks and mood boards",
+            "Created, organized and maintained client contact sheets, production schedules and run of show",
+            "Coordinated onsite event logistics including: scenery, catering, lighting, sound set-up, talent wrangling, venue relations, florals, decor, quality control, personnel supervision and transportation",
+            "Assisted onsite builds, event load-in and loud-out",
+            "Trained brand ambassadors on client specifics and managed performance onsite"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Metropolitan Pavilion & Metropolitan West",
+         "title": "Senior Event Coordinator",
+         "duration": {
+            "start_date": "December 2012",
+            "end_date": "July 2015",
+            "date_range": "2 years 8 months"
+         },
+         "location": "New York, NY",
+         "description": [
+            "Produced over 50 events annually in five different spaces, holding 200 to 2,000 people",
+            "Assisted corporate and private clients to create trade shows, sample sales, fashion shows, fundraisers, food and wine tastings, weddings and bat and bar mitzvahs",
+            "Facilitated on-site walk through meetings with clients to ensure their guests will have a positive experience",
+            "Coordinated all aspects of the clients’ needs in regard to rentals, staffing, floor plans and time lines for their events",
+            "Hired, managed and maintained staffing for all events taking place at the Metropolitan Pavilion"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Chezzam Entertainment",
+         "title": "Project Manager",
+         "duration": {
+            "start_date": "September 2011",
+            "end_date": "December 2012",
+            "date_range": "1 year 4 months"
+         },
+         "location": "Syosset, NY",
+         "description": [
+            "Produced corporate, private, and fundraising events from creation to completion",
+            "Conducted client meetings in order to assess the client’s event objectives",
+            "Coordinated and upheld working relationships with outside vendors and venues",
+            "Researched and booked specialty performers such as DJ/MC teams, bands, dancers, and contortionists",
+            "Managed all aspects of the event while it was taking place, including the staff",
+            "Created and maintained working budgets and proposals for each event, negotiating with vendors in order to stay within the client’s budget",
+            "Utilized Meeting Matrix and AutoCad to create and edit floor plans",
+            "Led weekly production meetings and managed the responsibilities of the technical, costume, décor and casting directors for upcoming events"
+         ],
+         "company_url": null
+      },
+      {
+         "company": "Guidepoint",
+         "title": "Marketing Manager",
+         "duration": {
+            "start_date": "January 2008",
+            "end_date": "August 2010",
+            "date_range": "2 years 8 months"
+         },
+         "location": null,
+         "description": [
+            "Managed the development of promotional materials to assist the 25-member sales team to generate client opportunities with institutional investors",
+            "Coordinated 100 person networking event at the Yale Club with high-profile speakers for members of the firm's network of industry experts who are matched with clients",
+            "Created and distributed quarterly newsletters using Adobe Dreamweaver to Guidepoint's client base",
+            "Sourced and designed innovative marketing materials and promotional items",
+            "Created, programmed and formatted HTML-based e-mail campaign for sales team events and teleconferences"
+         ],
+         "company_url": null
+      }
+   ]
+}

@@ -1,0 +1,31 @@
+{
+  "taskMappings": [
+    {
+      "taskName": "profile_normalization",
+      "primaryModelId": "o1-mini",
+      "fallbackModelIds": ["gpt-4", "gemini-pro"],
+      "temperature": 0.1,
+      "requiredCapabilities": ["text-generation", "reasoning"],
+      "contextWindowSize": "medium-context-window",
+      "description": "Normalize candidate profiles for better matching"
+    },
+    {
+      "taskName": "text_summarization",
+      "primaryModelId": "gpt-4",
+      "fallbackModelIds": ["o1-mini", "gemini-pro"],
+      "temperature": 0.3,
+      "requiredCapabilities": ["text-generation"],
+      "contextWindowSize": "small-context-window",
+      "description": "Summarize text content"
+    },
+    {
+      "taskName": "keyword_extraction",
+      "primaryModelId": "gemini-pro",
+      "fallbackModelIds": ["gpt-4", "o1-mini"],
+      "temperature": 0.2,
+      "requiredCapabilities": ["text-generation"],
+      "contextWindowSize": "small-context-window",
+      "description": "Extract keywords from text content"
+    }
+  ]
+}

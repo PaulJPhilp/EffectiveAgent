@@ -1,0 +1,153 @@
+{
+   "name": "Jennifer Wisinger",
+   "title": "Director of Project Management",
+   "location": "Midlothian, Texas, United States",
+   "key_skills": [
+      "Salesforce",
+      "Sales Operations",
+      "Strategy",
+      "Classroom Management",
+      "Lesson Planning",
+      "Assessments",
+      "Differentiated Instruction",
+      "Parent Communication",
+      "Engaging Experiences"
+   ],
+   "contact": {
+      "linkedin": "https://www.linkedin.com/in/jennifer-wisinger-pmp-7503a44",
+      "email": null,
+      "company_website": null
+   },
+   "certificates": [
+      {
+         "name": "Project Management Professional",
+         "issuer": "Unknown Issuer",
+         "date_earned": null,
+         "expiry_date": null,
+         "credential_id": null,
+         "status": "Active"
+      }
+   ],
+   "experience": [
+      {
+         "company": "Augustine Agency",
+         "title": "Director of Project Management",
+         "duration": {
+            "start_date": "2024-02-01",
+            "end_date": "2024-10-01",
+            "date_range": "1 year 1 month"
+         },
+         "location": "Irving, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Augustine Agency",
+         "title": "Associate Project Manager",
+         "duration": {
+            "start_date": "2021-12-01",
+            "end_date": "2024-02-01",
+            "date_range": "2 years 3 months"
+         },
+         "location": "Irving, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Russell P Schupmann Elementary",
+         "title": "Teacher",
+         "duration": {
+            "start_date": "2021-08-01",
+            "end_date": "2021-12-01",
+            "date_range": "5 months"
+         },
+         "location": "Unknown, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Sam Houston Dual Language Elementary School",
+         "title": "Teacher",
+         "duration": {
+            "start_date": "2016-08-01",
+            "end_date": "2021-10-01",
+            "date_range": "5 years 3 months"
+         },
+         "location": "Corsicana, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Mildred Elementary School",
+         "title": "Teacher",
+         "duration": {
+            "start_date": "2014-08-01",
+            "end_date": "2016-05-01",
+            "date_range": "1 year 10 months"
+         },
+         "location": "Mildred, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "Candy Cane Corner",
+         "title": "Pre-K Teacher",
+         "duration": {
+            "start_date": "2011-08-01",
+            "end_date": "2014-06-01",
+            "date_range": "2 years 11 months"
+         },
+         "location": "Unknown, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Dallas Morning News",
+         "title": "Sales Operations Manager",
+         "duration": {
+            "start_date": "2008-06-01",
+            "end_date": "2011-04-01",
+            "date_range": "2 years 11 months"
+         },
+         "location": "Unknown, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Dallas Morning News",
+         "title": "Customer Fulfillment Manager",
+         "duration": {
+            "start_date": "2005-04-01",
+            "end_date": "2008-06-01",
+            "date_range": "3 years 3 months"
+         },
+         "location": "Unknown, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Dallas Morning News",
+         "title": "Advertising Operations Assistant",
+         "duration": {
+            "start_date": "1999-11-01",
+            "end_date": "2005-04-01",
+            "date_range": "5 years 6 months"
+         },
+         "location": "Unknown, Texas, United States",
+         "description": [],
+         "company_url": null
+      },
+      {
+         "company": "The Dallas Morning News",
+         "title": "Graphic Artist Coordinator",
+         "duration": {
+            "start_date": "1998-04-01",
+            "end_date": "1999-11-01",
+            "date_range": "1 year 8 months"
+         },
+         "location": "Unknown, Texas, United States",
+         "description": [],
+         "company_url": null
+      }
+   ]
+}

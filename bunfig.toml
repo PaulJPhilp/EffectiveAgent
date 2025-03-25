@@ -1,0 +1,12 @@
+[test]
+preload = ["./setup.ts"]
+
+[resolve]
+extensions = [".ts", ".tsx", ".js", ".jsx"]
+
+[resolve.alias]
+"@services" = "./shared/services"
+"@schemas" = "./shared/services/schemas"
+"@types" = "./shared/services/types"
+"@agents" = "./agents"
+"@shared" = "./shared" 

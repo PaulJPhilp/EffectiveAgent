@@ -1,7 +1,0 @@
-{
-  "name": "test-echo-agent",
-  "description": "A simple agent that echoes input with a timestamp",
-  "version": "0.1.0",
-  "maxRetries": 0,
-  "timeoutMs": 5000
-}

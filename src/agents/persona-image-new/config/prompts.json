@@ -1,0 +1,16 @@
+{
+    "generate-image-prompt": {
+        "name": "generate-image-prompt",
+        "description": "Prompt for generating image description from profile",
+        "model": "gpt-4-turbo",
+        "template": "Generate a detailed image description for a persona with the following characteristics:\n\nName: {{name}}\nDescription: {{description}}\nBio: {{bio}}\nInterests: {{interests}}\nSkills: {{skills}}\nTraits: {{traits}}\n\nThe description should be detailed and focus on physical appearance, style, and setting that best represents this persona. The description should be suitable for an AI image generation model.\n\nImage Description:",
+        "variables": ["name", "description", "bio", "interests", "skills", "traits"]
+    },
+    "generate-image": {
+        "name": "generate-image",
+        "description": "Prompt for generating the actual image using DALL-E",
+        "model": "dalle-3",
+        "template": "{{image_description}}",
+        "variables": ["image_description"]
+    }
+} 
