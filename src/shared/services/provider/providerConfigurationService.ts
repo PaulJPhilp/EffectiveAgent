@@ -1,107 +1,103 @@
-import type { z } from 'zod';
-import {
-    ConfigurationLoader
-} from '../configuration/index.js';
+import * as fs from 'fs/promises';
+import * as path from 'path';
+import { ProvidersFileSchema, type Provider, type ProvidersFile } from './schemas/index.ts';
+import type { IProviderConfigurationService, ProviderConfigurationOptions } from './types.ts';
 
-import { ConfigurationError } from '../configuration/types.js';
-import {
-    ProvidersFileSchema,
-    type ProviderSchema
-} from './schemas/providerConfig.js';
+/**
+ * Service for managing provider configurations
+ */
+export class ProviderConfigurationService implements IProviderConfigurationService {
+    private readonly configPath: string;
+    private providers: Provider[] = [];
+    private providersFile?: ProvidersFile;
+    private readonly debug = false;
 
-/** Provider configuration options */
-interface ProviderConfigurationOptions {
-    readonly configPath: string;
-    readonly environment?: string;
-}
-
-/** Provider configuration service */
-export class ProviderConfigurationService {
-    private readonly loader: ConfigurationLoader;
-    private providersConfig?: z.infer<typeof ProvidersFileSchema>;
-
+    /**
+     * Create a new ProviderConfigurationService
+     * @param options Configuration options
+     */
     constructor(options: ProviderConfigurationOptions) {
-        this.loader = new ConfigurationLoader({
-            basePath: options.configPath,
-            environment: options.environment,
-            validateSchema: true
-        });
+        this.configPath = options.configPath;
     }
 
-    /** Load provider configurations */
-    async loadConfigurations(): Promise<void> {
+    /**
+     * Load provider configurations from file
+     */
+    public async loadConfigurations(): Promise<void> {
+        const configPath = path.join(this.configPath, 'providers.json');
+
         try {
-            this.providersConfig = await this.loader.loadConfig<z.infer<typeof ProvidersFileSchema>>(
-                'providers.json',
-                {
-                    schema: ProvidersFileSchema,
-                    required: true
-                }
-            );
+            // Read and parse config file
+            const configContent = await fs.readFile(configPath, 'utf-8');
+            const parsedConfig = JSON.parse(configContent);
+
+            // Validate using schema
+            const result = ProvidersFileSchema.safeParse(parsedConfig);
+
+            if (!result.success) {
+                throw new Error(`Invalid provider configuration: ${result.error.message}`);
+            }
+
+            this.providersFile = result.data;
+            this.providers = [...this.providersFile.providers];
+
+            if (this.debug) {
+                console.log(`[ProviderConfigurationService] Loaded ${this.providers.length} providers`);
+            }
         } catch (error) {
-            throw new ConfigurationError({
-                name: 'ProviderConfigLoadError',
-                message: `Failed to load provider configurations: ${error instanceof Error ? error.message : String(error)}`,
-                code: 'PROVIDER_CONFIG_LOAD_ERROR'
-            });
+            if (this.debug) {
+                console.error('[ProviderConfigurationService] Error loading configurations:', error);
+            }
+            throw new Error(`Failed to load provider configurations: ${error instanceof Error ? error.message : String(error)}`);
         }
     }
 
-    /** Get provider configuration by ID */
-    getProviderConfig(
-        providerId: string
-    ): z.infer<typeof ProviderSchema> {
-        if (!this.providersConfig) {
-            throw new ConfigurationError({
-                name: 'ProviderConfigNotLoadedError',
-                message: 'Provider configurations not loaded',
-                code: 'PROVIDER_CONFIG_NOT_LOADED'
-            });
+    /**
+     * Get provider configuration by ID
+     * @throws Error if provider not found
+     */
+    public getProviderConfig(providerId: string): Provider {
+        if (!this.providersFile) {
+            throw new Error('Provider configurations not loaded');
         }
 
-        const provider = this.providersConfig.providers.find(
-            p => p.id === providerId
-        );
+        const provider = this.providers.find(p => p.id === providerId);
+
         if (!provider) {
-            throw new ConfigurationError({
-                name: 'ProviderNotFoundError',
-                message: `Provider not found: ${providerId}`,
-                code: 'PROVIDER_NOT_FOUND'
-            });
+            throw new Error(`Provider not found: ${providerId}`);
         }
 
         return provider;
     }
 
-    /** Get default provider configuration */
-    getDefaultProviderConfig(): z.infer<typeof ProviderSchema> {
-        if (!this.providersConfig) {
-            throw new ConfigurationError({
-                name: 'ProviderConfigNotLoadedError',
-                message: 'Provider configurations not loaded',
-                code: 'PROVIDER_CONFIG_NOT_LOADED'
-            });
+    /**
+     * Get default provider configuration
+     * @throws Error if no default provider is set
+     */
+    public getDefaultProviderConfig(): Provider {
+        if (!this.providersFile) {
+            throw new Error('Provider configurations not loaded');
         }
 
-        return this.getProviderConfig(this.providersConfig.defaultProviderId);
+        return this.getProviderConfig(this.providersFile.defaultProviderId);
     }
 
-    /** Get all provider configurations */
-    getAllProviderConfigs(): ReadonlyArray<z.infer<typeof ProviderSchema>> {
-        if (!this.providersConfig) {
-            throw new ConfigurationError({
-                name: 'ProviderConfigNotLoadedError',
-                message: 'Provider configurations not loaded',
-                code: 'PROVIDER_CONFIG_NOT_LOADED'
-            });
+    /**
+     * Get all provider configurations
+     */
+    public getAllProviderConfigs(): ReadonlyArray<Provider> {
+        if (!this.providersFile) {
+            throw new Error('Provider configurations not loaded');
         }
 
-        return this.providersConfig.providers;
+        return this.providers;
     }
 
-    /** Clear configuration cache */
-    clearCache(): void {
-        this.loader.clearCache();
-        this.providersConfig = undefined;
+    /**
+     * Clear configuration cache
+     */
+    public clearCache(): void {
+        this.providersFile = undefined;
+        this.providers = [];
     }
-}
+} 

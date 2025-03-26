@@ -1,5 +1,106 @@
 # Prompt Service Architecture
 
+## Implementation of Service Pattern
+This document outlines how the standard architecture pattern is applied to the Prompt entity in our application.
+
+## File Structure
+```
+src/shared/services/prompt/
+├── __tests__/                    # Test files
+│   ├── promptService.test.ts     # Tests for prompt service implementation
+│   └── promptConfigurationService.test.ts  # Tests for prompt configuration
+├── schemas/                      # Schema definitions
+│   └── promptConfig.ts           # Zod schema for prompt entities
+├── types.ts                      # Type definitions and interfaces
+├── errors.ts                     # Error classes
+├── promptService.ts              # Prompt service implementation
+└── promptConfigurationService.ts # Prompt configuration service
+```
+
+## Component Details
+
+### Interface (`types.ts`)
+- Defines `IPromptService` interface with methods for:
+  - Retrieving prompt templates
+  - Rendering prompts with variables
+  - Managing prompt libraries and collections
+- Includes supporting types:
+  - `PromptServiceConfig`: Configuration for the prompt service
+  - `PromptTemplate`: Structure for prompt templates
+  - `PromptVariables`: Type for prompt variable substitution
+  - Re-exports `PromptConfig` and `PromptConfigFile` from schemas
+
+### Schema (`schemas/promptConfig.ts`)
+- Uses Zod for prompt configuration validation
+- Defines schemas:
+  - `PromptTemplateSchema`: Schema for individual prompt templates
+  - `PromptCollectionSchema`: Schema for collections of related prompts
+  - `PromptConfigFileSchema`: Schema for the entire prompts.json file
+- Defines types:
+  - `PromptConfig`: Type for a single prompt configuration
+  - `PromptCollection`: Type for a collection of prompts
+  - `PromptConfigFile`: Type for the entire configuration file
+
+### Errors (`errors.ts`)
+- Defines prompt-specific error classes:
+  - `PromptServiceError`: Base error class for prompt service
+  - `PromptNotFoundError`: Thrown when a requested prompt doesn't exist
+  - `PromptRenderError`: Thrown when prompt rendering fails
+  - `PromptConfigError`: Thrown when prompt configuration is invalid
+
+### Service Implementation (`promptService.ts`)
+- Implements the `IPromptService` interface
+- Uses the `PromptConfigurationService` to load prompt configurations
+- Handles prompt template retrieval and rendering
+- Supports variable substitution and template processing
+- Implements proper error handling with domain-specific errors
+
+### Configuration Service (`promptConfigurationService.ts`)
+- Extends the base `ConfigurationService`
+- Loads and validates prompt configurations from JSON files
+- Provides access to prompt templates by ID or category
+- Implements validation using the Zod schemas
+
+### Tests (`__tests__/promptService.test.ts`)
+- Tests all service methods:
+  - Prompt template retrieval
+  - Prompt rendering with variables
+  - Error handling for missing prompts and invalid templates
+- Uses mock configurations to simulate different scenarios
+
+## Configuration Files
+The prompt service uses a `prompts.json` file with the following structure:
+```json
+{
+  "name": "prompt-configurations",
+  "version": "1.0.0",
+  "collections": [
+    {
+      "id": "collection-id",
+      "name": "Collection Name",
+      "description": "Collection description",
+      "prompts": [
+        {
+          "id": "prompt-id",
+          "name": "Prompt Name",
+          "template": "This is a template with {{variable}}",
+          "description": "Prompt description",
+          "requiredVariables": ["variable"]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## Best Practices Applied
+1. **Type Safety**: All methods use proper TypeScript types for variables and templates
+2. **Validation**: Template validation ensures required variables are provided
+3. **Error Handling**: Specific error types for different failure scenarios
+4. **Synchronous Configuration**: Prompt configurations are loaded synchronously
+5. **Mockability**: All dependencies can be easily mocked for testing
+6. **Template Processing**: Supports Handlebars-style templates for variable substitution
+
 ## Overview
 The Prompt Service manages prompt templates, generation, and configuration for AI interactions. It provides a type-safe interface for template management and prompt generation, following the project's shared services architecture pattern.
 

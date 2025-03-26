@@ -1,5 +1,8 @@
-import { z } from "zod"
+import { z } from "zod";
 
+/**
+ * Schema for provider configuration
+ */
 export const ProviderSchema = z.object({
     id: z.string().describe("Unique identifier for the provider"),
     name: z.string().describe("Display name of the provider"),
@@ -15,6 +18,9 @@ export const ProviderSchema = z.object({
 
 export type Provider = z.infer<typeof ProviderSchema>;
 
+/**
+ * Schema for providers configuration file
+ */
 export const ProvidersFileSchema = z.object({
     name: z.string().describe("Configuration name"),
     version: z.string().describe("Configuration version"),
@@ -22,4 +28,4 @@ export const ProvidersFileSchema = z.object({
     defaultProviderId: z.string().describe("Default provider ID")
 });
 
-export type Providers = z.infer<typeof ProvidersFileSchema>;
+export type ProvidersFile = z.infer<typeof ProvidersFileSchema>; 

@@ -1,0 +1,1016 @@
+# Service Architecture Pattern
+
+## Overview
+This document outlines the standard architecture pattern for services in our application. Each service is responsible for managing a specific entity or domain and follows a consistent structure to ensure maintainability and testability. Services are managed through a Dependency Injection (DI) container to promote loose coupling and testability.
+
+## Technology Stack
+- **Language**: TypeScript 5.8
+- **Runtime**: Node.js (via Bun 1.2.5)
+- **Package Manager**: Bun 1.2.5
+- **Testing Framework**: Vitest 1.6.1
+- **Schema Validation**: Zod 3.24.2
+- **Configuration**: dotenv 16.4.7
+- **PDF Processing**: pdf-parse 1.1.1
+- **Linting & Formatting**: Biome (via bunx)
+- **Type Checking**: TypeScript 5.8.2
+- **AI Model Integration**:
+  - OpenAI SDK 4.89.1
+  - AI Core SDK 4.2.5
+  - LangChain Core 0.3.42
+  - LangGraph 0.2.57
+- **Web Framework**: None (Services are framework-agnostic)
+
+## File Structure
+```
+src/shared/services/{entity}/
+├── __tests__/                  # Test files
+│   ├── {entity}Service.test.ts # Tests for the service implementation
+│   └── ...                     # Additional test files if needed
+├── schemas/                    # Schema definitions
+│   ├── {entity}Config.ts       # Zod schema for the entity
+│   └── ...                     # Additional schema files if needed
+├── di/                         # Dependency Injection setup
+│   ├── container.ts           # DI container implementation
+│   ├── tokens.ts             # Service tokens for DI
+│   └── index.ts              # DI exports
+├── implementations/           # Service implementations
+│   ├── {provider}Provider.ts  # Provider-specific implementations
+│   └── __tests__/            # Implementation-specific tests
+├── types.ts                    # Type definitions and interfaces
+├── errors.ts                   # Error classes
+├── {entity}Service.ts          # Service implementation
+├── serviceBootstrap.ts         # Service initialization with DI
+└── {entity}ConfigurationService.ts # Configuration service
+```
+
+## Component Responsibilities
+
+### Interface (`types.ts`)
+- Defines the service contract through a clear interface (`I{Entity}Service`)
+- Contains all necessary type definitions and DTOs
+- Should be the primary point of reference for consumers
+
+### Schema (`schemas/{entity}Config.ts`)
+- Uses Zod for runtime type validation
+- Defines the structure of configuration files
+- Includes both the entity schema and file schema:
+  - `{Entity}ConfigSchema`: Schema for individual entities
+  - `{Entity}ConfigFileSchema`: Schema for the entire configuration file
+- Exports TypeScript types derived from schemas:
+  - `type {Entity}Config = z.infer<typeof {Entity}ConfigSchema>`
+  - `type {Entity}ConfigFile = z.infer<typeof {Entity}ConfigFileSchema>`
+
+### Dependency Injection (`di/`)
+
+#### Container (`di/container.ts`)
+- Implements a lightweight DI container
+- Manages service registration and resolution
+- Supports singleton and factory registrations
+- Example:
+  ```typescript
+  class DependencyContainer {
+    private readonly instances = new Map<symbol, any>();
+    private readonly factories = new Map<symbol, Factory>();
+
+    register<T>(token: symbol, instance: T): void {
+      this.instances.set(token, instance);
+    }
+
+    registerFactory<T>(token: symbol, factory: Factory<T>): void {
+      this.factories.set(token, factory);
+    }
+
+    resolve<T>(token: symbol): T {
+      if (this.instances.has(token)) {
+        return this.instances.get(token);
+      }
+      
+      const factory = this.factories.get(token);
+      if (!factory) {
+        throw new Error(`No registration found for token: ${token.toString()}`);
+      }
+
+      const instance = factory(this);
+      this.instances.set(token, instance);
+      return instance;
+    }
+  }
+  ```
+
+#### Tokens (`di/tokens.ts`)
+- Defines unique symbols for service identification
+- Used for type-safe dependency resolution
+- Example:
+  ```typescript
+  export const SERVICE_TOKENS = {
+    providerService: Symbol('providerService'),
+    providerConfigService: Symbol('providerConfigService'),
+    modelConfigService: Symbol('modelConfigService'),
+    agentConfig: Symbol('agentConfig')
+  } as const;
+  ```
+
+### Service Bootstrap (`serviceBootstrap.ts`)
+- Configures the DI container
+- Registers all service dependencies
+- Provides a clean initialization point
+- Example:
+  ```typescript
+  export class ServiceBootstrap {
+    private readonly container: DependencyContainer;
+
+    constructor(agentConfig: AgentConfig) {
+      this.container = new DependencyContainer();
+      
+      // Register configuration
+      this.container.register(SERVICE_TOKENS.agentConfig, agentConfig);
+      
+      // Register services
+      this.container.registerFactory(SERVICE_TOKENS.providerService, (c) => {
+        return new ProviderService(
+          c.resolve(SERVICE_TOKENS.agentConfig),
+          c.resolve(SERVICE_TOKENS.providerConfigService),
+          c.resolve(SERVICE_TOKENS.modelConfigService)
+        );
+      });
+    }
+
+    getContainer(): DependencyContainer {
+      return this.container;
+    }
+  }
+  ```
+
+### Service Implementation (`{entity}Service.ts`)
+- Implements the interface defined in `types.ts`
+- Receives dependencies through constructor injection
+- Manages entity lifecycle and operations
+- Example:
+  ```typescript
+  export class ProviderService implements IProviderService {
+    constructor(
+      private readonly agentConfig: AgentConfig,
+      private readonly providerConfigService: IProviderConfigurationService,
+      private readonly modelConfigService: IModelConfigService
+    ) {
+      // Initialization logic
+    }
+  }
+  ```
+
+### Tests with DI
+- Tests use the DI container for proper service initialization
+- Mock dependencies are registered in the container
+- Example:
+  ```typescript
+  describe('ProviderService', () => {
+    let container: DependencyContainer;
+    let service: IProviderService;
+    
+    beforeEach(() => {
+      // Create container with mock dependencies
+      container = new DependencyContainer();
+      
+      // Register mocks
+      container.register(SERVICE_TOKENS.providerConfigService, mockProviderConfigService);
+      container.register(SERVICE_TOKENS.modelConfigService, mockModelConfigService);
+      
+      // Register service
+      container.registerFactory(SERVICE_TOKENS.providerService, (c) => {
+        return new ProviderService(
+          mockAgentConfig,
+          c.resolve(SERVICE_TOKENS.providerConfigService),
+          c.resolve(SERVICE_TOKENS.modelConfigService)
+        );
+      });
+      
+      // Resolve service
+      service = container.resolve(SERVICE_TOKENS.providerService);
+    });
+  });
+  ```
+
+## Best Practices
+
+### Dependency Injection
+1. **Constructor Injection**: Use constructor injection for required dependencies
+2. **Interface-Based**: Depend on interfaces, not concrete implementations
+3. **Single Registration Point**: Register all dependencies in the bootstrap service
+4. **Token-Based Resolution**: Use symbols as tokens for type-safe dependency resolution
+5. **Testability**: Design services to be easily testable with mock dependencies
+
+### Service Implementation
+1. **Single Responsibility**: Each service should manage only one entity/domain
+2. **Interface First**: Design the interface before implementation
+3. **Immutable Dependencies**: Mark injected dependencies as readonly
+4. **Explicit Dependencies**: All dependencies should be clearly declared in the constructor
+5. **No Service Location**: Avoid service location pattern, use constructor injection
+
+### Testing with DI
+1. **Container Per Test**: Create a new container for each test
+2. **Mock Registration**: Register mocks in the container instead of passing them directly
+3. **Interface Testing**: Test against the service interface, not the implementation
+4. **Isolation**: Each test should be independent with its own container and mocks
+5. **Complete Mocking**: Mock all external dependencies for predictable tests
+
+## Anti-Patterns to Avoid
+
+### Dependency Injection Anti-Patterns
+- **Service Location**: Don't use the container as a service locator
+- **Container Injection**: Don't inject the container itself into services
+- **Circular Dependencies**: Avoid circular dependencies between services
+- **Runtime Registration**: Don't register dependencies at runtime
+- **Mixed Registration**: Don't mix different registration methods for the same service
+
+### Testing Anti-Patterns
+- **Container Reuse**: Don't reuse containers between tests
+- **Partial Mocking**: Don't partially mock dependencies
+- **Implementation Testing**: Don't test implementation details
+- **Container Bypass**: Don't bypass the container in tests
+- **Global State**: Don't rely on global state in tests
+
+## Implementing a New Service
+
+This section outlines the step-by-step process for implementing a new service according to our architecture pattern.
+
+### 1. Create the Service File Structure
+
+Start by creating the necessary directory structure for your service:
+
+```
+src/shared/services/{entity}/
+├── __tests__/
+├── schemas/
+├── di/
+├── implementations/
+├── types.ts
+├── errors.ts
+├── {entity}Service.ts
+├── serviceBootstrap.ts
+└── {entity}ConfigurationService.ts
+```
+
+For example, for a `Document` entity:
+
+```
+src/shared/services/document/
+├── __tests__/
+├── schemas/
+├── di/
+├── implementations/
+├── types.ts
+├── errors.ts
+├── documentService.ts
+├── serviceBootstrap.ts
+└── documentConfigurationService.ts
+```
+
+### 2. Create the Architecture Document
+
+Create an architecture.txt file (if necessary) to document service-specific design decisions:
+
+```
+# Document Service Architecture
+
+## Overview
+The Document Service is responsible for managing document entities within the system, including loading, parsing, and extracting information from documents.
+
+## Responsibilities
+- Loading documents from various sources (file system, URLs, etc.)
+- Parsing different document formats (PDF, DOCX, etc.)
+- Extracting structured data from documents
+- Providing a unified interface for document operations
+
+## Supported Document Types
+- PDF (.pdf)
+- Microsoft Word (.docx)
+- Plain Text (.txt)
+```
+
+### 3. Define the Entity Schema
+
+Create the schema definition in `schemas/{entity}Config.ts`:
+
+```typescript
+import { z } from 'zod';
+
+// Define the schema for a single entity
+export const DocumentConfigSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  type: z.enum(['pdf', 'docx', 'txt']),
+  maxSizeBytes: z.number().optional().default(10_000_000), // 10MB default
+  allowedSources: z.array(z.string()).optional().default(['local']),
+  extractors: z.array(z.string()).optional().default([]),
+});
+
+// Define the schema for the configuration file that contains all entities
+export const DocumentConfigFileSchema = z.object({
+  name: z.string(),
+  version: z.string(),
+  documents: z.array(DocumentConfigSchema),
+  defaultType: z.enum(['pdf', 'docx', 'txt']).optional(),
+});
+
+// Export TypeScript types derived from the schema
+export type DocumentConfig = z.infer<typeof DocumentConfigSchema>;
+export type DocumentConfigFile = z.infer<typeof DocumentConfigFileSchema>;
+```
+
+### 4. Define Service Types and Interfaces
+
+Create the type definitions in `types.ts`:
+
+```typescript
+import type { DocumentConfig, DocumentConfigFile } from './schemas/documentConfig.js';
+
+// Export schema types
+export type { DocumentConfig, DocumentConfigFile };
+
+// Service configuration interface
+export interface DocumentServiceConfig {
+  debug?: boolean;
+  configPath: string;
+  environment?: string;
+}
+
+// The main service interface
+export interface IDocumentService {
+  /**
+   * Load a document from a file path
+   */
+  loadDocument(path: string): Promise<Document>;
+  
+  /**
+   * Extract text from a document
+   */
+  extractText(document: Document): Promise<string>;
+  
+  /**
+   * Get supported document types
+   */
+  getSupportedTypes(): string[];
+  
+  /**
+   * Check if a document type is supported
+   */
+  isTypeSupported(type: string): boolean;
+}
+
+// Additional domain types
+export interface Document {
+  id: string;
+  name: string;
+  type: string;
+  content: Buffer;
+  metadata: DocumentMetadata;
+}
+
+export interface DocumentMetadata {
+  size: number;
+  createdAt: Date;
+  modifiedAt: Date;
+  pageCount?: number;
+}
+```
+
+### 5. Create the Configuration Service
+
+Implement the configuration service in `{entity}ConfigurationService.ts`:
+
+```typescript
+import { ConfigurationLoader } from '../configuration/configurationLoader.js';
+import { ConfigurationService } from '../configuration/configurationService.js';
+import { ConfigurationError, type ConfigLoaderOptions, type ValidationResult } from '../configuration/types.js';
+import type { DocumentConfig, DocumentConfigFile } from './schemas/documentConfig.js';
+import { DocumentConfigFileSchema } from './schemas/documentConfig.js';
+
+/** Document configuration options */
+interface DocumentConfigurationOptions extends ConfigLoaderOptions {
+  readonly configPath: string;
+  readonly environment?: string;
+}
+
+/** Document configuration service */
+export class DocumentConfigurationService extends ConfigurationService<DocumentConfigFile> {
+  private readonly loader: ConfigurationLoader;
+
+  constructor(options: DocumentConfigurationOptions) {
+    super({ validateOnLoad: true });
+    this.loader = new ConfigurationLoader({
+      basePath: options.configPath,
+      environment: options.environment,
+      validateSchema: true
+    });
+  }
+
+  /** Load document configurations */
+  async loadConfigurations(): Promise<void> {
+    try {
+      const rawConfig = this.loader.loadConfig(
+        'documents.json',
+        {
+          schema: DocumentConfigFileSchema,
+          required: true
+        }
+      );
+      const parsedConfig = DocumentConfigFileSchema.parse(rawConfig);
+      this.config = parsedConfig;
+    } catch (error) {
+      throw new ConfigurationError({
+        name: 'DocumentConfigLoadError',
+        message: `Failed to load document configurations: ${(error as Error).message}`,
+        code: 'DOCUMENT_CONFIG_LOAD_ERROR'
+      });
+    }
+  }
+
+  /** Get document configuration by ID */
+  getDocument(documentId: string): DocumentConfig {
+    const document = this.config?.documents.find((doc: DocumentConfig) => doc.id === documentId);
+    if (!document) {
+      throw new ConfigurationError({
+        name: 'DocumentNotFoundError',
+        message: `Document configuration not found for ID: ${documentId}`,
+        code: 'DOCUMENT_NOT_FOUND_ERROR'
+      });
+    }
+    return document;
+  }
+
+  /** Get all document configurations */
+  getAllDocuments(): DocumentConfig[] {
+    return [...(this.config?.documents || [])];
+  }
+
+  /** Get default document type */
+  getDefaultType(): string {
+    return this.config?.defaultType || 'pdf';
+  }
+
+  /** Validate configuration */
+  protected validateConfig(
+    config: DocumentConfigFile
+  ): ValidationResult {
+    try {
+      DocumentConfigFileSchema.parse(config);
+      return { isValid: true };
+    } catch (error) {
+      return {
+        isValid: false,
+        errors: [error instanceof Error ? error.message : String(error)]
+      };
+    }
+  }
+}
+```
+
+### 6. Create Error Classes
+
+Define error classes in `errors.ts`:
+
+```typescript
+/**
+ * Base error class for document service errors
+ */
+export class DocumentServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DocumentServiceError';
+  }
+}
+
+/**
+ * Thrown when a document is not found
+ */
+export class DocumentNotFoundError extends DocumentServiceError {
+  constructor(
+    public readonly documentId: string
+  ) {
+    super(`Document not found: ${documentId}`);
+    this.name = 'DocumentNotFoundError';
+  }
+}
+
+/**
+ * Thrown when document validation fails
+ */
+export class DocumentValidationError extends DocumentServiceError {
+  constructor(
+    message: string,
+    public readonly validationErrors: string[],
+    public readonly documentId?: string
+  ) {
+    super(message);
+    this.name = 'DocumentValidationError';
+  }
+}
+
+/**
+ * Thrown when an unsupported document type is encountered
+ */
+export class UnsupportedDocumentTypeError extends DocumentServiceError {
+  constructor(
+    public readonly documentType: string
+  ) {
+    super(`Unsupported document type: ${documentType}`);
+    this.name = 'UnsupportedDocumentTypeError';
+  }
+}
+
+/**
+ * Thrown when document parsing fails
+ */
+export class DocumentParsingError extends DocumentServiceError {
+  constructor(
+    message: string,
+    public readonly documentId: string,
+    public readonly cause?: Error
+  ) {
+    super(message);
+    this.name = 'DocumentParsingError';
+  }
+}
+```
+
+### 7. Write a Comprehensive Test Suite
+
+Create tests in `__tests__/{entity}Service.test.ts`:
+
+```typescript
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfigurationError } from '../../configuration/types.js';
+import {
+  DocumentNotFoundError,
+  DocumentParsingError,
+  UnsupportedDocumentTypeError
+} from '../errors.js';
+import { DocumentConfigurationService } from '../documentConfigurationService.js';
+import { DocumentService } from '../documentService.js';
+import type { Document, DocumentConfigFile, DocumentServiceConfig } from '../types.js';
+
+// Mock configuration file
+const mockDocumentConfig: DocumentConfigFile = {
+  name: 'test-documents',
+  version: '1.0.0',
+  documents: [
+    {
+      id: 'test-doc-1',
+      name: 'Test Document 1',
+      type: 'pdf',
+      maxSizeBytes: 5_000_000,
+      allowedSources: ['local', 'url'],
+      extractors: ['text', 'metadata']
+    },
+    {
+      id: 'test-doc-2',
+      name: 'Test Document 2',
+      type: 'docx',
+      maxSizeBytes: 2_000_000,
+      allowedSources: ['local'],
+      extractors: ['text']
+    }
+  ],
+  defaultType: 'pdf'
+};
+
+// Mock document content
+const mockPdfBuffer = Buffer.from('mock pdf content');
+const mockTextContent = 'This is extracted text from the document.';
+
+describe('DocumentService', () => {
+  let documentService: DocumentService;
+  let consoleErrorSpy: any;
+
+  beforeEach(() => {
+    // Mock the DocumentConfigurationService
+    vi.spyOn(DocumentConfigurationService.prototype, 'loadConfig')
+      .mockReturnValue(mockDocumentConfig);
+      
+    vi.spyOn(DocumentConfigurationService.prototype, 'getDocument')
+      .mockImplementation((id) => {
+        const doc = mockDocumentConfig.documents.find(d => d.id === id);
+        if (!doc) {
+          throw new ConfigurationError({
+            name: 'DocumentNotFoundError',
+            message: `Document not found: ${id}`,
+            code: 'DOCUMENT_NOT_FOUND_ERROR'
+          });
+        }
+        return doc;
+      });
+    
+    vi.spyOn(DocumentConfigurationService.prototype, 'getAllDocuments')
+      .mockReturnValue(mockDocumentConfig.documents);
+    
+    vi.spyOn(DocumentConfigurationService.prototype, 'getDefaultType')
+      .mockReturnValue(mockDocumentConfig.defaultType || 'pdf');
+    
+    // Mock fs module for loading files
+    vi.mock('fs/promises', () => ({
+      readFile: vi.fn().mockResolvedValue(mockPdfBuffer)
+    }));
+    
+    // Mock console.error
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    
+    // Create the document service
+    const config: DocumentServiceConfig = {
+      configPath: 'documents.json',
+      environment: 'test'
+    };
+    
+    documentService = new DocumentService(config);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  describe('constructor', () => {
+    it('should initialize with the provided configuration', () => {
+      expect(documentService).toBeDefined();
+      expect(DocumentConfigurationService.prototype.loadConfig).toHaveBeenCalled();
+    });
+    
+    it('should use default environment when not provided', () => {
+      const config: DocumentServiceConfig = {
+        configPath: 'documents.json'
+      };
+      
+      const service = new DocumentService(config);
+      expect(service).toBeDefined();
+    });
+    
+    it('should handle configuration loading errors', () => {
+      // Reset mocks for this test
+      vi.restoreAllMocks();
+      
+      // Setup error case
+      vi.spyOn(DocumentConfigurationService.prototype, 'loadConfig')
+        .mockImplementation(() => {
+          throw new ConfigurationError({
+            name: 'ConfigLoadError',
+            message: 'Failed to load configuration',
+            code: 'CONFIG_LOAD_ERROR'
+          });
+        });
+      
+      // Re-mock console.error
+      consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+      
+      const config: DocumentServiceConfig = {
+        configPath: 'invalid-path.json'
+      };
+      
+      expect(() => new DocumentService(config)).toThrow('Failed to initialize DocumentService');
+      expect(consoleErrorSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('loadDocument', () => {
+    it('should load a document from a file path', async () => {
+      const document = await documentService.loadDocument('test-doc-1.pdf');
+      
+      expect(document).toBeDefined();
+      expect(document.id).toBeDefined();
+      expect(document.name).toContain('test-doc-1.pdf');
+      expect(document.type).toBe('pdf');
+      expect(document.content).toEqual(mockPdfBuffer);
+    });
+    
+    it('should throw UnsupportedDocumentTypeError for unsupported types', async () => {
+      await expect(documentService.loadDocument('test.xyz'))
+        .rejects.toThrow(UnsupportedDocumentTypeError);
+    });
+    
+    it('should throw DocumentParsingError when reading fails', async () => {
+      // Mock fs.readFile to reject
+      const fs = await import('fs/promises');
+      vi.mocked(fs.readFile).mockRejectedValueOnce(new Error('File read error'));
+      
+      await expect(documentService.loadDocument('test-doc-1.pdf'))
+        .rejects.toThrow(DocumentParsingError);
+    });
+  });
+
+  describe('extractText', () => {
+    it('should extract text from a PDF document', async () => {
+      // Create a test document
+      const document: Document = {
+        id: 'test-1',
+        name: 'test-doc-1.pdf',
+        type: 'pdf',
+        content: mockPdfBuffer,
+        metadata: {
+          size: mockPdfBuffer.length,
+          createdAt: new Date(),
+          modifiedAt: new Date()
+        }
+      };
+      
+      // Mock pdf-parse result
+      vi.mock('pdf-parse', () => ({
+        default: vi.fn().mockResolvedValue({ text: mockTextContent })
+      }));
+      
+      const text = await documentService.extractText(document);
+      expect(text).toBe(mockTextContent);
+    });
+    
+    it('should extract text from a DOCX document', async () => {
+      // Create a test document
+      const document: Document = {
+        id: 'test-2',
+        name: 'test-doc-2.docx',
+        type: 'docx',
+        content: Buffer.from('mock docx content'),
+        metadata: {
+          size: Buffer.from('mock docx content').length,
+          createdAt: new Date(),
+          modifiedAt: new Date()
+        }
+      };
+      
+      // Mock mammoth result
+      vi.mock('mammoth', () => ({
+        extractRawText: vi.fn().mockResolvedValue({ value: mockTextContent })
+      }));
+      
+      const text = await documentService.extractText(document);
+      expect(text).toBe(mockTextContent);
+    });
+    
+    it('should handle text files directly', async () => {
+      // Create a test document
+      const textBuffer = Buffer.from(mockTextContent);
+      const document: Document = {
+        id: 'test-3',
+        name: 'test-doc-3.txt',
+        type: 'txt',
+        content: textBuffer,
+        metadata: {
+          size: textBuffer.length,
+          createdAt: new Date(),
+          modifiedAt: new Date()
+        }
+      };
+      
+      const text = await documentService.extractText(document);
+      expect(text).toBe(mockTextContent);
+    });
+    
+    it('should throw UnsupportedDocumentTypeError for unsupported types', async () => {
+      // Create a test document with unsupported type
+      const document: Document = {
+        id: 'test-4',
+        name: 'test-doc-4.xyz',
+        type: 'xyz',
+        content: Buffer.from('mock content'),
+        metadata: {
+          size: Buffer.from('mock content').length,
+          createdAt: new Date(),
+          modifiedAt: new Date()
+        }
+      };
+      
+      await expect(documentService.extractText(document))
+        .rejects.toThrow(UnsupportedDocumentTypeError);
+    });
+  });
+
+  describe('getSupportedTypes', () => {
+    it('should return the list of supported document types', () => {
+      const types = documentService.getSupportedTypes();
+      expect(types).toContain('pdf');
+      expect(types).toContain('docx');
+      expect(types).toContain('txt');
+    });
+  });
+
+  describe('isTypeSupported', () => {
+    it('should return true for supported types', () => {
+      expect(documentService.isTypeSupported('pdf')).toBe(true);
+      expect(documentService.isTypeSupported('docx')).toBe(true);
+      expect(documentService.isTypeSupported('txt')).toBe(true);
+    });
+    
+    it('should return false for unsupported types', () => {
+      expect(documentService.isTypeSupported('xyz')).toBe(false);
+      expect(documentService.isTypeSupported('')).toBe(false);
+    });
+  });
+});
+```
+
+### 8. Implement the Service
+
+Create the service implementation in `{entity}Service.ts`:
+
+```typescript
+import fs from 'fs/promises';
+import path from 'path';
+import { v4 as uuidv4 } from 'uuid';
+import pdfParse from 'pdf-parse';
+import mammoth from 'mammoth';
+import { 
+  DocumentNotFoundError, 
+  DocumentParsingError, 
+  DocumentServiceError,
+  UnsupportedDocumentTypeError
+} from './errors.js';
+import { DocumentConfigurationService } from './documentConfigurationService.js';
+import type { 
+  Document, 
+  DocumentConfigFile, 
+  DocumentMetadata,
+  DocumentServiceConfig, 
+  IDocumentService 
+} from './types.js';
+
+export class DocumentService implements IDocumentService {
+  private readonly debug: boolean;
+  private readonly config: DocumentConfigFile;
+  private readonly configService: DocumentConfigurationService;
+  private readonly supportedTypes = ['pdf', 'docx', 'txt'];
+
+  constructor(config: DocumentServiceConfig) {
+    this.debug = config.debug ?? false;
+    
+    try {
+      this.configService = new DocumentConfigurationService({
+        configPath: config.configPath,
+        environment: config.environment ?? 'development',
+        basePath: process.cwd()
+      });
+      
+      this.config = this.configService.loadConfig(config.configPath);
+      
+      if (this.debug) {
+        console.log('[DocumentService] Initialized with config:', this.config);
+      }
+    } catch (error) {
+      console.error('[DocumentService] Failed to initialize:', error);
+      throw new DocumentServiceError('Failed to initialize DocumentService');
+    }
+  }
+
+  /**
+   * Load a document from a file path
+   */
+  async loadDocument(filePath: string): Promise<Document> {
+    if (this.debug) {
+      console.log(`[DocumentService] Loading document: ${filePath}`);
+    }
+    
+    const extension = path.extname(filePath).toLowerCase().replace('.', '');
+    
+    if (!this.isTypeSupported(extension)) {
+      throw new UnsupportedDocumentTypeError(extension);
+    }
+    
+    try {
+      const content = await fs.readFile(filePath);
+      const stats = await fs.stat(filePath);
+      
+      const metadata: DocumentMetadata = {
+        size: stats.size,
+        createdAt: stats.birthtime,
+        modifiedAt: stats.mtime
+      };
+      
+      // For PDF files, extract page count
+      if (extension === 'pdf') {
+        try {
+          const pdfData = await pdfParse(content);
+          metadata.pageCount = pdfData.numpages;
+        } catch (error) {
+          // Continue even if we can't get page count
+          if (this.debug) {
+            console.log(`[DocumentService] Could not get PDF page count: ${error}`);
+          }
+        }
+      }
+      
+      return {
+        id: uuidv4(),
+        name: path.basename(filePath),
+        type: extension,
+        content,
+        metadata
+      };
+    } catch (error) {
+      throw new DocumentParsingError(
+        `Failed to load document: ${error instanceof Error ? error.message : String(error)}`,
+        filePath,
+        error instanceof Error ? error : undefined
+      );
+    }
+  }
+
+  /**
+   * Extract text from a document
+   */
+  async extractText(document: Document): Promise<string> {
+    if (this.debug) {
+      console.log(`[DocumentService] Extracting text from document: ${document.id} (${document.type})`);
+    }
+    
+    if (!this.isTypeSupported(document.type)) {
+      throw new UnsupportedDocumentTypeError(document.type);
+    }
+    
+    try {
+      switch(document.type) {
+        case 'pdf': {
+          const data = await pdfParse(document.content);
+          return data.text;
+        }
+        case 'docx': {
+          const result = await mammoth.extractRawText({ buffer: document.content });
+          return result.value;
+        }
+        case 'txt': {
+          return document.content.toString('utf-8');
+        }
+        default:
+          throw new UnsupportedDocumentTypeError(document.type);
+      }
+    } catch (error) {
+      throw new DocumentParsingError(
+        `Failed to extract text: ${error instanceof Error ? error.message : String(error)}`,
+        document.id,
+        error instanceof Error ? error : undefined
+      );
+    }
+  }
+
+  /**
+   * Get supported document types
+   */
+  getSupportedTypes(): string[] {
+    return [...this.supportedTypes];
+  }
+
+  /**
+   * Check if a document type is supported
+   */
+  isTypeSupported(type: string): boolean {
+    return this.supportedTypes.includes(type.toLowerCase());
+  }
+}
+```
+
+### 9. Review and Verify Compliance
+
+After implementing the service, review it against the architecture pattern:
+
+1. **Interface Compliance**: Ensure the implementation matches the interface in `types.ts`
+2. **Error Handling**: Verify all error scenarios are properly handled
+3. **Schema Validation**: Confirm Zod schemas are used for configuration validation
+4. **Constructor Requirements**: Check that the constructor follows the guidelines
+5. **Service Boundaries**: Ensure clear separation of responsibilities
+6. **Naming Conventions**: Verify consistent naming throughout the service
+7. **Documentation**: Ensure all methods and classes are properly documented
+
+### 10. Run Linting and Type Checking
+
+Use Biome and TypeScript to verify code quality:
+
+```bash
+# Run linting
+bunx biome lint src/shared/services/{entity}
+
+# Fix linting issues
+bunx biome lint --apply src/shared/services/{entity}
+
+# Run type checking
+bun tsc --noEmit
+```
+
+### 11. Run the Test Suite
+
+Run and verify all tests pass:
+
+```bash
+bun test src/shared/services/{entity}/__tests__
+```
+
+### 12. Update Dependencies (if necessary)
+
+If your service requires additional dependencies, update the package.json file:
+
+```bash
+bun add dependency-name
+```
+
+### 13. Document the Service
+
+Update relevant documentation to include information about the new service, including:
+
+1. Purpose and responsibilities
+2. Usage examples
+3. Configuration requirements
+4. Integration with other services
+
+This comprehensive process ensures that new services adhere to our established architecture pattern, are thoroughly tested, and maintain high code quality standards. 

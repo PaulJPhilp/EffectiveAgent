@@ -1,14 +1,10 @@
+import type { PromptConfig, PromptTemplate, Prompts, SubpromptDefinition, SubpromptDefinitionSchema } from "./schemas/promptConfig.js";
 
-import type { SubpromptDefinition, SubpromptDefinitionSchema } from "./schemas/promptConfig.js";
+// Re-export the schema types
+export type { PromptConfig, PromptTemplate, Prompts, SubpromptDefinition, SubpromptDefinitionSchema };
 
-export interface PromptTemplate {
-	name: string
-	content: string
-	variables: string[]
-	subprompts: SubpromptDefinition[]
-}
+export const templates: Record<string, PromptTemplate> = {};
 
-export const templates: Record<string, PromptTemplate> = {} 
 /**
  * Template variables for prompt construction
  */
@@ -21,6 +17,25 @@ export interface PromptVariables {
  */
 export interface TemplateIdentifier {
 	readonly templateName: string;
+}
+
+/**
+ * Prompt options for configuration
+ */
+export interface PromptOptions {
+	readonly systemPrompt?: string;
+	readonly temperature?: number;
+	readonly maxTokens?: number;
+}
+
+/**
+ * Configuration for the prompt service
+ */
+export interface PromptServiceConfig {
+	readonly debug?: boolean;
+	readonly configPath: string;
+	readonly environment?: string;
+	readonly basePath?: string;
 }
 
 /**
@@ -54,15 +69,33 @@ export class PromptError extends Error {
 }
 
 /**
- * Interface for prompt template service
+ * Interface for prompt service
  */
-export interface IPromptTemplateService {
-	getTemplate(identifier: TemplateIdentifier): SubpromptDefinition;
-	buildPrompt(
-		identifier: TemplateIdentifier,
-		variables: PromptVariables
-	): Promise<string>;
-	registerTemplate(template: SubpromptDefinition): void;
-}
+export interface IPromptService {
+	/**
+	 * Retrieves a prompt template by its identifier
+	 */
+	getTemplate(identifier: TemplateIdentifier): PromptTemplate;
 
-export type { SubpromptDefinition, SubpromptDefinitionSchema };
+	/**
+	 * Generates a complete prompt by rendering the template with variables
+	 */
+	generatePrompt(
+		identifier: TemplateIdentifier,
+		variables: PromptVariables,
+		options?: PromptOptions
+	): Promise<string>;
+
+	/**
+	 * Gets all template identifiers
+	 */
+	getTemplateIds(): string[];
+
+	/**
+	 * Validates if all required variables are present
+	 */
+	validateVariables(
+		template: PromptTemplate,
+		variables: PromptVariables
+	): boolean;
+}

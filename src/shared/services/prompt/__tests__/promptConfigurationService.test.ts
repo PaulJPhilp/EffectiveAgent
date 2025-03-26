@@ -1,146 +1,145 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Prompts } from '../../configuration/schemas/promptSchemas'
-import { PromptConfigurationService, PromptError } from '../promptConfigurationService'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { ConfigurationError } from '../../configuration/types'
+import { PromptConfigurationService } from '../promptConfigurationService'
+import type { PromptConfigFile, PromptTemplate } from '../schemas/promptConfig'
 
-// Test fixture data
-const mockPrompts: Prompts = {
-    'test-template': {
+// Mock prompt templates
+const mockPromptTemplates: PromptTemplate[] = [
+    {
+        id: 'test-template',
         name: 'Test Template',
-        description: 'A test prompt template',
-        systemPrompt: {
-            promptTemplate: 'Hello {{ name }}',
-            promptFileName: ''
-        }
+        version: '1.0.0',
+        content: 'Hello {{ name }}',
+        variables: ['name'],
+        category: 'test'
     },
-    'template-with-subprompts': {
-        name: 'Template with Subprompts',
-        description: 'Template with ordered subprompts',
+    {
+        id: 'template-with-variables',
+        name: 'Variable Template',
+        version: '1.0.0',
+        content: 'Hello {{ name }}, your age is {{ age }}',
+        variables: ['name', 'age'],
+        category: 'test'
+    },
+    {
+        id: 'template-with-systemPrompt',
+        name: 'System Prompt Template',
+        version: '1.0.0',
+        content: 'Answer the question about {{ topic }}',
+        variables: ['topic'],
         systemPrompt: {
-            promptTemplate: 'Main: {{ name }}\n{{0}}\n{{1}}',
-            promptFileName: ''
+            promptTemplate: 'You are an expert on {{ topic }}',
+            promptFileName: 'system.txt'
         },
-        subprompts: [
-            {
-                order: 1,
-                promptTemplate: 'Second: {{ value }}',
-                required: true,
-                promptFileName: ''
-            },
-            {
-                order: 0,
-                promptTemplate: 'First: {{ value }}',
-                required: true,
-                promptFileName: ''
-            }
-        ]
+        category: 'system'
     }
+]
+
+// Mock configuration file
+const mockConfigFile: PromptConfigFile = {
+    name: 'test-prompts',
+    version: '1.0.0',
+    prompts: mockPromptTemplates
 }
 
 describe('PromptConfigurationService', () => {
     let service: PromptConfigurationService
 
     beforeEach(() => {
-        service = new PromptConfigurationService('./test/fixtures')
-    })
-
-    afterEach(() => {
-        service.clearCache()
-        vi.clearAllMocks()
-    })
-
-    describe('loadPromptConfigurations', () => {
-        it('should load valid prompt configurations', async () => {
-            vi.spyOn(service['configLoader'], 'loadPromptsConfig').mockResolvedValue(mockPrompts)
-
-            const result = await service.loadPromptConfigurations()
-            expect(result).toBeDefined()
-            expect(result['test-template']).toBeDefined()
-        })
-
-        it('should throw PromptError for invalid configurations', async () => {
-            vi.spyOn(service['configLoader'], 'loadPromptsConfig').mockRejectedValue(new Error('Invalid config'))
-
-            await expect(service.loadPromptConfigurations()).rejects.toThrow(PromptError)
+        service = new PromptConfigurationService({
+            configPath: './test/fixtures',
+            environment: 'test'
         })
     })
 
-    describe('getPromptTemplate', () => {
-        beforeEach(async () => {
-            vi.spyOn(service['configLoader'], 'loadPromptsConfig').mockResolvedValue(mockPrompts)
-            await service.loadPromptConfigurations()
+    describe('loadConfig', () => {
+        it('should load valid configurations successfully', () => {
+            vi.spyOn(service['loader'], 'loadConfig').mockReturnValue(mockConfigFile)
+
+            const config = service.loadConfig('prompts.json')
+            expect(config).toBeDefined()
+            expect(config.name).toBe('test-prompts')
+            expect(config.prompts).toHaveLength(3)
         })
 
-        it('should return template for valid template name', () => {
-            const template = service.getPromptTemplate('test-template')
-            expect(template).toBeDefined()
-            expect(template.name).toBe('Test Template')
-        })
-
-        it('should throw PromptError for non-existent template', () => {
-            expect(() => service.getPromptTemplate('non-existent')).toThrow(PromptError)
-        })
-
-        it('should throw PromptError when configurations not loaded', () => {
-            service.clearCache()
-            expect(() => service.getPromptTemplate('test-template')).toThrow(PromptError)
-        })
-    })
-
-    describe('getAllPromptTemplates', () => {
-        beforeEach(async () => {
-            vi.spyOn(service['configLoader'], 'loadPromptsConfig').mockResolvedValue(mockPrompts)
-            await service.loadPromptConfigurations()
-        })
-
-        it('should return all available templates', () => {
-            const templates = service.getAllPromptTemplates()
-            expect(templates).toHaveLength(2)
-        })
-
-        it('should throw PromptError when configurations not loaded', () => {
-            service.clearCache()
-            expect(() => service.getAllPromptTemplates()).toThrow(PromptError)
-        })
-    })
-
-    describe('buildPrompt', () => {
-        beforeEach(async () => {
-            vi.spyOn(service['configLoader'], 'loadPromptsConfig').mockResolvedValue(mockPrompts)
-            await service.loadPromptConfigurations()
-        })
-
-        it('should render simple template with variables', async () => {
-            const result = await service.buildPrompt('test-template', { name: 'World' })
-            expect(result).toBe('Hello World')
-        })
-
-        it('should render template with ordered subprompts', async () => {
-            const result = await service.buildPrompt('template-with-subprompts', {
-                name: 'Main',
-                value: 'Test'
+        it('should throw ConfigurationError for invalid configurations', () => {
+            vi.spyOn(service['loader'], 'loadConfig').mockImplementation(() => {
+                throw new Error('Failed to load config')
             })
-            expect(result).toBe('Main: Main\n0\n1\n\nFirst: Test\n\nSecond: Test')
+
+            expect(() => service.loadConfig('prompts.json')).toThrow(ConfigurationError)
+        })
+    })
+
+    describe('getPrompt', () => {
+        beforeEach(() => {
+            vi.spyOn(service['loader'], 'loadConfig').mockReturnValue(mockConfigFile)
+            service.loadConfig('prompts.json')
         })
 
-        it('should throw PromptError for non-existent template', async () => {
-            await expect(service.buildPrompt('non-existent', {})).rejects.toThrow(PromptError)
+        it('should return prompt template for valid template ID', () => {
+            const template = service.getPrompt('test-template')
+            expect(template).toBeDefined()
+            expect(template.id).toBe('test-template')
+            expect(template.content).toBe('Hello {{ name }}')
         })
 
-        it('should throw PromptError for template without prompt content', async () => {
-            const invalidPrompts: Prompts = {
-                'invalid': {
-                    name: 'Invalid',
-                    description: 'Invalid template',
-                    systemPrompt: {
-                        promptTemplate: '',
-                        promptFileName: ''
-                    }
-                }
-            }
-            vi.spyOn(service['configLoader'], 'loadPromptsConfig').mockResolvedValue(invalidPrompts)
-            await service.loadPromptConfigurations()
+        it('should throw ConfigurationError for invalid template ID', () => {
+            expect(() => service.getPrompt('invalid-template')).toThrow(ConfigurationError)
+        })
+    })
 
-            await expect(service.buildPrompt('invalid', {})).rejects.toThrow(PromptError)
+    describe('getPromptIds', () => {
+        beforeEach(() => {
+            vi.spyOn(service['loader'], 'loadConfig').mockReturnValue(mockConfigFile)
+            service.loadConfig('prompts.json')
+        })
+
+        it('should return all template IDs', () => {
+            const ids = service.getPromptIds()
+            expect(ids).toEqual([
+                'test-template',
+                'template-with-variables',
+                'template-with-systemPrompt'
+            ])
+        })
+    })
+
+    describe('getPromptsByCategory', () => {
+        beforeEach(() => {
+            vi.spyOn(service['loader'], 'loadConfig').mockReturnValue(mockConfigFile)
+            service.loadConfig('prompts.json')
+        })
+
+        it('should return templates for valid category', () => {
+            const templates = service.getPromptsByCategory('test')
+            expect(templates).toHaveLength(2)
+            expect(templates[0].id).toBe('test-template')
+            expect(templates[1].id).toBe('template-with-variables')
+        })
+
+        it('should return empty array for invalid category', () => {
+            const templates = service.getPromptsByCategory('invalid-category')
+            expect(templates).toHaveLength(0)
+        })
+    })
+
+    describe('validateConfig', () => {
+        it('should return valid result for valid config', () => {
+            const result = service['validateConfig'](mockConfigFile)
+            expect(result.isValid).toBe(true)
+        })
+
+        it('should return invalid result for invalid config', () => {
+            const invalidConfig = {
+                name: 'invalid',
+                version: '1.0.0'
+                // missing prompts array
+            } as any
+
+            const result = service['validateConfig'](invalidConfig)
+            expect(result.isValid).toBe(false)
+            expect(result.errors).toBeDefined()
         })
     })
 }) 

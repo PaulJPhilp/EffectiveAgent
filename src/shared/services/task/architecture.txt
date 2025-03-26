@@ -1,90 +1,165 @@
 # Task Service Architecture
 
 ## Overview
-The Task Service provides a unified interface for managing and executing AI tasks within the system. It integrates with the model, prompt, and configuration services to handle task execution with appropriate models and prompts.
+The Task Service provides a unified interface for executing AI tasks within the system. It manages task configurations, handles prompt generation, model selection, and execution based on configurable parameters. This service integrates multiple system components to provide a streamlined execution pathway for AI-powered tasks.
 
-## Interface Definitions
+## Implementation of Service Pattern
+This document outlines how the standard architecture pattern is applied to the Task entity in our application.
 
-### TaskService
-Main service for task execution and management.
+## File Structure
+```
+src/shared/services/task/
+├── __tests__/                         # Test files
+│   ├── taskService.test.ts            # Tests for task service implementation
+│   └── taskConfigurationService.test.ts # Tests for task configuration
+├── schemas/                           # Schema definitions
+│   └── taskConfig.ts                  # Zod schema for task entities
+├── types.ts                           # Type definitions and interfaces
+├── errors.ts                          # Error classes
+├── taskService.ts                     # Task service implementation
+└── taskConfigurationService.ts        # Task configuration service
+```
 
-```typescript
-interface TaskExecutionOptions {
-    temperature?: number;
-    maxTokens?: number;
-    systemPrompt?: string;
-    variables?: Record<string, string>;
-    format?: "text" | "json" | "image" | "embedding";
-}
+## Component Details
 
-interface TaskExecutionResult {
-    metadata: any;
-    taskName: string;
-    result: string;
-    modelId?: string;
-    usage?: {
-        promptTokens: number;
-        completionTokens: number;
-        totalTokens: number;
-    };
-}
+### Interface (`types.ts`)
+- Defines `ITaskService` interface with methods for:
+  - Executing tasks with appropriate models and prompts
+  - Retrieving task configurations
+  - Managing task execution options
+- Includes supporting types:
+  - `TaskServiceConfig`: Configuration for the task service
+  - `TaskExecutionOptions`: Options for task execution
+  - `TaskExecutionResult`: Result of task execution
+  - Re-exports `TaskConfig` and `TaskConfigFile` from schemas
 
-class TaskService {
-    constructor(config: AgentConfig);
-    executeTask(taskName: string, options?: TaskExecutionOptions): Promise<TaskExecutionResult>;
-    getAvailableTasks(): Promise<Task[]>;
-    getTaskByName(taskName: string): Promise<Task>;
+### Schema (`schemas/taskConfig.ts`)
+- Uses Zod for task configuration validation
+- Defines schemas:
+  - `TaskConfigSchema`: Schema for individual task configurations
+  - `TaskConfigFileSchema`: Schema for the entire tasks.json file
+- Defines enums for:
+  - `TaskCapabilities`: Capabilities a model must have for task execution
+  - `ContextWindowSizes`: Context window size requirements
+  - `ThinkingLevels`: Cognitive complexity levels
+- Exports TypeScript types:
+  - `TaskConfig`: Type for a single task configuration
+  - `TaskConfigFile`: Type for the entire configuration file
+
+### Errors (`errors.ts`)
+- Contains domain-specific error classes:
+  - `TaskError`: Base error class for all task errors
+  - `TaskServiceError`: Error thrown when service initialization fails
+  - `TaskNotFoundError`: Error thrown when task not found
+  - `TaskConfigurationError`: Error thrown when configuration is invalid
+  - `TaskExecutionError`: Error thrown when task execution fails
+  - `TaskPromptError`: Error thrown when prompt generation fails
+  - `TaskModelError`: Error thrown when model completion fails
+
+### Task Service (`taskService.ts`)
+- Implements the `ITaskService` interface
+- Manages task execution workflow:
+  1. Retrieves task configuration by name
+  2. Generates prompt from template using PromptService
+  3. Executes model completion using ModelService
+  4. Formats and returns result
+- Handles various error conditions with specific error types
+- Provides methods for task discovery and configuration retrieval
+
+### Task Configuration Service (`taskConfigurationService.ts`)
+- Extends the base `ConfigurationService`
+- Implements `ITaskConfigurationService` interface
+- Loads and validates task configurations
+- Provides access to task configurations through:
+  - `getTaskConfig`: Retrieves a specific task by name
+  - `getAllTaskConfigs`: Returns all available tasks
+- Validates configurations using Zod schemas
+
+## Task Configuration Format
+The Task Service uses a `tasks.json` file with the following structure:
+```json
+{
+  "name": "task-configurations",
+  "version": "1.0.0",
+  "tasks": [
+    {
+      "taskName": "task-id",
+      "name": "Human Readable Task Name",
+      "description": "Description of what the task does",
+      "primaryModelId": "model-id",
+      "fallbackModelIds": ["fallback-model-1", "fallback-model-2"],
+      "temperature": 0.7,
+      "requiredCapabilities": ["text-generation", "reasoning"],
+      "contextWindowSize": "medium-context-window",
+      "promptName": "prompt-template-id",
+      "thinkingLevel": "medium",
+      "tags": ["category", "feature"],
+      "maxAttempts": 3,
+      "timeout": 30000,
+      "maxTokens": 1024,
+      "provider": "openai"
+    }
+  ]
 }
 ```
 
-## Error Types
-1. Task Not Found Error
-   - Thrown when requested task doesn't exist
-   - Error code: TASK_NOT_FOUND
+## Execution Flow
+1. Client requests task execution by name with optional parameters
+2. TaskService validates task exists and retrieves configuration
+3. PromptService generates prompt using the configured template
+4. ModelService executes the task with the appropriate model
+5. Result is formatted and returned to the client
 
-2. Task Execution Error
-   - Thrown when task execution fails
-   - Error code: TASK_EXECUTION_ERROR
+## Dependencies
+- **ModelService**: Used for executing AI model completions
+- **PromptService**: Used for generating prompts from templates
+- **ConfigurationService**: Base class for configuration management
+- **Zod**: Used for runtime schema validation
+- **Liquid**: Used indirectly via PromptService for template rendering
 
-3. Invalid Task Configuration
-   - Thrown when task configuration is invalid
-   - Error code: TASK_CONFIG_ERROR
+## Best Practices Applied
+1. **Single Responsibility**: Each service manages only one entity/domain
+2. **Interface First**: Design begins with the interface definition
+3. **Documentation**: Comprehensive JSDoc comments for all public methods
+4. **Property Access Control**: All properties are readonly to prevent modification
+5. **Comprehensive Error Handling**: Domain-specific error classes for all error conditions
+6. **Schema Validation**: Zod for runtime validation of configurations
+7. **Explicit Initialization**: Configuration loading during service initialization
+8. **Strong Typing**: No use of `any`, proper TypeScript types throughout
+9. **Error Propagation**: Errors are wrapped with context before propagation
+10. **Dependency Injection**: Services accept dependencies for better testability
 
-## Implementation Details
+## Testing Strategy
+- **Mock Dependencies**: Services accept mock dependencies for isolated testing
+- **Focus on Behavior**: Tests verify behavior, not implementation details
+- **Error Cases**: All error conditions are tested
+- **Edge Cases**: Boundary conditions and special cases are tested
+- **Separate Configuration Testing**: TaskConfigurationService is tested separately
 
-### Design Patterns
-1. Factory Pattern
-   - Uses ModelSelectionFactory for model instantiation
-   - Ensures proper model selection based on task requirements
+## Configuration Loading
+- Configuration is loaded explicitly during initialization
+- Environment-specific configuration is supported
+- Configuration validation occurs before service is fully initialized
+- Configuration errors are properly handled and reported
 
-2. Dependency Injection
-   - Services (ModelService, PromptService) injected via constructor
-   - Improves testability and maintainability
+## Integration with Other Services
+- **ModelService Integration**: Task execution is delegated to the appropriate model
+- **PromptService Integration**: Prompt generation is delegated to templates
+- **Configuration Integration**: Uses the shared configuration system
+- **Error Handling**: Domain-specific errors provide context for callers
 
-3. Registry Pattern
-   - TaskRegistryService maintains task definitions
-   - Provides centralized task management
+## Architecture Improvements
+The refactored Task Service addresses several issues in the original implementation:
 
-### Key Components
-1. Task Registry
-   - Manages task definitions and configurations
-   - Validates task schemas using Zod
+1. **Stronger Type Safety**: More precise types and interfaces
+2. **Better Error Handling**: Domain-specific error classes with proper error inheritance
+3. **Improved Documentation**: Comprehensive JSDoc comments on all public methods
+4. **Cleaner Service Boundaries**: Clear separation between configuration and execution
+5. **Readonly Properties**: Prevents accidental modification of service state
+6. **Validation**: Comprehensive validation of all configuration data
+7. **Configuration Service Separation**: Separate service for configuration management
 
-2. Task Execution Pipeline
-   - Model selection
-   - Prompt generation
-   - Result extraction and formatting
-
-3. Configuration Integration
-   - Uses shared configuration system
-   - Type-safe configuration using Zod schemas
-
-### Error Handling
-- Comprehensive error handling with custom error types
-- Detailed error messages for debugging
-- Error propagation with proper context
-
-### Type Safety
-- Strict TypeScript types for all interfaces
-- Zod schema validation for configurations
-- Runtime type checking for critical operations
+## Integration Points
+- **Model Service**: Used for executing AI model completions
+- **Prompt Service**: Used for generating prompts from templates
+- **Configuration Service**: Base class for configuration management 

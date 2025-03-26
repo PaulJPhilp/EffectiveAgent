@@ -1,5 +1,5 @@
+import { BaseConfigSchema } from '@services/configuration/schemas/baseSchemas.ts';
 import { z } from "zod";
-import { BaseConfigSchema} from '@services/configuration/schemas/baseSchemas.ts';
 
 /**
  * Model capability types
@@ -57,7 +57,7 @@ export const ModelMetadataSchema = z.object({
  */
 export const ModelConfigSchema = BaseConfigSchema.extend({
     id: z.string().describe("Unique identifier for the model"),
-    provider: z.enum(["openai", "anthropic", "google", "local", "grok", 
+    provider: z.enum(["openai", "anthropic", "google", "local", "grok",
         "deepseek"]).describe("Model provider"),
     modelName: z.string().describe("Name of the model as recognized by provider"),
     maxTokens: z.number().optional()
@@ -78,5 +78,11 @@ export const ModelConfigSchema = BaseConfigSchema.extend({
 
 export const ModelsSchema = z.array(ModelConfigSchema)
 
-export type ModelConfig = z.infer<typeof ModelConfigSchema>;
+export const ModelConfigFileSchema = BaseConfigSchema.extend({
+    models: ModelsSchema,
+    tags: z.array(z.string()).optional()
+})
+
+export type ModelConfig = z.infer<typeof ModelConfigSchema>
 export type ModelsConfig = ReadonlyArray<ModelConfig>
+export type ModelConfigFile = z.infer<typeof ModelConfigFileSchema>

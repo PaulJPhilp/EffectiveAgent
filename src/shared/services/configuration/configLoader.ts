@@ -7,7 +7,7 @@ import { TaskFileSchema, type Tasks } from '@services/task/schemas/taskSchemas.t
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import type { z } from 'zod';
-import type { BaseConfig } from './schemas/baseSchemas.js';
+import type { BaseConfig } from './schemas/baseSchemas.ts';
 
 /**
  * Configuration loader options

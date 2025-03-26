@@ -1,172 +1,240 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { ConfigurationError } from '../../configuration'
-import type { Task } from '../../configuration/schemas/taskSchemas'
-import type { BaseConfig } from '../../configuration/types/configTypes'
-import { TaskConfigurationService } from '../taskConfigurationService'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ConfigurationLoader } from '../../configuration/configurationLoader.js';
+import { ConfigurationError } from '../../configuration/types.js';
+import { TaskConfigurationError, TaskNotFoundError } from '../errors.js';
+import { TaskConfigurationService } from '../taskConfigurationService.js';
+import type { TaskConfigFile } from '../types.js';
 
-interface TasksConfig extends BaseConfig {
-    readonly updated: string;
-    readonly groups: Record<string, {
-        readonly name: string;
-        readonly description: string;
-        readonly tasks: Record<string, Task>;
-    }>;
-}
-
-// Test fixture data
-const mockTasksConfig: TasksConfig = {
-    name: 'Test Tasks Config',
-    version: '1.0',
-    updated: '2024-03-20',
-    groups: {
-        'text-processing': {
-            name: 'Text Processing Tasks',
-            description: 'Tasks for processing text',
-            tasks: {
-                'summarize': {
-                    name: 'Summarize Text',
-                    description: 'Summarize the given text',
-                    model: 'gpt-4',
-                    prompt: 'summarize-prompt',
-                    maxTokens: 1000,
-                    temperature: 0.7,
-                    metadata: {
-                        thinkingLevel: 'high'
-                    }
-                }
-            }
+// Mock task configuration
+const mockTaskConfig: TaskConfigFile = {
+    name: 'test-tasks',
+    version: '1.0.0',
+    tasks: [
+        {
+            taskName: 'test-task',
+            name: 'Test Task',
+            description: 'A test task for unit testing',
+            primaryModelId: 'test-model',
+            fallbackModelIds: ['fallback-model'],
+            temperature: 0.7,
+            requiredCapabilities: ['text-generation'],
+            contextWindowSize: 'medium-context-window',
+            promptName: 'test-prompt',
+            thinkingLevel: 'medium',
+            tags: ['test'],
+            maxTokens: 100
         },
-        'analysis': {
-            name: 'Analysis Tasks',
-            description: 'Tasks for text analysis',
-            tasks: {
-                'analyze': {
-                    name: 'Analyze Text',
-                    description: 'Analyze the given text',
-                    model: 'gpt-4',
-                    prompt: 'analyze-prompt',
-                    maxTokens: 1000,
-                    temperature: 0.5,
-                    metadata: {
-                        thinkingLevel: 'medium'
-                    }
-                }
-            }
+        {
+            taskName: 'another-task',
+            name: 'Another Test Task',
+            primaryModelId: 'test-model-2',
+            fallbackModelIds: [],
+            temperature: 0.5,
+            requiredCapabilities: ['text-generation', 'reasoning'],
+            contextWindowSize: 'large-context-window',
+            promptName: 'another-prompt',
+            maxTokens: 200
         }
-    }
-}
+    ]
+};
+
+// Invalid task configuration
+const invalidTaskConfig = {
+    name: 'test-tasks',
+    version: '1.0.0',
+    tasks: [
+        {
+            taskName: 'invalid-task',
+            name: 'Invalid Task',
+            // Missing required properties
+            temperature: 0.7,
+            contextWindowSize: 'medium-context-window',
+            maxTokens: 100
+        }
+    ]
+};
 
 describe('TaskConfigurationService', () => {
-    let service: TaskConfigurationService
+    let configService: TaskConfigurationService;
+    let mockLoadConfigFn: any;
 
     beforeEach(() => {
-        service = new TaskConfigurationService({
-            configPath: './test/fixtures'
-        })
-    })
+        // Create mock for loadConfig function
+        mockLoadConfigFn = vi.fn().mockReturnValue(mockTaskConfig);
+
+        // Setup spy on the configuration loader
+        vi.spyOn(ConfigurationLoader.prototype, 'loadConfig')
+            .mockImplementation(mockLoadConfigFn);
+
+        // Create the configuration service
+        configService = new TaskConfigurationService({
+            configPath: 'test-path',
+            environment: 'test',
+            debug: false
+        });
+    });
 
     afterEach(() => {
-        service.clearCache()
-        vi.clearAllMocks()
-    })
+        vi.restoreAllMocks();
+    });
 
-    describe('loadConfigurations', () => {
-        it('should load valid task configurations', async () => {
-            vi.spyOn(service['loader'], 'loadConfig').mockResolvedValue(mockTasksConfig)
+    describe('constructor', () => {
+        it('should initialize with the provided options', () => {
+            expect(configService).toBeDefined();
+        });
 
-            await service.loadConfigurations()
-            expect(service['tasksConfig']).toBeDefined()
-        })
+        it('should set debug mode if specified', () => {
+            const debugSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
 
-        it('should throw ConfigurationError for invalid configurations', async () => {
-            vi.spyOn(service['loader'], 'loadConfig').mockRejectedValue(new Error('Invalid config'))
+            const debugConfigService = new TaskConfigurationService({
+                configPath: 'test-path',
+                environment: 'test',
+                debug: true
+            });
 
-            await expect(service.loadConfigurations()).rejects.toThrow(ConfigurationError)
-        })
-    })
+            expect(debugConfigService).toBeDefined();
+            expect(debugSpy).toHaveBeenCalledWith(
+                '[TaskConfigurationService] Initialized with path:',
+                'test-path'
+            );
+
+            debugSpy.mockRestore();
+        });
+    });
+
+    describe('loadConfig', () => {
+        it('should load valid configuration files', () => {
+            const config = configService.loadConfig('tasks.json');
+
+            expect(config).toBeDefined();
+            expect(config.name).toBe('test-tasks');
+            expect(config.tasks).toHaveLength(2);
+            expect(ConfigurationLoader.prototype.loadConfig).toHaveBeenCalledWith(
+                'tasks.json',
+                expect.objectContaining({
+                    required: true
+                })
+            );
+        });
+
+        it('should throw ConfigurationError with invalid configuration path', () => {
+            // Mock loader to throw an error
+            mockLoadConfigFn.mockImplementationOnce(() => {
+                throw new Error('File not found');
+            });
+
+            expect(() => configService.loadConfig('invalid-path.json'))
+                .toThrow(ConfigurationError);
+        });
+
+        it('should throw TaskConfigurationError with invalid task configuration', () => {
+            // Mock loader to return invalid configuration
+            mockLoadConfigFn.mockReturnValueOnce(invalidTaskConfig);
+
+            expect(() => configService.loadConfig('tasks.json'))
+                .toThrow(TaskConfigurationError);
+        });
+
+        it('should log debug information when debug mode is enabled', () => {
+            const debugSpy = vi.spyOn(console, 'log').mockImplementation(() => { });
+
+            const debugConfigService = new TaskConfigurationService({
+                configPath: 'test-path',
+                environment: 'test',
+                debug: true
+            });
+
+            debugConfigService.loadConfig('tasks.json');
+
+            expect(debugSpy).toHaveBeenCalledWith(
+                '[TaskConfigurationService] Loading configuration from: tasks.json'
+            );
+            expect(debugSpy).toHaveBeenCalledWith(
+                '[TaskConfigurationService] Loaded 2 tasks'
+            );
+
+            debugSpy.mockRestore();
+        });
+    });
 
     describe('getTaskConfig', () => {
-        beforeEach(async () => {
-            vi.spyOn(service['loader'], 'loadConfig').mockResolvedValue(mockTasksConfig)
-            await service.loadConfigurations()
-        })
+        beforeEach(() => {
+            configService.loadConfig('tasks.json');
+        });
 
-        it('should return task config for valid task ID', () => {
-            const task = service.getTaskConfig('summarize')
-            expect(task).toBeDefined()
-            expect(task.name).toBe('Summarize Text')
-        })
+        it('should return task configuration for valid task name', () => {
+            const task = configService.getTaskConfig('test-task');
 
-        it('should throw ConfigurationError for non-existent task', () => {
-            expect(() => service.getTaskConfig('non-existent')).toThrow(ConfigurationError)
-        })
+            expect(task).toBeDefined();
+            expect(task.taskName).toBe('test-task');
+            expect(task.name).toBe('Test Task');
+        });
 
-        it('should throw ConfigurationError when configurations not loaded', () => {
-            service.clearCache()
-            expect(() => service.getTaskConfig('summarize')).toThrow(ConfigurationError)
-        })
-    })
+        it('should throw TaskNotFoundError for invalid task name', () => {
+            expect(() => configService.getTaskConfig('non-existent-task'))
+                .toThrow(TaskNotFoundError);
+        });
 
-    describe('getTasksByModel', () => {
-        beforeEach(async () => {
-            vi.spyOn(service['loader'], 'loadConfig').mockResolvedValue(mockTasksConfig)
-            await service.loadConfigurations()
-        })
+        it('should throw ConfigurationError if configuration not loaded', () => {
+            const unloadedService = new TaskConfigurationService({
+                configPath: 'test-path',
+                environment: 'test'
+            });
 
-        it('should return tasks for specified model ID', () => {
-            const tasks = service.getTasksByModel('gpt-4')
-            expect(tasks).toHaveLength(2)
-            expect(tasks[0].name).toBe('Summarize Text')
-            expect(tasks[1].name).toBe('Analyze Text')
-        })
-
-        it('should return empty array for non-existent model', () => {
-            const tasks = service.getTasksByModel('non-existent')
-            expect(tasks).toHaveLength(0)
-        })
-
-        it('should throw ConfigurationError when configurations not loaded', () => {
-            service.clearCache()
-            expect(() => service.getTasksByModel('gpt-4')).toThrow(ConfigurationError)
-        })
-    })
-
-    describe('getTasksByGroup', () => {
-        beforeEach(async () => {
-            vi.spyOn(service['loader'], 'loadConfig').mockResolvedValue(mockTasksConfig)
-            await service.loadConfigurations()
-        })
-
-        it('should return tasks for specified group', () => {
-            const tasks = service.getTasksByGroup('text-processing')
-            expect(tasks).toHaveLength(1)
-            expect(tasks[0].name).toBe('Summarize Text')
-        })
-
-        it('should throw ConfigurationError for non-existent group', () => {
-            expect(() => service.getTasksByGroup('non-existent')).toThrow(ConfigurationError)
-        })
-
-        it('should throw ConfigurationError when configurations not loaded', () => {
-            service.clearCache()
-            expect(() => service.getTasksByGroup('text-processing')).toThrow(ConfigurationError)
-        })
-    })
+            expect(() => unloadedService.getTaskConfig('test-task'))
+                .toThrow(ConfigurationError);
+        });
+    });
 
     describe('getAllTaskConfigs', () => {
-        beforeEach(async () => {
-            vi.spyOn(service['loader'], 'loadConfig').mockResolvedValue(mockTasksConfig)
-            await service.loadConfigurations()
-        })
+        beforeEach(() => {
+            configService.loadConfig('tasks.json');
+        });
 
-        it('should return all available tasks', () => {
-            const tasks = service.getAllTaskConfigs()
-            expect(tasks).toHaveLength(2)
-        })
+        it('should return all task configurations', () => {
+            const tasks = configService.getAllTaskConfigs();
 
-        it('should throw ConfigurationError when configurations not loaded', () => {
-            service.clearCache()
-            expect(() => service.getAllTaskConfigs()).toThrow(ConfigurationError)
-        })
-    })
-}) 
+            expect(tasks).toBeDefined();
+            expect(tasks).toHaveLength(2);
+            expect(tasks[0].taskName).toBe('test-task');
+            expect(tasks[1].taskName).toBe('another-task');
+        });
+
+        it('should throw ConfigurationError if configuration not loaded', () => {
+            const unloadedService = new TaskConfigurationService({
+                configPath: 'test-path',
+                environment: 'test'
+            });
+
+            expect(() => unloadedService.getAllTaskConfigs())
+                .toThrow(ConfigurationError);
+        });
+    });
+
+    describe('validateTaskConfig', () => {
+        it('should return valid result for valid task configuration', () => {
+            const result = configService.validateTaskConfig(mockTaskConfig.tasks[0]);
+
+            expect(result).toBeDefined();
+            expect(result.isValid).toBe(true);
+        });
+
+        it('should return invalid result for invalid task configuration', () => {
+            const invalidTask = {
+                taskName: 'invalid-task',
+                name: 'Invalid Task',
+                // Missing required properties
+                temperature: 0.7,
+                contextWindowSize: 'medium-context-window',
+                maxTokens: 100
+            };
+
+            const result = configService.validateTaskConfig(invalidTask as any);
+
+            expect(result).toBeDefined();
+            expect(result.isValid).toBe(false);
+            expect(result.errors).toBeDefined();
+            expect(result.errors?.length).toBeGreaterThan(0);
+        });
+    });
+}); 

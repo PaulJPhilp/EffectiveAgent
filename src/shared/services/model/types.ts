@@ -1,35 +1,36 @@
-import type { ModelCapability, ThinkingLevel } from "./schemas/modelConfig.js";
-import type { ModelConfig } from "./schemas/modelRegistry.js";
 
-/**
- * Model identifier
- */
-export interface ModelIdentifier {
-	readonly modelId: string;
+import type {
+	JSONValue,
+	ModelCompletionOptions,
+	ModelCompletionResponse
+} from '@/types.ts';
+import type { ModelConfig, ModelConfigFile, ModelsConfig } from './schemas/modelConfig.js';
+
+export interface ModelServiceConfig {
+	debug?: boolean
+	configPath: string
+	environment?: string
 }
 
-/**
- * Model selection requirements
- */
-export interface ModelSelectionRequirements {
-	capabilities: ModelCapability[]
-	thinkingLevel?: ThinkingLevel
-	contextWindowSize?: number
-	preferredModelId?: string
-}
+export interface IModelService {
+	/**	
+	 * Generate text using the specified options
+	 */
+	generateText(
+		options: ModelCompletionOptions
+	): Promise<ModelCompletionResponse>
 
-/**
- * Result of model selection
- */
-export interface ModelSelectionResult {
-	model: ModelConfig
-}
+	generateObject<T extends JSONValue = JSONValue>(
+		options: ModelCompletionOptions<T>	
+	): Promise<ModelCompletionResponse>
 
-/**
- * Interface for model selection service
- */
-export interface ModelSelectionService {
-	getModelById(modelId: string): ModelConfig
-	getAllModels(): ModelConfig[]
-	getModelsWithCapability(capability: ModelCapability): ModelConfig[]
+	generateEmbedding(
+		options: ModelCompletionOptions
+	): Promise<ModelCompletionResponse>
+
+	generateImage(
+		options: ModelCompletionOptions
+	): Promise<ModelCompletionResponse>
 } 
+
+export type { ModelConfig, ModelConfigFile, ModelsConfig } 

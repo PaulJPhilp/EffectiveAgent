@@ -1,11 +1,8 @@
 import { ConfigurationLoader } from '../configuration/configurationLoader.js';
 import { ConfigurationService } from '../configuration/configurationService.js';
 import { ConfigurationError, type ConfigLoaderOptions, type ValidationResult } from '../configuration/types.js';
-import type {
-    ModelConfig
-} from './schemas/modelConfig.js';
-import type { ModelRegistryConfig } from './schemas/modelRegistry.js';
-import { ModelRegistryConfigSchema } from './schemas/modelRegistry.js';
+import type { ModelConfig, ModelConfigFile } from './schemas/modelConfig.js';
+import { ModelConfigFileSchema } from './schemas/modelConfig.js';
 
 /** Model configuration options */
 interface ModelConfigurationOptions extends ConfigLoaderOptions {
@@ -14,7 +11,7 @@ interface ModelConfigurationOptions extends ConfigLoaderOptions {
 }
 
 /** Model configuration service */
-export class ModelConfigurationService extends ConfigurationService<ModelRegistryConfig> {
+export class ModelConfigurationService extends ConfigurationService<ModelConfigFile> {
     private readonly loader: ConfigurationLoader;
 
     constructor(options: ModelConfigurationOptions) {
@@ -32,11 +29,11 @@ export class ModelConfigurationService extends ConfigurationService<ModelRegistr
             const rawConfig = this.loader.loadConfig(
                 'models.json',
                 {
-                    schema: ModelRegistryConfigSchema,
+                    schema: ModelConfigFileSchema,
                     required: true
                 }
             );
-            const parsedConfig = ModelRegistryConfigSchema.parse(rawConfig);
+            const parsedConfig = ModelConfigFileSchema.parse(rawConfig);
             this.config = parsedConfig;
         } catch (error) {
             throw new ConfigurationError({
@@ -49,7 +46,7 @@ export class ModelConfigurationService extends ConfigurationService<ModelRegistr
 
     /** Get model configuration by ID */
     getModel(modelId: string): ModelConfig {
-        const model = this.config?.models.find(model => model.id === modelId);
+        const model = this.config?.models.find((model: ModelConfig) => model.id === modelId);
         if (!model) {
             throw new ConfigurationError({
                 name: 'ModelNotFoundError',
@@ -60,17 +57,12 @@ export class ModelConfigurationService extends ConfigurationService<ModelRegistr
         return model;
     }
 
-    /** Clear configuration cache */
-    clearCache(): void {
-        this.loader.clearCache();
-        this.clearConfig();
-    }
     /** Validate configuration */
     protected validateConfig(
-        config: ModelRegistryConfig
+        config: ModelConfigFile
     ): ValidationResult {
         try {
-            ModelRegistryConfigSchema.parse(config);
+            ModelConfigFileSchema.parse(config);
             return { isValid: true };
         } catch (error) {
             return {

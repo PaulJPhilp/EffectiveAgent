@@ -8,15 +8,6 @@ export const BaseConfigSchema = z.object({
     tags: z.array(z.string()).optional()
 }).strict();
 
-/** Base model schema */
-export const BaseModelSchema = z.object({
-    provider: z.string(),
-    model: z.string(),
-    maxTokens: z.number().optional(),
-    temperature: z.number().optional(),
-    frequencyPenalty: z.number().optional(),
-    presencePenalty: z.number().optional()
-});
 
 /** Environment configuration schema */
 export const EnvironmentConfigSchema = BaseConfigSchema.extend({
@@ -26,5 +17,4 @@ export const EnvironmentConfigSchema = BaseConfigSchema.extend({
 
 // Export types
 export type BaseConfig = z.infer<typeof BaseConfigSchema>;
-export type BaseModel = z.infer<typeof BaseModelSchema>;
 export type EnvironmentConfig = z.infer<typeof EnvironmentConfigSchema>;

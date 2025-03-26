@@ -1,224 +1,131 @@
-import { Liquid } from 'liquidjs';
-import { ConfigLoader } from '../configuration/configLoader.js';
-import type { PromptConfig, Prompts, SubpromptDefinition } from './schemas/promptConfig.js';
+import { ConfigurationLoader } from '../configuration/configurationLoader.js'
+import { ConfigurationService } from '../configuration/configurationService.js'
+import { ConfigurationError, type ConfigLoaderOptions, type ValidationResult } from '../configuration/types.js'
+import type {
+    PromptConfigFile,
+    PromptTemplate
+} from './schemas/promptConfig.js'
+import { PromptConfigFileSchema } from './schemas/promptConfig.js'
 
-/**
- * Error thrown by prompt-related operations
- */
-export class PromptError extends Error {
-    readonly code: string;
-    readonly templateName?: string;
-    readonly taskName?: string;
-
-    constructor(message: string, details: {
-        readonly templateName?: string;
-        readonly taskName?: string;
-    }) {
-        super(message);
-        this.name = 'PromptError';
-        this.code = 'PROMPT_ERROR';
-        this.templateName = details.templateName;
-        this.taskName = details.taskName;
-    }
+/** Prompt configuration options */
+interface PromptConfigurationOptions extends ConfigLoaderOptions {
+    readonly configPath: string
+    readonly environment?: string
 }
 
-/**
- * Service for loading and managing prompt configurations
- */
-export class PromptConfigurationService {
-    readonly debug: boolean = false;
-    private readonly configLoader: ConfigLoader;
-    private prompts?: Prompts;
+/** Prompt configuration service */
+export class PromptConfigurationService extends ConfigurationService<PromptConfigFile> {
+    private readonly loader: ConfigurationLoader
+    private promptsMap: Map<string, PromptTemplate> = new Map()
 
-    /**
-     * Create a new PromptConfigurationService
-     * @param configPath Path to the configuration directory
-     */
-    constructor(configPath: string) {
-        if (this.debug) {
-            console.log(`[PromptConfigurationService] Initializing with path: ${configPath}`);
-        }
-        this.configLoader = new ConfigLoader({ basePath: configPath });
+    constructor(options: PromptConfigurationOptions) {
+        super({ validateOnLoad: true })
+        this.loader = new ConfigurationLoader({
+            basePath: options.basePath ?? process.cwd(),
+            environment: options.environment,
+            validateSchema: true
+        })
     }
 
-    /**
-     * Load prompt configurations
-     * @param filename Optional filename (default: 'prompts.json')
-     */
-    async loadPromptConfigurations(filename = 'prompts.json'): Promise<Prompts> {
-        if (this.debug) {
-            console.log(`[PromptConfigurationService] Loading prompt configurations from: ${filename}`);
-        }
+    /** Load prompt configurations */
+    async loadConfigurations(): Promise<void> {
         try {
-            const config = this.configLoader.loadPromptsConfig(filename);
-            this.prompts = config;
-            return config;
-        } catch (err: unknown) {
-            const error = err as Error;
-            throw new PromptError(
-                `Failed to load prompt configurations: ${error.message}`,
-                {}
-            );
+            const rawConfig = this.loader.loadConfig(
+                'prompts.json',
+                {
+                    schema: PromptConfigFileSchema,
+                    required: true
+                }
+            )
+            const parsedConfig = PromptConfigFileSchema.parse(rawConfig)
+            this.config = parsedConfig
+
+            // Build the prompts map for quick lookup
+            this.buildPromptsMap()
+        } catch (error) {
+            throw new ConfigurationError({
+                name: 'PromptConfigLoadError',
+                message: `Failed to load prompt configurations: ${(error as Error).message}`,
+                code: 'PROMPT_CONFIG_LOAD_ERROR'
+            })
         }
     }
 
-    /**
-     * Get a prompt template by name
-     * @param templateName The name of the template
-     * @returns The prompt template
-     */
-    getPromptTemplate(templateName: string): PromptConfig {
-        if (!this.prompts) {
-            throw new PromptError(
-                'Prompt configurations not loaded',
-                { templateName }
-            );
-        }
+    /** Load prompt configurations synchronously */
+    loadConfig(configPath: string): PromptConfigFile {
+        try {
+            const rawConfig = this.loader.loadConfig(
+                configPath,
+                {
+                    schema: PromptConfigFileSchema,
+                    required: true
+                }
+            )
+            const parsedConfig = PromptConfigFileSchema.parse(rawConfig)
+            this.config = parsedConfig
 
-        const template = this.prompts[templateName];
+            // Build the prompts map for quick lookup
+            this.buildPromptsMap()
+
+            return parsedConfig
+        } catch (error) {
+            throw new ConfigurationError({
+                name: 'PromptConfigLoadError',
+                message: `Failed to load prompt configurations: ${(error as Error).message}`,
+                code: 'PROMPT_CONFIG_LOAD_ERROR'
+            })
+        }
+    }
+
+    /** Get prompt template by ID */
+    getPrompt(promptId: string): PromptTemplate {
+        const template = this.promptsMap.get(promptId)
         if (!template) {
-            throw new PromptError(
-                `Prompt template not found: ${templateName}`,
-                { templateName }
-            );
+            throw new ConfigurationError({
+                name: 'PromptNotFoundError',
+                message: `Prompt template not found for ID: ${promptId}`,
+                code: 'PROMPT_NOT_FOUND_ERROR'
+            })
         }
-
-        return template;
+        return template
     }
 
-    /**
-     * Get all available prompt templates
-     * @returns Array of prompt templates
-     */
-    getAllPromptTemplates(): PromptConfig[] {
-        if (!this.prompts) {
-            throw new PromptError(
-                'Prompt configurations not loaded',
-                {}
-            );
-        }
-
-        return Object.values(this.prompts);
+    /** Get all available prompt IDs */
+    getPromptIds(): string[] {
+        return Array.from(this.promptsMap.keys())
     }
 
-    /**
-     * Build a prompt from a template with variables
-     * @param templateName The name of the template to use
-     * @param variables Variables to use in template rendering
-     * @returns The rendered prompt
-     */
-    async buildPrompt(templateName: string, variables: Record<string, unknown> = {}): Promise<string> {
-        if (this.debug) {
-            console.log(`[PromptConfigurationService] Building prompt for template: ${templateName}`);
-            console.log(`[PromptConfigurationService] Variables: ${JSON.stringify(variables)}`);
-        }
-
-        const template = this.getPromptTemplate(templateName);
-        if (!template.systemPrompt.promptTemplate) {
-            throw new PromptError(
-                'Template has no prompt content',
-                { templateName }
-            );
-        }
-
-        const liquid = new Liquid();
-        const mainPrompt = await liquid.parseAndRender(template.systemPrompt.promptTemplate, variables);
-
-        if (!template.subprompts?.length) {
-            return mainPrompt;
-        }
-
-        // Process subprompts if they exist
-        const sortedSubprompts = this.getSortedSubprompts(template);
-        const renderedSubprompts = await this.renderSubprompts(sortedSubprompts, variables);
-
-        // Return the rendered prompt with subprompts
-        return this.combinePromptWithSubprompts(mainPrompt, renderedSubprompts);
+    /** Get all prompts in a specific category */
+    getPromptsByCategory(category: string): PromptTemplate[] {
+        return Array.from(this.promptsMap.values())
+            .filter(prompt => prompt.category === category)
     }
 
-    /**
-     * Clear the configuration cache
-     */
-    clearCache(): void {
-        this.prompts = undefined;
-    }
-
-    /**
-     * Get subprompts sorted by their order
-     */
-    private getSortedSubprompts(template: PromptConfig): SubpromptDefinition[] {
-        if (!template.subprompts) {
-            return [];
-        }
-
-        return [...template.subprompts].sort((a, b) => (a.order || 0) - (b.order || 0));
-    }
-
-    /**
-     * Render all subprompts with variables
-     */
-    private async renderSubprompts(
-        subprompts: SubpromptDefinition[],
-        variables: Record<string, unknown>
-    ): Promise<string[]> {
-        const liquid = new Liquid();
-        const results: string[] = [];
-
-        for (const subprompt of subprompts) {
-            if (!subprompt.promptTemplate) {
-                if (subprompt.required) {
-                    throw new PromptError(
-                        'Required subprompt has no content',
-                        {}
-                    );
-                }
-                // Skip optional subprompts with no content
-                continue;
-            }
-
-            try {
-                const rendered = await liquid.parseAndRender(subprompt.promptTemplate, variables);
-                results.push(rendered);
-            } catch (err: unknown) {
-                const error = err as Error;
-                if (subprompt.required) {
-                    throw new PromptError(
-                        `Failed to render required subprompt: ${error.message}`,
-                        {}
-                    );
-                }
-                // Skip optional subprompts that fail to render
+    /** Validate configuration */
+    protected validateConfig(
+        config: PromptConfigFile
+    ): ValidationResult {
+        try {
+            PromptConfigFileSchema.parse(config)
+            return { isValid: true }
+        } catch (error) {
+            return {
+                isValid: false,
+                errors: [error instanceof Error ? error.message : String(error)]
             }
         }
-
-        return results;
     }
 
-    /**
-     * Combine the main prompt with rendered subprompts
-     */
-    private combinePromptWithSubprompts(mainPrompt: string, subprompts: string[]): string {
-        if (!subprompts.length) {
-            return mainPrompt;
+    /** Build prompts map from configuration */
+    private buildPromptsMap(): void {
+        this.promptsMap.clear()
+
+        if (!this.config?.prompts) {
+            return
         }
 
-        // Replace {{index}} placeholders or append subprompts
-        let result = mainPrompt;
-        const placeholderRegex = /\{\{(\d+)\}\}/g;
-        const hasPlaceholders = placeholderRegex.test(mainPrompt);
-
-        if (hasPlaceholders) {
-            // Reset regex internal state
-            placeholderRegex.lastIndex = 0;
-            result = mainPrompt.replace(placeholderRegex, (_, index) => {
-                const idx = Number.parseInt(index, 10);
-                return idx < subprompts.length ? subprompts[idx] : '';
-            });
-        } else {
-            // If no placeholders, just append subprompts
-            result = [mainPrompt, ...subprompts].join('\n\n');
+        for (const prompt of this.config.prompts) {
+            this.promptsMap.set(prompt.id, prompt)
         }
-
-        return result;
     }
 }

@@ -1,152 +1,178 @@
-
-import type { AgentConfig } from '../../../agents/agent-service/types.js';
-import { ModelService } from '../model/modelService.js';
-import type { ModelCompletionOptions } from '../provider/modelProvider.js';
-import { PromptTemplateService } from './promptTemplate.js';
-import type { PromptVariables } from './types.js';
-interface ProfileData {
-    readonly id: string;
-    readonly name?: string;
-    readonly description?: string;
-    readonly attributes?: Record<string, string | number | boolean>;
-}
-
-interface TemplateIdentifier {
-    readonly templateName: string;
-}
-
-
-class PromptError extends Error {
-    readonly code: string;
-    readonly templateName?: string;
-    readonly taskName?: string;
-
-    constructor(message: string, details: {
-        readonly templateName?: string;
-        readonly taskName?: string;
-    }) {
-        super(message);
-        this.name = 'PromptError';
-        this.code = 'PROMPT_ERROR';
-        this.templateName = details.templateName;
-        this.taskName = details.taskName;
-    }
-}
-
-/**
- * Options for prompt generation
- */
-export interface PromptOptions {
-    readonly systemPrompt?: string;
-    readonly temperature?: number;
-    readonly maxTokens?: number;
-}
-
-
+import { Liquid } from 'liquidjs'
+import {
+    PromptNotFoundError,
+    PromptRenderingError,
+    PromptServiceError,
+    PromptVariableMissingError
+} from './errors.js'
+import { PromptConfigurationService } from './promptConfigurationService.js'
+import type {
+    IPromptService,
+    PromptOptions,
+    PromptServiceConfig,
+    PromptTemplate,
+    PromptVariables,
+    TemplateIdentifier
+} from './types.js'
 
 /**
  * Service for managing and generating prompts
+ * 
+ * The PromptService is responsible for:
+ * - Loading prompt templates from configuration
+ * - Rendering templates with variables
+ * - Validating variable presence
+ * - Generating complete prompts with optional system prompts
  */
-export class PromptService {
-    readonly debug: boolean = false;
-    private readonly modelService: ModelService;
-    private readonly templateService: PromptTemplateService;
-
-    constructor(config: AgentConfig) {
-        if (this.debug) {
-            console.log(`[PromptService] Initializing for agent: ${config.name}`);
-        }
-        this.modelService = new ModelService(config);
-        this.templateService = new PromptTemplateService(config);
-    }
-
-    private createPromptError(message: string, details: {
-        readonly templateName?: string;
-        readonly taskName?: string;
-    }): PromptError {
-        return new PromptError(message, details);
-    }
+export class PromptService implements IPromptService {
+    private readonly debug: boolean
+    private readonly configService: PromptConfigurationService
+    private readonly liquid: Liquid
 
     /**
-     * Generate a prompt from a template
+     * Creates a new PromptService instance
+     * 
+     * @param config - Configuration parameters for the PromptService
+     * @throws PromptServiceError if initialization fails
      */
-    public async generatePrompt(
-        { templateName }: TemplateIdentifier,
-        variables: PromptVariables,
-        _options: PromptOptions = {}
-    ): Promise<string> {
-        if (this.debug) {
-            console.log(`[PromptService] Generating prompt for template: ${templateName}`);
-        }
-        const template = this.templateService.getTemplate({ templateName });
-        if (!template) {
-            throw this.createPromptError(
-                'Template not found',
-                { templateName }
-            );
-        }
+    constructor(config: PromptServiceConfig) {
+        this.debug = config.debug ?? false
 
-        const prompt = this.templateService.buildPrompt({ templateName }, variables);
-        if (!prompt) {
-            throw this.createPromptError(
-                'Failed to build prompt',
-                { templateName }
-            );
-        }
-        return prompt;
-    }
+        try {
+            // Initialize configuration service
+            this.configService = new PromptConfigurationService({
+                configPath: config.configPath,
+                environment: config.environment ?? 'development',
+                basePath: config.basePath ?? process.cwd()
+            })
 
-    /**
-     * Complete a prompt using the appropriate model
-     */
-    public async completePrompt(
-        modelId: string,
-        prompt: string,
-        options: PromptOptions = {}
-    ): Promise<string> {
-        if (this.debug) {
-            console.log(`[PromptService] Completing prompt for model: ${modelId}`);
-        }
-        const completionOptions: ModelCompletionOptions = {
-            prompt,
-            systemPrompt: options.systemPrompt,
-            temperature: options.temperature,
-            maxTokens: options.maxTokens
-        };
+            // Load the configuration file
+            const loadedConfig = this.configService.loadConfig(config.configPath)
 
-        const result = await this.modelService.completeWithModel(
-            { modelId },
-            completionOptions
-        );
+            // Initialize template engine
+            this.liquid = new Liquid()
 
-        if (!result?.text) {
-            throw this.createPromptError(
-                'Model completion failed',
-                { templateName: modelId }
-            );
-        }
-
-        return result.text;
-    }
-
-    /**
-     * Complete clustering task for persona generation
-     */
-    public async completeClustering(
-        profiles: readonly ProfileData[],
-        options: PromptOptions = {}
-    ): Promise<string> {
-        return this.generatePrompt(
-            { templateName: 'clustering' },
-            {
-                profiles: JSON.stringify(profiles, null, 2)
-            },
-            {
-                systemPrompt: options.systemPrompt ??
-                    'You are an expert data analyst specializing in ' +
-                    'user behavior clustering and pattern recognition.',
-                ...options
+            if (this.debug) {
+                console.log('[PromptService] Initialized with config path:', config.configPath)
+                console.log(`[PromptService] Loaded ${loadedConfig.prompts.length} prompt templates`)
             }
-        );
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            console.error(`[PromptService] Initialization failed: ${errorMessage}`)
+            throw new PromptServiceError(errorMessage, error instanceof Error ? error : undefined)
+        }
+    }
+
+    /**
+     * Retrieves a prompt template by its identifier
+     * 
+     * @param identifier - The template identifier containing template name
+     * @returns The prompt template
+     * @throws PromptNotFoundError if the template doesn't exist
+     */
+    getTemplate(identifier: TemplateIdentifier): PromptTemplate {
+        const { templateName } = identifier
+        try {
+            return this.configService.getPrompt(templateName)
+        } catch (error) {
+            throw new PromptNotFoundError(templateName)
+        }
+    }
+
+    /**
+     * Gets all available template identifiers
+     * 
+     * @returns Array of template IDs
+     */
+    getTemplateIds(): string[] {
+        return this.configService.getPromptIds()
+    }
+
+    /**
+     * Validates if all required variables are present in the provided variables object
+     * 
+     * @param template - The prompt template to validate against
+     * @param variables - The variables to validate
+     * @returns true if all required variables are present, false otherwise
+     */
+    validateVariables(
+        template: PromptTemplate,
+        variables: PromptVariables
+    ): boolean {
+        if (!template.variables || template.variables.length === 0) {
+            return true
+        }
+
+        return template.variables.every(variable =>
+            Object.prototype.hasOwnProperty.call(variables, variable)
+        )
+    }
+
+    /**
+     * Gets missing variables from a template
+     * 
+     * @param template - The prompt template to check
+     * @param variables - The provided variables
+     * @returns Array of missing variable names
+     */
+    private getMissingVariables(
+        template: PromptTemplate,
+        variables: PromptVariables
+    ): string[] {
+        if (!template.variables || template.variables.length === 0) {
+            return []
+        }
+
+        return template.variables.filter(
+            variable => !Object.prototype.hasOwnProperty.call(variables, variable)
+        )
+    }
+
+    /**
+     * Generates a complete prompt by rendering the template with variables
+     * 
+     * @param identifier - The template identifier
+     * @param variables - Variables to render into the template
+     * @param options - Optional configuration for prompt generation
+     * @returns A promise resolving to the generated prompt string
+     * @throws PromptNotFoundError if the template doesn't exist
+     * @throws PromptVariableMissingError if required variables are missing
+     * @throws PromptRenderingError if rendering fails
+     */
+    async generatePrompt(
+        identifier: TemplateIdentifier,
+        variables: PromptVariables,
+        options?: PromptOptions
+    ): Promise<string> {
+        if (this.debug) {
+            console.log(`[PromptService] Generating prompt for template: ${identifier.templateName}`)
+        }
+
+        const template = this.getTemplate(identifier)
+
+        if (!this.validateVariables(template, variables)) {
+            const missingVariables = this.getMissingVariables(template, variables)
+            throw new PromptVariableMissingError(identifier.templateName, missingVariables)
+        }
+
+        try {
+            const renderedPrompt = await this.liquid.parseAndRender(template.content, variables)
+
+            // If template has a system prompt, render it too
+            if (template.systemPrompt?.promptTemplate && options?.systemPrompt !== undefined) {
+                const systemPrompt = await this.liquid.parseAndRender(
+                    template.systemPrompt.promptTemplate,
+                    variables
+                )
+                return `${systemPrompt}\n\n${renderedPrompt}`
+            }
+
+            return renderedPrompt
+        } catch (error) {
+            throw new PromptRenderingError(
+                identifier.templateName,
+                error instanceof Error ? error : new Error(String(error))
+            )
+        }
     }
 } 

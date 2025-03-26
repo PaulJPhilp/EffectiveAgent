@@ -1,0 +1,56 @@
+# Agent Service Architecture
+
+## Core Components
+
+1. **Agent Service Interface** (`IAgentService`)
+   - Defines the contract for agent operations (create, execute, list, etc.)
+
+2. **Agent State** 
+   - Represents the state of an agent execution
+   - Contains input, output, status, and configuration
+
+3. **Executor Service Interface** (`IExecutorService`)
+   - Defines the contract for graph execution
+   - Methods: execute, getConfig
+
+4. **LangGraph Executor** (`LangGraphExecutor`)
+   - Implements `IExecutorService`
+   - Wraps LangGraph functionality
+   - Takes only the configuration it needs
+
+5. **Agent Graph** (`AgentGraph`)
+   - Manages multiple LangGraph executors
+   - Provides operations for graph lifecycle management
+   - Uses the executor directly with appropriate parameters
+
+## Component Interactions
+
+- `AgentService` uses `AgentGraph` to manage agent instances
+- `AgentGraph` creates and manages `LangGraphExecutor` instances
+- `LangGraphExecutor` handles specific graph execution
+
+## Design Principles
+
+1. **Interface Segregation**
+   - Keep interfaces focused and minimal
+   - `IExecutorService` should only have methods needed by clients
+
+2. **Dependency Inversion**
+   - High-level modules depend on abstractions
+   - `AgentGraph` depends on `IExecutorService`, not concrete implementations
+
+3. **Single Responsibility**
+   - Each class has a single reason to change
+   - `LangGraphExecutor` only handles execution logic
+   - `AgentGraph` only handles graph management
+
+4. **Keep It Simple**
+   - Avoid complex patterns unless truly needed
+   - Direct instantiation where appropriate
+   - No unnecessary abstraction layers
+
+## Implementation Notes
+
+- `LangGraphExecutor` constructor should take only what it needs
+- `AgentGraph` creates executors with appropriate parameters
+- Test each component in isolation with simple mocks 
