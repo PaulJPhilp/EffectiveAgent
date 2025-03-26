@@ -60,5 +60,6 @@ export const TaskCapabilities = [
     'reasoning',
     'tool-use',
     'embeddings',
-    'math'
+    'math',
+    'text-to-image'
 ] as const;

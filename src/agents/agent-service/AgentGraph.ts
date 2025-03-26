@@ -1,8 +1,8 @@
 import type { RunnableConfig } from '@langchain/core/runnables'
-import { ModelService } from '@services/model/modelService.js'
-import { PromptService } from '@services/prompt/promptService.js'
-import { ProviderService } from '@services/provider/providerService.js'
-import { TaskService } from '@services/task/taskService.js'
+import type { IModelService } from '@services/model/types.js'
+import type { IPromptService } from '@services/prompt/types.js'
+import type { IProviderService } from '@services/provider/types.js'
+import type { ITaskService } from '@services/task/types.js'
 import type { AgentNode } from './AgentNode.js'
 import type { AgentState } from './types.js'
 
@@ -46,19 +46,19 @@ export interface AgentGraphImplementation<T extends AgentState<any, any, any>> {
 export class AgentGraph<T extends AgentState<any, any, any>> implements AgentGraphImplementation<T> {
     private readonly graph: GraphDefinition<T>
     private readonly startNode: string
-    protected readonly taskService: TaskService
-    protected readonly providerService: ProviderService
-    protected readonly modelService: ModelService
-    protected readonly promptService: PromptService
+    protected readonly taskService: ITaskService
+    protected readonly providerService: IProviderService
+    protected readonly modelService: IModelService
+    protected readonly promptService: IPromptService
     protected debug: boolean = false
 
     constructor(
         graph: GraphDefinition<T>,
         startNode: string,
-        taskService: TaskService,
-        providerService: ProviderService,
-        modelService: ModelService,
-        promptService: PromptService
+        taskService: ITaskService,
+        providerService: IProviderService,
+        modelService: IModelService,
+        promptService: IPromptService
     ) {
         this.validateGraph(graph, startNode)
         this.graph = graph
@@ -223,10 +223,10 @@ export interface AgentGraphFactory {
     createAgentGraph<T extends AgentState<any, any, any>>(
         graph: GraphDefinition<T>,
         startNode: string,
-        taskService: TaskService,
-        providerService: ProviderService,
-        modelService: ModelService,
-        promptService: PromptService
+        taskService: ITaskService,
+        providerService: IProviderService,
+        modelService: IModelService,
+        promptService: IPromptService
     ): AgentGraphImplementation<T>
 }
 
@@ -237,10 +237,10 @@ export class DefaultAgentGraphFactory implements AgentGraphFactory {
     public createAgentGraph<T extends AgentState<any, any, any>>(
         graph: GraphDefinition<T>,
         startNode: string,
-        taskService: TaskService,
-        providerService: ProviderService,
-        modelService: ModelService,
-        promptService: PromptService
+        taskService: ITaskService,
+        providerService: IProviderService,
+        modelService: IModelService,
+        promptService: IPromptService
     ): AgentGraphImplementation<T> {
         return new AgentGraph<T>(
             graph,
@@ -259,10 +259,10 @@ export class DefaultAgentGraphFactory implements AgentGraphFactory {
 export function createAgentGraph<T extends AgentState<any, any, any>>(
     graph: GraphDefinition<T>,
     startNode: string,
-    taskService: TaskService,
-    providerService: ProviderService,
-    modelService: ModelService,
-    promptService: PromptService,
+    taskService: ITaskService,
+    providerService: IProviderService,
+    modelService: IModelService,
+    promptService: IPromptService,
     factory: AgentGraphFactory = new DefaultAgentGraphFactory()
 ): AgentGraphImplementation<T> {
     return factory.createAgentGraph(

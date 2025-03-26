@@ -10,6 +10,15 @@
 		"dist",
 		"README.md"
 	],
+	"bun": {
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"],
+			"@services/*": ["src/shared/services/*"],
+			"@agents/*": ["src/agents/*"],
+			"@shared/*": ["src/shared/*"]
+		}
+	},
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {

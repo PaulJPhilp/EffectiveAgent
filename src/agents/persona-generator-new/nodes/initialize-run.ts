@@ -2,8 +2,8 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { ModelService } from '../../../shared/services/model/modelService.js'
 import { PromptService } from '../../../shared/services/prompt/promptService.js'
-import { ProviderService } from '../../../shared/services/provider/providerService.js'
-import { TaskService } from '../../../shared/services/task/TaskService.js'
+import type { IProviderService } from '../../../shared/services/provider/types.js'
+import { TaskService } from '../../../shared/services/task/taskService.js'
 import { AgentNode } from '../../agent-service/AgentNode.js'
 import type { AgentState } from '../../agent-service/types.js'
 import type { PersonaDomainState, PersonaInput, PersonaOutput } from '../types.js'
@@ -14,7 +14,7 @@ import type { PersonaDomainState, PersonaInput, PersonaOutput } from '../types.j
 export class InitializeRunNode extends AgentNode<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
     constructor(
         taskService: TaskService,
-        providerService: ProviderService,
+        providerService: IProviderService,
         modelService: ModelService,
         promptService: PromptService
     ) {

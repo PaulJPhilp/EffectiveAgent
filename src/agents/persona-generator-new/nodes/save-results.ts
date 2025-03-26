@@ -2,11 +2,40 @@ import fs from 'node:fs'
 import path from 'path'
 import { ModelService } from '../../../shared/services/model/modelService.js'
 import { PromptService } from '../../../shared/services/prompt/promptService.js'
-import { ProviderService } from '../../../shared/services/provider/providerService.js'
-import { TaskService } from '../../../shared/services/task/TaskService.js'
+import type { IProviderService } from '../../../shared/services/provider/types.js'
+import { TaskService } from '../../../shared/services/task/taskService.js'
 import { AgentNode } from '../../agent-service/AgentNode.js'
 import type { AgentState } from '../../agent-service/types.js'
 import type { PersonaDomainState, PersonaInput, PersonaOutput } from '../types.js'
+
+interface PersonaResult {
+    name: string
+    description: string
+    background: string
+    goals: string[]
+    traits: string[]
+    interests: string[]
+    skills: string[]
+}
+
+interface ClusterResult {
+    name: string
+    description: string
+    traits: string[]
+    interests: string[]
+    skills: string[]
+}
+
+interface GenerationResults {
+    personas: PersonaResult[]
+    clusters: ClusterResult[]
+    metadata: {
+        totalProfiles: number
+        totalClusters: number
+        totalPersonas: number
+        generatedAt: string
+    }
+}
 
 /**
  * Node that saves final results and marks the agent as complete
@@ -14,7 +43,7 @@ import type { PersonaDomainState, PersonaInput, PersonaOutput } from '../types.j
 export class SaveResultsNode extends AgentNode<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
     constructor(
         taskService: TaskService,
-        providerService: ProviderService,
+        providerService: IProviderService,
         modelService: ModelService,
         promptService: PromptService
     ) {
@@ -28,7 +57,7 @@ export class SaveResultsNode extends AgentNode<AgentState<PersonaInput, PersonaO
         }
 
         // Save final results
-        const finalResults = {
+        const finalResults: GenerationResults = {
             personas: state.agentState.personas,
             clusters: state.agentState.clusters,
             metadata: {
@@ -70,7 +99,7 @@ export class SaveResultsNode extends AgentNode<AgentState<PersonaInput, PersonaO
         }
     }
 
-    private generateSummary(results: any): string {
+    private generateSummary(results: GenerationResults): string {
         const { metadata } = results
 
         return `# Persona Generation Results
@@ -82,7 +111,7 @@ export class SaveResultsNode extends AgentNode<AgentState<PersonaInput, PersonaO
 - Generated At: ${metadata.generatedAt}
 
 ## Personas
-${results.personas.map(persona => `
+${results.personas.map((persona) => `
 ### ${persona.name}
 - Description: ${persona.description}
 - Background: ${persona.background}
@@ -93,7 +122,7 @@ ${results.personas.map(persona => `
 `).join('\n')}
 
 ## Clusters
-${results.clusters.map(cluster => `
+${results.clusters.map((cluster) => `
 ### ${cluster.name}
 ${cluster.description}
 - Traits: ${cluster.traits.join(', ')}

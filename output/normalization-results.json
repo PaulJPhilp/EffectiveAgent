@@ -1,0 +1,394 @@
+[
+  {
+    "profileId": "b88c2103-c2f2-42a5-97f7-28cb9d59bb31",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "75d864dc-ebfd-4ec6-8d3f-5b49261b6c5d",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f6e90115-ca99-4295-b32c-86cde8565256",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bc89a0eb-0f3f-4c69-ad36-3cf8f7da3418",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1aaae64a-19f2-4a59-a0b3-9831b0402967",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a1c37750-2154-47f4-b16e-fe40ac461671",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "09abfce9-d529-4092-9034-4b194a91740c",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2895da8d-c264-47cc-b2ee-4f470cd479f6",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a008fbf0-047d-4779-aee9-54e89cf3af38",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0a1dc72f-ec2c-496f-9097-6395af8a65a9",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7b03d0d2-ad6f-413a-b7a4-f3bb5ba3ebf7",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c0b1a5c0-4c84-4a0c-80ef-55f115309d59",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "6e98f1ba-3086-4b99-8295-c8fef48826dc",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4edc7869-7373-49b7-8456-a59b390e5217",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "525ec5dd-9259-4c42-afb8-d7e9db8e5aa5",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "15100691-3231-4540-a615-7fb4f5c90b03",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "86e96474-afea-48a2-883f-c55dc4237b9f",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "0a7c9689-6bf1-4260-bc26-f049496d8d65",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7c1c95d7-7f18-46e0-a6b3-ea5dd6496dd6",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ab54b1c8-c7c4-4fd3-b5fc-29fc27ca2373",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d4a02507-5b5f-4250-9ac7-747cae737ab8",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "a0aa0ebe-9133-4075-bf4f-6a7f93b33c53",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9e2d4f15-5614-479d-b6c9-b567d824f08f",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7863e22e-5cce-4cf6-88a2-c2009f194de9",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "c223e624-1bfd-4c92-994b-5de1d6d77466",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5e312798-7007-4b80-a04e-f46ef3a21fea",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "ee6f2c09-daaf-4a93-8ebe-71f2d02a075c",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e4c1c0f0-fe24-4406-a208-893ad86cf063",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "41a6781c-ce25-4099-bbb3-277778b61609",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "9bdca7a4-4b1c-4b66-9fb9-eb1d217a2bb6",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "947ccee6-e1b2-47ea-9de6-e84c2e73e3c0",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "513229f1-01eb-483b-a36c-4ada205185e6",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "d2820e32-44f9-42b7-8390-da76a4e8bded",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 2,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "6e341331-c2b7-4c1e-8069-f1757184a067",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "119bfde8-1f40-4daa-81e9-5927dea379cd",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "81f0e709-a7c6-4f46-8976-49406fc15273",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "323afd67-919f-4c17-89ca-e603089371ba",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "cc2cb83a-909a-46a5-a8ee-2d50464f9dfc",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "f3dc1fb1-257e-4ba6-8801-7b84b57ccfcd",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "5db6d1ea-754d-43ff-8213-61cf6d5f553a",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "3328047a-4566-44a5-a187-2b6f17529627",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "2442b47c-4fee-4420-a26c-461e04b7b44e",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "7744986f-c666-47dd-8a92-7924ef96b058",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "e5e9a9c4-dd30-4288-aa81-f242b59cd681",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "44945aaf-1ef8-4dfe-acf1-78b5f3222b4a",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4a8d35e5-9a49-4638-b5cf-1c4303cc82a2",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "4f92ed63-1e01-4af8-a346-6fffd0eba4a6",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 2,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "1b28c3fd-0021-4c21-bdce-ea9bbafc43f3",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 0,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  },
+  {
+    "profileId": "bf7cda29-5017-433e-9670-34243194e1b2",
+    "success": false,
+    "error": "Error generating prompt \"normalize-profile\" for task \"normalize-profile\": Missing required variables for template \"normalize-profile\": profile",
+    "duration": 1,
+    "modelUsed": "gpt-4-turbo-preview",
+    "tokensUsed": 0
+  }
+]

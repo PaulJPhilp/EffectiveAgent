@@ -23,7 +23,7 @@ export class NormalizeProfilesNode extends AgentNode<NormalizingAgentState> {
         const startTime = Date.now()
 
         try {
-            const taskResult = await this.taskService.executeTask('normalize-text', {
+            const taskResult = await this.taskService.executeTask('normalize-profile', {
                 variables: {
                     input_profile: profile.content
                 },

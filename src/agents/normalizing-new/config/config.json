@@ -2,8 +2,8 @@
     "name": "normalizing-agent",
     "description": "Agent for normalizing and extracting metadata from PDF content",
     "version": "1.0.0",
-    "rootPath": "/Users/paul/projects/pdf-loader/agents/normalizing-new",
-    "agentPath": "/Users/paul/projects/pdf-loader/agents/normalizing-new",
+    "rootPath": "/Users/paul/projects/pdf-loader/src/agents/normalizing-new",
+    "agentPath": "/Users/paul/projects/pdf-loader/src/agents/normalizing-new",
     "inputPath": "/Users/paul/projects/pdf-loader/data/clean",
     "outputPath": "/Users/paul/projects/pdf-loader/output",
     "logPath": "/Users/paul/projects/pdf-loader/logs",
@@ -13,9 +13,9 @@
     "retryDelay": 1000,
     "debug": true,
     "configFiles": {
-        "providers": "../../../agents/config/providers.json",
-        "models": "../../../agents/config/models.json",
-        "tasks": "tasks.json",
-        "prompts": "prompts.json"
+        "providers": "/Users/paul/projects/pdf-loader/src/agents/config/providers.json",
+        "models": "/Users/paul/projects/pdf-loader/src/agents/config/models.json",
+        "tasks": "/Users/paul/projects/pdf-loader/src/agents/normalizing-new/config/tasks.json",
+        "prompts": "/Users/paul/projects/pdf-loader/src/agents/normalizing-new/config/prompts.json"
     }
 }

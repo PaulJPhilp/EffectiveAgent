@@ -60,3 +60,7 @@ globs: **/*.ts, **/*.tsx, **/*.d.ts
 - Use the Factory pattern for object creation
 - Leverage dependency injection
 - Use the Module pattern for encapsulation 
+
+## Anti-patterns
+- Do Not use the 'type as unknown as unrelated-type' pattern
+- Do not duplicate types

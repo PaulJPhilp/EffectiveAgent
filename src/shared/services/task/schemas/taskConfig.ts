@@ -1,6 +1,5 @@
-import { z } from 'zod';
-import { BaseConfigSchema } from '../../configuration/index.js';
 import { TaskCapabilities } from '@/types.ts';
+import { z } from 'zod';
 
 
 
@@ -51,9 +50,12 @@ export const TaskConfigSchema = z.object({
 /**
  * Schema for task configuration file
  */
-export const TaskConfigFileSchema = BaseConfigSchema.extend({
+export const TaskConfigFileSchema = z.object({
+    name: z.string().min(1),
+    version: z.string(),
+    description: z.string().optional(),
     tasks: z.array(TaskConfigSchema)
-});
+}).strict();
 
 // Export types derived from schemas
 export type TaskConfig = z.infer<typeof TaskConfigSchema>;

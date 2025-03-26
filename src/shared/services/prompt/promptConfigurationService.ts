@@ -21,7 +21,7 @@ export class PromptConfigurationService extends ConfigurationService<PromptConfi
     constructor(options: PromptConfigurationOptions) {
         super({ validateOnLoad: true })
         this.loader = new ConfigurationLoader({
-            basePath: options.basePath ?? process.cwd(),
+            basePath: '/',
             environment: options.environment,
             validateSchema: true
         })

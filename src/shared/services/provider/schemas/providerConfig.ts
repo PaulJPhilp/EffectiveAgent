@@ -16,7 +16,7 @@ export const ProviderSchema = z.object({
     }).optional().describe("Rate limiting configuration")
 });
 
-export type Provider = z.infer<typeof ProviderSchema>;
+export type ProviderConfig = z.infer<typeof ProviderSchema>;
 
 /**
  * Schema for providers configuration file

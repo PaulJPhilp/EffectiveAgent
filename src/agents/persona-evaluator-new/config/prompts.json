@@ -1,0 +1,27 @@
+{
+    "name": "Persona Evaluator Prompts",
+    "version": "1.0.0",
+    "description": "Prompts for evaluating personas",
+    "prompts": {
+        "elaborate-persona": {
+            "name": "Elaborate Persona",
+            "description": "Prompt for elaborating a persona with more details",
+            "template": "Please elaborate on the following persona:\n\n{persona}\n\nProvide additional details about their background, motivations, and behaviors."
+        },
+        "evaluate-persona": {
+            "name": "Evaluate Persona",
+            "description": "Prompt for evaluating a persona's completeness and quality",
+            "template": "Please evaluate the following persona:\n\n{persona}\n\nAssess its completeness, consistency, and realism."
+        },
+        "create-executive-summary": {
+            "name": "Create Executive Summary",
+            "description": "Prompt for creating an executive summary of a persona",
+            "template": "Please create an executive summary for the following persona:\n\n{persona}\n\nFocus on key characteristics and insights."
+        },
+        "create-full-profile": {
+            "name": "Create Full Profile",
+            "description": "Prompt for creating a detailed profile document",
+            "template": "Please create a comprehensive profile document for the following persona:\n\n{persona}\n\nInclude all relevant details and insights."
+        }
+    }
+} 

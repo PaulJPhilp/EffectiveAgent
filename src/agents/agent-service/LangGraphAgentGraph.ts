@@ -1,9 +1,9 @@
 import type { RunnableConfig } from '@langchain/core/runnables'
 import { END, START, StateGraph } from '@langchain/langgraph'
-import { ModelService } from '@services/model/modelService.js'
-import { PromptService } from '@services/prompt/promptService.js'
-import { ProviderService } from '@services/provider/providerService.js'
-import { TaskService } from '@services/task/taskService.js'
+import type { IModelService } from '@services/model/types.js'
+import type { IPromptService } from '@services/prompt/types.js'
+import type { IProviderService } from '@services/provider/types.js'
+import type { ITaskService } from '@services/task/types.js'
 import type { AgentGraphConfig, AgentGraphFactory, AgentGraphImplementation } from './AgentGraph.js'
 import type { AgentNode } from './AgentNode.js'
 import type { AgentState, NodeStatus } from './types.js'
@@ -13,20 +13,20 @@ import type { AgentState, NodeStatus } from './types.js'
  */
 export class LangGraphAgentGraph<T extends AgentState<any, any, any>> implements AgentGraphImplementation<T> {
     private readonly graph: ReturnType<typeof StateGraph.prototype.compile>
-    protected readonly taskService: TaskService
-    protected readonly providerService: ProviderService
-    protected readonly modelService: ModelService
-    protected readonly promptService: PromptService
+    protected readonly taskService: ITaskService
+    protected readonly providerService: IProviderService
+    protected readonly modelService: IModelService
+    protected readonly promptService: IPromptService
     protected debug: boolean = false
 
     constructor(
         nodes: Record<string, AgentNode<T>>,
         edges: Array<[string, string]>,
         startNode: string,
-        taskService: TaskService,
-        providerService: ProviderService,
-        modelService: ModelService,
-        promptService: PromptService
+        taskService: ITaskService,
+        providerService: IProviderService,
+        modelService: IModelService,
+        promptService: IPromptService
     ) {
         this.taskService = taskService
         this.providerService = providerService
@@ -242,10 +242,10 @@ export class LangGraphAgentGraphFactory implements AgentGraphFactory {
     public createAgentGraph<T extends AgentState<any, any, any>>(
         graph: Record<string, { node: AgentNode<T>, next: Array<string> }>,
         startNode: string,
-        taskService: TaskService,
-        providerService: ProviderService,
-        modelService: ModelService,
-        promptService: PromptService
+        taskService: ITaskService,
+        providerService: IProviderService,
+        modelService: IModelService,
+        promptService: IPromptService
     ): AgentGraphImplementation<T> {
         // Extract nodes and edges from the graph definition
         const nodes: Record<string, AgentNode<T>> = {}
@@ -280,10 +280,10 @@ export class LangGraphAgentGraphFactory implements AgentGraphFactory {
 export function createLangGraphAgentGraph<T extends AgentState<any, any, any>>(
     graph: Record<string, { node: AgentNode<T>, next: Array<string> }>,
     startNode: string,
-    taskService: TaskService,
-    providerService: ProviderService,
-    modelService: ModelService,
-    promptService: PromptService
+    taskService: ITaskService,
+    providerService: IProviderService,
+    modelService: IModelService,
+    promptService: IPromptService
 ): AgentGraphImplementation<T> {
     const factory = new LangGraphAgentGraphFactory()
     return factory.createAgentGraph(

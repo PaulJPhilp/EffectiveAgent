@@ -1,6 +1,6 @@
-
-import type { Provider } from "./schemas/index.ts";
+import type { ModelCompletionOptions } from "@/types.js";
 import type { ModelConfig } from '../model/schemas/modelConfig.ts';
+import type { ProviderConfig } from "./schemas/providerConfig.js";
 
 /**
  * Result of LLM completion
@@ -21,16 +21,6 @@ export interface LLMCompletionResult {
  * This file defines interfaces that all providers must implement
  */
 
-
-
-export interface ModelCompletionOptions {
-    prompt: string;
-    systemPrompt?: string;
-    temperature?: number;
-    maxTokens?: number;
-    format?: 'text' | 'json' | 'image' | 'embedding';
-}
-
 export interface ModelCompletionResponse {
     text?: string;
     json?: Record<string, unknown>;
@@ -50,13 +40,13 @@ export interface IModelProvider {
     /**
      * Complete a prompt using the model
      */
-    complete(prompt: string, options?: Record<string, unknown>): Promise<LLMCompletionResult>;
+    complete(prompt: string, options?: ModelCompletionOptions): Promise<LLMCompletionResult>;
 
     /**
      * Get the current model configuration
      */
     getModelConfig(): ModelConfig;
-} 
+}
 
 /**
  * Configuration options for the ProviderConfigurationService
@@ -94,9 +84,9 @@ export class ProviderNotFoundError extends Error {
  */
 export interface IProviderConfigurationService {
     loadConfigurations(): Promise<void>;
-    getProviderConfig(providerId: string): Provider;
-    getDefaultProviderConfig(): Provider;
-    getAllProviderConfigs(): ReadonlyArray<Provider>;
+    getProviderConfig(providerId: string): ProviderConfig;
+    getDefaultProviderConfig(): ProviderConfig;
+    getAllProviderConfigs(): ReadonlyArray<ProviderConfig>;
     clearCache(): void;
 }
 

@@ -1,51 +1,85 @@
 {
+	"name": "Provider Configurations",
+	"version": "0.1.0",
+	"description": "Configuration for all available providers",
 	"providers": [
 		{
 			"id": "openai",
 			"name": "OpenAI",
 			"type": "openai",
-			"apiVersion": "v1",
+			"apiVersion": "2024-02-15",
+			"baseUrl": "https://api.openai.com/v1",
+			"defaultHeaders": {
+				"Content-Type": "application/json"
+			},
 			"rateLimit": {
 				"requestsPerMinute": 3500,
-				"tokensPerMinute": 250000
+				"tokensPerMinute": 180000
 			}
 		},
 		{
 			"id": "anthropic",
 			"name": "Anthropic",
 			"type": "anthropic",
-			"apiVersion": "v1",
+			"apiVersion": "2024-01",
+			"baseUrl": "https://api.anthropic.com/v1",
+			"defaultHeaders": {
+				"Content-Type": "application/json",
+				"anthropic-version": "2024-01-01"
+			},
 			"rateLimit": {
-				"requestsPerMinute": 1000
+				"requestsPerMinute": 150
 			}
 		},
 		{
 			"id": "google",
-			"name": "Google AI",
+			"name": "Google",
 			"type": "google",
 			"apiVersion": "v1",
+			"baseUrl": "https://generativelanguage.googleapis.com/v1",
+			"defaultHeaders": {
+				"Content-Type": "application/json"
+			},
 			"rateLimit": {
-				"requestsPerMinute": 1000
+				"requestsPerMinute": 1500
 			}
 		},
 		{
 			"id": "grok",
-			"name": "Grok AI",
+			"name": "Grok",
 			"type": "grok",
 			"apiVersion": "v1",
+			"baseUrl": "https://api.grok.x.ai/v1",
+			"defaultHeaders": {
+				"Content-Type": "application/json"
+			},
 			"rateLimit": {
-				"requestsPerMinute": 500,
-				"tokensPerMinute": 150000
+				"requestsPerMinute": 100
 			}
 		},
 		{
 			"id": "deepseek",
-			"name": "DeepSeek AI",
+			"name": "DeepSeek",
 			"type": "deepseek",
 			"apiVersion": "v1",
+			"baseUrl": "https://api.deepseek.com/v1",
+			"defaultHeaders": {
+				"Content-Type": "application/json"
+			},
 			"rateLimit": {
-				"requestsPerMinute": 800,
-				"tokensPerMinute": 200000
+				"requestsPerMinute": 500
+			}
+		},
+		{
+			"id": "local",
+			"name": "Local",
+			"type": "local",
+			"baseUrl": "http://localhost:8000",
+			"defaultHeaders": {
+				"Content-Type": "application/json"
+			},
+			"rateLimit": {
+				"requestsPerMinute": 1000
 			}
 		}
 	],

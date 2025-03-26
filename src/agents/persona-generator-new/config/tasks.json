@@ -1,0 +1,35 @@
+{
+    "name": "Persona Generator Agent Tasks",
+    "version": "0.1.0",
+    "description": "Tasks for the persona generator agent",
+    "tasks": [
+        {
+            "taskName": "generate-persona",
+            "name": "Generate Persona",
+            "description": "Generate a detailed professional persona from normalized profile data",
+            "primaryModelId": "gpt-35-turbo",
+            "fallbackModelIds": ["claude-35-flash", "gemini-2-pro"],
+            "temperature": 0.4,
+            "requiredCapabilities": ["text-generation", "reasoning"],
+            "contextWindowSize": "medium-context-window",
+            "promptName": "generate-persona",
+            "maxAttempts": 3,
+            "timeout": 40000,
+            "maxTokens": 6000
+        },
+        {
+            "taskName": "enrich-persona",
+            "name": "Enrich Persona",
+            "description": "Enrich a basic persona with additional professional insights and recommendations",
+            "primaryModelId": "gpt-35-turbo",
+            "fallbackModelIds": ["gemini-2-pro"],
+            "temperature": 0.3,
+            "requiredCapabilities": ["text-generation", "reasoning"],
+            "contextWindowSize": "medium-context-window",
+            "promptName": "enrich-persona",
+            "maxAttempts": 2,
+            "timeout": 30000,
+            "maxTokens": 4000
+        }
+    ]
+} 

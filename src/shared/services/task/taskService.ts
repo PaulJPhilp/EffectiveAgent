@@ -76,19 +76,20 @@ export class TaskService implements ITaskService {
                 debug: this.debug
             });
 
-            // Load the task configurations
-            this.configService.loadConfig('tasks.json');
+            // Load the task configurations with full path
+            this.configService.loadConfig(config.configPath);
             this.tasks = this.configService.getAllTaskConfigs();
 
-            // Initialize model and prompt services
+            // Initialize model and prompt services with shared config directory
+            const sharedConfigDir = '/Users/paul/projects/pdf-loader/src/agents/config';
             this.modelService = deps?.modelService || new ModelService({
-                configPath: 'models.json',
+                configPath: `${sharedConfigDir}/models.json`,
                 environment: config.environment,
                 debug: this.debug
             }, deps.providerService);
 
             this.promptService = deps?.promptService || new PromptService({
-                configPath: 'prompts.json',
+                configPath: `${sharedConfigDir}/prompts.json`,
                 environment: config.environment,
                 debug: this.debug
             });

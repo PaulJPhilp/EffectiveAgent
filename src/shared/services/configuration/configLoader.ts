@@ -3,7 +3,7 @@ import { ModelsSchema } from '@services/model/schemas/modelConfig.ts';
 import type { PromptConfig } from '@services/prompt/schemas/promptConfig.js';
 import { PromptFileSchema } from '@services/prompt/schemas/promptConfig.ts';
 import { ProvidersFileSchema, type Providers } from '@services/provider/schemas/providerConfig.ts';
-import { TaskFileSchema, type Tasks } from '@services/task/schemas/taskSchemas.ts';
+import { TaskConfigFileSchema, type TaskConfigFile } from '@services/task/schemas/taskConfig.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import type { z } from 'zod';
@@ -166,19 +166,19 @@ export class ConfigLoader {
      * @param filename The task configuration filename (default: 'tasks.json')
      * @returns The loaded prompts configuration
      */
-    public loadTasks(filename = 'tasks.json'): Tasks {
+    public loadTasks(filename = 'tasks.json'): TaskConfigFile {
         const filePath: string = join(this.basePath, filename);
-        const cached: Tasks = this.cache.get(filePath) as Tasks;
+        const cached: TaskConfigFile = this.cache.get(filePath) as TaskConfigFile;
 
         if (cached) {
             return cached;
         }
 
         const content = readFileSync(filePath, 'utf-8');
-        const taskFile = JSON.parse(content) as Tasks;
+        const taskFile = JSON.parse(content) as TaskConfigFile;
 
         // Validate the config against the schema
-        const result = TaskFileSchema.safeParse(taskFile);
+        const result = TaskConfigFileSchema.safeParse(taskFile);
         if (!result.success) {
             const errors: string = handleZodError(result.error);
             throw new Error(`Invalid task file configuration: ${errors}`);

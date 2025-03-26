@@ -1,26 +1,26 @@
 import type { RunnableConfig } from '@langchain/core/runnables'
-import { ModelService } from '@services/model/modelService.js'
-import { PromptService } from '@services/prompt/promptService.js'
-import { ProviderService } from '@services/provider/providerService.js'
-import { TaskService } from '@services/task/taskService.js'
-import type { AgentState } from './types.js'
+import type { IModelService } from '@services/model/types.js'
+import type { IPromptService } from '@services/prompt/types.js'
+import type { IProviderService } from '@services/provider/types.js'
+import type { ITaskService } from '@services/task/types.js'
 import type { AgentGraphConfig } from './AgentGraph.ts'
+import type { AgentState } from './types.js'
 
 /**
  * Base class for agent nodes
  */
 export abstract class AgentNode<T extends AgentState<any, any, any>> {
     protected debug: boolean = false
-    protected readonly taskService: TaskService
-    protected readonly providerService: ProviderService
-    protected readonly modelService: ModelService
-    protected readonly promptService: PromptService
+    protected readonly taskService: ITaskService
+    protected readonly providerService: IProviderService
+    protected readonly modelService: IModelService
+    protected readonly promptService: IPromptService
 
     constructor(
-        taskService: TaskService,
-        providerService: ProviderService,
-        modelService: ModelService,
-        promptService: PromptService
+        taskService: ITaskService,
+        providerService: IProviderService,
+        modelService: IModelService,
+        promptService: IPromptService
     ) {
         this.taskService = taskService
         this.providerService = providerService

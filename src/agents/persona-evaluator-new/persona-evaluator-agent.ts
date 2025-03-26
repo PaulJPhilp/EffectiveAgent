@@ -14,7 +14,7 @@ import type { EvaluatorDomainState, EvaluatorInput, EvaluatorOutput } from './ty
  * Agent that evaluates personas for completeness and quality
  */
 export class PersonaEvaluatorAgent extends Agent<EvaluatorInput, EvaluatorOutput, EvaluatorDomainState> {
-    constructor(configPath: string) {
+    constructor({ configPath }: { configPath: string }) {
         super({ configPath })
     }
 
@@ -183,8 +183,8 @@ export class PersonaEvaluatorAgent extends Agent<EvaluatorInput, EvaluatorOutput
                     conditions: [
                         {
                             field: 'agentState.elaboratedPersona',
-                            operator: 'exists',
-                            value: true
+                            operator: 'neq',
+                            value: null
                         }
                     ]
                 },
@@ -194,8 +194,8 @@ export class PersonaEvaluatorAgent extends Agent<EvaluatorInput, EvaluatorOutput
                     conditions: [
                         {
                             field: 'agentState.evaluation',
-                            operator: 'exists',
-                            value: true
+                            operator: 'neq',
+                            value: null
                         }
                     ]
                 },
@@ -205,8 +205,8 @@ export class PersonaEvaluatorAgent extends Agent<EvaluatorInput, EvaluatorOutput
                     conditions: [
                         {
                             field: 'agentState.executiveSummary',
-                            operator: 'exists',
-                            value: true
+                            operator: 'neq',
+                            value: null
                         }
                     ]
                 },
@@ -216,8 +216,8 @@ export class PersonaEvaluatorAgent extends Agent<EvaluatorInput, EvaluatorOutput
                     conditions: [
                         {
                             field: 'agentState.fullProfile',
-                            operator: 'exists',
-                            value: true
+                            operator: 'neq',
+                            value: null
                         }
                     ]
                 }

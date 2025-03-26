@@ -1,0 +1,21 @@
+{
+    "name": "persona-generator-agent",
+    "description": "Agent for generating personas from normalized profiles",
+    "version": "1.0.0",
+    "rootPath": "/Users/paul/projects/pdf-loader/src/agents/persona-generator-new",
+    "agentPath": "/Users/paul/projects/pdf-loader/src/agents/persona-generator-new",
+    "inputPath": "/Users/paul/projects/pdf-loader/data/clean",
+    "outputPath": "/Users/paul/projects/pdf-loader/output",
+    "logPath": "/Users/paul/projects/pdf-loader/logs",
+    "defaultModel": "gpt-4-turbo",
+    "maxConcurrency": 5,
+    "maxRetries": 3,
+    "retryDelay": 1000,
+    "debug": true,
+    "configFiles": {
+        "providers": "/Users/paul/projects/pdf-loader/src/agents/config/providers.json",
+        "models": "/Users/paul/projects/pdf-loader/src/agents/config/models.json",
+        "tasks": "/Users/paul/projects/pdf-loader/src/agents/persona-generator-new/config/tasks.json",
+        "prompts": "/Users/paul/projects/pdf-loader/src/agents/persona-generator-new/config/prompts.json"
+    }
+} 

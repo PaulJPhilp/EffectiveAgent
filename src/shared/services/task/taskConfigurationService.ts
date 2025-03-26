@@ -55,7 +55,7 @@ export class TaskConfigurationService extends ConfigurationService<TaskConfigFil
 
         this.debug = options.debug ?? false;
         this.loader = new ConfigurationLoader({
-            basePath: options.basePath ?? options.configPath,
+            basePath: '/',
             environment: options.environment,
             validateSchema: true
         });

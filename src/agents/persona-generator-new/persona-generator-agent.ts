@@ -13,7 +13,7 @@ import type { PersonaDomainState, PersonaInput, PersonaOutput } from './types.js
  * Agent that generates personas from user profiles
  */
 export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, PersonaDomainState> {
-    constructor(configPath: string) {
+    constructor({ configPath }: { configPath: string }) {
         super({ configPath })
     }
 

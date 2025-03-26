@@ -1,12 +1,21 @@
-import { writeFile } from "fs/promises";
-import { join } from "path";
 import { ConfigurationLoader } from "@services/configuration/index.js";
 import { ModelService } from "@services/model/modelService.js";
+import { ModelConfigFileSchema } from "@services/model/schemas/modelConfig.js";
 import { PromptService } from "@services/prompt/promptService.js";
+import { PromptConfigFileSchema } from "@services/prompt/schemas/promptConfig.js";
+import { ProviderConfigurationService } from "@services/provider/providerConfigurationService.js";
 import { ProviderService } from "@services/provider/providerService.js";
+import { ProvidersFileSchema } from "@services/provider/schemas/providerConfig.js";
+import type { IProviderService } from "@services/provider/types.js";
+import { TaskConfigFileSchema } from "@services/task/schemas/taskConfig.js";
 import { TaskService } from "@services/task/taskService.js";
+import { accessSync, readFileSync } from "fs";
+import { writeFile } from "fs/promises";
+import { join } from "path";
+import { z } from "zod";
 import type { AgentGraphConfig, AgentGraphImplementation } from "./AgentGraph.js";
 import type { AgentConfig, AgentErrors, AgentLogs, AgentRun, AgentState } from "./types.js";
+import { getAgentConfigPath, getSharedConfigPath } from "./utils.js";
 
 /**
  * Represents a condition for edge traversal
@@ -64,25 +73,263 @@ export class Agent<I, O, A> {
     readonly state: AgentState<I, O, A>;
     private readonly configLoader: ConfigurationLoader;
     protected readonly taskService: TaskService;
-    protected readonly providerService: ProviderService;
+    protected readonly providerService: IProviderService;
     protected readonly modelService: ModelService;
     protected readonly promptService: PromptService;
 
+    /**
+     * Gets the path to a shared configuration file
+     * @param filename Name of the shared configuration file
+     * @returns The absolute path to the shared configuration file
+     */
+    protected getSharedConfigPath(filename: string): string {
+        return getSharedConfigPath(filename);
+    }
+
+    /**
+     * Gets the path to an agent-specific configuration file
+     * @param filename Name of the configuration file
+     * @returns The absolute path to the agent-specific configuration file
+     */
+    protected getAgentConfigPath(filename: string): string {
+        // Extract agent name from path if not provided in config
+        const agentName = this.config.agentName ?? this.config.agentPath.split('/').filter(Boolean).pop() ?? '';
+        if (!agentName) {
+            throw new Error('Could not determine agent name from config or path');
+        }
+        return getAgentConfigPath(agentName, filename);
+    }
+
+    /**
+     * Initializes all required services with correct configuration paths
+     * @param config Agent configuration
+     * @returns Object containing initialized services
+     */
+    protected initializeServices(config: AgentConfig): {
+        providerService: IProviderService;
+        modelService: ModelService;
+        promptService: PromptService;
+        taskService: TaskService;
+    } {
+        // Initialize provider configuration service
+        const providerConfigService = new ProviderConfigurationService({
+            configPath: this.getSharedConfigPath('providers.json'),
+            environment: process.env.NODE_ENV
+        });
+
+        const modelConfigService = {
+            getModel: (id: string) => ({ id, provider: 'openai' }),
+            getDefaultModel: () => ({ id: 'default-model', provider: 'openai' })
+        };
+
+        // Initialize provider service
+        const providerService = new ProviderService(
+            config,
+            providerConfigService,
+            modelConfigService
+        );
+
+        // Initialize model service with shared config
+        const modelService = new ModelService({
+            configPath: this.getSharedConfigPath('models.json'),
+            environment: process.env.NODE_ENV,
+            debug: config.debug
+        }, providerService);
+
+        // Initialize prompt service with agent-specific config
+        const promptService = new PromptService({
+            configPath: this.getAgentConfigPath('prompts.json'),
+            environment: process.env.NODE_ENV,
+            debug: config.debug
+        });
+
+        // Initialize task service with agent-specific config
+        const taskService = new TaskService({
+            configPath: this.getAgentConfigPath('tasks.json'),
+            environment: process.env.NODE_ENV,
+            debug: config.debug
+        }, {
+            providerService
+        });
+
+        return {
+            providerService,
+            modelService,
+            promptService,
+            taskService
+        };
+    }
+
+    /**
+     * Validates a configuration file against its schema
+     * @param path Path to the configuration file
+     * @param schema Zod schema to validate against
+     * @param name Name of the configuration for error messages
+     * @throws Error if validation fails
+     */
+    private validateConfigSchema(path: string, schema: z.ZodType<any>, name: string): void {
+        try {
+            const content = readFileSync(path, 'utf-8');
+            const json = JSON.parse(content);
+            const result = schema.safeParse(json);
+
+            if (!result.success) {
+                const errors = result.error.errors.map(err =>
+                    `  - ${err.path.join('.')}: ${err.message}`
+                ).join('\n');
+
+                throw new Error(
+                    `Schema validation failed for ${name}:\n${errors}\n` +
+                    `File: ${path}`
+                );
+            }
+        } catch (error) {
+            if (error instanceof SyntaxError) {
+                throw new Error(
+                    `Invalid JSON in ${name} file:\n` +
+                    `  ${error.message}\n` +
+                    `File: ${path}`
+                );
+            }
+            throw error;
+        }
+    }
+
+    /**
+     * Validates all configuration files against their schemas
+     * @throws Error if any validation fails
+     */
+    private validateConfigSchemas(): void {
+        const schemasToValidate = [
+            // Shared configuration files
+            {
+                path: this.getSharedConfigPath('providers.json'),
+                schema: ProvidersFileSchema,
+                name: 'Providers configuration'
+            },
+            {
+                path: this.getSharedConfigPath('models.json'),
+                schema: ModelConfigFileSchema,
+                name: 'Models configuration'
+            },
+            // Agent-specific configuration files
+            {
+                path: this.getAgentConfigPath('prompts.json'),
+                schema: PromptConfigFileSchema,
+                name: 'Prompts configuration'
+            },
+            {
+                path: this.getAgentConfigPath('tasks.json'),
+                schema: TaskConfigFileSchema,
+                name: 'Tasks configuration'
+            }
+        ];
+
+        for (const { path, schema, name } of schemasToValidate) {
+            this.validateConfigSchema(path, schema, name);
+        }
+    }
+
+    /**
+     * Validates that all required configuration files exist
+     * @throws Error if any required configuration file is missing
+     */
+    private validateConfigFiles(): void {
+        const filesToCheck = [
+            // Shared configuration files
+            {
+                path: this.getSharedConfigPath('providers.json'),
+                name: 'Providers configuration'
+            },
+            {
+                path: this.getSharedConfigPath('models.json'),
+                name: 'Models configuration'
+            },
+            // Agent-specific configuration files
+            {
+                path: this.getAgentConfigPath('prompts.json'),
+                name: 'Prompts configuration'
+            },
+            {
+                path: this.getAgentConfigPath('tasks.json'),
+                name: 'Tasks configuration'
+            }
+        ];
+
+        const missingFiles: string[] = [];
+
+        for (const file of filesToCheck) {
+            try {
+                accessSync(file.path);
+            } catch {
+                missingFiles.push(`${file.name} file not found at: ${file.path}`);
+            }
+        }
+
+        if (missingFiles.length > 0) {
+            throw new Error(
+                'Missing required configuration files:\n' +
+                missingFiles.map(msg => `- ${msg}`).join('\n')
+            );
+        }
+    }
+
+    /**
+     * Creates a new Agent instance
+     * @param configPath Path to the agent's configuration directory
+     */
     constructor({ configPath }: { configPath: string }) {
         this.configLoader = new ConfigurationLoader({
             basePath: configPath,
             environment: process.env.NODE_ENV,
             validateSchema: true
         });
+
+        // Load agent configuration
         this.config = this.configLoader.loadConfig('config.json') as AgentConfig;
         this.agentRun = this.initializeAgentRun(this.config);
         this.state = this.initializeState(this.config);
 
-        // Initialize services
-        this.taskService = new TaskService(this.config);
-        this.providerService = new ProviderService(this.config);
-        this.modelService = new ModelService(this.config);
-        this.promptService = new PromptService(this.config);
+        // In development mode, validate configuration files
+        if (process.env.NODE_ENV === 'development') {
+            try {
+                // First check if files exist
+                this.validateConfigFiles();
+                // Then validate their schemas
+                this.validateConfigSchemas();
+            } catch (error) {
+                console.error('Configuration validation failed:', error);
+                throw error;
+            }
+        }
+
+        // Initialize all services with correct paths
+        const services = this.initializeServices(this.config);
+        this.providerService = services.providerService;
+        this.modelService = services.modelService;
+        this.promptService = services.promptService;
+        this.taskService = services.taskService;
+    }
+
+    /**
+     * Creates a new Agent instance asynchronously
+     * @param configPath Path to the agent's configuration directory
+     * @returns Promise that resolves to a new Agent instance
+     */
+    public static async create<I, O, A>({ configPath }: { configPath: string }): Promise<Agent<I, O, A>> {
+        const agent = new Agent<I, O, A>({ configPath });
+
+        // In development mode, validate configuration files
+        if (process.env.NODE_ENV === 'development') {
+            try {
+                await agent.validateConfigFiles();
+            } catch (error) {
+                console.error('Configuration validation failed:', error);
+                throw error;
+            }
+        }
+
+        return agent;
     }
 
     private initializeErrors(): AgentErrors { return { errors: [], errorCount: 0 }; }

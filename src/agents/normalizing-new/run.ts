@@ -1,5 +1,6 @@
 import { config } from 'dotenv'
 import { join } from 'path'
+import { getAgentRoot } from '../agent-service/utils.js'
 import { NormalizingAgent } from './normalizing-agent.js'
 
 interface RunOptions {
@@ -16,7 +17,7 @@ export async function runNormalizingAgent(options: RunOptions): Promise<void> {
     config()
 
     const agent = new NormalizingAgent({
-        configPath: join(process.cwd(), options.configPath ?? 'agents/normalizing-new/config')
+        configPath: join(getAgentRoot('normalizing-new'), 'config')
     })
 
     const outputDir = options.outputDir ?? join(process.cwd(), 'output')
@@ -55,7 +56,7 @@ if (require.main === module) {
     void runNormalizingAgent({
         inputDir,
         outputDir,
-        configPath: 'agents/normalizing-new/config'
+        configPath: join(getAgentRoot('normalizing-new'), 'config')
     })
 }
 

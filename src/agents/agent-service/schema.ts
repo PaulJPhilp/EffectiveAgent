@@ -1,4 +1,4 @@
-import { TaskSchema } from '@/shared/services/task/schemas/taskSchemas.ts'
+import { TaskConfigSchema } from '@services/task/schemas/taskConfig.js'
 import { z } from 'zod'
 
 export const AgentRunSchema = z.object({
@@ -12,6 +12,7 @@ export const AgentRunSchema = z.object({
 
 export const AgentConfigSchema = z.object({
     name: z.string(),
+    agentName: z.string(),
     description: z.string(),
     version: z.string(),
     tags: z.array(z.string()).optional(),
@@ -25,7 +26,7 @@ export const AgentConfigSchema = z.object({
     retryDelay: z.number().positive(),
     debug: z.boolean().optional(),
     environment: z.string().optional(),
-    tasks: z.array(TaskSchema),
+    tasks: z.array(TaskConfigSchema),
     configFiles: z.object({
         providers: z.string(),
         models: z.string(),
