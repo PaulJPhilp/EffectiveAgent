@@ -22,19 +22,51 @@ export class InitializeRunNode extends AgentNode<AgentState<PersonaInput, Person
     }
 
     async execute(state: AgentState<PersonaInput, PersonaOutput, PersonaDomainState>): Promise<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
-        // Set up run directories
-        const outputDir = this.setupRunDirectories(state.agentRun.runId, state.config)
+        try {
+            // Set up run directories
+            const outputDir = this.setupRunDirectories(state.agentRun.runId, state.config)
 
-        return {
-            ...state,
-            status: {
-                ...state.status,
-                overallStatus: 'running'
-            },
-            agentRun: {
-                ...state.agentRun,
-                outputDir,
-                inputDir: state.config.inputPath
+            return {
+                ...state,
+                status: {
+                    ...state.status,
+                    overallStatus: 'running',
+                    nodeHistory: [
+                        ...state.status.nodeHistory,
+                        {
+                            nodeId: 'initialize_run',
+                            status: 'completed',
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                },
+                agentRun: {
+                    ...state.agentRun,
+                    outputDir,
+                    inputDir: state.config.inputPath
+                }
+            }
+        } catch (error) {
+            return {
+                ...state,
+                status: {
+                    ...state.status,
+                    overallStatus: 'error',
+                    nodeHistory: [
+                        ...state.status.nodeHistory,
+                        {
+                            nodeId: 'initialize_run',
+                            status: 'error',
+                            error: error instanceof Error ? error.message : 'Unknown error during initialization',
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                },
+                errors: {
+                    ...state.errors,
+                    errors: [...state.errors.errors, error instanceof Error ? error.message : 'Unknown error during initialization'],
+                    errorCount: state.errors.errorCount + 1
+                }
             }
         }
     }

@@ -56,8 +56,7 @@ export class LangGraphAgentGraph<T extends AgentState<any, any, any>> implements
 
         // Add all nodes to the graph, converting node handlers as needed
         Object.entries(nodes).forEach(([nodeId, agentNode]) => {
-            const nodeHandler = async (state: any, context: any) => {
-                const nodeConfig = context?.configurable as AgentGraphConfig | undefined;
+            const nodeHandler = async (state: any, _context: any) => {
                 try {
                     // Update status to entering node
                     const enteringStatus: NodeStatus = {
@@ -76,23 +75,29 @@ export class LangGraphAgentGraph<T extends AgentState<any, any, any>> implements
                     };
 
                     // Run the node
-                    const result = await agentNode.runnable()(stateWithEnteringStatus, nodeConfig);
-
-                    // Update status to completed node
-                    const completedStatus: NodeStatus = {
+                    return await this.nodeHandler(stateWithEnteringStatus, nodeId, agentNode)
+                } catch (error) {
+                    // Create error status
+                    const errorStatus: NodeStatus = {
                         nodeId,
-                        status: 'completed',
+                        status: 'error',
+                        details: error instanceof Error ? error.message : String(error),
                         timestamp: new Date().toISOString()
                     };
+
+                    // Return error state
                     return {
-                        ...result,
+                        ...state,
                         status: {
-                            ...result.status,
-                            nodeHistory: [...result.status.nodeHistory, completedStatus]
+                            ...state.status,
+                            overallStatus: 'error',
+                            nodeHistory: [...(state.status.nodeHistory || []), errorStatus]
+                        },
+                        errors: {
+                            errors: [...state.errors.errors, String(errorStatus.details)],
+                            errorCount: state.errors.errorCount + 1
                         }
                     };
-                } catch (error) {
-                    throw error;
                 }
             };
             stateGraph.addNode(nodeId, nodeHandler as any);
@@ -211,7 +216,10 @@ export class LangGraphAgentGraph<T extends AgentState<any, any, any>> implements
 
                 return {
                     ...state,
-                    status: 'failed',
+                    status: {
+                        ...state.status,
+                        overallStatus: 'error'
+                    },
                     errors: {
                         ...state.errors,
                         errors: [...state.errors.errors, errorMessage],
@@ -232,6 +240,47 @@ export class LangGraphAgentGraph<T extends AgentState<any, any, any>> implements
      */
     public setDebug(enabled: boolean): void {
         this.debug = enabled
+    }
+
+    private async nodeHandler<T extends AgentState<any, any, any>>(
+        state: T,
+        nodeId: string,
+        node: AgentNode<T>
+    ): Promise<T> {
+        try {
+            // Initialize nodeHistory if it doesn't exist
+            if (!state.status.nodeHistory) {
+                state.status.nodeHistory = []
+            }
+
+            // Execute the node
+            const result = await node.execute(state)
+
+            // Return result directly since node.execute already handles status updates
+            return result
+        } catch (error) {
+            // Create error status
+            const errorStatus: NodeStatus = {
+                nodeId,
+                status: 'error',
+                details: error instanceof Error ? error.message : String(error),
+                timestamp: new Date().toISOString()
+            };
+
+            // Return error state
+            return {
+                ...state,
+                status: {
+                    ...state.status,
+                    overallStatus: 'error',
+                    nodeHistory: [...(state.status.nodeHistory || []), errorStatus]
+                },
+                errors: {
+                    errors: [...state.errors.errors, String(errorStatus.details)],
+                    errorCount: state.errors.errorCount + 1
+                }
+            }
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 import { ModelService } from '../../shared/services/model/modelService.js'
 import { PromptService } from '../../shared/services/prompt/promptService.js'
 import { ProviderService } from '../../shared/services/provider/providerService.js'
-import { TaskService } from '../../shared/services/task/TaskService.js'
+import { TaskService } from '../../shared/services/task/taskService.js'
 import { AgentGraph } from '../agent-service/AgentGraph.js'
 import { ClusterPersonasNode } from './nodes/cluster-personas.js'
 import { ElaboratePersonasNode } from './nodes/elaborate-personas.js'

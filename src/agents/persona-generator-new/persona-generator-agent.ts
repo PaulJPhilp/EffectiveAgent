@@ -9,15 +9,18 @@ import { LoadProfilesNode } from './nodes/load-profiles.js'
 import { SaveResultsNode } from './nodes/save-results.js'
 import type { PersonaDomainState, PersonaInput, PersonaOutput } from './types.js'
 
+export type PersonaGeneratorState = AgentState<PersonaInput, PersonaOutput, PersonaDomainState>
+
 /**
  * Agent that generates personas from user profiles
  */
 export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, PersonaDomainState> {
-    constructor({ configPath }: { configPath: string }) {
-        super({ configPath })
+    constructor(agentName: string) {
+        super(agentName)
+        if (this.debug)console.log(`PersonaGeneratorAgent(${agentName})`)
     }
 
-    protected buildGraph(): AgentGraphImplementation<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
+    protected buildGraph(): AgentGraphImplementation<PersonaGeneratorState> {
         // Create nodes
         const initializeRun = new InitializeRunNode(
             this.taskService,
@@ -56,23 +59,23 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
 
         // Create graph
         const graph = {
-            'initialize': {
+            'initialize_run': {
                 node: initializeRun,
-                next: ['load-profiles']
+                next: ['load_profiles']
             },
-            'load-profiles': {
+            'load_profiles': {
                 node: loadProfiles,
-                next: ['cluster-personas']
+                next: ['cluster_personas']
             },
-            'cluster-personas': {
+            'cluster_personas': {
                 node: clusterPersonas,
-                next: ['elaborate-personas']
+                next: ['elaborate_personas']
             },
-            'elaborate-personas': {
+            'elaborate_personas': {
                 node: elaboratePersonas,
-                next: ['save-results']
+                next: ['save_results']
             },
-            'save-results': {
+            'save_results': {
                 node: saveResults,
                 next: ['END']
             }
@@ -81,7 +84,7 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
         // Create and return the graph implementation
         return createLangGraphAgentGraph(
             graph,
-            'initialize',
+            'initialize_run',
             this.taskService,
             this.providerService,
             this.modelService,
@@ -93,9 +96,9 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
         return {
             nodes: [
                 {
-                    id: 'initialize',
+                    id: 'initialize_run',
                     type: 'initialize-run',
-                    next: ['load-profiles'],
+                    next: ['load_profiles'],
                     data: {
                         description: 'Initializes a new persona generation run',
                         input_type: 'PersonaInput',
@@ -103,9 +106,9 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
                     }
                 },
                 {
-                    id: 'load-profiles',
+                    id: 'load_profiles',
                     type: 'load-profiles',
-                    next: ['cluster-personas'],
+                    next: ['cluster_personas'],
                     data: {
                         description: 'Loads and validates user profiles',
                         input_type: 'void',
@@ -113,9 +116,9 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
                     }
                 },
                 {
-                    id: 'cluster-personas',
+                    id: 'cluster_personas',
                     type: 'cluster-personas',
-                    next: ['elaborate-personas'],
+                    next: ['elaborate_personas'],
                     data: {
                         description: 'Clusters similar profiles together',
                         input_type: 'Profile[]',
@@ -123,9 +126,9 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
                     }
                 },
                 {
-                    id: 'elaborate-personas',
+                    id: 'elaborate_personas',
                     type: 'elaborate-personas',
-                    next: ['save-results'],
+                    next: ['save_results'],
                     data: {
                         description: 'Elaborates clusters into detailed personas',
                         input_type: 'Cluster[]',
@@ -133,7 +136,7 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
                     }
                 },
                 {
-                    id: 'save-results',
+                    id: 'save_results',
                     type: 'save-results',
                     next: ['END'],
                     data: {
@@ -145,8 +148,8 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
             ],
             edges: [
                 {
-                    from: 'initialize',
-                    to: 'load-profiles',
+                    from: 'initialize_run',
+                    to: 'load_profiles',
                     conditions: [
                         {
                             field: 'status.overallStatus',
@@ -156,8 +159,8 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
                     ]
                 },
                 {
-                    from: 'load-profiles',
-                    to: 'cluster-personas',
+                    from: 'load_profiles',
+                    to: 'cluster_personas',
                     conditions: [
                         {
                             field: 'agentState.profiles.length',
@@ -167,8 +170,8 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
                     ]
                 },
                 {
-                    from: 'cluster-personas',
-                    to: 'elaborate-personas',
+                    from: 'cluster_personas',
+                    to: 'elaborate_personas',
                     conditions: [
                         {
                             field: 'agentState.clusters.length',
@@ -178,8 +181,8 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
                     ]
                 },
                 {
-                    from: 'elaborate-personas',
-                    to: 'save-results',
+                    from: 'elaborate_personas',
+                    to: 'save_results',
                     conditions: [
                         {
                             field: 'agentState.personas.length',
@@ -187,48 +190,17 @@ export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, Pe
                             value: 0
                         }
                     ]
+                },
+                {
+                    from: 'save_results',
+                    to: 'END'
                 }
             ],
-            start_node_id: 'initialize'
+            start_node_id: 'initialize_run'
         }
     }
 
-    async run(input: PersonaInput): Promise<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
-        const graph = this.buildGraph()
-        const initialState: AgentState<PersonaInput, PersonaOutput, PersonaDomainState> = {
-            config: this.config,
-            agentRun: {
-                runId: crypto.randomUUID(),
-                startTime: new Date().toISOString(),
-                outputDir: '',
-                inputDir: '',
-                description: 'Persona generation run',
-                completedSteps: []
-            },
-            status: {
-                overallStatus: 'running',
-                currentNode: '',
-                nodeHistory: []
-            },
-            logs: {
-                logs: [],
-                logCount: 0
-            },
-            errors: {
-                errors: [],
-                errorCount: 0
-            },
-            input,
-            output: {
-                clusters: [],
-                personas: []
-            },
-            agentState: {
-                profiles: [],
-                clusters: [],
-                personas: []
-            }
-        }
-        return await graph.runnable()(initialState)
+    public async run(input: PersonaInput): Promise<PersonaGeneratorState> {
+        return super.run(input)
     }
 } 

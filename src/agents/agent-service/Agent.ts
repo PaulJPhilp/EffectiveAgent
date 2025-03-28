@@ -15,7 +15,6 @@ import { join } from "path";
 import { z } from "zod";
 import type { AgentGraphConfig, AgentGraphImplementation } from "./AgentGraph.js";
 import type { AgentConfig, AgentErrors, AgentLogs, AgentRun, AgentState } from "./types.js";
-import { getAgentConfigPath, getSharedConfigPath } from "./utils.js";
 
 /**
  * Represents a condition for edge traversal
@@ -68,14 +67,19 @@ export interface LangGraphConfig {
 }
 
 export class Agent<I, O, A> {
+    protected debug: boolean = false
+    private agentName: string = ""
     readonly config: AgentConfig;
     readonly agentRun: AgentRun;
     readonly state: AgentState<I, O, A>;
-    private readonly configLoader: ConfigurationLoader;
     protected readonly taskService: TaskService;
     protected readonly providerService: IProviderService;
     protected readonly modelService: ModelService;
     protected readonly promptService: PromptService;
+
+    protected getRootDirectory(): string {
+        return join(process.cwd(), 'src', 'agents');
+    }
 
     /**
      * Gets the path to a shared configuration file
@@ -83,7 +87,8 @@ export class Agent<I, O, A> {
      * @returns The absolute path to the shared configuration file
      */
     protected getSharedConfigPath(filename: string): string {
-        return getSharedConfigPath(filename);
+        if (this.debug) console.log(`getSharedConfigPath(${filename})`)
+        return join(this.getRootDirectory(), 'config', filename);
     }
 
     /**
@@ -91,13 +96,9 @@ export class Agent<I, O, A> {
      * @param filename Name of the configuration file
      * @returns The absolute path to the agent-specific configuration file
      */
-    protected getAgentConfigPath(filename: string): string {
-        // Extract agent name from path if not provided in config
-        const agentName = this.config.agentName ?? this.config.agentPath.split('/').filter(Boolean).pop() ?? '';
-        if (!agentName) {
-            throw new Error('Could not determine agent name from config or path');
-        }
-        return getAgentConfigPath(agentName, filename);
+    protected getAgentConfigPath(fileName: string): string {
+        if (this.debug) console.log(`getAgentConfigPath(${fileName})`)
+        return join(this.getRootDirectory(), this.agentName, 'config', fileName)
     }
 
     /**
@@ -113,8 +114,8 @@ export class Agent<I, O, A> {
     } {
         // Initialize provider configuration service
         const providerConfigService = new ProviderConfigurationService({
-            configPath: this.getSharedConfigPath('providers.json'),
-            environment: process.env.NODE_ENV
+            configPath: config.configFiles.providers,
+            environment: process.env["NODE_ENV"]
         });
 
         const modelConfigService = {
@@ -132,24 +133,25 @@ export class Agent<I, O, A> {
         // Initialize model service with shared config
         const modelService = new ModelService({
             configPath: this.getSharedConfigPath('models.json'),
-            environment: process.env.NODE_ENV,
+            environment: process.env["NODE_ENV"],
             debug: config.debug
         }, providerService);
 
         // Initialize prompt service with agent-specific config
         const promptService = new PromptService({
             configPath: this.getAgentConfigPath('prompts.json'),
-            environment: process.env.NODE_ENV,
+            environment: process.env["NODE_ENV"],
             debug: config.debug
         });
 
         // Initialize task service with agent-specific config
         const taskService = new TaskService({
             configPath: this.getAgentConfigPath('tasks.json'),
-            environment: process.env.NODE_ENV,
+            environment: process.env["NODE_ENV"],
             debug: config.debug
         }, {
-            providerService
+            providerService,
+            promptService
         });
 
         return {
@@ -168,6 +170,7 @@ export class Agent<I, O, A> {
      * @throws Error if validation fails
      */
     private validateConfigSchema(path: string, schema: z.ZodType<any>, name: string): void {
+        console.log(`validateConfigSchema(${path})`)
         try {
             const content = readFileSync(path, 'utf-8');
             const json = JSON.parse(content);
@@ -228,6 +231,7 @@ export class Agent<I, O, A> {
         for (const { path, schema, name } of schemasToValidate) {
             this.validateConfigSchema(path, schema, name);
         }
+        console.log(`FINISHED`)
     }
 
     /**
@@ -261,11 +265,13 @@ export class Agent<I, O, A> {
         for (const file of filesToCheck) {
             try {
                 accessSync(file.path);
+                console.log('Successfully found.')
             } catch {
                 missingFiles.push(`${file.name} file not found at: ${file.path}`);
             }
         }
 
+        console.log(missingFiles)
         if (missingFiles.length > 0) {
             throw new Error(
                 'Missing required configuration files:\n' +
@@ -278,59 +284,37 @@ export class Agent<I, O, A> {
      * Creates a new Agent instance
      * @param configPath Path to the agent's configuration directory
      */
-    constructor({ configPath }: { configPath: string }) {
-        this.configLoader = new ConfigurationLoader({
-            basePath: configPath,
-            environment: process.env.NODE_ENV,
-            validateSchema: true
-        });
-
-        // Load agent configuration
-        this.config = this.configLoader.loadConfig('config.json') as AgentConfig;
-        this.agentRun = this.initializeAgentRun(this.config);
-        this.state = this.initializeState(this.config);
-
-        // In development mode, validate configuration files
-        if (process.env.NODE_ENV === 'development') {
-            try {
-                // First check if files exist
-                this.validateConfigFiles();
-                // Then validate their schemas
-                this.validateConfigSchemas();
-            } catch (error) {
-                console.error('Configuration validation failed:', error);
-                throw error;
-            }
+    constructor(agentName: string) {
+        if (this.debug) console.log(`[Agent] Constructor(${agentName})`)
+        this.agentName = agentName
+        // Get the agent root directory
+        const agentRoot = join(this.getRootDirectory(), this.agentName)
+        if (this.debug) {
+            console.log(`[Agent]: Constructor(${agentRoot})`)
+            this.validateConfigFiles()
+            this.validateConfigSchemas()
         }
+
+        // Load agent configuration first
+        const agentConfigLoader = new ConfigurationLoader({
+            basePath: join(agentRoot, 'config'),
+            environment: process.env["NODE_ENV"],
+            validateSchema: true
+        })
+
+        this.config = agentConfigLoader.loadConfig('config.json') as AgentConfig
+        // Initialize agent run and state
+        this.agentRun = this.initializeAgentRun(this.config)
+        this.state = this.initializeState(this.config)
 
         // Initialize all services with correct paths
-        const services = this.initializeServices(this.config);
-        this.providerService = services.providerService;
-        this.modelService = services.modelService;
-        this.promptService = services.promptService;
-        this.taskService = services.taskService;
+        const services = this.initializeServices(this.config)
+        this.providerService = services.providerService
+        this.modelService = services.modelService
+        this.promptService = services.promptService
+        this.taskService = services.taskService
     }
 
-    /**
-     * Creates a new Agent instance asynchronously
-     * @param configPath Path to the agent's configuration directory
-     * @returns Promise that resolves to a new Agent instance
-     */
-    public static async create<I, O, A>({ configPath }: { configPath: string }): Promise<Agent<I, O, A>> {
-        const agent = new Agent<I, O, A>({ configPath });
-
-        // In development mode, validate configuration files
-        if (process.env.NODE_ENV === 'development') {
-            try {
-                await agent.validateConfigFiles();
-            } catch (error) {
-                console.error('Configuration validation failed:', error);
-                throw error;
-            }
-        }
-
-        return agent;
-    }
 
     private initializeErrors(): AgentErrors { return { errors: [], errorCount: 0 }; }
 
@@ -358,7 +342,7 @@ export class Agent<I, O, A> {
             status: {
                 currentNode: '',
                 nodeHistory: [],
-                overallStatus: 'initializing'
+                overallStatus: 'running'
             },
             logs: this.initializeLogs(),
             errors: this.initializeErrors(),
@@ -399,11 +383,20 @@ export class Agent<I, O, A> {
                 ...this.state,
                 status: {
                     ...this.state.status,
-                    overallStatus: 'failed' as const
+                    overallStatus: 'error',
+                    nodeHistory: [
+                        ...this.state.status.nodeHistory,
+                        {
+                            nodeId: 'agent',
+                            status: 'error',
+                            error: errorMessage,
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
                 },
                 errors: {
-                    errors: [errorMessage],
-                    errorCount: 1
+                    errors: [...this.state.errors.errors, errorMessage],
+                    errorCount: this.state.errors.errorCount + 1
                 }
             };
         }

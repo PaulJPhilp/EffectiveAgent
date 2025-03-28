@@ -4,6 +4,20 @@
     "description": "Tasks for the persona generator agent",
     "tasks": [
         {
+            "taskName": "cluster-personas",
+            "name": "Cluster Personas",
+            "description": "Group similar profiles into clusters based on shared characteristics",
+            "primaryModelId": "gpt-35-turbo",
+            "fallbackModelIds": ["claude-35-flash", "gemini-2-pro"],
+            "temperature": 0.2,
+            "requiredCapabilities": ["text-generation", "reasoning"],
+            "contextWindowSize": "medium-context-window",
+            "promptName": "cluster-personas",
+            "maxAttempts": 3,
+            "timeout": 40000,
+            "maxTokens": 6000
+        },
+        {
             "taskName": "generate-persona",
             "name": "Generate Persona",
             "description": "Generate a detailed professional persona from normalized profile data",

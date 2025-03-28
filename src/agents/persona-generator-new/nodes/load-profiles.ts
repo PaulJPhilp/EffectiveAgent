@@ -1,70 +1,153 @@
-import fs from 'node:fs'
-import path from 'path'
+import { mkdir, readFile, readdir, writeFile } from 'fs/promises'
+import { join } from 'path'
 import { z } from 'zod'
 import { AgentNode } from '../../agent-service/AgentNode.js'
-import type { AgentState } from '../../agent-service/types.js'
-import type { PersonaDomainState, PersonaInput, PersonaOutput } from '../types.js'
+import type { PersonaGeneratorState } from '../persona-generator-agent.js'
+import type { Profile } from '../types.js'
 
+// Profile schema
 const ProfileSchema = z.object({
     id: z.string(),
     name: z.string(),
-    description: z.string(),
     bio: z.string(),
     interests: z.array(z.string()),
     skills: z.array(z.string()),
     traits: z.array(z.string())
 })
 
-type Profile = z.infer<typeof ProfileSchema>
-
 /**
  * Node that loads user profiles from input files
  */
-export class LoadProfilesNode extends AgentNode<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
+export class LoadProfilesNode extends AgentNode<PersonaGeneratorState> {
     protected readonly debug: boolean = false
 
-    async execute(state: AgentState<PersonaInput, PersonaOutput, PersonaDomainState>): Promise<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
-        // Load profiles from input directory
-        const inputPath = path.join(state.config.inputPath, 'profiles')
-        if (!fs.existsSync(inputPath)) {
-            throw new Error(`Input profiles directory not found: ${inputPath}`)
-        }
+    async execute(state: PersonaGeneratorState): Promise<PersonaGeneratorState> {
+        const { profiles: profilePaths } = state.input
+        const errors: string[] = []
 
-        const profileFiles = fs.readdirSync(inputPath)
-            .filter(file => file.endsWith('.json'))
+        try {
+            let profiles: Profile[] = []
 
-        if (profileFiles.length === 0) {
-            throw new Error('No profile JSON files found in input directory')
-        }
+            // Process each profile path
+            for (const profilePath of profilePaths) {
+                try {
+                    // Check if profilePath is a direct file path
+                    if (profilePath.endsWith('.json')) {
+                        const fileContent = await readFile(profilePath, 'utf-8')
+                        const data = JSON.parse(fileContent)
 
-        // Load and validate each profile
-        const profiles: Profile[] = []
-        for (const file of profileFiles) {
-            const filePath = path.join(inputPath, file)
-            const content = fs.readFileSync(filePath, 'utf-8')
-            const profile = ProfileSchema.parse(JSON.parse(content))
-            profiles.push(profile)
-        }
+                        // Handle both single profile and array of profiles
+                        const parsedProfiles = Array.isArray(data)
+                            ? await Promise.all(data.map(profile => ProfileSchema.parseAsync(profile)))
+                            : [await ProfileSchema.parseAsync(data)]
 
-        // Save intermediate results in debug mode
-        if (this.debug) {
-            const outputPath = path.join(state.config.outputPath, 'intermediate')
-            fs.mkdirSync(outputPath, { recursive: true })
-            fs.writeFileSync(
-                path.join(outputPath, 'loaded-profiles.json'),
-                JSON.stringify(profiles, null, 2)
-            )
-        }
+                        profiles.push(...parsedProfiles)
+                    } else {
+                        // Treat as directory and scan for JSON files
+                        const files = await readdir(profilePath)
+                        const jsonFiles = files.filter(file => file.endsWith('.json'))
 
-        return {
-            ...state,
-            status: {
-                ...state.status,
-                overallStatus: 'running'
-            },
-            agentState: {
-                ...state.agentState,
-                profiles
+                        const dirProfiles = await Promise.all(
+                            jsonFiles.map(async file => {
+                                const filePath = join(profilePath, file)
+                                const content = await readFile(filePath, 'utf-8')
+                                const data = JSON.parse(content)
+                                return ProfileSchema.parseAsync(data)
+                            })
+                        )
+                        profiles.push(...dirProfiles)
+                    }
+                } catch (error) {
+                    const errorMessage = error instanceof Error
+                        ? `Failed to load profile at ${profilePath}: ${error.message}`
+                        : `Failed to load profile at ${profilePath}`
+                    errors.push(errorMessage)
+                }
+            }
+
+            if (profiles.length === 0) {
+                throw new Error('No valid profiles found')
+            }
+
+            // Save intermediate results in debug mode
+            if (this.debug) {
+                const outputPath = join(state.config.outputPath, 'intermediate')
+                await mkdir(outputPath, { recursive: true })
+                await writeFile(
+                    join(outputPath, 'loaded-profiles.json'),
+                    JSON.stringify(profiles, null, 2)
+                )
+            }
+
+            // If we have any errors but also some valid profiles, we can continue
+            if (errors.length > 0) {
+                return {
+                    ...state,
+                    status: {
+                        ...state.status,
+                        overallStatus: 'running',
+                        nodeHistory: [
+                            ...state.status.nodeHistory,
+                            {
+                                nodeId: 'load_profiles',
+                                status: 'completed',
+                                timestamp: new Date().toISOString()
+                            }
+                        ]
+                    },
+                    agentState: {
+                        ...state.agentState,
+                        profiles
+                    },
+                    errors: {
+                        errors: [...state.errors.errors, ...errors],
+                        errorCount: state.errors.errorCount + errors.length
+                    }
+                }
+            }
+
+            // No errors, all profiles loaded successfully
+            return {
+                ...state,
+                status: {
+                    ...state.status,
+                    overallStatus: 'running',
+                    nodeHistory: [
+                        ...state.status.nodeHistory,
+                        {
+                            nodeId: 'load_profiles',
+                            status: 'completed',
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                },
+                agentState: {
+                    ...state.agentState,
+                    profiles
+                }
+            }
+        } catch (error) {
+            // Critical error - no profiles could be loaded
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error loading profiles'
+            return {
+                ...state,
+                status: {
+                    ...state.status,
+                    overallStatus: 'error',
+                    nodeHistory: [
+                        ...state.status.nodeHistory,
+                        {
+                            nodeId: 'load_profiles',
+                            status: 'error',
+                            error: errorMessage,
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                },
+                errors: {
+                    errors: [...state.errors.errors, errorMessage],
+                    errorCount: state.errors.errorCount + 1
+                }
             }
         }
     }

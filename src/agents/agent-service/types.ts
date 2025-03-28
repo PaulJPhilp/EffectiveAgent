@@ -18,9 +18,14 @@ export interface NodeStatus {
 }
 
 export interface AgentStatus {
-    readonly currentNode: string
-    readonly nodeHistory: NodeStatus[]
-    readonly overallStatus: 'initializing' | 'running' | 'completed' | 'failed' | 'paused' | 'cancelled'
+    overallStatus?: 'running' | 'completed' | 'error'
+    nodeHistory: Array<{
+        nodeId: string
+        status: 'completed' | 'error'
+        error?: string
+        timestamp: string
+    }>
+    currentNode?: string
 }
 
 export interface AgentLogs {

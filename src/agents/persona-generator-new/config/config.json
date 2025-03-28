@@ -1,21 +1,21 @@
 {
-    "name": "persona-generator-agent",
-    "description": "Agent for generating personas from normalized profiles",
+    "name": "persona-generator-new",
+    "description": "Agent that generates personas from user profiles",
     "version": "1.0.0",
-    "rootPath": "/Users/paul/projects/pdf-loader/src/agents/persona-generator-new",
-    "agentPath": "/Users/paul/projects/pdf-loader/src/agents/persona-generator-new",
-    "inputPath": "/Users/paul/projects/pdf-loader/data/clean",
-    "outputPath": "/Users/paul/projects/pdf-loader/output",
-    "logPath": "/Users/paul/projects/pdf-loader/logs",
-    "defaultModel": "gpt-4-turbo",
-    "maxConcurrency": 5,
+    "agentName": "persona-generator-new",
+    "rootPath": ".",
+    "agentPath": "src/agents/persona-generator-new",
+    "inputPath": "test-input",
+    "outputPath": "test-output",
+    "logPath": "test-output/logs",
+    "maxConcurrency": 1,
     "maxRetries": 3,
     "retryDelay": 1000,
-    "debug": true,
     "configFiles": {
-        "providers": "/Users/paul/projects/pdf-loader/src/agents/config/providers.json",
-        "models": "/Users/paul/projects/pdf-loader/src/agents/config/models.json",
-        "tasks": "/Users/paul/projects/pdf-loader/src/agents/persona-generator-new/config/tasks.json",
-        "prompts": "/Users/paul/projects/pdf-loader/src/agents/persona-generator-new/config/prompts.json"
-    }
+        "providers": "src/agents/config/providers.json",
+        "models": "src/agents/config/models.json",
+        "prompts": "src/agents/persona-generator-new/config/prompts.json",
+        "tasks": "src/agents/persona-generator-new/config/tasks.json"
+    },
+    "tags": ["persona-generation", "clustering"]
 } 

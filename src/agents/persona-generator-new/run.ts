@@ -1,6 +1,6 @@
 import { config } from 'dotenv'
 import { join } from 'path'
-import { NormalizingAgent } from './normalizing-agent.js'
+import { PersonaGeneratorAgent } from './persona-generator-agent.ts'
 
 interface RunOptions {
     readonly inputDir: string
@@ -12,18 +12,17 @@ interface RunOptions {
  * Runs the normalizing agent with the specified options
  * @param options Configuration options for the agent run
  */
-export async function runNormalizingAgent(options: RunOptions): Promise<void> {
+export async function runPersonaGeneratorAgent(options: RunOptions): Promise<void> {
     config()
 
-    const agent = new NormalizingAgent('normalizing-agent')
+    const agent = new PersonaGeneratorAgent('persona-generator-new')
 
     const outputDir = options.outputDir ?? join(process.cwd(), 'output')
     const inputDir = options.inputDir
-
     try {
-        const result = await agent.run({ inputDir, outputDir })
-        console.log('Normalization completed successfully')
-        console.log('Summary:', result.output.summary)
+        const result = await agent.run({ inputDir })
+        console.log('PersonaGeneratorAgent completed successfully')
+        console.log('Summary:', result.output)
 
         // Save LangGraph configuration for visualization
         await agent.saveLangGraphConfig(join(outputDir, 'langgraph.json'))
@@ -50,7 +49,7 @@ if (require.main === module) {
         process.exit(1)
     }
 
-    void runNormalizingAgent({
+    void runPersonaGeneratorAgent({
         inputDir,
         outputDir
     })

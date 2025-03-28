@@ -27,4 +27,4 @@ export interface PersonaDomainState {
 /**
  * State type for the persona generator agent
  */
-export type PersonaAgentState = AgentState<PersonaInput, PersonaOutput, PersonaDomainState> & PersonaDomainState 
+export type PersonaGeneratorState = AgentState<PersonaInput, PersonaOutput, PersonaDomainState>

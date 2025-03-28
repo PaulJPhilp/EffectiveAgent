@@ -81,7 +81,7 @@ export class LoadProfilesNode extends AgentNode<NormalizingAgentState> {
                 status: {
                     ...state.status,
                     currentNode: this.name,
-                    overallStatus: 'failed'
+                    overallStatus: 'error'
                 },
                 errors: {
                     errors: [...state.errors.errors, errorMessage],

@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import path from 'path'
+import path from 'node:path'
 import { ModelService } from '../../../shared/services/model/modelService.js'
 import { PromptService } from '../../../shared/services/prompt/promptService.js'
 import type { IProviderService } from '../../../shared/services/provider/types.js'
@@ -51,50 +51,82 @@ export class SaveResultsNode extends AgentNode<AgentState<PersonaInput, PersonaO
     }
 
     async execute(state: AgentState<PersonaInput, PersonaOutput, PersonaDomainState>): Promise<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
-        // Validate we have personas to save
-        if (!state.agentState.personas || state.agentState.personas.length === 0) {
-            throw new Error('No personas available to save')
-        }
-
-        // Save final results
-        const finalResults: GenerationResults = {
-            personas: state.agentState.personas,
-            clusters: state.agentState.clusters,
-            metadata: {
-                totalProfiles: state.agentState.profiles.length,
-                totalClusters: state.agentState.clusters.length,
-                totalPersonas: state.agentState.personas.length,
-                generatedAt: new Date().toISOString()
+        try {
+            // Validate we have personas to save
+            if (!state.agentState.personas || state.agentState.personas.length === 0) {
+                throw new Error('No personas available to save')
             }
-        }
 
-        // Save to output directory
-        const outputPath = path.join(
-            state.agentRun.outputDir,
-            'final-results.json'
-        )
-        fs.writeFileSync(
-            outputPath,
-            JSON.stringify(finalResults, null, 2)
-        )
-
-        // Create a summary file
-        const summaryPath = path.join(
-            state.agentRun.outputDir,
-            'summary.md'
-        )
-        const summary = this.generateSummary(finalResults)
-        fs.writeFileSync(summaryPath, summary)
-
-        return {
-            ...state,
-            status: {
-                ...state.status,
-                overallStatus: 'completed'
-            },
-            output: {
+            // Save final results
+            const finalResults: GenerationResults = {
+                personas: state.agentState.personas,
                 clusters: state.agentState.clusters,
-                personas: state.agentState.personas
+                metadata: {
+                    totalProfiles: state.agentState.profiles.length,
+                    totalClusters: state.agentState.clusters.length,
+                    totalPersonas: state.agentState.personas.length,
+                    generatedAt: new Date().toISOString()
+                }
+            }
+
+            // Save to output directory
+            const outputPath = path.join(
+                state.agentRun.outputDir,
+                'final-results.json'
+            )
+            fs.writeFileSync(
+                outputPath,
+                JSON.stringify(finalResults, null, 2)
+            )
+
+            // Create a summary file
+            const summaryPath = path.join(
+                state.agentRun.outputDir,
+                'summary.md'
+            )
+            const summary = this.generateSummary(finalResults)
+            fs.writeFileSync(summaryPath, summary)
+
+            return {
+                ...state,
+                status: {
+                    ...state.status,
+                    overallStatus: 'completed',
+                    nodeHistory: [
+                        ...state.status.nodeHistory,
+                        {
+                            nodeId: 'save_results',
+                            status: 'completed',
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                },
+                output: {
+                    clusters: state.agentState.clusters,
+                    personas: state.agentState.personas
+                }
+            }
+        } catch (error) {
+            return {
+                ...state,
+                status: {
+                    ...state.status,
+                    overallStatus: 'error',
+                    nodeHistory: [
+                        ...state.status.nodeHistory,
+                        {
+                            nodeId: 'save_results',
+                            status: 'error',
+                            error: error instanceof Error ? error.message : 'Unknown error saving results',
+                            timestamp: new Date().toISOString()
+                        }
+                    ]
+                },
+                errors: {
+                    ...state.errors,
+                    errors: [...state.errors.errors, error instanceof Error ? error.message : 'Unknown error saving results'],
+                    errorCount: state.errors.errorCount + 1
+                }
             }
         }
     }
