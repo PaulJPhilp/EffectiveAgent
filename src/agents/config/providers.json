@@ -12,9 +12,67 @@
 			"defaultHeaders": {
 				"Content-Type": "application/json"
 			},
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"vision",
+				"image-generation",
+				"embeddings"
+			],
+			"models": {
+				"gpt-4-turbo-preview": {
+					"type": "text",
+					"contextWindow": 128000,
+					"maxOutputTokens": 4096
+				},
+				"gpt-4-vision-preview": {
+					"type": "vision",
+					"contextWindow": 128000,
+					"maxOutputTokens": 4096,
+					"supportedFormats": ["png", "jpeg", "gif", "webp"]
+				},
+				"gpt-4-1106-preview": {
+					"type": "text",
+					"contextWindow": 128000,
+					"maxOutputTokens": 4096
+				},
+				"gpt-3.5-turbo": {
+					"type": "text",
+					"contextWindow": 16000,
+					"maxOutputTokens": 4096
+				},
+				"dall-e-3": {
+					"type": "image",
+					"supportedSizes": ["1024x1024", "1792x1024", "1024x1792"],
+					"supportedQualities": ["standard", "hd"],
+					"supportedStyles": ["natural", "vivid"],
+					"maxImagesPerRequest": 1
+				},
+				"text-embedding-3-small": {
+					"type": "embedding",
+					"dimensions": 1536,
+					"maxInputTokens": 8191
+				},
+				"text-embedding-3-large": {
+					"type": "embedding",
+					"dimensions": 3072,
+					"maxInputTokens": 8191
+				}
+			},
 			"rateLimit": {
-				"requestsPerMinute": 3500,
-				"tokensPerMinute": 180000
+				"text": {
+					"requestsPerMinute": 3500,
+					"tokensPerMinute": 180000
+				},
+				"image": {
+					"requestsPerMinute": 50,
+					"imagesPerMinute": 50
+				},
+				"embedding": {
+					"requestsPerMinute": 1000,
+					"tokensPerMinute": 150000
+				}
 			}
 		},
 		{
@@ -27,8 +85,33 @@
 				"Content-Type": "application/json",
 				"anthropic-version": "2024-01-01"
 			},
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling"
+			],
+			"models": {
+				"claude-3-opus": {
+					"type": "text",
+					"contextWindow": 200000,
+					"maxOutputTokens": 4096
+				},
+				"claude-3-sonnet": {
+					"type": "text",
+					"contextWindow": 200000,
+					"maxOutputTokens": 4096
+				},
+				"claude-3-haiku": {
+					"type": "text",
+					"contextWindow": 200000,
+					"maxOutputTokens": 4096
+				}
+			},
 			"rateLimit": {
-				"requestsPerMinute": 150
+				"text": {
+					"requestsPerMinute": 150,
+					"tokensPerMinute": 100000
+				}
 			}
 		},
 		{
@@ -40,8 +123,52 @@
 			"defaultHeaders": {
 				"Content-Type": "application/json"
 			},
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"function-calling",
+				"vision",
+				"image-generation",
+				"embeddings"
+			],
+			"models": {
+				"gemini-pro": {
+					"type": "text",
+					"contextWindow": 32000,
+					"maxOutputTokens": 2048
+				},
+				"gemini-pro-vision": {
+					"type": "vision",
+					"contextWindow": 32000,
+					"maxOutputTokens": 2048,
+					"supportedFormats": ["png", "jpeg", "webp"],
+					"supportedSizes": ["1024x1024", "2048x2048"],
+					"maxImagesPerRequest": 16
+				},
+				"gemini-ultra": {
+					"type": "text",
+					"contextWindow": 32000,
+					"maxOutputTokens": 2048
+				},
+				"embedding-001": {
+					"type": "embedding",
+					"dimensions": 768,
+					"maxInputTokens": 3072
+				}
+			},
 			"rateLimit": {
-				"requestsPerMinute": 1500
+				"text": {
+					"requestsPerMinute": 1500,
+					"tokensPerMinute": 150000
+				},
+				"image": {
+					"requestsPerMinute": 100,
+					"imagesPerMinute": 100
+				},
+				"embedding": {
+					"requestsPerMinute": 500,
+					"tokensPerMinute": 100000
+				}
 			}
 		},
 		{
@@ -53,8 +180,22 @@
 			"defaultHeaders": {
 				"Content-Type": "application/json"
 			},
+			"capabilities": [
+				"text-generation",
+				"chat"
+			],
+			"models": {
+				"grok-1": {
+					"type": "text",
+					"contextWindow": 8192,
+					"maxOutputTokens": 2048
+				}
+			},
 			"rateLimit": {
-				"requestsPerMinute": 100
+				"text": {
+					"requestsPerMinute": 100,
+					"tokensPerMinute": 50000
+				}
 			}
 		},
 		{
@@ -66,8 +207,28 @@
 			"defaultHeaders": {
 				"Content-Type": "application/json"
 			},
+			"capabilities": [
+				"text-generation",
+				"chat",
+				"code-generation"
+			],
+			"models": {
+				"deepseek-coder": {
+					"type": "text",
+					"contextWindow": 32000,
+					"maxOutputTokens": 2048
+				},
+				"deepseek-chat": {
+					"type": "text",
+					"contextWindow": 32000,
+					"maxOutputTokens": 2048
+				}
+			},
 			"rateLimit": {
-				"requestsPerMinute": 500
+				"text": {
+					"requestsPerMinute": 500,
+					"tokensPerMinute": 100000
+				}
 			}
 		},
 		{
@@ -78,8 +239,21 @@
 			"defaultHeaders": {
 				"Content-Type": "application/json"
 			},
+			"capabilities": [
+				"text-generation"
+			],
+			"models": {
+				"local-model": {
+					"type": "text",
+					"contextWindow": 4096,
+					"maxOutputTokens": 1024
+				}
+			},
 			"rateLimit": {
-				"requestsPerMinute": 1000
+				"text": {
+					"requestsPerMinute": 1000,
+					"tokensPerMinute": 100000
+				}
 			}
 		}
 	],

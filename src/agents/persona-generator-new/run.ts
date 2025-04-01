@@ -1,26 +1,24 @@
 import { config } from 'dotenv'
 import { join } from 'path'
 import { PersonaGeneratorAgent } from './persona-generator-agent.ts'
+import type { PersonaInput } from './types.ts'
 
-interface RunOptions {
-    readonly inputDir: string
-    readonly outputDir?: string
-    readonly configPath?: string
-}
 
 /**
- * Runs the normalizing agent with the specified options
+ * Runs the persona generator agent with the specified options
  * @param options Configuration options for the agent run
  */
-export async function runPersonaGeneratorAgent(options: RunOptions): Promise<void> {
+export async function runPersonaGeneratorAgent(options: PersonaInput): Promise<void> {
+    options.inputDir = options.inputDir ?? join(process.cwd(), 'input')
+    options.outputDir = options.outputDir ?? join(process.cwd(), 'output')
     config()
 
     const agent = new PersonaGeneratorAgent('persona-generator-new')
 
-    const outputDir = options.outputDir ?? join(process.cwd(), 'output')
+    const outputDir = options.outputDir
     const inputDir = options.inputDir
     try {
-        const result = await agent.run({ inputDir })
+        const result = await agent.run({ inputDir, outputDir })
         console.log('PersonaGeneratorAgent completed successfully')
         console.log('Summary:', result.output)
 
@@ -54,5 +52,3 @@ if (require.main === module) {
         outputDir
     })
 }
-
-export type { RunOptions }

@@ -1,0 +1,79 @@
+# Tool Service Implementation Plan
+
+This plan outlines the steps to implement the `ToolService` based on the defined architecture.
+
+**Phase 1: Foundation & Core Logic**
+
+1.  **Setup Project Structure:** Create the following directories:
+    *   `src/shared/services/tool/`
+    *   `src/shared/services/tool/__tests__/`
+    *   `src/shared/services/tool/errors/`
+    *   `src/shared/services/tool/types/`
+    *   `src/shared/services/tool/standard-library/`
+
+2.  **Define Core Types:** Implement `Tool` interface, `ToolExecutionContext`, `AnyTool`, `ToolService` interface, and the `ToolService` Effect Tag in `src/shared/services/tool/types/`.
+
+3.  **Define Errors:** Implement the `ToolError` hierarchy (`ToolError`, `ToolRegistrationError`, `ToolNotFoundError`, `ToolValidationError`, `ToolExecutionError`, `ToolInvocationError`) in `src/shared/services/tool/errors/`. Ensure they extend a common base `ServiceError` if applicable.
+
+4.  **Implement `ToolServiceLive` (Initial):** Create `src/shared/services/tool/tool-service.ts`.
+    *   Implement the class structure.
+    *   Add an internal `Map` for the tool registry.
+    *   Implement `registerTool`, `getTool`, and `listTools` methods.
+    *   Implement a basic `invokeTool` structure: fetch tool, placeholder for context creation, input validation using `safeParse`, placeholder for execution, output validation placeholder. Log basic actions.
+    *   Inject `LoggingService` using Effect's `Context`.
+
+5.  **Implement Basic Standard Tool:** Create `src/shared/services/tool/standard-library/calculator.tool.ts`.
+    *   Define input schema (e.g., `z.object({ expression: z.string() })`).
+    *   Define output schema (e.g., `z.object({ result: z.number() })`).
+    *   Implement the `execute` function using a safe method (avoid `eval` in production; consider a library like `mathjs` if needed, or simple arithmetic initially).
+    *   Export the `calculatorTool` object.
+    *   Create `src/shared/services/tool/standard-library/index.ts` and export the calculator tool from it.
+
+6.  **Integration & Basic Testing:**
+    *   Update the main application's service layer setup (e.g., `src/main.ts` or equivalent) to provide `ToolServiceLive`.
+    *   Register the `calculatorTool` during setup.
+    *   Create `src/shared/services/tool/__tests__/tool-service.test.ts`.
+    *   Write unit tests for `ToolServiceLive` covering:
+        *   Successful tool registration.
+        *   Attempting to register duplicate tool IDs (`ToolRegistrationError`).
+        *   Successful tool retrieval (`getTool`).
+        *   Retrieving a non-existent tool (`ToolNotFoundError`).
+        *   Listing tools (empty and with registered tools).
+        *   Basic successful `invokeTool` for the calculator.
+        *   `invokeTool` with an invalid `toolId` (`ToolNotFoundError`).
+        *   `invokeTool` with invalid input data (`ToolValidationError`).
+
+**Phase 2: Refinement & Advanced Features**
+
+7.  **Refine `invokeTool` Error Handling:**
+    *   Implement proper error handling within `invokeTool` for failures during `tool.execute`. Catch errors and wrap them in `ToolExecutionError`.
+    *   Implement output validation using `outputSchema.safeParse` and fail with `ToolValidationError` if invalid.
+    *   Ensure all potential errors within `invokeTool` (validation, not found, execution) are consistently wrapped in `ToolInvocationError` before the effect fails.
+    *   Enhance logging within `invokeTool` to include execution context details, errors, and timing.
+
+8.  **Expand Testing:** Add tests to `tool-service.test.ts` specifically for:
+    *   `invokeTool` failing due to output validation errors.
+    *   `invokeTool` failing due to errors thrown *inside* the tool's `execute` function (`ToolExecutionError`).
+
+9.  **Develop More Standard Tools:** Implement `web-search.tool.ts`.
+    *   Define appropriate input/output schemas (e.g., input: query string, output: array of search results).
+    *   Implement `execute` using a library like `axios` or `node-fetch` to call a search API (e.g., SerpApi, Google Search API - requires API key handling).
+    *   Consider how the tool will get necessary configuration (like API keys).
+
+10. **Configuration Integration:**
+    *   Inject `ConfigurationService` into `ToolServiceLive`.
+    *   Update `ToolExecutionContext` definition if tools need direct access to config.
+    *   Modify `invokeTool` to potentially fetch tool-specific configuration (e.g., API keys for `web-search`) and pass it via the `ToolExecutionContext` to the `execute` function.
+    *   Update `web-search.tool.ts` to use the configuration from the context.
+    *   Add tests related to configuration passing and usage (may require mocking `ConfigurationService`).
+
+**Phase 3: Optional Enhancements**
+
+11. **Task Service Integration:**
+    *   If long-running tools are expected, inject `TaskService`.
+    *   Potentially refactor `invokeTool` to optionally submit the tool execution as a background task via `TaskService`, returning a task ID or initial status.
+    *   Requires significant changes to the `invokeTool` signature and return type, or a new method like `invokeToolAsync`.
+
+12. **Advanced Filtering/Discovery:** Enhance `listTools` with more complex filtering options if needed (e.g., capability matching beyond simple tags).
+
+13. **Security Considerations:** Review input sanitization, especially for tools that interact with external systems or execute code-like expressions (like the calculator example). Ensure API keys and sensitive data are handled securely via `ConfigurationService` and not exposed directly in tool code. 

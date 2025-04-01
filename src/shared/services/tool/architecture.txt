@@ -1,0 +1,115 @@
+# Tool Service Architecture
+
+## Overview
+This document outlines the architecture for the `ToolService`, designed to provide agents with the ability to use tools in a type-safe, reusable, and composable manner. It integrates with existing services like Logging, Configuration, and potentially Task Management, following Effect.js patterns for functional programming and error handling.
+
+## Core Concepts
+
+*   **Tool Definition:** Each tool is represented by an object adhering to the `Tool` interface. This definition encapsulates metadata (ID, name, description), input/output validation schemas (using Zod), and the core execution logic within an `Effect`.
+*   **Type Safety:** Zod schemas provide runtime validation for tool inputs and outputs, complementing TypeScript's static type checking.
+*   **Composability:** Tools are designed as self-contained, independent units. Agents discover and invoke available tools via the `ToolService`.
+*   **Error Handling:** A dedicated `ToolError` hierarchy, extending a base `ServiceError`, manages errors related to tool registration, discovery, invocation, validation, and execution.
+*   **Integration:** The service leverages `LoggingService` for detailed observability. It may use `ConfigurationService` for tool-specific settings and `TaskService` for managing asynchronous tool executions.
+
+## Components
+
+### 1. `Tool` Interface (`types/tool.ts`)
+
+Defines the structure for all tool definitions.
+
+```typescript
+import { type Effect } from "effect"
+import { type z } from "zod"
+import { type ConfigurationService } from "../../configuration/types.js"
+import { type LoggingService } from "../../logging/types.js"
+import { type ToolError } from "../errors/tool-error.js"
+
+interface ToolExecutionContext {
+  loggingService: LoggingService
+  configurationService: ConfigurationService
+  // Other potential context...
+}
+
+export interface Tool<InputSchema extends z.ZodTypeAny, OutputSchema extends z.ZodTypeAny> {
+  readonly id: string
+  readonly name: string
+  readonly description: string
+  readonly inputSchema: InputSchema
+  readonly outputSchema: OutputSchema
+  readonly execute: (
+    input: z.infer<InputSchema>,
+    context: ToolExecutionContext
+  ) => Effect.Effect<z.infer<OutputSchema>, ToolError> // Specific ToolExecutionError?
+  readonly tags?: string[]
+}
+
+export type AnyTool = Tool<z.ZodTypeAny, z.ZodTypeAny>
+```
+
+### 2. `ToolService` Interface & Tag (`types/tool-service.ts`)
+
+Defines the contract for the service and the Effect Tag for dependency injection.
+
+```typescript
+import { type Context, type Effect } from "effect"
+import { type ToolNotFoundError, type ToolRegistrationError, type ToolInvocationError } from "../errors/index.js"
+import { type AnyTool } from "./tool.js"
+
+export interface ToolService {
+  registerTool(tool: AnyTool): Effect.Effect<void, ToolRegistrationError>
+  getTool(toolId: string): Effect.Effect<AnyTool, ToolNotFoundError>
+  listTools(options?: { tags?: string[] }): Effect.Effect<AnyTool[], never>
+  invokeTool<Input, Output>(
+    toolId: string,
+    input: Input
+  ): Effect.Effect<Output, ToolInvocationError>
+}
+
+export class ToolService extends Context.Tag("ToolService")<ToolService>() {}
+```
+
+### 3. Error Hierarchy (`errors/`)
+
+A structured set of custom error types extending a base `ServiceError`:
+
+*   `ToolError`: Base class for all tool-related errors.
+*   `ToolRegistrationError`: For issues during tool registration (e.g., duplicate ID).
+*   `ToolNotFoundError`: When a specified `toolId` is not found.
+*   `ToolValidationError`: For failures in input or output schema validation.
+*   `ToolExecutionError`: For errors occurring within a tool's `execute` logic.
+*   `ToolInvocationError`: A wrapper error for any failure during the `invokeTool` process.
+
+### 4. `ToolServiceLive` Implementation (`tool-service.ts`)
+
+The concrete implementation of the `ToolService` interface.
+
+*   **State:** Manages an internal registry of tools (e.g., `Map<string, AnyTool>`).
+*   **Dependencies:** Injects required services (`LoggingService`, `ConfigurationService`, etc.) using Effect's `Context`.
+*   **Methods:**
+    *   `registerTool`: Validates and adds tools to the registry. Logs registration events.
+    *   `getTool`: Retrieves tools from the registry, handling not-found cases.
+    *   `listTools`: Provides a list of registered tools, supports filtering.
+    *   `invokeTool`: Orchestrates tool execution:
+        1.  Retrieves the tool definition.
+        2.  Constructs the `ToolExecutionContext`.
+        3.  Validates input against `inputSchema`.
+        4.  Calls the tool's `execute` method within an Effect pipeline.
+        5.  Validates output against `outputSchema`.
+        6.  Performs detailed logging (start, input, success/failure, output/error, duration).
+        7.  Manages and wraps errors appropriately (`ToolInvocationError`).
+
+### 5. Standard Tool Library (`standard-library/`)
+
+A collection of pre-built, reusable tools.
+
+*   Each tool is defined in its own file (e.g., `calculator.tool.ts`, `web-search.tool.ts`).
+*   Follows the `Tool` interface and includes necessary schemas and logic.
+*   An `index.ts` barrel file can export all standard tools for easy registration.
+
+## Design Principles
+
+*   **Modularity:** Tools are independent units.
+*   **Type Safety:** Leverages TypeScript and Zod for compile-time and runtime checks.
+*   **Functional:** Uses Effect.js for managing side effects, context, and errors.
+*   **Testability:** Designed for unit and integration testing.
+*   **Observability:** Integrated logging for tracing tool usage and errors. 

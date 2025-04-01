@@ -1,67 +1,93 @@
 {
-	"name": "Task Configurations",
-	"version": "0.1.0",
 	"description": "Configuration for all available tasks",
 	"tasks": [
 		{
 			"taskName": "normalize-profile",
 			"name": "Profile Normalization",
-			"description": "Normalize raw profile data into a standardized format",
-			"primaryModelId": "gpt-35-turbo",
-			"fallbackModelIds": ["claude-35-flash", "gemini-2-pro"],
-			"temperature": 0.3,
-			"requiredCapabilities": ["text-generation", "reasoning"],
-			"contextWindowSize": "medium-context-window",
+			"description": "Normalize raw profile data into a standardized format, outputting JSON.",
+			"taskType": "object-generation",
 			"promptName": "normalize-profile",
-			"thinkingLevel": "advanced",
+			"primaryModelId": "gpt-4-turbo",
+			"fallbackModelIds": [
+				"claude-35-sonnet",
+				"gemini-15-pro"
+			],
+			"temperature": 0.2,
+			"requiredCapabilities": [
+				"chat",
+				"reasoning",
+				"function-calling"
+			],
+			"contextWindowSize": "medium",
+			"thinkingLevel": "medium",
 			"maxAttempts": 3,
 			"timeout": 30000,
-			"maxTokens": 4000
+			"maxTokens": 2048
 		},
 		{
 			"taskName": "extract-skills",
 			"name": "Skills Extraction",
-			"description": "Extract and categorize skills from profiles",
-			"primaryModelId": "gemini-2-pro",
-			"fallbackModelIds": ["gpt-35-turbo"],
-			"temperature": 0.2,
-			"requiredCapabilities": ["text-generation", "reasoning"],
-			"contextWindowSize": "medium-context-window",
+			"description": "Extract and categorize skills from profiles into JSON format.",
+			"taskType": "object-generation",
 			"promptName": "extract-skills",
+			"primaryModelId": "gemini-15-pro",
+			"fallbackModelIds": [
+				"gpt-4-turbo",
+				"claude-35-sonnet"
+			],
+			"temperature": 0.3,
+			"requiredCapabilities": [
+				"chat",
+				"reasoning"
+			],
+			"contextWindowSize": "large",
 			"thinkingLevel": "medium",
 			"maxAttempts": 2,
-			"timeout": 20000,
-			"maxTokens": 2000
+			"timeout": 25000,
+			"maxTokens": 2048
 		},
 		{
 			"taskName": "summarize-experience",
 			"name": "Experience Summarization",
-			"description": "Create concise summaries of professional experience",
-			"primaryModelId": "claude-35-flash",
-			"fallbackModelIds": ["gpt-35-turbo", "gemini-2-pro"],
-			"temperature": 0.4,
-			"requiredCapabilities": ["text-generation"],
-			"contextWindowSize": "medium-context-window",
+			"description": "Create concise summaries of professional experience.",
+			"taskType": "text-generation",
 			"promptName": "summarize-experience",
-			"thinkingLevel": "medium",
+			"primaryModelId": "claude-35-sonnet",
+			"fallbackModelIds": [
+				"gpt-35-turbo",
+				"gemini-15-flash"
+			],
+			"temperature": 0.5,
+			"requiredCapabilities": [
+				"chat"
+			],
+			"contextWindowSize": "medium",
+			"thinkingLevel": "low",
 			"maxAttempts": 2,
 			"timeout": 15000,
-			"maxTokens": 1500
+			"maxTokens": 1024
 		},
 		{
 			"taskName": "validate-profile",
 			"name": "Profile Validation",
-			"description": "Validate profile data for completeness and accuracy",
-			"primaryModelId": "gpt-35-turbo",
-			"fallbackModelIds": ["gemini-2-pro"],
-			"temperature": 0.1,
-			"requiredCapabilities": ["text-generation", "reasoning"],
-			"contextWindowSize": "medium-context-window",
+			"description": "Validate profile data for completeness and accuracy, identifying issues.",
+			"taskType": "text-generation",
 			"promptName": "validate-profile",
-			"thinkingLevel": "advanced",
+			"primaryModelId": "gpt-4-turbo",
+			"fallbackModelIds": [
+				"gemini-15-pro",
+				"claude-3-opus"
+			],
+			"temperature": 0.1,
+			"requiredCapabilities": [
+				"chat",
+				"reasoning"
+			],
+			"contextWindowSize": "large",
+			"thinkingLevel": "medium",
 			"maxAttempts": 2,
 			"timeout": 25000,
-			"maxTokens": 3000
+			"maxTokens": 2048
 		}
 	]
 }

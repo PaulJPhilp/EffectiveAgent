@@ -5,9 +5,9 @@
     "agentName": "persona-generator-new",
     "rootPath": ".",
     "agentPath": "src/agents/persona-generator-new",
-    "inputPath": "test-input",
-    "outputPath": "test-output",
-    "logPath": "test-output/logs",
+    "inputPath": "data",
+    "outputPath": "output",
+    "logPath": "output/logs",
     "maxConcurrency": 1,
     "maxRetries": 3,
     "retryDelay": 1000,
@@ -17,5 +17,6 @@
         "prompts": "src/agents/persona-generator-new/config/prompts.json",
         "tasks": "src/agents/persona-generator-new/config/tasks.json"
     },
-    "tags": ["persona-generation", "clustering"]
+    "tags": ["persona-generation", "clustering"],
+    "debug": true
 } 

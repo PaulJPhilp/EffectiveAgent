@@ -21,17 +21,17 @@
       }
     },
     {
-      "id": "gemini-2-pro",
-      "name": "Gemini 2.0 Pro",
+      "id": "gemini-2-flash",
+      "name": "Gemini 2.0 Flash",
       "version": "0.1.0",
       "provider": "google",
-      "modelName": "gemini-2.0-pro",
+      "modelName": "gemini-2.0-flash",
       "maxTokens": 128000,
       "contextWindowSize": "large-context-window",
       "costPer1kTokens": 0.0015,
       "capabilities": ["text-generation", "chat", "function-calling", "code-generation", "reasoning"],
       "metadata": {
-        "description": "Pro version of Gemini 2.0"
+        "description": "Flash version of Gemini 2.0"
       },
       "rateLimit": {
         "requestsPerMinute": 1500

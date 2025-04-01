@@ -22,21 +22,20 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
-			"@services/*": [
-				"shared/services/*"
-			],
-			"@agents/*": [
-				"agents/*"
-			]
+			"@/*": ["src/*"],
+			"@services/*": ["src/shared/services/*"],
+			"@agents/*": ["src/agents/*"],
+			"@shared/*": ["src/shared/*"]
 		}
 	},
 	"include": [
-		"services/*",
-		"agents/*"
+		"src/**/*.ts",
+		"src/**/*.tsx"
 	],
 	"devDependencies": {
 		"@types/bun": "latest",
 		"ajv-cli": "^5.0.0",
+		"tsconfig-paths": "^4.2.0",
 		"typescript": "^5.8.2",
 		"vite-tsconfig-paths": "^5.1.4",
 		"vitest": "^1.6.1"
@@ -45,9 +44,13 @@
 		"@ai-sdk/anthropic": "^1.2.2",
 		"@ai-sdk/deepseek": "^0.1.17",
 		"@ai-sdk/google": "^1.2.3",
+		"@ai-sdk/groq": "^1.2.3",
 		"@ai-sdk/mistral": "^1.2.1",
-		"@ai-sdk/openai": "^1.3.3",
+		"@ai-sdk/openai": "^1.3.4",
+		"@ai-sdk/perplexity": "^1.1.3",
 		"@ai-sdk/xai": "^1.2.3",
+		"@effect/platform": "^0.80.2",
+		"@effect/platform-bun": "^0.60.6",
 		"@langchain/community": "^0.3.37",
 		"@langchain/core": "^0.3.43",
 		"@langchain/google-genai": "^0.1.12",
@@ -55,28 +58,33 @@
 		"@langchain/langgraph": "^0.2.60",
 		"@langchain/langgraph-sdk": "^0.0.54",
 		"@langchain/openai": "^0.4.9",
-		"ai": "^4.2.6",
+		"ai": "^4.2.8",
 		"chalk": "^5.4.1",
 		"dotenv": "^16.4.7",
+		"effect": "^3.14.2",
 		"fs": "^0.0.1-security",
 		"liquid": "^5.1.1",
 		"liquidjs": "^10.21.0",
-		"openai": "^4.89.1",
+		"openai": "^4.90.0",
 		"path": "^0.12.7",
 		"pdf-parse": "^1.1.1",
 		"zod": "^3.24.2"
 	},
 	"scripts": {
 		"build": "tsc",
+		"typecheck:services": "tsc --noEmit --project tsconfig.services.json",
+		"lint:services": "bunx biome lint src/shared/services/",
+		"check:services": "bun run lint:services && bun run typecheck:services",
 		"test": "vitest run",
+		"test:services": "bun test src/shared/services",
 		"test:watch": "vitest",
 		"lint:shared": "bunx biome lint shared",
 		"lint:agents": "bunx biome lint agents",
 		"studio": "bunx @langchain/langgraph-cli@latest dev",
-		"normalize": "RECURSION_LIMIT=100 bun agents/normalizing-new/run.ts data/raw output/normalize",
-		"cluster": "RECURSION_LIMIT=100 bun agents/persona-generator-new/run.ts data output",
-		"evaluate": "RECURSION_LIMIT=100 bun agents/persona-evaluator-new/run.ts data output",
-		"image": "RECURSION_LIMIT=100 bun agents/persona-image-new/run.ts data output",
+		"normalize": "RECURSION_LIMIT=100 bun src/agents/normalizing-new/run.ts data/raw output/normalize",
+		"cluster": "RECURSION_LIMIT=100 bun src/agents/persona-generator-new/run.ts data output output/cluster",
+		"evaluate": "RECURSION_LIMIT=100 bun src/agents/persona-evaluator-new/run.ts data output output/evaluate",
+		"image": "RECURSION_LIMIT=100 bun src/agents/persona-image-new/run.ts data output output/image",
 		"create-agent": "bun tools/create-agent-v3.ts"
 	},
 	"keywords": [

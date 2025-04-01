@@ -50,7 +50,7 @@ export class AgentGraph<T extends AgentState<any, any, any>> implements AgentGra
     protected readonly providerService: IProviderService
     protected readonly modelService: IModelService
     protected readonly promptService: IPromptService
-    protected debug: boolean = false
+    protected debug: boolean = true
 
     constructor(
         graph: GraphDefinition<T>,
@@ -161,7 +161,7 @@ export class AgentGraph<T extends AgentState<any, any, any>> implements AgentGra
                     const runnableConfig = this.convertConfigToRunnableConfig(config)
                     currentState = await graphNode.node.runnable()(currentState, runnableConfig) as T
 
-                    if (currentState.status.overallStatus === 'failed') {
+                    if (currentState.status.overallStatus === 'error') {
                         break
                     }
 

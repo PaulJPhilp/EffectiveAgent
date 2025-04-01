@@ -1,0 +1,43 @@
+# Repository Service Architecture
+
+## Overview
+
+The Repository Service provides an abstraction layer for data persistence operations (CRUD - Create, Read, Update, Delete). It decouples the application logic from specific data storage implementations, allowing different backends to be swapped in depending on the environment (e.g., server-side database, in-memory for testing).
+
+## Core Components
+
+1.  **`IRepositoryService` Interface (`types/repository-service.ts`):**
+    *   Defines the contract for all repository implementations.
+    *   Specifies generic CRUD methods (e.g., `create<T>`, `findById<T>`, `find<T>`, `update<T>`, `delete<T>`).
+    *   Uses a generic type parameter `<T extends BaseEntity>` to operate on different entity types conforming to a base structure.
+
+2.  **`RepositoryService` Tag (`types/repository-service.ts`):**
+    *   The `Context.Tag` used for Effect's dependency injection system.
+    *   Identifies the `IRepositoryService` within the Effect context.
+
+3.  **`BaseEntity` Interface (`types/entities/base-entity.ts`):**
+    *   A common interface that all entities managed by the repository must implement.
+    *   Includes essential fields like `id` (unique identifier), `createdAt`, and `updatedAt` timestamps.
+
+4.  **Repository Errors (`errors/`):**
+    *   A hierarchy of custom errors specific to repository operations (e.g., `RepositoryError`, `EntityNotFoundError`, `DataValidationError`).
+    *   Ensures consistent error handling across implementations.
+
+## Implementation Strategies
+
+The service is designed to support multiple implementations, provided via different Effect Layers:
+
+1.  **Local/In-Memory (`impl/local/`):**
+    *   Uses simple in-memory data structures (like `Map` or `Array`).
+    *   Primarily used for testing, development environments, or scenarios where persistence isn't required.
+    *   Provided by `RepositoryServiceLocalLayer`.
+
+2.  **Drizzle ORM (`impl/drizzle/`):**
+    *   Interacts with a relational database using the Drizzle ORM.
+    *   Translates `IRepositoryService` methods into SQL queries via Drizzle.
+    *   Requires a configured database connection (likely provided by a separate `DatabaseService`).
+    *   Provided by `RepositoryServiceDrizzleLayer`.
+
+## Usage
+
+Application components that need data access will depend on the `RepositoryService` Tag. The specific implementation (Local, Drizzle) will be provided at the application's composition root via the corresponding Layer, allowing the rest of the application to remain agnostic to the underlying storage mechanism. 

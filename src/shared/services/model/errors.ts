@@ -1,50 +1,51 @@
-/**
- * Base error class for model service errors
- */
-export class ModelServiceError extends Error {
-    constructor(message: string) {
-        super(message)
-        this.name = 'ModelServiceError'
-    }
+// File: src/services/model/errors.ts
+
+import { Data } from "effect";
+
+// --- Configuration Related Errors ---
+export class ModelConfigLoadError extends Data.TaggedError("ModelConfigLoadError")<{
+	readonly message: string;
+	readonly filePath?: string;
+	readonly cause?: unknown;
+}> { }
+
+export class ModelNotFoundError extends Data.TaggedError("ModelNotFoundError")<{
+	readonly message: string;
+	readonly modelId: string;
+}> {
+	constructor(options: { modelId: string }) {
+		super({ message: `Model configuration not found for ID: ${options.modelId}`, modelId: options.modelId });
+	}
 }
 
-/**
- * Thrown when object generation fails validation
- */
-export class ValidationError extends ModelServiceError {
-    constructor(
-        message: string,
-        public readonly validationErrors: string[],
-        public readonly generatedData?: unknown
-    ) {
-        super(message)
-        this.name = 'ValidationError'
-    }
+export class ModelCapabilityError extends Data.TaggedError("ModelCapabilityError")<{
+	readonly message: string;
+	readonly modelId: string;
+	readonly requiredCapability: string;
+}> {
+	constructor(options: { modelId: string, requiredCapability: string }) {
+		super({ message: `Model ${options.modelId} does not support the required capability: ${options.requiredCapability}`, modelId: options.modelId, requiredCapability: options.requiredCapability });
+	}
 }
 
-/**
- * Thrown when model generation fails
- */
-export class GenerationError extends ModelServiceError {
-    constructor(
-        message: string,
-        public readonly modelId: string,
-        public readonly cause?: Error
-    ) {
-        super(message)
-        this.name = 'GenerationError'
-    }
+// --- Generation Related Errors ---
+export class GenerationError extends Data.TaggedError("GenerationError")<{
+	readonly message: string;
+	readonly modelId: string;
+	readonly cause?: unknown;
+}> {
+	constructor(options: { message: string, modelId: string, cause?: unknown }) {
+		super({ message: options.message, modelId: options.modelId, cause: options.cause });
+	}
 }
 
-/**
- * Thrown when model configuration is invalid
- */
-export class ModelConfigError extends ModelServiceError {
-    constructor(
-        message: string,
-        public readonly modelId: string
-    ) {
-        super(message)
-        this.name = 'ModelConfigError'
-    }
-} 
+export class ValidationError extends Data.TaggedError("ValidationError")<{
+	readonly message: string;
+	readonly validationErrors?: ReadonlyArray<string>;
+	readonly generatedData?: unknown;
+	readonly modelId: string;
+}> {
+	constructor(options: { message: string, modelId: string, validationErrors?: ReadonlyArray<string>, generatedData?: unknown }) {
+		super({ message: options.message, modelId: options.modelId, validationErrors: options.validationErrors, generatedData: options.generatedData });
+	}
+}

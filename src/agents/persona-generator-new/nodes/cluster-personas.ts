@@ -26,12 +26,16 @@ const ClusteringResultSchema = z.object({
  * Node that clusters similar profiles together using LLM
  */
 export class ClusterPersonasNode extends AgentNode<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
-    protected readonly debug: boolean = false
+    protected readonly debug: boolean = true
 
     async execute(state: AgentState<PersonaInput, PersonaOutput, PersonaDomainState>): Promise<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
         try {
             // Validate we have profiles to cluster
             if (!state.agentState.profiles || state.agentState.profiles.length === 0) {
+                if (this.debug) {
+                    //console.log('No profiles available for clustering')
+                    //console.log('Profiles:', JSON.stringify(state, null, 3))
+                }
                 throw new Error('No profiles available for clustering')
             }
 

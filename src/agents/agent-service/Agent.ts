@@ -1,20 +1,22 @@
-import { ConfigurationLoader } from "@services/configuration/index.js";
+import { ConfigurationLoader, PromptConfigFileSchema } from "@services/configuration/index.js";
 import { ModelService } from "@services/model/modelService.js";
+import { type ModelConfigFile, type ModelConfigurationOptions } from "@services/model/types.js";
 import { ModelConfigFileSchema } from "@services/model/schemas/modelConfig.js";
-import { PromptService } from "@services/prompt/promptService.js";
-import { PromptConfigFileSchema } from "@services/prompt/schemas/promptConfig.js";
 import { ProviderConfigurationService } from "@services/provider/providerConfigurationService.js";
 import { ProviderService } from "@services/provider/providerService.js";
-import { ProvidersFileSchema } from "@services/provider/schemas/providerConfig.js";
+import { ProvidersFileSchema, type ProvidersFile } from "@services/provider/schemas/providerConfig.js";
 import type { IProviderService } from "@services/provider/types.js";
-import { TaskConfigFileSchema } from "@services/task/schemas/taskConfig.js";
+import { TaskConfigFileSchema, type TaskConfigFile } from "@services/task/schemas/taskConfig.js";
 import { TaskService } from "@services/task/taskService.js";
-import { accessSync, readFileSync } from "fs";
-import { writeFile } from "fs/promises";
+import fs from "fs";
 import { join } from "path";
 import { z } from "zod";
-import type { AgentGraphConfig, AgentGraphImplementation } from "./AgentGraph.js";
 import type { AgentConfig, AgentErrors, AgentLogs, AgentRun, AgentState } from "./types.js";
+import type { JSONObject } from "@/types.ts";
+import { PromptService } from "@/shared/services/prompt/promptService.ts";
+import type { AgentGraphConfig, AgentGraphImplementation } from "./AgentGraph.ts";
+import { ModelConfigurationService } from "@/shared/services/model/modelConfigurationService.ts";
+
 
 /**
  * Represents a condition for edge traversal
@@ -112,16 +114,19 @@ export class Agent<I, O, A> {
         promptService: PromptService;
         taskService: TaskService;
     } {
+        if (this.debug) console.log('[Agent] initializeServices')
         // Initialize provider configuration service
         const providerConfigService = new ProviderConfigurationService({
             configPath: config.configFiles.providers,
             environment: process.env["NODE_ENV"]
         });
 
-        const modelConfigService = {
-            getModel: (id: string) => ({ id, provider: 'openai' }),
-            getDefaultModel: () => ({ id: 'default-model', provider: 'openai' })
+        const options: ModelConfigurationOptions = {
+            configPath: config.configFiles.models,
+            environment: process.env["NODE_ENV"],
+            basePath: config.rootPath
         };
+        const modelConfigService = new ModelConfigurationService(options);
 
         // Initialize provider service
         const providerService = new ProviderService(
@@ -162,6 +167,19 @@ export class Agent<I, O, A> {
         };
     }
 
+    private loadConfigFile(path: string, schema: z.ZodType<any>): z.SafeParseReturnType<any, any> {
+        if (this.debug) console.log(`loadConfigFile(${path})`)
+        try {
+            const content = fs.readFileSync(path, 'utf-8');
+            const json = JSON.parse(content) as JSONObject
+            const result = schema.safeParse(json);
+            return result;
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            throw new Error(`Failed to load configuration file ${path}: ${message}`);
+        }
+    }
+
     /**
      * Validates a configuration file against its schema
      * @param path Path to the configuration file
@@ -170,11 +188,9 @@ export class Agent<I, O, A> {
      * @throws Error if validation fails
      */
     private validateConfigSchema(path: string, schema: z.ZodType<any>, name: string): void {
-        console.log(`validateConfigSchema(${path})`)
+        if (this.debug) console.log(`validateConfigSchema(${path})`)
         try {
-            const content = readFileSync(path, 'utf-8');
-            const json = JSON.parse(content);
-            const result = schema.safeParse(json);
+            const result = this.loadConfigFile(path, schema);
 
             if (!result.success) {
                 const errors = result.error.errors.map(err =>
@@ -231,7 +247,54 @@ export class Agent<I, O, A> {
         for (const { path, schema, name } of schemasToValidate) {
             this.validateConfigSchema(path, schema, name);
         }
-        console.log(`FINISHED`)
+
+        const modelConfig = this.loadConfigFile(this.getSharedConfigPath('models.json'), ModelConfigFileSchema).data as ModelConfigFile
+        console.log("Model configuration:", Array.isArray(modelConfig.models) ? modelConfig.models.length : -1)
+        if (modelConfig === undefined) {
+            throw new Error('Model configuration not found')
+        }
+        const providerConfig = this.loadConfigFile(this.getSharedConfigPath('providers.json'), ProvidersFileSchema).data as ProvidersFile
+        if (providerConfig === undefined) {
+            throw new Error('Provider configuration not found')
+        }
+        const taskConfig = this.loadConfigFile(this.getAgentConfigPath('tasks.json'), TaskConfigFileSchema).data as TaskConfigFile
+        if (!taskConfig) {
+            throw new Error('Task configuration not found')
+        }
+       
+        for (const model of  modelConfig.models) {
+            if (model.provider === undefined) {
+                throw new Error(`Model ${model.name} is missing provider configuration`)
+            }
+
+            const providerName = model.provider.trim().toLowerCase()
+            let providerFound = false
+            for (const provider of providerConfig.providers) {
+                if (providerName === provider.name.trim().toLowerCase()) {
+                    providerFound = true
+                    break
+                }
+            }
+            if (!providerFound) {
+                throw new Error(`Model ${model.name} is configured to use provider ${model.provider}, but provider ${model.provider} is not defined in providers.json`)
+            }
+        }
+
+        for (const task of taskConfig.tasks) {
+            if (task.primaryModelId === undefined) {
+                throw new Error(`Task ${task.name} is missing primary model configuration`)
+            }
+            let taskModelFound = false
+            for (const model of modelConfig.models) {
+                if (task.primaryModelId.trim().toLowerCase() === model.id.trim().toLowerCase()) {
+                    taskModelFound = true
+                    break
+                }
+            }
+            if (!taskModelFound) {
+                throw new Error(`Task ${task.name} is configured to use model ${task.primaryModelId}, but model ${task.primaryModelId} is not defined in models.json`)
+            }
+        }
     }
 
     /**
@@ -264,14 +327,12 @@ export class Agent<I, O, A> {
 
         for (const file of filesToCheck) {
             try {
-                accessSync(file.path);
-                console.log('Successfully found.')
+                fs.accessSync(file.path);
             } catch {
                 missingFiles.push(`${file.name} file not found at: ${file.path}`);
             }
         }
 
-        console.log(missingFiles)
         if (missingFiles.length > 0) {
             throw new Error(
                 'Missing required configuration files:\n' +
@@ -435,7 +496,7 @@ export class Agent<I, O, A> {
                 updated: new Date().toISOString()
             };
             const finalPath = outputPath || join(this.config.outputPath, 'langgraph.json');
-            await writeFile(finalPath, JSON.stringify(config, null, 2));
+            fs.writeFileSync(finalPath, JSON.stringify(config, null, 2));
         } catch (error) {
             console.error('Error saving LangGraph config:', error);
             throw error;

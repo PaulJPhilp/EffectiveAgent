@@ -1,131 +1,71 @@
-import { ConfigurationLoader } from '../configuration/configurationLoader.js'
-import { ConfigurationService } from '../configuration/configurationService.js'
-import { ConfigurationError, type ConfigLoaderOptions, type ValidationResult } from '../configuration/types.js'
-import type {
-    PromptConfigFile,
-    PromptTemplate
-} from './schemas/promptConfig.js'
-import { PromptConfigFileSchema } from './schemas/promptConfig.js'
+// File: src/shared/services-effect/prompt/promptConfigurationService.ts
 
-/** Prompt configuration options */
-interface PromptConfigurationOptions extends ConfigLoaderOptions {
-    readonly configPath: string
-    readonly environment?: string
-}
+import { Effect, Layer, HashMap } from "effect";
+import type { PromptTemplate, PromptConfigFile } from './schema.js';
+import { PromptConfigurationService, PromptConfigFileTag } from './types.js';
+import { PromptNotFoundError } from './errors.js';
 
-/** Prompt configuration service */
-export class PromptConfigurationService extends ConfigurationService<PromptConfigFile> {
-    private readonly loader: ConfigurationLoader
-    private promptsMap: Map<string, PromptTemplate> = new Map()
+// --- Service Implementation Object Factory ---
+const makePromptConfigurationService = (
+  promptConfigFile: PromptConfigFile
+): PromptConfigurationService => {
+  if (!promptConfigFile || !Array.isArray(promptConfigFile.prompts)) {
+    throw new Error("Invalid or missing PromptConfigFile provided");
+  }
 
-    constructor(options: PromptConfigurationOptions) {
-        super({ validateOnLoad: true })
-        this.loader = new ConfigurationLoader({
-            basePath: '/',
-            environment: options.environment,
-            validateSchema: true
-        })
-    }
+  let promptsMap = HashMap.empty<string, PromptTemplate>();
+  const tempList: PromptTemplate[] = [];
+  const categoryMap = new Map<string, PromptTemplate[]>();
 
-    /** Load prompt configurations */
-    async loadConfigurations(): Promise<void> {
-        try {
-            const rawConfig = this.loader.loadConfig(
-                'prompts.json',
-                {
-                    schema: PromptConfigFileSchema,
-                    required: true
-                }
-            )
-            const parsedConfig = PromptConfigFileSchema.parse(rawConfig)
-            this.config = parsedConfig
+  promptConfigFile.prompts.forEach((prompt: PromptTemplate) => {
+    const promptId = prompt.id;
+    if (HashMap.has(promptsMap, promptId)) {
+      Effect.logWarning(`[PromptConfigurationService] Duplicate prompt ID: ${promptId}. Using first occurrence.`);
+    } else {
+      promptsMap = HashMap.set(promptsMap, promptId, prompt);
+      tempList.push(prompt);
 
-            // Build the prompts map for quick lookup
-            this.buildPromptsMap()
-        } catch (error) {
-            throw new ConfigurationError({
-                name: 'PromptConfigLoadError',
-                message: `Failed to load prompt configurations: ${(error as Error).message}`,
-                code: 'PROMPT_CONFIG_LOAD_ERROR'
-            })
+      if (prompt.category) {
+        if (!categoryMap.has(prompt.category)) {
+          categoryMap.set(prompt.category, []);
         }
+        categoryMap.get(prompt.category)?.push(prompt);
+      }
     }
+  });
 
-    /** Load prompt configurations synchronously */
-    loadConfig(configPath: string): PromptConfigFile {
-        try {
-            const rawConfig = this.loader.loadConfig(
-                configPath,
-                {
-                    schema: PromptConfigFileSchema,
-                    required: true
-                }
-            )
-            const parsedConfig = PromptConfigFileSchema.parse(rawConfig)
-            this.config = parsedConfig
+  const finalPromptsMap = promptsMap;
+  const promptList: ReadonlyArray<PromptTemplate> = Object.freeze([...tempList]);
+  const categoriesMap = new Map<string, ReadonlyArray<PromptTemplate>>(
+    Array.from(categoryMap.entries()).map(([category, prompts]) => [
+      category,
+      Object.freeze([...prompts])
+    ])
+  );
 
-            // Build the prompts map for quick lookup
-            this.buildPromptsMap()
+  return {
+    getPromptTemplate: (promptId: string): Effect.Effect<PromptTemplate, PromptNotFoundError> => {
+      return Effect.sync(() => HashMap.get(finalPromptsMap, promptId)).pipe(
+        Effect.flatMap(maybePrompt =>
+          maybePrompt._tag === "Some"
+            ? Effect.succeed(maybePrompt.value)
+            : Effect.fail(new PromptNotFoundError({ promptId }))
+        )
+      );
+    },
 
-            return parsedConfig
-        } catch (error) {
-            throw new ConfigurationError({
-                name: 'PromptConfigLoadError',
-                message: `Failed to load prompt configurations: ${(error as Error).message}`,
-                code: 'PROMPT_CONFIG_LOAD_ERROR'
-            })
-        }
+    listPrompts: (): Effect.Effect<ReadonlyArray<PromptTemplate>> => {
+      return Effect.succeed(promptList);
+    },
+
+    findPromptsByCategory: (category: string): Effect.Effect<ReadonlyArray<PromptTemplate>> => {
+      return Effect.sync(() => categoriesMap.get(category) ?? []);
     }
+  };
+};
 
-    /** Get prompt template by ID */
-    getPrompt(promptId: string): PromptTemplate {
-        const template = this.promptsMap.get(promptId)
-        if (!template) {
-            throw new ConfigurationError({
-                name: 'PromptNotFoundError',
-                message: `Prompt template not found for ID: ${promptId}`,
-                code: 'PROMPT_NOT_FOUND_ERROR'
-            })
-        }
-        return template
-    }
-
-    /** Get all available prompt IDs */
-    getPromptIds(): string[] {
-        return Array.from(this.promptsMap.keys())
-    }
-
-    /** Get all prompts in a specific category */
-    getPromptsByCategory(category: string): PromptTemplate[] {
-        return Array.from(this.promptsMap.values())
-            .filter(prompt => prompt.category === category)
-    }
-
-    /** Validate configuration */
-    protected validateConfig(
-        config: PromptConfigFile
-    ): ValidationResult {
-        try {
-            PromptConfigFileSchema.parse(config)
-            return { isValid: true }
-        } catch (error) {
-            return {
-                isValid: false,
-                errors: [error instanceof Error ? error.message : String(error)]
-            }
-        }
-    }
-
-    /** Build prompts map from configuration */
-    private buildPromptsMap(): void {
-        this.promptsMap.clear()
-
-        if (!this.config?.prompts) {
-            return
-        }
-
-        for (const prompt of this.config.prompts) {
-            this.promptsMap.set(prompt.id, prompt)
-        }
-    }
-}
+// --- Service Layer Definition ---
+export const PromptConfigurationServiceLive = Layer.effect(
+  PromptConfigurationService,
+  Effect.map(PromptConfigFileTag, configFile => makePromptConfigurationService(configFile))
+);

@@ -46,3 +46,11 @@ Do not make any changes to the shared services.
 - Use as const for literals that never change.
 - Use type guards to validate data types.
 - Prefer 'for...of' loops over 'forEach' for iteration.
+
+# Effect
+- Use Effect.flatMap for async operations.
+- Use Effect.logDebug for debugging.
+- Use Effect.logWarning for warnings.
+- Use Effect.logError for errors.
+- Use Effect version 3.14
+- Avoid using the (_) pattern in Effect.gen.

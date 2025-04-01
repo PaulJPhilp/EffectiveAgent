@@ -2,49 +2,61 @@
   "nodes": [
     {
       "id": "initialize_run",
-      "type": "InitializeRunNode",
+      "type": "initialize-run",
       "next": [
         "load_profiles"
       ],
       "data": {
-        "description": "Initializes the normalization run and sets up directories",
-        "input_type": "void",
+        "description": "Initializes a new persona generation run",
+        "input_type": "PersonaInput",
         "output_type": "void"
       }
     },
     {
       "id": "load_profiles",
-      "type": "LoadProfilesNode",
+      "type": "load-profiles",
       "next": [
-        "normalize_profiles"
+        "cluster_personas"
       ],
       "data": {
-        "description": "Loads and processes PDF files from input directory",
-        "input_type": "string",
-        "output_type": "BaseProfile[]"
+        "description": "Loads and validates user profiles",
+        "input_type": "void",
+        "output_type": "Profile[]"
       }
     },
     {
-      "id": "normalize_profiles",
-      "type": "NormalizeProfilesNode",
+      "id": "cluster_personas",
+      "type": "cluster-personas",
+      "next": [
+        "elaborate_personas"
+      ],
+      "data": {
+        "description": "Clusters similar profiles together",
+        "input_type": "Profile[]",
+        "output_type": "Cluster[]"
+      }
+    },
+    {
+      "id": "elaborate_personas",
+      "type": "elaborate-personas",
       "next": [
         "save_results"
       ],
       "data": {
-        "description": "Normalizes profile data using LLM",
-        "input_type": "BaseProfile[]",
-        "output_type": "NormalizedProfile[]"
+        "description": "Elaborates clusters into detailed personas",
+        "input_type": "Cluster[]",
+        "output_type": "Persona[]"
       }
     },
     {
       "id": "save_results",
-      "type": "SaveResultsNode",
+      "type": "save-results",
       "next": [
         "END"
       ],
       "data": {
-        "description": "Saves normalized profiles and results to disk",
-        "input_type": "NormalizedProfile[]",
+        "description": "Saves final personas and generates summary",
+        "input_type": "Persona[]",
         "output_type": "void"
       }
     }
@@ -63,7 +75,7 @@
     },
     {
       "from": "load_profiles",
-      "to": "normalize_profiles",
+      "to": "cluster_personas",
       "conditions": [
         {
           "field": "agentState.profiles.length",
@@ -73,11 +85,22 @@
       ]
     },
     {
-      "from": "normalize_profiles",
+      "from": "cluster_personas",
+      "to": "elaborate_personas",
+      "conditions": [
+        {
+          "field": "agentState.clusters.length",
+          "operator": "gt",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "from": "elaborate_personas",
       "to": "save_results",
       "conditions": [
         {
-          "field": "agentState.normalizedProfiles.length",
+          "field": "agentState.personas.length",
           "operator": "gt",
           "value": 0
         }
@@ -90,9 +113,9 @@
   ],
   "start_node_id": "initialize_run",
   "metadata": {
-    "description": "Agent for normalizing and extracting metadata from PDF content",
+    "description": "Agent that generates personas from user profiles",
     "version": "1.0.0",
-    "created": "2025-03-26T21:20:30.789Z",
-    "updated": "2025-03-26T21:20:30.789Z"
+    "created": "2025-03-29T00:51:54.060Z",
+    "updated": "2025-03-29T00:51:54.060Z"
   }
 }

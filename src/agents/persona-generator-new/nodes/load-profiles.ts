@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { AgentNode } from '../../agent-service/AgentNode.js'
 import type { PersonaGeneratorState } from '../persona-generator-agent.js'
 import type { Profile } from '../types.js'
+import * as fs from 'fs'
 
 // Profile schema
 const ProfileSchema = z.object({
@@ -22,7 +23,8 @@ export class LoadProfilesNode extends AgentNode<PersonaGeneratorState> {
     protected readonly debug: boolean = false
 
     async execute(state: PersonaGeneratorState): Promise<PersonaGeneratorState> {
-        const { profiles: profilePaths } = state.input
+        const { inputDir, outputDir } = state.input
+        const profilePaths = fs.readdirSync(inputDir)
         const errors: string[] = []
 
         try {
@@ -30,10 +32,13 @@ export class LoadProfilesNode extends AgentNode<PersonaGeneratorState> {
 
             // Process each profile path
             for (const profilePath of profilePaths) {
+                if (this.debug) {
+                    console.log(`Processing profile: ${profilePath}`)
+                }
                 try {
                     // Check if profilePath is a direct file path
                     if (profilePath.endsWith('.json')) {
-                        const fileContent = await readFile(profilePath, 'utf-8')
+                        const fileContent = await readFile(join(inputDir, profilePath), 'utf-8')
                         const data = JSON.parse(fileContent)
 
                         // Handle both single profile and array of profiles
@@ -71,7 +76,7 @@ export class LoadProfilesNode extends AgentNode<PersonaGeneratorState> {
 
             // Save intermediate results in debug mode
             if (this.debug) {
-                const outputPath = join(state.config.outputPath, 'intermediate')
+                const outputPath = join(outputDir, 'intermediate')
                 await mkdir(outputPath, { recursive: true })
                 await writeFile(
                     join(outputPath, 'loaded-profiles.json'),

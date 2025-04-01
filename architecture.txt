@@ -1,56 +1,308 @@
-# Agent Service Architecture
+# Effective Agent Architecture Guide
+
+## Overview
+This guide explains how to create an effective agent in TypeScript using Effect.js for functional error handling and Zod for runtime validation. The architecture follows SOLID principles and emphasizes type safety, testability, and maintainability.
+
+## File Structure
+```
+src/shared/services/agent/
+├── __tests__/
+│   └── effective-normalizing-agent.test.ts
+├── errors/
+│   ├── index.ts
+│   ├── agent-error.ts
+│   ├── agent-implementation-error.ts
+│   └── agent-rate-limit-error.ts
+├── types/
+│   ├── index.ts
+│   ├── agent-config.ts
+│   ├── agent-result.ts
+│   └── agent-options.ts
+├── effective-normalizing-agent.ts
+├── base-agent.ts
+└── index.ts
+```
 
 ## Core Components
 
-1. **Agent Service Interface** (`IAgentService`)
-   - Defines the contract for agent operations (create, execute, list, etc.)
+### 1. Agent Interface
+Define a clear interface that specifies the agent's capabilities:
 
-2. **Agent State** 
-   - Represents the state of an agent execution
-   - Contains input, output, status, and configuration
+```typescript
+interface Agent {
+  readonly agentId: string
+  readonly config: AgentConfig
+  
+  // Core operations
+  normalizeData<T>(data: T): Effect.Effect<NormalizationResult<T>, AgentError>
+  normalizeBatch<T>(data: T[]): Effect.Effect<BatchNormalizationResult<T>, AgentError>
+  
+  // Configuration and lifecycle
+  initialize(): Effect.Effect<void, AgentError>
+  shutdown(): Effect.Effect<void, never>
+}
+```
 
-3. **Executor Service Interface** (`IExecutorService`)
-   - Defines the contract for graph execution
-   - Methods: execute, getConfig
+### 2. Agent Configuration
+Use TypeScript interfaces and Zod schemas for configuration:
 
-4. **LangGraph Executor** (`LangGraphExecutor`)
-   - Implements `IExecutorService`
-   - Wraps LangGraph functionality
-   - Takes only the configuration it needs
+```typescript
+interface AgentConfig {
+  id: string
+  name: string
+  description: string
+  version: string
+  capabilities: string[]
+  schema: z.ZodSchema
+  useSharedConfig?: boolean
+  overrides?: {
+    maxBatchSize?: number
+    timeoutMs?: number
+  }
+}
 
-5. **Agent Graph** (`AgentGraph`)
-   - Manages multiple LangGraph executors
-   - Provides operations for graph lifecycle management
-   - Uses the executor directly with appropriate parameters
+const AgentConfigSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  description: z.string(),
+  version: z.string(),
+  capabilities: z.array(z.string()),
+  schema: z.instanceof(z.ZodSchema)
+})
+```
 
-## Component Interactions
+### 3. Error Management
+Create a hierarchy of strongly-typed errors:
 
-- `AgentService` uses `AgentGraph` to manage agent instances
-- `AgentGraph` creates and manages `LangGraphExecutor` instances
-- `LangGraphExecutor` handles specific graph execution
+```typescript
+// Base error class
+class AgentError extends Error {
+  constructor(message: string, public readonly agentId: string) {
+    super(message)
+    this.name = 'AgentError'
+  }
+}
 
-## Design Principles
+// Specific error types
+class AgentImplementationError extends AgentError {
+  constructor({ message, agentId }: { message: string; agentId: string }) {
+    super(message, agentId)
+    this.name = 'AgentImplementationError'
+  }
+}
 
-1. **Interface Segregation**
-   - Keep interfaces focused and minimal
-   - `IExecutorService` should only have methods needed by clients
+class AgentRateLimitError extends AgentError {
+  constructor({ message, agentId, retryAfterMs }: { message: string; agentId: string; retryAfterMs: number }) {
+    super(message, agentId)
+    this.name = 'AgentRateLimitError'
+    this.retryAfterMs = retryAfterMs
+  }
+}
+```
 
-2. **Dependency Inversion**
-   - High-level modules depend on abstractions
-   - `AgentGraph` depends on `IExecutorService`, not concrete implementations
+## Implementation Guidelines
 
-3. **Single Responsibility**
-   - Each class has a single reason to change
-   - `LangGraphExecutor` only handles execution logic
-   - `AgentGraph` only handles graph management
+### 1. Base Agent Class
+Create an abstract base class with shared functionality:
 
-4. **Keep It Simple**
-   - Avoid complex patterns unless truly needed
-   - Direct instantiation where appropriate
-   - No unnecessary abstraction layers
+```typescript
+abstract class BaseAgent implements Agent {
+  constructor(
+    protected readonly configService: ConfigurationService,
+    protected readonly config: AgentConfig
+  ) {
+    this.validateConfig()
+  }
 
-## Implementation Notes
+  protected validateConfig(): void {
+    const result = AgentConfigSchema.safeParse(this.config)
+    if (!result.success) {
+      throw new AgentImplementationError({
+        message: `Invalid agent configuration: ${result.error.message}`,
+        agentId: this.config.id
+      })
+    }
+  }
 
-- `LangGraphExecutor` constructor should take only what it needs
-- `AgentGraph` creates executors with appropriate parameters
-- Test each component in isolation with simple mocks 
+  protected validateCommonArgs(options: CommonOptions): Effect.Effect<void, AgentError> {
+    return Effect.try({
+      try: () => {
+        // Validation logic
+      },
+      catch: (error) => new AgentImplementationError({
+        message: `Validation failed: ${error.message}`,
+        agentId: this.agentId
+      })
+    })
+  }
+}
+```
+
+### 2. Effective Agent Implementation
+Implement the agent with Effect.js for functional error handling:
+
+```typescript
+class EffectiveNormalizingAgent extends BaseAgent {
+  normalizeData<T>(data: T): Effect.Effect<NormalizationResult<T>, AgentError> {
+    return Effect.gen(function*(_) {
+      // Validate input
+      yield* _(this.validateCommonArgs({ data }))
+      
+      // Process data
+      const startTime = performance.now()
+      const result = yield* _(this.processData(data))
+      const endTime = performance.now()
+      
+      return {
+        normalized: true,
+        data: result,
+        processingTimeMs: endTime - startTime,
+        validationErrors: []
+      }
+    })
+  }
+}
+```
+
+## Testing Strategy
+
+### 1. Test Structure
+Organize tests by functionality:
+- Initialization tests
+- Data normalization tests
+- Batch processing tests
+- Error handling tests
+- Configuration integration tests
+- Performance monitoring tests
+
+### 2. Test Data
+Create comprehensive test fixtures:
+```typescript
+const testConfig: AgentConfig = {
+  id: "test-agent",
+  name: "Test Agent",
+  description: "Test agent for validation",
+  version: "1.0.0",
+  capabilities: ["data-normalization"],
+  schema: z.object({
+    // Define test schema
+  })
+}
+```
+
+### 3. Error Testing
+Test all error conditions:
+```typescript
+describe("Error Handling", () => {
+  it("should handle rate limit errors", async () => {
+    const program = Effect.fail(
+      new AgentRateLimitError({
+        message: "Rate limit exceeded",
+        retryAfterMs: 1000,
+        agentId: agent.agentId
+      })
+    )
+
+    try {
+      await Effect.runPromise(program)
+      expect(true).toBe(false) // Should not reach
+    } catch (error) {
+      expect(error.message).toContain("Rate limit exceeded")
+    }
+  })
+})
+```
+
+### 4. Performance Testing
+Include performance benchmarks:
+```typescript
+it("should handle large batch sizes efficiently", async () => {
+  const largeDataset = Array(100).fill(validTestData)
+  const startTime = performance.now()
+  const result = await Effect.runPromise(agent.normalizeBatch(largeDataset))
+  const endTime = performance.now()
+  
+  expect(result.length).toBe(100)
+  expect(endTime - startTime).toBeLessThan(5000)
+})
+```
+
+## Best Practices
+
+1. **Type Safety**
+   - Use TypeScript's strict mode
+   - Define explicit interfaces for all data structures
+   - Avoid type assertions except in tests
+
+2. **Error Handling**
+   - Use Effect.js for functional error handling
+   - Create specific error types for different failure modes
+   - Include context in error messages
+
+3. **Testing**
+   - Test both success and failure paths
+   - Include performance tests
+   - Use realistic test data
+   - Mock external dependencies
+
+4. **Configuration**
+   - Use environment variables for runtime configuration
+   - Validate all configuration at startup
+   - Support overrides for testing
+
+5. **Performance**
+   - Monitor processing time
+   - Implement batch processing
+   - Use appropriate data structures
+   - Cache expensive operations
+
+## Integration with Shared Services
+
+1. **Configuration Service**
+   - Use dependency injection
+   - Support shared and agent-specific config
+   - Validate configuration at runtime
+
+2. **Logging Service**
+   - Log all operations
+   - Include timing information
+   - Track error rates
+
+3. **Metrics Service**
+   - Monitor performance
+   - Track success/failure rates
+   - Measure resource usage
+
+## Deployment Considerations
+
+1. **Environment Setup**
+   - Use environment variables
+   - Support different configurations per environment
+   - Include health checks
+
+2. **Monitoring**
+   - Track error rates
+   - Monitor performance metrics
+   - Set up alerts for anomalies
+
+3. **Scaling**
+   - Design for horizontal scaling
+   - Implement rate limiting
+   - Handle concurrent requests
+
+## Maintenance and Evolution
+
+1. **Version Management**
+   - Semantic versioning
+   - Backward compatibility
+   - Migration strategies
+
+2. **Documentation**
+   - API documentation
+   - Configuration guide
+   - Troubleshooting guide
+
+3. **Updates**
+   - Regular dependency updates
+   - Security patches
+   - Performance improvements 

@@ -10,7 +10,8 @@ export interface Profile {
 }
 
 export interface PersonaInput {
-    profiles: string[]
+    inputDir: string
+    outputDir: string
 }
 
 export interface PersonaOutput {
@@ -19,7 +20,7 @@ export interface PersonaOutput {
 }
 
 export interface PersonaDomainState {
-    readonly profiles: Profile[]
+ profiles: Profile[]
     readonly clusters: any[]
     readonly personas: any[]
 }

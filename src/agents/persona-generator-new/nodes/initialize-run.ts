@@ -6,7 +6,8 @@ import type { IProviderService } from '../../../shared/services/provider/types.j
 import { TaskService } from '../../../shared/services/task/taskService.js'
 import { AgentNode } from '../../agent-service/AgentNode.js'
 import type { AgentState } from '../../agent-service/types.js'
-import type { PersonaDomainState, PersonaInput, PersonaOutput } from '../types.js'
+import type { PersonaDomainState, PersonaInput, PersonaOutput, Profile } from '../types.js'
+import { randomUUID } from 'node:crypto'
 
 /**
  * Node that initializes a new persona generation run
@@ -19,10 +20,21 @@ export class InitializeRunNode extends AgentNode<AgentState<PersonaInput, Person
         promptService: PromptService
     ) {
         super(taskService, providerService, modelService, promptService)
+        this.debug = true
+        if (this.debug) {
+            console.log('InitializeRunNode constructor')
+        }
     }
 
     async execute(state: AgentState<PersonaInput, PersonaOutput, PersonaDomainState>): Promise<AgentState<PersonaInput, PersonaOutput, PersonaDomainState>> {
         try {
+            if (this.debug) {
+                console.log('InitializeRunNode execute')
+                console.log(JSON.stringify(state.agentState, null, 3))
+                const profiles = this.loadProfiles(state.config.inputPath)
+                console.log('Profiles:', profiles.length)
+                state.agentState.profiles = profiles
+            }
             // Set up run directories
             const outputDir = this.setupRunDirectories(state.agentRun.runId, state.config)
 
@@ -47,6 +59,9 @@ export class InitializeRunNode extends AgentNode<AgentState<PersonaInput, Person
                 }
             }
         } catch (error) {
+            if (this.debug) {
+                console.log('InitializeRunNode execute error')
+            }
             return {
                 ...state,
                 status: {
@@ -72,6 +87,9 @@ export class InitializeRunNode extends AgentNode<AgentState<PersonaInput, Person
     }
 
     private setupRunDirectories(runId: string, config: any): string {
+        if (this.debug) {
+            console.log('InitializeRunNode setupRunDirectories')
+        }
         const baseDir = path.join(config.outputPath, config.name, 'runs', runId)
 
         // Create main run directory
@@ -85,4 +103,51 @@ export class InitializeRunNode extends AgentNode<AgentState<PersonaInput, Person
 
         return baseDir
     }
-} 
+
+    private loadProfile(personPath: string): Profile | null {
+        if (this.debug) {
+            console.log('InitializeRunNode loadProfile', personPath)
+        }
+        const files = fs.readdirSync(path.join(process.cwd(), personPath), { withFileTypes: true })
+        if (files.length === 0) {
+            return null
+        }
+        for (const file of files) {
+            if (file.isFile() && file.name.endsWith('.txt')) {
+
+                const content = fs.readFileSync(path.join(process.cwd(), personPath, file.name), "utf-8");
+                return {
+                    id: randomUUID(),
+                    name: file.name,
+                    bio: content,
+                    interests: [],
+                    skills: [],
+                    traits: []
+                };
+            }
+        }
+        return null
+    }
+
+    private loadProfiles(inputDir: string): Profile[] {
+        if (this.debug) {
+            console.log('InitializeRunNode loadProfiles: ', inputDir)
+        }
+        const peopleFiles = fs.readdirSync(path.join(process.cwd(), inputDir), { withFileTypes: true })
+        if (this.debug) {
+            console.log('InitializeRunNode loadProfiles: ', peopleFiles.length)
+        }
+        if (this.debug) {
+            //console.log('InitializeRunNode loadProfiles: ', JSON.stringify(peopleFiles, null, 2))
+        }
+        try {
+            const profiles = peopleFiles.map(file => this.loadProfile(path.join(inputDir, file.name)))
+            return profiles.filter((profile): profile is Profile => profile !== null)
+        } catch (error) {
+            if (this.debug) {
+                console.log('InitializeRunNode loadProfiles error', error)
+            }
+            return []
+        }
+    }
+}

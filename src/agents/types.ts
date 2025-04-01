@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import type { JSONObject } from '../types.js'
 
 /**
  * Channel reducer type for LangGraph
@@ -69,7 +70,7 @@ export const BaseProfileSchema = z.object({
     sourceFile: z.string()
 })
 
-export type BaseProfile = z.infer<typeof BaseProfileSchema>
+export type BaseProfile = z.infer<typeof BaseProfileSchema> & JSONObject
 
 /**
  * Normalized profile schema used by multiple agents
@@ -82,7 +83,7 @@ export const NormalizedProfileSchema = z.object({
     normalizedFields: z.record(z.unknown())
 })
 
-export type NormalizedProfile = z.infer<typeof NormalizedProfileSchema>
+export type NormalizedProfile = z.infer<typeof NormalizedProfileSchema> & JSONObject
 
 /**
  * Base summary schema for agent runs
@@ -97,4 +98,4 @@ export const BaseSummarySchema = z.object({
     errors: z.array(z.string())
 })
 
-export type BaseSummary = z.infer<typeof BaseSummarySchema>
+export type BaseSummary = z.infer<typeof BaseSummarySchema> & JSONObject

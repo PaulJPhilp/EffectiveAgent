@@ -10,7 +10,7 @@ import type { AgentState } from './types.js'
  * Base class for agent nodes
  */
 export abstract class AgentNode<T extends AgentState<any, any, any>> {
-    protected debug: boolean = false
+    protected debug: boolean = true
     protected readonly taskService: ITaskService
     protected readonly providerService: IProviderService
     protected readonly modelService: IModelService

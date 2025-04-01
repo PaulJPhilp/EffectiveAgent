@@ -17,7 +17,8 @@ export type PersonaGeneratorState = AgentState<PersonaInput, PersonaOutput, Pers
 export class PersonaGeneratorAgent extends Agent<PersonaInput, PersonaOutput, PersonaDomainState> {
     constructor(agentName: string) {
         super(agentName)
-        if (this.debug)console.log(`PersonaGeneratorAgent(${agentName})`)
+        this.debug = false
+        if (this.debug) console.log(`PersonaGeneratorAgent(${agentName})`)
     }
 
     protected buildGraph(): AgentGraphImplementation<PersonaGeneratorState> {

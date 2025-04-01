@@ -1,87 +1,77 @@
 {
-	"name": "Provider Configurations",
-	"version": "0.1.0",
-	"description": "Configuration for all available providers",
 	"providers": [
 		{
-			"id": "openai",
-			"name": "OpenAI",
+			"name": "openai",
+			"displayName": "OpenAI",
 			"type": "openai",
-			"apiVersion": "2024-02-15",
+			"apiKeyEnvVar": "OPENAI_API_KEY",
 			"baseUrl": "https://api.openai.com/v1",
-			"defaultHeaders": {
-				"Content-Type": "application/json"
-			},
 			"rateLimit": {
 				"requestsPerMinute": 3500,
 				"tokensPerMinute": 180000
 			}
 		},
 		{
-			"id": "anthropic",
-			"name": "Anthropic",
+			"name": "anthropic",
+			"displayName": "Anthropic",
 			"type": "anthropic",
-			"apiVersion": "2024-01",
+			"apiKeyEnvVar": "ANTHROPIC_API_KEY",
 			"baseUrl": "https://api.anthropic.com/v1",
-			"defaultHeaders": {
-				"Content-Type": "application/json",
-				"anthropic-version": "2024-01-01"
-			},
 			"rateLimit": {
-				"requestsPerMinute": 150
+				"requestsPerMinute": 150,
+				"tokensPerMinute": 100000
 			}
 		},
 		{
-			"id": "google",
-			"name": "Google",
+			"name": "google",
+			"displayName": "Google",
 			"type": "google",
-			"apiVersion": "v1",
+			"apiKeyEnvVar": "GOOGLE_GENERATIVE_AI_API_KEY",
 			"baseUrl": "https://generativelanguage.googleapis.com/v1",
-			"defaultHeaders": {
-				"Content-Type": "application/json"
-			},
 			"rateLimit": {
-				"requestsPerMinute": 1500
+				"requestsPerMinute": 1500,
+				"tokensPerMinute": 300000
 			}
 		},
 		{
-			"id": "grok",
-			"name": "Grok",
-			"type": "grok",
-			"apiVersion": "v1",
-			"baseUrl": "https://api.grok.x.ai/v1",
-			"defaultHeaders": {
-				"Content-Type": "application/json"
-			},
+			"name": "groq",
+			"displayName": "GroqCloud",
+			"type": "groq",
+			"apiKeyEnvVar": "GROQ_API_KEY",
+			"baseUrl": "https://api.groq.com/openai/v1",
 			"rateLimit": {
-				"requestsPerMinute": 100
+				"requestsPerMinute": 30000,
+				"tokensPerMinute": 900000
 			}
 		},
 		{
-			"id": "deepseek",
-			"name": "DeepSeek",
+			"name": "deepseek",
+			"displayName": "DeepSeek",
 			"type": "deepseek",
-			"apiVersion": "v1",
+			"apiKeyEnvVar": "DEEPSEEK_API_KEY",
 			"baseUrl": "https://api.deepseek.com/v1",
-			"defaultHeaders": {
-				"Content-Type": "application/json"
-			},
 			"rateLimit": {
 				"requestsPerMinute": 500
 			}
 		},
 		{
-			"id": "local",
-			"name": "Local",
+			"name": "grok",
+			"displayName": "xAI Grok",
+			"type": "grok", 
+			"apiKeyEnvVar": "XAI_GROK_API_KEY", 
+			"baseUrl": null, 
+			"rateLimit": null 
+		},
+		{
+			"name": "local",
+			"displayName": "Local LLM",
 			"type": "local",
-			"baseUrl": "http://localhost:8000",
-			"defaultHeaders": {
-				"Content-Type": "application/json"
-			},
+			"baseUrl": "http://localhost:8000/v1",
 			"rateLimit": {
-				"requestsPerMinute": 1000
+				"requestsPerMinute": 1000,
+				"tokensPerMinute": 200000
 			}
 		}
 	],
-	"defaultProviderId": "openai"
+	"defaultProviderName": "openai"
 }

@@ -1,101 +1,55 @@
-import type { PromptConfig, PromptTemplate, Prompts, SubpromptDefinition, SubpromptDefinitionSchema } from "./schemas/promptConfig.js";
+// File: src/shared/services-effect/prompt/types.ts
 
-// Re-export the schema types
-export type { PromptConfig, PromptTemplate, Prompts, SubpromptDefinition, SubpromptDefinitionSchema };
+import { Effect, Context } from "effect";
+import type { PromptTemplate, PromptConfigFile } from './schema.js';
+import type { PromptNotFoundError, PromptRenderingError, PromptVariableMissingError } from './errors.js';
 
-export const templates: Record<string, PromptTemplate> = {};
+// --- Type Definitions ---
+export type PromptVariables = Record<string, unknown>;
 
-/**
- * Template variables for prompt construction
- */
-export interface PromptVariables {
-	readonly [key: string]: unknown;
+export interface PromptRenderOptions {
+  readonly variables: PromptVariables;
+  readonly validateVariables?: boolean;
 }
 
-/**
- * Template identifier for referencing templates
- */
-export interface TemplateIdentifier {
-	readonly templateName: string;
+// --- Declare Brand Symbols ---
+declare const PromptConfigurationServiceBrand: unique symbol;
+declare const PromptServiceBrand: unique symbol;
+
+// --- Service Interfaces using Branded Types ---
+export interface PromptConfigurationService {
+  readonly [PromptConfigurationServiceBrand]?: never;
+
+  /** Get prompt template by its unique ID */
+  readonly getPromptTemplate: (promptId: string) => Effect.Effect<PromptTemplate, PromptNotFoundError>;
+
+  /** List all available prompts */
+  readonly listPrompts: () => Effect.Effect<ReadonlyArray<PromptTemplate>>;
+
+  /** Find prompts by category */
+  readonly findPromptsByCategory: (category: string) => Effect.Effect<ReadonlyArray<PromptTemplate>>;
 }
 
-/**
- * Prompt options for configuration
- */
-export interface PromptOptions {
-	readonly systemPrompt?: string;
-	readonly temperature?: number;
-	readonly maxTokens?: number;
+export interface PromptService {
+  readonly [PromptServiceBrand]?: never;
+
+  /** Render a prompt template with variables */
+  readonly renderPrompt: (
+    promptId: string,
+    options: PromptRenderOptions
+  ) => Effect.Effect<string, PromptNotFoundError | PromptRenderingError | PromptVariableMissingError>;
+
+  /** Render a raw template string with variables */
+  readonly renderTemplate: (
+    template: string,
+    options: PromptRenderOptions
+  ) => Effect.Effect<string, PromptRenderingError | PromptVariableMissingError>;
 }
 
-/**
- * Configuration for the prompt service
- */
-export interface PromptServiceConfig {
-	readonly debug?: boolean;
-	readonly configPath: string;
-	readonly environment?: string;
-	readonly basePath?: string;
-}
+// --- Service Tags ---
+export const PromptConfigurationService = Context.GenericTag<PromptConfigurationService>("PromptConfigurationService");
+export const PromptService = Context.GenericTag<PromptService>("PromptService");
 
-/**
- * Error details for prompt-related errors
- */
-export interface PromptErrorDetails {
-	readonly templateName?: string;
-	readonly variableName?: string;
-}
-
-/**
- * Custom error for prompt-related issues
- */
-export class PromptError extends Error {
-	readonly code: string = '';
-	readonly templateName?: string;
-	readonly variableName?: string;
-
-	constructor(
-		message: string,
-		{ templateName, variableName }: PromptErrorDetails
-	) {
-		super(message);
-		this.name = 'PromptError';
-		Object.assign(this, {
-			code: 'PROMPT_ERROR',
-			templateName,
-			variableName
-		});
-	}
-}
-
-/**
- * Interface for prompt service
- */
-export interface IPromptService {
-	/**
-	 * Retrieves a prompt template by its identifier
-	 */
-	getTemplate(identifier: TemplateIdentifier): PromptTemplate;
-
-	/**
-	 * Generates a complete prompt by rendering the template with variables
-	 */
-	generatePrompt(
-		identifier: TemplateIdentifier,
-		variables: PromptVariables,
-		options?: PromptOptions
-	): Promise<string>;
-
-	/**
-	 * Gets all template identifiers
-	 */
-	getTemplateIds(): string[];
-
-	/**
-	 * Validates if all required variables are present
-	 */
-	validateVariables(
-		template: PromptTemplate,
-		variables: PromptVariables
-	): boolean;
-}
+// --- Configuration Data Tag ---
+export interface PromptConfigFileTag extends PromptConfigFile { }
+export const PromptConfigFileTag = Context.GenericTag<PromptConfigFileTag>("PromptConfigFileTag");
