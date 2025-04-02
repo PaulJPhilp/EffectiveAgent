@@ -1,15 +1,15 @@
 // File: src/services/configuration/types.ts (Simplified - No Cache)
 
-import { Effect, Context } from "effect";
+import { FileSystem } from "@effect/platform/FileSystem";
+import { Context, Effect } from "effect";
 import type { z } from "zod";
-import type { BaseConfigSchema, EnvironmentConfigSchema } from './schema.js';
 import type {
-	ConfigReadError,
 	ConfigParseError,
-	ConfigValidationError,
-	ConfigSchemaMissingError
+	ConfigReadError,
+	ConfigSchemaMissingError,
+	ConfigValidationError
 } from './errors.js';
-import type { Path } from "@effect/platform/Path";
+import type { BaseConfigSchema, EnvironmentConfigSchema } from './schema.js';
 
 // --- Base Config Types ---
 export type BaseConfig = z.infer<typeof BaseConfigSchema>;
@@ -47,7 +47,7 @@ export interface ConfigLoader {
 	) => Effect.Effect<
 		BaseConfig,
 		ConfigReadError | ConfigParseError | ConfigValidationError | ConfigSchemaMissingError,
-		FileSystem | Path // <-- Added R: Requires Platform services
+		FileSystem
 	>;
 
 	// No clearCache method needed

@@ -25,39 +25,43 @@ export class ToolServiceLive implements IToolService {
     ) { }
 
     registerTool(tool: AnyTool): Effect.Effect<void, ToolRegistrationError> {
-        return this.loggingService.getLogger("ToolService").pipe(
-            Effect.flatMap((log: Logger) => {
-                if (this.toolRegistry.has(tool.id)) {
-                    const error = new ToolRegistrationError(
-                        `Tool with ID '${tool.id}' is already registered.`,
-                        { toolId: tool.id }
-                    )
-                    return log.error("Tool registration failed", { annotations: { toolId: tool.id, error } }).pipe(
-                        Effect.flatMap(() => Effect.fail(error))
-                    )
+        const self = this
+        return Effect.gen(function* (_) {
+            const log: Logger = yield* _(self.loggingService.getLogger("ToolService"))
+
+            if (self.toolRegistry.has(tool.id)) {
+                const error = new ToolRegistrationError(
+                    `Tool with ID '${tool.id}' is already registered.`,
+                    { toolId: tool.id }
+                )
+                yield* _(log.error("Tool registration failed", { annotations: { toolId: tool.id, error } }))
+                return yield* _(Effect.fail<ToolRegistrationError>(error))
+            }
+
+            yield* _(Effect.sync(() => self.toolRegistry.set(tool.id, tool)))
+            yield* _(log.info("Tool registered successfully", {
+                annotations: {
+                    toolId: tool.id,
+                    toolName: tool.name
                 }
-                this.toolRegistry.set(tool.id, tool)
-                return log.info("Tool registered successfully", {
-                    annotations: {
-                        toolId: tool.id,
-                        toolName: tool.name
-                    }
-                })
-            }),
+            }))
+        }).pipe(
             Effect.annotateLogs({ service: "ToolService", method: "registerTool" })
         )
     }
 
     getTool(toolId: string): Effect.Effect<AnyTool, ToolNotFoundError> {
-        const tool = this.toolRegistry.get(toolId)
-        if (!tool) {
-            return Effect.fail(
-                new ToolNotFoundError(`Tool with ID '${toolId}' not found.`, {
-                    toolId
-                })
-            )
-        }
-        return Effect.succeed(tool)
+        return Effect.sync(() => {
+            const tool = this.toolRegistry.get(toolId)
+            if (!tool) {
+                return Effect.fail(
+                    new ToolNotFoundError(`Tool with ID '${toolId}' not found.`, {
+                        toolId
+                    })
+                )
+            }
+            return Effect.succeed(tool)
+        }).pipe(Effect.flatten)
     }
 
     listTools(
@@ -71,7 +75,7 @@ export class ToolServiceLive implements IToolService {
             const requiredTags = new Set(options.tags)
             return allTools.filter(
                 tool =>
-                    tool.tags && tool.tags.every(tag => requiredTags.has(tag))
+                    tool.tags && tool.tags.some(tag => requiredTags.has(tag))
             )
         })
     }
@@ -80,99 +84,85 @@ export class ToolServiceLive implements IToolService {
         toolId: string,
         input: Input
     ): Effect.Effect<Output, ToolInvocationError> {
-        const startTime = performance.now()
-        let log: Logger
-        let toolRef: AnyTool
+        const self = this
+        return Effect.gen(function* (_) {
+            const startTime = performance.now()
+            const log: Logger = yield* _(self.loggingService.getLogger("ToolService"))
 
-        return this.loggingService.getLogger("ToolService").pipe(
-            Effect.tap((logger: Logger) => { log = logger }),
-            Effect.tap(() => log.debug("Attempting to invoke tool", { annotations: { toolId, input } })),
-            Effect.flatMap(() => this.getTool(toolId)),
-            Effect.flatMap((foundTool: AnyTool) => {
-                toolRef = foundTool;
-                return Effect.succeed(foundTool);
-            }),
-            Effect.mapError((cause: ToolNotFoundError) => new ToolInvocationError(`Failed to find tool '${toolId}'`, { toolId, cause })),
-            Effect.map(toolInstance => ({
-                toolInstance,
-                executionContext: {
-                    loggingService: this.loggingService,
-                    configurationService: this.configurationService
-                } as ToolExecutionContext
-            })),
-            Effect.flatMap(({ toolInstance, executionContext }) =>
-                Effect.try({
-                    try: () => toolInstance.inputSchema.safeParse(input),
-                    catch: error => new ToolInvocationError("Input schema parsing failed unexpectedly.", {
-                        toolId,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    })
-                }).pipe(
-                    Effect.flatMap(validationResult => {
-                        if (!validationResult.success) {
-                            const validationError = new ToolValidationError(
-                                `Input validation failed for tool '${toolId}'.`,
-                                { toolId, validationErrors: validationResult.error, validationType: "input" }
-                            )
-                            const invocationError = new ToolInvocationError(
-                                `Tool invocation failed due to input validation.`, { toolId, cause: validationError }
-                            )
-                            const formattedIssues = validationResult.error.issues.map((i: ZodIssue) => `${i.path.join(".")}: ${i.message}`).join("; ")
-                            return log.warn("Tool input validation failed", { annotations: { toolId, issues: formattedIssues } }).pipe(
-                                Effect.flatMap(() => Effect.fail(invocationError))
-                            )
-                        }
-                        return Effect.succeed({
-                            validatedInput: validationResult.data,
-                            executionContext
+            yield* _(log.debug("Attempting to invoke tool", { annotations: { toolId, input } }))
+
+            const tool = yield* _(self.getTool(toolId).pipe(
+                Effect.mapError(cause => new ToolInvocationError(`Failed to find tool '${toolId}'`, { toolId, cause }))
+            ))
+
+            const executionContext = {
+                loggingService: self.loggingService,
+                configurationService: self.configurationService
+            } as ToolExecutionContext
+
+            const validationResult = yield* _(Effect.try({
+                try: () => tool.inputSchema.safeParse(input),
+                catch: error => new ToolInvocationError("Input schema parsing failed unexpectedly.", {
+                    toolId,
+                    cause: error instanceof Error ? error : new Error(String(error))
+                })
+            }))
+
+            if (!validationResult.success) {
+                const validationError = new ToolValidationError(
+                    `Input validation failed for tool '${toolId}'.`,
+                    { toolId, validationErrors: validationResult.error, validationType: "input" }
+                )
+                const invocationError = new ToolInvocationError(
+                    `Tool invocation failed due to input validation.`, { toolId, cause: validationError }
+                )
+                const formattedIssues = validationResult.error.issues.map((i: ZodIssue) => `${i.path.join(".")}: ${i.message}`).join("; ")
+                yield* _(log.warn("Tool input validation failed", { annotations: { toolId, issues: formattedIssues } }))
+                return yield* _(Effect.fail<ToolInvocationError>(invocationError))
+            }
+
+            yield* _(log.debug("Tool input validated successfully", { annotations: { toolId } }))
+
+            const executionResult = yield* _(tool.execute(validationResult.data, executionContext).pipe(
+                Effect.mapError(cause => {
+                    const executionError = cause instanceof ToolExecutionError ? cause :
+                        new ToolExecutionError(`Execution failed unexpectedly for '${toolId}'.`, {
+                            toolId,
+                            cause: cause instanceof Error ? cause : new Error(String(cause))
                         })
-                    })
+                    return new ToolInvocationError(`Tool execution failed for '${toolId}'.`, { toolId, cause: executionError })
+                })
+            ))
+
+            yield* _(log.debug("Tool executed successfully", { annotations: { toolId, executionResult } }))
+
+            const outputValidationResult = yield* _(Effect.try({
+                try: () => tool.outputSchema.safeParse(executionResult),
+                catch: error => new ToolInvocationError("Output schema parsing failed unexpectedly.", {
+                    toolId,
+                    cause: error instanceof Error ? error : new Error(String(error))
+                })
+            }))
+
+            if (!outputValidationResult.success) {
+                const validationError = new ToolValidationError(
+                    `Output validation failed for tool '${toolId}'.`,
+                    { toolId, validationErrors: outputValidationResult.error, validationType: "output" }
                 )
-            ),
-            Effect.tap(() => log.debug("Tool input validated successfully", { annotations: { toolId } })),
-            Effect.flatMap(({ validatedInput, executionContext }) =>
-                toolRef.execute(validatedInput, executionContext).pipe(
-                    Effect.mapError(cause => {
-                        const executionError = cause instanceof ToolExecutionError ? cause :
-                            new ToolExecutionError(`Execution failed unexpectedly for '${toolId}'.`, {
-                                toolId,
-                                cause: cause instanceof Error ? cause : new Error(String(cause))
-                            })
-                        return new ToolInvocationError(`Tool execution failed for '${toolId}'.`, { toolId, cause: executionError })
-                    })
+                const invocationError = new ToolInvocationError(
+                    `Tool invocation failed due to output validation.`, { toolId, cause: validationError }
                 )
-            ),
-            Effect.tap(executionResult => log.debug("Tool executed successfully", { annotations: { toolId, executionResult } })),
-            Effect.flatMap(executionResult =>
-                Effect.try({
-                    try: () => toolRef.outputSchema.safeParse(executionResult),
-                    catch: error => new ToolInvocationError("Output schema parsing failed unexpectedly.", {
-                        toolId,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    })
-                }).pipe(
-                    Effect.flatMap(validationResult => {
-                        if (!validationResult.success) {
-                            const validationError = new ToolValidationError(
-                                `Output validation failed for tool '${toolId}'.`,
-                                { toolId, validationErrors: validationResult.error, validationType: "output" }
-                            )
-                            const invocationError = new ToolInvocationError(
-                                `Tool invocation failed due to output validation.`, { toolId, cause: validationError }
-                            )
-                            const formattedIssues = validationResult.error.issues.map((i: ZodIssue) => `${i.path.join(".")}: ${i.message}`).join("; ")
-                            return log.warn("Tool output validation failed", { annotations: { toolId, issues: formattedIssues, executionResult } }).pipe(
-                                Effect.flatMap(() => Effect.fail(invocationError))
-                            )
-                        }
-                        return Effect.succeed(validationResult.data as Output)
-                    })
-                )
-            ),
-            Effect.tap(validatedOutput => {
-                const durationMs = performance.now() - startTime
-                log.info("Tool invoked successfully", { annotations: { toolId, durationMs } })
-            }),
+                const formattedIssues = outputValidationResult.error.issues.map((i: ZodIssue) => `${i.path.join(".")}: ${i.message}`).join("; ")
+                yield* _(log.warn("Tool output validation failed", { annotations: { toolId, issues: formattedIssues, executionResult } }))
+                return yield* _(Effect.fail<ToolInvocationError>(invocationError))
+            }
+
+            const validatedOutput = outputValidationResult.data as Output
+            const durationMs = performance.now() - startTime
+            yield* _(log.info("Tool invoked successfully", { annotations: { toolId, durationMs } }))
+
+            return validatedOutput
+        }).pipe(
             Effect.catchAll(error => {
                 const causeIsError = typeof error === 'object' && error !== null && error instanceof Error;
                 if (error instanceof ToolInvocationError) return Effect.fail(error)

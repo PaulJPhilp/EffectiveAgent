@@ -1,0 +1,107 @@
+---
+description: Patterns for handling errors in Effect-based code
+globs: **/*.ts
+---
+# Effect Error Handling Patterns
+
+## Error Class Hierarchy
+- Extend from base error classes (e.g., `ServiceError`)
+- Use descriptive error names that indicate the domain and type
+- Include relevant metadata in error constructor options
+```typescript
+export class DateTimeError extends ToolError {
+    constructor(message: string, options?: ErrorOptions & { toolId?: string }) {
+        super(message, options)
+        this.name = "DateTimeError"
+    }
+}
+```
+
+## Error Type Union Definition
+- Define error unions at the function level
+- Include all possible error types that can occur
+- Use descriptive names that indicate the error source
+```typescript
+type DateTimeErrors = FormatError | ParseError | CalculationError | ValidationError
+```
+
+## Effect Return Type Annotation
+- Always explicitly type Effect returns
+- Include both success and error types
+- Use never for the environment type when not needed
+```typescript
+function handleFormat(): Effect.Effect<DateTimeOutput, FormatError | ParseError>
+```
+
+## Error Generation
+- Use `Effect.fail` instead of throwing errors
+- Return errors early in the function when possible
+- Include context in error messages
+```typescript
+if (!input.params?.calculation) {
+    return yield* Effect.fail(new MissingParameterError("Calculate operation requires calculation parameters", {
+        toolId: dateTimeTool.id
+    }))
+}
+```
+
+## Error Propagation
+- Use `pipe()` to chain error handling
+- Use `mapError` to transform unknown errors into domain errors
+- Preserve original error as cause when wrapping
+```typescript
+return Effect.gen(function* () {
+    // ... effect code ...
+}).pipe(
+    Effect.mapError((e): FormatError | ParseError => 
+        e instanceof FormatError || e instanceof ParseError ? e : 
+        new FormatError("Unexpected error", { cause: e instanceof Error ? e : new Error(String(e)) })
+    )
+) as Effect.Effect<Output, Error>
+```
+
+## Generator Function Type Safety
+- Use type assertions on the entire Effect chain
+- Ensure error types match between mapError and function signature
+- Handle all possible error cases in mapError
+```typescript
+return Effect.gen(function* () {
+    // ... generator code ...
+}).pipe(
+    Effect.mapError(e => /* error handling */)
+) as Effect.Effect<Success, Error>
+```
+
+## Testing Error Handling
+- Test both success and error paths
+- Verify correct error types are returned
+- Include edge cases and unexpected errors
+```typescript
+const result = await Effect.runPromiseExit(effect)
+if (Exit.isFailure(result)) {
+    const failure = Option.getOrNull(Cause.failureOption(result.cause))
+    expect(failure).toBeInstanceOf(ExpectedError)
+}
+```
+
+## Error Recovery
+- Use `catchAll` for complete error handling
+- Use `catchTag` for specific error types
+- Provide meaningful recovery paths
+```typescript
+Effect.catchAll(error => 
+    error instanceof ValidationError ? 
+        Effect.succeed(defaultValue) : 
+        Effect.fail(error)
+)
+```
+
+## Best Practices
+1. Never throw errors directly - always use Effect.fail
+2. Always type Effect chains explicitly
+3. Handle unknown errors by wrapping them in domain errors
+4. Preserve error context using the cause option
+5. Test both success and failure paths
+6. Use descriptive error messages that aid debugging
+7. Include relevant metadata in error objects
+8. Keep error hierarchies shallow and meaningful 

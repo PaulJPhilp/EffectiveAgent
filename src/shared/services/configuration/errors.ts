@@ -52,15 +52,15 @@ export class ConfigParseError extends Data.TaggedError("ConfigParseError")<{
 export class ConfigValidationError extends Data.TaggedError("ConfigValidationError")<{
 	readonly message: string;
 	readonly filePath: string;
-	readonly zodErrors: ReadonlyArray<string>; // Store formatted Zod errors
-	readonly cause?: ZodError; // Store original ZodError
+	readonly zodErrors: ReadonlyArray<string>;
+	readonly cause?: ZodError;
 }> {
-	constructor(options: { filePath: string, zodError: ZodError }) {
+	constructor(options: { filePath: string, zodError: ZodError, message?: string }) {
+		const zodErrors = options.zodError.errors.map(e => `[${e.path.join('.')}] ${e.message}`);
 		super({
-			message: `Invalid configuration schema in ${options.filePath}`,
+			message: options.message || `Invalid configuration schema in ${options.filePath}: ${zodErrors.join('; ')}`,
 			filePath: options.filePath,
-			// Format errors for easy access
-			zodErrors: options.zodError.errors.map(e => `[${e.path.join('.') || '<root>'}] ${e.message}`),
+			zodErrors,
 			cause: options.zodError
 		});
 	}

@@ -1,7 +1,6 @@
 // File: src/shared/services-effect/agent/agentConfigurationService.ts
 
 import { FileSystem } from "@effect/platform/FileSystem";
-import { Path } from "@effect/platform/Path";
 import { Effect, Layer } from "effect";
 import { ConfigLoader } from '../configuration/types.js';
 import type { AgentConfig } from './schema.js';
@@ -39,47 +38,53 @@ const makeAgentConfigurationService = (configLoader: ConfigLoader): AgentConfigu
       Effect.mapError((error: unknown) => new AgentConfigurationError({
         message: `Failed to load agent config: ${error instanceof Error ? error.message : String(error)}`
       }))
-    ) as Effect.Effect<
-      AgentConfig,
-      AgentConfigurationError,
-      Path | FileSystem
-    >,
+    ),
 
   validateConfig: (config: AgentConfig) =>
-    Effect.try({
-      try: () => {
-        // Validate graph structure
-        const { nodes, edges } = config.graph;
+    Effect.gen(function* () {
+      const fs = yield* FileSystem;
 
-        // Ensure all edge references exist
-        for (const edge of edges) {
-          const fromNode = nodes.find((n: { id: string }) => n.id === edge.from);
-          const toNode = nodes.find((n: { id: string }) => n.id === edge.to);
-
-          if (!fromNode) {
-            throw new AgentConfigurationError({
-              message: `Invalid edge: source node '${edge.from}' not found`
-            });
+      // Helper to check path existence
+      const checkPath = (path: string, context: string) =>
+        Effect.gen(function* () {
+          const exists = yield* fs.exists(path);
+          if (!exists) {
+            return yield* Effect.fail(
+              new AgentConfigurationError({
+                message: `${context} path does not exist: ${path}`
+              })
+            );
           }
+        });
 
-          if (!toNode) {
-            throw new AgentConfigurationError({
-              message: `Invalid edge: target node '${edge.to}' not found`
-            });
-          }
-        }
-      },
-      catch: (error) => new AgentConfigurationError({
-        message: `Failed to validate agent configuration: ${error instanceof Error ? error.message : String(error)}`
-      })
-    })
-}); // End of makeAgentConfigurationService
+      // Check paths
+      yield* Effect.all([
+        checkPath(config.standardLibrary.path, 'Standard library'),
+        config.agentLibrary
+          ? checkPath(config.agentLibrary.path, 'Agent library')
+          : Effect.succeed(undefined)
+      ], { concurrency: 'unbounded' });
+
+      return yield* Effect.succeed(undefined);
+    }).pipe(
+      Effect.mapError((error): AgentConfigurationError =>
+        error instanceof AgentConfigurationError ? error :
+          new AgentConfigurationError({
+            message: `Failed to validate config: ${error}`
+          })
+      )
+    )
+});
 
 // --- Service Layer Definition ---
+/**
+ * Live Layer for the AgentConfigurationService.
+ * Requires ConfigLoader from context.
+ */
 export const AgentConfigurationServiceLive = Layer.effect(
   AgentConfigServiceTag,
-  Effect.gen(function* () {
-    const configLoader = yield* ConfigLoader;
-    return makeAgentConfigurationService(configLoader);
-  })
+  Effect.map(
+    Effect.all([ConfigLoader]),
+    ([configLoader]) => makeAgentConfigurationService(configLoader)
+  )
 );

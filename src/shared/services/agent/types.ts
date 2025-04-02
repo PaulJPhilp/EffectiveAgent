@@ -1,10 +1,10 @@
 // File: src/shared/services-effect/agent/types.ts
 
 import type { FileSystem } from "@effect/platform/FileSystem";
-import type { Path } from "@effect/platform/Path";
 import { Context, Data, Effect } from "effect";
 import type { z } from "zod";
 import type { JSONObject } from "../../../types.js";
+import { AgentConfigurationError } from "./errors.js";
 import type { AgentConfig, AgentRun } from './schema.js';
 
 // --- Type Definitions ---
@@ -142,7 +142,7 @@ export interface AgentConfigurationService {
   readonly loadConfig: (configPath: string) => Effect.Effect<
     AgentConfig,
     AgentConfigurationError,
-    Path | FileSystem // Changed order to match implementation
+    FileSystem
   >;
   /** Validates a given AgentConfig object. */
   readonly validateConfig: (config: AgentConfig) => Effect.Effect<

@@ -1,0 +1,16 @@
+{
+    "name": "standard-tools",
+    "description": "Standard tool library providing common functionality",
+    "version": "1.0.0",
+    "path": "src/shared/services/tool/standard-library",
+    "tools": [
+        "calculator.tool.ts",
+        "web-search.tool.ts",
+        "date-time.tool.ts"
+    ],
+    "tags": [
+        "standard",
+        "utility",
+        "core"
+    ]
+} 

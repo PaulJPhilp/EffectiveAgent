@@ -1,36 +1,32 @@
 // File: src/services/configuration/configurationLoader.ts (Simplified - No Cache)
 
 import { FileSystem } from "@effect/platform/FileSystem";
-import { Path } from "@effect/platform/Path";
 import { Effect, Layer } from "effect";
 import { ZodError, z } from "zod";
 
 // Import types, errors, and Tag
+import path from "path";
 import {
 	ConfigParseError,
 	ConfigReadError,
 	ConfigSchemaMissingError,
 	ConfigValidationError
 } from './errors.js';
+import { BaseConfigSchema } from "./schema.js";
 import type { BaseConfig, ConfigLoaderOptions, LoadOptions } from './types.js';
 import { ConfigLoader, ConfigLoaderOptionsTag } from './types.js';
 
 // --- Service Implementation Object Factory ---
-// No Cache dependency
 const makeConfigLoader = (
 	options: ConfigLoaderOptions,
-	fs: FileSystem,
-	path: Path
+	fs: FileSystem
 ): ConfigLoader => {
 
 	// Helper to read file as string
-	const readFile = async (filePath: string): Promise<string> => {
-		try {
-			return await fs.readFileString(filePath, "utf8");
-		} catch (error) {
-			throw new ConfigReadError({ filePath, cause: error });
-		}
-	};
+	const readFile = (filePath: string): Effect.Effect<string, ConfigReadError, FileSystem> =>
+		fs.readFileString(filePath).pipe(
+			Effect.mapError(error => new ConfigReadError({ filePath, cause: error }))
+		);
 
 	// Helper to parse JSON
 	const parseJson = (content: string, filePath: string): unknown => {
@@ -64,55 +60,71 @@ const makeConfigLoader = (
 	const loadAndValidateFile = <T extends BaseConfig>(
 		filename: string,
 		loadOpts: LoadOptions<T> = {}
-	): Effect.Effect<BaseConfig, ConfigReadError | ConfigParseError | ConfigValidationError | ConfigSchemaMissingError> => {
-		return Effect.try({
-			try: () => {
-				// Get full path
-				const filePath = path.join(options.basePath, filename);
-
-				// Determine if validation is needed
-				const shouldValidate = loadOpts.validate ?? options.validateSchema ?? true;
-				const schema = loadOpts.schema;
-
-				// Create async function to execute the whole process
-				const loadProcess = async (): Promise<BaseConfig> => {
-					// Read file
-					const content = await readFile(filePath);
-
-					// Parse JSON
-					const parsed = parseJson(content, filePath);
-
-					// Validate if needed
-					if (!shouldValidate) {
-						Effect.logWarning(`Loading config from ${filePath} without validation.`);
-						return parsed as BaseConfig;
-					}
-
-					if (!schema) {
-						throw new ConfigSchemaMissingError({ filePath });
-					}
-
-					// Validate and return
-					return validateWithSchema(parsed, schema, filePath);
-				};
-
-				// Return as a promise to be handled by Effect.try
-				return loadProcess();
-			},
-			catch: (error) => {
-				// Just pass through our custom errors
-				if (error instanceof ConfigReadError ||
-					error instanceof ConfigParseError ||
-					error instanceof ConfigValidationError ||
-					error instanceof ConfigSchemaMissingError) {
-					return error;
-				}
-				// Wrap any other errors as read errors
-				return new ConfigReadError({
-					filePath: filename,
-					cause: error
-				});
+	): Effect.Effect<BaseConfig, ConfigReadError | ConfigParseError | ConfigValidationError | ConfigSchemaMissingError, FileSystem> => {
+		return Effect.gen(function* () {
+			// Get full path
+			const filePath = path.join(options.basePath, filename);
+			const exists = yield* fs.exists(filePath).pipe(
+				Effect.mapError(error => new ConfigReadError({ filePath, cause: error }))
+			);
+			if (!exists) {
+				return yield* Effect.fail(
+					new ConfigReadError({
+						filePath,
+						cause: new Error(`Configuration file not found: ${filePath}`)
+					})
+				);
 			}
+
+			// Read file
+			const content = yield* readFile(filePath);
+
+			// Parse JSON
+			const parsed = yield* Effect.try({
+				try: () => parseJson(content, filePath),
+				catch: error => new ConfigParseError({ filePath, cause: error })
+			});
+
+			// Validate against base schema first
+			let validated
+			try {
+				validated = BaseConfigSchema.parse(parsed)
+			} catch (error) {
+				return yield* Effect.fail(
+					new ConfigValidationError({
+						filePath,
+						zodError: error instanceof ZodError ? error : new ZodError([{
+							code: 'custom',
+							message: `Base schema validation failed: ${error}`,
+							path: []
+						}])
+					})
+				)
+			}
+
+			// Validate against provided schema if any
+			if (loadOpts.schema) {
+				try {
+					validated = validateWithSchema(validated, loadOpts.schema, filePath)
+				} catch (error) {
+					return yield* Effect.fail(
+						new ConfigValidationError({
+							filePath,
+							zodError: error instanceof ZodError ? error : new ZodError([{
+								code: 'custom',
+								message: `Schema validation failed: ${error}`,
+								path: []
+							}])
+						})
+					)
+				}
+			} else {
+				return yield* Effect.fail(
+					new ConfigSchemaMissingError({ filePath })
+				)
+			}
+
+			return validated as BaseConfig
 		});
 	};
 
@@ -121,22 +133,20 @@ const makeConfigLoader = (
 		loadConfig: <T extends BaseConfig>(
 			filename: string,
 			loadOpts: LoadOptions<T> = {}
-		) => loadAndValidateFile(filename, loadOpts),
+		) => loadAndValidateFile(filename, loadOpts)
 	};
 };
-
 
 // --- Service Layer Definition ---
 /**
  * Live Layer for the ConfigLoader service.
- * Requires ConfigLoaderOptionsTag, FileSystem, and Path from context.
+ * Requires ConfigLoaderOptionsTag and FileSystem from context.
  */
 export const ConfigLoaderLive = Layer.effect(
-	ConfigLoader, // The public Tag we are providing
-	// Resolve dependencies and call the factory function
+	ConfigLoader,
 	Effect.map(
-		Effect.all([ConfigLoaderOptionsTag, FileSystem, Path]), // Resolve dependencies
-		([options, fs, path]) => makeConfigLoader(options, fs, path) // Create the implementation
+		Effect.all([ConfigLoaderOptionsTag, FileSystem]),
+		([options, fs]) => makeConfigLoader(options, fs)
 	)
 );
 

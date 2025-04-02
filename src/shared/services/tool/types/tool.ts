@@ -1,15 +1,15 @@
-import { type Effect } from "effect"
-import { type z } from "zod"
-import { type ConfigurationService } from "../../configuration/types.js"; // Assuming path
-import { type LoggingService } from "../../logging/types.js"; // Assuming path
-import { type ToolError } from "../errors/tool-error.js"; // Path to base error
+import { type Effect } from "effect";
+import { type z } from "zod";
+import { type ConfigurationService } from "../../configuration/configuration-service.js";
+import { type ILoggingService } from "../../logging/types/index.js";
+import { type ToolError } from "../errors/index.js";
 
 /**
  * Represents the execution context available to a tool when it runs.
  * Contains references to shared services that the tool might need.
  */
 export interface ToolExecutionContext {
-    readonly loggingService: LoggingService
+    readonly loggingService: ILoggingService
     readonly configurationService: ConfigurationService
     // Potentially add other shared services like TaskService if tools need them
 }
@@ -29,6 +29,8 @@ export interface Tool<
     readonly name: string
     /** Description explaining the tool's purpose, suitable for display or LLM consumption. */
     readonly description: string
+    /** Detailed prompt that instructs the LLM when and how to use this tool. */
+    readonly toolPrompt: string
     /** Zod schema used to validate the input arguments provided to the tool. */
     readonly inputSchema: InputSchema
     /** Zod schema used to validate the output returned by the tool. */

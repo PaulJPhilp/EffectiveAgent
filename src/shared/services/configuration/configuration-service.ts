@@ -25,7 +25,7 @@ export class ConfigurationService {
 
   set(key: string, value: unknown): Effect.Effect<void, never> {
     this.config.set(key, value)
-    return Effect.unit
+    return Effect.succeed(void 0)
   }
 
   has(key: string): boolean {
@@ -34,11 +34,11 @@ export class ConfigurationService {
 
   delete(key: string): Effect.Effect<void, never> {
     this.config.delete(key)
-    return Effect.unit
+    return Effect.succeed(void 0)
   }
 
   clear(): Effect.Effect<void, never> {
     this.config.clear()
-    return Effect.unit
+    return Effect.succeed(void 0)
   }
 } 

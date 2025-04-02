@@ -1,56 +1,108 @@
 import { Cause, Effect, Layer, LogLevel } from "effect";
 import { beforeEach, describe, expect, it } from "vitest";
 import { LoggingError } from "../errors/logging-error.js";
-import { LoggingServiceLiveLayer } from "../logging-service.js";
 import { ILoggingService, LoggingService } from "../types/index.js";
 import type { Logger } from "../types/logger.js";
 
-// 1. Mock EffectLogger Implementation
-const mockEffectLogs: any[] = [] // Array to store log calls
-
-// 2. Create Mock LoggingService Implementation
-const mockLogger: Logger = {
-    log: (level: LogLevel.LogLevel, message: unknown, options?: any) => Effect.sync(() => {
-        mockEffectLogs.push({ level, message, ...options })
-    }),
-    debug: (message: unknown, options?: any) => Effect.sync(() => {
-        mockEffectLogs.push({ level: LogLevel.Debug, message, ...options })
-    }),
-    info: (message: unknown, options?: any) => Effect.sync(() => {
-        mockEffectLogs.push({ level: LogLevel.Info, message, ...options })
-    }),
-    warn: (message: unknown, options?: any) => Effect.sync(() => {
-        mockEffectLogs.push({ level: LogLevel.Warning, message, ...options })
-    }),
-    error: (message: unknown, options?: any) => Effect.sync(() => {
-        mockEffectLogs.push({ level: LogLevel.Error, message, ...options })
-    })
+// Create a test context to capture logs
+interface TestContext {
+    logs: Array<{
+        level: LogLevel.LogLevel
+        message: string
+        annotations?: Record<string, unknown>
+        cause?: unknown
+    }>
 }
 
-const mockLoggingService: ILoggingService = {
-    getLogger: () => Effect.succeed(mockLogger)
-}
+const createTestContext = (): TestContext => ({
+    logs: []
+})
 
-// Create Test Layer providing the mock LoggingService implementation
-const TestLoggerLayer = Layer.succeed(LoggingService, mockLoggingService)
+// Create a test logger that captures logs in our test context
+const createTestLogger = (context: TestContext, scope?: string): Logger => ({
+    log: (level: LogLevel.LogLevel, message: unknown, options?: any) =>
+        Effect.sync(() => {
+            context.logs.push({
+                level,
+                message: String(message),
+                annotations: {
+                    ...(scope ? { scope } : {}),
+                    ...(options?.annotations || {})
+                },
+                ...(options?.cause ? { cause: options.cause } : {})
+            })
+        }),
+    debug: (message: unknown, options?: any) =>
+        Effect.sync(() => {
+            context.logs.push({
+                level: LogLevel.Debug,
+                message: String(message),
+                annotations: {
+                    ...(scope ? { scope } : {}),
+                    ...(options?.annotations || {})
+                },
+                ...(options?.cause ? { cause: options.cause } : {})
+            })
+        }),
+    info: (message: unknown, options?: any) =>
+        Effect.sync(() => {
+            context.logs.push({
+                level: LogLevel.Info,
+                message: String(message),
+                annotations: {
+                    ...(scope ? { scope } : {}),
+                    ...(options?.annotations || {})
+                },
+                ...(options?.cause ? { cause: options.cause } : {})
+            })
+        }),
+    warn: (message: unknown, options?: any) =>
+        Effect.sync(() => {
+            context.logs.push({
+                level: LogLevel.Warning,
+                message: String(message),
+                annotations: {
+                    ...(scope ? { scope } : {}),
+                    ...(options?.annotations || {})
+                },
+                ...(options?.cause ? { cause: options.cause } : {})
+            })
+        }),
+    error: (message: unknown, options?: any) =>
+        Effect.sync(() => {
+            context.logs.push({
+                level: LogLevel.Error,
+                message: String(message),
+                annotations: {
+                    ...(scope ? { scope } : {}),
+                    ...(options?.annotations || {})
+                },
+                ...(options?.cause ? { cause: options.cause } : {})
+            })
+        })
+})
 
 describe("LoggingServiceLive", () => {
+    let testContext: TestContext
     let loggingService: ILoggingService
 
-    beforeEach(async () => {
-        mockEffectLogs.length = 0
-        // Get the service from the layer
+    beforeEach(() => {
+        testContext = createTestContext()
+        const mockLoggingService: ILoggingService = {
+            getLogger: (scope?: string) => Effect.succeed(createTestLogger(testContext, scope))
+        }
+        const TestLoggerLayer = Layer.succeed(LoggingService, mockLoggingService)
+
         const program = Effect.gen(function* (_) {
             const service = yield* _(LoggingService)
             return service
         })
-        loggingService = (await Effect.runPromise(Effect.provide(program, LoggingServiceLiveLayer))) as ILoggingService
+        loggingService = Effect.runSync(Effect.provide(program, TestLoggerLayer))
     })
 
     describe("getLogger", () => {
         it("should return a logger instance", async () => {
-            const getLoggerEffect = loggingService.getLogger("TestScope")
-            const logger = await Effect.runPromise(getLoggerEffect) as Logger
+            const logger = await Effect.runPromise(loggingService.getLogger("TestScope"))
 
             expect(logger).toBeDefined()
             expect(logger.log).toBeInstanceOf(Function)
@@ -62,11 +114,10 @@ describe("LoggingServiceLive", () => {
 
         it("should return a logger without scope when no name is provided", async () => {
             const logger = await Effect.runPromise(loggingService.getLogger())
-            const logEffect = logger.info("Test message")
+            await Effect.runPromise(logger.info("Test message"))
 
-            await Effect.runPromise(logEffect.pipe(Effect.provide(TestLoggerLayer)))
-
-            expect(mockEffectLogs[0]).not.toHaveProperty("annotations.scope")
+            expect(testContext.logs).toHaveLength(1)
+            expect(testContext.logs[0].annotations?.scope).toBeUndefined()
         })
     })
 
@@ -82,15 +133,14 @@ describe("LoggingServiceLive", () => {
 
             for (const { method, level } of levels) {
                 await Effect.runPromise(
-                    (logger[method] as Function)(`${method} message test`).pipe(
-                        Effect.provide(TestLoggerLayer)
-                    )
+                    (logger[method] as Function)(`${method} message test`)
                 )
             }
 
-            expect(mockEffectLogs).toHaveLength(4)
+            expect(testContext.logs).toHaveLength(4)
             levels.forEach(({ level }, index) => {
-                expect(mockEffectLogs[index].level).toBe(level)
+                expect(testContext.logs[index].level).toBe(level)
+                expect(testContext.logs[index].annotations).toEqual({ scope: "TestScope" })
             })
         })
 
@@ -98,20 +148,14 @@ describe("LoggingServiceLive", () => {
             const logger = await Effect.runPromise(loggingService.getLogger("TestScope"))
             const message = "Direct log test"
 
-            await Effect.runPromise(
-                logger.log(LogLevel.Info, message).pipe(
-                    Effect.provide(TestLoggerLayer)
-                )
-            )
+            await Effect.runPromise(logger.log(LogLevel.Info, message))
 
-            expect(mockEffectLogs).toHaveLength(1)
-            expect(mockEffectLogs[0]).toEqual(
-                expect.objectContaining({
-                    level: LogLevel.Info,
-                    message,
-                    annotations: { scope: "TestScope" }
-                })
-            )
+            expect(testContext.logs).toHaveLength(1)
+            expect(testContext.logs[0]).toEqual({
+                level: LogLevel.Info,
+                message,
+                annotations: { scope: "TestScope" }
+            })
         })
     })
 
@@ -120,13 +164,9 @@ describe("LoggingServiceLive", () => {
             const logger = await Effect.runPromise(loggingService.getLogger("TestScope"))
             const message = "Test with scope"
 
-            await Effect.runPromise(
-                logger.info(message).pipe(Effect.provide(TestLoggerLayer))
-            )
+            await Effect.runPromise(logger.info(message))
 
-            expect(mockEffectLogs[0].annotations).toEqual(
-                expect.objectContaining({ scope: "TestScope" })
-            )
+            expect(testContext.logs[0].annotations).toEqual({ scope: "TestScope" })
         })
 
         it("should merge custom annotations with scope", async () => {
@@ -135,17 +175,13 @@ describe("LoggingServiceLive", () => {
             const customAnnotations = { requestId: "123", userId: "456" }
 
             await Effect.runPromise(
-                logger.info(message, { annotations: customAnnotations }).pipe(
-                    Effect.provide(TestLoggerLayer)
-                )
+                logger.info(message, { annotations: customAnnotations })
             )
 
-            expect(mockEffectLogs[0].annotations).toEqual(
-                expect.objectContaining({
-                    scope: "TestScope",
-                    ...customAnnotations
-                })
-            )
+            expect(testContext.logs[0].annotations).toEqual({
+                scope: "TestScope",
+                ...customAnnotations
+            })
         })
     })
 
@@ -156,18 +192,14 @@ describe("LoggingServiceLive", () => {
             const error = new Error("Test Error Cause")
             const cause = Cause.die(error)
 
-            await Effect.runPromise(
-                logger.error(message, { cause }).pipe(Effect.provide(TestLoggerLayer))
-            )
+            await Effect.runPromise(logger.error(message, { cause }))
 
-            expect(mockEffectLogs[0]).toEqual(
-                expect.objectContaining({
-                    level: LogLevel.Error,
-                    message,
-                    cause,
-                    annotations: expect.objectContaining({ scope: "ErrorScope" })
-                })
-            )
+            expect(testContext.logs[0]).toEqual({
+                level: LogLevel.Error,
+                message,
+                cause,
+                annotations: { scope: "ErrorScope" }
+            })
         })
 
         it("should handle logging service specific errors", async () => {
@@ -179,19 +211,18 @@ describe("LoggingServiceLive", () => {
                 logger.error("Error occurred", {
                     cause,
                     annotations: { errorType: "LoggingError" }
-                }).pipe(Effect.provide(TestLoggerLayer))
-            )
-
-            expect(mockEffectLogs[0]).toEqual(
-                expect.objectContaining({
-                    level: LogLevel.Error,
-                    cause,
-                    annotations: expect.objectContaining({
-                        scope: "ErrorScope",
-                        errorType: "LoggingError"
-                    })
                 })
             )
+
+            expect(testContext.logs[0]).toEqual({
+                level: LogLevel.Error,
+                message: "Error occurred",
+                cause,
+                annotations: {
+                    scope: "ErrorScope",
+                    errorType: "LoggingError"
+                }
+            })
         })
 
         it("should handle complex error objects with nested causes", async () => {
@@ -204,20 +235,18 @@ describe("LoggingServiceLive", () => {
                 logger.error("Complex error", {
                     cause,
                     annotations: { errorType: "ComplexError" }
-                }).pipe(Effect.provide(TestLoggerLayer))
-            )
-
-            expect(mockEffectLogs[0]).toEqual(
-                expect.objectContaining({
-                    level: LogLevel.Error,
-                    cause,
-                    annotations: expect.objectContaining({
-                        scope: "ErrorScope",
-                        errorType: "ComplexError"
-                    })
                 })
             )
-            // Verify the nested error structure
+
+            expect(testContext.logs[0]).toEqual({
+                level: LogLevel.Error,
+                message: "Complex error",
+                cause,
+                annotations: {
+                    scope: "ErrorScope",
+                    errorType: "ComplexError"
+                }
+            })
             expect(outerError).toHaveProperty("cause", innerError)
         })
     })

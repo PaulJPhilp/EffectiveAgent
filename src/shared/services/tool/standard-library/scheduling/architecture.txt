@@ -1,0 +1,151 @@
+# Scheduling Tool Architecture
+
+## Directory Structure
+```
+src/shared/services/tool/scheduling/
+├── __tests__/              # Test files
+│   ├── schedule.test.ts
+│   ├── task.test.ts
+│   └── service.test.ts
+├── models/                 # Data models
+│   ├── schedule.ts        # Schedule type definitions
+│   ├── task.ts            # Task type definitions
+│   └── types.ts           # Shared type definitions
+├── errors/                 # Custom errors
+│   └── schedule-errors.ts
+├── service/               # Core service implementation
+│   ├── schedule.ts        # Schedule management
+│   ├── task.ts           # Task management
+│   └── monitor.ts        # Monitoring functionality
+├── utils/                 # Utility functions
+│   ├── time.ts           # Time-related utilities
+│   └── validation.ts     # Validation helpers
+├── index.ts              # Public API
+├── PRD.md                # Product Requirements
+└── architecture.txt      # This file
+
+## Core Components
+
+1. ScheduleService
+   - Purpose: Main service for schedule management
+   - Responsibilities:
+     * Schedule creation and configuration
+     * Schedule lifecycle management
+     * Schedule composition
+   - Key Features:
+     * Type-safe schedule creation
+     * Schedule persistence
+     * Schedule monitoring
+
+2. TaskService
+   - Purpose: Task execution and management
+   - Responsibilities:
+     * Task creation and validation
+     * Task execution
+     * Error handling
+   - Key Features:
+     * Type-safe task creation
+     * Task status tracking
+     * Task cancellation
+
+3. MonitorService
+   - Purpose: Schedule and task monitoring
+   - Responsibilities:
+     * Execution history tracking
+     * Status reporting
+     * Performance metrics
+   - Key Features:
+     * Real-time monitoring
+     * History persistence
+     * Metric aggregation
+
+## Data Flow
+
+1. Schedule Creation
+   Input -> Validation -> Schedule Creation -> Persistence -> Output
+
+2. Task Execution
+   Task -> Schedule Evaluation -> Execution -> Result -> Monitoring
+
+3. Schedule Composition
+   Schedules -> Operator Application -> New Schedule -> Validation -> Output
+
+## Type System
+
+1. Core Types
+   ```typescript
+   type Schedule<Out, In, R> = Effect<Out, never, R>
+   type Task<In, Out> = Effect<Out, Error, In>
+   type ScheduleId = string & { readonly _: unique symbol }
+   type TaskId = string & { readonly _: unique symbol }
+   ```
+
+2. Configuration Types
+   ```typescript
+   interface ScheduleConfig<In, Out> {
+     readonly type: ScheduleType;
+     readonly interval?: Duration;
+     readonly maxAttempts?: number;
+     readonly backoff?: BackoffStrategy;
+   }
+   ```
+
+3. Monitor Types
+   ```typescript
+   interface ExecutionRecord<In, Out> {
+     readonly taskId: TaskId;
+     readonly scheduleId: ScheduleId;
+     readonly input: In;
+     readonly output?: Out;
+     readonly error?: Error;
+     readonly duration: Duration;
+     readonly timestamp: Date;
+   }
+   ```
+
+## Error Handling
+
+1. Custom Error Types
+   - ScheduleConfigurationError
+   - TaskExecutionError
+   - ScheduleCompositionError
+   - MonitoringError
+
+2. Error Recovery
+   - Retry strategies
+   - Fallback mechanisms
+   - Error reporting
+
+## Integration Points
+
+1. Effect Integration
+   - Schedule Effect usage
+   - Task Effect composition
+   - Error Effect handling
+
+2. Shared Services
+   - Configuration service
+   - Logging service
+   - Metrics service
+
+3. External Systems
+   - Persistence layer
+   - Monitoring system
+   - Notification system
+
+## Testing Strategy
+
+1. Unit Tests
+   - Individual component testing
+   - Type safety verification
+   - Error handling validation
+
+2. Integration Tests
+   - Component interaction testing
+   - Schedule composition testing
+   - Service integration testing
+
+3. Performance Tests
+   - Schedule evaluation performance
+   - Memory usage monitoring
+   - Concurrent execution testing

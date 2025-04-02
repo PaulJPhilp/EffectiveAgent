@@ -1,0 +1,242 @@
+---
+description: Comprehensive patterns and best practices for Effect-based TypeScript applications
+globs: **/*.ts
+---
+# Effect Best Practices
+
+## Core Patterns
+
+### Service Architecture
+- Define interfaces with readonly methods and Effect return types
+- Use `Context.Tag` for dependency injection
+- Implement services as classes or factory functions
+- Keep services focused on single responsibility
+```typescript
+// Interface definition
+export interface ILoggingService {
+    readonly getLogger: (name?: string) => Effect.Effect<Logger>
+}
+
+// Tag creation
+export class LoggingService extends Context.Tag("LoggingService")<
+    ILoggingService,
+    ILoggingService
+>() {}
+
+// Implementation
+class LoggingServiceLive implements ILoggingService {
+    private readonly loggers = new Map<string, Logger>()
+    
+    readonly getLogger = (name?: string): Effect.Effect<Logger> =>
+        Effect.sync(() => {
+            // Implementation
+        })
+}
+
+// Layer definition
+export const LoggingServiceLiveLayer = Layer.succeed(
+    LoggingService,
+    new LoggingServiceLive()
+)
+```
+
+### Effect Generation & Composition
+- Use `Effect.gen` for complex operations
+- Chain operations using `pipe()`
+- Use `yield*` for dependency access
+- Compose effects using `flatMap` for sequential operations
+```typescript
+return Effect.gen(function* (_) {
+    const service = yield* _(ServiceTag)
+    const config = yield* _(service.getConfig())
+    const result = yield* _(performOperation(config))
+    return result
+}).pipe(
+    Effect.mapError(e => new DomainError("Operation failed", { cause: e }))
+)
+```
+
+### Error Handling
+- Define domain-specific error hierarchies
+- Use `Effect.fail` instead of throwing errors
+- Handle all error cases explicitly
+- Preserve error context using cause
+```typescript
+// Error definition
+export class DateTimeError extends ServiceError {
+    constructor(message: string, options?: ErrorOptions & { toolId?: string }) {
+        super(message, options)
+        this.name = "DateTimeError"
+    }
+}
+
+// Error handling
+return Effect.gen(function* () {
+    if (!isValid(input)) {
+        return yield* Effect.fail(new ValidationError("Invalid input", {
+            cause: new Error("Validation failed")
+        }))
+    }
+    // ... rest of implementation
+}).pipe(
+    Effect.mapError((e): DomainError => 
+        e instanceof DomainError ? e : 
+        new DomainError("Unexpected error", { cause: e instanceof Error ? e : new Error(String(e)) })
+    )
+)
+```
+
+### Type Safety
+- Define explicit Effect return types
+- Use type parameters for generic operations
+- Create union types for error cases
+- Use branded types for type-safe identifiers
+```typescript
+type OperationEffect = Effect.Effect<
+    OperationResult,
+    ValidationError | ProcessingError,
+    never
+>
+
+interface OperationOptions<T extends Record<string, unknown>> {
+    readonly data: T
+    readonly validate: boolean
+}
+```
+
+## Advanced Patterns
+
+### Performance & Concurrency
+- Use `Effect.forEach` with concurrency control
+- Add timeouts to long-running operations
+- Track operation timing with performance metrics
+```typescript
+const results = yield* _(
+    Effect.forEach(
+        dataArray,
+        (data) => Effect.timeout(
+            operation(data), 
+            Duration.millis(timeoutMs)
+        ),
+        { concurrency: 5 }
+    )
+)
+```
+
+### Resource Management
+- Use `Effect.acquireRelease` for cleanup
+- Ensure proper resource scoping
+- Handle cleanup in error cases
+```typescript
+Effect.acquireRelease(
+    acquire(),
+    resource => cleanup(resource)
+)
+```
+
+### Configuration & State
+- Use Effect for configuration loading
+- Validate configurations at load time
+- Provide type-safe access to values
+```typescript
+get<T>(key: string): Effect.Effect<T, ConfigurationError> {
+    return Effect.sync(() => this.config.get(key)).pipe(
+        Effect.flatMap(value =>
+            value !== undefined
+                ? Effect.succeed(value as T)
+                : Effect.fail(new ConfigurationError({ key }))
+        )
+    )
+}
+```
+
+### Logging & Monitoring
+- Use structured logging
+- Add context annotations
+- Track timing information
+```typescript
+Effect.annotateLogs({
+    service: "ServiceName",
+    method: "methodName",
+    resourceId: id,
+    duration: endTime - startTime
+})
+```
+
+## Testing Patterns
+
+### Test Structure
+- Group tests by feature/method
+- Use descriptive names
+- Follow Arrange-Act-Assert
+```typescript
+describe("DateTimeTool", () => {
+    describe("PARSE operation", () => {
+        it("should parse ISO date string", async () => {
+            // Arrange
+            const input = createTestInput()
+            
+            // Act
+            const result = await Effect.runPromiseExit(
+                dateTimeTool.execute(input, context)
+            )
+            
+            // Assert
+            expect(Exit.isSuccess(result)).toBe(true)
+        })
+    })
+})
+```
+
+### Mock Services
+- Create interface-compliant mocks
+- Use Effect.succeed/fail for paths
+- Reset state between tests
+```typescript
+const mockService: IService = {
+    operation: () => Effect.succeed(mockResult),
+    errorCase: () => Effect.fail(new TestError())
+}
+
+const TestServiceLayer = Layer.succeed(
+    ServiceTag,
+    mockService
+)
+```
+
+### Testing Effects
+- Test success and error paths
+- Verify error types and messages
+- Check state changes and interactions
+```typescript
+const result = await Effect.runPromiseExit(effect)
+if (Exit.isFailure(result)) {
+    const failure = Option.getOrNull(Cause.failureOption(result.cause))
+    expect(failure).toBeInstanceOf(ExpectedError)
+    expect(failure.message).toContain("Expected message")
+}
+```
+
+## Best Practices
+1. Keep services focused and interfaces small
+2. Use Effect for all async/fallible operations
+3. Handle all error cases explicitly
+4. Make error handling predictable and consistent
+5. Use proper dependency injection
+6. Keep effects pure and predictable
+7. Add timeouts to external operations
+8. Track performance metrics
+9. Test both success and error paths
+10. Document public interfaces and effects
+
+## Anti-patterns to Avoid
+1. Don't mix Effect with Promise-based code
+2. Don't throw errors in Effect chains
+3. Don't use type assertions unnecessarily
+4. Don't ignore error cases
+5. Don't skip resource cleanup
+6. Don't mix sync and async code without Effect
+7. Don't bypass the Effect type system
+8. Don't use global state
+9. Don't test implementation details
+10. Don't use real services in unit tests 
