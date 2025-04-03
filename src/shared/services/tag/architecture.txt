@@ -1,0 +1,104 @@
+# TagService Architecture Document
+
+**Version:** 1.0
+**Date:** 2024-07-26
+
+## 1. Overview
+
+This document describes the internal architecture of the `TagService`. This service manages the creation, deletion, and querying of simple string tags, as well as the associations between these tags and specific framework entities (initially focusing on `originatingThreadId` for chat threads). It provides an abstraction over the `RepositoryService` used for persistence.
+
+## 2. Core Responsibilities
+
+*   Provide Effect-native APIs for managing tag definitions (`createTag`, `getTag`, `listTags`, `deleteTag`).
+*   Provide Effect-native APIs for managing associations between tags and entities (`associateTag`, `dissociateTag`, `getTagsForEntity`, `getEntitiesForTag`).
+*   Ensure uniqueness of tag names (case-insensitive recommended).
+*   Ensure uniqueness of tag-entity associations.
+*   Prevent deletion of tags currently associated with entities.
+*   Translate service calls into appropriate `RepositoryService` operations on `TagEntityData` and `TagAssociationEntityData`.
+*   Map errors from `RepositoryService` to specific `TagService` errors.
+*   Integrate with `LoggingService`.
+
+## 3. Key Components and Data Structures
+
+*   **`ITagService` (Interface / `Effect.Tag`)**: Defines the public contract.
+*   **`TagServiceLive` (Implementation)**: Concrete implementation. Depends on `ILoggingService` and `IRepositoryService` (configured to handle both tag entity types).
+*   **`TagEntityData` (Data Structure / Zod Schema)**: Defines the structure for tag definitions stored via `RepositoryService`. Fields: `name` (unique, case-insensitive index recommended).
+*   **`TagAssociationEntityData` (Data Structure / Zod Schema)**: Defines the structure for the link between a tag and an entity. Fields: `tagId` (foreign key to `TagEntity`), `entityId`, `entityType`. A unique constraint on (`tagId`, `entityId`, `entityType`) is required.
+*   **`TagEntity` (Interface/Type)**: Public representation of a tag, including its `id` and `name`.
+
+## 4. Core Logic Flows
+
+*   **`createTag(params)`**:
+    1.  Receive `name`. Normalize name (e.g., lowercase) for case-insensitive check.
+    2.  Acquire logger.
+    3.  **Check Existence:** Call `repository.find({ name: normalizedName })` for `TagEntityData`. Map repo errors.
+    4.  If tag found, fail `TagExistsError`.
+    5.  **Create Tag:** Call `repository.create({ name: normalizedName })`. Map repo errors (`GenericTagError`).
+    6.  Return the created `TagEntity`.
+*   **`getTag(params)`**:
+    1.  Receive `tagId` or `name`.
+    2.  Acquire logger.
+    3.  If `name`, normalize it. Build criteria `{ id: tagId }` or `{ name: normalizedName }`.
+    4.  Call `repository.find(criteria)`. Map repo errors (`GenericTagError`).
+    5.  If found (expect one), return the `TagEntity`.
+    6.  If not found, fail `TagNotFoundError`.
+*   **`listTags()`**:
+    1.  Acquire logger.
+    2.  Call `repository.find({})` for `TagEntityData`. Map repo errors (`GenericTagError`).
+    3.  Map results to `TagEntity` array. Return.
+*   **`deleteTag(params)`**:
+    1.  Receive `tagId`.
+    2.  Acquire logger.
+    3.  **Check Associations:** Call `repository.find({ tagId: tagId })` for `TagAssociationEntityData`. Map repo errors (`GenericTagError`).
+    4.  If associations found (results not empty), fail `TagInUseError`.
+    5.  **Delete Tag:** Call `repository.delete(tagId)` for `TagEntityData`. Map `EntityNotFoundError` to `TagNotFoundError`, other repo errors to `GenericTagError`.
+    6.  Return `Effect.void`.
+*   **`associateTag(params)`**:
+    1.  Receive `tagId`, `entityId`, `entityType`.
+    2.  Acquire logger.
+    3.  **Verify Tag Exists:** Call internal `getTag({ tagId })` logic. Handle `TagNotFoundError`.
+    4.  **Check Existing Association:** Call `repository.find({ tagId, entityId, entityType })` for `TagAssociationEntityData`. Map repo errors (`GenericTagError`).
+    5.  If association found, succeed (idempotent) or fail (`EntityAssociationError` - "already exists"). Let's choose idempotent: return `Effect.void`.
+    6.  **Create Association:** Call `repository.create({ tagId, entityId, entityType, attachedAt: new Date() })`. Map repo errors (`EntityAssociationError`).
+    7.  Return `Effect.void`.
+*   **`dissociateTag(params)`**:
+    1.  Receive `tagId`, `entityId`, `entityType`.
+    2.  Acquire logger.
+    3.  **Find Association:** Call `repository.find({ tagId, entityId, entityType })`. Map repo errors (`GenericTagError`).
+    4.  If association not found (empty results), fail `AssociationNotFoundError`.
+    5.  Extract the `id` of the association entity.
+    6.  **Delete Association:** Call `repository.delete(id)`. Map `EntityNotFoundError` to `AssociationNotFoundError` (defensive), other repo errors to `GenericTagError`.
+    7.  Return `Effect.void`.
+*   **`getTagsForEntity(params)`**:
+    1.  Receive `entityId`, `entityType`.
+    2.  Acquire logger.
+    3.  **Find Associations:** Call `repository.find({ entityId, entityType })` for `TagAssociationEntityData`. Map repo errors (`GenericTagError`).
+    4.  Extract unique `tagId`s from the results.
+    5.  **Fetch Tags:** For each `tagId`, call internal `getTag({ tagId })` logic. Use `Effect.all` to fetch concurrently. Handle/filter out `TagNotFoundError` (log inconsistency).
+    6.  Return the array of found `TagEntity`.
+*   **`getEntitiesForTag(params)`**:
+    1.  Receive `tagId`, `entityType`.
+    2.  Acquire logger.
+    3.  **Verify Tag Exists:** Call internal `getTag({ tagId })` logic. Handle `TagNotFoundError`.
+    4.  **Find Associations:** Call `repository.find({ tagId, entityType })` for `TagAssociationEntityData`. Map repo errors (`GenericTagError`).
+    5.  Extract `entityId`s from the results.
+    6.  Return array of `{ entityId }`.
+
+## 5. Interaction with Dependencies
+
+*   **`RepositoryService`:** The primary dependency. Used for all CRUD operations on `TagEntityData` and `TagAssociationEntityData`. The provided `RepositoryService` layer must be configured to handle these two entity types/schemas.
+*   **`LoggingService`:** Used for logging operations and errors.
+
+## 6. Error Handling
+
+*   Maps `RepositoryService` errors to specific `TagService` errors (`TagExistsError`, `TagNotFoundError`, `TagInUseError`, `AssociationNotFoundError`, `EntityAssociationError`, `GenericTagError`).
+*   Ensures operations fail predictably based on existence checks (tags, associations).
+
+## 7. Configuration Management
+
+*   Minimal. Relies on the configuration of the injected `RepositoryService` Layer.
+
+## 8. Data Model
+
+*   `TagEntityData`: Stores unique tag names. Indexed on `name` (case-insensitive).
+*   `TagAssociationEntityData`: Stores the many-to-many relationship between tags and other entities. Indexed on (`tagId`, `entityId`, `entityType`) for uniqueness and querying. Indexed separately on `entityId`/`entityType` and `tagId`/`entityType` for efficient lookups.

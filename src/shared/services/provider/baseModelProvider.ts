@@ -2,9 +2,10 @@ import * as Effect from 'effect/Effect';
 import type {
   ModelCapability,
   ProviderConfig,
+  ProviderId,
   ProviderType
-} from '../../config-master/types/provider-config.js';
-import { ProviderConfigSchema } from '../../config-master/types/provider-config.js';
+} from './types.js';
+import { ProviderConfigSchema } from './schema.js';
 import { ProviderImplementationError } from './errors.js';
 import type {
   GenerateEmbeddingOptions,
@@ -26,19 +27,19 @@ import type {
  */
 export abstract class BaseModelProvider implements IModelProvider {
   /** Provider ID */
-  readonly providerId: ProviderType;
+  readonly providerId: ProviderId;
   /** Provider configuration */
   readonly config: ProviderConfig;
 
-  constructor(providerId: ProviderType, config: ProviderConfig) {
+  constructor(config: ProviderConfig) {
     // Validate config against schema
     const parseResult = ProviderConfigSchema.safeParse(config);
     if (!parseResult.success) {
       throw new Error(`Invalid provider configuration: ${parseResult.error.message}`);
     }
 
-    this.providerId = providerId;
     this.config = config;
+    this.providerId = config.name as ProviderId;
   }
 
   /** Validates common arguments for model calls */

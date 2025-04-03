@@ -33,7 +33,7 @@
 		"src/**/*.tsx"
 	],
 	"devDependencies": {
-		"@effect/vitest": "^0.20.5",
+		"@effect/vitest": "^0.20.4",
 		"@types/bun": "latest",
 		"ajv-cli": "^5.0.0",
 		"tsconfig-paths": "^4.2.0",

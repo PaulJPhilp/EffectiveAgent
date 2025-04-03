@@ -1,0 +1,69 @@
+# FiberManagerService Architecture Document
+
+**Version:** 1.0
+**Date:** 2024-07-26
+
+## 1. Overview
+
+This document describes the internal architecture of the `FiberManagerService`. This internal framework service encapsulates the management of long-running, concurrent Effect Fibers, primarily intended for executing individual thread processing loops. It handles Fiber lifecycle (startup, interruption, cleanup), enforces concurrency limits using a semaphore, manages input/output communication channels (Queue/Hub) for each Fiber, and tracks runtime status including pause/resume state.
+
+## 2. Core Responsibilities
+
+*   Manage a collection of active, named Fibers executing provided Effect workflows.
+*   Enforce a global concurrency limit on the number of active managed Fibers using `Effect.Semaphore`.
+*   Provide APIs to `start`, `interrupt`, `pause`, `resume`, and get the `status` of managed Fibers by ID.
+*   Provide APIs to `submit` input data to a specific Fiber's input `Queue` and `subscribe` to its output `Hub`.
+*   Ensure proper resource cleanup (Semaphore permits, Queue/Hub shutdown, map entries) when a Fiber terminates (normally, via error, or interruption).
+*   Abstract low-level Fiber API details, concurrency primitives (`Semaphore`), and communication primitives (`Queue`, `Hub`) from its callers (e.g., `ThreadService`).
+
+## 3. Key Components and Data Structures
+
+*   **`IFiberManagerService` (Interface / `Effect.Tag`)**: Defines the public contract.
+*   **`FiberManagerServiceLive` (Implementation)**: Concrete implementation. Depends on `LoggingService` and `ConfigurationService`. Holds internal runtime state.
+*   **`concurrencySemaphore: Semaphore` (Internal State)**: An Effect `Semaphore` initialized with the configured `maxConcurrentFibers` limit. Acquired before starting a Fiber, released upon its termination.
+*   **`ManagedFiberState<Input, Output, E, A>` (Internal Type)**: A record holding the runtime components associated with a single managed Fiber:
+    *   `id: string` (The unique identifier provided by the caller, e.g., `threadId`).
+    *   `fiber: Fiber.Runtime<E, A>` (The runtime handle for the executing Fiber).
+    *   `inputQueue: Queue<Input>` (Bounded or unbounded queue for submitting work).
+    *   `outputHub: Hub<Output>` (Hub for publishing results/errors).
+    *   `statusRef: Ref<RuntimeStatus>` (Mutable reference holding the current operational status: "Idle", "Running", "Paused", etc.).
+*   **`fiberMap: Ref<HashMap<string, ManagedFiberState<any, any, any, any>>>` (Internal State)**: An Effect `Ref` containing a `HashMap` that maps the managed ID (`string`) to its corresponding `ManagedFiberState`. This is the central registry of active Fibers managed by the service.
+
+## 4. Core Logic Flows
+
+*   **Initialization (Layer Creation)**:
+    1.  Read `maxConcurrentFibers` from `ConfigurationService`.
+    2.  Create `Semaphore` instance with the configured limit.
+    3.  Create `Ref<HashMap.empty()>` for the `fiberMap`.
+    4.  Instantiate `FiberManagerServiceLive` with these resources.
+*   **`start(params)`**:
+    1.  Receive `id`, `effectToRun`, `onTerminate`.
+    2.  Acquire logger.
+    3.  Check `fiberMap` via `Ref.get` to see if `id` already exists. If yes, handle (e.g., fail, log warning, return success if idempotent).
+    4.  **Acquire Permit:** Use `Semaphore.withPermits(1)(...)` to wrap the rest of the Fiber startup logic. This Effect will wait if no permits are available.
+    5.  **Inside Semaphore Scope:**
+        *   Create `inputQueue` (e.g., `Queue.bounded(capacity)`).
+        *   Create `outputHub` (e.g., `Hub.bounded(capacity)`).
+        *   Create `statusRef` (e.g., `Ref.make<RuntimeStatus>("Idle")`).
+        *   Define the final Effect to run in the Fiber:
+            *   `runnableEffect = effectToRun(inputQueue, outputHub)` (Pass channels to user effect).
+            *   `finalEffect = runnableEffect.pipe( Effect.ensuring( /* Cleanup Logic */ ) )`
+            *   **Cleanup Logic:**
+                *   Get final `Exit` status of `runnableEffect`.
+                *   Call `onTerminate(id, exit)` if provided. Handle errors in `onTerminate` (log).
+                *   Shutdown `inputQueue` (`Queue.shutdown`).
+                *   Shutdown `outputHub` (`Hub.shutdown`).
+                *   Remove entry from `fiberMap` using `Ref.update`.
+                *   (Semaphore permit is released automatically by `withPermits`).
+                *   Update runtime `statusRef` to "Completed", "Failed", or "Killed" based on `Exit`.
+        *   **Fork Fiber:** Fork `finalEffect` using `Effect.forkDaemon`.
+        *   Store the new `ManagedFiberState` (including the `Fiber.Runtime` from fork) into the `fiberMap` using `Ref.update`.
+        *   Log successful start.
+    6.  Return `Effect.void`.
+*   **`submit(params)`**:
+    1.  Receive `id`, `input`.
+    2.  Get `fiberMap` via `Ref.get`.
+    3.  Look up `ManagedFiberState` by `id`. If not found, fail `FiberNotFound`.
+    4.  Read `statusRef` via `Ref.get`. If "Paused", fail `FiberPaused`.
+    5.  Offer `input` to `inputQueue` using `Queue.offer`. Map queue errors (e.g., `isShutdown`, `isFull`) to `FiberManagerError`.
+    6.  

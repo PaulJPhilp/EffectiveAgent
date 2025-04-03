@@ -1,0 +1,100 @@
+# AttachmentService Architecture Document
+
+**Version:** 1.0
+**Date:** 2024-07-26
+
+## 1. Overview
+
+This document describes the internal architecture of the `AttachmentService`. This service acts as a linking mechanism within the Effect-based agent framework, managing the association between files (managed by `FileService`) and specific conversation threads (`conversationId`). It handles the creation and deletion of these links, ensuring the reference count of the underlying file in `FileService` is updated accordingly.
+
+## 2. Core Responsibilities
+
+*   Provide Effect-native methods to `attachFile`, `listAttachments`, and `removeAttachment`.
+*   Create and delete attachment link records (`AttachmentEntityData`) using `RepositoryService`.
+*   Interact with `FileService` to:
+    *   Verify file existence (`getFileMetadata`).
+    *   Increment file reference count (`incrementReferenceCount`) when attaching.
+    *   Decrement file reference count (`decrementReferenceCount`) when removing an attachment (potentially triggering file deletion within `FileService`).
+    *   Retrieve file metadata for listing attachments.
+*   Ensure attachment operations are scoped by `conversationId` and `fileId`.
+*   Map errors from dependencies (`RepositoryService`, `FileService`) to specific `AttachmentService` errors.
+*   Implement basic compensation logic where feasible (e.g., attempting to decrement ref count if attachment record creation fails after increment).
+*   Integrate with `LoggingService`.
+
+## 3. Key Components and Data Structures
+
+*   **`IAttachmentService` (Interface / `Effect.Tag`)**:
+    *   Defines the public contract (`attachFile`, `listAttachments`, `removeAttachment`).
+    *   Identified by the `AttachmentService` tag.
+*   **`AttachmentServiceLive` (Implementation)**:
+    *   Concrete implementation of `IAttachmentService`.
+    *   Orchestrates interactions between `RepositoryService` (for attachment links) and `FileService` (for file metadata and ref counting).
+    *   Depends on `ILoggingService`, `IRepositoryService<AttachmentEntityData>`, and `IFileService`.
+*   **`AttachmentEntityData` (Data Structure / Zod Schema)**:
+    *   Defines the structure for the attachment link record stored via `RepositoryService`.
+    *   Fields: `conversationId`, `fileId`, `attachedAt`.
+    *   `conversationId` and `fileId` form the logical composite key.
+*   **`AttachmentInfo` (Interface/Type)**:
+    *   Public representation of an attachment returned by `listAttachments`.
+    *   Combines `fileId`, `attachedAt` from the attachment record with `filename`, `mimeType`, `sizeBytes` fetched from `FileService`.
+
+## 4. Core Logic Flows
+
+*   **`attachFile(params)`**:
+    1.  Receive `conversationId`, `fileId`.
+    2.  Acquire logger.
+    3.  **Verify File Existence:** Call `fileService.getFileMetadata({ fileId })`. Map `FileNotFoundError` (propagate), `FileStorageError` (propagate).
+    4.  **Check Existing Attachment:** Call `repository.find({ conversationId, fileId })` for `AttachmentEntityData`. Map `RepositoryError` to `GenericAttachmentError`.
+    5.  If attachment found (results array not empty), fail with `AttachmentExistsError`.
+    6.  **Increment Ref Count:** Call `fileService.incrementReferenceCount({ fileId })`. Map `FileNotFoundError` (shouldn't happen if step 3 passed, but handle defensively), `FileStorageError` (propagate).
+    7.  **Create Attachment Record:** Prepare `AttachmentEntityData` (`conversationId`, `fileId`, `attachedAt: new Date()`).
+    8.  Call `repository.create(attachmentData)`.
+    9.  **Handle Create Failure (Compensation):** If `repository.create` fails (map error to `GenericAttachmentError`), attempt to compensate by calling `fileService.decrementReferenceCount({ fileId })`. Log the outcome of the compensation attempt but fail the overall operation with the original creation error.
+    10. Log success. Return `Effect.void`.
+*   **`listAttachments(params)`**:
+    1.  Receive `conversationId`.
+    2.  Acquire logger.
+    3.  **Find Attachment Links:** Call `repository.find({ conversationId })` for `AttachmentEntityData`. Map `RepositoryError` to `GenericAttachmentError`.
+    4.  **Fetch Metadata:** For each found attachment entity (`fileId`, `attachedAt`):
+        *   Call `fileService.getFileMetadata({ fileId })`.
+        *   Use `Effect.catchTag("FileNotFoundError", ...)` to handle cases where the file metadata might be missing (data inconsistency). Log a warning and filter out this attachment from the results. Map `FileStorageError` to `GenericAttachmentError` and potentially fail the entire list operation or filter out.
+    5.  Use `Effect.all` (with concurrency) to fetch metadata for all valid attachments found.
+    6.  **Combine Data:** Map the successful results into an array of `AttachmentInfo` objects.
+    7.  Return `Effect.succeed(ReadonlyArray<AttachmentInfo>)`.
+*   **`removeAttachment(params)`**:
+    1.  Receive `conversationId`, `fileId`.
+    2.  Acquire logger.
+    3.  **Find Attachment Link:** Call `repository.find({ conversationId, fileId })` for `AttachmentEntityData`. Map `RepositoryError` to `GenericAttachmentError`.
+    4.  If attachment not found (empty results), fail with `AttachmentNotFoundError`.
+    5.  Extract the `id` of the attachment entity from the result.
+    6.  **Delete Attachment Record:** Call `repository.delete(id)`. Map `RepositoryError` to `GenericAttachmentError`. Handle `EntityNotFoundError` defensively (log warning, proceed).
+    7.  **Decrement Ref Count:** Call `fileService.decrementReferenceCount({ fileId })`. Map `FileNotFoundError` (log warning, indicates inconsistency), `FileStorageError` (propagate).
+    8.  **Handle Decrement Failure:** If `fileService.decrementReferenceCount` fails *after* the attachment record was deleted, log a warning about potential inconsistency (ref count might be higher than actual usage). The operation still succeeds from the perspective of removing the attachment link.
+    9.  Log success. Return `Effect.void`.
+
+## 5. Interaction with Dependencies
+
+*   **`RepositoryService<AttachmentEntityData>`:** Used for CRUD operations (`create`, `find`, `delete`) on the attachment link records.
+*   **`FileService`:** Used heavily to:
+    *   Verify file existence (`getFileMetadata`).
+    *   Manage reference counts (`incrementReferenceCount`, `decrementReferenceCount`).
+    *   Retrieve file details for listing (`getFileMetadata`).
+*   **`LoggingService`:** Used for logging operations, warnings (e.g., inconsistencies, compensation attempts), and errors.
+
+## 6. Error Handling
+
+*   Propagates `FileNotFoundError` and `FileStorageError` from `FileService` when appropriate (e.g., file doesn't exist on attach, ref count update fails).
+*   Defines `AttachmentExistsError` and `AttachmentNotFoundError` for issues specific to the attachment link itself.
+*   Uses `GenericAttachmentError` for underlying repository errors related to attachment records or other unexpected issues.
+*   Includes basic compensation logic (logging and attempting counter-operations) for specific failure scenarios in `attachFile` and `removeAttachment`, but does not guarantee full atomicity across services.
+
+## 7. Configuration Management
+
+*   Minimal direct configuration. Relies on the configuration of injected `RepositoryService` and `FileService` Layers.
+*   May optionally use `ConfigurationService` to read an entity type/prefix for `AttachmentEntityData` if the `RepositoryService` implementation requires it.
+
+## 8. Data Model
+
+*   The core persisted entity is `AttachmentEntityData`, representing a link.
+*   It contains foreign keys (`fileId`, potentially `conversationId` if conversations are also entities) linking to other data managed by different services.
+*   It does not store redundant file metadata; `FileService` is the source of truth for that.

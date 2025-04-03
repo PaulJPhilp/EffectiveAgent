@@ -1,0 +1,95 @@
+# ChatMemoryService Architecture Document
+
+**Version:** 1.0
+**Date:** 2024-07-26
+
+## 1. Overview
+
+This document describes the internal architecture of the `ChatMemoryService`. This service is responsible for managing the persistence and retrieval of conversational history (sequences of messages) within the Effect-based agent framework. It provides an abstraction layer over the `RepositoryService` (backed by Drizzle/Postgres) to handle individual chat messages (`ChatMessageEntityData`) and associated summarization metadata (`SummarizationMetadataEntityData`), scoped by a `conversationId` (which corresponds to a `threadId` from `ChatThreadService`). It incorporates configurable strategies for managing history length, specifically summarization via `SkillService`.
+
+## 2. Core Responsibilities
+
+*   Provide Effect-native methods to `addMessages`, `getMessages`, and `clearMessages` for a specific `conversationId`.
+*   Store individual chat messages (`ChatMessageEntityData`) via `RepositoryService`.
+*   Store summarization metadata (`SummarizationMetadataEntityData`) via `RepositoryService`.
+*   Retrieve ordered sequences of chat messages (including summaries) for a `conversationId`, potentially handling history traversal for branched threads.
+*   Delegate history management logic (e.g., triggering summarization) to an injected `MemoryManagementStrategy`.
+*   Map errors from dependencies (`RepositoryService`, `SkillService` via strategy) to specific `ChatMemoryService` errors.
+*   Integrate with `LoggingService`.
+
+## 3. Key Components and Data Structures
+
+*   **`IChatMemoryService` (Interface / `Effect.Tag`)**: Defines the public contract.
+*   **`ChatMemoryServiceLive` (Implementation)**: Concrete implementation. Depends on `ILoggingService`, `IRepositoryService<ChatMessageEntityData>`, `IRepositoryService<SummarizationMetadataEntityData>`, and `MemoryManagementStrategy`.
+*   **`ChatMessageEntityData` (Data Structure / Zod Schema)**: Defines the structure for individual messages stored via `RepositoryService`. Fields: `conversationId`, `role`, `content`, `timestamp`, `metadata` (optional, used for `summaryMetadataId` link).
+*   **`SummarizationMetadataEntityData` (Data Structure / Zod Schema)**: Defines the structure for metadata about a summarization event. Fields: `conversationId`, `summarizedMessageIds`, `summaryMessageId` (optional), `timestampRange`.
+*   **`ChatMessage` (Interface/Type)**: Public representation of a message returned by `getMessages`.
+*   **`MemoryManagementStrategy` (Interface)**: Defines the contract for history management logic (`postAddMessagesHook`). Implementations (e.g., `SummarizationStrategy`, `NoopMemoryStrategy`) are injected.
+*   **`SummarizationStrategy` (Implementation)**: Implements `MemoryManagementStrategy`. Contains logic for summarization using `SkillService` and repositories. Requires dependencies: `SkillService`, `RepositoryService` (both entity types), `LoggingService`, configuration.
+
+## 4. Core Logic Flows
+
+*   **`addMessages(params)`**:
+    1.  Receive `conversationId`, `messages`.
+    2.  Acquire logger.
+    3.  Map input `ChatMessage` array to `ChatMessageEntityData` array, assigning `conversationId` and `timestamp`. Validate input messages.
+    4.  **Persist Messages:** Call `messageRepository.create` for each message entity (potentially `Effect.all`). Map errors to `DataValidationError` / `GenericMemoryError`.
+    5.  **Trigger Strategy Hook:**
+        *   Determine the total message count for the `conversationId` *after* adding (requires `messageRepository.count` or efficient `find`).
+        *   Call `strategy.postAddMessagesHook` with `conversationId`, `addedMessagesCount`, `totalMessagesCount`.
+        *   Errors from the hook are handled/logged by the strategy implementation.
+    6.  Log success. Return `Effect.void`.
+*   **`getMessages(params)`**:
+    1.  Receive `conversationId`, `limit`, `before`.
+    2.  Acquire logger.
+    3.  **Handle Branching (Recursive Fetch Logic):**
+        *   Define internal recursive function `fetchHistory(currentConvId, accumulatedMessages)`:
+            *   Fetch config for `currentConvId` via `threadConfigRepository.findById` (Needs access or assumes caller handles this). Get `parentThreadId`.
+            *   Fetch messages for `currentConvId` using `messageRepository.find` with criteria, sorting, limiting. Map errors.
+            *   Prepend fetched messages to `accumulatedMessages`.
+            *   If `parentThreadId` exists and limit not yet reached, recursively call `fetchHistory(parentThreadId, accumulatedMessages)`.
+            *   Return final `accumulatedMessages`.
+        *   Initiate call: `fetchHistory(params.conversationId, [])`.
+        *   *(Alternative: If using denormalization with `originatingThreadId`)*:
+            *   Get `originatingThreadId` for the requested `conversationId`.
+            *   Call `messageRepository.find({ originatingThreadId })` with sorting, limiting. Map errors.
+    4.  **Check Existence:** If the final assembled history is empty, perform a check to see if the *original* `conversationId` ever existed (e.g., check thread config repo) to distinguish between an empty history and a truly non-existent conversation. If non-existent, fail `ConversationNotFoundError`.
+    5.  Map `ChatMessageEntityData` to `ChatMessage`.
+    6.  Return `Effect.succeed(ReadonlyArray<ChatMessage>)`.
+*   **`clearMessages(params)`**:
+    1.  Receive `conversationId`.
+    2.  Acquire logger.
+    3.  **Find Entities:**
+        *   Find all `ChatMessageEntity` IDs for the `conversationId` using `messageRepository.find`.
+        *   Find all `SummarizationMetadataEntity` IDs for the `conversationId` using `metadataRepository.find`.
+    4.  **Check Existence:** If both finds return empty, fail `ConversationNotFoundError`.
+    5.  **Delete Entities:** Call `repository.delete` for each found message ID and metadata ID (potentially `Effect.all`). Map errors to `GenericMemoryError`.
+    6.  Log success. Return `Effect.void`.
+*   **`SummarizationStrategy.postAddMessagesHook(params)` (Internal Flow - See PRD/Arch for details):** Involves checking threshold, fetching messages, calling `SkillService`, creating/updating metadata and summary messages via repositories, optionally deleting originals.
+
+## 5. Interaction with Dependencies
+
+*   **`RepositoryService<ChatMessageEntityData>`:** Used by `ChatMemoryServiceLive` and `SummarizationStrategy` for CRUD on chat messages. Needs efficient `find` with sorting/limiting and potentially `count`.
+*   **`RepositoryService<SummarizationMetadataEntityData>`:** Used by `SummarizationStrategy` for CRUD on summarization metadata.
+*   **`RepositoryService<ThreadConfigurationEntityData>` (Potentially):** Needed by the recursive `getMessages` logic to find `parentThreadId` unless this lookup is handled externally by `ChatThreadService`.
+*   **`MemoryManagementStrategy`:** Injected implementation dictates history management logic.
+*   **`SkillService`:** Used by `SummarizationStrategy`.
+*   **`LoggingService`:** Used throughout.
+*   **`ConfigurationService`:** Used by the Layer to configure the strategy.
+
+## 6. Error Handling
+
+*   Maps errors from `RepositoryService` and `SkillService` (via strategy) to `ChatMemoryService` errors (`DataValidationError`, `ConversationNotFoundError`, `GenericMemoryError`).
+*   Errors within the `postAddMessagesHook` are handled by the strategy implementation.
+
+## 7. Configuration Management
+
+*   Relies on `ConfigurationService` to select and configure the `MemoryManagementStrategy`.
+*   Relies on `RepositoryService` configuration.
+
+## 8. Data Model
+
+*   Two primary persisted entities: `ChatMessageEntityData` and `SummarizationMetadataEntityData`.
+*   Messages linked by `conversationId`, ordered by `timestamp`.
+*   Summaries linked to metadata via `ChatMessageEntityData.metadata.summaryMetadataId`.
+*   Metadata linked to original messages via `SummarizationMetadataEntityData.summarizedMessageIds`.

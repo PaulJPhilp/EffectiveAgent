@@ -1,4 +1,28 @@
 /**
+ * JSON value types
+ */
+export type JSONValue =
+    | string
+    | number
+    | boolean
+    | null
+    | undefined
+    | JSONObject
+    | JSONArray
+
+/**
+ * JSON object type
+ */
+export interface JSONObject {
+    [key: string]: JSONValue
+}
+
+/**
+ * JSON array type
+ */
+export type JSONArray = JSONValue[]
+
+/**
  * Base state interface for agent nodes
  */
 export interface AgentState {
@@ -7,4 +31,4 @@ export interface AgentState {
     readonly errorCount: number
     readonly completedSteps: string[]
     readonly logs: string[]
-} 
+}

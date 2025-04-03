@@ -4,7 +4,7 @@ import type { FileSystem } from "@effect/platform/FileSystem";
 import { Context, Data, Effect } from "effect";
 import type { z } from "zod";
 import type { JSONObject } from "../../../types.js";
-import { AgentConfigurationError } from "./errors.js";
+// AgentConfigurationError is defined below, no separate import needed from errors.js
 import type { AgentConfig, AgentRun } from './schema.js';
 
 // --- Type Definitions ---
@@ -20,8 +20,8 @@ export interface ChannelReducer<T> {
 
 /** Represents accumulated errors within an agent run. */
 export interface AgentErrors {
-  /** A list of error messages encountered. */
-  readonly errors: ReadonlyArray<string>;
+  /** A list of error messages or structured error objects encountered. */
+  readonly errors: ReadonlyArray<string | object>; // Allow structured errors too
   /** The total count of errors. */
   readonly errorCount: number;
 }
@@ -48,8 +48,8 @@ export interface AgentStatus {
     readonly nodeId: string;
     /** The final status of the node execution. */
     readonly status: 'completed' | 'error';
-    /** The error message if the node failed. */
-    readonly error?: string;
+    /** The error message or object if the node failed. */
+    readonly error?: string | object;
     /** The ISO timestamp of completion or error. */
     readonly timestamp: string;
   }>;
@@ -92,6 +92,7 @@ export interface AgentState<I extends JSONObject, O extends JSONObject, A extend
 
 /**
  * Represents the result of a data normalization operation.
+ * NOTE: Marked for potential removal/relocation as it's internal to a specific agent.
  */
 export interface NormalizationResult {
   /** Whether the data was successfully normalized. */
@@ -106,6 +107,7 @@ export interface NormalizationResult {
 
 /**
  * Configuration options for a normalizing agent.
+ * NOTE: Marked for potential removal/relocation.
  */
 export interface NormalizingAgentConfig extends AgentConfig {
   /** The schema to validate and normalize data against. */
@@ -119,6 +121,38 @@ export interface NormalizingAgentConfig extends AgentConfig {
   };
 }
 
+// --- Error Types ---
+
+/** Error related to agent configuration loading or validation. */
+export class AgentConfigurationError extends Data.TaggedError("AgentConfigurationError")<{
+  readonly message: string;
+  readonly cause?: unknown;
+}> { }
+
+/** Error related to the critical execution failure of the agent graph/runtime. */
+export class AgentExecutionError extends Data.TaggedError("AgentExecutionError")<{
+  readonly message: string;
+  readonly cause?: unknown;
+}> { }
+
+/** Error related to agent implementation issues (e.g., within a specific node's logic). */
+export class AgentImplementationError extends Data.TaggedError("AgentImplementationError")<{
+  readonly message: string;
+  readonly agentId?: string; // Optional agentId if available
+  readonly nodeId?: string; // Optional nodeId where error occurred
+  readonly cause?: unknown;
+}> { }
+
+/** Error related to rate limiting encountered during agent execution. */
+export class AgentRateLimitError extends Data.TaggedError("AgentRateLimitError")<{
+  readonly message: string;
+  readonly agentId?: string; // Optional agentId if available
+  readonly service?: string; // Optional service that rate limited
+  readonly retryAfterMs?: number; // Optional retry delay
+  readonly cause?: unknown;
+}> { }
+
+
 // --- Service Interfaces ---
 
 /**
@@ -127,12 +161,19 @@ export interface NormalizingAgentConfig extends AgentConfig {
  * @template O Output data type.
  * @template A Agent-specific internal state type.
  */
-export interface AgentService<I extends JSONObject, O extends JSONObject, A extends JSONObject> {
-  /** Runs the agent graph with the given input. */
-  readonly run: (input: I) => Effect.Effect<AgentState<I, O, A>, never>; // Assumes errors are handled internally
-  /** Builds the agent's execution graph (e.g., LangGraph). */
+export interface IAgentService<I extends JSONObject, O extends JSONObject, A extends JSONObject> {
+  /**
+   * Runs the agent graph with the given input.
+   * Returns the final agent state upon successful completion.
+   * Fails with AgentExecutionError for critical runtime/graph execution issues.
+   * Node-level errors during a successful run should be captured in AgentState.errors.
+   */
+  readonly run: (input: I) => Effect.Effect<AgentState<I, O, A>, AgentExecutionError>; // <-- Updated Error Channel
+
+  /** Builds the agent's execution graph (e.g., LangGraph). Optional utility. */
   readonly buildGraph: () => Effect.Effect<void, AgentExecutionError>;
-  /** Saves the LangGraph configuration to a file. */
+
+  /** Saves the LangGraph configuration to a file. Optional utility. */
   readonly saveLangGraphConfig: (outputPath?: string) => Effect.Effect<void, AgentExecutionError>;
 }
 
@@ -141,18 +182,19 @@ export interface AgentConfigurationService {
   /** Loads the agent configuration from a specified path, requiring ConfigLoader. */
   readonly loadConfig: (configPath: string) => Effect.Effect<
     AgentConfig,
-    AgentConfigurationError,
-    FileSystem
+    AgentConfigurationError, // Use specific error
+    FileSystem // Assuming FileSystem is needed for loading
   >;
   /** Validates a given AgentConfig object. */
   readonly validateConfig: (config: AgentConfig) => Effect.Effect<
     void,
-    AgentConfigurationError
+    AgentConfigurationError // Use specific error
   >;
 }
 
 /**
  * Defines the service for data normalization operations.
+ * NOTE: Marked for potential removal/relocation.
  */
 export interface NormalizationService {
   /** Normalizes a single data record. */
@@ -168,8 +210,8 @@ export interface NormalizationService {
 
 // --- Service Tags ---
 
-/** Tag for the AgentService. */
-export const AgentService = Context.GenericTag<AgentService<JSONObject, JSONObject, JSONObject>>(
+/** Tag for the AgentService. Uses JSONObject for broader compatibility at injection time. */
+export const AgentService = Context.GenericTag<IAgentService<JSONObject, JSONObject, JSONObject>>(
   "@services/agent/AgentService"
 );
 
@@ -178,29 +220,3 @@ export const AgentConfigurationService = Context.GenericTag<AgentConfigurationSe
   "@services/agent/AgentConfigurationService"
 );
 
-// --- Error Types ---
-
-/** Error related to agent configuration loading or validation. */
-export class AgentConfigurationError extends Data.TaggedError("AgentConfigurationError")<{ // Use Data.TaggedError
-  readonly message: string;
-}> { }
-
-/** Error related to the execution of the agent graph. */
-export class AgentExecutionError extends Data.TaggedError("AgentExecutionError")<{ // Use Data.TaggedError
-  readonly message: string;
-}> { }
-
-/** Error related to agent implementation issues. */
-export class AgentImplementationError extends Data.TaggedError("AgentImplementationError")<{
-  readonly message: string;
-  readonly agentId: string;
-  readonly cause?: Error;
-}> { }
-
-/** Error related to rate limiting. */
-export class AgentRateLimitError extends Data.TaggedError("AgentRateLimitError")<{
-  readonly message: string;
-  readonly agentId: string;
-  readonly retryAfterMs: number;
-  readonly cause?: Error;
-}> { }

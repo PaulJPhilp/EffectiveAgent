@@ -4,18 +4,19 @@ import * as Effect from 'effect/Effect';
 import { deepseek } from '@ai-sdk/deepseek';
 import { generateText } from 'ai';
 
-import type { ProviderConfig, ModelCompletionOptions, GenerateObjectOptions, GenerateObjectResult, LLMCompletionResult, GenerateEmbeddingOptions, GenerateEmbeddingResult, GenerateImageOptions, GenerateImageResult, GenerateTextOptions, GenerateTextResult, ModelCapability, ProviderErrorType, ProviderId } from '../types.js';
-import { ProviderImplementationError, ProviderCapabilityUnavailableError } from '../errors.js';
-import type { ProviderError } from '../errors.js';
-import { BaseModelProvider } from '../baseModelProvider.js';
+import type { ProviderConfig, ModelCompletionOptions, GenerateObjectOptions, GenerateObjectResult, LLMCompletionResult, GenerateEmbeddingOptions, GenerateEmbeddingResult, GenerateImageOptions, GenerateImageResult, GenerateTextOptions, GenerateTextResult, ModelCapability, ProviderErrorType, ProviderId, ValidateEffect, CompletionEffect, TextGenerationEffect, ImageGenerationEffect, EmbeddingGenerationEffect, ObjectGenerationEffect } from '@service/provider/types.js';
+import { ProviderImplementationError, ProviderCapabilityUnavailableError } from '@service/provider/errors.js';
+import type { ProviderError } from '@service/provider/errors.js';
+import { BaseModelProvider } from '@service/provider/baseModelProvider.js';
+import { createProviderId } from '@service/provider/utils.js';
 
 /** DeepSeek provider implementation using Vercel AI SDK */
 export class DeepSeekProvider extends BaseModelProvider {
 	public readonly providerId: ProviderId;
 
 	constructor(public config: ProviderConfig) {
-		super(config.id as ProviderId, config);
-		this.providerId = config.id as ProviderId;
+		super(config.name, config);
+		this.providerId = createProviderId(config.name);
 
 		const apiKey = process.env[config.apiKeyEnvVar ?? 'DEEPSEEK_API_KEY'];
 		if (!apiKey) {
@@ -29,13 +30,13 @@ export class DeepSeekProvider extends BaseModelProvider {
 	}
 
 	/** Checks if the provider supports a given capability */
-	public supportsCapability(capability: ModelCapability): Effect.Effect<boolean, ProviderErrorType> {
+	public supportsCapability(capability: ModelCapability): Effect.Effect<boolean, never> {
 		switch (capability) {
-			case 'text':
+			case 'text-generation':
 				return Effect.succeed(true);
-			case 'embedding':
-			case 'image':
-			case 'object':
+			case 'embeddings':
+			case 'image-generation':
+			case 'object-generation':
 				return Effect.succeed(false);
 			default:
 				return Effect.succeed(false);
@@ -43,7 +44,7 @@ export class DeepSeekProvider extends BaseModelProvider {
 	}
 
 	/** Generates text using the Vercel AI SDK */
-	public generateText(options: GenerateTextOptions): Effect.Effect<GenerateTextResult, ProviderErrorType> {
+	public generateText(options: GenerateTextOptions): TextGenerationEffect {
 		const modelId = options.modelId ?? 'deepseek-coder-33b';
 
 		return Effect.tryPromise<GenerateTextResult, ProviderError>({
@@ -77,7 +78,7 @@ export class DeepSeekProvider extends BaseModelProvider {
 	}
 
 	/** Generates text using DeepSeek's API via Vercel AI SDK (matches BaseModelProvider) */
-	public complete(prompt: string, options?: ModelCompletionOptions): Effect.Effect<LLMCompletionResult, ProviderError> {
+	public complete(prompt: string, options?: ModelCompletionOptions): CompletionEffect {
 		const modelId = options?.modelId ?? 'deepseek-coder-33b';
 
 		return Effect.tryPromise<LLMCompletionResult, ProviderError>({
@@ -112,17 +113,17 @@ export class DeepSeekProvider extends BaseModelProvider {
 	}
 
 	/** Generates embeddings using the Vercel AI SDK */
-	public generateEmbedding(_options: GenerateEmbeddingOptions): Effect.Effect<GenerateEmbeddingResult, ProviderErrorType> {
+	public generateEmbedding(_options: GenerateEmbeddingOptions): EmbeddingGenerationEffect {
 		return Effect.fail(new ProviderCapabilityUnavailableError({ providerName: this.providerId, capability: 'embedding' }));
 	}
 
 	/** Generates images using the Vercel AI SDK */
-	public generateImage(_options: GenerateImageOptions): Effect.Effect<GenerateImageResult, ProviderErrorType> {
-		return Effect.fail(new ProviderCapabilityUnavailableError({ providerName: this.providerId, capability: 'image' }));
+	public generateImage(_options: GenerateImageOptions): ImageGenerationEffect {
+		return Effect.fail(new ProviderCapabilityUnavailableError({ providerName: this.config.name, capability: 'image' }));
 	}
 
 	/** Generates structured objects using the Vercel AI SDK */
-	public generateObject<T>(_options: GenerateObjectOptions<T>): Effect.Effect<GenerateObjectResult<T>, ProviderError> {
-		return Effect.fail(new ProviderCapabilityUnavailableError({ providerName: this.providerId, capability: 'object' }));
+	public generateObject<T>(_options: GenerateObjectOptions<T>): ObjectGenerationEffect<T> {
+		return Effect.fail(new ProviderCapabilityUnavailableError({ providerName: this.config.name, capability: 'object' }));
 	}
 }
