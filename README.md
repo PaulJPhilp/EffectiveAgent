@@ -1,170 +1,120 @@
-# EffectiveAgent: Simple, Scalable, Sophisticated AI Agents
+# ✨ EffectiveAgent ✨
 
-Welcome to EffectiveAgent! This framework streamlines the creation of powerful and nuanced AI agents.
+**Build Interactive, Stateful AI Collaborators with Effect-TS**
 
-In the rapidly evolving field of AI, **agents** are systems capable of perceiving their environment, making decisions, and taking actions to achieve specific goals. They represent a significant step towards more autonomous and capable AI. Companies like Anthropic are actively researching the capabilities and safety implications of such agentic systems ([learn more about Anthropic's research focus here](https://www.anthropic.com/research)).
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Effect-TS](https://img.shields.io/badge/Built%20with-Effect--TS-blueviolet)](https://effect.website/)
+[![Runtime: Bun](https://img.shields.io/badge/Runtime-Bun-lightgrey)](https://bun.sh/)
+<!-- Add other badges: build status, version, etc. -->
 
-EffectiveAgent provides the tools and structure to build these sophisticated agents effectively.
+---
 
-## Who is this for?
+**The Problem:** Users expect more than just chatbots. They need AI that acts like a capable **digital collaborator** – understanding complex tasks, integrating into workflows, and presenting information interactively. For **AI developers and engineers**, building these sophisticated agents today is a major undertaking, fraught with challenges:
 
-EffectiveAgent is designed for **developers and engineers** who want to:
+*   **Complexity:** Integrating LLMs, tools, memory, state management, and robust error handling is intricate.
+*   **Time & Cost:** Writing boilerplate code for integrations, state machines, and async operations consumes significant development time and budget.
+*   **Basic Interactions:** Standard tools often limit agents to simple text-in, text-out loops, failing to deliver rich, application-like experiences.
 
-*   Build AI agents with complex, multi-step logic.
-*   Integrate various AI models, tools, and data sources seamlessly.
-*   Leverage robust frameworks like Effect-TS for managing side effects and complexity.
-*   Utilize graph-based approaches (like LangGraph) for agent execution flow.
-*   Create agents with distinct personalities and specialized skills.
-*   Focus on the agent's capabilities rather than boilerplate integration code.
+**The Solution: EffectiveAgent**
 
-Whether you're building chatbots, research assistants, automation tools, or complex autonomous systems, EffectiveAgent provides a structured approach.
+EffectiveAgent is a **robust, modular, and type-safe framework** built entirely on **Effect-TS** and a modern stack (including **Bun**, **Temporal**, **Drizzle**, **LangGraph**, **Vercel AI SDK**). It provides the foundational structure and essential services to **drastically reduce the complexity, time, and cost** of building sophisticated, interactive AI agents.
 
-## Understanding Your Agent: A Conceptual Framework
+Stop wrestling with boilerplate and start innovating! EffectiveAgent lets you focus on creating unique agent capabilities and compelling user experiences.
 
-To help you conceptualize and structure your agent development, we use a familiar, anthropomorphic model. Think of building an agent like assembling a specialized team member with distinct capabilities.
+## Why EffectiveAgent?
 
-### 🧠 Intelligence: The Agent's Cognitive Engine
+*   **Build Faster:** Leverage pre-built, composable services for core needs (AI providers, memory, tools, configuration, logging, execution flow).
+*   **Build Smarter:** Create agents that go far beyond simple Q&A, enabling complex task execution and workflow automation.
+*   **Build Interactively:** Design experiences where AI outputs are dynamic and actionable, not just static text.
+*   **Build Robustly:** Benefit from Effect-TS's unparalleled type safety, error handling, concurrency management, and dependency injection.
+*   **Modern Foundation:** Built on a forward-thinking stack including Bun, Temporal, and first-class Effect-TS integration.
 
-*   **Concept:** This represents the raw cognitive power of your agent – its ability to understand, reason, and generate responses.
-*   **EffectiveAgent Mapping:** This directly maps to the underlying **Language Models (LLMs)** and their **Providers**. You can choose from various providers (like OpenAI, Anthropic, Google) and specific models (e.g., GPT-4o, Claude 3.5 Sonnet, Gemini 2.5 Pro) based on the required capabilities, cost, and performance trade-offs. EffectiveAgent provides interfaces to seamlessly integrate and switch between different intelligence sources.
+## Beyond Chatbots: The EffectiveAgent Vision 🚀
 
-    ```typescript
-    // Example: Configuring the intelligence provider (Conceptual)
-    import { configureIntelligence } from "effective-agent";
+EffectiveAgent enables experiences that feel less like talking to a bot and more like collaborating within a specialized application:
 
-    const agentIntelligence = configureIntelligence({
-      provider: "anthropic", // Example using Anthropic
-      model: "claude-3-5-sonnet-20240620",
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
-    ```
+### 1. Interactive Components
 
-### 💾 Memory: Retaining Knowledge
+Move beyond walls of text. Agents built with EffectiveAgent can instruct the frontend to render rich, interactive UI components directly within the chat or application interface.
 
-*   **Concept:** An agent needs to remember past interactions and access relevant information to maintain context and provide informed responses.
-*   **EffectiveAgent Mapping:**
-    *   **Short-Term Memory:** This corresponds to the **conversation history** or context window. EffectiveAgent manages the flow of recent messages to the underlying model, ensuring conversational coherence. Frameworks like the Vercel AI SDK often provide utilities for this.
-    *   **Long-Term Memory:** This involves persisting and retrieving information beyond a single session. It maps to integrations with **vector stores** (for semantic search over documents or past conversations), databases, or other knowledge repositories. EffectiveAgent facilitates connecting and querying these external memory sources.
+*   **Example:** Instead of just listing weather data, the agent returns data for a `<WeatherCard location="London" temperature={15} forecast={...} />` component that the user can interact with. Think dynamic tables, charts, mini-dashboards, and more.
 
-    ```typescript
-    // Example: Integrating long-term memory (Conceptual)
-    import { connectLongTermMemory } from "effective-agent";
+### 2. Actionable Outputs: Artifacts
 
-    const agentMemory = connectLongTermMemory({
-      type: "vector-store",
-      provider: "pinecone",
-      // ... connection details
-    });
-    ```
+AI-generated content (reports, code, summaries, emails, analyses) becomes a first-class **Artifact**. It's not just text lost in history; it's a distinct object ready for refinement.
 
-### ✨ Skills: Task-Specific Abilities
+*   **Example:** An LLM drafts a blog post outline. EffectiveAgent treats this as an "Article Artifact" with a unique ID.
 
-*   **Concept:** These are the fundamental, discrete abilities your agent possesses to accomplish specific tasks, like searching the web or generating an image.
-*   **EffectiveAgent Mapping:** A **Skill** in EffectiveAgent is a self-contained unit combining:
-    1.  An **Intelligence** source (a specific model).
-    2.  A tailored **Prompt** designed for the task.
-    3.  Specific **Configuration** (e.g., temperature, response format).
-    Examples include a `WebSearchSkill`, an `ImageGenerationSkill`, or a `CodeExecutionSkill`. These are the reusable building blocks of agent capabilities.
+### 3. Focused Workspaces: Mini-Apps
 
-    ```typescript
-    // Example: Defining a Skill (Conceptual)
-    import { defineSkill } from "effective-agent";
+This is where the magic happens! Users can select an Artifact and transition into a **dedicated "mini-app" workspace** focused *solely* on that artifact.
 
-    const searchSkill = defineSkill({
-      name: "webSearch",
-      description: "Searches the web for relevant information.",
-      intelligence: agentIntelligence, // Uses the configured intelligence
-      promptTemplate: "Search the web for: {{query}}",
-      // ... specific config for search
-    });
-    ```
+*   **Example:** Clicking the "Article Artifact" opens an AI-powered editor. The context is locked to the article draft. The AI assists with refining *this specific document*. Clicking a "Sales Report Artifact" might open an interactive data exploration view.
 
-### 🏆 Talent: Domain Expertise
+### 4. Context-Aware UI
 
-*   **Concept:** While Skills are specific actions, Talent represents a higher-level aptitude or specialization in a particular domain, often by combining multiple Skills and Tools. Think of talents like "Email Management," "Customer Support," or "Data Analysis."
-*   **EffectiveAgent Mapping:** Talent is realized through the integration and orchestration of **Tools** (specific functions the agent can invoke, like `sendEmail`, `lookupCustomer`, `queryDatabase`) and potentially specialized logic (perhaps your **MCP** - Master Control Program/Process?). EffectiveAgent provides mechanisms to define, expose, and manage these tools, allowing the agent's Logic layer to leverage them effectively within a specific domain. This often involves integrating with external APIs (e.g., HubSpot, Google Workspace).
+The user interface adapts to the task. Controls and available actions change based on whether the user is in the main chat or a specific mini-app.
 
-    ```typescript
-    // Example: Defining a Tool for a Talent (Conceptual)
-    import { defineTool } from "effective-agent";
+*   **Example:** In the main chat, UI controls might allow changing the AI model. In the "Article Editor" mini-app, controls change to `[Save Draft]`, `[Check SEO]`, `[Expand Section]`.
 
-    const emailTool = defineTool({
-      name: "sendEmail",
-      description: "Sends an email.",
-      // ... schema for input parameters (to, subject, body)
-      execute: async (params) => {
-        // ... logic to call an email API
-      },
-    });
-    ```
+## Use Case Example: AI Marketing Collaborator
 
-### ⚙️ Logic: The Agent's Decision-Making Flow
+Imagine building a marketing assistant with EffectiveAgent:
 
-*   **Concept:** This is the core operational flow of the agent – how it decides what to do next based on the user's request, the conversation history, and its available Skills and Talents.
-*   **EffectiveAgent Mapping:** This maps to the **Agent Graph** or the core **business logic** implementation. Frameworks like **LangGraph** are excellent for defining these stateful, potentially cyclical decision-making processes. EffectiveAgent is designed to integrate smoothly with such graph-based execution models, allowing you to define complex flows, state transitions, and conditional logic that determine how the agent utilizes its Intelligence, Memory, Skills, and Talents. The use of **Effect-TS** throughout EffectiveAgent helps manage the complexity and side effects inherent in this layer.
+1.  **Request:** "Analyze top competitor blog posts on 'AI Marketing Trends' and draft a response outline."
+2.  **Agent Response:**
+    *   Displays an **interactive table** summarizing competitor articles (via `ComponentData`).
+    *   Generates an outline presented as an **"Article Artifact"**.
+3.  **User Action:** Clicks the "Article Artifact".
+4.  **Mini-App Transition:** The UI shifts to a focused **"Article Editor"**.
+5.  **Interaction:** User prompts AI *within the editor* ("Expand the section on personalization"). UI buttons offer actions like `[Check Keywords]`, `[Save]`.
+6.  **Result:** A streamlined workflow, integrating analysis, drafting, and SEO checks within a single, context-aware experience – far more efficient than juggling separate tools.
 
-    ```typescript
-    // Example: Conceptual Agent Graph Node (using LangGraph ideas)
-    import { AgentState } from "./state"; // Define your agent's state structure
-    import { Effect } from "effect"; // Assuming Effect-TS integration
+## Technical Foundation 🛠️
 
-    function decideNextStep(state: AgentState): Effect.Effect<string> {
-      // Logic to determine the next node based on state
-      if (state.needsSearch) {
-        return Effect.succeed("callWebSearchSkill");
-      } else if (state.needsEmail) {
-        return Effect.succeed("callEmailTool");
-      } else {
-        return Effect.succeed("generateFinalResponse");
-      }
-    }
-    ```
+EffectiveAgent leverages a modern, robust technology stack chosen for performance, type safety, and developer experience:
 
-### 😊 Personality (Persona): Consistent Interaction Style
+*   **Core Framework:** **Effect-TS** (for everything!)
+*   **Runtime:** **Bun** (with native Temporal & SQLite support)
+*   **Date/Time:** **Temporal API** (via polyfill types / native support)
+*   **Database:** **PostgreSQL** (Production via **Neon**) / **SQLite** (Dev/Test via Bun)
+*   **ORM:** **Drizzle ORM**
+*   **Agent Logic:** **LangGraph** (Default framework for execution flow)
+*   **AI SDK:** **Vercel AI SDK** (Primary bridge to LLM providers)
+*   **Templating:** **LiquidJS**
+*   **Schema/Validation:** **Zod** (via `@effect/schema`)
+*   **Testing:** **Vitest** (with `@effect/vitest` integration optional)
 
-*   **Concept:** This defines the agent's consistent style, tone, and character in its interactions and outputs. Is it formal, witty, concise, empathetic?
-*   **EffectiveAgent Mapping:** Personality is primarily shaped through **System Prompts** and specific instructions provided to the **Intelligence** layer. You can define a base persona that influences all interactions. Additionally, specific **Skills** might have their own prompt variations to align their output with the overall personality. Fine-tuning models could be employed for highly specific or ingrained personalities, though prompt engineering is the most common approach.
+See [`TECHNOLOGY_STACK.md`](./src/services/TECHNOLOGY_STACK.md) for more details.
 
-    ```typescript
-    // Example: Setting a System Prompt (Conceptual)
-    import { setSystemPrompt } from "effective-agent";
+## Project Structure
 
-    setSystemPrompt(
-      "You are a helpful assistant for software engineers. " +
-        "You are clever, concise, and provide technically accurate information. " +
-        "Always format code examples correctly."
-    );
-    ```
+The framework is organized into service categories within `src/services`:
 
-## Putting it Together: A Simple Agent Example
+*   `core`: Foundational services (logging, config, repository, storage, attachment, tag).
+*   `ai`: Services related to AI models, prompts, and providers.
+*   `capabilities`: Services defining agent abilities (tools, MCPs, skills).
+*   `execution`: Services managing agent runtime, state, and flow (agent, thread, supervisor).
+*   `memory`: Services for managing different types of agent memory (chat history, artifacts, long-term).
 
-Let's illustrate how these concepts combine in a basic "Weather Assistant" agent:
-
-1.  **Personality:** The agent is defined via a system prompt as "friendly and concise, providing only the requested weather information."
-2.  **Intelligence:** It uses a cost-effective model (e.g., Claude 3 Haiku or Gemini Flash) configured via `configureIntelligence`.
-3.  **Memory (Short-Term):** It remembers the last few turns of conversation (e.g., if the user asks "What about tomorrow?" after asking about today). Managed perhaps by Vercel AI SDK helpers integrated with EffectiveAgent.
-4.  **Skills:** It has one primary `WeatherLookupSkill`. This skill takes a location and date, uses a specific prompt template ("Get weather for {{location}} on {{date}}"), and might use the main `agentIntelligence`.
-5.  **Talent/Tools:** The `WeatherLookupSkill` internally uses a `getWeatherAPI` **Tool**. This tool is defined with `defineTool`, specifying input parameters (location, date) and the logic to call an external weather API.
-6.  **Logic:** The agent's graph (defined using LangGraph concepts) is simple:
-    *   Receive user input.
-    *   Use **Intelligence** to determine if the input is a weather request and extract location/date.
-    *   If yes, route to the `WeatherLookupSkill`.
-    *   The skill invokes the `getWeatherAPI` **Tool**.
-    *   Format the API result according to the **Personality**.
-    *   Return the response to the user.
-    *   If not a weather request, generate a polite refusal based on the **Personality**.
-7.  **Memory (Long-Term):** Not used in this simple example, but could be added to remember user's preferred locations.
-
-This example shows how even a simple agent utilizes each conceptual component, orchestrated by EffectiveAgent.
+Each service follows a standard internal structure (`main.ts`, `configuration.ts`, `types.ts`, `errors.ts`, `schema.ts`, `docs/`, `__tests__/`, `index.ts`).
 
 ## Getting Started
 
-_(Add instructions here on how to install and use EffectiveAgent)_
+*(This section to be filled in as the framework matures)*
 
-## Contributing
+```bash
+# Installation (Example)
+bun add effective-agent # Or your package name
 
-_(Add contribution guidelines here)_
+# Basic Usage (Conceptual)
+import { Effect } from "effect";
+import { AgentApi } from "@execution/agent"; // Example import using path alias
 
-## License
+const program = Effect.gen(function*() {
+  const agent = yield* AgentApi;
+  const response = yield* agent.processUserInput({ threadId: "...", input: "Hello!" });
+  console.log(response);
+});
 
-_(Specify the license here, e.g., MIT, Apache 2.0)_
+// Run with necessary layers provided...

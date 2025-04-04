@@ -1,0 +1,287 @@
+./src
+└── services
+    ├── ai
+    │   ├── model
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   ├── prompt
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   └── provider
+    │       ├── __tests__
+    │       │   ├── configuration.test.ts
+    │       │   └── main.test.ts
+    │       ├── configuration.ts
+    │       ├── docs
+    │       │   ├── Architecture.md
+    │       │   └── PRD.md
+    │       ├── errors.ts
+    │       ├── implementations
+    │       │   ├── __tests__
+    │       │   └── index.ts
+    │       ├── index.ts
+    │       ├── main.ts
+    │       ├── schema.ts
+    │       └── types.ts
+    ├── capabilities
+    │   ├── mcp
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   ├── standardLibrary
+    │   │   │   ├── __tests__
+    │   │   │   └── index.ts
+    │   │   └── types.ts
+    │   ├── skill
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   └── tool
+    │       ├── __tests__
+    │       │   ├── configuration.test.ts
+    │       │   └── main.test.ts
+    │       ├── base-tool.ts
+    │       ├── configuration.ts
+    │       ├── docs
+    │       │   ├── Architecture.md
+    │       │   └── PRD.md
+    │       ├── errors
+    │       │   └── index.ts
+    │       ├── implementations
+    │       │   ├── __tests__
+    │       │   └── standard-library
+    │       │       ├── __tests__
+    │       │       ├── calculator.tool.ts
+    │       │       ├── date-time.tool.ts
+    │       │       ├── index.ts
+    │       │       ├── scheduling
+    │       │       │   ├── __tests__
+    │       │       │   └── index.ts
+    │       │       └── web-search.tool.ts
+    │       ├── index.ts
+    │       ├── main.ts
+    │       ├── plan.txt
+    │       ├── schema.ts
+    │       ├── tool-configuration-service.ts
+    │       ├── tool-service.ts
+    │       └── types
+    │           └── index.ts
+    ├── core
+    │   ├── attachment
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   ├── configuration
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   ├── logging
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   ├── repository
+    │   │   ├── __tests__
+    │   │   ├── base
+    │   │   │   └── index.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors
+    │   │   │   └── index.ts
+    │   │   ├── implementations
+    │   │   │   ├── __tests__
+    │   │   │   ├── drizzle
+    │   │   │   │   └── index.ts
+    │   │   │   ├── in-memory
+    │   │   │   │   ├── __tests__
+    │   │   │   │   └── index.ts
+    │   │   │   └── sqlite
+    │   │   │       ├── __tests__
+    │   │   │       └── index.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   ├── storage
+    │   │   ├── __tests__
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   └── file
+    │   │       ├── __tests__
+    │   │       │   ├── configuration.test.ts
+    │   │       │   └── main.test.ts
+    │   │       ├── configuration.ts
+    │   │       ├── docs
+    │   │       │   ├── Architecture.md
+    │   │       │   └── PRD.md
+    │   │       ├── errors.ts
+    │   │       ├── index.ts
+    │   │       ├── main.ts
+    │   │       ├── schema.ts
+    │   │       └── types.ts
+    │   └── tag
+    │       ├── __tests__
+    │       │   ├── configuration.test.ts
+    │       │   └── main.test.ts
+    │       ├── configuration.ts
+    │       ├── docs
+    │       │   ├── Architecture.md
+    │       │   └── PRD.md
+    │       ├── errors.ts
+    │       ├── index.ts
+    │       ├── main.ts
+    │       ├── schema.ts
+    │       └── types.ts
+    ├── docs
+    │   └── OverallArchitecture.md
+    ├── errors.ts
+    ├── execution
+    │   ├── agent
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   ├── supervisor
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   └── thread
+    │       ├── __tests__
+    │       │   ├── configuration.test.ts
+    │       │   └── main.test.ts
+    │       ├── configuration.ts
+    │       ├── docs
+    │       │   ├── Architecture.md
+    │       │   └── PRD.md
+    │       ├── errors.ts
+    │       ├── index.ts
+    │       ├── main.ts
+    │       ├── schema.ts
+    │       └── types.ts
+    ├── index.ts
+    ├── memory
+    │   ├── artifact
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   ├── chat
+    │   │   ├── __tests__
+    │   │   │   ├── configuration.test.ts
+    │   │   │   └── main.test.ts
+    │   │   ├── configuration.ts
+    │   │   ├── docs
+    │   │   │   ├── Architecture.md
+    │   │   │   └── PRD.md
+    │   │   ├── errors.ts
+    │   │   ├── index.ts
+    │   │   ├── main.ts
+    │   │   ├── schema.ts
+    │   │   └── types.ts
+    │   └── longterm
+    │       ├── __tests__
+    │       │   ├── configuration.test.ts
+    │       │   └── main.test.ts
+    │       ├── configuration.ts
+    │       ├── docs
+    │       │   ├── Architecture.md
+    │       │   └── PRD.md
+    │       ├── errors.ts
+    │       ├── index.ts
+    │       ├── main.ts
+    │       ├── schema.ts
+    │       └── types.ts
+    ├── schema.ts
+    └── types.ts
+
+86 directories, 199 files

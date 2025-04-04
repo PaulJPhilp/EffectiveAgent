@@ -2,7 +2,6 @@
 data/
 output/
 node_modules/
-.gitignore
 .git/
 .env
 .env.local

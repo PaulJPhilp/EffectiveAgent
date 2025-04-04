@@ -1,0 +1,21 @@
+[2025-03-14T04:21:43.976Z] INFO: Initializing normalization run: run-2025-03-14T04-21-43-976Z-c577677d
+[2025-03-14T04:21:43.978Z] INFO: Loading profiles to normalize
+[2025-03-14T04:21:44.329Z] INFO: Successfully loaded 80 profiles
+[2025-03-14T04:21:44.330Z] INFO: Starting profile normalization
+[2025-03-14T04:21:44.331Z] INFO: Normalized batch 1 of 16
+[2025-03-14T04:21:44.331Z] INFO: Normalized batch 2 of 16
+[2025-03-14T04:21:44.332Z] INFO: Normalized batch 3 of 16
+[2025-03-14T04:21:44.332Z] INFO: Normalized batch 4 of 16
+[2025-03-14T04:21:44.332Z] INFO: Normalized batch 5 of 16
+[2025-03-14T04:21:44.332Z] INFO: Normalized batch 6 of 16
+[2025-03-14T04:21:44.332Z] INFO: Normalized batch 7 of 16
+[2025-03-14T04:21:44.332Z] INFO: Normalized batch 8 of 16
+[2025-03-14T04:21:44.333Z] INFO: Normalized batch 9 of 16
+[2025-03-14T04:21:44.333Z] INFO: Normalized batch 10 of 16
+[2025-03-14T04:21:44.333Z] INFO: Normalized batch 11 of 16
+[2025-03-14T04:21:44.334Z] INFO: Normalized batch 12 of 16
+[2025-03-14T04:21:44.334Z] INFO: Normalized batch 13 of 16
+[2025-03-14T04:21:44.334Z] INFO: Normalized batch 14 of 16
+[2025-03-14T04:21:44.334Z] INFO: Normalized batch 15 of 16
+[2025-03-14T04:21:44.335Z] INFO: Normalized batch 16 of 16
+[2025-03-14T04:21:44.336Z] INFO: Normalization complete: 80 successful, 0 failed

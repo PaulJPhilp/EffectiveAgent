@@ -1,0 +1,10 @@
+[2025-03-14T03:38:40.454Z] INFO: Initializing normalization run: run-2025-03-14T03-38-40-452Z-9f76c126
+[2025-03-14T03:38:40.456Z] INFO: Loading profiles to normalize
+[2025-03-14T03:38:40.806Z] INFO: Saving normalization results
+[2025-03-14T03:38:40.807Z] INFO: Normalization Summary:
+- Total Profiles: 0
+- Successful: 0
+- Failed: 0
+- Success Rate: NaN%
+
+Results saved to: /Users/paul/projects/pdf-loader/data/normalized/run-2025-03-14T03-38-40-452Z-9f76c126

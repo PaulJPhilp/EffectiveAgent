@@ -1,0 +1,107 @@
+./src/services
+├── agent
+│   └── __tests__
+├── chatthread
+│   └── __test__
+├── configuration
+│   └── __tests__
+├── fibre
+│   └── __test__
+├── logging
+│   ├── __tests__
+│   └── types
+├── mcp
+│   ├── __tests__
+│   └── standardLibrary
+├── memory
+│   └── __tests__
+├── model
+│   └── __tests__
+├── prompt
+│   └── __tests__
+├── provider
+│   ├── __tests__
+│   └── implementations
+│       └── __tests__
+├── repository
+│   ├── base
+│   ├── errors
+│   ├── impl
+│   │   ├── drizzle
+│   │   ├── local
+│   │   │   └── __tests__
+│   │   └── sqlite
+│   │       └── __tests__
+│   └── types
+│       └── entities
+├── skill
+├── supervisor
+├── tag
+│   └── __test__
+└── tool
+    ├── __tests__
+    ├── errors
+    ├── scheduling
+    │   └── __tests__
+    ├── standard-library
+    │   ├── __tests__
+    │   ├── docs
+    │   ├── errors
+    │   ├── scheduling
+    │   │   ├── __tests__
+    │   │   ├── errors
+    │   │   ├── schema
+    │   │   └── service
+    │   └── types
+    ├── tools
+    └── types
+
+57 directories
+./src/services
+├── core                 # Foundational (logging, config, repo, tag)
+│   ├── configuration
+│   │   └── __tests__
+│   ├── logging
+│   │   ├── __tests__
+│   │   └── types
+│   ├── repository
+│   │   # ... (repo structure)
+│   └── tag
+│       └── __tests__
+├── ai                   # AI Models & Providers (model, prompt, provider)
+│   ├── model
+│   │   └── __tests__
+│   ├── prompt
+│   │   └── __tests__
+│   └── provider
+│       ├── __tests__
+│       └── implementations
+├── execution            # Runtime, State, Flow (agent, supervisor, thread)
+│   ├── agent
+│   │   └── __tests__
+│   ├── supervisor
+│   │   └── __tests__
+│   └── thread
+│       └── __tests__
+├── memory               # Memory implementations (chat, vector)
+│   ├── chat
+│   │   └── __tests__
+│   └── vector
+│       └── __tests__
+└── capabilities         # Agent abilities (MCPs, Skills, Tools)
+    ├── mcp              # <--- Master Control Program / Orchestration Capabilities
+    │   ├── __tests__
+    │   └── standardLibrary # Specific MCP routines/implementations
+    ├── skill            # Skill definition/management service (if distinct)
+    │   └── __tests__
+    └── tool             # <--- Tool / Specific Action Capabilities
+        ├── __tests__
+        ├── errors
+        ├── types
+        └── implementations  # Directory for specific tool implementations
+            ├── __tests__
+            ├── scheduling
+            │   └── __tests__
+            └── websearch
+                └── __tests__
+

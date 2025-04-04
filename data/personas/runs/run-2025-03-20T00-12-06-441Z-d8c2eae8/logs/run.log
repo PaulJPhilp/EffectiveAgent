@@ -1,0 +1,5 @@
+[2025-03-20T00:12:06.443Z] [INFO] Initializing persona generation run: run-2025-03-20T00-12-06-441Z-d8c2eae8
+[2025-03-20T00:12:06.445Z] [INFO] Loading normalized profiles
+[2025-03-20T00:12:06.463Z] [INFO] Creating persona clusters
+[2025-03-20T00:12:14.200Z] [INFO] Elaborating personas
+[2025-03-20T00:13:00.197Z] [INFO] Saving results

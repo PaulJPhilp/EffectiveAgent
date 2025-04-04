@@ -1,0 +1,29 @@
+[2025-03-14T03:52:14.833Z] INFO: Initializing normalization run: run-2025-03-14T03-52-14-832Z-45523a31
+[2025-03-14T03:52:14.835Z] INFO: Loading profiles to normalize
+[2025-03-14T03:52:15.185Z] INFO: Successfully loaded 80 profiles
+[2025-03-14T03:52:15.186Z] INFO: Starting profile normalization
+[2025-03-14T03:52:15.187Z] INFO: Normalized batch 1 of 16
+[2025-03-14T03:52:15.187Z] INFO: Normalized batch 2 of 16
+[2025-03-14T03:52:15.187Z] INFO: Normalized batch 3 of 16
+[2025-03-14T03:52:15.187Z] INFO: Normalized batch 4 of 16
+[2025-03-14T03:52:15.187Z] INFO: Normalized batch 5 of 16
+[2025-03-14T03:52:15.187Z] INFO: Normalized batch 6 of 16
+[2025-03-14T03:52:15.187Z] INFO: Normalized batch 7 of 16
+[2025-03-14T03:52:15.187Z] INFO: Normalized batch 8 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalized batch 9 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalized batch 10 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalized batch 11 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalized batch 12 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalized batch 13 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalized batch 14 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalized batch 15 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalized batch 16 of 16
+[2025-03-14T03:52:15.188Z] INFO: Normalization complete: 0 successful, 80 failed
+[2025-03-14T03:52:15.189Z] INFO: Saving normalization results
+[2025-03-14T03:52:15.190Z] INFO: Normalization Summary:
+- Total Profiles: 80
+- Successful: 0
+- Failed: 80
+- Success Rate: 0.0%
+
+Results saved to: /Users/paul/projects/pdf-loader/data/normalized/run-2025-03-14T03-52-14-832Z-45523a31

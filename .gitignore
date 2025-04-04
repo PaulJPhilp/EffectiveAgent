@@ -1,37 +1,54 @@
-# dependencies (bun install)
-node_modules
+# Dependencies
+node_modules/
+bun.lockb
 
-# output
-out
-dist
-*.tgz
+# Build outputs
+dist/
+build/
+.next/
+out/
+output/
+test-output/
 
-# code coverage
-coverage
-*.lcov
-
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# dotenv environment variable files
+# Environment files
 .env
-.env.development.local
-.env.test.local
-.env.production.local
 .env.local
+.env.*.local
+!.env.example
 
-# caches
-.eslintcache
-.cache
+# IDE and editor files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun-debug.log*
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# TypeScript
 *.tsbuildinfo
 
-# IntelliJ based IDEs
-.idea
+# Temporary files
+*.tmp
+*.temp
+.cache/
 
-# Finder (MacOS) folder config
-.DS_Store
+# Project specific
+data-*/
+data.tar.gz
+.langgraph_api/
+oldcode/
 
-# LangGraph API
-.langgraph_api
+# Keep
+!.gitkeep

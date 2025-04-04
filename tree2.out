@@ -1,0 +1,211 @@
+./src/services
+├── ISSUES.md
+├── README.md
+├── TEST_IMPROVEMENTS.md
+├── ai
+│   ├── model
+│   │   ├── __tests__
+│   │   │   └── model-configuration.test.ts
+│   │   ├── errors.ts
+│   │   ├── modelConfigurationService.ts
+│   │   ├── modelService.ts
+│   │   ├── schema.ts
+│   │   └── types.ts
+│   ├── prompt
+│   │   ├── __tests__
+│   │   │   └── prompt-service.test.ts
+│   │   ├── errors.ts
+│   │   ├── promptConfigurationService.ts
+│   │   ├── promptService.ts
+│   │   ├── schema.ts
+│   │   └── types.ts
+│   └── provider
+│       └── schema.ts
+├── capability
+│   ├── mcp
+│   │   ├── PRD.md
+│   │   ├── __tests__
+│   │   │   └── mcp-test.ts
+│   │   ├── architecture.txt
+│   │   ├── schema.ts
+│   │   ├── standardLibrary
+│   │   │   └── CalculatorMCPClient.ts
+│   │   └── types.ts
+│   ├── skill
+│   │   ├── errors.ts
+│   │   ├── schema.ts
+│   │   ├── skillConfigurationService.ts
+│   │   ├── skillService.ts
+│   │   └── types.ts
+│   └── tool
+│       ├── __tests__
+│       │   ├── file-system-example.test.ts
+│       │   ├── mock-config-loader.ts
+│       │   ├── scheduler-tool.test.ts
+│       │   ├── tool-configuration-service.test.ts
+│       │   └── tool-service.test.ts
+│       ├── architecture.txt
+│       ├── base-tool.ts
+│       ├── errors
+│       │   ├── index.ts
+│       │   ├── tool-error.ts
+│       │   ├── tool-execution-error.ts
+│       │   ├── tool-invocation-error.ts
+│       │   ├── tool-not-found-error.ts
+│       │   ├── tool-registration-error.ts
+│       │   └── tool-validation-error.ts
+│       ├── errors.ts
+│       ├── plan.txt
+│       ├── scheduling
+│       │   └── __tests__
+│       │       └── task.test.ts
+│       ├── schema.ts
+│       ├── standard-library
+│       │   ├── __tests__
+│       │   │   ├── date-time.tool.test.ts
+│       │   │   └── standard-library.test.ts
+│       │   ├── calculator.tool.ts
+│       │   ├── config.json
+│       │   ├── date-time.tool.ts
+│       │   ├── docs
+│       │   │   └── date-time-tool.prd.md
+│       │   ├── errors
+│       │   │   └── date-time-error.ts
+│       │   ├── index.ts
+│       │   ├── scheduling
+│       │   │   ├── PRD.md
+│       │   │   ├── __tests__
+│       │   │   │   ├── schedule.test.ts
+│       │   │   │   ├── service.test.ts
+│       │   │   │   └── task.test.ts
+│       │   │   ├── architecture.txt
+│       │   │   ├── errors
+│       │   │   │   └── schedule-errors.ts
+│       │   │   ├── schema
+│       │   │   │   ├── schedule.ts
+│       │   │   │   └── types.ts
+│       │   │   └── service
+│       │   │       └── task.ts
+│       │   ├── types
+│       │   │   ├── date-time.types.ts
+│       │   │   └── temporal.d.ts
+│       │   └── web-search.tool.ts
+│       ├── tool-configuration-service.ts
+│       ├── tool-service.ts
+│       ├── tools
+│       │   └── scheduler-tool.ts
+│       └── types
+│           ├── index.ts
+│           ├── tool-service.ts
+│           └── tool.ts
+├── chatthread
+│   ├── PRD.md
+│   ├── __test__
+│   │   └── fibreService-test.ts
+│   ├── architecture.txt
+│   └── threadService.ts
+├── core
+│   ├── configuration
+│   │   ├── __tests__
+│   │   │   └── configuration-loader.test.ts
+│   │   ├── configuration-loader.ts
+│   │   ├── configuration-service.ts
+│   │   ├── errors.ts
+│   │   ├── index.ts
+│   │   ├── schema.ts
+│   │   └── types.ts
+│   ├── logging
+│   │   ├── __tests__
+│   │   │   └── logging-service.test.ts
+│   │   ├── errors.ts
+│   │   ├── logging-service.ts
+│   │   └── types
+│   │       ├── index.ts
+│   │       ├── logger.ts
+│   │       └── logging-service.ts
+│   ├── repository
+│   │   ├── architecture.txt
+│   │   ├── base
+│   │   │   └── base-repository-service.ts
+│   │   ├── errors
+│   │   │   ├── data-validation-error.ts
+│   │   │   ├── entity-not-found-error.ts
+│   │   │   ├── index.ts
+│   │   │   └── repository-error.ts
+│   │   ├── impl
+│   │   │   ├── drizzle
+│   │   │   │   ├── repository-service-drizzle.ts
+│   │   │   │   └── schema.ts
+│   │   │   ├── local
+│   │   │   │   ├── __tests__
+│   │   │   │   │   └── repository-service-local.test.ts
+│   │   │   │   └── repository-service-local.ts
+│   │   │   └── sqlite
+│   │   │       ├── __tests__
+│   │   │       │   └── repository-service-sqlite.test.ts
+│   │   │       └── repository-service-sqlite.ts
+│   │   ├── plan.txt
+│   │   ├── schema.ts
+│   │   └── types
+│   │       ├── entities
+│   │       │   ├── base-entity.ts
+│   │       │   └── base-metadata.ts
+│   │       ├── index.ts
+│   │       └── repository-service.ts
+│   └── tag
+│       ├── PRD.md
+│       ├── __test__
+│       │   └── tagService-test.ts
+│       ├── architecture.txt
+│       └── tagService.ts
+├── errors.ts
+├── execution
+│   ├── agent
+│   │   ├── PRD.md
+│   │   ├── __tests__
+│   │   │   ├── agent-service.test.ts
+│   │   │   └── effective-normalizing-agent.test.ts
+│   │   ├── agentConfigurationService.ts
+│   │   ├── agentService.ts
+│   │   ├── effective-normalizing-agent.ts
+│   │   ├── errors.ts
+│   │   ├── schema.ts
+│   │   └── types.ts
+│   ├── fibre
+│   │   ├── PRD.md
+│   │   ├── __test__
+│   │   │   └── fibreManager-test.ts
+│   │   ├── architecture.txt
+│   │   ├── fibreManagerLive.ts
+│   │   └── fibreManagerService.ts
+│   └── supervisor
+│       ├── architecture.txt
+│       ├── supervisorAgent.ts
+│       └── supervisorPRD.md
+└── memory
+    ├── attachmentService.ts
+    ├── attachmentServiceArchitecture.txt
+    ├── attachmentServiceLive.ts
+    ├── attachmentServicePRD.md
+    ├── chat
+    │   └── __tests__
+    │       ├── attachmentMemory-test.ts
+    │       ├── chatMemory-test.ts
+    │       ├── fileMemory-test.ts
+    │       └── longtermMemory-test.ts
+    ├── chatMemoryLive.ts
+    ├── chatmemoryArchitecture.txt
+    ├── chatmemoryService.ts
+    ├── chatmemorylPRD.md
+    ├── fileMemoryArchitecture.txt
+    ├── fileMemoryService.ts
+    ├── fileMemoryServiceLive.ts
+    ├── filememoryPRD.md
+    ├── longtermArchitecture.txt
+    ├── longtermMemory.ts
+    ├── longtermMemorySchema.ts
+    ├── longtermPRD.md
+    ├── userMemoryMock.ts
+    └── vectorr
+
+60 directories, 149 files

@@ -1,0 +1,82 @@
+[2025-03-14T01:27:28.814Z] ERROR: Error parsing profile Profile (19).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.815Z] ERROR: Error parsing profile Profile (23).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.815Z] ERROR: Error parsing profile Krista_Capasella_Profile.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.816Z] ERROR: Error parsing profile Profile (35).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.816Z] ERROR: Error parsing profile Julie Stetz.txt: SyntaxError: JSON Parse error: Unexpected identifier "Julie"
+[2025-03-14T01:27:28.817Z] ERROR: Error parsing profile Profile (42).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.817Z] ERROR: Error parsing profile Profile (15).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.817Z] ERROR: Error parsing profile Jason Wozny.txt: SyntaxError: JSON Parse error: Unexpected identifier "Jason"
+[2025-03-14T01:27:28.818Z] ERROR: Error parsing profile Katie Proctor, MBA, RDN .txt: SyntaxError: JSON Parse error: Unexpected identifier "Katie"
+[2025-03-14T01:27:28.818Z] ERROR: Error parsing profile Sean choi.txt: SyntaxError: JSON Parse error: Unexpected identifier "Sean"
+[2025-03-14T01:27:28.818Z] ERROR: Error parsing profile Tara_Scanlon_Profile.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.818Z] ERROR: Error parsing profile Profile (39).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.819Z] ERROR: Error parsing profile Profile (38).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.819Z] ERROR: Error parsing profile Jo Kang.txt: SyntaxError: JSON Parse error: Unexpected identifier "Jo"
+[2025-03-14T01:27:28.820Z] ERROR: Error parsing profile Profile (1).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.820Z] ERROR: Error parsing profile Profile (14).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.821Z] ERROR: Error parsing profile Profile (43).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.822Z] ERROR: Error parsing profile Profile (34).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.823Z] ERROR: Error parsing profile Profile (22).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.823Z] ERROR: Error parsing profile Gabrielle Kessler.txt: SyntaxError: JSON Parse error: Unexpected identifier "Gabrielle"
+[2025-03-14T01:27:28.823Z] ERROR: Error parsing profile Profile (18).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.824Z] ERROR: Error parsing profile Profile (44).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.824Z] ERROR: Error parsing profile Profile (13).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.825Z] ERROR: Error parsing profile Callie_Pegadiotes_Profile.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.825Z] ERROR: Error parsing profile Louise Bjelke.txt: SyntaxError: JSON Parse error: Unexpected identifier "Louise"
+[2025-03-14T01:27:28.825Z] ERROR: Error parsing profile Joanne Hsu.txt: SyntaxError: JSON Parse error: Unexpected identifier "Joanne"
+[2025-03-14T01:27:28.825Z] ERROR: Error parsing profile Amanda_Levine_Profile.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.826Z] ERROR: Error parsing profile Profile (29).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.826Z] ERROR: Error parsing profile Profile (6).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.826Z] ERROR: Error parsing profile Chris Beck.txt: SyntaxError: JSON Parse error: Unexpected identifier "Chris"
+[2025-03-14T01:27:28.827Z] ERROR: Error parsing profile Profile (48).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.827Z] ERROR: Error parsing profile Ali Parker.txt: SyntaxError: JSON Parse error: Unexpected identifier "Ali"
+[2025-03-14T01:27:28.828Z] ERROR: Error parsing profile Profile (25).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.828Z] ERROR: Error parsing profile Julianne Wolfe.txt: SyntaxError: JSON Parse error: Unexpected identifier "Julianne"
+[2025-03-14T01:27:28.829Z] ERROR: Error parsing profile Profile (33).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.829Z] ERROR: Error parsing profile Profile (32).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.830Z] ERROR: Error parsing profile Profile (24).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.830Z] ERROR: Error parsing profile Jeff Bardin.txt: SyntaxError: JSON Parse error: Unexpected identifier "Jeff"
+[2025-03-14T01:27:28.830Z] ERROR: Error parsing profile Profile (49).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.831Z] ERROR: Error parsing profile Profile (7).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.831Z] ERROR: Error parsing profile Profile (28).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.832Z] ERROR: Error parsing profile Annessa_Morley_Profile.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.832Z] ERROR: Error parsing profile Cristobal c.txt: SyntaxError: JSON Parse error: Unexpected identifier "Cristobal"
+[2025-03-14T01:27:28.832Z] ERROR: Error parsing profile Profile (12).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.833Z] ERROR: Error parsing profile Profile (45).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.833Z] ERROR: Error parsing profile Elizabeth_Ervin.txt: SyntaxError: JSON Parse error: Unexpected identifier "Elizabeth"
+[2025-03-14T01:27:28.834Z] ERROR: Error parsing profile Profile (4).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.834Z] ERROR: Error parsing profile Jess D..txt: SyntaxError: JSON Parse error: Unexpected identifier "Jess"
+[2025-03-14T01:27:28.834Z] ERROR: Error parsing profile Profile (11).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.835Z] ERROR: Error parsing profile Profile (46).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.835Z] ERROR: Error parsing profile Alexa_Criscuolo_Bonilla_Profile.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.835Z] ERROR: Error parsing profile Darya (Dasha) Cable.txt: SyntaxError: JSON Parse error: Unexpected identifier "Darya"
+[2025-03-14T01:27:28.836Z] ERROR: Error parsing profile Profile (31).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.837Z] ERROR: Error parsing profile Profile (8).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.837Z] ERROR: Error parsing profile Profile (27).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.837Z] ERROR: Error parsing profile Kalie Whitsett.txt: SyntaxError: JSON Parse error: Unexpected identifier "Kalie"
+[2025-03-14T01:27:28.838Z] ERROR: Error parsing profile Profile (26).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.838Z] ERROR: Error parsing profile Profile (9).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.839Z] ERROR: Error parsing profile Profile (30).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.839Z] ERROR: Error parsing profile Jenny_Ludwigsen_Profile.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.839Z] ERROR: Error parsing profile Profile (47).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.840Z] ERROR: Error parsing profile caren read rmng client.pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.841Z] ERROR: Error parsing profile Profile (10).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.841Z] ERROR: Error parsing profile Ethan Day.txt: SyntaxError: JSON Parse error: Unexpected identifier "Ethan"
+[2025-03-14T01:27:28.841Z] ERROR: Error parsing profile Profile (5).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.842Z] ERROR: Error parsing profile Profile (37).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.843Z] ERROR: Error parsing profile Profile (21).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.843Z] ERROR: Error parsing profile Steve Alexander.txt: SyntaxError: JSON Parse error: Unexpected identifier "Steve"
+[2025-03-14T01:27:28.843Z] ERROR: Error parsing profile Aliya_Tarmo_Resume.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.843Z] ERROR: Error parsing profile Gianpaolo Grazioli .txt: SyntaxError: JSON Parse error: Unexpected identifier "Gianpaolo"
+[2025-03-14T01:27:28.843Z] ERROR: Error parsing profile Profile (2).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.844Z] ERROR: Error parsing profile Profile (17).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.844Z] ERROR: Error parsing profile Profile (40).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.845Z] ERROR: Error parsing profile Profile (41).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.845Z] ERROR: Error parsing profile Profile (16).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.845Z] ERROR: Error parsing profile Bianca_Myers_Linkedin.txt: SyntaxError: JSON Parse error: Unrecognized token '#'
+[2025-03-14T01:27:28.846Z] ERROR: Error parsing profile Profile (3).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.846Z] ERROR: Error parsing profile Dera Lee.txt: SyntaxError: JSON Parse error: Unexpected identifier "Dera"
+[2025-03-14T01:27:28.847Z] ERROR: Error parsing profile Profile (20).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.847Z] ERROR: Error parsing profile Profile (36).pdf: SyntaxError: JSON Parse error: Unrecognized token '%'
+[2025-03-14T01:27:28.847Z] ERROR: No valid profiles found
+[2025-03-14T01:27:28.849Z] ERROR: No profiles to normalize

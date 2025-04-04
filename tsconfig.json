@@ -1,49 +1,61 @@
 {
-	"compilerOptions": {
-		// Enable latest features
-		"lib": [
-			"ESNext",
-			"DOM"
-		],
-		"target": "ES2022",
-		"module": "NodeNext",
-		"moduleResolution": "NodeNext",
-		"downlevelIteration": true,
-		"jsx": "react-jsx",
-		"allowJs": true,
-		// Bundler mode
-		"esModuleInterop": true,
-		"strict": true,
-		"declaration": true,
-		"outDir": "dist",
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"verbatimModuleSyntax": false,
-		// Best practices
-		"noFallthroughCasesInSwitch": true,
-		// Some stricter flags (disabled by default)
-		"noUnusedLocals": false,
-		"noUnusedParameters": false,
-		"noPropertyAccessFromIndexSignature": true,
-		// Path aliases
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["src/*"],
-			"@services/*": ["src/shared/services/*"],
-			"@agents/*": ["src/agents/*"],
-			"@shared/*": ["src/shared/*"]
-		},
-		"resolveJsonModule": true,
-		"allowImportingTsExtensions": true,
-		"noEmit": true
-	},
-	"include": [
-		"src/**/*.ts",
-		"src/**/*.tsx"
-	],
-	"exclude": [
-		"node_modules",
-		"dist",
-		"**/*.test.ts"
-	]
+  "compilerOptions": {
+    // Enable latest features
+    "lib": [
+      "ES2022"
+    ],
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "downlevelIteration": true, // Keep if needed for older JS features compatibility
+    "jsx": "react-jsx", // Keep if using React/JSX
+    "allowJs": true,
+
+    // Bundler mode / Module settings
+    "esModuleInterop": true, // Good for compatibility
+    "resolveJsonModule": true, // Allows importing JSON
+
+    // Strictness & Best Practices
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noPropertyAccessFromIndexSignature": true, // Good strictness flag
+    "noUnusedLocals": false, // Keep as false unless you want strict checks now
+    "noUnusedParameters": false, // Keep as false unless you want strict checks now
+    // "verbatimModuleSyntax": true, // Consider enabling for stricter import/export checks
+
+    // Output
+    "declaration": true, // Generate .d.ts files
+    "outDir": "dist", // Output directory for JS files
+    "rootDir": "src", // Specify root directory of source files
+    "sourceMap": true, // Generate source maps
+    "skipLibCheck": true, // Skip checking libs for faster builds
+    "noEmit": false, // <--- Changed to false (assuming this is for building JS)
+
+    // --- Path Aliases ---
+    "baseUrl": ".", // Base directory for path resolution
+    "paths": {
+      "@/*": ["src/*"], // General src access
+      "@services/*": ["src/services/*"], // <--- UPDATED: Access global services files
+      "@core/*": ["src/services/core/*"], // <--- NEW: Access core services/shared definitions
+      "@ai/*": ["src/services/ai/*"], // <--- NEW: Access AI services
+      "@capabilities/*": ["src/services/capabilities/*"], // <--- NEW: Access capabilities services
+      "@execution/*": ["src/services/execution/*"], // <--- NEW: Access execution services
+      "@memory/*": ["src/services/memory/*"], // <--- NEW: Access memory services
+      "@agents/*": ["src/agents/*"], // Keep if src/agents exists
+      "@apps/*": ["src/apps/*"] // Add if src/apps exists
+      // Remove "@shared/*" unless src/shared still exists and is needed
+    }
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx" // Include TSX if using JSX
+    // Consider adding test files here if you want them checked by this config:
+    // "test/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+    // Removed "**/*.test.ts" - type-checking tests is usually good
+  ]
 }
