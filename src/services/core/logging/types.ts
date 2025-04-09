@@ -3,9 +3,9 @@
  * The LoggingApi type is derived from the implementation in live.ts.
  */
 
-import { Context, Effect, LogLevel, Cause } from "effect";
 import type { JsonObject } from "@/types.js"; // Use path alias
 import type { make } from "@core/logging/live.js"; // Use path alias
+import { Cause, Context, Effect, LogLevel } from "effect";
 
 /**
  * Service interface for logging messages and structured data.

@@ -2,9 +2,9 @@
  * @file Defines the schema for the File entity stored in the database.
  */
 
-import { Schema } from "@effect/schema";
 import { BaseEntitySchema } from "@/schema.js"; // Use path alias
 import { EntityId } from "@/types.js"; // Use path alias
+import { Schema } from "@effect/schema";
 
 // Define the schema for the 'data' part of the FileEntity
 const FileEntityDataSchema = Schema.Struct({

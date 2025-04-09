@@ -5,19 +5,19 @@
  * the layer should be constructed where needed.
  */
 
-import { Effect, Layer, Option, Ref, Context } from "effect"; // Removed Clock
-import * as Arr from "effect/Array";
-import { v4 as uuidv4 } from "uuid";
+import type { EntityId } from "@/types.js";
+import {
+    EntityNotFoundError,
+    RepositoryError,
+} from "@core/repository/errors.js";
 import type {
     BaseEntity,
     FindOptions,
     RepositoryApi,
 } from "@core/repository/types.js";
-import {
-    EntityNotFoundError,
-    RepositoryError,
-} from "@core/repository/errors.js";
-import type { EntityId } from "@/types.js";
+import { Context, Effect, Layer, Option, Ref } from "effect"; // Removed Clock
+import * as Arr from "effect/Array";
+import { v4 as uuidv4 } from "uuid";
 
 // --- In-Memory Repository Implementation Factory Function ---
 // This function is NOT an Effect itself. It takes the Ref store

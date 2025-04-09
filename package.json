@@ -1,49 +1,28 @@
 {
   "name": "effective-agent",
   "version": "0.1.0",
-  "description": "A framework for building sophisticated AI agents using Effect-TS",
-  "module": "dist/index.js",
+  "author": "",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "type": "module",
-  "files": [
-    "dist",
-    "README.md"
-  ],
-  "scripts": {
-    "build": "tsc --project tsconfig.build.json",
-    "dev": "bun --watch src/index.ts",
-    "start": "bun dist/index.js",
-    "lint": "bunx @biomejs/biome lint ./src",
-    "lint:fix": "bunx @biomejs/biome lint --apply ./src",
-    "check": "bunx @biomejs/biome check --apply ./src",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate": "bun src/scripts/migrate.ts",
-    "studio": "bunx @langchain/langgraph-cli@latest dev",
-    "new:service": "bash ./scripts/create-service.sh"
-  },
+  "module": "dist/index.js",
   "dependencies": {
-    "@ai-sdk/anthropic": "^1.2.6",
-    "@ai-sdk/google": "^1.2.8",
-    "@ai-sdk/groq": "^1.2.5",
-    "@ai-sdk/openai": "^1.3.7",
+    "@ai-sdk/anthropic": "^1.2.8",
+    "@ai-sdk/google": "^1.2.10",
+    "@ai-sdk/groq": "^1.2.7",
+    "@ai-sdk/openai": "^1.3.9",
     "@effect/ai": "^0.13.6",
     "@effect/ai-anthropic": "^0.3.6",
     "@effect/ai-openai": "^0.16.7",
     "@effect/platform": "^0.80.6",
-    "@effect/platform-bun": "^0.60.10",
-    "@effect/platform-node": "^0.76.10",
-    "@effect/schema": "^0.70.4",
+    "@effect/platform-bun": "^0.60.11",
+    "@effect/platform-node": "^0.76.11",
+    "@effect/schema": "^0.75.5",
     "@effect/vitest": "^0.20.6",
     "@langchain/core": "^0.3.43",
     "@langchain/langgraph": "^0.2.63",
     "@langchain/langgraph-sdk": "^0.0.54",
-    "ai": "^4.3.2",
+    "ai": "^4.3.4",
     "drizzle-orm": "^0.33.0",
-    "effect": "^3.14.6",
+    "effect": "3.14.6",
     "liquidjs": "^10.21.0",
     "pg": "^8.14.1",
     "zod": "^3.24.2"
@@ -61,9 +40,6 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^1.6.1"
   },
-  "peerDependencies": {
-    "effect": "^3.0.0"
-  },
   "bun": {
     "baseUrl": ".",
     "paths": {
@@ -78,6 +54,11 @@
       "@apps/*": ["src/apps/*"]
     }
   },
+  "description": "A framework for building sophisticated AI agents using Effect-TS",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "keywords": [
     "effect-ts",
     "ai",
@@ -88,6 +69,22 @@
     "langgraph",
     "drizzle"
   ],
-  "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc --project tsconfig.build.json",
+    "dev": "bun --watch src/index.ts",
+    "start": "bun dist/index.js",
+    "lint": "bunx @biomejs/biome lint ./src",
+    "lint:fix": "bunx @biomejs/biome lint --apply ./src",
+    "check": "bunx @biomejs/biome check --apply ./src",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun src/scripts/migrate.ts",
+    "studio": "bunx @langchain/langgraph-cli@latest dev",
+    "new:service": "bash ./scripts/create-service.sh"
+  },
+  "type": "module",
+  "types": "dist/index.d.ts"
 }

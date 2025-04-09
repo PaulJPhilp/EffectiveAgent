@@ -1,0 +1,127 @@
+# Effect Config Service Pattern
+
+## Overview
+Guidelines for using Effect's Config service to load and validate configuration data.
+
+## Core Pattern
+```typescript
+// 1. Define your schema and config
+export const MyConfigSchema = Schema.Struct({
+    // Schema definition
+});
+
+const myConfigConfig = Config.all({
+    // Config definition matching schema
+});
+
+// 2. Create validated config
+export const MyConfig = myConfigConfig.pipe(
+    Config.validate({
+        message: "Configuration validation failed",
+        validation: Schema.is(MyConfigSchema)
+    })
+);
+
+// 3. Use in your Layer
+export const MyServiceLayer = Layer.effect(
+    MyServiceTag,
+    Effect.gen(function* () {
+        const loadedConfig = yield* Config.unwrap(MyConfig).pipe(
+            Effect.provide(Layer.succeed(ConfigProvider.ConfigProvider, provider)),
+            Effect.mapError(error => new EntityParseError({ 
+                filePath: "config.json", 
+                cause: error 
+            }))
+        );
+        // Use loadedConfig...
+    })
+);
+```
+
+## Best Practices
+
+1. Schema Definition
+- Define Schema and Config separately
+- Use Schema for type validation
+- Use Config for structure and parsing
+- Export Schema for type inference
+- Keep Config private to the module
+
+2. Config Validation
+- Always use `Config.validate` with Schema
+- Provide clear validation messages
+- Handle validation errors appropriately
+- Convert config errors to domain errors
+
+3. Error Handling
+- Map ConfigError to domain-specific errors
+- Include file path in error context
+- Preserve original error as cause
+- Use EntityParseError for schema validation failures
+
+4. Layer Integration
+- Use `Config.unwrap` to get Effect from Config
+- Provide ConfigProvider through Layer
+- Keep provider creation at composition root
+- Handle all error cases explicitly
+
+5. Testing
+- Use `ConfigProvider.fromMap` for testing
+- Create test helpers for common configurations
+- Test validation failures
+- Test error handling paths
+
+## Anti-patterns to Avoid
+
+1. DO NOT:
+- Mix Schema and Config definitions
+- Use raw ConfigProvider without Layer
+- Ignore validation errors
+- Use any in type definitions
+- Access config values directly without validation
+
+2. NEVER:
+- Cast ConfigError unsafely
+- Ignore Schema validation
+- Use hardcoded values instead of config
+- Skip error mapping
+- Leave config types implicit
+
+## Example Usage
+
+```typescript
+// schema.ts
+export const AppConfigSchema = Schema.Struct({
+    name: Schema.String,
+    version: Schema.String.pipe(Schema.pattern(/^\d+\.\d+\.\d+$/)),
+    features: Schema.Array(FeatureSchema).pipe(Schema.minItems(1))
+});
+
+const appConfigConfig = Config.all({
+    name: Config.string("name"),
+    version: Config.string("version"),
+    features: Config.array(featureConfig, "features")
+});
+
+export const AppConfig = appConfigConfig.pipe(
+    Config.validate({
+        message: "App configuration validation failed",
+        validation: Schema.is(AppConfigSchema)
+    })
+);
+
+// live.ts
+export const AppServiceLayer = Layer.effect(
+    AppServiceTag,
+    Effect.gen(function* () {
+        const config = yield* Config.unwrap(AppConfig).pipe(
+            Effect.provide(Layer.succeed(ConfigProvider.ConfigProvider, provider)),
+            Effect.mapError(error => new EntityParseError({ 
+                filePath: "app.json", 
+                cause: error 
+            }))
+        );
+        return new AppService(config);
+    })
+);
+``` 

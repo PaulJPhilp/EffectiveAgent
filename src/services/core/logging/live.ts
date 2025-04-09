@@ -2,9 +2,9 @@
  * @file Live implementation of the LoggingApi service using Effect's Console logger.
  */
 
-import { Effect, Layer, LogLevel, Logger, Cause, Option } from "effect";
 import type { JsonObject } from "@/types.js"; // Use path alias
 import { LoggingApi } from "@core/logging/types.js"; // Use path alias
+import { Cause, Effect, Layer, LogLevel, Logger, Option } from "effect";
 
 // --- Implementation Factory ---
 

@@ -1,31 +1,28 @@
 /**
  * @file Defines Tags and supporting types for the generic EntityLoader service.
- * The main EntityLoaderApi type is derived from the implementation in live.ts.
+ * The EntityLoaderApi type is derived from the implementation in live.ts.
+ * Methods require 'never' context, hiding implementation details like FileSystem.
  */
 
-import { Context } from "effect";
-import type { Schema } from "@effect/schema"; // Import Effect Schema type
-import type { make } from "@core/loader/live.js"; // Import the implementation factory
+import type {
+    EntityLoadError,
+    EntityParseError,
+    EntityValidationError,
+    LoaderError, // Import union type
+} from "@core/loader/errors.js";
+import type { make } from "@core/loader/live.js";
+// FileSystem/Path no longer needed here as they are implementation details
+import type { Schema } from "@effect/schema";
+import { Context, Effect } from "effect";
 
 // --- Options ---
-
-/** Options for configuring the EntityLoader service. */
-export interface EntityLoaderOptions {
-    /** The base directory from which to resolve relative entity filenames. */
-    readonly basePath: string;
-}
-/** Tag for EntityLoaderOptions. */
-export const EntityLoaderOptions = Context.GenericTag<EntityLoaderOptions>(
-    "EntityLoaderOptions",
-);
-
-// --- Service Interface & Tag ---
-
 /** Options for a specific load operation. */
 export interface LoadEntityOptions<T, I = unknown> {
-    /** The Effect Schema to validate the loaded entity against. */
-    readonly schema: Schema.Schema<T, I>; // Use Effect Schema
+    readonly schema: Schema.Schema<T, I>;
+    readonly skipValidation?: boolean;
 }
+
+// --- Service Interface & Tag ---
 
 /**
  * Service type for loading, parsing, and validating entity definition files.
@@ -34,8 +31,46 @@ export interface LoadEntityOptions<T, I = unknown> {
 export type EntityLoaderApi = ReturnType<typeof make>;
 
 /** Tag for the EntityLoaderApi service. */
-export const EntityLoaderApi = Context.GenericTag<EntityLoaderApi>(
+export const EntityLoaderApiTag = Context.GenericTag<EntityLoaderApi>(
     "EntityLoaderApi",
 );
 
-// Note: We removed the manually defined EntityLoaderApi interface.
+// --- Explicit Interface (for clarity, matches derived type) ---
+// This helps document the public contract without implementation details.
+export interface IEntityLoaderApi {
+    /**
+    * Loads, parses (JSON), and validates an entity definition file.
+    * The underlying implementation requires FileSystem.
+    * @param filePath The absolute path to the file.
+    * @param options Options including the schema for validation.
+    * @returns Effect yielding the validated entity T.
+    */
+    readonly loadEntity: <T, I>(
+        filePath: string,
+        options: LoadEntityOptions<T, I>,
+    ) => Effect.Effect<
+        T,
+        EntityLoadError | EntityParseError | EntityValidationError,
+        never // R = never (FileSystem is hidden)
+    >;
+
+    /**
+     * Loads and parses (JSON) an entity definition file, skipping schema validation.
+     * The underlying implementation requires FileSystem.
+     * @param filePath The absolute path to the file.
+     * @param options Options indicating skipValidation.
+     * @returns Effect yielding the raw parsed JSON as 'unknown'.
+     */
+    readonly loadRawEntity: (
+        filePath: string,
+        options: { skipValidation: true }
+    ) => Effect.Effect<
+        unknown,
+        EntityLoadError | EntityParseError,
+        never // R = never (FileSystem is hidden)
+    >;
+}
+
+// Static assertion to ensure derived type matches interface
+// Uncomment after live.ts is updated if needed for verification
+// const _assertType: IEntityLoaderApi = {} as EntityLoaderApi;

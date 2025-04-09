@@ -3,9 +3,9 @@
  * Specific repository implementations should define their own Context Tags.
  */
 
-import { Context, Effect, Option } from "effect"; // Removed Clock
 import type { EntityId, JsonObject, Timestamp } from "@/types.js";
-import type { RepositoryError, EntityNotFoundError } from "@core/repository/errors.js";
+import type { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
+import { Context, Effect, Option } from "effect"; // Removed Clock
 
 /**
  * Base structure for entities managed by repositories.

@@ -3,7 +3,6 @@
  */
 
 import { Data } from "effect";
-import { AppError } from "@/errors.js"; // Correct import for base AppError
 
 // Base interface for context shared by loader errors
 interface LoaderErrorContext {

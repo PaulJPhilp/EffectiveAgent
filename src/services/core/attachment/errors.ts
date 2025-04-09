@@ -2,8 +2,8 @@
  * @file Defines specific error types for the Attachment service.
  */
 
-import { Data } from "effect";
 import type { EntityId } from "@/types.js";
+import { Data } from "effect";
 
 /** Error indicating an attachment link was not found for the given ID. */
 export class AttachmentLinkNotFoundError extends Data.TaggedError(

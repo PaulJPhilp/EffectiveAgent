@@ -2,8 +2,8 @@
  * @file Defines specific error types for the Repository service.
  */
 
-import { Data } from "effect";
 import type { EntityId } from "@/types.js"; // Use path alias
+import { Data } from "effect";
 
 // --- Base Repository Error Context ---
 interface RepositoryErrorContext {

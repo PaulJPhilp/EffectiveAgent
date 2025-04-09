@@ -2,7 +2,7 @@
  * @file Test data for EntityLoader service tests.
  */
 
-import { Schema, ParseResult } from "@effect/schema"; // Import ParseResult
+import { ParseResult, Schema } from "@effect/schema"; // Import ParseResult
 
 // --- Test Data Definitions ---
 

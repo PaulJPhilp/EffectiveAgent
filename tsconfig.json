@@ -35,15 +35,15 @@
     // --- Path Aliases ---
     "baseUrl": ".", // Base directory for path resolution
     "paths": {
-      "@/*": ["src/*"], // General src access
-      "@services/*": ["src/services/*"], // <--- UPDATED: Access global services files
-      "@core/*": ["src/services/core/*"], // <--- NEW: Access core services/shared definitions
-      "@ai/*": ["src/services/ai/*"], // <--- NEW: Access AI services
-      "@capabilities/*": ["src/services/capabilities/*"], // <--- NEW: Access capabilities services
-      "@execution/*": ["src/services/execution/*"], // <--- NEW: Access execution services
-      "@memory/*": ["src/services/memory/*"], // <--- NEW: Access memory services
-      "@agents/*": ["src/agents/*"], // Keep if src/agents exists
-      "@apps/*": ["src/apps/*"] // Add if src/apps exists
+      "@/*": ["./src/*"], // Make path relative to baseUrl
+      "@services/*": ["./src/services/*"], // <--- UPDATED: Access global services files
+      "@core/*": ["./src/services/core/*"], // <--- NEW: Access core services/shared definitions
+      "@ai/*": ["./src/services/ai/*"], // <--- NEW: Access AI services
+      "@capabilities/*": ["./src/services/capabilities/*"], // <--- NEW: Access capabilities services
+      "@execution/*": ["./src/services/execution/*"], // <--- NEW: Access execution services
+      "@memory/*": ["./src/services/memory/*"], // <--- NEW: Access memory services
+      "@agents/*": ["./src/agents/*"], // Keep if src/agents exists
+      "@apps/*": ["./src/apps/*"] // Add if src/apps exists
       // Remove "@shared/*" unless src/shared still exists and is needed
     }
   },

@@ -1,13 +1,14 @@
 /**
- * @file Tests for the EntityLoaderApi live implementation.
+ * @file Tests for the EntityLoaderApi live implementation using Layer.build.
+ * Tests the refactored service where FileSystem is an internal dependency.
  */
 
-import { Cause, Effect, Exit, Layer, Option } from "effect";
-import { BunContext } from "@effect/platform-bun"; // Use BunContext for platform layer
-import { FileSystem } from "@effect/platform"; // Import FileSystem namespace
 import * as nodeFs from "node:fs/promises";
 import * as os from "node:os";
 import * as nodePath from "node:path";
+import { FileSystem } from "@effect/platform"; // Import FileSystem namespace
+import { BunContext } from "@effect/platform-bun";
+import { Cause, Context, Effect, Exit, Layer, Option, Ref, Scope } from "effect"; // Added Scope
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
@@ -15,20 +16,25 @@ import {
     EntityParseError,
     EntityValidationError,
 } from "@core/loader/errors.js";
-import { EntityLoaderApiLiveLayer } from "@core/loader/live.js";
-import { EntityLoaderApi } from "@core/loader/types.js";
+import { EntityLoaderApiLiveLayer } from "@core/loader/live.js"; // Import the updated layer
+// Import the Tag alias and the derived Type from types.ts
 import {
+    EntityLoaderApiTag,
+    type EntityLoaderApi as EntityLoaderApiType // Derived type
+} from "@core/loader/types.js";
+// Import test data schema and type
+import {
+    type ValidEntity, // Import updated type
+    ValidEntitySchema, // Import Effect Schema
     invalidJsonContent,
     invalidJsonFilename,
     nonExistentFilename,
     validEntityData,
     validEntityFileContent,
     validEntityFilename,
-    ValidEntitySchema,
     validationErrorContent,
     validationErrorFilename,
-} from "./test-data.js";
-import type { ValidEntity } from "./test-data.ts";
+} from "./test-data.js"; // Assuming test-data.ts exists and is correct
 
 // --- Test Setup ---
 let tempDir = "";
@@ -37,6 +43,7 @@ beforeAll(async () => {
     tempDir = await nodeFs.mkdtemp(
         nodePath.join(os.tmpdir(), "effagent-loader-test-"),
     );
+    // Pre-create files using full paths
     await nodeFs.writeFile(
         nodePath.join(tempDir, validEntityFilename),
         validEntityFileContent,
@@ -58,110 +65,177 @@ afterAll(async () => {
 });
 
 // --- Test Suite ---
-describe("EntityLoaderApiLive (Real FileSystem)", () => {
-    const TestLayer = Layer.merge(EntityLoaderApiLiveLayer, BunContext.layer);
+describe("EntityLoaderApiLive (FileSystem Encapsulated with Layer.build)", () => {
 
-    // Define the full context required by the effects within the tests
-    type TestEffectRequirements = EntityLoaderApi | FileSystem.FileSystem;
+    // Define the full layer composition including platform context
+    // EntityLoaderApiLiveLayer requires FileSystem
+    // BunContext.layer provides FileSystem
+    const combinedLayer = Layer.provide(EntityLoaderApiLiveLayer, BunContext.layer);
+    // combinedLayer provides EntityLoaderApi and requires nothing
 
-    // Update helper signatures to accept the full required context
-    const runTest = <E, A>(
-        effect: Effect.Effect<A, E, TestEffectRequirements>, // Use combined requirements
-    ) => Effect.runPromise(Effect.provide(effect, TestLayer));
+    // Build the context effect - resolves layers and manages scope
+    // Requires Scope, provides Context<EntityLoaderApi>
+    const managedContext = Effect.scoped(Layer.build(combinedLayer));
 
-    const runFailTest = <E, A>(
-        effect: Effect.Effect<A, E, TestEffectRequirements>, // Use combined requirements
-    ) => Effect.runPromise(Effect.exit(Effect.provide(effect, TestLayer)));
+    // Helper to run effects by providing the built context
+    const runTestWithContext = <E, A>(testEffect: Effect.Effect<A, E, EntityLoaderApiType>) => {
+        // Create the effect that first builds the context, then provides it to the test effect
+        const runnable = managedContext.pipe(
+            Effect.flatMap(context => Effect.provide(testEffect, context))
+        );
+        // Run the combined effect (requires Scope, runPromise provides it)
+        return Effect.runPromise(runnable);
+    };
+
+    const runFailTestWithContext = <E, A>(testEffect: Effect.Effect<A, E, EntityLoaderApiType>) => {
+        const runnable = managedContext.pipe(
+            Effect.flatMap(context => Effect.provide(testEffect, context))
+        );
+        // Run the combined effect (requires Scope, runPromiseExit provides it)
+        return Effect.runPromiseExit(runnable);
+    };
+
+
+    // --- Tests for loadEntity ---
 
     it("should load and validate a valid entity file", async () => {
         const filePath = nodePath.join(tempDir, validEntityFilename);
-        // This effect requires EntityLoaderApi | FileSystem.FileSystem
-        const effect = Effect.gen(function* () {
-            const loader = yield* EntityLoaderApi;
-            const result = yield* loader.loadEntity<ValidEntity, unknown>(filePath, {
+        // Effect requires EntityLoaderApi
+        const testEffect = Effect.gen(function* () {
+            const loader = yield* EntityLoaderApiTag;
+            const result = yield* loader.loadEntity(filePath, {
                 schema: ValidEntitySchema,
             });
             expect(result).toEqual(validEntityData);
             return result;
         });
-        // runTest now correctly accepts this effect type
-        await expect(runTest(effect)).resolves.toEqual(validEntityData);
+        // Use the Layer.build helper
+        await expect(runTestWithContext(testEffect)).resolves.toEqual(validEntityData);
     });
 
-    it("should fail with EntityLoadError if file does not exist", async () => {
+    it("should fail loadEntity with EntityLoadError if file does not exist", async () => {
         const filePath = nodePath.join(tempDir, nonExistentFilename);
-        // This effect requires EntityLoaderApi | FileSystem.FileSystem
-        const effect = Effect.gen(function* () {
-            const loader = yield* EntityLoaderApi;
-            return yield* loader.loadEntity<ValidEntity, unknown>(filePath, {
+        // Effect requires EntityLoaderApi
+        const testEffect = Effect.gen(function* () {
+            const loader = yield* EntityLoaderApiTag;
+            return yield* loader.loadEntity(filePath, {
                 schema: ValidEntitySchema,
             });
         });
-        // runFailTest now correctly accepts this effect type
-        const exit = await runFailTest(effect);
-
+        // Use the Layer.build helper
+        const exit = await runFailTestWithContext(testEffect);
         expect(exit._tag).toBe("Failure");
-        const failureOption = Exit.isFailure(exit)
-            ? Cause.failureOption(exit.cause)
-            : Option.none();
-        expect(Option.isSome(failureOption)).toBe(true);
-        if (Option.isSome(failureOption)) {
-            const failure = failureOption.value;
-            expect(failure._tag).toBe("EntityLoadError");
-            expect((failure as EntityLoadError).message).toContain(
-                "Entity definition file not found",
-            );
-            expect((failure as EntityLoadError).filePath).toBe(filePath);
-        }
+        if (Exit.isFailure(exit)) {
+            const failure = Cause.failureOption(exit.cause);
+            expect(Option.isSome(failure)).toBe(true);
+            if (Option.isSome(failure)) {
+                expect(failure.value._tag).toBe("EntityLoadError");
+                expect((failure.value as EntityLoadError).message).toContain("Entity definition file not found");
+                expect((failure.value as EntityLoadError).filePath).toBe(filePath);
+            }
+        } else { expect.fail("Expected effect to fail"); }
     });
 
-    it("should fail with EntityParseError for invalid JSON", async () => {
+    it("should fail loadEntity with EntityParseError for invalid JSON", async () => {
         const filePath = nodePath.join(tempDir, invalidJsonFilename);
-        // This effect requires EntityLoaderApi | FileSystem.FileSystem
-        const effect = Effect.gen(function* () {
-            const loader = yield* EntityLoaderApi;
-            return yield* loader.loadEntity<ValidEntity, unknown>(filePath, {
+        // Effect requires EntityLoaderApi
+        const testEffect = Effect.gen(function* () {
+            const loader = yield* EntityLoaderApiTag;
+            return yield* loader.loadEntity(filePath, {
                 schema: ValidEntitySchema,
             });
         });
-        // runFailTest now correctly accepts this effect type
-        const exit = await runFailTest(effect);
-
+        // Use the Layer.build helper
+        const exit = await runFailTestWithContext(testEffect);
         expect(exit._tag).toBe("Failure");
-        const failureOption = Exit.isFailure(exit)
-            ? Cause.failureOption(exit.cause)
-            : Option.none();
-        expect(Option.isSome(failureOption)).toBe(true);
-        if (Option.isSome(failureOption)) {
-            const failure = failureOption.value;
-            expect(failure._tag).toBe("EntityParseError");
-            expect((failure as EntityParseError).filePath).toBe(filePath);
-            expect(failure.cause).toBeInstanceOf(SyntaxError);
-        }
+        if (Exit.isFailure(exit)) {
+            const failure = Cause.failureOption(exit.cause);
+            expect(Option.isSome(failure)).toBe(true);
+            if (Option.isSome(failure)) {
+                expect(failure.value._tag).toBe("EntityParseError");
+                expect((failure.value as EntityParseError).filePath).toBe(filePath);
+                expect(failure.value.cause).toBeInstanceOf(SyntaxError);
+            }
+        } else { expect.fail("Expected effect to fail"); }
     });
 
-    it("should fail with EntityValidationError for schema mismatch", async () => {
+    it("should fail loadEntity with EntityValidationError for schema mismatch", async () => {
         const filePath = nodePath.join(tempDir, validationErrorFilename);
-        // This effect requires EntityLoaderApi | FileSystem.FileSystem
-        const effect = Effect.gen(function* () {
-            const loader = yield* EntityLoaderApi;
-            return yield* loader.loadEntity<ValidEntity, unknown>(filePath, {
+        // Effect requires EntityLoaderApi
+        const testEffect = Effect.gen(function* () {
+            const loader = yield* EntityLoaderApiTag;
+            return yield* loader.loadEntity(filePath, {
                 schema: ValidEntitySchema,
             });
         });
-        // runFailTest now correctly accepts this effect type
-        const exit = await runFailTest(effect);
-
+        // Use the Layer.build helper
+        const exit = await runFailTestWithContext(testEffect);
         expect(exit._tag).toBe("Failure");
-        const failureOption = Exit.isFailure(exit)
-            ? Cause.failureOption(exit.cause)
-            : Option.none();
-        expect(Option.isSome(failureOption)).toBe(true);
-        if (Option.isSome(failureOption)) {
-            const failure = failureOption.value;
-            expect(failure._tag).toBe("EntityValidationError");
-            expect((failure as EntityValidationError).filePath).toBe(filePath);
-            expect(failure.cause).toHaveProperty("_tag", "ParseError");
-        }
+        if (Exit.isFailure(exit)) {
+            const failure = Cause.failureOption(exit.cause);
+            expect(Option.isSome(failure)).toBe(true);
+            if (Option.isSome(failure)) {
+                expect(failure.value._tag).toBe("EntityValidationError");
+                expect((failure.value as EntityValidationError).filePath).toBe(filePath);
+                expect(failure.value.cause).toHaveProperty("_tag", "ParseError");
+            }
+        } else { expect.fail("Expected effect to fail"); }
     });
+
+
+    // --- Tests for loadRawEntity ---
+
+    it("should load raw entity, skipping validation", async () => {
+        const filePath = nodePath.join(tempDir, validationErrorFilename);
+        // Effect requires EntityLoaderApi
+        const testEffect = Effect.gen(function* () {
+            const loader = yield* EntityLoaderApiTag;
+            const result = yield* loader.loadRawEntity(filePath, { skipValidation: true });
+            expect(result).toEqual({ name: 999, value: 456 });
+        });
+        // Use the Layer.build helper
+        await expect(runTestWithContext(testEffect)).resolves.toBeUndefined();
+    });
+
+    it("should fail loadRawEntity with EntityParseError for invalid JSON", async () => {
+        const filePath = nodePath.join(tempDir, invalidJsonFilename);
+        // Effect requires EntityLoaderApi
+        const testEffect = Effect.gen(function* () {
+            const loader = yield* EntityLoaderApiTag;
+            return yield* loader.loadRawEntity(filePath, { skipValidation: true });
+        });
+        // Use the Layer.build helper
+        const exit = await runFailTestWithContext(testEffect);
+        expect(exit._tag).toBe("Failure");
+        if (Exit.isFailure(exit)) {
+            const failure = Cause.failureOption(exit.cause);
+            expect(Option.isSome(failure)).toBe(true);
+            if (Option.isSome(failure)) {
+                expect(failure.value._tag).toBe("EntityParseError");
+                expect((failure.value as EntityParseError).filePath).toBe(filePath);
+                expect(failure.value.cause).toBeInstanceOf(SyntaxError);
+            }
+        } else { expect.fail("Expected effect to fail"); }
+    });
+
+    it("should fail loadRawEntity with EntityLoadError if file does not exist", async () => {
+        const filePath = nodePath.join(tempDir, nonExistentFilename);
+        // Effect requires EntityLoaderApi
+        const testEffect = Effect.gen(function* () {
+            const loader = yield* EntityLoaderApiTag;
+            return yield* loader.loadRawEntity(filePath, { skipValidation: true });
+        });
+        // Use the Layer.build helper
+        const exit = await runFailTestWithContext(testEffect);
+        expect(exit._tag).toBe("Failure");
+        if (Exit.isFailure(exit)) {
+            const failure = Cause.failureOption(exit.cause);
+            expect(Option.isSome(failure)).toBe(true);
+            if (Option.isSome(failure)) {
+                expect(failure.value._tag).toBe("EntityLoadError");
+                expect((failure.value as EntityLoadError).filePath).toBe(filePath);
+            }
+        } else { expect.fail("Expected effect to fail"); }
+    });
+
 });

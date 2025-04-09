@@ -2,13 +2,13 @@
  * @file Tests for the LoggingApi live implementation.
  */
 
-import { describe, it, expect } from "vitest";
-import { Effect, Layer, LogLevel, Cause } from "effect";
-import { LoggingApi } from "@core/logging/types.js"; // LoggingApi comes from types.ts
 import {
     LoggingApiLiveLayer,
     LoggingLevelLayer, // LoggingLevelLayer comes from live.ts
 } from "@core/logging/live.js"; // Use path alias
+import { LoggingApi } from "@core/logging/types.js"; // LoggingApi comes from types.ts
+import { Cause, Effect, Layer, LogLevel } from "effect";
+import { describe, expect, it } from "vitest";
 
 describe("LoggingApiLive", () => {
     // Helper function to run effects with the LoggingApiLiveLayer provided
