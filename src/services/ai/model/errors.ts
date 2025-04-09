@@ -3,7 +3,7 @@
  * @module services/ai/model/errors
  */
 
-import type { EntityLoadError, EntityParseError } from "@/services/core/loader/errors.js";
+import type { EntityLoadError, EntityParseError } from "@/services/core/errors.js";
 import { Data } from "effect";
 // Removed ServiceError import as Data.TaggedError is the base
 

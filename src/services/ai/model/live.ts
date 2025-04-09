@@ -3,7 +3,7 @@
  * @module services/ai/model/live
  */
 
-import { EntityParseError } from "@/services/core/loader/errors.js";
+import { EntityParseError } from "@/services/core/errors.js";
 import { Config, ConfigProvider, Effect, HashMap, Layer, Schema } from "effect";
 import { ModelConfigError } from "./errors.js";
 import { type ModelDefinition, ModelsConfigFileSchema } from "./schema.js";

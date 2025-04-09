@@ -3,7 +3,6 @@
  * Uses step-by-step Layer.provide and a final Layer.merge for composition.
  */
 
-import { BunContext } from "@effect/platform-bun";
 import { Cause, ConfigProvider, Effect, Exit, HashMap, Layer, Option } from "effect";
 import * as nodeFs from "node:fs/promises";
 import * as os from "node:os";
@@ -25,10 +24,6 @@ import {
     PromptConfig,
     type PromptConfigData,
 } from "@services/ai/prompt/types.js";
-
-import { EntityLoaderApiLiveLayer } from "@services/core/loader/live.js";
-// Import dependencies
-
 
 // --- Test Setup ---
 
@@ -74,13 +69,14 @@ afterAll(async () => {
 
 // --- Layer Setup ---
 
-// Layer providing EntityLoaderApi (depends on BunContext)
-const baseLoaderLayer = EntityLoaderApiLiveLayer.pipe(Layer.provide(BunContext.layer));
-// baseLoaderLayer provides EntityLoaderApi, Requires never
-
-// Layer providing PromptConfigData (depends on EntityLoaderApi)
+// Layer providing PromptConfigData
 const testPromptConfigLayer = PromptConfigLiveLayer.pipe(
-    Layer.provide(baseLoaderLayer) // Provide EntityLoader dependency
+    Layer.provide(Layer.succeed(
+        ConfigProvider.ConfigProvider,
+        ConfigProvider.fromJson({
+            prompts: validPromptsFileContent
+        })
+    ))
 );
 // testPromptConfigLayer provides PromptConfigData, Requires never
 

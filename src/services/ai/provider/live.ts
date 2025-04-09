@@ -3,7 +3,7 @@
  * @module services/ai/provider/live
  */
 
-import { EntityParseError } from "@/services/core/loader/errors.js";
+import { EntityParseError } from "@/services/core/errors.js";
 import { Config, ConfigProvider, Effect, HashMap, Layer, Schema } from "effect";
 import { ProviderConfigError } from "./errors.js";
 import { ProviderDefinition, ProvidersConfigFileSchema } from "./schema.js";
