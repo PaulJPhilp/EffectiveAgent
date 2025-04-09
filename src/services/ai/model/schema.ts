@@ -6,7 +6,7 @@
 import { Config, Schema } from "effect";
 
 // === Primitive Schemas ===
-const IdentifierSchema = Schema.String.pipe(Schema.minLength(1));
+export const IdentifierSchema = Schema.String.pipe(Schema.minLength(1));
 export const ModelNameSchema = IdentifierSchema;
 export type ModelName = Schema.Schema.Type<typeof ModelNameSchema>;
 

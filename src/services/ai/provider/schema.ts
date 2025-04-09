@@ -5,6 +5,7 @@
  */
 
 import { Schema } from "effect"; // Correct: Import from 'effect'
+import { IdentifierSchema, ModelCapabilitySchema } from "../model/schema.js";
 
 /**
  * Schema for the unique name/identifier of an AI provider.
@@ -38,11 +39,8 @@ export const ProviderDefinitionSchema = Schema.Struct({
     name: ProviderNameSchema,
     displayName: Schema.String.pipe(Schema.minLength(1)),
     type: Schema.String.pipe(Schema.minLength(1)),
-    // Correct: Pass Schema.optional reference when no options
     apiKeyEnvVar: Schema.String.pipe(Schema.minLength(1), Schema.optional),
-    // Correct: Call Schema.optional() *only* when passing options
     baseUrl: Schema.String.pipe(Schema.optional),
-    // Correct: Call Schema.optional() *only* when passing options
     rateLimit: RateLimitStructSchema.pipe(Schema.optional),
 });
 export type ProviderDefinition = Schema.Schema.Type<
@@ -79,3 +77,10 @@ export const ProvidersConfigFileSchema = ProvidersConfigFileInputSchema.pipe(
 export type ProvidersConfigFile = Schema.Schema.Type<
     typeof ProvidersConfigFileSchema
 >;
+
+export const ModelDefinitionSchema = Schema.Struct({
+    id: IdentifierSchema,
+    provider: IdentifierSchema,  // <-- Links to provider
+    capabilities: Schema.Array(ModelCapabilitySchema),
+    // ... other model-specific configs
+});

@@ -4,20 +4,13 @@
  */
 
 import type { JsonObject } from "@/types.js";
-import type {
-    PromptConfigError,
-    PromptError,
-    RenderingError,
-    TemplateNotFoundError,
-} from "@services/ai/prompt/errors.js"; // Use path alias
 import type { PromptDefinition } from "@services/ai/prompt/schema.js"; // Use path alias
 // EntityLoaderApi is needed by PromptConfigLiveLayer defined in live.ts
-import type { EntityLoaderApi } from "@services/core/loader/types.js";
 import { Context, Effect, HashMap } from "effect";
+import { TemplateNotFoundError } from "./errors.js";
+import { RenderingError } from "./errors.js";
 
 // Import make function for PromptApi to infer type
-// Assuming the synchronous 'make' for PromptApi is in live.ts
-import type { make as makePromptApi } from "@services/ai/prompt/live.js";
 
 // --- Service Data Type ---
 
@@ -27,8 +20,10 @@ export type PromptConfigData = HashMap.HashMap<string, PromptDefinition>;
 // --- Service API Type (Inferred) ---
 
 /** Service providing prompt rendering capabilities. */
-// Use ReturnType as makePromptApi is expected to be synchronous
-export type PromptApi = ReturnType<typeof makePromptApi>;
+export interface PromptApi {
+    readonly renderTemplate: (params: RenderTemplateParams) => Effect.Effect<string, RenderingError | TemplateNotFoundError>;
+    readonly renderString: (params: RenderStringParams) => Effect.Effect<string, RenderingError>;
+}
 
 // --- Service Tags ---
 

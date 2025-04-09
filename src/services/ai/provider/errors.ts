@@ -3,19 +3,15 @@
  * @module services/ai/provider/errors
  */
 
-import type {
-    EntityLoadError,
-    EntityParseError,
-} from "@/services/core/loader/errors.js"; // Import loader error types
 import type { ParseError } from "@effect/schema/ParseResult";
 import { Data } from "effect";
 
 /**
- * Represents an error occurring during the loading or parsing of the
- * provider definition file.
+ * Represents an error occurring during the loading or validation of the
+ * provider configuration.
  */
 export class ProviderConfigError extends Data.TaggedError("ProviderConfigError")<{
     readonly message: string;
-    /** The underlying error (from loader or schema parsing). */
-    readonly cause: EntityLoadError | EntityParseError ; // Corrected type union
+    /** The underlying error from schema parsing or config loading. */
+    readonly cause?: ParseError | Error;
 }> { }

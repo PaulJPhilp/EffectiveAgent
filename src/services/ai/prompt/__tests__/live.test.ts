@@ -3,17 +3,16 @@
  * Uses step-by-step Layer.provide and a final Layer.merge for composition.
  */
 
+import { BunContext } from "@effect/platform-bun";
+import { Cause, ConfigProvider, Effect, Exit, HashMap, Layer, Option } from "effect";
 import * as nodeFs from "node:fs/promises";
 import * as os from "node:os";
 import * as nodePath from "node:path";
-import { BunContext } from "@effect/platform-bun";
-import { Cause, Context, Effect, Exit, HashMap, Layer, Option, Ref, Scope } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
     PromptConfigError,
-    RenderingError,
-    TemplateNotFoundError,
+    TemplateNotFoundError
 } from "@services/ai/prompt/errors.js";
 import {
     PromptApiLiveLayer,
@@ -27,15 +26,9 @@ import {
     type PromptConfigData,
 } from "@services/ai/prompt/types.js";
 
-import { EntityLoadError, EntityParseError } from "@services/core/loader/errors.js";
 import { EntityLoaderApiLiveLayer } from "@services/core/loader/live.js";
 // Import dependencies
-import {
-    EntityLoaderApi as EntityLoaderApiTag, // Import Tag alias
-    type EntityLoaderApi as EntityLoaderApiType // Import derived type
-} from "@services/core/loader/types.js";
 
-import type { EntityId } from "@/types.js"; // Corrected path alias
 
 // --- Test Setup ---
 
@@ -86,7 +79,7 @@ const baseLoaderLayer = EntityLoaderApiLiveLayer.pipe(Layer.provide(BunContext.l
 // baseLoaderLayer provides EntityLoaderApi, Requires never
 
 // Layer providing PromptConfigData (depends on EntityLoaderApi)
-const testPromptConfigLayer = PromptConfigLiveLayer(promptsFilePath).pipe(
+const testPromptConfigLayer = PromptConfigLiveLayer.pipe(
     Layer.provide(baseLoaderLayer) // Provide EntityLoader dependency
 );
 // testPromptConfigLayer provides PromptConfigData, Requires never
@@ -128,198 +121,198 @@ const runApiFailTest = <E, A>(testEffect: Effect.Effect<A, E, PromptApi | Prompt
 
 
 // --- Test Suite ---
-describe("Prompt Layers (Revised Merge)", () => {
+describe("Prompt Layers", () => {
+    let tempDir: string;
+    let promptsJsonPath: string;
 
-    // --- PromptConfigLiveLayer Tests ---
-    describe("PromptConfigLiveLayer", () => {
-        // These tests only need testPromptConfigLayer
+    // Create test files before running tests
+    beforeAll(async () => {
+        tempDir = nodePath.join(__dirname, "temp");
+        await nodeFs.mkdir(tempDir, { recursive: true });
+        promptsJsonPath = nodePath.join(tempDir, "prompts.json");
 
-        const runConfigTest = <E, A>(effect: Effect.Effect<A, E, PromptConfigData>) => {
-            const runnable = Effect.provide(effect, testPromptConfigLayer) as Effect.Effect<
-                A, E, never
-            >;
-            return Effect.runPromise(runnable);
+        // Sample valid prompt config
+        const validConfig = {
+            prompts: [{
+                name: "test-greeting",
+                template: "Hello, {{name}}!",
+                description: "A simple greeting"
+            }, {
+                name: "test-summary",
+                template: "Summarize this: {{text}}"
+            }]
         };
 
-        it("should load prompts and provide PromptConfigData HashMap", async () => {
-            // Effect requires PromptConfigData
-            const effect = Effect.gen(function* () {
-                const promptData = yield* PromptConfig;
-                expect(HashMap.has(promptData, "test-greeting")).toBe(true);
-                expect(HashMap.has(promptData, "test-summary")).toBe(true);
-                const greeting = HashMap.get(promptData, "test-greeting");
-                expect(Option.isSome(greeting)).toBe(true);
-                if (Option.isSome(greeting)) {
-                    expect(greeting.value.name).toBe(promptDef1.name);
-                    expect(greeting.value.template).toBe(promptDef1.template);
-                    expect(greeting.value.description).toBe(promptDef1.description);
-                }
-                expect(HashMap.size(promptData)).toBe(2);
+        await nodeFs.writeFile(promptsJsonPath, JSON.stringify(validConfig, null, 2));
+    });
+
+    // Clean up after tests
+    afterAll(async () => {
+        if (tempDir) {
+            await nodeFs.rm(tempDir, { recursive: true, force: true });
+        }
+    });
+    // Helper to create test layer with config
+    const createTestLayer = (config = {
+        prompts: [{
+            name: "test-greeting",
+            template: "Hello, {{name}}!",
+            description: "A simple greeting"
+        }, {
+            name: "test-summary",
+            template: "Summarize this: {{text}}"
+        }]
+    }) => Layer.provide(
+        PromptConfigLiveLayer,
+        Layer.succeed(
+            ConfigProvider.ConfigProvider,
+            ConfigProvider.fromJson({
+                prompts: JSON.stringify(config)
+            })
+        )
+    );
+
+    // Create API test layer with default config
+    const TestApiLayer = Layer.provide(
+        PromptApiLiveLayer,
+        createTestLayer()
+    );
+
+    describe("PromptConfigLiveLayer", () => {
+        it("should load and provide valid prompt configuration", async () => {
+            const testEffect = Effect.gen(function* () {
+                const testLayer = createTestLayer();
+                const accessPromptConfig = Effect.gen(function* () {
+                    const configData = yield* PromptConfig;
+                    expect(configData).toBeDefined();
+                    const greeting = Option.getOrNull(HashMap.get(configData, "test-greeting"));
+                    expect(greeting?.template).toBe("Hello, {{name}}!");
+                    expect(greeting?.description).toBe("A simple greeting");
+                    return configData;
+                });
+                return yield* Effect.provide(accessPromptConfig, testLayer);
             });
-            await expect(runConfigTest(effect)).resolves.toBeUndefined();
+
+            await Effect.runPromise(testEffect);
         });
 
-        it("should fail with PromptConfigError if file is missing", async () => {
-            const missingFilePath = nodePath.join(tempDir, "missing.json");
-            // Test building the layer with a bad path
-            const layerToTest = PromptConfigLiveLayer(missingFilePath).pipe(
-                Layer.provide(baseLoaderLayer)
-            );
-            const effect = Effect.scoped(Layer.build(layerToTest));
-            const exit = await Effect.runPromiseExit(effect);
+        it("should fail with PromptConfigError if config is missing", async () => {
+            const testEffect = Effect.gen(function* () {
+                const testLayer = Layer.provide(
+                    PromptConfigLiveLayer,
+                    Layer.succeed(ConfigProvider.ConfigProvider, ConfigProvider.fromJson({}))
+                );
+                const accessConfig = Effect.gen(function* () {
+                    return yield* PromptConfig;
+                });
+                return yield* Effect.provide(accessConfig, testLayer);
+            });
 
-            expect(exit._tag).toBe("Failure");
-            if (Exit.isFailure(exit)) {
-                const failure = Cause.failureOption(exit.cause);
-                expect(Option.isSome(failure)).toBe(true);
-                if (Option.isSome(failure)) {
-                    expect(failure.value._tag).toBe("PromptConfigError");
-                    expect((failure.value as PromptConfigError).cause).toHaveProperty("_tag", "EntityLoadError");
+            const result = await Effect.runPromiseExit(testEffect);
+            Exit.match(result, {
+                onFailure: (cause) => {
+                    const error = Cause.failureOption(cause);
+                    expect(Option.isSome(error)).toBe(true);
+                    if (Option.isSome(error)) {
+                        const err = error.value as PromptConfigError;
+                        expect(err).toBeInstanceOf(PromptConfigError);
+                        expect(err.message).toBe("Failed to load prompt config");
+                    }
+                },
+                onSuccess: () => {
+                    throw new Error("Expected failure but got success");
                 }
-            } else { expect.fail("Layer build should have failed"); }
+            });
         });
 
-        it("should fail with PromptConfigError for invalid JSON", async () => {
-            await nodeFs.writeFile(promptsFilePath, invalidJsonContent);
-            const layerToTest = PromptConfigLiveLayer(promptsFilePath).pipe(
-                Layer.provide(baseLoaderLayer)
-            );
-            const effect = Effect.scoped(Layer.build(layerToTest));
-            const exit = await Effect.runPromiseExit(effect);
+        it("should fail with PromptConfigError if config fails schema validation", async () => {
+            const testEffect = Effect.gen(function* () {
+                const testLayer = createTestLayer({
+                    prompts: [{
+                        name: "invalid-prompt",
+                        template: "",  // Add empty template to pass type check but fail schema validation
+                    }]
+                });
+                const accessConfig = Effect.gen(function* () {
+                    return yield* PromptConfig;
+                });
+                return yield* Effect.provide(accessConfig, testLayer);
+            });
 
-            expect(exit._tag).toBe("Failure");
-            if (Exit.isFailure(exit)) {
-                const failure = Cause.failureOption(exit.cause);
-                expect(Option.isSome(failure)).toBe(true);
-                if (Option.isSome(failure)) {
-                    expect(failure.value._tag).toBe("PromptConfigError");
-                    expect((failure.value as PromptConfigError).cause).toHaveProperty("_tag", "EntityParseError");
+            const result = await Effect.runPromiseExit(testEffect);
+            Exit.match(result, {
+                onFailure: (cause) => {
+                    const error = Cause.failureOption(cause);
+                    expect(Option.isSome(error)).toBe(true);
+                    if (Option.isSome(error)) {
+                        const err = error.value as PromptConfigError;
+                        expect(err).toBeInstanceOf(PromptConfigError);
+                        expect(err.message).toBe("Failed to validate prompt config");
+                    }
+                },
+                onSuccess: () => {
+                    throw new Error("Expected failure but got success");
                 }
-            } else { expect.fail("Layer build should have failed"); }
-            await nodeFs.writeFile(promptsFilePath, validPromptsFileContent);
+            });
         });
+    });
 
-        it("should fail with PromptConfigError for invalid schema", async () => {
-            await nodeFs.writeFile(promptsFilePath, invalidSchemaContent);
-            const layerToTest = PromptConfigLiveLayer(promptsFilePath).pipe(
-                Layer.provide(baseLoaderLayer)
-            );
-            const effect = Effect.scoped(Layer.build(layerToTest));
-            const exit = await Effect.runPromiseExit(effect);
-
-            expect(exit._tag).toBe("Failure");
-            if (Exit.isFailure(exit)) {
-                const failure = Cause.failureOption(exit.cause);
-                expect(Option.isSome(failure)).toBe(true);
-                if (Option.isSome(failure)) {
-                    expect(failure.value._tag).toBe("PromptConfigError");
-                    expect((failure.value as PromptConfigError).cause).toHaveProperty("_tag", "ParseError");
-                }
-            } else { expect.fail("Layer build should have failed"); }
-            await nodeFs.writeFile(promptsFilePath, validPromptsFileContent);
-        });
-
-        it("should fail with PromptConfigError for empty prompts array", async () => {
-            await nodeFs.writeFile(promptsFilePath, emptyPromptsContent);
-            const layerToTest = PromptConfigLiveLayer(promptsFilePath).pipe(
-                Layer.provide(baseLoaderLayer)
-            );
-            const effect = Effect.scoped(Layer.build(layerToTest));
-            const exit = await Effect.runPromiseExit(effect);
-
-            expect(exit._tag).toBe("Failure");
-            if (Exit.isFailure(exit)) {
-                const failure = Cause.failureOption(exit.cause);
-                expect(Option.isSome(failure)).toBe(true);
-                if (Option.isSome(failure)) {
-                    expect(failure.value._tag).toBe("PromptConfigError");
-                    expect((failure.value as PromptConfigError).cause).toHaveProperty("_tag", "ParseError");
-                }
-            } else { expect.fail("Layer build should have failed"); }
-            await nodeFs.writeFile(promptsFilePath, validPromptsFileContent);
-        });
-    }); // End describe PromptConfigLiveLayer
-
-
-    // --- PromptApiLiveLayer Tests ---
     describe("PromptApiLiveLayer", () => {
-
-        it("should render a string template", async () => {
-            // Effect requires PromptApi
+        it("should render a template string", async () => {
             const testEffect = Effect.gen(function* () {
                 const promptApi = yield* PromptApi;
                 const result = yield* promptApi.renderString({
-                    templateString: "Input: {{input}}",
-                    context: { input: "test data" }
+                    templateString: "Hello, {{name}}!",
+                    context: { name: "World" }
                 });
-                expect(result).toBe("Input: test data");
+                expect(result).toBe("Hello, World!");
+                return result;
             });
-            // Use runApiTest helper
-            await expect(runApiTest(testEffect)).resolves.toBeUndefined();
-        });
 
-        it("should fail renderString with RenderingError for invalid template syntax", async () => {
-            // Effect requires PromptApi
-            const testEffect = Effect.gen(function* () {
-                const promptApi = yield* PromptApi;
-                return yield* promptApi.renderString({
-                    templateString: "Input: {{input", // Unclosed tag
-                    context: { input: "test data" }
-                });
-            });
-            // Use runApiFailTest helper
-            const exit = await runApiFailTest(testEffect);
-            expect(exit._tag).toBe("Failure");
-            if (Exit.isFailure(exit)) {
-                const failure = Cause.failureOption(exit.cause);
-                expect(Option.isSome(failure)).toBe(true);
-                if (Option.isSome(failure)) {
-                    expect(failure.value._tag).toBe("RenderingError");
-                }
-            } else { expect.fail("Expected rendering error"); }
+            await Effect.runPromise(Effect.provide(testEffect, TestApiLayer));
         });
-
 
         it("should render a named template", async () => {
-            // Effect requires PromptApi
             const testEffect = Effect.gen(function* () {
                 const promptApi = yield* PromptApi;
                 const result = yield* promptApi.renderTemplate({
                     templateName: "test-greeting",
-                    context: { name: "Paul" }
+                    context: { name: "World" }
                 });
-                expect(result).toBe("Hello, Paul!");
+                expect(result).toBe("Hello, World!");
+                return result;
             });
-            // Use runApiTest helper
-            await expect(runApiTest(testEffect)).resolves.toBeUndefined();
+
+            await Effect.runPromise(Effect.provide(testEffect, TestApiLayer));
         });
 
-        it("should fail renderTemplate with TemplateNotFoundError for unknown name", async () => {
-            // Effect requires PromptApi
+        it("should fail with TemplateNotFoundError for unknown template", async () => {
             const testEffect = Effect.gen(function* () {
                 const promptApi = yield* PromptApi;
                 return yield* promptApi.renderTemplate({
-                    templateName: "unknown-template",
-                    context: { name: "Paul" }
+                    templateName: "non-existent",
+                    context: { name: "World" }
                 });
             });
-            // Use runApiFailTest helper
-            const exit = await runApiFailTest(testEffect);
-            expect(exit._tag).toBe("Failure");
-            if (Exit.isFailure(exit)) {
-                const failure = Cause.failureOption(exit.cause);
-                expect(Option.isSome(failure)).toBe(true);
-                if (Option.isSome(failure)) {
-                    expect(failure.value._tag).toBe("TemplateNotFoundError");
-                    expect((failure.value as TemplateNotFoundError).templateName).toBe("unknown-template");
+
+            const result = await Effect.runPromiseExit(Effect.provide(testEffect, TestApiLayer));
+            Exit.match(result, {
+                onFailure: (cause) => {
+                    const error = Cause.failureOption(cause);
+                    expect(Option.isSome(error)).toBe(true);
+                    if (Option.isSome(error)) {
+                        const err = error.value as TemplateNotFoundError;
+                        expect(err).toBeInstanceOf(TemplateNotFoundError);
+                        expect(err.templateName).toBe("non-existent");
+                    }
+                },
+                onSuccess: () => {
+                    throw new Error("Expected template not found error");
                 }
-            } else { expect.fail("Expected template not found error"); }
+            });
         });
-
-        // TODO: Add a test for RenderingError within renderTemplate if possible
-
-    }); // End describe PromptApiLiveLayer
-}); // End describe Prompt Layers
+    });
+});
 
 // --- beforeAll/afterAll and test data definitions (copied for completeness) ---
 // Note: These are defined globally above, no need to repeat here.

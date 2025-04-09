@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
 # Effect Config Service Pattern
 
 ## Overview
@@ -5,35 +10,45 @@ Guidelines for using Effect's Config service to load and validate configuration 
 
 ## Core Pattern
 ```typescript
-// 1. Define your schema and config
+// 1. Define your schema
 export const MyConfigSchema = Schema.Struct({
-    // Schema definition
+    // Schema definition with validation rules
+    name: Schema.String,
+    version: Schema.String,
+    items: Schema.Array(ItemSchema).pipe(Schema.minItems(1))
 });
 
-const myConfigConfig = Config.all({
-    // Config definition matching schema
-});
-
-// 2. Create validated config
-export const MyConfig = myConfigConfig.pipe(
-    Config.validate({
-        message: "Configuration validation failed",
-        validation: Schema.is(MyConfigSchema)
-    })
-);
-
-// 3. Use in your Layer
+// 2. Load and validate in your Layer
 export const MyServiceLayer = Layer.effect(
     MyServiceTag,
     Effect.gen(function* () {
-        const loadedConfig = yield* Config.unwrap(MyConfig).pipe(
-            Effect.provide(Layer.succeed(ConfigProvider.ConfigProvider, provider)),
-            Effect.mapError(error => new EntityParseError({ 
-                filePath: "config.json", 
-                cause: error 
+        // Get ConfigProvider and load raw config
+        const configProvider = yield* ConfigProvider.ConfigProvider;
+        const rawConfig = yield* configProvider.load(Config.string("configKey")).pipe(
+            Effect.mapError(cause => new MyDomainError({
+                message: "Failed to load config",
+                cause: new EntityParseError({
+                    filePath: "config.json",
+                    cause
+                })
             }))
         );
-        // Use loadedConfig...
+        
+        // Parse and validate using schema directly
+        const validConfig = yield* Schema.decode(MyConfigSchema)(JSON.parse(rawConfig)).pipe(
+            Effect.mapError(cause => new MyDomainError({
+                message: "Failed to validate config",
+                cause: new EntityParseError({
+                    filePath: "config.json",
+                    cause
+                })
+            }))
+        );
+
+        // Transform to domain model if needed
+        return new MyServiceData({
+            // Map config to service data
+        });
     })
 );
 ```
@@ -41,87 +56,118 @@ export const MyServiceLayer = Layer.effect(
 ## Best Practices
 
 1. Schema Definition
-- Define Schema and Config separately
-- Use Schema for type validation
-- Use Config for structure and parsing
-- Export Schema for type inference
-- Keep Config private to the module
+- Define comprehensive Schema with all validation rules
+- Use Schema.pipe for additional validations
+- Keep schema in a separate schema.ts file
+- Export schema for type inference
+- Use descriptive error messages in validation rules
 
-2. Config Validation
-- Always use `Config.validate` with Schema
-- Provide clear validation messages
-- Handle validation errors appropriately
-- Convert config errors to domain errors
-
-3. Error Handling
-- Map ConfigError to domain-specific errors
+2. Config Loading
+- Use ConfigProvider through Effect.gen
+- Load raw config as string first
+- Parse JSON after loading
+- Map config errors to domain errors immediately
 - Include file path in error context
-- Preserve original error as cause
-- Use EntityParseError for schema validation failures
 
-4. Layer Integration
-- Use `Config.unwrap` to get Effect from Config
-- Provide ConfigProvider through Layer
-- Keep provider creation at composition root
-- Handle all error cases explicitly
+3. Schema Validation
+- Use Schema.decode directly after parsing
+- Validate entire config structure at once
+- Map validation errors to domain errors
+- Keep validation error messages clear and specific
+- Include original error as cause
 
-5. Testing
-- Use `ConfigProvider.fromMap` for testing
-- Create test helpers for common configurations
-- Test validation failures
-- Test error handling paths
+4. Error Handling
+- Create specific domain error types
+- Use EntityParseError for parsing failures
+- Preserve error context through causes
+- Map all errors to domain types
+- Handle both load and validation errors
+
+5. Service Structure
+- Keep config loading in Layer definition
+- Transform config to domain model after validation
+- Use Data.Class for service data structures
+- Implement clear service interfaces
+- Separate config loading from business logic
+
+6. Testing
+- Test both valid and invalid configurations
+- Test missing config scenarios
+- Test schema validation failures
+- Use ConfigProvider.fromJson for testing
+- Create comprehensive test cases
 
 ## Anti-patterns to Avoid
 
 1. DO NOT:
-- Mix Schema and Config definitions
-- Use raw ConfigProvider without Layer
-- Ignore validation errors
+- Use Config.validate with Schema.is (use Schema.decode instead)
+- Mix config loading and business logic
+- Leave error messages generic
+- Skip error mapping
 - Use any in type definitions
-- Access config values directly without validation
 
 2. NEVER:
-- Cast ConfigError unsafely
-- Ignore Schema validation
+- Access raw config without validation
+- Ignore validation errors
 - Use hardcoded values instead of config
-- Skip error mapping
-- Leave config types implicit
+- Cast errors without proper mapping
+- Skip testing error paths
 
-## Example Usage
+## Example Implementation
 
 ```typescript
 // schema.ts
-export const AppConfigSchema = Schema.Struct({
+export const ModelConfigSchema = Schema.Struct({
     name: Schema.String,
-    version: Schema.String.pipe(Schema.pattern(/^\d+\.\d+\.\d+$/)),
-    features: Schema.Array(FeatureSchema).pipe(Schema.minItems(1))
+    version: Schema.String,
+    models: Schema.Array(ModelDefinitionSchema).pipe(Schema.minItems(1))
 });
 
-const appConfigConfig = Config.all({
-    name: Config.string("name"),
-    version: Config.string("version"),
-    features: Config.array(featureConfig, "features")
-});
-
-export const AppConfig = appConfigConfig.pipe(
-    Config.validate({
-        message: "App configuration validation failed",
-        validation: Schema.is(AppConfigSchema)
-    })
-);
+// errors.ts
+export class ModelConfigError extends Data.TaggedError("ModelConfigError")<{
+    readonly message: string;
+    readonly cause: EntityLoadError | EntityParseError;
+}> { }
 
 // live.ts
-export const AppServiceLayer = Layer.effect(
-    AppServiceTag,
+export const ModelConfigLiveLayer = Layer.effect(
+    ModelConfigDataTag,
     Effect.gen(function* () {
-        const config = yield* Config.unwrap(AppConfig).pipe(
-            Effect.provide(Layer.succeed(ConfigProvider.ConfigProvider, provider)),
-            Effect.mapError(error => new EntityParseError({ 
-                filePath: "app.json", 
-                cause: error 
+        // 1. Get ConfigProvider and load raw config
+        const configProvider = yield* ConfigProvider.ConfigProvider;
+        const rawConfig = yield* configProvider.load(Config.string("models")).pipe(
+            Effect.mapError(cause => new ModelConfigError({
+                message: "Failed to load model config",
+                cause: new EntityParseError({
+                    filePath: "models.json",
+                    cause
+                })
             }))
         );
-        return new AppService(config);
+        const parsedConfig = JSON.parse(rawConfig);
+
+        // 2. Validate config using schema directly
+        const validConfig = yield* Schema.decode(ModelsConfigSchema)(parsedConfig).pipe(
+            Effect.mapError(cause => new ModelConfigError({
+                message: "Failed to validate model config",
+                cause: new EntityParseError({
+                    filePath: "models.json",
+                    cause
+                })
+            }))
+        );
+
+        // 3. Transform to domain model
+        const modelEntries = validConfig.models.map(
+            (model: ModelDefinition) => [model.id, model] as const
+        );
+        const modelsMap = HashMap.fromIterable(modelEntries);
+
+        // 4. Return typed service data
+        return new ModelConfigData({
+            models: modelsMap,
+            defaultModelName: validConfig.models[0]?.id ?? "missing-default"
+        });
     })
 );
 ``` 
