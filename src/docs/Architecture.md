@@ -1,97 +1,97 @@
 # Architecture: EffectiveAgent Framework
 
-**Version:** 1.1
-**Date:** 2024-07-29 *(Updated)*
+**Version:** 1.2 *(Updated 2024-07-30)*
 **Status:** Draft
 
 ## 1. Overview
 
-EffectiveAgent is a backend framework built with Effect-TS designed to accelerate the development of sophisticated, interactive AI agents ("digital collaborators"). It provides a structured approach, core services, and declarative primitives to manage complexity, reduce boilerplate, and enable developers to focus on agent capabilities. The architecture emphasizes type safety, composability, testability, and explicit dependency management through Effect's Layer system.
+EffectiveAgent is a backend framework built with Effect-TS designed to accelerate the development of sophisticated, adaptive, and interactive AI agents ("digital collaborators" or "autonomous agents"). It provides a structured approach, core services, and composable abstractions to manage complexity, reduce boilerplate, and enable developers to focus on agent capabilities and behavior.
+
+The architecture centers around **Character Actors** representing roles, which orchestrate task execution by launching **Workflow Executors** (Agent Instances). These executors run defined **Behaviors** (likely graphs, e.g., using LangGraph) and leverage foundational **Capabilities** (`Persona`, `Skill`, `Intelligence`). Capabilities are defined via schemas and managed by type-safe **Capability Services**. Communication often relies on asynchronous message passing, enabling reactive and potentially adaptive systems. The framework emphasizes type safety, composability, testability, explicit dependency management (Layers), and robust error handling native to Effect-TS.
 
 ## 2. Core Architectural Principles
 
-*   **Effect-TS Native:** Leverage Effect-TS for concurrency, error handling, resource management, and dependency injection (Layers/Context).
-*   **Modularity:** Services are organized into logical categories (`core`, `ai`, `capabilities`, etc.) and designed for loose coupling.
-*   **Declarative Primitives:** Core AI concepts (`Skill`, `Intelligence`, `Personality`) are defined declaratively in configuration files, separating definition from execution.
-*   **Service-Oriented:** Functionality is exposed through well-defined service interfaces (`XxxApi` Tags).
-*   **Implementation Hiding:** Service interfaces (`types.ts`) define the contract (`R = never` where possible), while implementations (`live.ts`) handle internal dependencies (like `FileSystem`, `RepositoryApi`). Layers encapsulate dependency wiring.
-*   **Explicit Dependencies:** Layers clearly state their requirements (`RIn`) and provisions (`ROut`). Composition (`Layer.provide`, `Layer.merge`, `Layer.build`) wires the dependency graph.
-*   **Typed Errors:** Use `Data.TaggedError` for specific, typed errors, enabling robust error handling via `Effect.catchTag`, etc.
-*   **Testability:** Prioritize testing live service implementations where feasible, using techniques like `Layer.build` or helpers with type assertions for reliable context provision in tests.
+*   **Effect-TS Native:** Leverage Effect-TS for concurrency (Fibers, structured concurrency), error handling (Tagged Errors, Cause), resource management (Scope), state management (Ref), asynchronous operations, and dependency injection (Layers/Context).
+*   **Actor Model for Orchestration:** Utilize the Actor model pattern (implemented with Effect primitives like Fiber, Queue, Ref) for `Character Actors` to manage role-specific state, handle user interactions, orchestrate workflows, and potentially adapt over time.
+*   **Graph-Based Workflows:** Employ graph execution frameworks (like LangGraph integrated with Effect) to define and run complex, stateful `Behaviors` within transient Workflow Executors (Agent Instances).
+*   **Composable Capabilities:** Define core agent abilities (`Persona`, `Skill`, `Intelligence`) via declarative schemas. Manage their validation (`make`) and modification (`update`) through dedicated, type-safe `Capability Services`.
+*   **Message-Driven Communication:** Facilitate communication (e.g., status updates, results, feedback) between Workflow Executors and their orchestrating Character Actors via asynchronous messages (potentially using Effect Queues or a dedicated messaging service).
+*   **Service-Oriented Core:** Expose foundational functionalities (persistence, static data loading, dynamic capability management, agent launching) through well-defined service interfaces (`XxxApi`, `XxxService`, `XxxData` Tags).
+*   **Explicit Dependencies & Configuration:** Use Layers for dependency injection. Utilize `effect/Config` for loading static configuration files (personas, skills, etc.), validated via Capability Services.
+*   **Typed Errors:** Employ `Data.TaggedError` for specific, typed errors across different domains (capability validation, agent execution, service interactions).
+*   **Testability:** Prioritize testing live service implementations where feasible, using techniques like `Layer.build` or test helpers for context provision. Test actor logic and graph execution independently.
+
+## 3. High-Level Structure (Conceptual)
+
+
 
 ## 3. High-Level Structure
 
 
-## 4. Core Primitives (Declarative Configuration)
+## 4. Core Primitives
 
-These represent the primary way developers configure agent behavior:
+*   **`Capability` (`Persona`, `Skill`, `Intelligence`):**
+    *   Represent foundational agent abilities (communication style, specific actions, reasoning configuration).
+    *   Defined via Effect Schemas (`schema.ts`).
+    *   Validated and updated via corresponding `Capability Services` (`PersonaService`, `SkillService`, `IntelligenceService`) using `make`/`update` methods.
+*   **`Character`:**
+    *   Represents a high-level agent role or archetype (e.g., "JuniorDeveloper").
+    *   Defined via an Effect Schema (`CharacterDefinitionSchema`), primarily composing capabilities by referencing their names (`personaName`, `skillNames`, etc.).
+    *   Managed dynamically by stateful **Character Actors**.
+    *   Validation (`Character.make`) includes checking the existence of referenced capabilities.
+*   **`Behavior`:**
+    *   Defines the workflow or process for accomplishing a specific high-level task (e.g., "implementNewFeature", "reviewCode").
+    *   Likely defined using a graph-based structure (e.g., LangGraph state graph definition).
+    *   Executed by Workflow Executors (Agent Instances).
 
-*   **`Skill`:** The main primitive for invoking AI capabilities. Defined in `skills.json`, specifies intent, associated `Prompt`, `Personality`, `Intelligence`, constraints, etc. Loaded by `SkillConfig` service. Executed via `SkillApi`.
-*   **`Intelligence`:** Defines cognitive processing requirements (e.g., model preferences, RAG needs, memory access). Defined in `intelligences.json`, loaded by `IntelligenceConfig` service. Used by `SkillApi` to select models/tools.
-*   **`Personality`:** Defines communication style, tone, output format constraints. Defined in `personas.json`, loaded by `PersonaConfig` service. Primarily influences system prompts used by `SkillApi`.
-*   **`Prompt`:** Named, reusable template definitions (using LiquidJS). Defined in `prompts.json`, loaded by `PromptConfig` service (providing `PromptConfigData` HashMap). Used by `PromptApi` for rendering.
+## 5. Core Services & Layers (Refined View)
 
-## 5. Core Services (Implemented/Refactored)
-
-*   **`core/loader` (`EntityLoaderApi`):**
-    *   Provides `loadEntity` (parses+validates) and `loadRawEntity` (parses only).
-    *   Depends on `FileSystem` (internally, via `EntityLoaderApiLiveLayer`).
-    *   Used by config services (`PromptConfig`, `SkillConfig`, etc.).
-*   **`core/logging` (`LoggingApi`):**
-    *   Facade for Effect's logging system.
-*   **`core/repository` (`RepositoryApi<TEntity>`):**
-    *   Generic CRUD interface.
-    *   In-memory implementation provided (`implementations/in-memory`). (Clock dependency deferred).
-*   **`core/file` (`FileApi`):**
-    *   API for storing/retrieving file blobs/metadata (DB-backed).
-    *   Handles Base64 conversion.
-    *   Depends on `RepositoryApi<FileEntity>`.
-*   **`core/attachment` (`AttachmentApi`):**
-    *   API for managing links between entities.
-    *   Depends on `RepositoryApi<AttachmentLinkEntity>`.
-*   **`core/tag` (`TagApi`):**
-    *   API for managing tags and links between tags and entities.
-    *   Depends on `RepositoryApi<TagEntity>` and `RepositoryApi<EntityTagLinkEntity>`. (Implementation/Testing parked).
-*   **`ai/prompt` (`PromptConfigData`, `PromptApi`):**
-    *   `PromptConfigLiveLayer`: Loads `prompts.json` via `EntityLoaderApi`, provides `HashMap` via `PromptConfig` Tag.
-    *   `PromptApiLiveLayer`: Uses `PromptConfigData` and `LiquidJS` to render templates.
+*   **Capability Services (`PersonaService`, `SkillService`, `IntelligenceService`):**
+    *   Provide `make` (validate definition) and `update` (validate modification) operations for their respective capability types.
+    *   Implement the generic `CapabilityService` interface pattern.
+    *   Provided via `Layer`s (e.g., `PersonaServiceLiveLayer`). Accessed via `Tags` (e.g., `PersonaServiceTag`).
+*   **Static Data Layers (`PersonaData`, `SkillData`, `IntelligenceData`, `CharacterData`):**
+    *   Load static definitions from configuration files (e.g., `personas.json`) using `effect/Config`.
+    *   Use the corresponding `CapabilityService.make` function for validation during loading.
+    *   Provide the validated data (typically as a `HashMap`) via `Context.Tag`s (e.g., `PersonaDataTag`).
+*   **Dynamic API Services (`PersonaApi`, `SkillApi`, `IntelligenceApi`, `CharacterApi`):**
+    *   Provide CRUD-like operations for managing *dynamic* capabilities or characters (if needed).
+    *   Depend on `RepositoryApi` for persistence and the corresponding `CapabilityService` for validation before saving.
+    *   Accessed via `Tags` (e.g., `PersonaApiTag`).
+*   **Runtime Services:**
+    *   **`AgentApi`:** Responsible for launching, managing, and potentially resuming Workflow Executors (Agent Instances/Graph Runners) based on requests from Character Actors.
+    *   **Messaging Service (Implicit/Explicit):** Facilitates message passing between Workflow Executors and Character Actors (could be direct `Queue` interactions managed by the AgentApi/CharacterActor or a dedicated `MessageBus` service).
+*   **Core Foundational Services:**
+    *   `RepositoryApi<T>`: Generic persistence interface.
+    *   `LoggingApi`: Facade for logging.
+    *   Platform Services (`FileSystem`, `Clock`, `HttpClient` via `BunContext`).
 
 ## 6. Key Technology Choices & Patterns
 
 *   **Runtime:** Bun
-*   **Language:** TypeScript (v5.x, strict, no `enum`/`namespace`)
+*   **Language:** TypeScript (v5.x, strict)
 *   **Core Framework:** Effect-TS (v3.14+)
-*   **Schema/Validation:** `@effect/schema` (for config files, entities)
-*   **Templating:** LiquidJS (`ai/prompt`)
-*   **Persistence (Prod):** PostgreSQL (Neon) - *(Deferred)*
-*   **Persistence (Dev/Test):** SQLite / In-Memory (`core/repository`)
-*   **ORM:** Drizzle ORM - *(Deferred)*
-*   **AI Interaction:** `@effect/ai` (using provider packages like `@effect/ai-openai`) - *(Integration pending in `SkillApi`)*
-*   **Agent Framework:** LangGraph - *(Integration planned but deferred)*
-*   **Testing:** Vitest (standard runner), `Effect.runPromise`/`Effect.runPromiseExit`, `Layer.build` or helpers w/ type assertions. Prioritize testing live implementations with appropriate test doubles (e.g., in-memory repo, `TestClock` via `TestContext` - *Clock integration deferred*).
-*   **Platform Services:** `@effect/platform-bun` (`BunContext.layer`) preferred for providing `FileSystem`, `Clock`, etc.
-*   **Service Definition:** `make` (sync or effectful) + `ReturnType`/`Effect.Success` for type inference + `Layer.effect`/`Layer.succeed`.
-*   **Dependency Injection:** `Layer.provide` for direct dependencies, `Layer.merge` for parallel services, `Layer.build` for robust test setup. Service implementations hide internal dependencies (`R=never` on API methods).
-*   **Error Handling:** `Data.TaggedError` for all custom errors.
+*   **Schema/Validation:** `Schema` module from `effect`.
+*   **Static Configuration:** `effect/Config` module.
+*   **Actor Implementation:** Effect primitives (`Fiber`, `Queue`, `Ref`, `Scope`) for `Character Actors`.
+*   **Workflow Execution:** LangGraph (integrated with Effect) for defining and running `Behaviors`.
+*   **AI Interaction:** `@effect/ai` (potentially supplemented with Vercel AI SDK wrappers).
+*   **Persistence:** In-Memory / PostgreSQL (Neon) via Drizzle ORM (deferred).
+*   **Service Definition:** `CapabilityService` pattern (`make`/`update`), standard `XxxApi` services, `Layer`s for DI.
+*   **Testing:** Vitest, Effect test helpers, testing actors and graphs.
 
-## 7. Current Status & Next Steps
+## 7. Current Status & Next Steps (Revised)
 
-*   **Phase 1 (Core Services):** Complete (Logging, Loader, Repository (generic + in-mem), File, Attachment implemented and tested. Tag implemented, testing parked. Clock integration deferred).
-*   **Phase 2 (AI/Capability Primitives Config):**
-    *   `ai/prompt`: Config loading and API implemented and tested.
-    *   `capabilities/intelligence`: Config service defined (pending testing).
-    *   `capabilities/persona`: Config service defined (pending testing).
-    *   `capabilities/skill`: Config service defined (pending testing).
-*   **Next:**
-    1.  Test remaining config services (`IntelligenceConfig`, `PersonaConfig`, `SkillConfig`).
-    2.  Implement `SkillApi` (Phase 3), integrating `PromptApi`, config services, and `@effect/ai`.
-    3.  Revisit `Clock` integration in `Repository`.
-    4.  Revisit `TagApi` testing.
+*   **Phase 1 (Core Services):** Foundational services (Logging, Repo, File, etc.) mostly complete. `EntityLoaderApi` to be replaced/refactored using `effect/Config`.
+*   **Phase 2 (Capability Definitions):** Define schemas, types, errors, and `CapabilityService` implementations for `Persona`, `Intelligence`, `Skill`. Implement static data loading layers using `effect/Config`.
+*   **Phase 3 (Character & Behavior):** Define schemas for `Character` and `Behavior`. Implement `CharacterActor` logic (state machine). Implement `AgentApi` service. Integrate LangGraph for basic behavior execution.
+*   **Phase 4 (Integration & Refinement):** Build end-to-end examples, refine APIs, implement dynamic capability/character management (`XxxApi` services), enhance error handling and observability.
 
 ## 8. Open Issues / Design Considerations
 
-*   Revisit `Clock` integration for accurate timestamps in `Repository`.
-*   Consider abstracting `core/file` under a generic `core/storage` API if other backends (S3) are needed.
-*   Refine error handling and mapping between service layers.
-*   Finalize testing strategy for services requiring platform context (confirm `Layer.build` or helper pattern stability).
-*   *(Vision)* Potential for visual workflow editor based on framework primitives.
+*   Finalize Actor state persistence strategy (`CharacterActor` state).
+*   Define specific message schemas for Agent -> Character communication.
+*   Refine error handling propagation between Graphs, Agents, and Character Actors.
+*   Detailed design for `AgentApi` (launching, resuming, managing executors).
+*   Integration details for LangGraph within Effect's runtime.
+*   Design for dynamic capability/character management APIs.
