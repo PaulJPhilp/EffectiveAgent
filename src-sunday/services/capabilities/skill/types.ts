@@ -8,7 +8,7 @@ import type { ConfigError } from "effect/ConfigError";
 import type { JsonObject, Id } from "../../types.js"; // Global types
 import type { LoggingApi } from "../../core/logging/types.js";
 // Import AI service types needed for R signature
-import type { ChatModel } from "@effect/ai"; // Assuming ChatModel is the Tag/Interface from @effect/ai root
+ // Assuming ChatModel is the Tag/Interface from @effect/ai root
 import type { HttpClient } from "@effect/platform";
 // Import Config dependencies needed by Configuration services
 import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
@@ -62,8 +62,7 @@ export interface SkillApi {
         // --- Requirements (R) ---
         SkillConfiguration | // To get the skill definition
         IntelligenceConfiguration | // To get intelligence profile
-        PersonaConfiguration | // To get persona def
-        ChatModel | // The underlying AI service from @effect/ai
+        PersonaConfiguration | // To get persona def// The underlying AI service from @effect/ai
         LoggingApi | // For logging
         HttpClient.HttpClient | // Needed by @effect/ai provider layers
         ConfigLoaderApi | FileSystem | Path | ConfigLoaderOptions // Needed by Config services

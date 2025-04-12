@@ -15,6 +15,6 @@ export class IntelligenceConfigError extends Data.TaggedError(
 	"IntelligenceConfigError",
 )<{
 	readonly message: string;
-	/** The underlying schema parsing/validation error. */
-	readonly cause: ParseError;
+	/** The underlying error (could be loading, parsing, etc.). */
+	readonly cause: unknown;
 }> { }
