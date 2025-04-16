@@ -3,64 +3,44 @@
  * @module services/ai/model/schema
  */
 
-import { Config, Schema } from "effect";
+import { Config, Schema as S } from "effect";
+import { PositiveNumber, Version, Name, ModelCapability, Identifier, ContextWindowSize, Description } from "@/schema.js";
 
-// === Primitive Schemas ===
-export const IdentifierSchema = Schema.String.pipe(Schema.minLength(1));
-export const ModelNameSchema = IdentifierSchema;
-export type ModelName = Schema.Schema.Type<typeof ModelNameSchema>;
-
-const VersionSchema = Schema.String.pipe(
-    Schema.pattern(/^\d+\.\d+\.\d+$/) // e.g., 0.1.0
-);
-
-const PositiveNumberSchema = Schema.Number.pipe(
-    Schema.greaterThanOrEqualTo(0)
-);
-
-// === Enum-like Schemas ===
-const ContextWindowSizeSchema = Schema.Literal("small", "medium", "large");
-
-export const ModelCapabilitySchema = Schema.Literal(
-    "text-generation", "chat", "function-calling", "vision", "reasoning",
-    "code-generation", "audio", "image-generation", "embeddings", "tool-use"
-);
-
-// === Nested Object Schemas ===
-const RateLimitSchema = Schema.Struct({
-    requestsPerMinute: PositiveNumberSchema.pipe(Schema.optional),
-    tokensPerMinute: PositiveNumberSchema.pipe(Schema.optional)
+const RateLimitSchema = S.Struct({
+    requestsPerMinute: PositiveNumber.pipe(S.optional),
+    tokensPerMinute: PositiveNumber.pipe(S.optional)
 });
 
-const MetadataSchema = Schema.Struct({
-    description: Schema.String.pipe(Schema.optional)
+const MetadataSchema = S.Struct({
+    description: S.String.pipe(S.optional)
 });
 
 // === Main Model Definition Schema ===
-export const ModelDefinitionSchema = Schema.Struct({
-    id: IdentifierSchema,
-    name: IdentifierSchema,
-    version: VersionSchema,
-    provider: IdentifierSchema,
-    modelName: IdentifierSchema,
-    temperature: Schema.Number.pipe(Schema.optional),
-    maxTokens: PositiveNumberSchema.pipe(Schema.optional),
-    contextWindowSize: ContextWindowSizeSchema,
-    costPer1kInputTokens: PositiveNumberSchema,
-    costPer1kOutputTokens: PositiveNumberSchema,
-    capabilities: Schema.Array(ModelCapabilitySchema).pipe(Schema.minItems(1)),
-    metadata: MetadataSchema.pipe(Schema.optional),
-    rateLimit: RateLimitSchema.pipe(Schema.optional)
-});
+export class Model extends S.Class<Model>(
+    "ModelDefinition"
+)({
+    id: Identifier,
+    name: Identifier,
+    version: Version,
+    provider: Identifier,
+    modelName: Identifier,
+    temperature: S.Number.pipe(S.optional),
+    maxTokens: PositiveNumber.pipe(S.optional),
+    contextWindowSize: ContextWindowSize.pipe(S.optional),
+    costPer1kInputTokens: PositiveNumber.pipe(S.optional),
+    costPer1kOutputTokens: PositiveNumber.pipe(S.optional),
+    capabilities: S.Array(ModelCapability).pipe(S.minItems(1)),
+    metadata: MetadataSchema.pipe(S.optional),
+    rateLimit: RateLimitSchema.pipe(S.optional)
+}) {}
 
-export type ModelDefinition = Schema.Schema.Type<typeof ModelDefinitionSchema>;
+export type ModelDefinition = S.Schema.Type<typeof Model>;
 
 // === Root Configuration File Schema ===
-export const ModelsConfigFileSchema = Schema.Struct({
-    name: Schema.String,
-    version: VersionSchema,
-    models: Schema.Array(ModelDefinitionSchema).pipe(Schema.minItems(1))
-});
-
-export type ModelsConfigFile = Schema.Schema.Type<typeof ModelsConfigFileSchema>;
+export class ModelFile extends S.Class<ModelFile>("ModelsFile")({
+    name: Name,
+    description: Description.pipe(S.optional),
+    version: Version,
+    models: S.Array(Model).pipe(S.minItems(1))
+}) {}
 

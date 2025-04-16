@@ -41,3 +41,5 @@ export type EntityId = string;
  * since the Unix epoch. Consistent with `Clock.currentTimeMillis`.
  */
 export type Timestamp = number;
+
+export type Tuple<T1, T2> = [T1, T2];

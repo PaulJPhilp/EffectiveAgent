@@ -20,31 +20,6 @@ export type NamespaceName = string;
 export type OrgName = string;
 export type FullToolName = string; // e.g., "calculator", "science/calculator", "3M/science/calculator"
 
-const Pokemon = Schema.Struct({
-    id: Schema.Number,
-    order: Schema.Number,
-    name: Schema.String,
-    height: Schema.Number,
-    weight: Schema.Number,
-});
-
-export interface PokeApi {
-    readonly getPokemon: Effect.Effect<
-        typeof Pokemon.Type,
-        ParseResult.ParseError
-    >;
-}
-
-export class PokeApiService extends Effect.Service<PokeApi>()("app/PokeApiService", {
-    effect: Effect.gen(function* () {
-        return {
-            getPokemon: Effect.gen(function* () {
-                return {id: 1, order: 1, name: "Bulbasaur", height: 1, weight: 1} as typeof Pokemon.Type;
-            }),
-        } as const;
-    })
-}) { }
-
 const Metadata = Schema.Record({ key: Schema.String, value: Schema.Any });
 type Metadata = typeof Metadata.Type;
 

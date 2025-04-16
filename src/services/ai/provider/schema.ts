@@ -4,83 +4,25 @@
  * @module services/ai/provider/schema
  */
 
-import { Schema } from "effect"; // Correct: Import from 'effect'
-import { IdentifierSchema, ModelCapabilitySchema } from "../model/schema.js";
+import { Schema as S } from "effect"; // Correct: Import from 'effect'
+import {  Name, RateLimit } from "@/schema.js"; // Correct: Adjust path as necessary
 
-/**
- * Schema for the unique name/identifier of an AI provider.
- * Must be at least 3 characters long.
- */
-export const ProviderNameSchema = Schema.String.pipe(Schema.minLength(3));
-export type ProviderName = Schema.Schema.Type<typeof ProviderNameSchema>;
-
-/**
- * Schema representing a positive integer.
- */
-const PositiveIntSchema = Schema.Number.pipe(
-    Schema.int(), // Correct: Schema.int() exists
-    Schema.greaterThan(0), // Correct: Use greaterThan(0)
-);
-
-/**
- * Schema for the core structure of rate limit information.
- */
-const RateLimitStructSchema = Schema.Struct({
-    // Correct: Pass Schema.optional reference when no options
-    requestsPerMinute: PositiveIntSchema.pipe(Schema.optional),
-    // Correct: Pass Schema.optional reference when no options
-    tokensPerMinute: PositiveIntSchema.pipe(Schema.optional),
-});
 
 /**
  * Schema for a single AI Provider configuration entry.
  */
-export const ProviderDefinitionSchema = Schema.Struct({
-    name: ProviderNameSchema,
-    displayName: Schema.String.pipe(Schema.minLength(1)),
-    type: Schema.String.pipe(Schema.minLength(1)),
-    apiKeyEnvVar: Schema.String.pipe(Schema.minLength(1), Schema.optional),
-    baseUrl: Schema.String.pipe(Schema.optional),
-    rateLimit: RateLimitStructSchema.pipe(Schema.optional),
-});
-export type ProviderDefinition = Schema.Schema.Type<
-    typeof ProviderDefinitionSchema
->;
+export class Provider extends S.Class<Provider>("Provider")({
+    name: Name,
+    displayName: Name,
+    type: S.String.pipe(S.minLength(1)),
+    apiKeyEnvVar: S.String.pipe(S.minLength(1), S.optional),
+    baseUrl: S.String.pipe(S.optional),
+    rateLimit: RateLimit.pipe(S.optional),
+}) {}
 
 // Define the input type before the filter
-const ProvidersConfigFileInputSchema = Schema.Struct({
-    providers: Schema.Array(ProviderDefinitionSchema).pipe(Schema.minItems(1)),
-    defaultProviderName: ProviderNameSchema,
-});
-
-/**
- * Schema for the root configuration file (e.g., providers.json).
- * Contains an array of provider definitions and the default provider name.
- */
-export const ProvidersConfigFileSchema = ProvidersConfigFileInputSchema.pipe(
-    Schema.filter(
-        // Filter function without type predicate
-        (data) => data.providers.some((p) => p.name === data.defaultProviderName),
-        {
-            // Static message function to avoid type inference issues
-            message: () =>
-                "defaultProviderName must match the name of one provider in the providers array",
-            identifier: "DefaultProviderExists",
-        },
-    ),
-);
-
-/**
- * Type inferred from {@link ProvidersConfigFileSchema}.
- * Represents the structure of the providers configuration file after validation.
- */
-export type ProvidersConfigFile = Schema.Schema.Type<
-    typeof ProvidersConfigFileSchema
->;
-
-export const ModelDefinitionSchema = Schema.Struct({
-    id: IdentifierSchema,
-    provider: IdentifierSchema,  // <-- Links to provider
-    capabilities: Schema.Array(ModelCapabilitySchema),
-    // ... other model-specific configs
-});
+export class ProviderFile extends S.Class<ProviderFile>("ProviderFile")({
+    providers: S.Array(Provider).pipe(S.minItems(1)),
+    defaultProviderName: Name.pipe(S.optional),
+    defaultModelName: Name.pipe(S.optional),
+}) {}

@@ -12,6 +12,5 @@ import { Data } from "effect";
  */
 export class ProviderConfigError extends Data.TaggedError("ProviderConfigError")<{
     readonly message: string;
-    /** The underlying error from schema parsing or config loading. */
     readonly cause?: ParseError | Error;
 }> { }

@@ -2,31 +2,20 @@
  * @file Defines Effect schemas for Prompt definitions and configurations.
  */
 
-import { Schema } from "effect";
-
-// Define the schema for the metadata record using the correct pattern
-const MetadataRecordSchema = Schema.Record({
-    key: Schema.String,
-    value: Schema.Unknown
-});
+import { Metadata, Name } from "@/schema.js";
+import { Schema as S } from "effect";
 
 // Schema for a single named Prompt Definition structure
 // Export this directly if needed elsewhere
-export const PromptDefinitionSchema = Schema.Struct({
-    name: Schema.String.pipe(Schema.minLength(1)),
-    description: Schema.optional(Schema.String),
-    template: Schema.String.pipe(Schema.minLength(1)),
-    metadata: Schema.optional(MetadataRecordSchema)
-});
-
-// Inferred type for a single prompt definition
-export type PromptDefinition = Schema.Schema.Type<typeof PromptDefinitionSchema>;
+export class Prompt extends S.Class<Prompt>("Prompt")({
+    name: Name,
+    description: S.optional(S.String),
+    template: S.String.pipe(S.minLength(1)),
+    metadata: S.optional(Metadata)
+}) { }
 
 // Schema for the root configuration file structure
 // Export this directly - this is what PromptConfigLiveLayer will validate against
-export const PromptsConfigFileSchema = Schema.Struct({
-    prompts: Schema.Array(PromptDefinitionSchema).pipe(Schema.minItems(1))
+export const PromptsFile = S.Struct({
+    prompts: S.Array(Prompt).pipe(S.minItems(1))
 });
-
-// Inferred type for the structure of the configuration file
-export type PromptsConfigFile = Schema.Schema.Type<typeof PromptsConfigFileSchema>;
