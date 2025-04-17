@@ -1,6 +1,6 @@
 import * as S from "effect/Schema";
 import { Effect, Ref } from "effect";
-import { Name } from "@/schema.js";
+import { Description, Name } from "@/schema.js";
 
 export class Tool extends S.Class<Tool>("Tool")({
 	"description": S.optionalWith(S.String, { nullable: true }),
@@ -23,7 +23,7 @@ export class Toolbox extends S.Class<Toolbox>("ToolboxSchema")({
 }) { }
 
 export class WorkbenchFile extends S.Class<WorkbenchFile>("WorkbenchFile")({
-	"description": S.optionalWith(S.String, { nullable: true }),
+	"description": Description,
 	"name": Name,
 	"toolboxes": S.Array(Toolbox)
 }) { }

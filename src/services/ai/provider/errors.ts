@@ -14,3 +14,11 @@ export class ProviderConfigError extends Data.TaggedError("ProviderConfigError")
     readonly message: string;
     readonly cause?: ParseError | Error;
 }> { }
+
+// Define ProviderNotFoundError if not already defined elsewhere
+export class ProviderNotFoundError extends Error {
+    constructor(filePath: string) {
+        super(`Provider file not found: ${filePath}`);
+        this.name = "ProviderNotFoundError";
+    }
+}

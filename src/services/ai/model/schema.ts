@@ -17,7 +17,7 @@ const MetadataSchema = S.Struct({
 
 // === Main Model Definition Schema ===
 export class Model extends S.Class<Model>(
-    "ModelDefinition"
+    "Model"
 )({
     id: Identifier,
     name: Identifier,

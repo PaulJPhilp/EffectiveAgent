@@ -1,5 +1,5 @@
 
-import { Config, ConfigProvider, Effect, Ref, Schema as S, Schema } from "effect";
+import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
 import { Toolbox, Tool, WorkbenchFile } from "./schema.js";
 import { ProviderConfigError } from "../ai/provider/errors.js";
 import { EntityParseError } from "../core/errors.js";

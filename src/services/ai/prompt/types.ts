@@ -4,7 +4,7 @@
  */
 
 import type { JsonObject } from "@/types.js";
-import type { PromptDefinition } from "@services/ai/prompt/schema.js"; // Use path alias
+import type { Prompt } from "@services/ai/prompt/schema.js"; // Use path alias
 // EntityLoaderApi is needed by PromptConfigLiveLayer defined in live.ts
 import { Context, Effect, HashMap } from "effect";
 import { TemplateNotFoundError } from "./errors.js";
@@ -15,7 +15,7 @@ import { RenderingError } from "./errors.js";
 // --- Service Data Type ---
 
 /** The data structure holding loaded prompt definitions. */
-export type PromptConfigData = HashMap.HashMap<string, PromptDefinition>;
+export type PromptConfigData = HashMap.HashMap<string, Prompt>;
 
 // --- Service API Type (Inferred) ---
 

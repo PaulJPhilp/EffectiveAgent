@@ -7,7 +7,7 @@ import { Effect, Exit, Layer, Scope, Cause, Option, Context } from "effect";
 import { describe, it, expect } from "vitest";
 
 // Service under test
-import { IntelligenceServiceLiveLayer } from "../live.js";
+import { IntelligenceServiceLiveLayer } from "../service.js";
 import { IntelligenceService, IntelligenceServiceTag } from "../types.js";
 import type { IntelligenceDefinition } from "../types.js";
 import { IntelligenceConfigError } from "../errors.js";
