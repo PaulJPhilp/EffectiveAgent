@@ -1,12 +1,8 @@
 import {
-    EmbeddingModelV1,
-    ImageModelV1,
     LanguageModelV1,
-    ProviderV1,
-    SpeechModelV1,
-    TranscriptionModelV1,
+    ProviderV1
 } from '@ai-sdk/provider';
-import { Context, Effect, Layer, Ref } from 'effect';
+import { Effect } from 'effect';
 import { ModelConfigError } from './errors.js';
 
 export interface ModelClientApi {
