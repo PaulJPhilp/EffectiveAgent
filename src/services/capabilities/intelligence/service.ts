@@ -1,42 +1,61 @@
 /**
- * @file Implements the live Layer for the Intelligence capability service.
- * @module services/capabilities/intelligence/live
+ * @file Defines types and the Context Tag for the AI Intelligence configuration data.
+ * @module services/ai/Intelligence/types
  */
 
-import { Layer } from "effect";
-// Correct import path for ParseError
-import type { ParseError } from "effect/ParseResult";
-import {
-	makeCapabilityMake,
-	makeCapabilityUpdate,
-} from "@/services/capabilities/helpers.js"; // Adjust path if needed
-import {
-	IntelligenceDefinitionSchema,
-	// IntelligenceDefinitionInputSchema // Assuming InputSchema is same as DefinitionSchema for now
-} from "./schema.js";
-import { IntelligenceService, IntelligenceServiceTag } from "./types.js"; // Import interface and Tag
+// Import Schema, Context, Data, HashMap from 'effect'
+import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
+// Import types derived from schemas using 'import type'
+import { IntelligenceFile } from "./schema.js";
+import { EntityParseError } from "@/services/core/errors.js";
 import { IntelligenceConfigError } from "./errors.js";
 
-// Error wrapper specific to Intelligence configuration validation
-const wrapIntelligenceError = (cause: ParseError): IntelligenceConfigError =>
-	new IntelligenceConfigError({
-		message: "Intelligence validation failed",
-		cause,
-	});
+export class IntelligenceService extends Effect.Service<IntelligenceService>()("IntelligenceService", {
+	effect: Effect.gen(function* () {
+		let IntelligenceRef: Ref.Ref<IntelligenceFile>;
 
-// Implementation of IntelligenceService using generic helpers
-export const IntelligenceServiceLiveLayer = Layer.succeed(
-	IntelligenceServiceTag,
-	// Provide a plain object literal that implements the IntelligenceService interface
-	{
-		make: makeCapabilityMake(
-			IntelligenceDefinitionSchema,
-			wrapIntelligenceError,
-		),
-		update: makeCapabilityUpdate(
-			IntelligenceDefinitionSchema,
-			wrapIntelligenceError,
-		),
-		// Implement any other IntelligenceService specific methods here if needed in the future
-	} satisfies IntelligenceService, // Use 'satisfies' for type checking
-);
+		return {
+			load: () => {
+				return Effect.gen(function* () {
+					const configIntelligence = yield* ConfigProvider.ConfigProvider;
+					const rawConfig = yield* configIntelligence.load(Config.string("intelligence")).pipe(
+						Effect.mapError(cause => new IntelligenceConfigError({
+							message: "Failed to load model config",
+							cause: new EntityParseError({
+								filePath: "models.json",
+								cause
+							})
+						}))
+					);
+
+					const parsedConfig = Effect.try({
+						try: () => JSON.parse(rawConfig),
+						catch: (error) => {
+							throw new IntelligenceConfigError({
+								message: "Failed to parse model config",
+								cause: new EntityParseError({
+									filePath: "models.json",
+									cause: error
+								})
+							});
+						}
+					});
+
+					const data = yield* parsedConfig
+					const validConfig = yield* S.decode(IntelligenceFile)(data).pipe(
+						Effect.mapError(cause => new IntelligenceConfigError({
+							message: "Failed to validate model config",
+							cause: new EntityParseError({
+								filePath: "models.json",
+								cause
+							})
+						}))
+					);
+
+					IntelligenceRef = yield* Ref.make<IntelligenceFile>(validConfig);
+					return yield* IntelligenceRef.get;
+				})
+			}
+		}
+	})
+}) { }

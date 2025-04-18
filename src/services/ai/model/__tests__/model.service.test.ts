@@ -1,8 +1,8 @@
 import { Effect, Ref } from "effect";
 import { beforeEach, describe, expect, it } from "vitest";
-import { ModelService } from "./service.js";
+import { ModelService } from "../service.js";
 import { b } from "vitest/dist/suite-dWqIFb_-.js";
-import { ModelConfigError } from "./errors.js";
+import { ModelConfigError } from "../errors.js";
 import { EntityLoadError } from "@/services/core/errors.js";
 
 interface Model {

@@ -4,8 +4,7 @@
  */
 
 import { Data } from "effect";
-// Correct import path for ParseError
-import type { ParseError } from "effect/ParseResult";
+
 
 /**
  * Represents an error occurring during the validation or update

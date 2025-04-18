@@ -3,6 +3,7 @@
  * @module services/capabilities/persona/schema
  */
 
+import { Description, Metadata, Name, Version } from "@/schema.js";
 import { Schema } from "effect";
 
 // Define allowed values for enum-like fields
@@ -16,69 +17,45 @@ const AllowedTones = Schema.Literal(
 const AllowedVerbosity = Schema.Literal("concise", "normal", "verbose");
 const AllowedOutputFormat = Schema.Literal("text", "markdown", "json");
 
-// Schema for a single example dialogue pair
-const ExampleDialogueSchema = Schema.Struct({
+/**
+ * Schema.Class for a single example dialogue pair
+ */
+export class ExampleDialogue extends Schema.Class<ExampleDialogue>("ExampleDialogue")({
 	request: Schema.String,
 	response: Schema.String,
-});
+}) { }
 
 /**
- * Schema for the core definition of a Persona.
+ * Schema.Class for the core definition of a Persona.
  * Used both for static files and potentially dynamic entities (minus base fields).
  */
-export const PersonaDefinitionSchema = Schema.Struct({
+export class Persona extends Schema.Class<Persona>("Persona")({
 	/** Unique identifier for the persona. */
 	name: Schema.String.pipe(Schema.minLength(1)),
 	/** Optional user-friendly description. */
-	description: Schema.String.pipe(Schema.optional), // Optional, no default call needed
+	description: Schema.String.pipe(Schema.optional),
 	/** Core instructions defining the persona's behavior and style. */
 	instructions: Schema.String.pipe(Schema.minLength(1)),
 	/** Optional tone specification. */
-	tone: AllowedTones.pipe(Schema.optional), // Optional, no default call needed
+	tone: AllowedTones.pipe(Schema.optional),
 	/** Optional verbosity specification. */
-	verbosity: AllowedVerbosity.pipe(Schema.optional), // Optional, no default call needed
+	verbosity: AllowedVerbosity.pipe(Schema.optional),
 	/** Optional output format specification. */
-	outputFormat: AllowedOutputFormat.pipe(Schema.optional), // Optional, no default call needed
+	outputFormat: AllowedOutputFormat.pipe(Schema.optional),
 	/** Optional few-shot examples. */
-	exampleDialogues: Schema.Array(ExampleDialogueSchema).pipe(Schema.optional), // Optional, no default call needed
-});
+	exampleDialogues: Schema.Array(ExampleDialogue).pipe(Schema.optional),
+}) { }
 
 /**
- * Type inferred from {@link PersonaDefinitionSchema}.
- * Represents the validated data structure for a persona definition.
- */
-export type PersonaDefinition = Schema.Schema.Type<
-	typeof PersonaDefinitionSchema
->;
-
-/**
- * Schema for the input data used when creating or updating a Persona.
- * Often similar to the DefinitionSchema but might differ slightly (e.g., for updates).
- * For now, let's assume it's the same as the definition for simplicity.
- * We can refine this if update logic requires different input structure.
- */
-export const PersonaDefinitionInputSchema = PersonaDefinitionSchema; // Alias for now
-
-/**
- * Type inferred from {@link PersonaDefinitionInputSchema}.
- * Represents the expected input structure for creating/updating personas.
- */
-export type PersonaDefinitionInput = Schema.Schema.Type<
-	typeof PersonaDefinitionInputSchema
->;
-
-/**
- * Schema for the static configuration file (e.g., personas.json).
+ * Schema.Class for the static configuration file (e.g., personas.json).
  * Contains an array of persona definitions.
  */
-export const PersonasConfigFileSchema = Schema.Struct({
-	personas: Schema.Array(PersonaDefinitionSchema).pipe(Schema.minItems(1)),
-});
-
-/**
- * Type inferred from {@link PersonasConfigFileSchema}.
- * Represents the structure of the personas configuration file after validation.
- */
-export type PersonasConfigFile = Schema.Schema.Type<
-	typeof PersonasConfigFileSchema
->;
+export class PersonasFile extends Schema.Class<PersonasFile>("PersonasFile")({
+	name: Name,
+	description: Description.pipe(Schema.optional),
+	personas: Schema.Array(Persona).pipe(Schema.minItems(1)),
+	/** Optional metadata for the configuration file. */
+	metadata: Metadata.pipe(Schema.optional),
+	/** Optional versioning information for the configuration file. */
+	version: Version.pipe(Schema.optional),
+}) { }

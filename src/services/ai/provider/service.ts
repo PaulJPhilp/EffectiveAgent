@@ -12,10 +12,13 @@ import { EntityParseError } from "@/services/core/errors.js";
 
 import { ProviderConfigError } from "./errors.js";
 
+import { ProviderClient, ProviderClientApi } from "./client.js";
+
 
 export class ProviderService extends Effect.Service<ProviderService>()("ProviderService", {
     effect: Effect.gen(function* () {
         let providerRef: Ref.Ref<ProviderFile>;
+        let providerClientRef: Ref.Ref<ProviderClientApi>;
 
         return {
             load: () => {
@@ -59,8 +62,10 @@ export class ProviderService extends Effect.Service<ProviderService>()("Provider
                     providerRef = yield* Ref.make<ProviderFile>(validConfig);
                     return validConfig;
                 })
+            },
+            getClient: () => {
+                //return providerClientRef.get;
             }
         }
     })
-}) {
-}
+}) { }
