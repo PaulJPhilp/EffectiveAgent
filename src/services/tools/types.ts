@@ -4,8 +4,6 @@
  */
 
 import { Context, Data, Effect, HashMap, ParseResult, Schema } from "effect";
-// Import the schema definition type
-import type { ToolDefinition, SimpleToolName } from "./schema.js";
 // Import error types that might be used in service signatures or implementation types
 import type {
     ToolExecutionError,
@@ -13,7 +11,8 @@ import type {
     ToolNotFoundError,
     ToolOutputValidationError,
 } from "./errors.js"; // Adjust path if errors are defined elsewhere
-import { HttpClient } from "@effect/platform/HttpClient";
+// Import the schema definition type
+import type { SimpleToolName, ToolDefinition } from "./schema.js";
 
 // --- Naming and Implementation Types ---
 export type NamespaceName = string;
@@ -47,19 +46,14 @@ export interface EffectiveToolApi {
 }
 
 export class EffectiveToolService extends Effect.Service<EffectiveToolApi>()("app/EffectiveToolService", {
-    effect: Effect.gen(function* () {
-        return {
-            execute: (input: unknown, toolMetadata: Metadata) => Effect.gen(function* () {
-                return {definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {}} as typeof EffectiveTool.Type;
-            }),
-            succeed: (input: unknown, toolMetadata: Metadata) => Effect.gen(function* () {
-                return {definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {}} as typeof EffectiveTool.Type;
-            }),
-            fail: (input: unknown, toolMetadata: Metadata) => Effect.gen(function* () {
-                return {definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {}} as typeof EffectiveTool.Type;
-            }),
-        } as const;
-    }),
+    effect: Effect.succeed({
+        execute: (input: unknown, toolMetadata: Metadata) =>
+            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as typeof EffectiveTool.Type),
+        succeed: (input: unknown, toolMetadata: Metadata) =>
+            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as typeof EffectiveTool.Type),
+        fail: (input: unknown, toolMetadata: Metadata) =>
+            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as typeof EffectiveTool.Type),
+    })
 }) { }
 
 

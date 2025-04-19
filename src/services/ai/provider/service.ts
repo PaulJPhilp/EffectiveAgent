@@ -1,71 +1,113 @@
 /**
- * @file Defines types and the Context Tag for the AI Provider configuration data.
- * @module services/ai/provider/types
+ * @file Defines the ProviderService for loading, validating, and accessing AI provider configurations and clients.
+ * @module services/ai/provider/service
  */
 
-// Import Schema, Context, Data, HashMap from 'effect'
-import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
-// Import types derived from schemas using 'import type'
-import { ProviderFile } from "./schema.js";
-
 import { EntityParseError } from "@/services/core/errors.js";
-
-import { ProviderConfigError } from "./errors.js";
-
+import { Config, ConfigProvider, Context, Effect, Option, Ref, Schema as S } from "effect";
 import { ProviderClient, ProviderClientApi } from "./client.js";
+import { ProviderConfigError } from "./errors.js";
+import { AnthropicProviderClientLayer } from "./implementations/anthropic.js";
+import { DeepseekProviderClientLayer } from "./implementations/deepseek.js";
+import { GoogleProviderClientLayer } from "./implementations/google.js";
+import { OpenAIProviderClientLayer } from "./implementations/openai.js";
+import { xAiProviderClientLayerAi } from "./implementations/xai.js";
+import { ProviderFile, ProvidersType } from "./schema.js";
 
+// --- Service Type Definition ---
+export interface ProviderServiceType {
+    readonly load: () => Effect.Effect<ProviderFile, ProviderConfigError, ConfigProvider.ConfigProvider>;
+    readonly getProviderClient: (providerName: ProvidersType) => Effect.Effect<ProviderClientApi, ProviderConfigError, never>;
+}
 
-export class ProviderService extends Effect.Service<ProviderService>()("ProviderService", {
+/**
+ * ProviderService is an Effect service for managing AI provider configuration and clients.
+ * Using ProviderServiceType interface for definition.
+ */
+export class ProviderService extends Effect.Service<ProviderServiceType>()("ProviderService", {
+    /**
+     * Original nested effect structure.
+     */
     effect: Effect.gen(function* () {
-        let providerRef: Ref.Ref<ProviderFile>;
-        let providerClientRef: Ref.Ref<ProviderClientApi>;
+        // Original Ref declarations (still potentially problematic for caching here)
+        let providerRef = yield* Ref.make<Option.Option<ProviderFile>>(Option.none());
+        let providerClientRef = yield* Ref.make<Option.Option<ProviderClientApi>>(Option.none());
 
+        // Return the implementation matching ProviderServiceType
         return {
-            load: () => {
+            load: (): Effect.Effect<ProviderFile, ProviderConfigError, ConfigProvider.ConfigProvider> => {
+                // Original structure without explicit caching logic shown
                 return Effect.gen(function* () {
                     const configProvider = yield* ConfigProvider.ConfigProvider;
                     const rawConfig = yield* configProvider.load(Config.string("provider")).pipe(
                         Effect.mapError(cause => new ProviderConfigError({
                             message: "Failed to load model config",
-                            cause: new EntityParseError({
-                                filePath: "models.json",
-                                cause
-                            })
+                            cause: new EntityParseError({ filePath: "models.json", cause })
                         }))
                     );
 
-                    const parsedConfig = Effect.try({
+                    // Use Effect.try correctly: catch returns the mapped error
+                    const parsedData = yield* Effect.try({
                         try: () => JSON.parse(rawConfig),
-                        catch: (error) => {
-                            throw new ProviderConfigError({
-                                message: "Failed to parse model config",
-                                cause: new EntityParseError({
-                                    filePath: "models.json",
-                                    cause: error
-                                })
-                            });
-                        }
+                        catch: (error) => new ProviderConfigError({ // Return error here
+                            message: "Failed to parse model config",
+                            cause: new EntityParseError({
+                                filePath: "models.json",
+                                cause: error instanceof Error ? error : new Error(String(error)) // Ensure cause is Error
+                            })
+                        })
                     });
 
-                    // 2. Load and validate config using the schema directly
-                    const data = yield* parsedConfig
-                    const validConfig = yield* S.decode(ProviderFile)(data).pipe(
+                    // Decode the parsed data directly
+                    const validConfig = yield* S.decode(ProviderFile)(parsedData).pipe(
                         Effect.mapError(cause => new ProviderConfigError({
                             message: "Failed to validate model config",
-                            cause: new EntityParseError({
-                                filePath: "models.json",
-                                cause
-                            })
+                            cause: new EntityParseError({ filePath: "models.json", cause })
                         }))
                     );
 
-                    providerRef = yield* Ref.make<ProviderFile>(validConfig);
+                    // Original: Did not explicitly use/set Ref here
+                    // yield* Ref.set(providerRef, Option.some(validConfig));
+
                     return validConfig;
-                })
+                });
             },
-            getClient: () => {
-                //return providerClientRef.get;
+            getProviderClient: (providerName: ProvidersType): Effect.Effect<ProviderClientApi, ProviderConfigError, never> => {
+                const providerLayerMap: Record<string, any> = {
+                    openai: OpenAIProviderClientLayer,
+                    anthropic: AnthropicProviderClientLayer,
+                    google: GoogleProviderClientLayer,
+                    deepseek: DeepseekProviderClientLayer,
+                    xai: xAiProviderClientLayerAi,
+                };
+                // Define the inner effect generation
+                const effectGen = Effect.gen(function* () {
+                    const layer = providerLayerMap[providerName];
+                    if (!layer) {
+                        return yield* Effect.fail(new ProviderConfigError({
+                            message: `No ProviderClient layer found for provider: ${providerName}`
+                        }));
+                    }
+                    const providerClient = yield* ProviderClient.pipe(Effect.provide(layer));
+                    return providerClient;
+                });
+
+                // Pipe mapError to ensure the correct error type
+                return effectGen.pipe(
+                    Effect.mapError((error): ProviderConfigError => {
+                        if (error instanceof ProviderConfigError) {
+                            return error;
+                        }
+                        // Defensively handle other potential errors
+                        return new ProviderConfigError({
+                            message: "Unexpected error retrieving provider client",
+                            cause: error instanceof Error ? error : new Error(String(error))
+                        });
+                    }),
+                    // Explicitly provide empty context to satisfy R = never
+                    Effect.provide(Context.empty())
+                ) as Effect.Effect<ProviderClientApi, ProviderConfigError, never>;
             }
-        }
+        } satisfies ProviderServiceType;
     })
 }) { }

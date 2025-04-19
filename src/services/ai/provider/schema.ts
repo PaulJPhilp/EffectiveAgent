@@ -4,20 +4,24 @@
  * @module services/ai/provider/schema
  */
 
-import { Description, Name, RateLimit } from "@/schema.js"; // Correct: Adjust path as necessary
+import { Description, Name, RateLimit, Url } from "@/schema.js"; // Correct: Adjust path as necessary
 import * as S from "effect/Schema";
 
 
-/**`
+
+export const Providers = S.Literal("openai", "anthropic", "google", "xai", "perplexity", "groq", "deepseek", "openrouter");
+export type ProvidersType = typeof Providers.Type;
+
+/**
  * Schema for a single AI Provider configuration entry.
  */
 export class Provider extends S.Class<Provider>("Provider")({
-    name: Name,
+    name: Providers,
     displayName: Name,
     type: S.String.pipe(S.minLength(1)),
-    apiKeyEnvVar: S.String.pipe(S.minLength(1), S.optional),
-    baseUrl: S.String.pipe(S.optional),
-    rateLimit: RateLimit.pipe(S.optional),
+    apiKeyEnvVar: S.optional(S.String.pipe(S.minLength(1))),
+    baseUrl: S.optional(Url),
+    rateLimit: S.optional(RateLimit),
 }) { }
 
 export class ProviderFile extends S.Class<ProviderFile>("ProviderFile")({

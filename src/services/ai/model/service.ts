@@ -5,20 +5,25 @@
 
 import { ModelCapability } from "@/schema.js";
 import { EntityParseError } from "@/services/core/errors.js";
+import { AiModel } from "@effect/ai";
 // Import Schema, Context, Data, HashMap from 'effect'
 import { Config, ConfigProvider, Context, Effect, Ref, Schema as S } from "effect";
 import { ModelClient, ModelClientApi } from "./client.js";
 import { ModelConfigError } from "./errors.js";
 // Import types derived from schemas using 'import type'
 import { Model, ModelFile } from "./schema.js";
+import { LanguageModelV1 } from "@ai-sdk/provider";
 
 export class ModelService extends Effect.Service<ModelService>()("ModelService", {
     succeed: Effect.gen(function* () {
         let modelRef: Ref.Ref<ModelFile>;
-        // Access ModelClient from Effect context (required dependency)
-        const modelClient = ModelClient;
+
 
         return {
+            /**
+             * Loads the model configuration from the config provider and validates it against the schema.
+             * @returns An Effect resolving to the loaded and validated ModelFile.
+             */
             load: () => {
                 return Effect.gen(function* () {
                     const configProvider = yield* ConfigProvider.ConfigProvider;
@@ -114,39 +119,7 @@ export class ModelService extends Effect.Service<ModelService>()("ModelService",
                             cause
                         })
                     )
-                ),
-
-            /**
-             * Returns an AiModel instance for a given modelId.
-             * Looks up the model config and wires up the ModelClient for invocation.
-             */
-            getAiModel: (modelId: string) =>
-                Effect.gen(function* () {
-                    const modelFile = yield* modelRef.get;
-                    const modelConfig = modelFile.models.find((m) => m.id === modelId);
-                    if (!modelConfig) {
-                        return yield* Effect.fail(new ModelConfigError({
-                            message: `Model with id '${modelId}' not found`,
-                            cause: new EntityParseError({
-                                filePath: "models.json",
-                                cause: new Error(`Model with id '${modelId}' not found`)
-                            })
-                        }));
-                    }
-                    const modelClient = yield* ModelClient;
-                    // Construct a minimal AiModel abstraction
-                    const aiModel = {
-                        id: modelConfig.id,
-                        name: modelConfig.name,
-                        provider: modelConfig.provider,
-                        modelName: modelConfig.modelName,
-                        capabilities: modelConfig.capabilities,
-                        invoke: (prompt: string) => modelClient.completion(modelConfig, prompt)
-                        // Add more methods as needed (chat, embedding, etc.)
-                    };
-                    return aiModel;
-                })
+                )
         }
-    }),
-    dependencies: [ModelClient], // Add ModelClient as a dependency
+    })
 }) { }

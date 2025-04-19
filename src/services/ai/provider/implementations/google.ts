@@ -1,41 +1,44 @@
-import { Effect, Layer, Context } from "effect";
-import { google } from "@ai-sdk/Google";
-import { EmbeddingModelV1, ImageModelV1, LanguageModelV1, ProviderV1, TranscriptionModelV1 } from "@ai-sdk/provider";
-import {ProviderClient, type ProviderClientApi } from "../client.js"
+/**
+ * @file Provides the Effect Layer for the Google AI provider client implementation.
+ * @module services/ai/provider/implementations/google
+ */
+import { Effect, Layer } from "effect";
+import { ProviderClient, createProvider } from "../client.js";
 import { ProviderNotFoundError } from "../errors.js";
+import { ProvidersType } from "../schema.js";
 
-function callGoogleLanguageModel() {
-    if (google.languageModel === undefined) {
-        return new ProviderNotFoundError("Language model not found");
-    }
-    return google.languageModel;
-}
-function callGoogleTextEmbeddingModel() {
-    if (google.textEmbeddingModel === undefined) {
-        return new ProviderNotFoundError("Text embedding model not found");
-    }
-    return google.textEmbeddingModel;
-}
-function callGoogleTranscriptionModel() {
-    if (google.transcriptionModel === undefined) {
-        return new ProviderNotFoundError("Transcription model not found");
-    }
-    return google.transcriptionModel;
-}
-function callGoogleImageModel() {
-    if (google.imageModel === undefined) {
-        return new ProviderNotFoundError("Image model not found");
-    }
-    // Replace "image-model-id" with the actual ID of the image model you want to use
-    return google.imageModel;
-}  
-
-export const GoogleProviderApi: ProviderClientApi = {
-    languageModel: () => callGoogleLanguageModel(),
-    textEmbeddingModel: () => callGoogleTextEmbeddingModel(),
-    speechModel: () => new ProviderNotFoundError("Speech model not found"), // Google does not implement this
-    transcriptionModel: () => callGoogleTranscriptionModel(),
-    imageModel: () => callGoogleImageModel(),
-};
-
-const program = Effect.sync(() => GoogleProviderApi.languageModel())
+/**
+ * GoogleProviderClientLayer is an Effect Layer that provides a ProviderClient implementation for the Google provider.
+ *
+ * - Overrides setVercelProvider to initialize the Google client when the provider is 'google'.
+ * - Delegates all other ProviderClientApi methods to the default implementation.
+ */
+export const GoogleProviderClientLayer = Layer.effect(
+    ProviderClient,
+    Effect.gen(function* () {
+        // Get the default ProviderClient implementation from the environment
+        const defaultClient = yield* ProviderClient;
+        // Return a new implementation that overrides setVercelProvider only
+        return {
+            setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => {
+                return Effect.gen(function* () {
+                    if (provider === "google") {
+                        const googleProvider = yield* createProvider(provider, apiKeyEnvVar);
+                        return googleProvider;
+                    } else {
+                        return yield* Effect.fail(new ProviderNotFoundError("Provider not found"));
+                    }
+                });
+            },
+            // Delegate all other methods to the default implementation
+            generateText: defaultClient.generateText,
+            streamText: defaultClient.streamText,
+            generateObject: defaultClient.generateObject,
+            streamObject: defaultClient.streamObject,
+            generateSpeech: defaultClient.generateSpeech,
+            generateImage: defaultClient.generateImage,
+            transcribe: defaultClient.transcribe,
+            embedding: defaultClient.embedding,
+        };
+    })
+);

@@ -1,45 +1,46 @@
-import { Effect, Layer, Context } from "effect";
-import { openai } from "@ai-sdk/openai";
-import { EmbeddingModelV1, ImageModelV1, LanguageModelV1, ProviderV1, TranscriptionModelV1 } from "@ai-sdk/provider";
-import {ProviderClient, type ProviderClientApi } from "../client.js"
+/**
+ * @file Provides the Effect Layer for the OpenAI provider client implementation.
+ * @module services/ai/provider/implementations/openai
+ */
+
+import { Effect, Layer } from "effect";
+import { ProviderClient, createProvider } from "../client.js";
 import { ProviderNotFoundError } from "../errors.js";
+import { ProvidersType } from "../schema.js";
 
-export const ProviderClientApiTag = Context.Tag("ProviderClientApi");
-import { open } from "fs";
-import { m } from "vitest/dist/reporters-w_64AS5f.js";
-
-function callOpenAILanguageModel() {
-    if (openai.languageModel === undefined) {
-        return new ProviderNotFoundError("Language model not found");
-    }
-    return openai.languageModel;
-}
-function callOpenAITextEmbeddingModel() {
-    if (openai.textEmbeddingModel === undefined) {
-        return new ProviderNotFoundError("Text embedding model not found");
-    }
-    return openai.textEmbeddingModel;
-}
-function callOpenAITranscriptionModel() {
-    if (openai.transcriptionModel === undefined) {
-        return new ProviderNotFoundError("Transcription model not found");
-    }
-    return openai.transcriptionModel;
-}
-function callOpenAIImageModel() {
-    if (openai.imageModel === undefined) {
-        return new ProviderNotFoundError("Image model not found");
-    }
-    // Replace "image-model-id" with the actual ID of the image model you want to use
-    return openai.imageModel;
-}  
-
-export const OpenAIProviderApi: ProviderClientApi = {
-    languageModel: () => callOpenAILanguageModel(),
-    textEmbeddingModel: () => callOpenAITextEmbeddingModel(),
-    speechModel: () => new ProviderNotFoundError("Speech model not found"), // OpenAI does not implement this
-    transcriptionModel: () => callOpenAITranscriptionModel(),
-    imageModel: () => callOpenAIImageModel(),
-};
-
-const program = Effect.sync(() => OpenAIProviderApi.languageModel())
+/**
+ * OpenAIProviderClientLayer is an Effect Layer that provides a ProviderClient implementation for the OpenAI provider.
+ *
+ * - Overrides setVercelProvider to initialize the OpenAI client when the provider is 'openai'.
+ * - Delegates all other ProviderClientApi methods to the default implementation.
+ */
+export const OpenAIProviderClientLayer = Layer.effect(
+    ProviderClient,
+    Effect.gen(function* () {
+        // Get the default ProviderClient implementation from the environment
+        const defaultClient = yield* ProviderClient;
+        // Return a new implementation that overrides setVercelProvider only
+        return {
+            setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => {
+                return Effect.gen(function* () {
+                    if (provider === "openai") {
+                        const openaiProvider = yield* createProvider(provider, apiKeyEnvVar);
+                        return openaiProvider;
+                    } else {
+                        // Explicitly return never to satisfy the type system
+                        return yield* Effect.fail(new ProviderNotFoundError("Provider not found"));
+                    }
+                });
+            },
+            // Delegate all other methods to the default implementation
+            generateText: defaultClient.generateText,
+            streamText: defaultClient.streamText,
+            generateObject: defaultClient.generateObject,
+            streamObject: defaultClient.streamObject,
+            generateSpeech: defaultClient.generateSpeech,
+            generateImage: defaultClient.generateImage,
+            transcribe: defaultClient.transcribe,
+            embedding: defaultClient.embedding,
+        };
+    })
+);

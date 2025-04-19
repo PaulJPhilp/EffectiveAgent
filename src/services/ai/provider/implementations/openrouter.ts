@@ -1,6 +1,6 @@
 /**
- * @file Provides the Effect Layer for the Anthropic AI provider client implementation.
- * @module services/ai/provider/implementations/anthropic
+ * @file Provides the Effect Layer for the OpenRouter AI provider client implementation.
+ * @module services/ai/provider/implementations/openrouter
  */
 
 import { Effect, Layer } from "effect";
@@ -9,29 +9,26 @@ import { ProviderNotFoundError } from "../errors.js";
 import { ProvidersType } from "../schema.js";
 
 /**
- * AnthropicProviderClientLayer is an Effect Layer that provides a ProviderClient implementation for the Anthropic provider.
+ * OpenRouterProviderClientLayer is an Effect Layer that provides a ProviderClient implementation for the OpenRouter provider.
  *
- * - Overrides setVercelProvider to initialize the Anthropic client when the provider is 'anthropic'.
+ * - Overrides setVercelProvider to initialize the OpenRouter client when the provider is 'openrouter'.
  * - Delegates all other ProviderClientApi methods to the default implementation.
  */
-export const AnthropicProviderClientLayer = Layer.effect(
+export const OpenRouterProviderClientLayer = Layer.effect(
     ProviderClient,
     Effect.gen(function* () {
-        // Get the default ProviderClient implementation from the environment
         const defaultClient = yield* ProviderClient;
-        // Return a new implementation that overrides setVercelProvider only
         return {
             setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => {
                 return Effect.gen(function* () {
-                    if (provider === "anthropic") {
-                        const anthropicProvider = yield* createProvider(provider, apiKeyEnvVar);
-                        return anthropicProvider;
+                    if (provider === "openrouter") {
+                        const openrouterProvider = yield* createProvider(provider, apiKeyEnvVar);
+                        return openrouterProvider;
                     } else {
                         return yield* Effect.fail(new ProviderNotFoundError("Provider not found"));
                     }
                 });
             },
-            // Delegate all other methods to the default implementation
             generateText: defaultClient.generateText,
             streamText: defaultClient.streamText,
             generateObject: defaultClient.generateObject,

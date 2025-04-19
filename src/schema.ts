@@ -41,3 +41,5 @@ export class RateLimit extends S.Class<RateLimit>("RateLimit")({
     requestsPerMinute: PositiveInt.pipe(S.optional),
     tokensPerMinute: PositiveInt.pipe(S.optional),
 }) {}
+
+export const Url = S.String.pipe(S.pattern(/^https?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!$&'()*+,;=.]+$/));

@@ -1,20 +1,19 @@
 /**
- * @file Provides the Effect Layer for the Anthropic AI provider client implementation.
- * @module services/ai/provider/implementations/anthropic
+ * @file Provides the Effect Layer for the xAI provider client implementation.
+ * @module services/ai/provider/implementations/xai
  */
-
 import { Effect, Layer } from "effect";
 import { ProviderClient, createProvider } from "../client.js";
 import { ProviderNotFoundError } from "../errors.js";
 import { ProvidersType } from "../schema.js";
 
 /**
- * AnthropicProviderClientLayer is an Effect Layer that provides a ProviderClient implementation for the Anthropic provider.
+ * xAiProviderClientLayerAi is an Effect Layer that provides a ProviderClient implementation for the xAI provider.
  *
- * - Overrides setVercelProvider to initialize the Anthropic client when the provider is 'anthropic'.
+ * - Overrides setVercelProvider to initialize the xAI client when the provider is 'xai'.
  * - Delegates all other ProviderClientApi methods to the default implementation.
  */
-export const AnthropicProviderClientLayer = Layer.effect(
+export const xAiProviderClientLayerAi = Layer.effect(
     ProviderClient,
     Effect.gen(function* () {
         // Get the default ProviderClient implementation from the environment
@@ -23,9 +22,9 @@ export const AnthropicProviderClientLayer = Layer.effect(
         return {
             setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => {
                 return Effect.gen(function* () {
-                    if (provider === "anthropic") {
-                        const anthropicProvider = yield* createProvider(provider, apiKeyEnvVar);
-                        return anthropicProvider;
+                    if (provider === "xai") {
+                        const xaiProvider = yield* createProvider(provider, apiKeyEnvVar);
+                        return xaiProvider;
                     } else {
                         return yield* Effect.fail(new ProviderNotFoundError("Provider not found"));
                     }

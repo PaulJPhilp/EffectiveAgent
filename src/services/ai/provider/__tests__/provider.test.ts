@@ -21,7 +21,13 @@ const validProviderConfig = {
     ]
 };
 
+/**
+ * Test suite for the ProviderService implementation.
+ */
 describe("ProviderService", () => {
+    /**
+     * Layer providing a valid provider configuration for testing.
+     */
     const validConfigLayer = Layer.succeed(
         ConfigProvider.ConfigProvider,
         ConfigProvider.fromMap(new Map([
@@ -29,7 +35,13 @@ describe("ProviderService", () => {
         ]))
     );
 
+    /**
+     * Tests that the provider config loads and validates successfully.
+     */
     it("should load and validate provider config successfully", async () => {
+        /**
+         * Effect that loads the provider config and checks its properties.
+         */
         const effect = Effect.gen(function* () {
             const service = yield* ProviderService;
             const loaded = yield* service.load();
@@ -44,13 +56,22 @@ describe("ProviderService", () => {
         await Effect.runPromise(provided);
     });
 
+    /**
+     * Tests that loading an invalid JSON config fails with ProviderConfigError.
+     */
     it("should fail with ProviderConfigError if config is invalid JSON", async () => {
+        /**
+         * Layer providing an invalid JSON string for the provider config.
+         */
         const invalidJsonLayer = Layer.succeed(
             ConfigProvider.ConfigProvider,
             ConfigProvider.fromMap(new Map([
                 ["provider", "not a json"]
             ]))
         );
+        /**
+         * Effect that attempts to load the provider config and expects failure.
+         */
         const effect = Effect.gen(function* () {
             const service = yield* ProviderService;
             return yield* service.load();
@@ -65,7 +86,13 @@ describe("ProviderService", () => {
         expect(Option.isSome(defect)).toBe(false);
     });
 
+    /**
+     * Tests that loading a config that fails schema validation throws ProviderConfigError.
+     */
     it("should fail with ProviderConfigError if config fails schema validation", async () => {
+        /**
+         * Layer providing a config that fails schema validation.
+         */
         const invalidSchemaLayer = Layer.succeed(
             ConfigProvider.ConfigProvider,
             ConfigProvider.fromMap(new Map([
@@ -74,6 +101,9 @@ describe("ProviderService", () => {
                 })]
             ]))
         );
+        /**
+         * Effect that attempts to load the provider config and expects schema validation failure.
+         */
         const effect = Effect.gen(function* () {
             const service = yield* ProviderService;
             return yield* service.load();
