@@ -3,29 +3,29 @@
  * @module services/capabilities/skill/types
  */
 
-import { Context, Data, Effect, HashMap, Layer, Schema } from "effect"; // Added Data
 import type { CapabilityService } from "@/services/capabilities/types.js"; // Generic service interface
+import { Context, Data, Effect, HashMap, Layer, Schema } from "effect"; // Added Data
 // Import all specific skill errors
 import type {
 	SkillConfigError,
 	SkillExecutionError,
-	SkillNotFoundError,
 	SkillInputValidationError,
+	SkillNotFoundError,
 	SkillOutputValidationError
 } from "./errors.js";
 import type {
-	SkillDefinitionSchema,
 	SkillDefinitionInputSchema,
-	SkillsConfigFileSchema,
+	SkillDefinitionSchema,
 	SkillExecutionParamsSchema,
+	SkillsConfigFileSchema,
 } from "./schema.js"; // Import schemas
 
+import type { PromptApi, PromptApiTag } from "@/services/ai/prompt/types"; // Adjust path
+import type { IntelligenceData, IntelligenceDataTag } from "@/services/capabilities/intelligence/types"; // Adjust path
 // Import types needed for SkillApi requirements (R channel)
 import type { PersonaData, PersonaDataTag } from "@/services/capabilities/persona/types"; // Adjust path
-import type { IntelligenceData, IntelligenceDataTag } from "@/services/capabilities/intelligence/types"; // Adjust path
-import type { PromptApi, PromptApiTag } from "@/services/ai/prompt/types"; // Adjust path
-import type { ToolExecutorService, ToolExecutorServiceTag } from "@/services/tools/types"; // Adjust path
 import type { LoggingApi, LoggingApiTag } from "@/services/core/logging/types"; // Adjust path
+import type { ToolExecutorService, ToolExecutorServiceTag } from "@/services/tools/types"; // Adjust path
 // Import Config if needed for API keys etc.
 // import type { Config } from "effect";
 // Import specific @effect/ai provider layers/tags if needed directly

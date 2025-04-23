@@ -3,100 +3,121 @@
  * @module services/ai/provider/client
  */
 
-import { createAnthropic } from '@ai-sdk/anthropic';
-import { createDeepSeek } from '@ai-sdk/deepseek';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-import { createGroq } from '@ai-sdk/groq';
-import { createOpenAI } from '@ai-sdk/openai';
-import { createPerplexity } from '@ai-sdk/perplexity';
+import { ModelCapability } from '@/schema.js';
+import { JsonValue } from '@/types.js';
+import { AnthropicProvider, AnthropicProviderSettings, createAnthropic } from '@ai-sdk/anthropic';
+import { DeepSeekProvider, DeepSeekProviderSettings, createDeepSeek } from '@ai-sdk/deepseek';
+import { GoogleGenerativeAIProvider, GoogleGenerativeAIProviderSettings, createGoogleGenerativeAI } from '@ai-sdk/google';
+import { GroqProvider, GroqProviderSettings, createGroq } from '@ai-sdk/groq';
+import { OpenAIProvider, OpenAIProviderSettings, createOpenAI } from '@ai-sdk/openai';
+import { OpenAICompatibleProvider } from "@ai-sdk/openai-compatible";
+import { PerplexityProvider, PerplexityProviderSettings, createPerplexity } from '@ai-sdk/perplexity';
 import { LanguageModelV1, ProviderV1 } from '@ai-sdk/provider';
-import { createXai } from '@ai-sdk/xai';
-import { OpenRouterProvider, createOpenRouter } from '@openrouter/ai-sdk-provider';
+import { XaiProvider, XaiProviderSettings, createXai } from '@ai-sdk/xai';
+import { OpenRouterProvider } from '@openrouter/ai-sdk-provider';
 import {
-    experimental_generateImage as generateImage,
+    CoreMessage,
+    CoreUserMessage,
+    DataContent,
     generateObject,
-    experimental_generateSpeech as generateSpeech,
     generateText,
     streamObject,
-    streamText,
-    experimental_transcribe as transcribe
+    streamText
 } from 'ai';
-import { Effect } from 'effect';
-import { ProviderMissingApiKeyError, ProviderNotFoundError } from './errors.js';
+import { Effect, Layer } from 'effect';
+import { ProviderMissingApiKeyError, ProviderMissingCapabilityError, ProviderNotFoundError } from './errors.js';
 import { ProvidersType } from './schema.js';
+import { ChatOptions, ChatResult, EffectiveProviderApi, EffectiveProviderSettings, GenerateEmbeddingsResult, GenerateImageResult, GenerateObjectResult, GenerateSpeechResult, GenerateTextOptions, GenerateTextResult, StreamTextOptions, StreamingObjectResult, StreamingTextResult, TranscribeResult } from './types.js';
 
-import { type DataContent } from 'ai';
 
 /**
- * ProviderClientApi defines the interface for interacting with AI provider APIs.
- *
- * Methods include:
- * - setVercelProvider: Sets and initializes the provider client for a given provider and API key.
- * - generateText: Generates text using a language model.
- * - streamText: Streams text from a language model.
- * - generateObject: Generates an object using a language model.
- * - streamObject: Streams an object from a language model.
- * - generateSpeech: Generates speech from text using a speech model.
- * - generateImage: Generates an image from a prompt using an image model.
- * - transcribe: Transcribes audio using a transcription model.
- * - embedding: Generates embeddings from text using an embedding model.
+ * Core provider client API interface that all providers must implement.
+ * Methods are specifically typed to match capabilities and return types.
  */
 export interface ProviderClientApi {
     /**
-     * Sets and initializes the provider client for the given provider and API key.
-     * @param provider - The provider name (e.g., 'openai', 'anthropic').
-     * @param apiKeyEnvVar - The environment variable containing the API key.
-     * @returns Effect yielding the initialized provider client or an error.
+     * Generate text completion from a prompt
      */
-    setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => Effect.Effect<ProviderV1 | OpenRouterProvider, ProviderNotFoundError | ProviderMissingApiKeyError>;
+    generateText(options: GenerateTextOptions): Effect.Effect<GenerateTextResult, Error>
+
     /**
-     * Generates text using the specified language model and prompt.
-     * @param modelId - The model identifier.
-     * @param prompt - The prompt to generate text from.
+     * Stream text completion from a prompt
      */
-    generateText: (modelId: string, prompt: string) => LanguageModelV1;
+    streamText(options: StreamTextOptions): Effect.Effect<StreamingTextResult, Error>
+
     /**
-     * Streams text from the specified language model and prompt.
-     * @param modelId - The model identifier.
-     * @param prompt - The prompt to stream text from.
+     * Generate a structured object based on a schema
      */
-    streamText: (modelId: string, prompt: string) => ProviderV1["languageModel"];
+    generateObject<T>(options: GenerateTextOptions & { schema: unknown }): Effect.Effect<GenerateObjectResult<T>, Error>
+
     /**
-     * Generates an object using the specified language model and prompt.
-     * @param modelId - The model identifier.
-     * @param prompt - The prompt to generate the object from.
+     * Stream a structured object based on a schema
      */
-    generateObject: (modelId: string, prompt: string) => ProviderV1["textEmbeddingModel"];
+    streamObject<T>(options: StreamTextOptions & { schema: unknown }): Effect.Effect<StreamingObjectResult<T>, Error>
+
     /**
-     * Streams an object from the specified language model and prompt.
-     * @param modelId - The model identifier.
-     * @param prompt - The prompt to stream the object from.
+     * Generate chat completion from messages
      */
-    streamObject: (modelId: string, prompt: string) => ProviderV1["textEmbeddingModel"];
+    chat(options: ChatOptions): Effect.Effect<ChatResult, Error>
+
     /**
-     * Generates speech from text using the specified speech model.
-     * @param modelId - The model identifier.
-     * @param prompt - The text to convert to speech.
+     * Generate embeddings for one or more texts
      */
-    generateSpeech: (modelId: string, prompt: string) => ProviderV1["speechModel"];
+    generateEmbeddings(texts: string[], options?: {
+        model?: string
+        batchSize?: number
+    }): Effect.Effect<GenerateEmbeddingsResult, Error>
+
     /**
-     * Generates an image from a prompt using the specified image model.
-     * @param modelId - The model identifier.
-     * @param prompt - The prompt to generate the image from.
+     * Generate images from a text prompt
      */
-    generateImage: (modelId: string, prompt: string) => ProviderV1["imageModel"];
+    generateImage(prompt: string, options?: {
+        model?: string
+        size?: string
+        quality?: string
+        style?: string
+        n?: number
+    }): Effect.Effect<GenerateImageResult, Error>
+
     /**
-     * Transcribes audio using the specified transcription model.
-     * @param modelId - The model identifier.
-     * @param prompt - The audio content to transcribe.
+     * Generate speech from text
      */
-    transcribe: (modelId: string, prompt: string) => ProviderV1["transcriptionModel"];
+    generateSpeech(text: string, options?: {
+        model?: string
+        voice?: string
+        speed?: string
+        pitch?: string
+        language?: string
+    }): Effect.Effect<GenerateSpeechResult, Error>
+
     /**
-     * Generates embeddings from text using the specified embedding model.
-     * @param modelId - The model identifier.
-     * @param prompt - The text to embed.
+     * Transcribe speech to text
      */
-    embedding: (modelId: string, prompt: string) => ProviderV1["textEmbeddingModel"];
+    transcribe(audioData: string | Uint8Array, options?: {
+        model?: string
+        language?: string
+        diarization?: boolean
+        timestamps?: boolean
+        quality?: string
+    }): Effect.Effect<TranscribeResult, Error>
+
+    /**
+     * Generate embeddings for one or more texts
+     */
+    generateEmbeddings(texts: string[], options?: {
+        model?: string
+        batchSize?: number
+    }): Effect.Effect<GenerateEmbeddingsResult, Error>
+
+    /**
+     * Get the capabilities supported by this provider
+     */
+    getCapabilities(): Set<ModelCapability>
+
+    /**
+     * Get the available models for this provider
+     */
+    getModels(): Effect.Effect<LanguageModelV1[], Error>
 }
 
 // Explicitly type as Tag<ProviderClientApi>
@@ -106,191 +127,452 @@ export interface ProviderClientApi {
  * This type is used internally by the ProviderClient service to abstract over
  * different provider client implementations (e.g., OpenAI, Anthropic, Google, etc.).
  */
-type VercelProvider = ProviderV1 | OpenRouterProvider;
+type VercelProvider = OpenAICompatibleProvider | OpenRouterProvider;
 
 /**
- * ProviderClient is an Effect service for interacting with AI provider APIs.
- *
- * Provides methods to set the provider client and perform various AI operations (text, image, speech, etc.).
+ * Helper function to determine provider capabilities based on available methods
  */
-export class ProviderClient extends Effect.Service<ProviderClientApi>()(
-    "ProviderClient",
-    {
-        effect: Effect.gen(function* () {
-            // Create a ref to hold the provider client
-            let vercelProvider: VercelProvider | undefined
-            return {
+function getProviderCapabilities(provider: OpenAIProvider | AnthropicProvider | GoogleGenerativeAIProvider | XaiProvider | PerplexityProvider | GroqProvider | DeepSeekProvider): Set<ModelCapability> {
+    const capabilities = new Set<ModelCapability>();
 
-                setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => {
-                    return Effect.gen(function* () {
-                        if (vercelProvider) {
-                            return vercelProvider;
-                        }
-                        vercelProvider = yield* createProvider(provider, apiKeyEnvVar);
+    // Check for text generation capability
+    if (typeof provider.languageModel === "function") {
+        capabilities.add("text-generation");
+    }
+
+    // Check for chat capability based on provider type
+    if ("chat" in provider && typeof provider.chat === "function") {
+        capabilities.add("chat");
+    }
+
+    // Check for image generation capability
+    if (typeof provider.imageModel === "function") {
+        capabilities.add("image-generation");
+    }
+
+    // Check for audio capabilities
+    if (typeof provider.speechModel === "function") {
+        capabilities.add("audio");
+    }
+    if (typeof provider.transcriptionModel === "function") {
+        capabilities.add("audio");
+    }
+
+    // Check for embeddings capability
+    if (typeof provider.textEmbeddingModel === "function") {
+        capabilities.add("embeddings");
+    }
+
+    return capabilities;
+}
+
+/**
+ * Helper function to check if a provider has a specific capability
+ */
+function hasCapability(provider: EffectiveProviderApi, capability: ModelCapability): boolean {
+    return provider.capabilities.has(capability);
+}
+
+/**
+ * ProviderClient is a Context.Tag that provides access to the ProviderClientApi implementation.
+ */
+export class ProviderClient extends Effect.Service<ProviderClientApi>()("ProviderClient", {
+    effect: Effect.gen(function* () {
+        let vercelProvider: EffectiveProviderApi | undefined;
+        let providerName: ProvidersType;
+
+        return {
+            /**
+             * Initializes and sets the provider client for a given provider and API key.
+             * @param provider - The provider name (e.g., 'openai', 'anthropic')
+             * @param apiKeyEnvVar - The environment variable containing the API key
+             * @returns Effect yielding the initialized provider client or an error
+             */
+            setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => {
+                return Effect.gen(function* () {
+                    if (vercelProvider) {
                         return vercelProvider;
-                    });
-                },
-
-                generateText: (modelId: string, prompt: string) => {
-                    if (vercelProvider) {
-                        const model = vercelProvider.languageModel(modelId);
-                        return generateText({
-                            model: model,
-                            prompt: prompt
-                        });
-                    } else {
-                        return Effect.fail(new ProviderNotFoundError("Model is not a language model"));
                     }
-                },
-                streamText: (modelId: string, prompt: string) => {
-                    if (vercelProvider) {
-                        const model = vercelProvider.languageModel(modelId);
-                        return streamText({
-                            model: model,
-                            prompt: prompt
-                        });
-                    } else {
-                        return Effect.fail(new ProviderNotFoundError("Model is not a language model"));
-                    }
+                    providerName = provider;
+                    const settings = createProviderSettings(provider, apiKeyEnvVar);
+                    vercelProvider = yield* createProvider(provider, settings);
+                    return vercelProvider;
+                });
+            },
 
-                },
-                generateObject: (modelId: string, prompt: string) => {
+            /**
+             * Gets the current provider name.
+             * @returns The name of the currently set provider
+             */
+            getProviderName: () => {
+                return providerName;
+            },
 
-                    if (vercelProvider) {
-                        const model = vercelProvider.languageModel(modelId);
-                        return generateObject({
-                            model: model,
-                            prompt: prompt,
-                            output: "no-schema"
-                        });
-                    } else {
-                        return Effect.fail(new ProviderNotFoundError("Model is not a language model"));
-                    }
-                },
-                streamObject: (modelId: string, prompt: string) => {
-                    if (vercelProvider) {
-                        const model = vercelProvider.languageModel(modelId);
-                        return streamObject({
-                            model: model,
-                            prompt: prompt,
-                            output: "no-schema"
-                        });
-                    } else {
-                        return Effect.fail(new ProviderNotFoundError("Model is not a language model"));
-                    }
-                },
-                generateSpeech: (modelId: string, prompt: string) => {
-                    if (vercelProvider) {
-                        if ('isOpenRouter' in vercelProvider) {
-                            return Effect.fail(new ProviderNotFoundError("OpenRouter does not support speech generation"));
-                        }
+            /**
+             * Generates text using a language model.
+             * @param options - The options for text generation
+             * @returns Effect yielding the generated text or an error
+             * @returns ProviderNotFoundError if provider is not initialized
+             * @returns ProviderMissingCapability if provider doesn't support text generation
+             */
+            generateText: async (options: GenerateTextOptions) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "text-generation")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "text-generation" }));
+                }
+                return generateText(options);
+            },
 
-                        const provider = vercelProvider as ProviderV1;
-                        if (provider.speechModel === undefined) {
-                            return Effect.fail(new ProviderNotFoundError("Speech model not found"));
-                        }
-                        const model = provider.speechModel(modelId);
-                        return generateSpeech({
-                            model: model,
-                            text: prompt
-                        });
-                    } else {
-                        return Effect.fail(new ProviderNotFoundError("Model is not a language model"));
-                    }
-                },
+            /**
+             * Streams text using a language model.
+             * @param options - The options for text streaming
+             * @returns Effect yielding the generated text or an error
+             * @returns ProviderNotFoundError if provider is not initialized
+             * @returns ProviderMissingCapability if provider doesn't support text streaming
+             */
+            streamText: async (options: StreamTextOptions) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "text-generation")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "text-generation" }));
+                }
+                return streamText(options);
+            },
 
-                generateImage: (modelId: string, prompt: string) => {
+            /**
+             * Generates a chat response using a language model.
+             * @param options - The options for chat generation
+             * @returns Effect yielding the generated response or an error
+             * @returns ProviderNotFoundError if provider is not initialized
+             * @returns ProviderMissingCapability if provider doesn't support chat
+             */
+            chat: async (options: ChatOptions) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "chat")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "chat" }));
+                }
+                const model = vercelProvider.provider.languageModel(options.modelId);
 
-                    if (vercelProvider) {
-                        if ('isOpenRouter' in vercelProvider) {
-                            return Effect.fail(new ProviderNotFoundError("OpenRouter does not support image generation"));
-                        }
+                const chatMessages: CoreUserMessage[] = options.messages.map(msg => ({
+                    role: msg.role,
+                    content: msg.content
+                })).filter(msg => msg.role !== "tool" && msg.role !== "system" && msg.role !== "assistant") as CoreUserMessage[];
 
-                        const provider = vercelProvider as ProviderV1;
-                        if (provider.imageModel === undefined) {
-                            return Effect.fail(new ProviderNotFoundError("Image model not found"));
-                        }
-                        const model = provider.imageModel(modelId);
-                        return generateImage({
-                            model: model,
-                            prompt: prompt
-                        });
-                    } else {
-                        return Effect.fail(new ProviderNotFoundError("Model is not a language model"));
-                    }
-                },
-                transcribe: (modelId: string, audio: DataContent) => {
-                    if (vercelProvider) {
-                        if ('isOpenRouter' in vercelProvider) {
-                            return Effect.fail(new ProviderNotFoundError("OpenRouter does not support image generation"));
-                        }
+                return generateText({
+                    model,
+                    messages: chatMessages
+                });
+            },
 
-                        const provider = vercelProvider as ProviderV1;
-                        if (provider.transcriptionModel === undefined) {
-                            return Effect.fail(new ProviderNotFoundError("Transcription model not found"));
-                        }
-                        const model = provider.transcriptionModel(modelId);
-                        return transcribe({
-                            model,
-                            audio
-                        });
-                    } else {
-                        return Effect.fail(new ProviderNotFoundError("Model is not a language model"));
-                    }
-                },
-                embedding: (modelId: string, values: string[]) => {
-                    if (vercelProvider) {
-                        if ('isOpenRouter' in vercelProvider) {
-                            return Effect.fail(new ProviderNotFoundError("OpenRouter does not support embedding generation"));
-                        }
+            /**
+             * Generates an object using the specified language model and prompt.
+             * @param modelId - The model identifier.
+             * @param prompt - The prompt to generate the object from.
+             */
+            generateObject: async (modelId: string, prompt: string) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "text-generation")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "text-generation" }));
+                }
+                const model = vercelProvider.provider.languageModel(modelId);
+                return generateObject({
+                    model: model,
+                    prompt: prompt,
+                    output: "no-schema"
+                });
+            },
 
-                        const provider = vercelProvider as ProviderV1;
-                        if (provider.textEmbeddingModel === undefined) {
-                            return Effect.fail(new ProviderNotFoundError("Embedding model not found"));
-                        }
-                        const model = provider.textEmbeddingModel(modelId);
-                        return model.doEmbed({
-                            values: values
-                        });
-                    } else {
-                        return Effect.fail(new ProviderNotFoundError("Model is not a language model"));
-                    }
-                },
+            /**
+             * Streams a structured object from a language model.
+             * @param modelId - The model identifier to use
+             * @param prompt - The prompt to stream the object from
+             * @returns Effect yielding a stream of object chunks or an error
+             * @returns ProviderNotFoundError if provider is not initialized
+             * @returns ProviderMissingCapability if provider doesn't support text generation
+             */
+            streamObject: async (modelId: string, prompt: string) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "text-generation")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "text-generation" }));
+                }
+                const model = vercelProvider.provider.languageModel(modelId);
+                return streamObject({
+                    model: model,
+                    prompt: prompt,
+                    output: "no-schema"
+                });
+            },
 
-            }
-        }),
-    }) { }
+            /**
+             * Generates speech from text using a speech model.
+             * @param modelId - The model identifier to use
+             * @param prompt - The text to convert to speech
+             * @returns Effect yielding the generated speech or an error
+             * @returns ProviderNotFoundError if provider is not initialized or speech model not found
+             * @returns ProviderMissingCapability if provider doesn't support audio capability
+             */
+            generateSpeech: async (modelId: string, prompt: string) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "audio")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "audio" }));
+                }
+                const provider = vercelProvider.provider;
+                if (provider.speechModel === undefined) {
+                    return Effect.fail(new ProviderNotFoundError("Speech model not found"));
+                }
+                const model = provider.speechModel(modelId);
+                return generateSpeech({
+                    model: model,
+                    text: prompt
+                });
+            },
+
+            /**
+             * Generates an image from a prompt using the specified image model.
+             * @param modelId - The model identifier.
+             * @param prompt - The prompt to generate the image from.
+             * @returns Effect yielding the generated image or an error
+             * @returns ProviderNotFoundError if provider is not initialized or image model not found
+             * @returns ProviderMissingCapability if provider doesn't support image generation
+             */
+            generateImage: async (modelId: string, prompt: string) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "image-generation")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "image-generation" }));
+                }
+                const provider = vercelProvider.provider;
+                if (provider.imageModel === undefined) {
+                    return Effect.fail(new ProviderNotFoundError("Image model not found"));
+                }
+                const model = provider.imageModel(modelId);
+                return generateImage({
+                    model: model,
+                    prompt: prompt
+                });
+            },
+
+            /**
+             * Transcribes audio to text using a transcription model.
+             * @param modelId - The model identifier to use
+             * @param audio - The audio content to transcribe
+             * @returns Effect yielding the transcription or an error
+             * @returns ProviderNotFoundError if provider is not initialized or transcription model not found
+             * @returns ProviderMissingCapability if provider doesn't support audio capability
+             */
+            transcribe: async (modelId: string, audio: DataContent) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "audio")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "audio" }));
+                }
+                const provider = vercelProvider.provider;
+                if (provider.transcriptionModel === undefined) {
+                    return Effect.fail(new ProviderNotFoundError("Transcription model not found"));
+                }
+                const model = provider.transcriptionModel(modelId);
+                return transcribe({
+                    model,
+                    audio
+                });
+            },
+
+            /**
+             * Generates embeddings from text using an embedding model.
+             * @param modelId - The model identifier to use
+             * @param values - Array of text strings to embed
+             * @returns Effect yielding the embeddings or an error
+             * @returns ProviderNotFoundError if provider is not initialized or embedding model not found
+             * @returns ProviderMissingCapability if provider doesn't support embeddings
+             */
+            embedding: async (modelId: string, values: string[]) => {
+                if (!vercelProvider) {
+                    return Effect.fail(new ProviderNotFoundError("Provider not initialized"));
+                }
+                if (!hasCapability(vercelProvider, "embeddings")) {
+                    return Effect.fail(new ProviderMissingCapabilityError({ providerName: vercelProvider.name, capability: "embeddings" }));
+                }
+                const provider = vercelProvider.provider;
+                if (provider.textEmbeddingModel === undefined) {
+                    return Effect.fail(new ProviderNotFoundError("Embedding model not found"));
+                }
+                const model = provider.textEmbeddingModel(modelId);
+                return model.doEmbed({
+                    values: values
+                });
+            },
+        };
+    })
+}) { }
 
 /**
  * Creates a provider client instance for the given provider and API key.
  *
  * @param providerId - The provider name (e.g., 'openai', 'anthropic').
- * @param apiKeyEnvVar - The environment variable containing the API key.
+ * @param settings - The provider-specific settings.
  * @returns Effect yielding the initialized provider client or an error.
  */
-export function createProvider(providerId: ProvidersType, apiKeyEnvVar: string): Effect.Effect<ProviderV1 | OpenRouterProvider, ProviderNotFoundError | ProviderMissingApiKeyError> {
-    const apiKey = process.env[apiKeyEnvVar];
-    if (!apiKey) {
-        return Effect.fail(new ProviderMissingApiKeyError(`API key for ${providerId} not found in environment variable ${apiKeyEnvVar}`));
+export function createProvider(providerId: ProvidersType, settings: EffectiveProviderSettings): Effect.Effect<EffectiveProviderApi, ProviderNotFoundError | ProviderMissingApiKeyError> {
+    // Check if the providerId matches the settings type
+    if (providerId !== settings.name) {
+        return Effect.fail(new ProviderNotFoundError(`Provider ${providerId} does not match settings type ${settings.name}`));
     }
-    // Check if the providerId is valid
-    if (providerId === "openai") {
-        return Effect.succeed(createOpenAI({ apiKey: apiKey, compatibility: 'strict' }));
-    } else if (providerId === "anthropic") {
-        return Effect.succeed(createAnthropic({ apiKey: apiKey }));
-    } else if (providerId === "google") {
-        return Effect.succeed(createGoogleGenerativeAI());
-    } else if (providerId === "xai") {
-        return Effect.succeed(createXai({ apiKey: apiKey }));
-    } else if (providerId === "perplexity") {
-        return Effect.succeed(createPerplexity({ apiKey: apiKey }));
-    } else if (providerId === "groq") {
-        return Effect.succeed(createGroq({ apiKey: apiKey }));
-    } else if (providerId === "openrouter") {
-        return Effect.succeed(createOpenRouter({ apiKey: apiKey }));
-    } else if (providerId === "deepseek") {
-        return Effect.succeed(createDeepSeek({ apiKey: apiKey }));
-    } else {
-        return Effect.fail(new ProviderNotFoundError(`Provider ${providerId} not found`));
+
+    // Type-safe provider creation based on discriminated union
+    switch (settings.name) {
+        case "openai": {
+            const provider = createOpenAI(settings.settings);
+            return Effect.succeed({
+                name: "openai",
+                provider,
+                capabilities: getProviderCapabilities(provider)
+            });
+        }
+        case "anthropic": {
+            const provider = createAnthropic(settings.settings);
+            return Effect.succeed({
+                name: "anthropic",
+                provider,
+                capabilities: getProviderCapabilities(provider)
+            });
+        }
+        case "google": {
+            const provider = createGoogleGenerativeAI(settings.settings);
+            return Effect.succeed({
+                name: "google",
+                provider,
+                capabilities: getProviderCapabilities(provider)
+            });
+        }
+        case "xai": {
+            const provider = createXai(settings.settings);
+            return Effect.succeed({
+                name: "xai",
+                provider,
+                capabilities: getProviderCapabilities(provider)
+            });
+        }
+        case "perplexity": {
+            const provider = createPerplexity(settings.settings);
+            return Effect.succeed({
+                name: "perplexity",
+                provider,
+                capabilities: getProviderCapabilities(provider)
+            });
+        }
+        case "groq": {
+            const provider = createGroq(settings.settings);
+            return Effect.succeed({
+                name: "groq",
+                provider,
+                capabilities: getProviderCapabilities(provider)
+            });
+        }
+        case "deepseek": {
+            const provider = createDeepSeek(settings.settings);
+            return Effect.succeed({
+                name: "deepseek",
+                provider,
+                capabilities: getProviderCapabilities(provider)
+            });
+        }
+        default:
+            return Effect.fail(new ProviderNotFoundError(`Provider ${providerId} not found`));
     }
+}
+
+/**
+ * Helper function to create a provider-specific layer
+ * @param providerName The name of the provider this layer handles
+ * @param createSettings Function to create provider-specific settings
+ */
+export function createProviderLayer(providerName: ProvidersType) {
+    return Layer.effect(
+        ProviderClient,
+        Effect.gen(function* () {
+            const defaultClient = yield* ProviderClient;
+            return {
+                setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => {
+                    return Effect.gen(function* () {
+                        if (provider === providerName) {
+                            const settings = createProviderSettings(provider, apiKeyEnvVar);
+                            return yield* createProvider(provider, settings);
+                        } else {
+                            return yield* Effect.fail(new ProviderNotFoundError(`Provider ${provider} does not match layer for ${providerName}`));
+                        }
+                    });
+                },
+                // Delegate all other methods to the default implementation
+                getProviderName: () => providerName,
+                generateText: defaultClient.generateText,
+                streamText: defaultClient.streamText,
+                chat: defaultClient.chat,
+                generateObject: defaultClient.generateObject,
+                streamObject: defaultClient.streamObject,
+                generateSpeech: defaultClient.generateSpeech,
+                generateImage: defaultClient.generateImage,
+                transcribe: defaultClient.transcribe,
+                generateEmbeddings: defaultClient.generateEmbeddings,
+                getCapabilities: defaultClient.getCapabilities,
+                getModels: defaultClient.getModels
+            };
+        })
+    );
+}
+
+/**
+ * Creates provider-specific settings based on the provider type.
+ * This ensures type safety when creating settings objects.
+ */
+function createProviderSettings(provider: ProvidersType, apiKey: string): EffectiveProviderSettings {
+    const baseSettings = {
+        apiKey,
+        headers: {} as Record<string, string>
+    };
+
+    switch (provider) {
+        case "openai":
+            return { name: "openai", settings: { ...baseSettings } };
+        case "anthropic":
+            return { name: "anthropic", settings: { ...baseSettings } };
+        case "google":
+            return { name: "google", settings: { ...baseSettings } };
+        case "xai":
+            return { name: "xai", settings: { ...baseSettings } };
+        case "perplexity":
+            return { name: "perplexity", settings: { ...baseSettings } };
+        case "groq":
+            return { name: "groq", settings: { ...baseSettings } };
+        case "deepseek":
+            return { name: "deepseek", settings: { ...baseSettings } };
+        default:
+            throw new Error(`Unsupported provider: ${provider}`);
+    }
+}
+
+function generateSpeech(arg0: { model: import("@ai-sdk/provider").SpeechModelV1; text: string; }): any {
+    throw new Error('Function not implemented.');
+}
+
+
+function generateImage(arg0: { model: import("@ai-sdk/provider").ImageModelV1; prompt: string; }): any {
+    throw new Error('Function not implemented.');
+}
+
+
+function transcribe(arg0: { model: import("@ai-sdk/provider").TranscriptionModelV1; audio: DataContent; }): any {
+    throw new Error('Function not implemented.');
 }

@@ -3,8 +3,8 @@
  * @module services/ai/model/schema
  */
 
-import { Config, Schema as S } from "effect";
-import { PositiveNumber, Version, Name, ModelCapability, Identifier, ContextWindowSize, Description } from "@/schema.js";
+import { ContextWindowSize, Description, Identifier, ModelCapability, Name, PositiveNumber, Provider, Version } from "@/schema.js";
+import { Schema as S } from "effect";
 
 const RateLimitSchema = S.Struct({
     requestsPerMinute: PositiveNumber.pipe(S.optional),
@@ -15,6 +15,12 @@ const MetadataSchema = S.Struct({
     description: S.String.pipe(S.optional)
 });
 
+// Response format schema
+const ResponseFormatSchema = S.Struct({
+    type: S.Literal("text", "image", "audio", "embedding"),
+    supportedFormats: S.Array(S.String)
+});
+
 // === Main Model Definition Schema ===
 export class Model extends S.Class<Model>(
     "Model"
@@ -22,7 +28,7 @@ export class Model extends S.Class<Model>(
     id: Identifier,
     name: Identifier,
     version: Version,
-    provider: Identifier,
+    provider: Provider,
     modelName: Identifier,
     temperature: S.Number.pipe(S.optional),
     maxTokens: PositiveNumber.pipe(S.optional),
@@ -31,8 +37,10 @@ export class Model extends S.Class<Model>(
     costPer1kOutputTokens: PositiveNumber.pipe(S.optional),
     capabilities: S.Array(ModelCapability).pipe(S.minItems(1)),
     metadata: MetadataSchema.pipe(S.optional),
-    rateLimit: RateLimitSchema.pipe(S.optional)
-}) {}
+    rateLimit: RateLimitSchema.pipe(S.optional),
+    supportedLanguages: S.Array(S.String).pipe(S.optional),
+    responseFormat: ResponseFormatSchema.pipe(S.optional)
+}) { }
 
 export type ModelDefinition = S.Schema.Type<typeof Model>;
 
@@ -42,5 +50,6 @@ export class ModelFile extends S.Class<ModelFile>("ModelsFile")({
     description: Description.pipe(S.optional),
     version: Version,
     models: S.Array(Model).pipe(S.minItems(1))
-}) {}
+}) { }
 
+export type ModelFileDefinition = S.Schema.Type<typeof ModelFile>;

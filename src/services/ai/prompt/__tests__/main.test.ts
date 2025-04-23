@@ -2,10 +2,9 @@ import { Cause, ConfigProvider, Effect, Exit, Layer, Option } from "effect";
 /**
  * @file Comprehensive tests for the PromptApi service implementation.
  */
-import { describe, expect, it } from "vitest";
-import { PromptConfigError, RenderingError, TemplateNotFoundError } from "../errors.js";
-import { PromptService } from "../service.js";
-
+import { describe, expect, it } from "vitest"
+import { RenderingError, TemplateNotFoundError } from "../../errors.js"
+import { PromptService } from "../service.js"
 
 // --- Mock Data ---
 const validPromptConfig = {

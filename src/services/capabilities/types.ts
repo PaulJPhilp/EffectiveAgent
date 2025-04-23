@@ -1,7 +1,7 @@
 // Potentially in a shared location like src/services/capabilities/types.ts
 
-import { Effect, Schema } from "effect";
 import type { ParseError } from "@effect/schema/ParseResult"; // Or a custom ValidationError type
+import { Effect, Schema } from "effect";
 
 // Generic Input type (often derived from Data schema)
 export type CapabilityInput = Record<string, any>; // Placeholder, refine as needed

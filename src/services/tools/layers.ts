@@ -3,29 +3,29 @@
  * @module services/tools/layers
  */
 
-import { Layer, Context, Effect } from "effect";
+// Import common dependencies likely needed by executor or tool implementations
+import { HttpClient } from "@effect/platform/HttpClient";
+import { Context, Effect, Layer } from "effect";
+import { ToolExecutorServiceLiveImplementationLogic } from "./live.js";
+// Import internal layers needed for composition
+import { FinalToolRegistryLayer, InternalToolboxLayer } from "./registry.js";
 import {
+
+	// Data structure types (for context/layer requirements)
+	type EffectiveWorkspace,
 	// Source Tags (needed by FinalToolRegistryLayer)
 	InternalToolboxTag,
 	ProjectWorkspaceTag,
+	type ToolExecutorService, // Interface for type checking
+
+	// Executor Service Tag (Output of ToolExecutorServiceLayer)
+	ToolExecutorServiceTag,
+	type ToolRegistryData,
 	// OrgWorkspaceTag, // Optional
 
 	// Final Registry Tag (Output of FinalToolRegistryLayer, Input to ToolExecutorServiceLayer)
 	ToolRegistryDataTag,
-
-	// Executor Service Tag (Output of ToolExecutorServiceLayer)
-	ToolExecutorServiceTag,
-
-	// Data structure types (for context/layer requirements)
-	type EffectiveWorkspace,
-	type ToolExecutorService, // Interface for type checking
-	type ToolRegistryData,
 } from "./types.js";
-// Import internal layers needed for composition
-import { InternalToolboxLayer, FinalToolRegistryLayer } from "./registry.js";
-import { ToolExecutorServiceLiveImplementationLogic } from "./live.js";
-// Import common dependencies likely needed by executor or tool implementations
-import { HttpClient } from "@effect/platform/HttpClient";
 // Import other potential common dependencies
 // import { OAuthServiceTag, type OAuthService } from "@/services/core/auth/oauth";
 // import { McpClientTag, type McpClient } from "@/services/core/mcp";

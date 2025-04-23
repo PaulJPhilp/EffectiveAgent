@@ -3,75 +3,98 @@
  * @module services/ai/provider/errors
  */
 
+import type { EntityLoadError, EntityParseError } from "@/services/core/errors.js";
 import type { ParseError } from "@effect/schema/ParseResult";
 import { Data } from "effect";
 
 /**
- * Represents an error occurring during the loading or validation of the
- * provider configuration.
- *
- * @class ProviderConfigError
- * @extends {Data.TaggedError}
- * @property {string} message - Description of the error.
- * @property {ParseError | Error} [cause] - The underlying cause of the error, if available.
+ * Base error type for provider-related errors
  */
-export class ProviderConfigError extends Data.TaggedError("ProviderConfigError")<{
+export class ProviderError extends Data.TaggedError("ProviderError")<{
+    readonly providerName: string;
     readonly message: string;
-    readonly cause?: ParseError | Error;
+    readonly cause?: unknown;
 }> { }
 
 /**
- * Error thrown when the provider configuration file is not found.
- *
- * @class ProviderNotFoundError
- * @extends {Error}
- * @param {string} filePath - The path to the missing provider file.
+ * Error class for failures related to loading, parsing, or validating
+ * the provider configuration.
  */
-export class ProviderNotFoundError extends Error {
-    constructor(filePath: string) {
-        super(`Provider file not found: ${filePath}`);
-        this.name = "ProviderNotFoundError";
+export class ProviderConfigError extends Data.TaggedError("ProviderConfigError")<{
+    readonly message: string;
+    readonly cause?: EntityLoadError | EntityParseError | ParseError | Error;
+}> { }
+
+/**
+ * Error thrown when a provider is not found
+ */
+export class ProviderNotFoundError extends Data.TaggedError("ProviderNotFoundError")<{
+    readonly providerName: string;
+    readonly message: string;
+}> {
+    constructor(providerName: string) {
+        super({
+            providerName,
+            message: `Provider not found: ${providerName}`
+        });
     }
 }
 
 /**
- * Error thrown when an API key is missing for a provider.
- *
- * @class ProviderMissingApiKeyError
- * @extends {Error}
- * @param {string} providerName - The name of the provider missing an API key.
+ * Error thrown when an API key is missing for a provider
  */
-export class ProviderMissingApiKeyError extends Error {
+export class ProviderMissingApiKeyError extends Data.TaggedError("ProviderMissingApiKeyError")<{
+    readonly providerName: string;
+    readonly message: string;
+}> {
     constructor(providerName: string) {
-        super(`API key is missing for provider: ${providerName}`);
-        this.name = "ProviderMissingApiKeyError";
+        super({
+            providerName,
+            message: `API key is missing for provider: ${providerName}`
+        });
     }
 }
 
 /**
- * Error thrown when an API key is invalid for a provider.
- *
- * @class ProviderInvalidApiKeyError
- * @extends {Error}
- * @param {string} providerName - The name of the provider with an invalid API key.
+ * Error thrown when an API key is invalid for a provider
  */
-export class ProviderInvalidApiKeyError extends Error {
-    constructor(providerName: string) {
-        super(`API key is invalid for provider: ${providerName}`);
-        this.name = "ProviderInvalidApiKeyError";
+export class ProviderInvalidApiKeyError extends Data.TaggedError("ProviderInvalidApiKeyError")<{
+    readonly providerName: string;
+    readonly message: string;
+    readonly cause?: Error;
+}> {
+    constructor(providerName: string, cause?: Error) {
+        super({
+            providerName,
+            message: `API key is invalid for provider: ${providerName}`,
+            cause
+        });
     }
 }
 
 /**
- * Error thrown when a provider is missing a required capability.
- *
- * @class ProviderMissingCapability
- * @extends {Error}
- * @param {string} providerName - The name of the provider missing the capability.
+ * Error thrown when a provider is missing a required capability
  */
-export class ProviderMissingCapability extends Error {
-    constructor(providerName: string) {
-        super(`Missing capability for provider: ${providerName}`);
-        this.name = "ProviderMissingCapability";
+export class ProviderMissingCapabilityError extends Data.TaggedError("ProviderMissingCapabilityError")<{
+    readonly providerName: string;
+    readonly capability: string;
+    readonly message: string;
+}> {
+    constructor(params: { providerName: string; capability: string }) {
+        super({
+            providerName: params.providerName,
+            capability: params.capability,
+            message: `Provider ${params.providerName} is missing capability: ${params.capability}`
+        });
     }
 }
+
+/**
+ * Error thrown when a provider operation fails
+ */
+export class ProviderOperationError extends Data.TaggedError("ProviderOperationError")<{
+    readonly providerName: string;
+    readonly operation: string;
+    readonly message: string;
+    readonly cause?: Error;
+}> { }

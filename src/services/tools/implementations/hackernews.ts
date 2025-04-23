@@ -3,17 +3,17 @@
  * @module services/tools/implementations/hackernews
  */
 
-import { Effect, Schema } from "effect";
+import { PlatformError } from "@effect/platform/Error"; // Keep for potential broader errors
+import * as HttpBody from "@effect/platform/HttpBody";
 // Import HttpClient related modules from @effect/platform
 import { HttpClient } from "@effect/platform/HttpClient";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
-import * as HttpBody from "@effect/platform/HttpBody";
 // Import specific HttpClientError types if needed for finer-grained handling
 import type { HttpClientError } from "@effect/platform/HttpClientError";
-import { PlatformError } from "@effect/platform/Error"; // Keep for potential broader errors
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
+import { Effect, Schema } from "effect";
+import type { ParseError } from "effect/ParseResult"; // Import ParseError
 // Import base ToolExecutionError
 import { ToolExecutionError } from "../errors.js";
-import type { ParseError } from "effect/ParseResult"; // Import ParseError
 
 // --- Schemas ---
 

@@ -3,20 +3,20 @@
  * @module services/tools/__tests__/registry.test
  */
 
-import { Effect, Exit, Layer, Scope, Cause, Option, Context, HashMap, Schema } from "effect";
-import { describe, it, expect } from "vitest";
+import { Cause, Context, Effect, Exit, HashMap, Layer, Option, Schema, Scope } from "effect";
+import { describe, expect, it } from "vitest";
 
 // Layers and Tags under test
-import { InternalToolboxLayer, FinalToolRegistryLayer } from "../registry.js";
+import { FinalToolRegistryLayer, InternalToolboxLayer } from "../registry.js";
 import {
-	InternalToolboxTag,
-	ProjectWorkspaceTag,
-	ToolRegistryDataTag,
 	type EffectiveTool,
 	type EffectiveToolbox, // Import the TYPE
 	type EffectiveWorkspace,
-	type ToolRegistryData, // Import the TYPE
+	InternalToolboxTag,
 	type NamespaceName,
+	ProjectWorkspaceTag,
+	type ToolRegistryData, // Import the TYPE
+	ToolRegistryDataTag,
 } from "../types.js";
 
 // --- Test Tool Definitions (Minimal examples needed for testing merge) ---

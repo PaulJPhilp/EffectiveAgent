@@ -4,14 +4,14 @@
  */
 
 import { HashMap } from "effect";
+import { SimpleToolName } from "./schema.js";
 // Import necessary types from the main types file
 import {
     type EffectiveTool,
-    type NamespaceName,
     type EffectiveToolbox,
     type EffectiveWorkspace,
+    type NamespaceName,
 } from "./types.js"; // Adjust path if builder is in a different location relative to types.ts
-import { SimpleToolName } from "./schema.js";
 
 /**
  * Builder for a single namespaced EffectiveToolbox.

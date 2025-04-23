@@ -4,10 +4,10 @@
  */
 
 import { Effect, Schema } from "effect";
-import { ToolExecutionError } from "../../errors.js";
+import { OAuth2Client } from 'google-auth-library';
 // Import the Google APIs
 import { google } from 'googleapis';
-import { OAuth2Client } from 'google-auth-library';
+import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
 export const googleDocsGetContentInputSchema = Schema.Struct({

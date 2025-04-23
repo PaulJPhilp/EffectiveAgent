@@ -3,11 +3,11 @@
  * @module services/tools/implementations/gmail/send
  */
 
-import { Effect, Schema, Context, Secret } from "effect";
-import { ToolExecutionError } from "../../errors.js";
+import { Context, Effect, Schema, Secret } from "effect";
+import type { OAuth2Client } from 'google-auth-library';
 import { google } from 'googleapis';
 import type { gmail_v1 } from 'googleapis';
-import type { OAuth2Client } from 'google-auth-library';
+import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
 

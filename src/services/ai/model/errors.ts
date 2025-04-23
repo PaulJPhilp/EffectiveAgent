@@ -5,15 +5,45 @@
 
 import type { EntityLoadError, EntityParseError } from "@/services/core/errors.js";
 import { Data } from "effect";
-// Removed ServiceError import as Data.TaggedError is the base
+
+/**
+ * Base error type for model-related errors
+ */
+export class ModelError extends Data.TaggedError("ModelError")<{
+    readonly modelId: string;
+    readonly message: string;
+    readonly cause?: unknown;
+}> { }
 
 /**
  * Error class for failures related to loading, parsing, or validating
  * the AI model configuration (e.g., 'models.json').
- * Extends Data.TaggedError for compatibility with Effect's Cause.Fail.
  */
 export class ModelConfigError extends Data.TaggedError("ModelConfigError")<{
     readonly message: string;
-    // Refine cause type based on usage in live.ts
     readonly cause: EntityLoadError | EntityParseError;
+}> { }
+
+/**
+ * Error when a requested model is not found
+ */
+export class ModelNotFoundError extends Data.TaggedError("ModelNotFoundError")<{
+    readonly modelId: string;
+    readonly message: string;
+}> {
+    constructor(modelId: string) {
+        super({
+            modelId,
+            message: `Model not found: ${modelId}`
+        });
+    }
+}
+
+/**
+ * Error when a model validation fails
+ */
+export class ModelValidationError extends Data.TaggedError("ModelValidationError")<{
+    readonly modelId: string;
+    readonly message: string;
+    readonly capabilities: string[];
 }> { }

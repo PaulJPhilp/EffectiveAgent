@@ -7,8 +7,7 @@ import type { JsonObject } from "@/types.js";
 import type { Prompt } from "@services/ai/prompt/schema.js"; // Use path alias
 // EntityLoaderApi is needed by PromptConfigLiveLayer defined in live.ts
 import { Context, Effect, HashMap } from "effect";
-import { TemplateNotFoundError } from "./errors.js";
-import { RenderingError } from "./errors.js";
+import { RenderingError, TemplateNotFoundError } from "../errors.js";
 
 // Import make function for PromptApi to infer type
 

@@ -1,8 +1,8 @@
+import type { CapabilityService } from "@/services/capabilities/types.js";
 // In src/services/capabilities/persona/types.ts
 import { Context, Effect, Schema } from "effect"; 
-import { PersonaDefinitionSchema, PersonaDefinitionInputSchema } from "./schema.js"; 
 import type { PersonaConfigError } from "./errors.js";
-import type { CapabilityService } from "@/services/capabilities/types.js";
+import { PersonaDefinitionInputSchema, PersonaDefinitionSchema } from "./schema.js"; 
 
 // Define types from Schema first
 export type PersonaDefinition = Schema.Schema.Type<typeof PersonaDefinitionSchema>;

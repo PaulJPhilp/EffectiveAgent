@@ -3,10 +3,7 @@
  * @module services/ai/provider/implementations/anthropic
  */
 
-import { Effect, Layer } from "effect";
-import { ProviderClient, createProvider } from "../client.js";
-import { ProviderNotFoundError } from "../errors.js";
-import { ProvidersType } from "../schema.js";
+import { createProviderLayer } from "../client.js";
 
 /**
  * AnthropicProviderClientLayer is an Effect Layer that provides a ProviderClient implementation for the Anthropic provider.
@@ -14,32 +11,4 @@ import { ProvidersType } from "../schema.js";
  * - Overrides setVercelProvider to initialize the Anthropic client when the provider is 'anthropic'.
  * - Delegates all other ProviderClientApi methods to the default implementation.
  */
-export const AnthropicProviderClientLayer = Layer.effect(
-    ProviderClient,
-    Effect.gen(function* () {
-        // Get the default ProviderClient implementation from the environment
-        const defaultClient = yield* ProviderClient;
-        // Return a new implementation that overrides setVercelProvider only
-        return {
-            setVercelProvider: (provider: ProvidersType, apiKeyEnvVar: string) => {
-                return Effect.gen(function* () {
-                    if (provider === "anthropic") {
-                        const anthropicProvider = yield* createProvider(provider, apiKeyEnvVar);
-                        return anthropicProvider;
-                    } else {
-                        return yield* Effect.fail(new ProviderNotFoundError("Provider not found"));
-                    }
-                });
-            },
-            // Delegate all other methods to the default implementation
-            generateText: defaultClient.generateText,
-            streamText: defaultClient.streamText,
-            generateObject: defaultClient.generateObject,
-            streamObject: defaultClient.streamObject,
-            generateSpeech: defaultClient.generateSpeech,
-            generateImage: defaultClient.generateImage,
-            transcribe: defaultClient.transcribe,
-            embedding: defaultClient.embedding,
-        };
-    })
-);
+export const AnthropicProviderClientLayer = createProviderLayer("anthropic");

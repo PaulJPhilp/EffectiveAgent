@@ -43,3 +43,53 @@ export type EntityId = string;
 export type Timestamp = number;
 
 export type Tuple<T1, T2> = [T1, T2];
+
+export type Metadata = Record<string, JsonValue>;
+
+export type FinishReason = "stop" | "length" | "content-filter" | "tool-calls" | "error" | "other" | "unknown";
+
+/**
+ * Detailed reasoning for generateText results
+ */
+export interface TextReasoningDetail {
+    type: 'text'
+    text: string
+    signature?: string
+}
+export interface RedactedReasoningDetail {
+    type: 'redacted'
+    data: string
+}
+export type ReasoningDetail = TextReasoningDetail | RedactedReasoningDetail
+
+export type Usage = {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+};
+
+/**
+ * Source used during generation (e.g., web search)
+ */
+export interface Source {
+    sourceType: 'url'
+    id: string
+    url: string
+    title?: string
+    providerMetadata?: Metadata
+}
+
+/**
+ * Response message from the model (assistant or tool)
+ */
+export interface ResponseMessage {
+    role: 'system' | 'user' | 'assistant' | 'tool'
+    content: string
+}
+
+/**
+ * Warning from the provider (e.g., unsupported settings)
+ */
+export interface Warning {
+    message: string
+}

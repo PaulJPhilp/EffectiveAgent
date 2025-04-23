@@ -3,12 +3,12 @@
  * @module services/ai/Intelligence/types
  */
 
+import { EntityParseError } from "@/services/core/errors.js";
 // Import Schema, Context, Data, HashMap from 'effect'
 import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
+import { IntelligenceConfigError } from "./errors.js";
 // Import types derived from schemas using 'import type'
 import { IntelligenceFile } from "./schema.js";
-import { EntityParseError } from "@/services/core/errors.js";
-import { IntelligenceConfigError } from "./errors.js";
 
 export class IntelligenceService extends Effect.Service<IntelligenceService>()("IntelligenceService", {
 	effect: Effect.gen(function* () {

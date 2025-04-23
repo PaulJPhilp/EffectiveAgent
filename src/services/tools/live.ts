@@ -3,31 +3,31 @@
  * @module services/tools/live
  */
 
-import { Effect, Option, HashMap, Schema, FiberRef, Context } from "effect";
-import {
-    ToolExecutorService, // Import the interface
-    ToolRegistryData, // Import data type
-    type EffectiveTool, // Import the main tool type
-    type FullToolName,
-    type EffectImplementation, // Import specific types for assertions
-    type HttpImplementation,
-    type McpImplementation,
-    ToolRegistryDataTag, // Import the registry data Tag
-} from "./types.js";
+// Corrected Import Path:
+import { CurrentExecutionPermissionsRef } from "@/services/execution/context.js"; // Adjust path if needed
+import { PlatformError } from "@effect/platform/Error";
+import * as HttpBody from "@effect/platform/HttpBody";
+// Correct HttpClient imports
+import { HttpClient } from "@effect/platform/HttpClient";
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
+import { Context, Effect, FiberRef, HashMap, Option, Schema } from "effect";
+import type { ParseError } from "effect/ParseResult";
 import {
     ToolExecutionError,
     ToolInputValidationError,
     ToolNotFoundError,
     ToolOutputValidationError,
 } from "./errors.js";
-import type { ParseError } from "effect/ParseResult";
-// Correct HttpClient imports
-import { HttpClient } from "@effect/platform/HttpClient";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
-import * as HttpBody from "@effect/platform/HttpBody";
-import { PlatformError } from "@effect/platform/Error";
-// Corrected Import Path:
-import { CurrentExecutionPermissionsRef } from "@/services/execution/context.js"; // Adjust path if needed
+import {
+    type EffectImplementation, // Import specific types for assertions
+    type EffectiveTool, // Import the main tool type
+    type FullToolName,
+    type HttpImplementation,
+    type McpImplementation,
+    ToolExecutorService, // Import the interface
+    ToolRegistryData, // Import data type
+    ToolRegistryDataTag, // Import the registry data Tag
+} from "./types.js";
 // Import other potential dependencies types if needed (e.g., OAuthService)
 // import type { OAuthService } from "@/services/core/auth/oauth";
 // import type { McpClient } from "@/services/core/mcp";

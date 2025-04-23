@@ -3,7 +3,7 @@
  * @module services/tools/registry
  */
 
-import { Effect, HashMap, Layer, Option, Context, Schema } from "effect";
+import { Context, Effect, HashMap, Layer, Option, Schema } from "effect";
 import {
     InternalToolboxTag,
     ProjectWorkspaceTag,
@@ -12,8 +12,8 @@ import {
     ToolRegistryDataTag,
 } from "./types.js";
 import type {
-    EffectiveTool, NamespaceName, FullToolName,
-    EffectiveToolbox, EffectiveWorkspace, OrgWorkspaceMap
+    EffectiveTool, 
+    EffectiveToolbox, EffectiveWorkspace, FullToolName,NamespaceName, OrgWorkspaceMap
 } from "./types.js";
 
 import {

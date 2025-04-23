@@ -1,10 +1,10 @@
+// Use FullToolName from the tools service
+import type { FullToolName } from "@/services/tools/types.js"; // Adjust path if needed
 /**
  * @file Defines context elements for agent execution.
  * @module services/execution/context
  */
 import { FiberRef } from "effect";
-// Use FullToolName from the tools service
-import type { FullToolName } from "@/services/tools/types.js"; // Adjust path if needed
 
 /** Defines permissions active during an agent execution context. */
 export interface ExecutionPermissions {

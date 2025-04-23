@@ -1,9 +1,9 @@
+import type { FullToolName } from "@services/tools/types.js"; // Use FullToolName
 /**
  * @file Defines context elements for agent execution.
  * @module services/execution/context
  */
 import { FiberRef } from "effect";
-import type { FullToolName } from "@services/tools/types.js"; // Use FullToolName
 
 export interface ExecutionPermissions {
 	readonly allowedTools: ReadonlySet<FullToolName>;

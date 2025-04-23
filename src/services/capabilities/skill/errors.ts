@@ -3,11 +3,11 @@
  * @module services/capabilities/skill/errors
  */
 
+// Import Tool errors if SkillExecutionError needs to wrap them
+import type { ToolError } from "@/services/tools/errors"; // Adjust path
 import { Data } from "effect";
 // Import ParseError for schema validation issues
 import type { ParseError } from "effect/ParseResult";
-// Import Tool errors if SkillExecutionError needs to wrap them
-import type { ToolError } from "@/services/tools/errors"; // Adjust path
 
 /**
  * Represents an error during the configuration, loading, or validation

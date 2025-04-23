@@ -3,13 +3,13 @@
  * and the layer providing loaded PromptConfigData.
  */
 
-import { Config, ConfigProvider, Effect, HashMap, Layer, Ref, Schema as S } from "effect";
+import { Config, ConfigProvider, Effect, HashMap, Ref, Schema as S } from "effect";
 import { Liquid } from "liquidjs";
 import {
     PromptConfigError,
     RenderingError,
     TemplateNotFoundError
-} from "./errors.js";
+} from "../errors.js";
 import {
     Prompt,
     PromptFile
@@ -27,22 +27,19 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
             load: () => Effect.gen(function* () {
                 const configProvider = yield* ConfigProvider.ConfigProvider;
                 const rawConfig = yield* configProvider.load(Config.string("prompts")).pipe(
-                    Effect.mapError(cause => new PromptConfigError({
-                        message: "Failed to load prompt config",
+                    Effect.mapError(cause => new PromptConfigError("Failed to load prompt config", {
                         cause: cause instanceof Error ? cause : new Error(String(cause))
                     }))
                 );
                 const parsedConfig = Effect.try({
                     try: () => JSON.parse(rawConfig),
-                    catch: (error) => new PromptConfigError({
-                        message: "Failed to parse prompt config",
+                    catch: (error) => new PromptConfigError("Failed to parse prompt config", {
                         cause: error instanceof Error ? error : new Error(String(error))
                     })
                 });
                 const data = yield* parsedConfig;
                 const validConfig = yield* S.decode(PromptFile)(data).pipe(
-                    Effect.mapError(cause => new PromptConfigError({
-                        message: "Failed to validate prompt config",
+                    Effect.mapError(cause => new PromptConfigError("Failed to validate prompt config", {
                         cause
                     }))
                 );
@@ -56,7 +53,7 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
                 promptRef.get.pipe(
                     Effect.flatMap((map) =>
                         HashMap.get(map, name).pipe(
-                            Effect.mapError(() => new TemplateNotFoundError({ templateName: name }))
+                            Effect.mapError(() => new TemplateNotFoundError(name))
                         )
                     )
                 ),
@@ -71,14 +68,14 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
                         new RenderingError({
                             message: "Failed to render Liquid template string",
                             cause: error instanceof Error ? error : new Error(String(error)),
-                            templateSnippet: params.templateString.slice(0, 100),
-                        }),
+                            templateSnippet: params.templateString.slice(0, 100)
+                        })
                 }),
             renderTemplate: (params: RenderTemplateParams): Effect.Effect<string, RenderingError | TemplateNotFoundError> =>
                 promptRef.get.pipe(
                     Effect.flatMap((map) =>
                         HashMap.get(map, params.templateName).pipe(
-                            Effect.mapError(() => new TemplateNotFoundError({ templateName: params.templateName })),
+                            Effect.mapError(() => new TemplateNotFoundError(params.templateName)),
                             Effect.flatMap((promptDefinition) =>
                                 Effect.try({
                                     try: () =>
@@ -91,8 +88,8 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
                                             message: "Failed to render Liquid template",
                                             cause: error instanceof Error ? error : new Error(String(error)),
                                             templateName: params.templateName,
-                                            templateSnippet: promptDefinition.template.slice(0, 100),
-                                        }),
+                                            templateSnippet: promptDefinition.template.slice(0, 100)
+                                        })
                                 })
                             )
                         )

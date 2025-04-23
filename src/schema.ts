@@ -30,7 +30,9 @@ export const ModelCapability = S.Literal(
     "code-generation", "audio", "image-generation", "embeddings", "tool-use"
 );
 
-export const ContextWindowSize = S.Literal("small", "medium", "large");
+export type ModelCapability = S.Schema.Type<typeof ModelCapability>
+
+export const ContextWindowSize = PositiveInt;
 
 export const Description = S.String.pipe(S.maxLength(256));
 
@@ -43,3 +45,10 @@ export class RateLimit extends S.Class<RateLimit>("RateLimit")({
 }) {}
 
 export const Url = S.String.pipe(S.pattern(/^https?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!$&'()*+,;=.]+$/));
+
+export const EffectiveRole = S.Union(S.Literal("user"), S.Literal("assistant"), S.Literal("system"), S.Literal("tool"))
+export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>
+
+export const Provider = S.Union(S.Literal("openai"), S.Literal("anthropic"), S.Literal("google"), S.Literal("deepseek"), S.Literal("xai"))
+export type Provider = S.Schema.Type<typeof Provider>
+

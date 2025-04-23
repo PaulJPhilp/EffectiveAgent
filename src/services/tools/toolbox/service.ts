@@ -1,9 +1,9 @@
 
 import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
-import { Toolbox, Tool, WorkbenchFile } from "./schema.js";
 import { ProviderConfigError } from "../ai/provider/errors.js";
 import { EntityParseError } from "../core/errors.js";
 import { WorkbenchConfigError } from "./errors.js";
+import { Tool, Toolbox, WorkbenchFile } from "./schema.js";
 
 export class ToolboxService extends Effect.Service<ToolboxService>()("ToolboxService", {
     effect: Effect.gen(function* () {

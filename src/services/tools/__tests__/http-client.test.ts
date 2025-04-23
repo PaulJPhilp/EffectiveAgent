@@ -3,15 +3,15 @@
  * This is a temporary file to work out the correct HttpClient implementation pattern
  */
 
-import { Effect, Layer, pipe, Context } from "effect";
-import { describe, it, expect } from "vitest";
+import { Context, Effect, Layer, pipe } from "effect";
+import { describe, expect, it } from "vitest";
 
+import * as HttpBody from "@effect/platform/HttpBody";
 // Import HttpClient and related types
 import { HttpClient } from "@effect/platform/HttpClient";
+import { HttpClientError } from "@effect/platform/HttpClientError";
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
 import * as HttpClientResponse from "@effect/platform/HttpClientResponse";
-import * as HttpBody from "@effect/platform/HttpBody";
-import { HttpClientError } from "@effect/platform/HttpClientError";
 
 // Define the TypeId symbol for our implementation
 const HttpClientTypeId = Symbol.for("@effect/platform/HttpClient");

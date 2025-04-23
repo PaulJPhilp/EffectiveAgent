@@ -3,21 +3,23 @@
  * @module services/ai/provider/types
  */
 
-import { ModelCapability } from "@/schema.js";
+import { ModelCapability, Provider } from "@/schema.js";
 import { EntityParseError } from "@/services/core/errors.js";
-import { AiModel } from "@effect/ai";
-// Import Schema, Context, Data, HashMap from 'effect'
-import { Config, ConfigProvider, Context, Effect, Ref, Schema as S } from "effect";
-import { ModelClient, ModelClientApi } from "./client.js";
-import { ModelConfigError } from "./errors.js";
-// Import types derived from schemas using 'import type'
+import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
+import { ModelConfigError, ModelNotFoundError, ModelValidationError } from "./errors.js";
 import { Model, ModelFile } from "./schema.js";
-import { LanguageModelV1 } from "@ai-sdk/provider";
 
-export class ModelService extends Effect.Service<ModelService>()("ModelService", {
+export type ModelServiceApi = {
+    load: () => Effect.Effect<ModelFile, ModelConfigError>;
+    getProviderName: (modelId: string) => Effect.Effect<Provider, ModelConfigError | ModelNotFoundError>;
+    findModelsByCapability: (capability: typeof ModelCapability) => Effect.Effect<Array<Model>, ModelConfigError>;
+    findModelsByCapabilities: (capabilities: typeof ModelCapability) => Effect.Effect<Array<Model>, ModelConfigError>;
+    validateModel: (modelId: string, capabilities: typeof ModelCapability) => Effect.Effect<boolean, ModelConfigError | ModelValidationError>;
+}
+
+export class ModelService extends Effect.Service<ModelServiceApi>()("ModelService", {
     succeed: Effect.gen(function* () {
         let modelRef: Ref.Ref<ModelFile>;
-
 
         return {
             /**
@@ -37,22 +39,18 @@ export class ModelService extends Effect.Service<ModelService>()("ModelService",
                         }))
                     );
 
-                    const parsedConfig = Effect.try({
+                    const parsedConfig = yield* Effect.try({
                         try: () => JSON.parse(rawConfig),
-                        catch: (error) => {
-                            throw new ModelConfigError({
-                                message: "Failed to parse model config",
-                                cause: new EntityParseError({
-                                    filePath: "models.json",
-                                    cause: error
-                                })
-                            });
-                        }
+                        catch: (error) => new ModelConfigError({
+                            message: "Failed to parse model config",
+                            cause: new EntityParseError({
+                                filePath: "models.json",
+                                cause: error instanceof Error ? error : new Error(String(error))
+                            })
+                        })
                     });
 
-                    // 2. Load and validate config using the schema directly
-                    const data = yield* parsedConfig
-                    const validConfig = yield* S.decode(ModelFile)(data).pipe(
+                    const validConfig = yield* S.decode(ModelFile)(parsedConfig).pipe(
                         Effect.mapError(cause => new ModelConfigError({
                             message: "Failed to validate model config",
                             cause: new EntityParseError({
@@ -66,6 +64,24 @@ export class ModelService extends Effect.Service<ModelService>()("ModelService",
                     return validConfig;
                 })
             },
+
+            getProviderName: (modelId: string): Effect.Effect<Provider, ModelConfigError | ModelNotFoundError> =>
+                modelRef.get.pipe(
+                    Effect.flatMap((modelFile) => {
+                        const model = modelFile.models.find((m) => m.id === modelId);
+                        if (!model) {
+                            return Effect.fail(new ModelNotFoundError(modelId));
+                        }
+                        return Effect.succeed(model.provider as Provider);
+                    }),
+                    Effect.mapError((cause) =>
+                        cause instanceof ModelNotFoundError ? cause :
+                            new ModelConfigError({
+                                message: "Failed to access models for provider search",
+                                cause
+                            })
+                    )
+                ),
 
             findModelsByCapability: (capability: typeof ModelCapability): Effect.Effect<Array<Model>, ModelConfigError> =>
                 modelRef.get.pipe(
@@ -106,18 +122,33 @@ export class ModelService extends Effect.Service<ModelService>()("ModelService",
              * @param capabilities Array of capabilities to validate against.
              * @returns An Effect resolving to true if the model exists and has all specified capabilities, false otherwise.
              */
-            validateModel: (modelId: string, capabilities: typeof ModelCapability): Effect.Effect<boolean, ModelConfigError> =>
+            validateModel: (modelId: string, capabilities: typeof ModelCapability): Effect.Effect<boolean, ModelConfigError | ModelValidationError> =>
                 modelRef.get.pipe(
-                    Effect.map((modelFile) => {
+                    Effect.flatMap((modelFile) => {
                         const model = modelFile.models.find((m) => m.id === modelId);
-                        if (!model) return false;
-                        return capabilities.literals.every((cap) => model.capabilities.includes(cap));
+                        if (!model) {
+                            return Effect.fail(new ModelValidationError({
+                                modelId,
+                                message: `Model not found: ${modelId}`,
+                                capabilities: capabilities.literals as unknown as string[]
+                            }));
+                        }
+                        const hasCapabilities = capabilities.literals.every((cap) => model.capabilities.includes(cap));
+                        if (!hasCapabilities) {
+                            return Effect.fail(new ModelValidationError({
+                                modelId,
+                                message: `Model ${modelId} does not have all required capabilities`,
+                                capabilities: capabilities.literals as unknown as string[]
+                            }));
+                        }
+                        return Effect.succeed(true);
                     }),
                     Effect.mapError((cause) =>
-                        new ModelConfigError({
-                            message: "Failed to access models for validation",
-                            cause
-                        })
+                        cause instanceof ModelValidationError ? cause :
+                            new ModelConfigError({
+                                message: "Failed to access models for validation",
+                                cause
+                            })
                     )
                 )
         }

@@ -4,9 +4,9 @@
  */
 
 import { Effect, Schema } from "effect";
-import type { CapabilityService } from "./types.js";
 // Correct import path for ParseError
 import type { ParseError } from "effect/ParseResult";
+import type { CapabilityService } from "./types.js";
 
 // Generic Input type placeholder
 type CapabilityInput = Record<string, any>;
