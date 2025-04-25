@@ -1,6 +1,6 @@
+import { join } from "path"
 import { Effect } from "effect"
 import { mkdir, writeFile } from "fs/promises"
-import { join } from "path"
 import type { NormalizedProfile } from "../../../agents/types.js"
 import type { NormalizationResult, SaveResultsEffect } from "../types.js"
 import { NormalizationError } from "../types.js"

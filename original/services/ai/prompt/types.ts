@@ -1,8 +1,8 @@
 // File: src/shared/services-effect/prompt/types.ts
 
-import { Effect, Context } from "effect";
-import type { PromptTemplate, PromptConfigFile } from './schema.js';
+import { Context, Effect } from "effect";
 import type { PromptNotFoundError, PromptRenderingError, PromptVariableMissingError } from './errors.js';
+import type { PromptConfigFile, PromptTemplate } from './schema.js';
 
 // --- Type Definitions ---
 export type PromptVariables = Record<string, unknown>;

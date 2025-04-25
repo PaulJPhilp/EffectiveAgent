@@ -1,23 +1,23 @@
 // File: agent.test.ts
 
-import type { ITaskService } from '@services/task/types.js';
-import type { IProviderService } from '@services/provider/types.js';
 import type { IModelService } from '@services/model/types.js';
 import type { IPromptService } from '@services/prompt/types.js';
+import type { IProviderService } from '@services/provider/types.js';
+import type { ITaskService } from '@services/task/types.js';
+import { Agent } from './Agent.js'; // The abstract class we will create
 import type {
-	AgentConfig,
-	AgentState,
-	AgentRun,
-	AgentStatus,
-	AgentLogs,
-	AgentErrors,
-} from './types.js'; // Assuming types.ts path
-import type {
-	AgentGraphImplementation,
 	AgentGraphConfig,
+	AgentGraphImplementation,
 	GraphDefinition, // Assuming this is exported or defined for buildGraphDefinition
 } from './AgentGraph.js'; // Assuming AgentGraph.ts path
-import { Agent } from './Agent.js'; // The abstract class we will create
+import type {
+	AgentConfig,
+	AgentErrors,
+	AgentLogs,
+	AgentRun,
+	AgentState,
+	AgentStatus,
+} from './types.js'; // Assuming types.ts path
 
 // --- Mock Dependencies ---
 

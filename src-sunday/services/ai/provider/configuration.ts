@@ -4,18 +4,18 @@
  * NOTE: Effect.cached removed due to persistent type inference issues.
  */
 
-import { Effect, Layer, Option, Context } from "effect";
+import { FileSystem } from "@effect/platform/FileSystem";
+import { Path } from "@effect/platform/Path";
+import { Context, Effect, Layer, Option } from "effect";
 import * as Record from "effect/Record"; // Use effect/Record utilities
 // Assuming ConfigLoaderApi is correctly imported via index or direct path
 import { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/index.js";
-import { FileSystem } from "@effect/platform/FileSystem";
-import { Path } from "@effect/platform/Path";
+import { ModelNotFoundError, ProviderConfigurationError, ProviderError } from "./errors.js";
 // Import schema types and schema itself
 import type { ProviderConfig, ProvidersConfig } from "./schema.js";
 import { ProvidersConfigSchema } from "./schema.js";
 // Import Tag/Interface and errors for this service
 import { ProviderConfiguration } from "./types.js";
-import { ProviderConfigurationError, ModelNotFoundError, ProviderError } from "./errors.js";
 
 // Define the expected filename for the provider configuration
 const CONFIG_FILENAME = "provider.json";

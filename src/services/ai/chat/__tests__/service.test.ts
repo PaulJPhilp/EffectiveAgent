@@ -41,7 +41,7 @@ describe("ChatService", () => {
                 create: (options: ChatCompletionOptions) =>
                     Effect.gen(function* () {
                         // Get model ID or fail
-                        const modelId = yield* Effect.fromNullable(options.modelId).pipe(
+                        const modelId = yield* Effect.fromNullable(options['modelId']).pipe(
                             Effect.mapError(() => new ChatModelError("Model ID must be provided"))
                         )
 

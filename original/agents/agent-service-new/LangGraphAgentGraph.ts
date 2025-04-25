@@ -1,20 +1,20 @@
 // File: LangGraphAgentGraph.ts
 
-import { StateGraph, END } from '@langchain/langgraph';
+import type { RunnableConfig } from '@langchain/core/runnables';
+import { END, StateGraph } from '@langchain/langgraph';
 import type { CompiledStateGraph } from '@langchain/langgraph';
 import type { BaseChannel } from '@langchain/langgraph/channels';
-import type { RunnableConfig } from '@langchain/core/runnables';
-import type { ITaskService } from '@services/task/types.js';
-import type { IProviderService } from '@services/provider/types.js';
 import type { IModelService } from '@services/model/types.js';
 import type { IPromptService } from '@services/prompt/types.js';
-import type { AgentNode } from './AgentNode.js'; // Assumes AgentNode has a compatible runnable()
-import type { AgentState } from './types.js';
+import type { IProviderService } from '@services/provider/types.js';
+import type { ITaskService } from '@services/task/types.js';
 import type {
-    AgentGraphImplementation,
     AgentGraphConfig,
     AgentGraphFactory,
+    AgentGraphImplementation,
 } from './AgentGraph.js'; // Import shared interfaces
+import type { AgentNode } from './AgentNode.js'; // Assumes AgentNode has a compatible runnable()
+import type { AgentState } from './types.js';
 
 // --- LangGraph Specific Definition ---
 

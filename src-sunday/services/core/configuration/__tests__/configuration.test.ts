@@ -1,17 +1,17 @@
 // File: src/services/core/configuration/__tests__/configuration.test.ts
 
-import { Effect, Layer, Exit, Option, Cause, Scope, Context, DefaultServices, Config, ConfigProvider } from "effect";
-// Use standard vitest functions
-import { describe, expect, it, beforeAll, afterAll } from "vitest";
-import { z } from "zod";
 import * as nodeFs from "node:fs/promises";
-import * as nodePath from "node:path";
 import * as os from "node:os";
+import * as nodePath from "node:path";
+import { Cause, Config, ConfigProvider, Context, DefaultServices, Effect, Exit, Layer, Option, Scope } from "effect";
+// Use standard vitest functions
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { z } from "zod";
 
+import type { ConfigError } from "effect/ConfigError"; // Import ConfigError type
+import { ConfigLoaderOptionsLiveLayer } from "../configuration.js"; // Import the Layer under test
 // Import service types, errors, implementation layer
 import { ConfigLoaderOptions } from "../types.js"; // Import the Tag
-import { ConfigLoaderOptionsLiveLayer } from "../configuration.js"; // Import the Layer under test
-import type { ConfigError } from "effect/ConfigError"; // Import ConfigError type
 
 // --- Test Setup ---
 let tempDir = ""; // Will hold the path to the temporary directory

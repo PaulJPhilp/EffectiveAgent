@@ -10,8 +10,8 @@ import {
     type FindByIdCriteria,
     type FindCriteria,
     type IRepositoryService,
-    type UpdateData,
-    RepositoryService
+    RepositoryService,
+    type UpdateData
 } from "../../types/index.js"
 
 /**

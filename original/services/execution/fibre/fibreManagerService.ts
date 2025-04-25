@@ -1,4 +1,4 @@
-import { Context, Data, Effect, Exit, Fiber, Hub, Queue, Ref, Stream, Semaphore, HashMap } from "effect";
+import { Context, Data, Effect, Exit, Fiber, HashMap, Hub, Queue, Ref, Semaphore, Stream } from "effect";
 
 // Assuming LoggingService is available
 import { type ILoggingService } from "../logging/types"; // Adjust path

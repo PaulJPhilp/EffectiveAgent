@@ -5,7 +5,7 @@ import type { ILoggingService } from "../../../logging/types/index.js"
 import type { Logger } from "../../../logging/types/logger.js"
 import { dateTimeTool } from "../date-time.tool.js"
 import { CalculationError, ConversionError, FormatError, MissingParameterError, ParseError, UnsupportedOperationError, ValidationError } from "../errors/date-time-error.js"
-import { CalculationType, DateTimeOperation, type DateTimeInput } from "../types/date-time.types.js"
+import { CalculationType, type DateTimeInput, DateTimeOperation } from "../types/date-time.types.js"
 
 // Mock services
 const mockLogger: Logger = {

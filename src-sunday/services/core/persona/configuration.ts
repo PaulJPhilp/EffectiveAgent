@@ -4,15 +4,15 @@
  * NOTE: Effect.cached removed due to persistent type inference issues.
  */
 
-import { Effect, Layer, Option, Context } from "effect";
-import * as Record from "effect/Record"; // Use effect/Record utilities
-import { ConfigLoaderApi, ConfigLoaderOptions } from "../configuration/index.js"; // Import ConfigLoader
 import { FileSystem } from "@effect/platform/FileSystem"; // Import deps for R type
 import { Path } from "@effect/platform/Path"; // Import deps for R type
+import { Context, Effect, Layer, Option } from "effect";
+import * as Record from "effect/Record"; // Use effect/Record utilities
+import { ConfigLoaderApi, ConfigLoaderOptions } from "../configuration/index.js"; // Import ConfigLoader
+import { PersonaConfigurationError, PersonaNotFoundError } from "./errors.js"; // Import specific errors
 import type { Persona, PersonasConfig } from "./schema.js"; // Import schema types
 import { PersonasConfigSchema } from "./schema.js"; // Import schema for validation
 import { PersonaConfiguration } from "./types.js"; // Import the Tag/Interface for this service
-import { PersonaConfigurationError, PersonaNotFoundError } from "./errors.js"; // Import specific errors
 
 // Define the expected filename for the persona configuration
 const CONFIG_FILENAME = "personas.json";

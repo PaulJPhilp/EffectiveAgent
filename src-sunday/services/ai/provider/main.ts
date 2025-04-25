@@ -4,37 +4,37 @@
  * and using provider-specific Completions implementations from @effect/ai-*.
  */
 
-import { Effect, Layer, Config, Stream, Context, Secret, Option, Schedule } from "effect";
-import type { ConfigError } from "effect/ConfigError";
-import type { ChatMessage, JsonObject } from "../../types.js";
-import { LoggingApi } from "../../core/logging/index.js";
-import { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/index.js";
+import { HttpClient } from "@effect/platform";
 import { FileSystem } from "@effect/platform/FileSystem";
 import { Path } from "@effect/platform/Path";
-import { HttpClient } from "@effect/platform";
+import { Config, Context, Effect, Layer, Option, Schedule, Secret, Stream } from "effect";
+import type { ConfigError } from "effect/ConfigError";
+import { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/index.js";
+import { LoggingApi } from "../../core/logging/index.js";
+import type { ChatMessage, JsonObject } from "../../types.js";
 
+import {ApiError,AuthenticationError, 
+    InvalidRequestError, ModelNotFoundError, ProviderConfigurationError,
+    ProviderError, 
+} from "./errors.js";
+import type { ProviderConfig } from "./schema.js";
 // Import our service API and types
 import {
+    type ChatCompletionChunk,
+    type ChatCompletionParams,
+    type FinishReason,
     ProviderApi,
     ProviderConfiguration,
-    type ChatCompletionParams,
-    type ChatCompletionChunk,
-    type ToolCall,
-    type FinishReason,
     type TokenUsage,
+    type ToolCall,
 } from "./types.js";
-import type { ProviderConfig } from "./schema.js";
-import {
-    ProviderError, AuthenticationError, ModelNotFoundError, ApiError,
-    InvalidRequestError, ProviderConfigurationError,
-} from "./errors.js";
 
 // --- CORRECTED @effect/ai Imports (using placeholders) ---
 // Import the main namespace
 import * as Ai from "@effect/ai";
+import * as Anthropic from "@effect/ai-anthropic";
 // Import specific provider implementations and Tags
 import * as OpenAI from "@effect/ai-openai";
-import * as Anthropic from "@effect/ai-anthropic";
 // TODO: Find the actual exported types for Request, Response, Message, Error, Chunk
 // Placeholders based on common patterns:
 type AiRequestPlaceholder = Ai.Completions.Request; // Assuming nested Request type
@@ -44,8 +44,8 @@ type AiErrorPlaceholder = Ai.AiError; // Assuming AiError exists at root
 type AiChunkPlaceholder = any; // Placeholder for stream chunk
 // --- End Corrected @effect/ai Imports ---
 
-import { v4 as uuidv4 } from "uuid";
 import { Temporal } from "@js-temporal/polyfill";
+import { v4 as uuidv4 } from "uuid";
 
 // --- Placeholder Imports ---
 // Import the TYPE ProviderName from the global schema

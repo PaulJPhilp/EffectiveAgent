@@ -1,5 +1,5 @@
 import { Effect, Layer, LogLevel } from "effect"
-import { type Logger, ILoggingService, LoggingService } from "./types/index.js"
+import { ILoggingService, type Logger, LoggingService } from "./types/index.js"
 
 /**
  * Live implementation of the LoggingService.

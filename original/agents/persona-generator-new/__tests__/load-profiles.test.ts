@@ -5,7 +5,7 @@ import { ModelService } from '../../../shared/services/model/modelService.js'
 import { PromptService } from '../../../shared/services/prompt/promptService.js'
 import { ProviderService } from '../../../shared/services/provider/providerService.js'
 import { TaskService } from '../../../shared/services/task/TaskService.js'
-import { AgentStatus, type AgentConfig } from '../../agent-service/Agent.js'
+import { type AgentConfig, AgentStatus } from '../../agent-service/Agent.js'
 import { LoadProfilesNode } from '../nodes/load-profiles.js'
 import type { PersonaGeneratorState } from '../types.js'
 

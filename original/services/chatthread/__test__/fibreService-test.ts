@@ -1,26 +1,27 @@
-import { Effect, Exit, Layer, LogLevel, ReadonlyArray, Cause, Tag } from "effect";
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import * as EffectVitest from "@effect/vitest";
+import { Cause, Effect, Exit, Layer, LogLevel, ReadonlyArray, Tag } from "effect";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 // --- Import Service Definition, Errors, Schemas ---
 import {
-    ChatMemoryService, type IChatMemoryService, type ChatMessage,
-    type ChatMessageEntityData, type SummarizationMetadataEntityData,
-    DataValidationError, ConversationNotFoundError, GenericMemoryError,
-    MemoryManagementStrategyTag, type MemoryManagementStrategy // Import strategy tag/interface
+    ChatMemoryService, type ChatMessage,
+    type ChatMessageEntityData, ConversationNotFoundError, 
+    DataValidationError, GenericMemoryError,type IChatMemoryService, type MemoryManagementStrategy, // Import strategy tag/interface
+    MemoryManagementStrategyTag, type SummarizationMetadataEntityData
 } from "../src/memory/chat/chat-memory-service"; // Adjust path
 
+import { RepositoryService } from "../src/repository/repository-service"; // Import Tag
 // --- Import Mocks & Tags ---
 // Mock LoggingService, RepositoryService (multi-type), SkillService (if testing strategy impl)
 // Mock MemoryManagementStrategy
-import {
-    mockLogger, MockLoggingServiceLayer, MockRepositoryLayer, // Use multi-type repo mock
-    MockMultiTypeRepositoryService, // Import class for reset
+import {MockLoggingServiceLayer, 
     MockMemoryManagementStrategy, // Import strategy mock class
+    MockMultiTypeRepositoryService, // Import class for reset
+MockRepositoryLayer, // Use multi-type repo mock
+    mockLogger, 
     // Define or import mock layers for SkillService, ThreadConfigRepo if needed by tests
 } from "./testing/mocks"; // Adjust path
-import { RepositoryService } from "../src/repository/repository-service"; // Import Tag
 
 // --- Test Setup ---
 

@@ -2,19 +2,19 @@
  * @file Tests for the main PromptApi service implementation.
  */
 
-import { Effect, Layer, Exit, Cause, Option, Context } from "effect";
+import { Cause, Context, Effect, Exit, Layer, Option } from "effect";
 import { describe, expect, it, vi } from "vitest"; // Use standard vitest
 
-// Import service types, errors, implementation layer
-import { PromptApi, PromptConfiguration } from "../types.js";
-import { PromptApiLiveLayer } from "../main.js"; // Layer under test
-import { RenderingError, TemplateNotFoundError, PromptConfigurationError, PromptError } from "../errors.js";
-import type { PromptDefinition } from "../schema.js"; // Import schema type
-import type { JsonObject } from "../../types.js"; // Import global type
-// Import types needed for mocking PromptConfiguration's R type
-import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
 import type { FileSystem } from "@effect/platform/FileSystem";
 import type { Path } from "@effect/platform/Path";
+// Import types needed for mocking PromptConfiguration's R type
+import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
+import type { JsonObject } from "../../types.js"; // Import global type
+import { PromptConfigurationError, PromptError, RenderingError, TemplateNotFoundError } from "../errors.js";
+import { PromptApiLiveLayer } from "../main.js"; // Layer under test
+import type { PromptDefinition } from "../schema.js"; // Import schema type
+// Import service types, errors, implementation layer
+import { PromptApi, PromptConfiguration } from "../types.js";
 
 
 // --- Mock Dependencies ---

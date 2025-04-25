@@ -23,14 +23,13 @@ export interface LangGraphDefinition<T extends AgentState<any, any, any>> {
 
 // File: langGraphAgentGraph.test.ts
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { StateGraph } from '@langchain/langgraph'; // Type only
 import type { RunnableConfig } from '@langchain/core/runnables'; // Type only
-import type { ITaskService } from '@services/task/types.js';
-import type { IProviderService } from '@services/provider/types.js';
+import type { StateGraph } from '@langchain/langgraph'; // Type only
 import type { IModelService } from '@services/model/types.js';
 import type { IPromptService } from '@services/prompt/types.js';
-import type { AgentState, AgentConfig } from './types.js';
+import type { IProviderService } from '@services/provider/types.js';
+import type { ITaskService } from '@services/task/types.js';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AgentGraphConfig } from './AgentGraph.js'; // Shared config type
 import { AgentNode } from './AgentNode.js';
 // Import the specific types/classes for LangGraphAgentGraph
@@ -38,6 +37,7 @@ import {
 	LangGraphAgentGraph,
 	type LangGraphDefinition, // Use the definition that supports conditionalNext
 } from './LangGraphAgentGraph.js'; // The class we will create
+import type { AgentConfig, AgentState } from './types.js';
 
 // --- Mock LangGraph Library ---
 // Mock the entire module

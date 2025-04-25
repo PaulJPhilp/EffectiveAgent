@@ -213,7 +213,7 @@ describe("ProviderService", () => {
         it("should fail gracefully with missing API key", async () => {
             // Temporarily unset API key
             const originalKey = process.env.OPENAI_API_KEY
-            delete process.env.OPENAI_API_KEY
+            process.env.OPENAI_API_KEY = undefined
 
             const program = Effect.gen(function* () {
                 const service = yield* ProviderService

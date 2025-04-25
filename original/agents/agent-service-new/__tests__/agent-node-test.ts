@@ -1,13 +1,13 @@
 // File: agentNode.test.ts
 
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { ITaskService } from '@services/task/types.js';
-import type { IProviderService } from '@services/provider/types.js';
 import type { IModelService } from '@services/model/types.js';
 import type { IPromptService } from '@services/prompt/types.js';
-import type { AgentState, AgentConfig } from './types.js';
+import type { IProviderService } from '@services/provider/types.js';
+import type { ITaskService } from '@services/task/types.js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { AgentGraphConfig } from './AgentGraph.js';
 import { AgentNode } from './AgentNode.js'; // The abstract class
+import type { AgentConfig, AgentState } from './types.js';
 
 // --- Mock Dependencies ---
 

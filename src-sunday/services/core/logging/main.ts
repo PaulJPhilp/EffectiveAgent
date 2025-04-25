@@ -2,7 +2,7 @@
  * @file Live implementation of the LoggingApi service using Effect's Console logger.
  */
 
-import { Effect, Layer, LogLevel, Logger, Console, Cause, Option } from "effect"; // Added Option
+import { Cause, Console, Effect, Layer, LogLevel, Logger, Option } from "effect"; // Added Option
 import type { JsonObject } from "../../types.js";
 import { LoggingApi } from "./types.js"; // Import Tag/Interface
 // Import LoggingError if needed for specific error handling

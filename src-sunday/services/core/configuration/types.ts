@@ -2,10 +2,10 @@
  * @file Defines interfaces, Tags, and types for the generic EntityLoader service.
  */
 
-import { Context, Effect } from "effect";
 import type { FileSystem } from "@effect/platform/FileSystem"; // Needed for R type
 import type { Path } from "@effect/platform/Path"; // Needed for R type
 import type { Schema } from "@effect/schema"; // Import Effect Schema type
+import { Context, Effect } from "effect";
 import type {
     EntityLoadError,
     EntityParseError,

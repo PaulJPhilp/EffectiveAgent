@@ -7,27 +7,27 @@ export const mockLogger = { /* ... same as before ... */ };
 export class MockLoggingService implements ILoggingService { /* ... same as before ... */ }
 export const MockLoggingServiceLayer = Layer.succeed(LoggingService, new MockLoggingService());
 
-// --- Repository Mock ---
-import {
-    type IRepositoryService,
-    type BaseEntity,
-    type FindCriteria,
-    type UpdateData,
-    type FindByIdCriteria,
-    RepositoryService, // Assuming the Tag is exported
-    type CreateEffect,
-    type FindEffect,
-    type FindManyEffect,
-    type UpdateEffect,
-    type DeleteEffect,
-} from "../repository/repository-service"; // Adjust path
+import { LoggingService } from "../logging/types/index.ts";
+import { type UserMemoryEntryData } from "../memory/longterm/longterm-memory-service"; // Adjust path (where UserMemoryEntryData is defined)
 import {
     DataValidationError as RepoDataValidationError,
     EntityNotFoundError as RepoEntityNotFoundError,
     RepositoryError as RepoError,
 } from "../repository/errors"; // Adjust path
-import { type UserMemoryEntryData } from "../memory/longterm/longterm-memory-service"; // Adjust path (where UserMemoryEntryData is defined)
-import { LoggingService } from "../logging/types/index.ts";
+// --- Repository Mock ---
+import {
+    type BaseEntity,
+    type CreateEffect,
+    type DeleteEffect,
+    type FindByIdCriteria,
+    type FindCriteria,
+    type FindEffect,
+    type FindManyEffect,
+    type IRepositoryService,
+    RepositoryService, // Assuming the Tag is exported
+    type UpdateData,
+    type UpdateEffect,
+} from "../repository/repository-service"; // Adjust path
 
 // Simple in-memory store for the mock repository
 const mockDb = new Map<string, BaseEntity<UserMemoryEntryData>>();

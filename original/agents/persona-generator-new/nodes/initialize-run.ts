@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto'
 import fs from 'node:fs'
 import path from 'node:path'
 import { ModelService } from '../../../shared/services/model/modelService.js'
@@ -7,7 +8,6 @@ import { TaskService } from '../../../shared/services/task/taskService.js'
 import { AgentNode } from '../../agent-service/AgentNode.js'
 import type { AgentState } from '../../agent-service/types.js'
 import type { PersonaDomainState, PersonaInput, PersonaOutput, Profile } from '../types.js'
-import { randomUUID } from 'node:crypto'
 
 /**
  * Node that initializes a new persona generation run

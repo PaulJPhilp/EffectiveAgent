@@ -7,20 +7,20 @@ export const mockLogger = { /* ... */ };
 export class MockLoggingService implements ILoggingService { /* ... */ }
 export const MockLoggingServiceLayer = Layer.succeed(LoggingService, new MockLoggingService());
 
-// --- Repository Mock (Handling Multiple Entity Types) ---
 import {
-    type IRepositoryService, type BaseEntity, type FindCriteria, type UpdateData,
-    type FindByIdCriteria, RepositoryService, type CreateEffect, type FindEffect,
-    type FindManyEffect, type UpdateEffect, type DeleteEffect,
-} from "../repository/repository-service"; // Adjust path
+    type ChatMessageEntityData, type SummarizationMetadataEntityData
+} from "../memory/chat/chat-memory-service"; // Adjust path
 import {
     DataValidationError as RepoDataValidationError,
     EntityNotFoundError as RepoEntityNotFoundError,
     RepositoryError as RepoError,
 } from "../repository/errors"; // Adjust path
-import {
-    type ChatMessageEntityData, type SummarizationMetadataEntityData
-} from "../memory/chat/chat-memory-service"; // Adjust path
+// --- Repository Mock (Handling Multiple Entity Types) ---
+import {type BaseEntity, type CreateEffect, type DeleteEffect,
+    type FindByIdCriteria, type FindCriteria, type FindEffect,
+    type FindManyEffect, 
+    type IRepositoryService, RepositoryService, type UpdateData,type UpdateEffect, 
+} from "../repository/repository-service"; // Adjust path
 
 // Use separate maps for different entity types in the mock
 const mockChatMessageDb = new Map<string, BaseEntity<ChatMessageEntityData>>();

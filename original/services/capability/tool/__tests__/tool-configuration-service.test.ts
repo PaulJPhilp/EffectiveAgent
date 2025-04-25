@@ -6,7 +6,7 @@ import { z } from "zod"
 import { ConfigParseError, ConfigReadError, ConfigSchemaMissingError, ConfigValidationError } from "../../configuration/errors.js"
 import { ConfigLoader } from "../../configuration/types.js"
 import { ToolConfigurationError } from "../errors.js"
-import { AgentToolConfigSchema, type AgentToolConfig } from "../schema.js"
+import { type AgentToolConfig, AgentToolConfigSchema } from "../schema.js"
 import { ToolConfigurationService } from "../tool-configuration-service.js"
 
 const validAgentConfig: AgentToolConfig = {

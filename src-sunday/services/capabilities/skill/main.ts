@@ -20,12 +20,12 @@ import { OpenAiCompletions } from "@effect/ai-openai";
 import { IntelligenceConfiguration, IntelligenceProfile } from "@/services/core/intelligence/index.js";
 import { PersonaConfiguration } from "@/services/core/persona/index.js";
 import { ProviderNameValues } from "@/services/schema.js";
+import { AnthropicClient } from "@effect/ai-anthropic/AnthropicClient";
+import { OpenAiClient } from "@effect/ai-openai/OpenAiClient";
+import { AiModels } from "@effect/ai/AiModels";
 import { SkillError, SkillExecutionError } from "./errors.js";
 import type { SkillExecutionParams } from "./schema.js";
 import { SkillApi, SkillConfiguration, type SkillInput, type SkillOutput } from "./types.js";
-import { OpenAiClient } from "@effect/ai-openai/OpenAiClient";
-import { AiModels } from "@effect/ai/AiModels";
-import { AnthropicClient } from "@effect/ai-anthropic/AnthropicClient";
 
 function getModelAndProvider(profile: IntelligenceProfile) {
     // Extract model from the first model preference

@@ -1,4 +1,5 @@
 import { ModelCapability } from '@/schema.js'
+import { EffectiveInput } from "@/services/ai/input/service.js"
 import type { FinishReason, Metadata, ReasoningDetail, ResponseMessage, Source, Usage, Warning } from '@/types.js'
 import { AnthropicProvider, AnthropicProviderSettings } from '@ai-sdk/anthropic'
 import { DeepSeekProvider, DeepSeekProviderSettings } from '@ai-sdk/deepseek'
@@ -6,10 +7,45 @@ import { GoogleGenerativeAIProvider, GoogleGenerativeAIProviderSettings } from '
 import { GroqProvider, GroqProviderSettings } from '@ai-sdk/groq'
 import { OpenAIProvider, OpenAIProviderSettings } from '@ai-sdk/openai'
 import { PerplexityProvider, PerplexityProviderSettings } from '@ai-sdk/perplexity'
-import { LanguageModelV1 } from '@ai-sdk/provider'
+import { LanguageModelV1, LanguageModelV1Prompt } from '@ai-sdk/provider'
 import { XaiProvider, XaiProviderSettings } from '@ai-sdk/xai'
-import { CoreMessage } from 'ai'
 import { Effect } from 'effect'
+import * as Stream from "effect/Stream"
+import { ProviderConfigError } from '../errors.js'
+import { ProvidersType } from './schema.js'
+
+// Re-export types from @ai-sdk/provider
+export type { LanguageModelV1, LanguageModelV1Prompt } from '@ai-sdk/provider'
+
+// Re-export providers
+export {
+    AnthropicProvider,
+    DeepSeekProvider,
+    GoogleGenerativeAIProvider,
+    GroqProvider,
+    OpenAIProvider,
+    PerplexityProvider,
+    XaiProvider
+}
+
+// Re-export provider settings
+export type {
+    AnthropicProviderSettings,
+    DeepSeekProviderSettings,
+    GoogleGenerativeAIProviderSettings,
+    GroqProviderSettings,
+    OpenAIProviderSettings,
+    PerplexityProviderSettings,
+    XaiProviderSettings
+}
+
+// Re-export types from @/types.js
+export type {
+    FinishReason,
+    Metadata as ProviderMetadata,
+    Usage,
+    Warning
+}
 
 /**
  * Base result type containing common fields for all AI generation results
@@ -230,9 +266,141 @@ export interface GenerateEmbeddingsResult extends GenerateBaseResult {
 }
 
 /**
+ * Standardized response wrapper for AI provider operations.
+ */
+export interface EffectiveResponse<TData> {
+    /** The core data payload (e.g., GenerateTextResult, GenerateObjectResult) */
+    readonly data: TData;
+    /** Common metadata (can be extended if needed) */
+    readonly metadata: {
+        readonly model?: string;
+        readonly id: string;
+        readonly timestamp: Date;
+        readonly usage?: Usage;
+        readonly finishReason?: FinishReason;
+        readonly providerMetadata?: Metadata;
+    };
+}
+
+/**
+ * Base options common to many provider API calls.
+ */
+export interface BaseProviderOptions {
+    /** The specific model ID to use for the operation */
+    readonly modelId: string;
+    /** Optional tracing span */
+    // readonly span?: Span; // TODO: Decide if span is passed explicitly or via Effect context
+    /** Optional common generation parameters */
+    readonly parameters?: {
+        /** Maximum retries on failure */
+        maxRetries?: number;
+        /** Temperature (0-2) */
+        temperature?: number;
+        /** Top-p sampling */
+        topP?: number;
+        /** Top-k sampling */
+        topK?: number;
+        /** Presence penalty */
+        presencePenalty?: number;
+        /** Frequency penalty */
+        frequencyPenalty?: number;
+        /** Random seed */
+        seed?: number;
+        /** Stop sequences */
+        stop?: string[];
+        /** Maximum generation steps/tokens (provider specific interpretation) */
+        maxTokens?: number; // Renamed from maxSteps for clarity
+    };
+    /** Optional signal to abort the operation */
+    readonly abortSignal?: AbortSignal;
+}
+
+/**
+ * Options specific to text generation.
+ */
+export interface ProviderGenerateTextOptions extends BaseProviderOptions {
+    /** Optional system prompt or instructions */
+    readonly system?: string;
+}
+
+/**
+ * Options specific to object generation.
+ */
+export interface ProviderGenerateObjectOptions<T> extends BaseProviderOptions {
+    /** The schema for the object to be generated */
+    readonly schema: unknown; // Keeping as unknown for now, consistent with Vercel AI SDK
+    /** Optional system prompt or instructions */
+    readonly system?: string;
+}
+
+/**
+ * Options specific to chat generation.
+ */
+export interface ProviderChatOptions extends BaseProviderOptions {
+    /** Optional system prompt or instructions */
+    readonly system?: string;
+}
+
+/**
+ * Options specific to embedding generation.
+ */
+export interface ProviderGenerateEmbeddingsOptions extends BaseProviderOptions {
+    /** Optional batch size for processing embeddings */
+    readonly batchSize?: number;
+}
+
+/**
+ * Options specific to image generation.
+ */
+export interface ProviderGenerateImageOptions extends BaseProviderOptions {
+    /** Number of images to generate */
+    readonly n?: number;
+    /** Desired size of the image (e.g., '1024x1024') */
+    readonly size?: string;
+    /** Quality setting (e.g., 'hd', 'standard') */
+    readonly quality?: string;
+    /** Artistic style (e.g., 'vivid', 'natural') */
+    readonly style?: string;
+}
+
+/**
+ * Options specific to speech generation.
+ */
+export interface ProviderGenerateSpeechOptions extends BaseProviderOptions {
+    /** Voice ID or name */
+    readonly voice?: string;
+    /** Speed/rate adjustment */
+    readonly speed?: string;
+}
+
+/**
+ * Options specific to transcription.
+ */
+export interface ProviderTranscribeOptions extends BaseProviderOptions {
+    /** Language hint */
+    readonly language?: string;
+    /** Enable speaker diarization */
+    readonly diarization?: boolean;
+    /** Enable timestamps */
+    readonly timestamps?: boolean;
+}
+
+/**
  * Discriminated union type for all supported AI providers.
  * Each provider has a unique 'name' property that acts as the discriminator.
  */
+/**
+ * Discriminated union type for Vercel AI SDK providers
+ */
+export type VercelProvider =
+    | { type: "openai"; provider: OpenAIProvider }
+    | { type: "anthropic"; provider: AnthropicProvider }
+    | { type: "google"; provider: GoogleGenerativeAIProvider }
+    | { type: "xai"; provider: XaiProvider }
+    | { type: "perplexity"; provider: PerplexityProvider }
+    | { type: "groq"; provider: GroqProvider }
+    | { type: "deepseek"; provider: DeepSeekProvider }
+
 export type EffectiveProviderApi =
     | { name: "openai"; provider: OpenAIProvider; capabilities: Set<ModelCapability> }
     | { name: "anthropic"; provider: AnthropicProvider; capabilities: Set<ModelCapability> }
@@ -241,6 +409,7 @@ export type EffectiveProviderApi =
     | { name: "perplexity"; provider: PerplexityProvider; capabilities: Set<ModelCapability> }
     | { name: "groq"; provider: GroqProvider; capabilities: Set<ModelCapability> }
     | { name: "deepseek"; provider: DeepSeekProvider; capabilities: Set<ModelCapability> }
+    | { name: "openrouter"; provider: unknown; capabilities: Set<ModelCapability> } // TODO: Replace 'unknown' with actual OpenRouterProvider type when available
 
 /**
  * Union type for all supported provider settings.
@@ -253,95 +422,7 @@ export type EffectiveProviderSettings =
     | { name: "perplexity"; settings: PerplexityProviderSettings }
     | { name: "groq"; settings: GroqProviderSettings }
     | { name: "deepseek"; settings: DeepSeekProviderSettings }
-
-/**
-* Options for generating text using a language model
-*/
-export interface GenerateTextOptions {
-    /**
-     * The language model to use for text generation
-     */
-    readonly model: LanguageModelV1;
-    /**
-     * The prompt to generate text from
-     */
-    readonly prompt: string;
-    /**
-     * Optional array of messages for chat-based models
-     */
-    readonly messages?: CoreMessage[];
-
-    /**
-     * The maximum number of steps to take in the generation process
-     */
-    maxSteps?: number;
-
-    /**
-     * The signal to abort the generation process
-     */
-    abortSignal?: AbortSignal;
-
-    /**
-     * The maximum number of retries to attempt in the generation process
-     */
-    maxRetries?: number;
-
-    /** 
-     * The temperature to use in the generation process
-     */
-    temperature?: number;
-
-    /**
-     * The top-p value to use in the generation process
-     */
-    topP?: number;
-
-    /**
-     * The top-k value to use in the generation process
-     */
-    topK?: number;
-
-    /**
-     * The presence penalty to use in the generation process
-     */
-    presencePenalty?: number;
-
-    /**
-     * 
-     */
-    frequencyPenalty?: number;
-
-    /**
-     * The seed to use in the generation process
-     */
-    seed?: number;
-
-    /**
-     * The stop sequences to use in the generation process
-     */
-    stop?: string[];
-
-    /**
-     * 
-     */
-}
-
-/**
- * Options for streaming text using a language model
- */
-export interface StreamTextOptions extends GenerateTextOptions {
-    onToken?: (token: string) => void;
-}
-
-/**
- * Options for chat generation
- */
-export interface ChatOptions {
-    modelId: string;
-    messages: CoreMessage[];
-    system?: string;
-    onToken?: (token: string) => void;
-}
+    | { name: "openrouter"; settings: unknown } // TODO: Replace 'unknown' with actual OpenRouterProviderSettings when available
 
 /**
  * Core provider client API interface that all providers must implement.
@@ -349,88 +430,77 @@ export interface ChatOptions {
  */
 export interface ProviderClientApi {
     /**
-     * Generate text completion from a prompt
+     * Generate text completion from input.
      */
-    generateText(options: GenerateTextOptions): Effect.Effect<GenerateTextResult, Error>
+    generateText(input: EffectiveInput, options: ProviderGenerateTextOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, Error>;
 
     /**
-     * Stream text completion from a prompt
+     * Stream text completion from input.
      */
-    streamText(options: StreamTextOptions): Effect.Effect<StreamingTextResult, Error>
+    streamText(input: EffectiveInput, options: ProviderGenerateTextOptions): Stream.Stream<EffectiveResponse<StreamingTextResult>, Error>;
 
     /**
-     * Generate a structured object based on a schema
+     * Generate a structured object based on a schema from input.
      */
-    generateObject<T>(options: GenerateTextOptions & { schema: unknown }): Effect.Effect<GenerateObjectResult<T>, Error>
+    generateObject<T>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>): Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, Error>;
 
     /**
-     * Stream a structured object based on a schema
+     * Stream a structured object based on a schema from input.
      */
-    streamObject<T>(options: StreamTextOptions & { schema: unknown }): Effect.Effect<StreamingObjectResult<T>, Error>
+    streamObject<T>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>): Stream.Stream<EffectiveResponse<StreamingObjectResult<T>>, Error>;
 
     /**
-     * Generate chat completion from messages
+     * Generate chat completion from input messages.
      */
-    chat(options: ChatOptions): Effect.Effect<ChatResult, Error>
+    chat(input: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<ChatResult>, Error>;
 
     /**
-     * Generate embeddings for one or more texts
+     * Stream chat completion from input messages.
      */
-    generateEmbeddings(texts: string[], options?: {
-        model?: string
-        batchSize?: number
-    }): Effect.Effect<GenerateEmbeddingsResult, Error>
+    streamChat(input: EffectiveInput, options: ProviderChatOptions): Stream.Stream<EffectiveResponse<StreamingTextResult>, Error>;
 
     /**
-     * Generate images from a text prompt
+     * Generate embeddings for texts provided in the input.
+     * Note: Input needs adaptation to extract texts.
      */
-    generateImage(prompt: string, options?: {
-        model?: string
-        size?: string
-        quality?: string
-        style?: string
-        n?: number
-    }): Effect.Effect<GenerateImageResult, Error>
+    generateEmbeddings(input: EffectiveInput, options: ProviderGenerateEmbeddingsOptions): Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, Error>;
 
     /**
-     * Generate speech from text
+     * Generate images from a text prompt provided in the input.
+     * Note: Input needs adaptation to extract prompt.
      */
-    generateSpeech(text: string, options?: {
-        model?: string
-        voice?: string
-        speed?: string
-        pitch?: string
-        language?: string
-    }): Effect.Effect<GenerateSpeechResult, Error>
+    generateImage(input: EffectiveInput, options: ProviderGenerateImageOptions): Effect.Effect<EffectiveResponse<GenerateImageResult>, Error>;
 
     /**
-     * Transcribe speech to text
+     * Generate speech from text provided in the input.
+     * Note: Input needs adaptation to extract text.
      */
-    transcribe(audioData: string | Uint8Array, options?: {
-        model?: string
-        language?: string
-        diarization?: boolean
-        timestamps?: boolean
-        quality?: string
-    }): Effect.Effect<TranscribeResult, Error>
+    generateSpeech(input: EffectiveInput, options: ProviderGenerateSpeechOptions): Effect.Effect<EffectiveResponse<GenerateSpeechResult>, Error>;
 
     /**
-     * Get the capabilities supported by this provider
+     * Transcribe speech to text from audio data provided in the input.
+     * Note: Input needs adaptation to extract audio data.
      */
-    getCapabilities(): Set<ModelCapability>
+    transcribe(input: EffectiveInput, options: ProviderTranscribeOptions): Effect.Effect<EffectiveResponse<TranscribeResult>, Error>;
 
     /**
-     * Get the available models for this provider
+     * Get the capabilities supported by this provider client instance.
      */
-    getModels(): Effect.Effect<LanguageModelV1[], Error>
+    getCapabilities(): Effect.Effect<Set<ModelCapability>, ProviderConfigError>;
 
     /**
-     * Get the name of the provider
+     * Get the available models usable by this provider client.
      */
-    getProviderName(): string
+    getModels(): Effect.Effect<LanguageModelV1[], Error>;
 
     /**
-     * Set up the provider for use with Vercel AI SDK
+     * Get the name of the provider associated with this client instance.
      */
-    setVercelProvider(): Effect.Effect<void, Error>
+    getProviderName(): Effect.Effect<string, ProviderConfigError>;
+
+    /**
+     * Initialize the provider client (e.g., set API key and endpoint).
+     * Returns the initialized provider details.
+     */
+    setVercelProvider(providerName: ProvidersType, apiKey: string): Effect.Effect<void, ProviderConfigError>;
 }

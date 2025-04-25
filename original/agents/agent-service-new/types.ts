@@ -1,12 +1,12 @@
 // File: types.ts
 
-import type { z } from 'zod';
-import type { AgentConfigSchema, AgentRunSchema } from './schema.js'; // Assuming schema.ts path
-import type { AgentNode } from './AgentNode.js'; // Import base AgentNode type
-import type { ITaskService } from '@services/task/types.js'; // Import service interfaces if needed by factories etc.
-import type { IProviderService } from '@services/provider/types.js';
 import type { IModelService } from '@services/model/types.js';
 import type { IPromptService } from '@services/prompt/types.js';
+import type { IProviderService } from '@services/provider/types.js';
+import type { ITaskService } from '@services/task/types.js'; // Import service interfaces if needed by factories etc.
+import type { z } from 'zod';
+import type { AgentNode } from './AgentNode.js'; // Import base AgentNode type
+import type { AgentConfigSchema, AgentRunSchema } from './schema.js'; // Assuming schema.ts path
 
 // --- Core Agent State Components ---
 

@@ -263,6 +263,47 @@ export class PromptConfigError extends AIError {
         })
     }
 }
+
+/**
+ * Error thrown when input messages or content is empty when required
+ */
+export class EmptyInputError extends AIError {
+    constructor(options: {
+        module: string;
+        method: string;
+        description?: string;
+        cause?: unknown;
+    }) {
+        super(options.description ?? "Input messages or content cannot be empty", {
+            cause: options.cause,
+            code: "empty_input_error",
+            name: "EmptyInputError",
+            module: options.module,
+            method: options.method
+        });
+    }
+}
+
+/**
+ * Error thrown when a required model ID is missing
+ */
+export class MissingModelIdError extends AIError {
+    constructor(options: {
+        module: string;
+        method: string;
+        description?: string;
+        cause?: unknown;
+    }) {
+        super(options.description ?? "Model ID is required", {
+            cause: options.cause,
+            code: "missing_model_id_error",
+            name: "MissingModelIdError",
+            module: options.module,
+            method: options.method
+        });
+    }
+}
+
 /**
  * Helper to map provider errors to our error types
  */

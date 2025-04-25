@@ -3,98 +3,274 @@
  * @module services/ai/provider/errors
  */
 
-import type { EntityLoadError, EntityParseError } from "@/services/core/errors.js";
-import type { ParseError } from "@effect/schema/ParseResult";
-import { Data } from "effect";
+import { EffectiveError } from "@/effective-error.js";
+import type { ModelCapability } from "@/schema.js";
+import type { ProvidersType } from "./schema.js";
 
 /**
  * Base error type for provider-related errors
  */
-export class ProviderError extends Data.TaggedError("ProviderError")<{
-    readonly providerName: string;
-    readonly message: string;
-    readonly cause?: unknown;
-}> { }
+/**
+ * Base error type for provider-related errors.
+ * @extends EffectiveError
+ */
+export class ProviderError extends EffectiveError {
+    public readonly providerName: string;
+    /**
+     * @param params - Error details
+     * @param params.providerName - The provider's name
+     * @param params.description - Error description
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { providerName: string; description: string; module: string; method: string; cause?: unknown }) {
+        super({ description: params.description, cause: params.cause, module: params.module, method: params.method });
+        this.providerName = params.providerName;
+    }
+}
 
 /**
  * Error class for failures related to loading, parsing, or validating
  * the provider configuration.
  */
-export class ProviderConfigError extends Data.TaggedError("ProviderConfigError")<{
-    readonly message: string;
-    readonly cause?: EntityLoadError | EntityParseError | ParseError | Error;
-}> { }
+/**
+ * Error class for failures related to loading, parsing, or validating the provider configuration.
+ * @extends EffectiveError
+ */
+export class ProviderConfigError extends EffectiveError {
+    /**
+     * @param params - Error details
+     * @param params.description - Error description
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}
 
 /**
  * Error thrown when a provider is not found
  */
-export class ProviderNotFoundError extends Data.TaggedError("ProviderNotFoundError")<{
-    readonly providerName: string;
-    readonly message: string;
-}> {
-    constructor(providerName: string) {
+/**
+ * Error thrown when a provider is not found.
+ * @extends EffectiveError
+ */
+export class ProviderNotFoundError extends EffectiveError {
+    public readonly providerName: string;
+    /**
+     * @param params - Error details
+     * @param params.providerName - Provider name
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { providerName: string; module: string; method: string; cause?: unknown }) {
         super({
-            providerName,
-            message: `Provider not found: ${providerName}`
+            description: `Provider ${params.providerName} not found`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause
         });
+        this.providerName = params.providerName;
     }
 }
 
 /**
  * Error thrown when an API key is missing for a provider
  */
-export class ProviderMissingApiKeyError extends Data.TaggedError("ProviderMissingApiKeyError")<{
-    readonly providerName: string;
-    readonly message: string;
-}> {
-    constructor(providerName: string) {
+/**
+ * Error thrown when an API key is missing for a provider.
+ * @extends EffectiveError
+ */
+export class ProviderMissingApiKeyError extends EffectiveError {
+    public readonly providerName: string;
+    /**
+     * @param params - Error details
+     * @param params.providerName - Provider name
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { providerName: string; module: string; method: string; cause?: unknown }) {
         super({
-            providerName,
-            message: `API key is missing for provider: ${providerName}`
+            description: `Missing API key for provider ${params.providerName}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause
         });
+        this.providerName = params.providerName;
     }
 }
 
 /**
  * Error thrown when an API key is invalid for a provider
  */
-export class ProviderInvalidApiKeyError extends Data.TaggedError("ProviderInvalidApiKeyError")<{
-    readonly providerName: string;
-    readonly message: string;
-    readonly cause?: Error;
-}> {
-    constructor(providerName: string, cause?: Error) {
+/**
+ * Error thrown when an API key is invalid for a provider.
+ * @extends EffectiveError
+ */
+export class ProviderInvalidApiKeyError extends EffectiveError {
+    public readonly providerName: string;
+    /**
+     * @param params - Error details
+     * @param params.providerName - Provider name
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { providerName: string; module: string; method: string; cause?: unknown }) {
         super({
-            providerName,
-            message: `API key is invalid for provider: ${providerName}`,
-            cause
+            description: `Invalid API key for provider ${params.providerName}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause
         });
+        this.providerName = params.providerName;
     }
 }
 
 /**
  * Error thrown when a provider is missing a required capability
  */
-export class ProviderMissingCapabilityError extends Data.TaggedError("ProviderMissingCapabilityError")<{
-    readonly providerName: string;
-    readonly capability: string;
-    readonly message: string;
-}> {
-    constructor(params: { providerName: string; capability: string }) {
+/**
+ * Error thrown when a provider is missing a required capability.
+ * @extends EffectiveError
+ */
+export class ProviderMissingCapabilityError extends EffectiveError {
+    public readonly providerName: ProvidersType;
+    public readonly capability: ModelCapability;
+    /**
+     * @param params - Error details
+     * @param params.providerName - Provider name
+     * @param params.capability - Capability
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { providerName: ProvidersType; capability: ModelCapability; module: string; method: string; cause?: unknown }) {
         super({
-            providerName: params.providerName,
-            capability: params.capability,
-            message: `Provider ${params.providerName} is missing capability: ${params.capability}`
+            description: `Provider ${params.providerName} does not support ${params.capability}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause
         });
+        this.providerName = params.providerName;
+        this.capability = params.capability;
     }
 }
 
 /**
  * Error thrown when a provider operation fails
  */
-export class ProviderOperationError extends Data.TaggedError("ProviderOperationError")<{
-    readonly providerName: string;
-    readonly operation: string;
-    readonly message: string;
-    readonly cause?: Error;
-}> { }
+/**
+ * Error thrown when a provider operation fails.
+ * @extends EffectiveError
+ */
+export class ProviderOperationError extends EffectiveError {
+    public readonly operation: string;
+    public readonly providerName: string;
+    /**
+     * @param params - Error details
+     * @param params.operation - Operation name
+     * @param params.message - Error message
+     * @param params.providerName - Provider name
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { operation: string; message: string; providerName: string; module: string; method: string; cause?: unknown }) {
+        super({
+            description: `Provider operation '${params.operation}' failed: ${params.message}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause
+        });
+        this.operation = params.operation;
+        this.providerName = params.providerName;
+    }
+}
+
+/**
+ * Error thrown when input is empty
+ */
+/**
+ * Error thrown when input is empty.
+ * @extends EffectiveError
+ */
+export class ProviderEmptyInputError extends EffectiveError {
+    /**
+     * @param params - Error details
+     * @param params.message - Error message
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { message: string; module: string; method: string; cause?: unknown }) {
+        super({
+            description: `Empty input error: ${params.message}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause
+        });
+    }
+}
+
+/**
+ * Error thrown when text generation fails.
+ * @extends EffectiveError
+ */
+export class GenerateTextError extends EffectiveError {
+    /**
+     * @param params - Error details
+     * @param params.description - Error message
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}
+
+/**
+ * Error thrown when object generation fails.
+ * @extends EffectiveError
+ */
+export class GenerateObjectError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}
+
+/**
+ * Error thrown when speech generation fails.
+ * @extends EffectiveError
+ */
+export class GenerateSpeechError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}
+
+/**
+ * Error thrown when transcription fails.
+ * @extends EffectiveError
+ */
+export class TranscribeError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}
+
+/**
+ * Error thrown when embedding generation fails.
+ * @extends EffectiveError
+ */
+export class GenerateEmbeddingsError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}

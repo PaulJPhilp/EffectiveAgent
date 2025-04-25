@@ -3,20 +3,20 @@
  * Skills are the primary abstraction for invoking AI capabilities.
  */
 
-import { Context, Effect, Layer } from "effect";
-import type { ConfigError } from "effect/ConfigError";
-import type { JsonObject, Id } from "../../types.js"; // Global types
-import type { LoggingApi } from "../../core/logging/types.js";
 // Import AI service types needed for R signature
  // Assuming ChatModel is the Tag/Interface from @effect/ai root
 import type { HttpClient } from "@effect/platform";
-// Import Config dependencies needed by Configuration services
-import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
 import type { FileSystem } from "@effect/platform/FileSystem";
 import type { Path } from "@effect/platform/Path";
+import { Context, Effect, Layer } from "effect";
+import type { ConfigError } from "effect/ConfigError";
+// Import Config dependencies needed by Configuration services
+import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
 // Import other required service Tags/Interfaces for R signature
 import type { IntelligenceConfiguration } from "../../core/intelligence/types.js";
+import type { LoggingApi } from "../../core/logging/types.js";
 import type { PersonaConfiguration } from "../../core/persona/types.js";
+import type { Id, JsonObject } from "../../types.js"; // Global types
 // Import Skill-specific errors and schema types
 import type { SkillError } from "./errors.js";
 import type {SkillDefinition, SkillExecutionParams } from "./schema.js";

@@ -1,10 +1,10 @@
-import { mkdir, readFile, readdir, writeFile } from 'fs/promises'
+import * as fs from 'fs'
 import { join } from 'path'
+import { mkdir, readFile, readdir, writeFile } from 'fs/promises'
 import { z } from 'zod'
 import { AgentNode } from '../../agent-service/AgentNode.js'
 import type { PersonaGeneratorState } from '../persona-generator-agent.js'
 import type { Profile } from '../types.js'
-import * as fs from 'fs'
 
 // Profile schema
 const ProfileSchema = z.object({

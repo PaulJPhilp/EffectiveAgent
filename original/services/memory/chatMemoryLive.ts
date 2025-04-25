@@ -1,15 +1,16 @@
 // src/memory/chat/chat-memory-service-live.ts (Example path)
 import { Effect, Layer, ReadonlyArray } from "effect";
-import {
-    type IChatMemoryService, ChatMemoryService, type ChatMessage,
-    type ChatMessageEntityData, type SummarizationMetadataEntityData,
-    DataValidationError, ConversationNotFoundError, GenericMemoryError,
-    ChatMessageEntityDataSchema, // Import schema if needed for validation
-} from "./chat-memory-service"; // Adjust path
 import { ILoggingService, LoggingService } from "../../logging/types"; // Adjust path
-import { IRepositoryService, RepositoryService } from "../../repository/repository-service"; // Adjust path
 import { DataValidationError as RepoDataValidationError, EntityNotFoundError as RepoEntityNotFoundError } from "../../repository/errors"; // Adjust path
-import { MemoryManagementStrategyTag, type MemoryManagementStrategy } from "./testing/mocks"; // Adjust path to where Tag is defined
+import { IRepositoryService, RepositoryService } from "../../repository/repository-service"; // Adjust path
+import {ChatMemoryService, type ChatMessage,
+    type ChatMessageEntityData, 
+    ChatMessageEntityDataSchema, // Import schema if needed for validation
+ConversationNotFoundError, 
+    DataValidationError, GenericMemoryError,
+    type IChatMemoryService, type SummarizationMetadataEntityData,
+} from "./chat-memory-service"; // Adjust path
+import { type MemoryManagementStrategy, MemoryManagementStrategyTag } from "./testing/mocks"; // Adjust path to where Tag is defined
 
 export class ChatMemoryServiceLive implements IChatMemoryService {
     // Assuming repository service handles both types via the generic tag

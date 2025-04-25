@@ -2,15 +2,15 @@
  * @file Defines interfaces, Tags, and types for the IntelligenceConfiguration service.
  */
 
+import type { FileSystem } from "@effect/platform/FileSystem";
+import type { Path } from "@effect/platform/Path";
 import { Context, Effect, Layer } from "effect";
 import type { ConfigError } from "effect/ConfigError";
 import type { Id, JsonObject } from "../../types.js";
-import type { IntelligenceConfigurationError } from "./errors.js"; // Import specific errors
-import type { IntelligenceProfile } from "./schema.js"; // Import schema type
 // Import dependencies needed for R type
 import type { ConfigLoaderApi, ConfigLoaderOptions } from "../configuration/types.js";
-import type { FileSystem } from "@effect/platform/FileSystem";
-import type { Path } from "@effect/platform/Path";
+import type { IntelligenceConfigurationError } from "./errors.js"; // Import specific errors
+import type { IntelligenceProfile } from "./schema.js"; // Import schema type
 
 // --- Service Interfaces & Tags ---
 

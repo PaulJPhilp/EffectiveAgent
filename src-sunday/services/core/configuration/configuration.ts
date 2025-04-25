@@ -3,7 +3,7 @@
  * the base path from application configuration (e.g., environment variables).
  */
 
-import { Effect, Layer, Config, Context } from "effect";
+import { Config, Context, Effect, Layer } from "effect";
 import type { ConfigError } from "effect/ConfigError";
 import { ConfigLoaderOptions } from "./types.js"; // Import the Tag/Interface
 

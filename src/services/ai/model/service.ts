@@ -5,8 +5,14 @@
 
 import { ModelCapability, Provider } from "@/schema.js";
 import { EntityParseError } from "@/services/core/errors.js";
+import { LanguageModelV1 } from '@ai-sdk/provider';
 import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
-import { ModelConfigError, ModelNotFoundError, ModelValidationError } from "./errors.js";
+import {
+    MissingModelIdError,
+    ModelConfigError,
+    ModelNotFoundError,
+    ModelValidationError
+} from "./errors.js";
 import { Model, ModelFile } from "./schema.js";
 
 export type ModelServiceApi = {
@@ -14,6 +20,28 @@ export type ModelServiceApi = {
     getProviderName: (modelId: string) => Effect.Effect<Provider, ModelConfigError | ModelNotFoundError>;
     findModelsByCapability: (capability: typeof ModelCapability) => Effect.Effect<Array<Model>, ModelConfigError>;
     findModelsByCapabilities: (capabilities: typeof ModelCapability) => Effect.Effect<Array<Model>, ModelConfigError>;
+
+    /**
+     * Gets the default model ID for a given provider and capability.
+     */
+    getDefaultModelId: (
+        provider: Provider,
+        capability: ModelCapability
+    ) => Effect.Effect<string, ModelConfigError | MissingModelIdError>;
+
+    /**
+     * Gets metadata for all models associated with a specific provider.
+     */
+    getModelsForProvider: (
+        provider: Provider
+    ) => Effect.Effect<LanguageModelV1[], ModelConfigError>;
+
+    /**
+     * Validates if a model has all the specified capabilities.
+     * @param modelId The ID of the model to validate.
+     * @param capabilities Array of capabilities to validate against.
+     * @returns An Effect resolving to true if the model exists and has all specified capabilities, false otherwise.
+     */
     validateModel: (modelId: string, capabilities: typeof ModelCapability) => Effect.Effect<boolean, ModelConfigError | ModelValidationError>;
 }
 
@@ -32,6 +60,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                     const rawConfig = yield* configProvider.load(Config.string("provider")).pipe(
                         Effect.mapError(cause => new ModelConfigError({
                             message: "Failed to load model config",
+                            method: "load",
                             cause: new EntityParseError({
                                 filePath: "models.json",
                                 cause
@@ -43,6 +72,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                         try: () => JSON.parse(rawConfig),
                         catch: (error) => new ModelConfigError({
                             message: "Failed to parse model config",
+                            method: "load",
                             cause: new EntityParseError({
                                 filePath: "models.json",
                                 cause: error instanceof Error ? error : new Error(String(error))
@@ -53,6 +83,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                     const validConfig = yield* S.decode(ModelFile)(parsedConfig).pipe(
                         Effect.mapError(cause => new ModelConfigError({
                             message: "Failed to validate model config",
+                            method: "load",
                             cause: new EntityParseError({
                                 filePath: "models.json",
                                 cause
@@ -70,7 +101,10 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                     Effect.flatMap((modelFile) => {
                         const model = modelFile.models.find((m) => m.id === modelId);
                         if (!model) {
-                            return Effect.fail(new ModelNotFoundError(modelId));
+                            return Effect.fail(new ModelNotFoundError({
+                                modelId,
+                                method: "getProviderName"
+                            }));
                         }
                         return Effect.succeed(model.provider as Provider);
                     }),
@@ -78,6 +112,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                         cause instanceof ModelNotFoundError ? cause :
                             new ModelConfigError({
                                 message: "Failed to access models for provider search",
+                                method: "getProviderName",
                                 cause
                             })
                     )
@@ -91,6 +126,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                     Effect.mapError((cause) =>
                         new ModelConfigError({
                             message: "Failed to access models for capability search",
+                            method: "findModelsByCapability",
                             cause
                         })
                     )
@@ -111,6 +147,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                     Effect.mapError((cause) =>
                         new ModelConfigError({
                             message: "Failed to access models for capabilities search",
+                            method: "findModelsByCapabilities",
                             cause
                         })
                     )
@@ -130,7 +167,8 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                             return Effect.fail(new ModelValidationError({
                                 modelId,
                                 message: `Model not found: ${modelId}`,
-                                capabilities: capabilities.literals as unknown as string[]
+                                capabilities: capabilities.literals as unknown as string[],
+                                method: "validateModel"
                             }));
                         }
                         const hasCapabilities = capabilities.literals.every((cap) => model.capabilities.includes(cap));
@@ -138,7 +176,8 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                             return Effect.fail(new ModelValidationError({
                                 modelId,
                                 message: `Model ${modelId} does not have all required capabilities`,
-                                capabilities: capabilities.literals as unknown as string[]
+                                capabilities: capabilities.literals as unknown as string[],
+                                method: "validateModel"
                             }));
                         }
                         return Effect.succeed(true);
@@ -147,6 +186,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                         cause instanceof ModelValidationError ? cause :
                             new ModelConfigError({
                                 message: "Failed to access models for validation",
+                                method: "validateModel",
                                 cause
                             })
                     )

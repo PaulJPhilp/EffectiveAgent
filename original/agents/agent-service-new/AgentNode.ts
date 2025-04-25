@@ -1,11 +1,11 @@
 // File: AgentNode.ts
 
-import type { ITaskService } from '@services/task/types.js';
-import type { IProviderService } from '@services/provider/types.js';
 import type { IModelService } from '@services/model/types.js';
 import type { IPromptService } from '@services/prompt/types.js';
-import type { AgentState } from './types.js';
+import type { IProviderService } from '@services/provider/types.js';
+import type { ITaskService } from '@services/task/types.js';
 import type { AgentGraphConfig } from './AgentGraph.js'; // Only need AgentGraphConfig
+import type { AgentState } from './types.js';
 
 /**
  * Abstract base class for a node within an agent execution graph.

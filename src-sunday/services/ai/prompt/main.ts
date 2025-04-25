@@ -2,16 +2,16 @@
  * @file Live implementation of the PromptApi service using LiquidJS.
  */
 
-import { Effect, Layer, Context, Option } from "effect";
-import { Liquid } from "liquidjs"; // Import the LiquidJS engine
-import type { LiquidOptions } from "liquidjs"; // Import options type if needed
-import type { JsonObject } from "../../types.js"; // Adjust path if needed
-import { PromptApi, PromptConfiguration } from "./types.js"; // Import Tag/Interface
-import { PromptError, RenderingError, TemplateNotFoundError, PromptConfigurationError } from "./errors.js"; // Import errors
-// Import dependencies needed by renderTemplate's R type
-import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
 import type { FileSystem } from "@effect/platform/FileSystem";
 import type { Path } from "@effect/platform/Path";
+import { Context, Effect, Layer, Option } from "effect";
+import { Liquid } from "liquidjs"; // Import the LiquidJS engine
+import type { LiquidOptions } from "liquidjs"; // Import options type if needed
+// Import dependencies needed by renderTemplate's R type
+import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
+import type { JsonObject } from "../../types.js"; // Adjust path if needed
+import { PromptConfigurationError, PromptError, RenderingError, TemplateNotFoundError } from "./errors.js"; // Import errors
+import { PromptApi, PromptConfiguration } from "./types.js"; // Import Tag/Interface
 
 // --- Live Implementation ---
 

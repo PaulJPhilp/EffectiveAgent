@@ -1,5 +1,5 @@
 // test-inference.ts
-import { Effect, Layer, Context, Option } from "effect";
+import { Context, Effect, Layer, Option } from "effect";
 import * as Record from "effect/Record";
 import { describe, expect, it } from "vitest"; // Using standard vitest
 

@@ -9,16 +9,15 @@ export const MockLoggingServiceLayer = Layer.succeed(LoggingService, new MockLog
 
 // --- Repository Mock for Attachment Links ---
 import {
-    FileNotFoundError, FileStorageError,
     type AttachmentEntityData, // Import errors for FileService mock
     type FileMetadata, // Import for FileService mock return
+    FileNotFoundError, FileStorageError,
 } from "../attachment/attachment-service"; // Adjust path
 import {
     EntityNotFoundError as RepoEntityNotFoundError,
     RepositoryError as RepoError
 } from "../repository/errors"; // Adjust path
 import {
-    RepositoryService,
     type BaseEntity,
     type CreateEffect,
     type DeleteEffect,
@@ -27,6 +26,7 @@ import {
     type FindEffect,
     type FindManyEffect,
     type IRepositoryService,
+    RepositoryService,
     type UpdateData,
     type UpdateEffect,
 } from "../repository/repository-service"; // Adjust path
@@ -194,11 +194,11 @@ import { AttachmentServiceLiveLayer } from "../src/attachment/attachment-service
 // Import Mocks & Tags
 import {
     MockAttachmentRepositoryLayer, // Use correct helper/type
+    type MockAttachmentRepositoryService, // Use correct helper/type
     MockFileService, MockFileServiceLayer,
     MockLoggingServiceLayer, // Use the specific repo mock layer
     getAttachmentTestMocks,
     mockLogger,
-    type MockAttachmentRepositoryService, // Use correct helper/type
 } from "./testing/mocks.ts"; // Adjust path
 
 // --- Test Setup ---

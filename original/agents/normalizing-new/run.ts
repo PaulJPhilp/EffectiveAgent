@@ -1,5 +1,5 @@
-import { config } from 'dotenv'
 import { join } from 'path'
+import { config } from 'dotenv'
 import { NormalizingAgent } from './normalizing-agent.js'
 
 interface RunOptions {

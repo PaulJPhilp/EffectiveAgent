@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { AgentStatus, type AgentConfig } from '../../agent-service/Agent.js'
+import { type AgentConfig, AgentStatus } from '../../agent-service/Agent.js'
 import { TaskService } from '../../shared/services/task/taskService'
 import { ClusterPersonasNode } from '../nodes/cluster-personas.js'
 import type { PersonaGeneratorState } from '../types.js'

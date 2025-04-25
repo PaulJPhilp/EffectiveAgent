@@ -2,8 +2,8 @@
 
 // REMOVED ReadonlyArray alias from import
 import { Context, Effect, HashMap, Layer } from "effect";
-import { ModelConfigFileSchema } from "./schema.js";
 import { ModelConfigLoadError, ModelNotFoundError } from './errors.js';
+import { ModelConfigFileSchema } from "./schema.js";
 import type { ModelCapability, ModelConfig, ModelConfigFile } from './schema.js';
 import { ModelConfigurationService } from './types.js';
 

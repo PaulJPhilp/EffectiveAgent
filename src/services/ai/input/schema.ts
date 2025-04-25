@@ -1,6 +1,13 @@
-import { Part as AiInputPart, ImagePart, ImageUrlPart, PartTypeId, TextPart, ToolCallPart, ToolCallResolvedPart } from "@effect/ai/AiInput";
+import { Part as AiInputPart, ImagePart, ImageUrlPart, PartTypeId, TextPart, ToolCallPart } from "@effect/ai/AiInput";
 import {Schema as S } from "effect";
 
+
+export class TextStreamPart extends S.Class<TextStreamPart>(
+    "TextStreamPart"
+)({
+    _tag: S.Literal("TextStreamPart"),
+    content: S.String
+}) { }
 
 // === Main Model Definition Schema ===
 export class FilePart extends S.Class<FilePart>(

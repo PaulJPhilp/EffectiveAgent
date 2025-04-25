@@ -5,16 +5,16 @@
  * Uses Effect.flatMap(Option.match) pattern for update/delete operations.
  */
 
-import { Effect, Layer, Option, Ref, Context, Clock, DefaultServices } from "effect";
+import { Clock, Context, DefaultServices, Effect, Layer, Option, Ref } from "effect";
 import * as Arr from "effect/Array";
 import { v4 as uuidv4 } from "uuid";
+import type { Id, JsonObject } from "../../../../types.js";
+import { EntityNotFoundError, RepositoryError } from "../../errors.js";
 import type {
     BaseEntity, // BaseEntity uses number timestamps
     FindOptions,
     RepositoryApi, // Interface declares Clock requirement for create/update
 } from "../../types.js";
-import { EntityNotFoundError, RepositoryError } from "../../errors.js";
-import type { Id, JsonObject } from "../../../../types.js";
 
 // Import Temporal polyfill directly (see note in src/services/types.ts)
 import { Temporal } from "@js-temporal/polyfill";

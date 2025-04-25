@@ -1,14 +1,14 @@
 // src/attachment/attachment-service-live.ts (Example path)
 import { Effect, Layer, ReadonlyArray } from "effect";
-import {
-    type IAttachmentService, AttachmentService, type AttachmentInfo,
-    type AttachmentEntityData, AttachmentExistsError, AttachmentNotFoundError,
-    GenericAttachmentError, FileNotFoundError, FileStorageError, // Import errors
-} from "./attachment-service"; // Adjust path
+import { FileService, IFileService } from "../file/file-service"; // Adjust path
 import { ILoggingService, LoggingService } from "../logging/types"; // Adjust path
-import { IRepositoryService, RepositoryService } from "../repository/repository-service"; // Adjust path
-import { IFileService, FileService } from "../file/file-service"; // Adjust path
 import { EntityNotFoundError as RepoEntityNotFoundError, RepositoryError as RepoError } from "../repository/errors"; // Adjust path
+import { IRepositoryService, RepositoryService } from "../repository/repository-service"; // Adjust path
+import {
+    type AttachmentEntityData, AttachmentExistsError, type AttachmentInfo,AttachmentNotFoundError,AttachmentService, FileNotFoundError, FileStorageError, // Import errors
+    GenericAttachmentError, 
+    type IAttachmentService, 
+} from "./attachment-service"; // Adjust path
 
 export class AttachmentServiceLive implements IAttachmentService {
     constructor(

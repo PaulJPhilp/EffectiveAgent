@@ -1,8 +1,8 @@
 import { Effect } from "effect";
-import { type BaseEntity } from "../types/index.js";
-import { type BaseMetadata } from "../types/entities/base-metadata.js";
 import { type JSONObject } from "../../../../../src/types.js";
 import { RepositoryError } from "../errors/index.js";
+import { type BaseMetadata } from "../types/entities/base-metadata.js";
+import { type BaseEntity } from "../types/index.js";
 
 /**
  * Base repository service that provides common functionality for all implementations

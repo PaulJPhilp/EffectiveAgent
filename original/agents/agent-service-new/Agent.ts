@@ -1,22 +1,22 @@
 // File: Agent.ts
 
-import type { ITaskService } from '@services/task/types.js';
-import type { IProviderService } from '@services/provider/types.js';
 import type { IModelService } from '@services/model/types.js';
 import type { IPromptService } from '@services/prompt/types.js';
+import type { IProviderService } from '@services/provider/types.js';
+import type { ITaskService } from '@services/task/types.js';
 import type {
-    AgentConfig,
-    AgentState,
-    AgentRun,
-    AgentStatus,
-    AgentLogs,
-    AgentErrors,
-} from './types.js';
-import type {
-    AgentGraphImplementation,
     AgentGraphConfig,
+    AgentGraphImplementation,
     GraphDefinition,
 } from './AgentGraph.js';
+import type {
+    AgentConfig,
+    AgentErrors,
+    AgentLogs,
+    AgentRun,
+    AgentState,
+    AgentStatus,
+} from './types.js';
 
 /**
  * Abstract base class for defining and running agent workflows.

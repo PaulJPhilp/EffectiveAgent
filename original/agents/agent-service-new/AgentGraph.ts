@@ -1,15 +1,15 @@
 // File: AgentGraph.ts
 
-import type { ITaskService } from '@services/task/types.js';
-import type { IProviderService } from '@services/provider/types.js';
 import type { IModelService } from '@services/model/types.js';
 import type { IPromptService } from '@services/prompt/types.js';
+import type { IProviderService } from '@services/provider/types.js';
+import type { ITaskService } from '@services/task/types.js';
 import type { AgentNode } from './AgentNode.js'; // Assuming simplified AgentNode
 import type {
+    AgentErrors,
+    AgentLogs,
     AgentState,
     AgentStatus,
-    AgentLogs,
-    AgentErrors,
     NodeStatus,
 } from './types.js';
 

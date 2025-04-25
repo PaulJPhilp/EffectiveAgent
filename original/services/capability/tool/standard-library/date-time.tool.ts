@@ -26,10 +26,10 @@ import {
     ValidationError
 } from "./errors/date-time-error.ts"
 import {
-    type DateTimeInput,
-    type DateTimeOutput,
     CalculationType,
+    type DateTimeInput,
     DateTimeOperation,
+    type DateTimeOutput,
     FormatType
 } from "./types/date-time.types.ts"
 

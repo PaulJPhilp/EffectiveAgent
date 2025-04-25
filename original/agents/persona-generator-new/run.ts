@@ -1,5 +1,5 @@
-import { config } from 'dotenv'
 import { join } from 'path'
+import { config } from 'dotenv'
 import { PersonaGeneratorAgent } from './persona-generator-agent.ts'
 import type { PersonaInput } from './types.ts'
 

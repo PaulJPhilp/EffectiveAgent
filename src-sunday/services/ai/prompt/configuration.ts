@@ -3,15 +3,15 @@
  * Uses the 'make + typeof make' pattern for type inference.
  */
 
-import { Effect, Layer, Option, Context } from "effect";
-import * as Record from "effect/Record";
-import { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/index.js";
 import { FileSystem } from "@effect/platform/FileSystem";
 import { Path } from "@effect/platform/Path";
+import { Context, Effect, Layer, Option } from "effect";
+import * as Record from "effect/Record";
+import { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/index.js";
+import { PromptConfigurationError, TemplateNotFoundError } from "./errors.js";
 import type { PromptDefinition, PromptsConfig } from "./schema.js";
 import { PromptsConfigSchema } from "./schema.js";
 import { PromptConfiguration } from "./types.js"; // Import only the Tag
-import { PromptConfigurationError, TemplateNotFoundError } from "./errors.js";
 
 const CONFIG_FILENAME = "prompts.json";
 

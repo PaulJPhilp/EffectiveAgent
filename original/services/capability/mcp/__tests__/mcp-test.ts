@@ -1,7 +1,7 @@
-import { Effect, Layer, ReadonlyArray } from "effect";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 // Import Effect Vitest integration
 import * as EffectVitest from "@effect/vitest";
+import { Effect, Layer, ReadonlyArray } from "effect";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
 // Import service definition and errors
@@ -10,9 +10,9 @@ import {
     ClientInitializationError,
     ClientNotFoundError,
     ClientRegistrationError,
-    MCPClientService,
     type MCPClient,
-    type MCPClientExecutionContext
+    type MCPClientExecutionContext,
+    MCPClientService
 } from "../src/mcp-client/mcp-client-service.ts"; // Adjust path
 
 // Import Live implementation and Layer
@@ -20,11 +20,11 @@ import { MCPClientServiceLiveLayer } from "../src/mcp-client/mcp-client-service-
 
 // Import Mocks
 import {
-    getMockServices,
+    type MockConfigurationService,
     MockConfigurationServiceLayer,
-    mockLogger,
     MockLoggingServiceLayer, // Keep this helper to easily access mocks
-    type MockConfigurationService
+    getMockServices,
+    mockLogger
 } from "./testing/mocks.ts"; // Adjust path
 
 // --- Test Setup ---

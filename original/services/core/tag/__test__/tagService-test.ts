@@ -7,20 +7,21 @@ export const mockLogger = { /* ... */ };
 export class MockLoggingService implements ILoggingService { /* ... */ }
 export const MockLoggingServiceLayer = Layer.succeed(LoggingService, new MockLoggingService());
 
-// --- Repository Mock for Tags & Associations ---
-import {
-    type IRepositoryService, type BaseEntity, type FindCriteria, type UpdateData,
-    type FindByIdCriteria, RepositoryService, type CreateEffect, type FindEffect,
-    type FindManyEffect, type UpdateEffect, type DeleteEffect,
-} from "../repository/repository-service.ts"; // Adjust path
 import {
     DataValidationError as RepoDataValidationError,
     EntityNotFoundError as RepoEntityNotFoundError,
     RepositoryError as RepoError,
 } from "../repository/errors.ts"; // Adjust path
-import {
-    type TagEntityData, type TagAssociationEntityData,
-    TagExistsError, TagNotFoundError, TagInUseError, AssociationNotFoundError, EntityAssociationError, GenericTagError // Import errors for mapping checks
+// --- Repository Mock for Tags & Associations ---
+import {type BaseEntity, type CreateEffect, type DeleteEffect,
+    type FindByIdCriteria, type FindCriteria, type FindEffect,
+    type FindManyEffect, 
+    type IRepositoryService, RepositoryService, type UpdateData,type UpdateEffect, 
+} from "../repository/repository-service.ts"; // Adjust path
+import {AssociationNotFoundError, EntityAssociationError, GenericTagError, // Import errors for mapping checks
+type TagAssociationEntityData,
+    type TagEntityData, 
+    TagExistsError, TagInUseError, TagNotFoundError 
 } from "../tag/tag-service.ts"; // Adjust path
 
 // Use separate maps for different entity types
@@ -147,23 +148,24 @@ export const getTagTestMocks = Effect.all({
     repoSvc: RepositoryService, // Will resolve to MockTagRepositoryService
 });
 
-import { Effect, Exit, Layer, LogLevel, ReadonlyArray, Cause, Tag } from "effect";
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import * as EffectVitest from "@effect/vitest";
+import { Cause, Effect, Exit, Layer, LogLevel, ReadonlyArray, Tag } from "effect";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // --- Import Service Definition, Errors, Schemas ---
-import {
-    TagService, type ITagService, type Tag, type TagEntityData, type TagAssociationEntityData,
-    TagExistsError, TagNotFoundError, TagInUseError, AssociationNotFoundError, EntityAssociationError, GenericTagError
+import {AssociationNotFoundError, EntityAssociationError, GenericTagError, type ITagService, type Tag, type TagAssociationEntityData,type TagEntityData, 
+    TagExistsError, TagInUseError, TagNotFoundError, 
+    TagService 
 } from "../src/tag/tag-service.ts"; // Adjust path
 
+import { RepositoryService } from "../src/repository/repository-service.ts"; // Import Tag
 // --- Import Live Layer & Mocks ---
 import { TagServiceLiveLayer } from "../src/tag/tag-service-live.ts"; // Adjust path (Assume this exists)
-import {
-    mockLogger, MockLoggingServiceLayer, MockTagRepositoryLayer, // Use the specific repo mock layer
-    getTagTestMocks, type MockTagRepositoryService, // Use correct helper/type
+import {MockLoggingServiceLayer, MockTagRepositoryLayer, // Use the specific repo mock layer
+type MockTagRepositoryService, // Use correct helper/type
+    getTagTestMocks, 
+    mockLogger, 
 } from "./testing/mocks.ts"; // Adjust path
-import { RepositoryService } from "../src/repository/repository-service.ts"; // Import Tag
 
 // --- Test Setup ---
 

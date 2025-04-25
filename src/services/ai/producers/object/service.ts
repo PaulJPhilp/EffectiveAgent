@@ -3,14 +3,34 @@
  * @module services/ai/producers/object/service
  */
 
+import { EffectiveInput } from '@/services/ai/input/service.js';
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
+import { Message } from "@effect/ai/AiInput";
 import { JSONSchema, Layer, Schema as S } from "effect";
+import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
 import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "./errors.js";
+
+/**
+ * Result shape expected from the underlying provider client's generateObject method
+ */
+export interface ProviderObjectGenerationResult<T> {
+    readonly data: {
+        readonly object: T; // The generated object
+        readonly model: string;
+        readonly timestamp: Date;
+        readonly id: string;
+        readonly usage?: {
+            readonly promptTokens?: number;
+            readonly completionTokens?: number;
+            readonly totalTokens?: number;
+        };
+    };
+}
 
 /**
  * Options for object generation
@@ -125,40 +145,30 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                     yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
                     yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
 
-                    // Get model from the provider
-                    const model = yield* Effect.tryPromise({
-                        try: async () => {
-                            // Use the provider to get the language model
-                            const models = await Effect.runPromise(providerClient.getModels());
-                            const matchingModel = models.find(m => m.modelId === modelId);
-                            if (!matchingModel) {
-                                throw new Error(`Model ${modelId} not found`);
-                            }
-                            return matchingModel;
-                        },
-                        catch: (error) => new ObjectModelError(`Failed to get model ${modelId}`, { cause: error })
-                    });
+                    // Create EffectiveInput from the final prompt
+                    const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
 
                     // Generate the object using the provider's generateObject method
-                    const result = yield* Effect.tryPromise({
-                        try: async () => {
-                            const result = await Effect.runPromise(providerClient.generateObject<unknown>({
-                                model,
-                                prompt: finalPrompt,
+                    const result = yield* Effect.promise(
+                        (): Promise<ProviderObjectGenerationResult<T>> => Effect.runPromise(providerClient.generateObject<T>(
+                            effectiveInput,
+                            {
+                                modelId,
                                 schema: options.schema,
+                                system: systemPrompt,
                                 ...options.parameters
-                            }));
-                            return result;
-                        },
-                        catch: (error) => new ObjectGenerationError("Object generation failed", { cause: error })
-                    });
+                            }
+                        ))
+                    ).pipe(
+                        Effect.mapError((error) => new ObjectGenerationError("Object generation failed", { cause: error }))
+                    );
 
                     // Validate and parse the result with the schema
-                    const parsedObject = yield* S.decode(options.schema)(result.object as any).pipe(
+                    const parsedObject = yield* S.decode(options.schema)(result.data.object as any).pipe(
                         Effect.mapError(error => new ObjectSchemaError("Generated object does not match schema", {
                             cause: error,
                             schema: options.schema,
-                            result: result.object,
+                            result: result.data.object,
                             validationErrors: Array.isArray(error) ? error : [error]
                         }))
                     );
@@ -166,13 +176,13 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                     // Map the result to ObjectGenerationResult
                     return {
                         data: parsedObject,
-                        model: result.model,
-                        timestamp: result.timestamp,
-                        id: result.id,
-                        usage: result.usage ? {
-                            promptTokens: result.usage.promptTokens || 0,
-                            completionTokens: result.usage.completionTokens || 0,
-                            totalTokens: result.usage.totalTokens || 0
+                        model: result.data.model,
+                        timestamp: result.data.timestamp,
+                        id: result.data.id,
+                        usage: result.data.usage ? {
+                            promptTokens: result.data.usage.promptTokens || 0,
+                            completionTokens: result.data.usage.completionTokens || 0,
+                            totalTokens: result.data.usage.totalTokens || 0
                         } : undefined
                     };
                 }).pipe(

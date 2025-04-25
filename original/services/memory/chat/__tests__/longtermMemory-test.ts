@@ -1,7 +1,7 @@
-import { Effect, Layer } from "effect";
-import { afterEach, describe, expect, it, vi } from "vitest";
 // Import Effect Vitest integration
 import * as EffectVitest from "@effect/vitest";
+import { Effect, Layer } from "effect";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Import service definition and errors
 import {
@@ -15,11 +15,11 @@ import { LongTermMemoryServiceLiveLayer } from "../src/memory/longterm/longterm-
 
 // Import Mocks
 import {
-    getMockServices,
-    mockLogger,
     MockLoggingServiceLayer,
     MockUserRepositoryLayer,
     type MockUserRepositoryService, // Import class for type casting/reset
+    getMockServices,
+    mockLogger,
 } from "./testing/mocks.ts"; // Adjust path
 
 // --- Test Setup ---

@@ -2,9 +2,9 @@
 
 import { Effect, Layer } from "effect";
 import { Liquid } from 'liquidjs';
-import type { PromptService, PromptConfigurationService, PromptRenderOptions } from './types.js';
-import { PromptConfigurationService as PromptConfigurationServiceTag, PromptService as PromptServiceTag } from './types.js';
 import { PromptRenderingError, PromptVariableMissingError } from './errors.js';
+import type { PromptConfigurationService, PromptRenderOptions, PromptService } from './types.js';
+import { PromptConfigurationService as PromptConfigurationServiceTag, PromptService as PromptServiceTag } from './types.js';
 
 // --- Service Implementation Object Factory ---
 const makePromptService = (

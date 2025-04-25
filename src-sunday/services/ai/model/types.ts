@@ -2,8 +2,8 @@
  * @file Defines interfaces, tags, and types related to AI Models.
  */
 import { Context, Effect } from "effect";
-import type { Id, JsonObject } from "../../types.js"; // Import global types
 import type { ProviderName } from "../../schema.js"; // Import global schema enum
+import type { Id, JsonObject } from "../../types.js"; // Import global types
 
 // --- Constants & Enums ---
 

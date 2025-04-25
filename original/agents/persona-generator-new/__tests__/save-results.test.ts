@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { TaskService } from '../../../shared/services/task/TaskService.js'
-import { AgentStatus, type AgentConfig } from '../../agent-service/Agent.js'
+import { type AgentConfig, AgentStatus } from '../../agent-service/Agent.js'
 import { SaveResultsNode } from '../nodes/save-results.js'
 import type { PersonaGeneratorState } from '../types.js'
 

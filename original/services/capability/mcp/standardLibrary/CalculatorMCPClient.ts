@@ -3,9 +3,9 @@ import { z } from "zod";
 
 // Import the core MCPClient types and context
 import {
+    ClientInitializationError, // Use this for init failures if any
     type MCPClient,
     type MCPClientExecutionContext,
-    ClientInitializationError, // Use this for init failures if any
 } from "./mcp-client-service.ts"; // Adjust path as needed
 
 // --- Define Client-Specific Errors ---

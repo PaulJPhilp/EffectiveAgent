@@ -3,12 +3,13 @@
  * @module services/ai/producers/image/__tests__/service
  */
 
+import { EffectiveInput } from '@/services/ai/input/service.js';
 import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderClient } from "@/services/ai/provider/client.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js";
+import { Message } from "@effect/ai/AiInput";
 import { describe, expect, it, vi } from "@effect/vitest";
-import { Effect, Layer, Option } from "effect";
+import { Chunk, Effect, Layer, Option } from "effect";
 import { ImageGenerationError, ImageModelError, ImageProviderError, ImageSizeError } from "../errors.js";
 import { type ImageGenerationOptions, ImageService, ImageSizes } from "../service.js";
 
@@ -37,7 +38,10 @@ const mockProviderClient = {
     generateSpeech: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
     transcribe: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
     getCapabilities: vi.fn().mockImplementation(() => new Set(["image-generation"])),
-    getModels: vi.fn().mockImplementation(() => Effect.succeed([]))
+    getModels: vi.fn().mockImplementation(() => Effect.succeed([])),
+    streamChat: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
+    getProviderName: vi.fn().mockImplementation(() => "mock-provider"),
+    setVercelProvider: vi.fn().mockImplementation(() => Effect.succeed({ name: "mock-provider", provider: {}, capabilities: new Set() }))
 };
 
 // Mock model service with minimal implementation
@@ -63,7 +67,6 @@ const mockProviderService = {
 // Mock layers for dependencies
 const mockProviderServiceLayer = Layer.succeed(ProviderService, mockProviderService);
 const mockModelServiceLayer = Layer.succeed(ModelService, mockModelService);
-const mockProviderClientLayer = Layer.succeed(ProviderClient, mockProviderClient);
 
 // Create test harness
 const serviceHarness = createServiceTestHarness(
@@ -122,36 +125,36 @@ const serviceHarness = createServiceTestHarness(
                         finalPrompt = `${finalPrompt}\nDO NOT INCLUDE: ${options.negativePrompt}`;
                     }
 
-                    // Call provider
-                    const result = yield* Effect.tryPromise({
-                        try: async () => {
-                            return await Effect.runPromise(providerClient.generateImage(
-                                finalPrompt,
-                                {
-                                    model: modelId,
-                                    size,
-                                    quality: options.quality,
-                                    style: options.style,
-                                    n: options.n || 1
-                                }
-                            ));
-                        },
-                        catch: (error) => new ImageGenerationError("Image generation failed", { cause: error })
-                    });
+                    // Create EffectiveInput from the final prompt
+                    const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
 
-                    // Return result
+                    // Call provider and map error
+                    const result = yield* providerClient.generateImage(
+                        effectiveInput,
+                        {
+                            modelId,
+                            size,
+                            quality: options.quality,
+                            style: options.style,
+                            n: options.n || 1
+                        }
+                    ).pipe(
+                        Effect.mapError((error) => new ImageGenerationError("Image generation failed", { cause: error }))
+                    );
+
+                    // Return result, accessing data and metadata
                     return {
-                        imageUrl: result.imageUrl,
-                        additionalImages: result.additionalImages,
+                        imageUrl: result.data.imageUrl,
+                        additionalImages: result.data.additionalImages,
                         parameters: {
-                            size: result.parameters.size,
-                            quality: result.parameters.quality,
-                            style: result.parameters.style
+                            size: result.data.parameters.size,
+                            quality: result.data.parameters.quality,
+                            style: result.data.parameters.style
                         },
-                        model: result.model,
-                        timestamp: result.timestamp,
-                        id: result.id,
-                        usage: result.usage || undefined
+                        model: result.metadata.model,
+                        timestamp: result.metadata.timestamp,
+                        id: result.metadata.id,
+                        usage: result.metadata.usage || undefined
                     };
                 })
         };

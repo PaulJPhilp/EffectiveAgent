@@ -3,8 +3,8 @@
  */
 
 import { Context, Effect, LogLevel } from "effect";
-import type { JsonObject } from "../../types.js"; // Import global JsonObject
 import { Cause } from "effect/Cause";
+import type { JsonObject } from "../../types.js"; // Import global JsonObject
 
 // Define LogLevel type based on Effect's LogLevel if needed, or use it directly
 export type { LogLevel } from "effect";

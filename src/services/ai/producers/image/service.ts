@@ -3,14 +3,41 @@
  * @module services/ai/producers/image/service
  */
 
+import { EffectiveInput } from '@/services/ai/input/service.js';
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
+import { Message } from "@effect/ai/AiInput";
 import { Layer } from "effect";
+import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
 import { ImageGenerationError, ImageModelError, ImageProviderError, ImageSizeError } from "./errors.js";
+
+/**
+ * Result shape expected from the underlying provider client's generateImage method
+ */
+export interface ProviderImageGenerationResult {
+    readonly data: {
+        readonly imageUrl: string;
+        readonly additionalImages?: readonly string[];
+        readonly parameters: {
+            readonly size?: string;
+            readonly quality?: string;
+            readonly style?: string;
+        };
+    };
+    readonly metadata: {
+        readonly model: string;
+        readonly timestamp: Date;
+        readonly id: string;
+        readonly usage?: {
+            readonly promptTokens?: number;
+            readonly totalTokens?: number;
+        };
+    };
+}
 
 /**
  * Supported image sizes
@@ -186,38 +213,40 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                         yield* Effect.annotateCurrentSpan("ai.image.style", options.style);
                     }
 
+                    // Create EffectiveInput from the final prompt
+                    const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
+
                     // Generate the image using the provider's generateImage method
-                    const result = yield* Effect.tryPromise({
-                        try: async () => {
-                            return await Effect.runPromise(providerClient.generateImage(
-                                finalPrompt,
-                                {
-                                    model: modelId,
-                                    size,
-                                    quality: options.quality,
-                                    style: options.style,
-                                    n: options.n || 1
-                                }
-                            ));
-                        },
-                        catch: (error) => new ImageGenerationError("Image generation failed", { cause: error })
-                    });
+                    const result = yield* Effect.promise(
+                        (): Promise<ProviderImageGenerationResult> => Effect.runPromise(providerClient.generateImage(
+                            effectiveInput,
+                            {
+                                modelId,
+                                size,
+                                quality: options.quality,
+                                style: options.style,
+                                n: options.n || 1
+                            }
+                        ))
+                    ).pipe(
+                        Effect.mapError((error) => new ImageGenerationError("Image generation failed", { cause: error }))
+                    );
 
                     // Map the result to ImageGenerationResult
                     return {
-                        imageUrl: result.imageUrl,
-                        additionalImages: result.additionalImages,
+                        imageUrl: result.data.imageUrl,
+                        additionalImages: result.data.additionalImages,
                         parameters: {
-                            size: result.parameters.size,
-                            quality: result.parameters.quality,
-                            style: result.parameters.style
+                            size: result.data.parameters.size,
+                            quality: result.data.parameters.quality,
+                            style: result.data.parameters.style
                         },
-                        model: result.model,
-                        timestamp: result.timestamp,
-                        id: result.id,
-                        usage: result.usage ? {
-                            promptTokens: result.usage.promptTokens || 0,
-                            totalTokens: result.usage.totalTokens || 0
+                        model: result.metadata.model,
+                        timestamp: result.metadata.timestamp,
+                        id: result.metadata.id,
+                        usage: result.metadata.usage ? {
+                            promptTokens: result.metadata.usage.promptTokens || 0,
+                            totalTokens: result.metadata.usage.totalTokens || 0
                         } : undefined
                     };
                 }).pipe(

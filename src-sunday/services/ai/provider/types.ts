@@ -3,19 +3,19 @@
  * Skills are the primary abstraction for invoking AI capabilities.
  */
 
-import { Context, Effect, Layer } from "effect";
-import type { ConfigError } from "effect/ConfigError";
-import type { JsonObject, Id } from "../../types.js";
-import type { LoggingApi } from "../../core/logging/types.js";
 // --- CORRECTED AI Import ---
 import type { Completions } from "@effect/ai"; // Use Completions interface/Tag
 // --- End AI Import ---
 import type { HttpClient } from "@effect/platform";
-import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
 import type { FileSystem } from "@effect/platform/FileSystem";
 import type { Path } from "@effect/platform/Path";
+import { Context, Effect, Layer } from "effect";
+import type { ConfigError } from "effect/ConfigError";
+import type { ConfigLoaderApi, ConfigLoaderOptions } from "../../core/configuration/types.js";
 import type { IntelligenceConfiguration } from "../../core/intelligence/types.js";
+import type { LoggingApi } from "../../core/logging/types.js";
 import type { PersonaConfiguration } from "../../core/persona/types.js";
+import type { Id, JsonObject } from "../../types.js";
 import type { SkillError } from "./errors.js";
 import type { SkillDefinition, SkillExecutionParams } from "./schema.js";
 

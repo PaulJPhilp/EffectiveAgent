@@ -3,15 +3,39 @@
  * @module services/ai/producers/text/service
  */
 
+import { EffectiveInput } from '@/services/ai/input/service.js';
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
+import { ProviderService, ProviderServiceApi } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
+import { Message } from "@effect/ai/AiInput";
 import { AiResponse } from "@effect/ai/AiResponse";
 import { Layer } from "effect";
+import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
 import { TextGenerationError, TextModelError, TextProviderError } from "./errors.js";
+
+/**
+ * Result shape expected from the underlying provider client's generateText method
+ */
+export interface ProviderTextGenerationResult {
+    readonly data: {
+        readonly text: string;
+        readonly reasoning?: string;
+        readonly reasoningDetails?: unknown;
+        readonly sources?: unknown[];
+        readonly messages?: unknown[];
+        readonly warnings?: unknown[];
+    };
+    readonly metadata: {
+        readonly usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+        readonly finishReason: string;
+        readonly model: string;
+        readonly timestamp: Date;
+        readonly id: string;
+    };
+}
 
 /**
  * Options for text generation
@@ -61,7 +85,7 @@ export interface TextServiceApi {
 export class TextService extends Effect.Service<TextServiceApi>()("TextService", {
     effect: Effect.gen(function* () {
         // Get services
-        const providerService = yield* ProviderService;
+        const providerService: ProviderServiceApi = yield* ProviderService;
         const modelService: ModelServiceApi = yield* ModelService;
 
         return {
@@ -92,46 +116,36 @@ export class TextService extends Effect.Service<TextServiceApi>()("TextService",
                     yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
                     yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
 
-                    // Get model from the provider
-                    const model = yield* Effect.tryPromise({
-                        try: async () => {
-                            // Use the provider to get the language model
-                            const models = await Effect.runPromise(providerClient.getModels());
-                            const matchingModel = models.find(m => m.modelId === modelId);
-                            if (!matchingModel) {
-                                throw new Error(`Model ${modelId} not found`);
-                            }
-                            return matchingModel;
-                        },
-                        catch: (error) => new TextModelError(`Failed to get model ${modelId}`, { cause: error })
-                    });
+                    // Create EffectiveInput from the final prompt
+                    const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
 
-                    // Call Vercel AI SDK's generateText function
-                    const result = yield* Effect.tryPromise({
-                        try: async () => {
-                            // Use the provider's generateText method
-                            return await Effect.runPromise(providerClient.generateText({
-                                model,
-                                prompt: finalPrompt,
+                    // Call Vercel AI SDK's generateText function via providerClient
+                    const result = yield* Effect.promise(
+                        (): Promise<ProviderTextGenerationResult> => Effect.runPromise(providerClient.generateText(
+                            effectiveInput,
+                            {
+                                modelId,
+                                system: systemPrompt,
                                 ...options.parameters
-                            }));
-                        },
-                        catch: (error) => new TextGenerationError("Text generation failed", { cause: error })
-                    });
+                            }
+                        ))
+                    ).pipe(
+                        Effect.mapError((error) => new TextGenerationError("Text generation failed", { cause: error }))
+                    );
 
                     // Map the result to AiResponse
                     return {
-                        text: result.text,
-                        reasoning: result.reasoning,
-                        reasoningDetails: result.reasoningDetails,
-                        sources: result.sources,
-                        messages: result.messages,
-                        warnings: result.warnings,
-                        usage: result.usage,
-                        finishReason: result.finishReason,
-                        model: result.model,
-                        timestamp: result.timestamp,
-                        id: result.id
+                        text: result.data.text,
+                        reasoning: result.data.reasoning,
+                        reasoningDetails: result.data.reasoningDetails,
+                        sources: result.data.sources,
+                        messages: result.data.messages,
+                        warnings: result.data.warnings,
+                        usage: result.metadata.usage,
+                        finishReason: result.metadata.finishReason,
+                        model: result.metadata.model,
+                        timestamp: result.metadata.timestamp,
+                        id: result.metadata.id
                     };
                 }).pipe(
                     Effect.withSpan("TextService.generate")

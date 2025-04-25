@@ -3,47 +3,138 @@
  * @module services/ai/model/errors
  */
 
+import { EffectiveError } from "@/effective-error.js";
 import type { EntityLoadError, EntityParseError } from "@/services/core/errors.js";
-import { Data } from "effect";
 
 /**
  * Base error type for model-related errors
  */
-export class ModelError extends Data.TaggedError("ModelError")<{
-    readonly modelId: string;
-    readonly message: string;
-    readonly cause?: unknown;
-}> { }
+/**
+ * Base error type for model-related errors.
+ * @extends EffectiveError
+ */
+export class ModelError extends EffectiveError {
+  public readonly modelId: string;
+  /**
+   * @param params - Error details
+   * @param params.modelId - The affected model's ID
+   * @param params.message - Error message
+   * @param params.method - Method where error occurred
+   * @param params.cause - Optional cause
+   */
+  constructor(params: { modelId: string; message: string; method: string; cause?: unknown }) {
+    super({
+      description: params.message,
+      module: "services/ai/model/errors",
+      method: params.method,
+      cause: params.cause,
+    });
+    this.modelId = params.modelId;
+  }
+}
 
 /**
  * Error class for failures related to loading, parsing, or validating
  * the AI model configuration (e.g., 'models.json').
  */
-export class ModelConfigError extends Data.TaggedError("ModelConfigError")<{
-    readonly message: string;
-    readonly cause: EntityLoadError | EntityParseError;
-}> { }
+/**
+ * Error class for failures related to loading, parsing, or validating the AI model configuration.
+ * @extends EffectiveError
+ */
+export class ModelConfigError extends EffectiveError {
+  /**
+   * @param params - Error details
+   * @param params.message - Error message
+   * @param params.method - Method where error occurred
+   * @param params.cause - Underlying error (EntityLoadError | EntityParseError)
+   */
+  constructor(params: { message: string; method: string; cause: EntityLoadError | EntityParseError }) {
+    super({
+      description: params.message,
+      module: "services/ai/model/errors",
+      method: params.method,
+      cause: params.cause,
+    });
+  }
+}
 
 /**
  * Error when a requested model is not found
  */
-export class ModelNotFoundError extends Data.TaggedError("ModelNotFoundError")<{
-    readonly modelId: string;
-    readonly message: string;
-}> {
-    constructor(modelId: string) {
-        super({
-            modelId,
-            message: `Model not found: ${modelId}`
-        });
-    }
+/**
+ * Error when a requested model is not found.
+ * @extends EffectiveError
+ */
+export class ModelNotFoundError extends EffectiveError {
+  public readonly modelId: string;
+  /**
+   * @param params - Error details
+   * @param params.modelId - The missing model's ID
+   * @param params.method - Method where error occurred
+   */
+  constructor(params: { modelId: string; method: string }) {
+    super({
+      description: `Model not found: ${params.modelId}`,
+      module: "services/ai/model/errors",
+      method: params.method,
+    });
+    this.modelId = params.modelId;
+  }
+}
+
+/**
+ * Error when a default model ID cannot be found for a given provider and capability.
+ */
+/**
+ * Error when a default model ID cannot be found for a given provider and capability.
+ * @extends EffectiveError
+ */
+export class MissingModelIdError extends EffectiveError {
+  public readonly provider: string;
+  public readonly capability: string;
+  /**
+   * @param params - Error details
+   * @param params.provider - Provider name
+   * @param params.capability - Capability name
+   * @param params.method - Method where error occurred
+   */
+  constructor(params: { provider: string; capability: string; method: string }) {
+    super({
+      description: `Missing default model ID for provider '${params.provider}' and capability '${params.capability}'`,
+      module: "services/ai/model/errors",
+      method: params.method,
+    });
+    this.provider = params.provider;
+    this.capability = params.capability;
+  }
 }
 
 /**
  * Error when a model validation fails
  */
-export class ModelValidationError extends Data.TaggedError("ModelValidationError")<{
-    readonly modelId: string;
-    readonly message: string;
-    readonly capabilities: string[];
-}> { }
+/**
+ * Error when a model validation fails.
+ * @extends EffectiveError
+ */
+export class ModelValidationError extends EffectiveError {
+  public readonly modelId: string;
+  public readonly capabilities: string[];
+  /**
+   * @param params - Error details
+   * @param params.modelId - The model's ID
+   * @param params.message - Error message
+   * @param params.capabilities - Capabilities involved
+   * @param params.method - Method where error occurred
+   * @param params.cause - Optional cause
+   */
+  constructor(params: { modelId: string; message: string; capabilities: string[]; method: string; cause?: unknown }) {
+    super({
+      description: params.message,
+      module: "services/ai/model/errors",
+      method: params.method,
+      cause: params.cause,
+    });
+    this.modelId = params.modelId;
+    this.capabilities = params.capabilities;
+  }
+}

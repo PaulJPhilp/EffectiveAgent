@@ -2,26 +2,26 @@
  * @file Tests for the main PromptApi service implementation.
  */
 
-import { Effect, Layer, Exit, Cause, Option, Context, DefaultServices } from "effect";
+import { Cause, Context, DefaultServices, Effect, Exit, Layer, Option } from "effect";
 // Use standard vitest functions
 import { describe, expect, it, vi } from "vitest";
 
+import type { JsonObject } from "../../../types.js"; // Import global type
+import { PromptConfigurationError, PromptError, RenderingError, TemplateNotFoundError } from "../errors.js";
+import { PromptApiLive, PromptApiLiveLayer } from "../main.js"; // Layer under test
+import type { PromptDefinition, PromptsConfig } from "../schema.js"; // Import schema types
 // Import service types, errors, implementation layer
 import { PromptApi, PromptConfiguration } from "../types.js";
-import { PromptApiLiveLayer, PromptApiLive } from "../main.js"; // Layer under test
-import { RenderingError, TemplateNotFoundError, PromptConfigurationError, PromptError } from "../errors.js";
-import type { PromptDefinition, PromptsConfig } from "../schema.js"; // Import schema types
-import type { JsonObject } from "../../../types.js"; // Import global type
 
-// Import dependencies that need mocking or providing
-import { ConfigLoaderApi, ConfigLoaderApiLive, ConfigLoaderOptionsLayerLayer, ConfigLoaderOptions, ConfigLoaderOptionsLayer, ConfigLoaderOptionsLiveLayer, ConfigLoaderApiLiveLayer } from "../../../core/configuration/index.js"; // Import ConfigLoader types
-import { ConfigReadError, ConfigParseError, ConfigValidationError } from "../../../core/configuration/errors.js"; // Import ConfigLoader errors
 import { FileSystem } from "@effect/platform/FileSystem";
 import { Path } from "@effect/platform/Path";
+import { ConfigParseError, ConfigReadError, ConfigValidationError } from "../../../core/configuration/errors.js"; // Import ConfigLoader errors
+// Import dependencies that need mocking or providing
+import { ConfigLoaderApi, ConfigLoaderApiLive, ConfigLoaderApiLiveLayer, ConfigLoaderOptions, ConfigLoaderOptionsLayer, ConfigLoaderOptionsLayerLayer, ConfigLoaderOptionsLiveLayer } from "../../../core/configuration/index.js"; // Import ConfigLoader types
 
+import type { SkillDefinition } from "../../../capabilities/skill/types.js";
 // Import example types for context data
 import type { Persona } from "../../../core/persona/types.js";
-import type { SkillDefinition } from "../../../capabilities/skill/types.js";
 import { PromptConfigurationLiveLayer } from "../configuration.js";
 
 

@@ -2,14 +2,14 @@
  * @file Tests for the PromptConfiguration service implementation.
  */
 
-import { Effect, Layer, Exit, Cause, Option, Context, DefaultServices } from "effect";
+import { Cause, Context, DefaultServices, Effect, Exit, Layer, Option } from "effect";
 import { describe, expect, it, vi } from "vitest"; // Use standard vitest
 
+import { PromptConfigurationLiveLayer } from "../configuration.js"; // Import the Layer under test
+import { PromptConfigurationError, TemplateNotFoundError } from "../errors.js";
+import type { PromptDefinition, PromptsConfig } from "../schema.js"; // Import schema types
 // Import service types, errors, implementation layer
 import { PromptConfiguration } from "../types.js"; // Import the Tag
-import { PromptConfigurationLiveLayer } from "../configuration.js"; // Import the Layer under test
-import { TemplateNotFoundError, PromptConfigurationError } from "../errors.js";
-import type { PromptDefinition, PromptsConfig } from "../schema.js"; // Import schema types
 
 // Import dependencies that need mocking or providing
 import { ConfigLoaderApi, ConfigLoaderOptions } from "@/services/core/configuration/index.js";

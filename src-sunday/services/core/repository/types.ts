@@ -1,8 +1,8 @@
 // File: src/services/core/repository/types.ts
 
-import { Context, Effect, Option, Clock } from "effect"; // Added Clock
+import { Clock, Context, Effect, Option } from "effect"; // Added Clock
 import type { Id, JsonObject } from "../../types.js";
-import type { RepositoryError, EntityNotFoundError } from "./errors.js";
+import type { EntityNotFoundError, RepositoryError } from "./errors.js";
 
 // BaseEntity uses number timestamps
 export interface BaseEntity<TData extends JsonObject = JsonObject> {

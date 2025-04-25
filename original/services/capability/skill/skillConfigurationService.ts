@@ -1,9 +1,9 @@
 // File: src/shared/services-effect/skill/skillConfigurationService.ts
 
-import { Effect, Layer, HashMap } from "effect";
-import type { SkillConfig, SkillConfigFile } from './schema.js';
-import { SkillConfigurationService, SkillConfigFileTag } from './types.js';
+import { Effect, HashMap, Layer } from "effect";
 import { SkillNotFoundError } from './errors.js';
+import type { SkillConfig, SkillConfigFile } from './schema.js';
+import { SkillConfigFileTag, SkillConfigurationService } from './types.js';
 
 // --- Service Implementation Object Factory ---
 const makeSkillConfigurationService = (

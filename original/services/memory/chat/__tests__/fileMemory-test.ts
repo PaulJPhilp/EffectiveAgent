@@ -1,5 +1,5 @@
-import { Context, Data, Effect, Layer, ReadonlyArray } from "effect";
 import { type Readable } from "stream"; // Using Node.js stream type
+import { Context, Data, Effect, Layer, ReadonlyArray } from "effect";
 import { z } from "zod";
 
 // Assuming RepositoryService types/errors are accessible
@@ -239,11 +239,11 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 // Import service definition, errors, schemas
 import {
-    DataValidationError, FileNotFoundError,
+    DataValidationError, 
+    type FileMetadata, type FileMetadataEntityData,FileNotFoundError,
     FileService,
-    FileStorageError, InvalidReferenceOperationError,
-    type FileMetadata, type FileMetadataEntityData,
-    type IFileService
+    FileStorageError, 
+    type IFileService,InvalidReferenceOperationError
 } from "../src/file/file-service"; // Adjust path
 
 // Import Live implementation and Layer
@@ -251,11 +251,12 @@ import { FileServiceLiveLayer } from "../src/file/file-service-live"; // Adjust 
 
 // Import Mocks & Tags
 import {
-    getFileTestMocks, // Use correct helper/type
     MockContentStorage, MockContentStorageLayer,
     MockFileMetadataRepositoryLayer,
-    mockLogger, MockLoggingServiceLayer,
     type MockFileMetadataRepositoryService, // Use correct helper/type
+MockLoggingServiceLayer,
+    getFileTestMocks, // Use correct helper/type
+    mockLogger, 
 } from "./testing/mocks.ts"; // Adjust path
 
 // --- Test Setup ---

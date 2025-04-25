@@ -1,20 +1,20 @@
 import { Context, Data, Effect, Layer, ReadonlyArray } from "effect";
 import { z } from "zod";
 
-// Import dependent service interfaces/tags and specific errors
 import {
-    type IRepositoryService,
-    type BaseEntity,
-    type EntityNotFoundError as RepoEntityNotFoundError,
-    type RepositoryError as RepoError,
-} from "../repository/repository-service"; // Adjust path
-import { type ILoggingService } from "../logging/types"; // Adjust path
-import {
-    type IFileService,
     type FileMetadata, // Needed for AttachmentInfo
     FileNotFoundError as FileService_FileNotFoundError, // Alias to avoid name clash
     FileStorageError as FileService_FileStorageError, // Alias to avoid name clash
+    type IFileService,
 } from "../file/file-service"; // Adjust path
+import { type ILoggingService } from "../logging/types"; // Adjust path
+// Import dependent service interfaces/tags and specific errors
+import {
+    type BaseEntity,
+    type IRepositoryService,
+    type EntityNotFoundError as RepoEntityNotFoundError,
+    type RepositoryError as RepoError,
+} from "../repository/repository-service"; // Adjust path
 
 // --- Data Structures ---
 

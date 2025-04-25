@@ -2,10 +2,10 @@
  * @file Defines errors specific to the ConfigLoader service.
  */
 
-import { AppError } from "../../errors.js"; // Import global base error
 // Removed FileSystem import as we simplify the 'cause' type
 // import type { FileSystem } from "@effect/platform/FileSystem";
-import { z, type ZodError } from "zod"; // Import Zod types
+import { type ZodError, z } from "zod"; // Import Zod types
+import { AppError } from "../../errors.js"; // Import global base error
 
 /** Error occurring during file reading. */
 export class ConfigReadError extends AppError {

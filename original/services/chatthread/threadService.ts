@@ -1,6 +1,7 @@
 import { Context, Data, Effect, Layer, Option, ReadonlyArray } from "effect";
 import { z } from "zod";
 
+import { type BaseEntity } from "../repository/entities/base-entity"; // Adjust path
 // --- Dependency Error Imports ---
 import {
     type DataValidationError as RepoDataValidationError,
@@ -8,7 +9,6 @@ import {
     type RepositoryError as RepoError,
 } from "../repository/errors"; // Adjust path
 import { type SkillExecutionError } from "../skill/errors"; // Adjust path
-import { type BaseEntity } from "../repository/entities/base-entity"; // Adjust path
 
 // --- Data Structures ---
 

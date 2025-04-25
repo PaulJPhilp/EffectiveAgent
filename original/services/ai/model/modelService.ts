@@ -1,12 +1,12 @@
 // File: src/services/model/modelConfigurationService.ts (Complete - Branded Type Pattern)
 
-import { Effect, Context, Layer, HashMap } from "effect";
+import { Context, Effect, HashMap, Layer } from "effect";
+// Import errors from this module
+import { ModelConfigLoadError, ModelNotFoundError } from './errors.js';
 // Import types inferred from this module's schema
 import type { ModelCapability, ModelConfig, ModelConfigFile } from './schema.js';
 // Import the INTERFACE and TAG from this module's types file
 import { ModelConfigurationService } from './types.js';
-// Import errors from this module
-import { ModelNotFoundError, ModelConfigLoadError } from './errors.js';
 
 // --- Service Tag for Config Data Dependency ---
 // This Tag represents the dependency on the loaded ModelConfigFile object.

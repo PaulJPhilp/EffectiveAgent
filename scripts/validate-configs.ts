@@ -2,13 +2,13 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { z, ZodError } from 'zod';
+import { ZodError, z } from 'zod';
 
+import { type ModelConfigFile, ModelConfigFileSchema } from '../src/services/model/schemas/modelConfig.js';
+import { type PromptConfigFile, PromptConfigFileSchema } from '../src/services/prompt/schemas/promptConfig.js';
 // --- Import Schemas (Adjust paths as needed) ---
-import { ProvidersFileSchema, type ProvidersFile } from '../src/services/provider/schemas/providerConfig.js';
-import { ModelConfigFileSchema, type ModelConfigFile } from '../src/services/model/schemas/modelConfig.js';
-import { PromptConfigFileSchema, type PromptConfigFile } from '../src/services/prompt/schemas/promptConfig.js';
-import { TaskConfigFileSchema, type TaskConfigFile } from '../src/services/task/schemas/taskConfig.js'; // Using Task for now
+import { type ProvidersFile, ProvidersFileSchema } from '../src/services/provider/schemas/providerConfig.js';
+import { type TaskConfigFile, TaskConfigFileSchema } from '../src/services/task/schemas/taskConfig.js'; // Using Task for now
 
 // --- Helper Functions ---
 

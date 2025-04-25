@@ -1,7 +1,7 @@
+import { join } from "path"
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf"
 import { Effect } from "effect"
 import { readdir } from "fs/promises"
-import { join } from "path"
 import type { BaseProfile } from "../../../agents/types.js"
 import type { LoadProfilesEffect } from "../types.js"
 import { ProfileLoadError } from "../types.js"

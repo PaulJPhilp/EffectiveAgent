@@ -1,14 +1,14 @@
+import { type Readable } from "stream";
 // src/file/file-service-live.ts (Example path)
 import { Effect, Layer, ReadonlyArray } from "effect";
-import { type Readable } from "stream";
-import {
-    type IFileService, FileService, type FileMetadata, type FileMetadataEntityData,
-    DataValidationError, FileNotFoundError, FileStorageError, InvalidReferenceOperationError,
-    IContentStorage, ContentStorageTag, // Import internal interface and Tag
-} from "./file-service"; // Adjust path
 import { ILoggingService, LoggingService } from "../logging/types"; // Adjust path
-import { IRepositoryService, RepositoryService, type BaseEntity } from "../repository/repository-service"; // Adjust path
 import { EntityNotFoundError as RepoEntityNotFoundError } from "../repository/errors"; // Adjust path
+import { type BaseEntity, IRepositoryService, RepositoryService } from "../repository/repository-service"; // Adjust path
+import {ContentStorageTag, // Import internal interface and Tag
+    DataValidationError, type FileMetadata, type FileMetadataEntityData,FileNotFoundError, FileService, FileStorageError, 
+    IContentStorage, 
+    type IFileService, InvalidReferenceOperationError,
+} from "./file-service"; // Adjust path
 
 // Helper to map Repo Entity to public FileMetadata
 const mapEntityToMetadata = (entity: BaseEntity<FileMetadataEntityData>): FileMetadata => ({

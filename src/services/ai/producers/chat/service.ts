@@ -3,9 +3,10 @@
  * @module services/ai/producers/chat/service
  */
 
+import { EffectiveInput } from '@/services/ai/input/service.js';
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import type { ChatOptions } from "@/services/ai/provider/types.js";
+import type { ProviderChatOptions as ChatOptions } from "@/services/ai/provider/types.ts";
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
 import { AiResponse } from "@effect/ai/AiResponse";
@@ -106,30 +107,34 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                     yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
                     yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
 
+                    // Create EffectiveInput instance
+                    const effectiveInput = new EffectiveInput(options.input);
+
                     // Call provider chat method with proper options
-                    const result = yield* providerClient.chat({
-                        modelId,
-                        messages,
-                        system: systemPrompt || "",
-                        onToken: options.onToken,
-                        ...options.parameters
-                    }).pipe(
+                    const result = yield* providerClient.chat(
+                        effectiveInput,
+                        {
+                            modelId,
+                            system: systemPrompt || "",
+                            ...options.parameters
+                        }
+                    ).pipe(
                         Effect.mapError((error) => new ChatCompletionError("Chat completion failed", { cause: error }))
                     );
 
                     // Map the result to AiResponse
                     return {
-                        text: result.text,
-                        reasoning: result.reasoning,
-                        reasoningDetails: result.reasoningDetails,
-                        sources: result.sources,
-                        messages: result.messages,
-                        warnings: result.warnings,
-                        usage: result.usage,
-                        finishReason: result.finishReason,
-                        model: result.model,
-                        timestamp: result.timestamp,
-                        id: result.id
+                        text: result.data.text,
+                        reasoning: result.data.reasoning,
+                        reasoningDetails: result.data.reasoningDetails,
+                        sources: result.data.sources,
+                        messages: result.data.messages,
+                        warnings: result.data.warnings,
+                        usage: result.metadata.usage,
+                        finishReason: result.metadata.finishReason,
+                        model: result.metadata.model,
+                        timestamp: result.metadata.timestamp,
+                        id: result.metadata.id
                     };
                 }).pipe(
                     Effect.withSpan("ChatService.create")

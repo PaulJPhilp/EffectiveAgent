@@ -1,9 +1,9 @@
 // File: src/services/core/configuration/__tests__/main.test.ts
 
-import { Cause, DefaultServices, Effect, Exit, Layer, Option } from "effect";
 import * as nodeFs from "node:fs/promises";
 import * as os from "node:os";
 import * as nodePath from "node:path";
+import { Cause, DefaultServices, Effect, Exit, Layer, Option } from "effect";
 // Import test functions directly from vitest
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
