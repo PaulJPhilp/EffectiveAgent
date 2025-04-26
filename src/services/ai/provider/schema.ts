@@ -6,10 +6,15 @@
 
 import { Description, Name, RateLimit, Url } from "@/schema.js"; // Correct: Adjust path as necessary
 import * as S from "effect/Schema";
+import { PROVIDER_NAMES } from "./provider-universe.js";
 
-
-
-export const Providers = S.Literal("openai", "anthropic", "google", "xai", "perplexity", "groq", "deepseek", "openrouter");
+/**
+ * Providers schema and type derived from the canonical provider universe.
+ * 
+ * The PROVIDER_NAMES tuple is inferred from the PROVIDER_UNIVERSE in provider-universe.ts.
+ * This approach allows for a single source of truth for provider names.
+ */
+export const Providers = S.Literal(...PROVIDER_NAMES);
 export type ProvidersType = typeof Providers.Type;
 
 /**

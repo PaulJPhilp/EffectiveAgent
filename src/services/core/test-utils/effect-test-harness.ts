@@ -72,27 +72,27 @@ export function createServiceTestHarness<Tag, S, E = never>(
     };
 
     // Helper to assert a specific error was thrown
-    const expectError = async <A, E2 extends { _tag: string }>(
-        effect: Effect.Effect<A, E2, any>,
-        errorTag: E2["_tag"]
+    const expectError = async <A, E extends Error>(
+        effect: Effect.Effect<A, E, any>,
+        errorClass: new (...args: any[]) => E
     ): Promise<void> => {
         const exit = await runFailTest(effect);
 
         if (!Exit.isFailure(exit)) {
-            throw new Error(`Expected error with tag ${errorTag}, but effect succeeded`);
+            throw new Error(`Expected error of type ${errorClass.name}, but effect succeeded`);
         }
 
         const failure = Cause.failureOption(exit.cause);
 
         if (Exit.isFailure(exit) && failure._tag === "Some") {
             const error = failure.value;
-            if ("_tag" in error && error._tag === errorTag) {
-                return; // Success case - error with correct tag was thrown
+            if (error instanceof errorClass) {
+                return; // Success case - error of correct class was thrown
             }
-            throw new Error(`Expected error with tag ${errorTag}, got ${("_tag" in error) ? error._tag : "unknown error"}`);
+            throw new Error(`Expected error of type ${errorClass.name}, got ${error.constructor.name}`);
         }
 
-        throw new Error(`Expected error with tag ${errorTag}, but got a different failure`);
+        throw new Error(`Expected error of type ${errorClass.name}, but got a different failure`);
     };
 
     return {

@@ -1,4 +1,5 @@
-import { ModelCapability, Provider } from "@/schema.js";
+import { ModelCapability } from "@/schema.js";
+import { Provider } from "../schema.js";
 import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js";
 import { Cause, ConfigProvider, Effect, Exit, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
@@ -12,7 +13,7 @@ const mockModels = [
         id: "gpt-4-turbo",
         name: "GPT-4 Turbo",
         version: "1.0.0",
-        provider: "openai" as Provider,
+        provider: "openai",
         modelName: "gpt-4-turbo-preview",
         capabilities: ["text-generation", "chat", "reasoning", "tool-use", "function-calling"],
         temperature: 0.7,
@@ -28,7 +29,7 @@ const mockModels = [
         id: "gpt-4",
         name: "GPT-4",
         version: "1.0.0",
-        provider: "openai" as Provider,
+        provider: "openai",
         modelName: "gpt-4",
         capabilities: ["text-generation", "chat", "reasoning", "function-calling"],
         temperature: 0.7,
@@ -41,7 +42,7 @@ const mockModels = [
         id: "claude-3-opus",
         name: "Claude 3 Opus",
         version: "1.0.0",
-        provider: "anthropic" as Provider,
+        provider: "anthropic",
         modelName: "claude-3-opus-20240229",
         capabilities: ["text-generation", "chat", "reasoning", "tool-use", "function-calling", "vision", "code-generation"],
         temperature: 0.7,
@@ -54,7 +55,7 @@ const mockModels = [
         id: "dalle-3",
         name: "DALL·E 3",
         version: "1.0.0",
-        provider: "openai" as Provider,
+        provider: "openai",
         modelName: "dall-e-3",
         capabilities: ["image-generation"],
         costPer1kInputTokens: 0.02
@@ -63,7 +64,7 @@ const mockModels = [
         id: "gemini-pro",
         name: "Gemini Pro",
         version: "1.0.0",
-        provider: "google" as Provider,
+        provider: "google",
         modelName: "gemini-pro",
         capabilities: ["text-generation", "chat", "reasoning", "tool-use", "function-calling", "code-generation"],
         temperature: 0.7,
@@ -76,7 +77,7 @@ const mockModels = [
         id: "gemini-pro-vision",
         name: "Gemini Pro Vision",
         version: "1.0.0",
-        provider: "google" as Provider,
+        provider: "google",
         modelName: "gemini-pro-vision",
         capabilities: ["text-generation", "chat", "reasoning", "vision"],
         temperature: 0.7,
@@ -89,7 +90,7 @@ const mockModels = [
         id: "mixtral-8x7b",
         name: "Mixtral 8x7B",
         version: "1.0.0",
-        provider: "groq" as Provider,
+        provider: "groq",
         modelName: "mixtral-8x7b-32768",
         capabilities: ["text-generation", "chat", "reasoning", "code-generation"],
         temperature: 0.7,
@@ -111,7 +112,7 @@ const invalidModelData = {
     id: "invalid-model",
     name: "Invalid Model",
     version: "invalid",
-    provider: "unknown" as Provider,
+    provider: "unknown",
     modelName: "",
     capabilities: [],
     temperature: 2.0, // Invalid temperature
@@ -132,7 +133,7 @@ describe("ModelService", () => {
                 getProviderName: (modelId: string) => Effect.gen(function* () {
                     const model = mockModels.find(m => m.id === modelId);
                     if (!model) {
-                        return yield* Effect.fail(new ModelNotFoundError(modelId));
+                        return yield* Effect.fail(new ModelNotFoundError({ modelId, method: "getProviderName" }));
                     }
                     return model.provider;
                 }),
@@ -157,7 +158,8 @@ describe("ModelService", () => {
                         return yield* Effect.fail(new ModelValidationError({
                             modelId,
                             message: `Model not found: ${modelId}`,
-                            capabilities: [...capabilities.literals]
+                            capabilities: [...capabilities.literals],
+                            method: "validateModel"
                         }));
                     }
 
@@ -168,6 +170,7 @@ describe("ModelService", () => {
                     if (!hasCapabilities) {
                         return yield* Effect.fail(new ModelValidationError({
                             modelId,
+                            method: "validateModel",
                             message: `Model ${modelId} does not have all required capabilities`,
                             capabilities: [...capabilities.literals]
                         }));
@@ -268,7 +271,7 @@ describe("ModelService", () => {
 
             await harness.expectError(
                 Effect.provide(effect, invalidConfigLayer),
-                "ModelConfigError"
+                ModelConfigError
             );
         });
 
@@ -295,7 +298,7 @@ describe("ModelService", () => {
 
             await harness.expectError(
                 Effect.provide(effect, invalidConfigLayer),
-                "ModelConfigError"
+                ModelConfigError
             );
         });
 
@@ -323,7 +326,7 @@ describe("ModelService", () => {
 
             await harness.expectError(
                 Effect.provide(effect, invalidConfigLayer),
-                "ModelConfigError"
+                ModelConfigError
             );
         });
     });
@@ -355,7 +358,7 @@ describe("ModelService", () => {
 
             await harness.expectError(
                 Effect.provide(effect, invalidConfigLayer),
-                "ModelConfigError"
+                ModelConfigError
             );
         });
     });
@@ -377,7 +380,7 @@ describe("ModelService", () => {
                 yield* service.getProviderName("invalid-model");
             });
 
-            await harness.expectError(effect, "ModelNotFoundError");
+            await harness.expectError(effect, ModelNotFoundError);
         });
     });
 
@@ -564,7 +567,7 @@ describe("ModelService", () => {
                 yield* service.validateModel("dalle-3", ModelCapability);
             });
 
-            await harness.expectError(effect, "ModelValidationError");
+            await harness.expectError(effect, ModelValidationError);
         });
 
         it("should fail validation for non-existent model", async () => {
@@ -573,7 +576,7 @@ describe("ModelService", () => {
                 yield* service.validateModel("invalid-model", ModelCapability);
             });
 
-            await harness.expectError(effect, "ModelValidationError");
+            await harness.expectError(effect, ModelValidationError);
         });
     });
 });

@@ -3,8 +3,12 @@
  * @module services/ai/model/schema
  */
 
-import { ContextWindowSize, Description, Identifier, ModelCapability, Name, PositiveNumber, Provider, Version } from "@/schema.js";
+import { ContextWindowSize, Description, Identifier, ModelCapability, Name, PositiveNumber, Version } from "@/schema.js";
+import { PROVIDER_NAMES } from "../provider/provider-universe.js";
 import { Schema as S } from "effect";
+
+export const Provider = S.Literal(...PROVIDER_NAMES);
+export type Provider = typeof PROVIDER_NAMES[number];
 
 const RateLimitSchema = S.Struct({
     requestsPerMinute: PositiveNumber.pipe(S.optional),

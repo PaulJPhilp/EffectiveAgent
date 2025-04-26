@@ -193,6 +193,19 @@ export class ProviderOperationError extends EffectiveError {
     }
 }
 
+
+export class NoAudioFileError extends ProviderOperationError {
+    constructor() {
+        super({
+            operation: "extractAudioForTranscription",
+            message: "No audio file found in EffectiveInput for transcription.",
+            providerName: "unknown",
+            module: "ProviderHelpers",
+            method: "extractAudioForTranscription"
+        });
+    }
+}
+
 /**
  * Error thrown when input is empty
  */

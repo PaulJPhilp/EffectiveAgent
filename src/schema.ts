@@ -49,6 +49,4 @@ export const Url = S.String.pipe(S.pattern(/^https?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\
 export const EffectiveRole = S.Union(S.Literal("user"), S.Literal("assistant"), S.Literal("system"), S.Literal("tool"))
 export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>
 
-export const Provider = S.Union(S.Literal("openai"), S.Literal("anthropic"), S.Literal("google"), S.Literal("deepseek"), S.Literal("xai"))
-export type Provider = S.Schema.Type<typeof Provider>
 

@@ -3,7 +3,8 @@
  * @module services/ai/provider/types
  */
 
-import { ModelCapability, Provider } from "@/schema.js";
+import { ModelCapability } from "@/schema.js";
+import { Provider } from "./schema.js";
 import { EntityParseError } from "@/services/core/errors.js";
 import { LanguageModelV1 } from '@ai-sdk/provider';
 import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
@@ -34,7 +35,7 @@ export type ModelServiceApi = {
      */
     getModelsForProvider: (
         provider: Provider
-    ) => Effect.Effect<LanguageModelV1[], ModelConfigError>;
+    ) => Effect.Effect<LanguageModelV1[], never>;
 
     /**
      * Validates if a model has all the specified capabilities.

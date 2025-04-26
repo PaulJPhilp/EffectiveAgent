@@ -8,53 +8,15 @@ import { Config, ConfigProvider, Effect, Schema as S } from "effect";
 import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "./errors.js";
 import { ProviderFile, ProvidersType } from "./schema.js";
 import { EffectiveProviderApi } from "./types.js";
+import { loadConfigString, parseConfigJson } from "./helpers.js";
+import { PROVIDER_NAMES } from "./provider-universe.js";
 
 // --- Service Type Definition ---
-export interface ProviderServiceApi {
-    load: Effect.Effect<ProviderFile, ProviderConfigError>;
-    getProviderClient(
-        providerName: ProvidersType
-    ): Effect.Effect<EffectiveProviderApi, ProviderConfigError | ProviderNotFoundError | ProviderOperationError>;
-}
+import type { ProviderServiceApi } from "./api.js";
 
 /**
  * Helper functions for common operations 
  */
-/**
- * Loads the provider configuration string from the provided ConfigProvider
- * @param configProvider - The configuration provider instance
- * @param method - The method name for error context
- * @returns An Effect containing the config string or a ProviderConfigError
- */
-const loadConfigString = (configProvider: ConfigProvider.ConfigProvider, method: string) => {
-    return configProvider.load(Config.string("providersConfigJsonString")).pipe(
-        Effect.mapError(cause => new ProviderConfigError({
-            description: "Failed to load provider config string",
-            module: "ProviderService",
-            method,
-            cause: new EntityParseError({ filePath: "config", cause })
-        }))
-    );
-};
-
-/**
- * Parses a raw configuration string into a JSON object
- * @param rawConfig - The raw configuration string
- * @param method - The method name for error context
- * @returns An Effect containing the parsed JSON or a ProviderConfigError
- */
-const parseConfigJson = (rawConfig: string, method: string) => {
-    return Effect.try({
-        try: () => JSON.parse(rawConfig),
-        catch: (error): ProviderConfigError => new ProviderConfigError({
-            description: "Failed to parse provider config",
-            module: "ProviderService",
-            method,
-            cause: error instanceof Error ? error : new Error(String(error))
-        })
-    });
-};
-
 /**
  * Validates the parsed configuration against the ProviderFile schema
  * @param parsedConfig - The parsed configuration object
@@ -141,14 +103,23 @@ export class ProviderService extends Effect.Service<ProviderServiceApi>()("Provi
                     yield* Effect.log(`Using provider: ${providerName} with API key from env var: ${apiKeyEnvVar}`);
                     
                     // In tests, provider client is injected through the mock layer
-                    const providerClient = {} as EffectiveProviderApi;
-                    providerClient.name = providerName as ProvidersType;
-                    
+                    const providerClient = {name: providerName} as EffectiveProviderApi;
+                    // Type guard for ProvidersType
+                    function isProvidersType(name: string): name is ProvidersType {
+                        return (PROVIDER_NAMES as readonly string[]).includes(name);
+                    }
+
+                    if (!isProvidersType(providerName)) {
+                        throw new ProviderConfigError({
+                            description: `Invalid provider name: ${providerName}`,
+                            module: "ProviderService",
+                            method: "getProviderClient"
+                        });
+                    }
                     // Initialize the provider with the API key
                     if (typeof (providerClient as any).setVercelProvider === "function") {
                         yield* (providerClient as any).setVercelProvider(providerName, apiKey);
                     }
-                    
                     return providerClient;
                 }) as Effect.Effect<EffectiveProviderApi, ProviderConfigError | ProviderNotFoundError | ProviderOperationError>;
             }

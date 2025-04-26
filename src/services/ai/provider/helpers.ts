@@ -1,11 +1,67 @@
 import { randomUUID } from "node:crypto";
-import type { EffectiveResponse, GenerateBaseResult } from "./types.js";
+import type { EffectiveResponse, GenerateBaseResult } from "@/services/ai/pipeline/types.js";
 import { ProviderOperationError, ProviderConfigError, ProviderMissingCapabilityError } from "./errors.js";
 import { ModelServiceApi } from "../model/service.js";
 import { LoggingApi } from "@/services/core/logging/types.js";
 import { Effect } from "effect";
 import { ProvidersType } from "./schema.js";
 import { ModelCapability } from "@/schema.js";
+import { ConfigProvider, Config } from "effect";
+import { EntityParseError } from "@/services/core/errors.js";
+
+/**
+ * Loads the provider configuration string from the provided ConfigProvider
+ * @param configProvider - The configuration provider instance
+ * @param method - The method name for error context
+ * @returns An Effect containing the config string or a ProviderConfigError
+ */
+export const loadConfigString = (
+  configProvider: ConfigProvider.ConfigProvider,
+  method: string
+): Effect.Effect<string, ProviderConfigError> => {
+  return Effect.try({
+    try: () => configProvider.load(Config.string("providersConfigJsonString")),
+    catch: (error) =>
+      new ProviderConfigError({
+        description: "Failed to load provider config string (sync error)",
+        module: "ProviderService",
+        method,
+        cause: new EntityParseError({ filePath: "config", cause: error instanceof Error ? error : new Error(String(error)) })
+      })
+  }).pipe(
+    Effect.flatten,
+    Effect.mapError((cause) =>
+      new ProviderConfigError({
+        description: "Failed to load provider config string",
+        module: "ProviderService",
+        method,
+        cause: new EntityParseError({ filePath: "config", cause })
+      })
+    )
+  );
+};
+
+/**
+ * Parses a raw configuration string into a JSON object
+ * @param rawConfig - The raw configuration string
+ * @param method - The method name for error context
+ * @returns An Effect containing the parsed JSON or a ProviderConfigError
+ */
+export const parseConfigJson = (
+  rawConfig: string,
+  method: string
+): Effect.Effect<any, ProviderConfigError> => {
+  return Effect.try({
+    try: () => JSON.parse(rawConfig),
+    catch: (error): ProviderConfigError =>
+      new ProviderConfigError({
+        description: "Failed to parse provider config",
+        module: "ProviderService",
+        method,
+        cause: error instanceof Error ? error : new Error(String(error))
+      })
+  });
+};
 
 /**
  * Wraps a provider's result in a standardized response object with metadata.
@@ -13,18 +69,7 @@ import { ModelCapability } from "@/schema.js";
  * @param {T} result - The provider result to wrap
  * @returns {EffectiveResponse<T>} The standardized response
  */
-export function createResponse<T extends GenerateBaseResult>(result: T): EffectiveResponse<T> {
-  return {
-    data: result,
-    metadata: {
-      id: randomUUID(),
-      timestamp: new Date(),
-      usage: result.usage,
-      finishReason: result.finishReason,
-      providerMetadata: result.providerMetadata
-    }
-  };
-}
+
 
 /**
  * Looks up the provider name for a given modelId, logs and maps errors.

@@ -1,51 +1,14 @@
-import { ModelCapability } from '@/schema.js'
-import { EffectiveInput } from "@/services/ai/input/service.js"
-import type { FinishReason, Metadata, ReasoningDetail, ResponseMessage, Source, Usage, Warning } from '@/types.js'
+import type { FinishReason, ReasoningDetail, ResponseMessage, Source, Usage, Warning } from '@/types.js'
 import { AnthropicProvider, AnthropicProviderSettings } from '@ai-sdk/anthropic'
 import { DeepSeekProvider, DeepSeekProviderSettings } from '@ai-sdk/deepseek'
 import { GoogleGenerativeAIProvider, GoogleGenerativeAIProviderSettings } from '@ai-sdk/google'
 import { GroqProvider, GroqProviderSettings } from '@ai-sdk/groq'
 import { OpenAIProvider, OpenAIProviderSettings } from '@ai-sdk/openai'
 import { PerplexityProvider, PerplexityProviderSettings } from '@ai-sdk/perplexity'
-import { LanguageModelV1, LanguageModelV1Prompt } from '@ai-sdk/provider'
 import { XaiProvider, XaiProviderSettings } from '@ai-sdk/xai'
-import { Effect } from 'effect'
-import * as Stream from "effect/Stream"
-import { ProviderConfigError } from '../errors.js'
-import { ProvidersType } from './schema.js'
+import { ProviderClientApi } from './api.js'
+import { PROVIDER_NAMES } from "./provider-universe.js";
 
-// Re-export types from @ai-sdk/provider
-export type { LanguageModelV1, LanguageModelV1Prompt } from '@ai-sdk/provider'
-
-// Re-export providers
-export {
-    AnthropicProvider,
-    DeepSeekProvider,
-    GoogleGenerativeAIProvider,
-    GroqProvider,
-    OpenAIProvider,
-    PerplexityProvider,
-    XaiProvider
-}
-
-// Re-export provider settings
-export type {
-    AnthropicProviderSettings,
-    DeepSeekProviderSettings,
-    GoogleGenerativeAIProviderSettings,
-    GroqProviderSettings,
-    OpenAIProviderSettings,
-    PerplexityProviderSettings,
-    XaiProviderSettings
-}
-
-// Re-export types from @/types.js
-export type {
-    FinishReason,
-    Metadata as ProviderMetadata,
-    Usage,
-    Warning
-}
 
 /**
  * Base result type containing common fields for all AI generation results
@@ -62,7 +25,7 @@ export interface GenerateBaseResult {
     /** Token/compute usage details */
     usage: Usage
     /** Provider-specific metadata */
-    providerMetadata?: Metadata
+    providerMetadata?: ProviderMetadata
     /** Optional raw response headers */
     headers?: Record<string, string>
     /** Optional raw response body */
@@ -278,8 +241,73 @@ export interface EffectiveResponse<TData> {
         readonly timestamp: Date;
         readonly usage?: Usage;
         readonly finishReason?: FinishReason;
-        readonly providerMetadata?: Metadata;
+        readonly providerMetadata?: ProviderMetadata;
     };
+}
+
+/**
+ * Base options common to many provider API calls.
+ */
+/**
+ * Metadata and configuration for a single provider.
+ *
+ * - Provider capability: The union of all capabilities supported by any model
+ *   this provider exposes (e.g., if any model supports "vision", the provider
+ *   has the "vision" capability).
+ * - Used for filtering, UI, and as a source of truth for what the provider can offer.
+ */
+/**
+ * Model capability: What a model or provider can do (as a string literal union).
+ */
+export type ModelCapability =
+  | "text-generation"
+  | "chat"
+  | "function-calling"
+  | "vision"
+  | "reasoning"
+  | "code-generation"
+  | "audio"
+  | "image-generation"
+  | "embeddings"
+  | "tool-use";
+
+/**
+ * Canonical provider metadata type for ProviderService.
+ *
+ * - name: internal provider ID
+ * - displayName: user-facing provider name
+ * - logoUrl: provider logo
+ * - docsUrl: provider documentation
+ * - capabilities: all capabilities supported by any model from this provider
+ * - configSchema: required API key and base URL
+ */
+export interface ProviderMetadata {
+  name: string;
+  displayName: string;
+  logoUrl: string;
+  docsUrl: string;
+  capabilities: readonly ModelCapability[];
+  configSchema: {
+    apiKeyEnvVar: string;
+    baseUrl: string;
+  };
+}
+
+/**
+ * Metadata for a single model.
+ *
+ * - Model capability: What this specific model can do (e.g., "chat", "vision").
+ * - Used for routing, validation, and fine-grained selection.
+ */
+export interface ModelMetadata {
+  id: string;
+  name: string;
+  /**
+   * The set of capabilities this specific model supports.
+   * This is the model capability.
+   */
+  capabilities: readonly ModelCapability[];
+  // Add any additional fields as needed
 }
 
 /**
@@ -389,118 +417,28 @@ export interface ProviderTranscribeOptions extends BaseProviderOptions {
  * Discriminated union type for all supported AI providers.
  * Each provider has a unique 'name' property that acts as the discriminator.
  */
-/**
- * Discriminated union type for Vercel AI SDK providers
- */
-export type VercelProvider =
-    | { type: "openai"; provider: OpenAIProvider }
-    | { type: "anthropic"; provider: AnthropicProvider }
-    | { type: "google"; provider: GoogleGenerativeAIProvider }
-    | { type: "xai"; provider: XaiProvider }
-    | { type: "perplexity"; provider: PerplexityProvider }
-    | { type: "groq"; provider: GroqProvider }
-    | { type: "deepseek"; provider: DeepSeekProvider }
 
-export type EffectiveProviderApi =
-    | { name: "openai"; provider: OpenAIProvider; capabilities: Set<ModelCapability> }
-    | { name: "anthropic"; provider: AnthropicProvider; capabilities: Set<ModelCapability> }
-    | { name: "google"; provider: GoogleGenerativeAIProvider; capabilities: Set<ModelCapability> }
-    | { name: "xai"; provider: XaiProvider; capabilities: Set<ModelCapability> }
-    | { name: "perplexity"; provider: PerplexityProvider; capabilities: Set<ModelCapability> }
-    | { name: "groq"; provider: GroqProvider; capabilities: Set<ModelCapability> }
-    | { name: "deepseek"; provider: DeepSeekProvider; capabilities: Set<ModelCapability> }
-    | { name: "openrouter"; provider: unknown; capabilities: Set<ModelCapability> } // TODO: Replace 'unknown' with actual OpenRouterProvider type when available
+/**
+ * Represents a configured provider instance at runtime.
+ * Each union member corresponds to a supported provider, including its unique name,
+ * the provider client implementation, and the set of capabilities it supports.
+ * Used throughout the provider service for type-safe provider handling and dispatch.
+ */
+export type EffectiveProviderApi = {
+    name: typeof PROVIDER_NAMES[number];
+    provider: ProviderClientApi;
+    capabilities: Set<ModelCapability>;
+};
 
 /**
  * Union type for all supported provider settings.
  */
-export type EffectiveProviderSettings =
-    | { name: "openai"; settings: OpenAIProviderSettings }
-    | { name: "anthropic"; settings: AnthropicProviderSettings }
-    | { name: "google"; settings: GoogleGenerativeAIProviderSettings }
-    | { name: "xai"; settings: XaiProviderSettings }
-    | { name: "perplexity"; settings: PerplexityProviderSettings }
-    | { name: "groq"; settings: GroqProviderSettings }
-    | { name: "deepseek"; settings: DeepSeekProviderSettings }
-    | { name: "openrouter"; settings: unknown } // TODO: Replace 'unknown' with actual OpenRouterProviderSettings when available
-
 /**
- * Core provider client API interface that all providers must implement.
- * Methods are specifically typed to match capabilities and return types.
+ * Union type for all supported provider configuration settings.
+ * Each member maps a provider name to its specific settings type as required by its SDK.
+ * Used for loading, validating, and initializing provider clients.
  */
-export interface ProviderClientApi {
-    /**
-     * Generate text completion from input.
-     */
-    generateText(input: EffectiveInput, options: ProviderGenerateTextOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, Error>;
-
-    /**
-     * Stream text completion from input.
-     */
-    streamText(input: EffectiveInput, options: ProviderGenerateTextOptions): Stream.Stream<EffectiveResponse<StreamingTextResult>, Error>;
-
-    /**
-     * Generate a structured object based on a schema from input.
-     */
-    generateObject<T>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>): Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, Error>;
-
-    /**
-     * Stream a structured object based on a schema from input.
-     */
-    streamObject<T>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>): Stream.Stream<EffectiveResponse<StreamingObjectResult<T>>, Error>;
-
-    /**
-     * Generate chat completion from input messages.
-     */
-    chat(input: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<ChatResult>, Error>;
-
-    /**
-     * Stream chat completion from input messages.
-     */
-    streamChat(input: EffectiveInput, options: ProviderChatOptions): Stream.Stream<EffectiveResponse<StreamingTextResult>, Error>;
-
-    /**
-     * Generate embeddings for texts provided in the input.
-     * Note: Input needs adaptation to extract texts.
-     */
-    generateEmbeddings(input: EffectiveInput, options: ProviderGenerateEmbeddingsOptions): Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, Error>;
-
-    /**
-     * Generate images from a text prompt provided in the input.
-     * Note: Input needs adaptation to extract prompt.
-     */
-    generateImage(input: EffectiveInput, options: ProviderGenerateImageOptions): Effect.Effect<EffectiveResponse<GenerateImageResult>, Error>;
-
-    /**
-     * Generate speech from text provided in the input.
-     * Note: Input needs adaptation to extract text.
-     */
-    generateSpeech(input: EffectiveInput, options: ProviderGenerateSpeechOptions): Effect.Effect<EffectiveResponse<GenerateSpeechResult>, Error>;
-
-    /**
-     * Transcribe speech to text from audio data provided in the input.
-     * Note: Input needs adaptation to extract audio data.
-     */
-    transcribe(input: EffectiveInput, options: ProviderTranscribeOptions): Effect.Effect<EffectiveResponse<TranscribeResult>, Error>;
-
-    /**
-     * Get the capabilities supported by this provider client instance.
-     */
-    getCapabilities(): Effect.Effect<Set<ModelCapability>, ProviderConfigError>;
-
-    /**
-     * Get the available models usable by this provider client.
-     */
-    getModels(): Effect.Effect<LanguageModelV1[], Error>;
-
-    /**
-     * Get the name of the provider associated with this client instance.
-     */
-    getProviderName(): Effect.Effect<string, ProviderConfigError>;
-
-    /**
-     * Initialize the provider client (e.g., set API key and endpoint).
-     * Returns the initialized provider details.
-     */
-    setVercelProvider(providerName: ProvidersType, apiKey: string): Effect.Effect<void, ProviderConfigError>;
-}
+export type EffectiveProviderSettings = {
+    name: typeof PROVIDER_NAMES[number];
+    settings: unknown;
+};
