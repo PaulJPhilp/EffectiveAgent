@@ -93,17 +93,31 @@ export class TextService extends Effect.Service<TextServiceApi>()("TextService",
                 Effect.gen(function* () {
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new TextModelError("Model ID must be provided"))
+                        Effect.mapError(() => new TextModelError({
+    description: "Model ID must be provided",
+    module: "TextService",
+    method: "generate"
+}))
                     );
 
                     // Get provider name from model service
                     const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new TextProviderError("Failed to get provider name for model", { cause: error }))
+                        Effect.mapError((error) => new TextProviderError({
+    description: "Failed to get provider name for model",
+    module: "TextService",
+    method: "generate",
+    cause: error
+}))
                     );
 
                     // Get provider client
                     const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new TextProviderError("Failed to get provider client", { cause: error }))
+                        Effect.mapError((error) => new TextProviderError({
+    description: "Failed to get provider client",
+    module: "TextService",
+    method: "generate",
+    cause: error
+}))
                     );
 
                     // If system prompt is provided, prepend it to the prompt
@@ -130,7 +144,12 @@ export class TextService extends Effect.Service<TextServiceApi>()("TextService",
                             }
                         ))
                     ).pipe(
-                        Effect.mapError((error) => new TextGenerationError("Text generation failed", { cause: error }))
+                        Effect.mapError((error) => new TextGenerationError({
+    description: "Text generation failed",
+    module: "TextService",
+    method: "generate",
+    cause: error
+}))
                     );
 
                     // Map the result to AiResponse

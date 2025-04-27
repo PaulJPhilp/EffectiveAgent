@@ -3,54 +3,75 @@
  * @module services/ai/producers/embedding/errors
  */
 
-import { AiServiceError } from "@/services/ai/core/errors.js";
+import { EffectiveError } from "@/effective-error.js";
 
 /**
  * Base error class for embedding-related errors
  */
-export class EmbeddingError extends AiServiceError {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, options);
-        this.name = "EmbeddingError";
+/**
+ * Base error type for embedding-related errors.
+ * @extends EffectiveError
+ */
+export class EmbeddingError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 }
 
 /**
  * Error thrown when there's an issue with the embedding model
  */
-export class EmbeddingModelError extends EmbeddingError {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, options);
-        this.name = "EmbeddingModelError";
+/**
+ * Error thrown when there's an issue with the embedding model.
+ * @extends EffectiveError
+ */
+export class EmbeddingModelError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 }
 
 /**
  * Error thrown when there's an issue with the embedding provider
  */
-export class EmbeddingProviderError extends EmbeddingError {
-    constructor(message: string, options?: ErrorOptions & { providerName?: string }) {
-        super(message, options);
-        this.name = "EmbeddingProviderError";
+/**
+ * Error thrown when there's an issue with the embedding provider.
+ * @extends EffectiveError
+ */
+export class EmbeddingProviderError extends EffectiveError {
+    public readonly providerName?: string;
+    constructor(params: { providerName?: string; description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+        this.providerName = params.providerName;
     }
 }
 
 /**
  * Error thrown when embedding generation fails
  */
-export class EmbeddingGenerationError extends EmbeddingError {
-    constructor(message: string, options?: ErrorOptions & { input?: string | string[] }) {
-        super(message, options);
-        this.name = "EmbeddingGenerationError";
+/**
+ * Error thrown when embedding generation fails.
+ * @extends EffectiveError
+ */
+export class EmbeddingGenerationError extends EffectiveError {
+    public readonly input?: string | string[];
+    constructor(params: { input?: string | string[]; description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+        this.input = params.input;
     }
 }
 
 /**
  * Error thrown when input validation fails
  */
-export class EmbeddingInputError extends EmbeddingError {
-    constructor(message: string, options?: ErrorOptions & { input?: string | string[] }) {
-        super(message, options);
-        this.name = "EmbeddingInputError";
+/**
+ * Error thrown when input validation fails.
+ * @extends EffectiveError
+ */
+export class EmbeddingInputError extends EffectiveError {
+    public readonly input?: string | string[];
+    constructor(params: { input?: string | string[]; description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+        this.input = params.input;
     }
 } 

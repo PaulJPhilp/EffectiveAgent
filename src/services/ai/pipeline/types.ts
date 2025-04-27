@@ -22,4 +22,3 @@ export interface GenerateBaseResult {
   providerMetadata?: ProviderMetadata;
 }
 
-export type EffectiveError = unknown; // TODO: Refine as needed

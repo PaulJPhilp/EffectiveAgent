@@ -173,17 +173,31 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                 Effect.gen(function* () {
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new ImageModelError("Model ID must be provided"))
+                        Effect.mapError(() => new ImageModelError({
+                            description: "Model ID must be provided",
+                            module: "ImageService",
+                            method: "generate"
+                        }))
                     );
 
                     // Get provider name from model service
                     const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new ImageProviderError("Failed to get provider name for model", { cause: error }))
+                        Effect.mapError((error) => new ImageProviderError({
+                            description: "Failed to get provider name for model",
+                            module: "ImageService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // Get provider client
                     const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new ImageProviderError("Failed to get provider client", { cause: error }))
+                        Effect.mapError((error) => new ImageProviderError({
+                            description: "Failed to get provider client",
+                            module: "ImageService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // Validate image size
@@ -229,7 +243,12 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                             }
                         ))
                     ).pipe(
-                        Effect.mapError((error) => new ImageGenerationError("Image generation failed", { cause: error }))
+                        Effect.mapError((error) => new ImageGenerationError({
+                            description: "Image generation failed",
+                            module: "ImageService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // Map the result to ImageGenerationResult

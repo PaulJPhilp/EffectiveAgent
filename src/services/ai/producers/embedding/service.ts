@@ -9,7 +9,7 @@ import { AiError } from "@effect/ai/AiError";
 import { Layer } from "effect";
 import * as Effect from "effect/Effect";
 import type { Span } from "effect/Tracer";
-import { EmbeddingGenerationError, EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
+import { EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
 
 /**
  * Options for embedding generation
@@ -72,26 +72,49 @@ export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()("Emb
                 Effect.gen(function* () {
                     // Validate input
                     if (Array.isArray(options.input) && options.input.length === 0) {
-                        return yield* Effect.fail(new EmbeddingInputError("Input array cannot be empty"));
+                        return yield* Effect.fail(new EmbeddingInputError({
+                            description: "Input array cannot be empty",
+                            module: "EmbeddingService",
+                            method: "generate"
+                        }));
                     }
 
                     if (!Array.isArray(options.input) && options.input.trim() === "") {
-                        return yield* Effect.fail(new EmbeddingInputError("Input text cannot be empty"));
+                        return yield* Effect.fail(new EmbeddingInputError({
+                            description: "Input text cannot be empty",
+                            module: "EmbeddingService",
+                            method: "generate"
+                        }));
                     }
 
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new EmbeddingModelError("Model ID must be provided"))
+                        Effect.mapError(() => new EmbeddingModelError({
+                            description: "Model ID must be provided",
+                            module: "EmbeddingService",
+                            method: "generate"
+                        }))
                     );
 
                     // Get provider name from model service
                     const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new EmbeddingProviderError("Failed to get provider name for model", { cause: error }))
+                        Effect.mapError((error) => new EmbeddingProviderError({
+                            description: "Failed to get provider name for model",
+                            module: "EmbeddingService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // Get provider client
                     const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new EmbeddingProviderError("Failed to get provider client", { cause: error, providerName }))
+                        Effect.mapError((error) => new EmbeddingProviderError({
+                            description: "Failed to get provider client",
+                            module: "EmbeddingService",
+                            method: "generate",
+                            cause: error,
+                            providerName
+                        }))
                     );
 
                     yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
@@ -101,40 +124,58 @@ export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()("Emb
                     const model = yield* Effect.tryPromise({
                         try: async () => {
                             // Use the provider to get the embedding model
-                            const models = await Effect.runPromise(providerClient.getModels());
-                            const matchingModel = models.find(m => m.modelId === modelId);
+                            const models = await Effect.runPromise(
+                                providerClient.getModels().pipe(
+                                    Effect.provideService(ModelService, modelService)
+                                )
+                            );
+                            const matchingModel = models.find((m: any) => m.modelId === modelId);
                             if (!matchingModel) {
                                 throw new Error(`Model ${modelId} not found`);
                             }
                             return matchingModel;
                         },
-                        catch: (error) => new EmbeddingModelError(`Failed to get model ${modelId}`, { cause: error })
-                    });
-
-                    // Generate the embeddings using the provider's generateEmbeddings method
-                    const result = yield* Effect.tryPromise({
-                        try: async () => {
-                            const result = await Effect.runPromise(providerClient.generateEmbeddings({
-                                model,
-                                input: options.input,
-                                ...options.parameters
-                            }));
-                            return result;
-                        },
-                        catch: (error) => new EmbeddingGenerationError("Embedding generation failed", {
-                            cause: error,
-                            input: options.input
+                        catch: (error) => new EmbeddingModelError({
+                            description: `Failed to get model ${modelId}`,
+                            module: "EmbeddingService",
+                            method: "generate",
+                            cause: error
                         })
                     });
 
+                    // Generate the embeddings using the provider's generateEmbeddings method
+                    const resultResponse = yield* Effect.tryPromise({
+                        try: async () => {
+                            const inputArray: string[] = Array.isArray(options.input)
+                                ? options.input
+                                : [options.input];
+                            return await Effect.runPromise(providerClient.generateEmbeddings(
+                                inputArray,
+                                {
+                                    modelId: modelId,
+                                    ...options.parameters
+                                }
+                            ));
+                        },
+                        catch: (error) => new EmbeddingProviderError({
+                            description: "Failed to generate embeddings",
+                            module: "EmbeddingService",
+                            method: "generate",
+                            cause: error
+                        })
+                    });
+
+                    const result = resultResponse.data;
+
                     // Map the result to EmbeddingGenerationResult
                     return {
-                        embeddings: result.embeddings,
-                        model: result.model,
-                        timestamp: result.timestamp || new Date(),
-                        id: result.id,
-                        usage: result.usage ? {
+                        embeddings: result?.embeddings,
+                        model: result?.model ?? modelId,
+                        timestamp: result?.timestamp ? new Date(result.timestamp) : new Date(),
+                        id: result?.id ?? "",
+                        usage: result?.usage ? {
                             promptTokens: result.usage.promptTokens || 0,
+                            completionTokens: result.usage.completionTokens || 0,
                             totalTokens: result.usage.totalTokens || 0
                         } : undefined
                     };
@@ -142,7 +183,8 @@ export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()("Emb
                     Effect.withSpan("EmbeddingService.generate")
                 )
         };
-    })
+    }),
+    dependencies: [ModelService.Default, ProviderService.Default] as const
 }) { }
 
 /**

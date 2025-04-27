@@ -82,17 +82,31 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                 Effect.gen(function* () {
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new ChatModelError("Model ID must be provided"))
+                        Effect.mapError(() => new ChatModelError({
+    description: "Model ID must be provided",
+    module: "ChatService",
+    method: "create"
+}))
                     );
 
                     // Get provider name from model service
                     const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new ChatProviderError("Failed to get provider name for model", { cause: error }))
+                        Effect.mapError((error) => new ChatProviderError({
+    description: "Failed to get provider name for model",
+    module: "ChatService",
+    method: "create",
+    cause: error
+}))
                     );
 
                     // Get provider client
                     const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new ChatProviderError("Failed to get provider client", { cause: error }))
+                        Effect.mapError((error) => new ChatProviderError({
+    description: "Failed to get provider client",
+    module: "ChatService",
+    method: "create",
+    cause: error
+}))
                     );
 
                     // Map messages
@@ -119,7 +133,12 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                             ...options.parameters
                         }
                     ).pipe(
-                        Effect.mapError((error) => new ChatCompletionError("Chat completion failed", { cause: error }))
+                        Effect.mapError((error) => new ChatCompletionError({
+    description: "Chat completion failed",
+    module: "ChatService",
+    method: "create",
+    cause: error
+}))
                     );
 
                     // Map the result to AiResponse

@@ -3,46 +3,43 @@
  * @module services/ai/producers/chat/errors
  */
 
-import { AiError } from "@effect/ai/AiError"
+import { EffectiveError } from "@/effective-error.js";
 
 /**
  * Error thrown when there are issues with chat model configuration or access
  */
-export class ChatModelError extends AiError {
-    constructor(message: string, options?: ErrorOptions) {
-        super({
-            description: message,
-            module: "ChatService",
-            method: "create",
-            ...(options && { cause: options.cause })
-        })
+/**
+ * Error thrown when there are issues with chat model configuration or access.
+ * @extends EffectiveError
+ */
+export class ChatModelError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 }
 
 /**
  * Error thrown when there are issues with chat provider configuration or access
  */
-export class ChatProviderError extends AiError {
-    constructor(message: string, options?: ErrorOptions) {
-        super({
-            description: message,
-            module: "ChatService",
-            method: "create",
-            ...(options && { cause: options.cause })
-        })
+/**
+ * Error thrown when there are issues with chat provider configuration or access.
+ * @extends EffectiveError
+ */
+export class ChatProviderError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 }
 
 /**
  * Error thrown when the chat completion request fails
  */
-export class ChatCompletionError extends AiError {
-    constructor(message: string, options?: ErrorOptions) {
-        super({
-            description: message,
-            module: "ChatService",
-            method: "create",
-            ...(options && { cause: options.cause })
-        })
+/**
+ * Error thrown when the chat completion request fails.
+ * @extends EffectiveError
+ */
+export class ChatCompletionError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 } 

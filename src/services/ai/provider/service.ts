@@ -39,6 +39,8 @@ const validateProviderConfig = (parsedConfig: any, method: string) => {
  * Implementation of the ProviderService using the Effect.Service pattern
  * Manages AI provider configurations and client access with proper error handling
  */
+import type { ProviderClientApi } from "@/services/ai/provider/api.js";
+
 export class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderService", {
     effect: Effect.gen(function* () {
         const configProvider = yield* ConfigProvider.ConfigProvider;
@@ -120,8 +122,8 @@ export class ProviderService extends Effect.Service<ProviderServiceApi>()("Provi
                     if (typeof (providerClient as any).setVercelProvider === "function") {
                         yield* (providerClient as any).setVercelProvider(providerName, apiKey);
                     }
-                    return providerClient;
-                }) as Effect.Effect<EffectiveProviderApi, ProviderConfigError | ProviderNotFoundError | ProviderOperationError>;
+                    return providerClient as unknown as ProviderClientApi;
+                }) as Effect.Effect<ProviderClientApi, ProviderConfigError | ProviderNotFoundError | ProviderOperationError>;
             }
         };
     }),

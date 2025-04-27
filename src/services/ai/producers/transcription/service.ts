@@ -4,6 +4,7 @@
  */
 
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
+import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
 import { Layer } from "effect";
@@ -111,22 +112,40 @@ export class TranscriptionService extends Effect.Service<TranscriptionServiceApi
                 Effect.gen(function* () {
                     // Validate audio data
                     if (!options.audioData) {
-                        return yield* Effect.fail(new TranscriptionAudioError("Audio data is required"));
+                        return yield* Effect.fail(new TranscriptionAudioError({
+                            description: "Audio data is required",
+                            module: "TranscriptionService",
+                            method: "transcribe"
+                        }));
                     }
 
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new TranscriptionModelError("Model ID must be provided"))
+                        Effect.mapError(() => new TranscriptionModelError({
+                            description: "Model ID must be provided",
+                            module: "TranscriptionService",
+                            method: "transcribe"
+                        }))
                     );
 
                     // Get provider name from model service
                     const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new TranscriptionProviderError("Failed to get provider name for model", { cause: error }))
+                        Effect.mapError((error) => new TranscriptionProviderError({
+                            description: "Failed to get provider name for model",
+                            module: "TranscriptionService",
+                            method: "transcribe",
+                            cause: error
+                        }))
                     );
 
                     // Get provider client
-                    const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new TranscriptionProviderError("Failed to get provider client", { cause: error }))
+                    const providerClient: ProviderClientApi = yield* providerService.getProviderClient(providerName).pipe(
+                        Effect.mapError((error) => new TranscriptionProviderError({
+                            description: "Failed to get provider client",
+                            module: "TranscriptionService",
+                            method: "transcribe",
+                            cause: error
+                        }))
                     );
 
                     yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
@@ -136,41 +155,73 @@ export class TranscriptionService extends Effect.Service<TranscriptionServiceApi
                     const model = yield* Effect.tryPromise({
                         try: async () => {
                             // Use the provider to get the language model
-                            const models = await Effect.runPromise(providerClient.getModels());
-                            const matchingModel = models.find(m => m.modelId === modelId);
+                            const models = await Effect.runPromise(
+                                providerClient.getModels().pipe(
+                                    Effect.provideService(ModelService, modelService)
+                                )
+                            );
+                            const matchingModel = models.find((m: any) => m.modelId === modelId);
                             if (!matchingModel) {
                                 throw new Error(`Model ${modelId} not found`);
                             }
                             return matchingModel;
                         },
-                        catch: (error) => new TranscriptionModelError(`Failed to get model ${modelId}`, { cause: error })
+                        catch: (error) => new TranscriptionModelError({
+                            description: `Failed to get model ${modelId}`,
+                            module: "TranscriptionService",
+                            method: "transcribe",
+                            cause: error
+                        })
                     });
 
                     // Transcribe the audio using the provider's transcribe method
-                    const result = yield* Effect.tryPromise({
+                    let inputBuffer: ArrayBuffer;
+                    if (typeof options.audioData === "string") {
+                        inputBuffer = Buffer.from(options.audioData, "base64").buffer;
+                    } else if (options.audioData instanceof Uint8Array) {
+                        // Ensure we get a true ArrayBuffer, not SharedArrayBuffer
+                        if (options.audioData.buffer instanceof ArrayBuffer) {
+                            inputBuffer = options.audioData.buffer.slice(
+                                options.audioData.byteOffset,
+                                options.audioData.byteOffset + options.audioData.byteLength
+                            );
+                        } else {
+                            inputBuffer = new Uint8Array(options.audioData).buffer;
+                        }
+                    } else {
+                        inputBuffer = options.audioData as ArrayBuffer;
+                    }
+
+                    const response = yield* Effect.tryPromise({
                         try: async () => {
-                            const result = await Effect.runPromise(providerClient.transcribe(
-                                options.audioData,
+                            return await Effect.runPromise(providerClient.transcribe(
+                                inputBuffer,
                                 {
-                                    model: modelId,
+                                    modelId: modelId,
                                     ...options.parameters
                                 }
                             ));
-                            return result;
                         },
-                        catch: (error) => new TranscriptionError("Transcription failed", { cause: error })
+                        catch: (error) => new TranscriptionError({
+                            description: "Transcription failed",
+                            module: "TranscriptionService",
+                            method: "transcribe",
+                            cause: error
+                        })
                     });
+
+                    const result = response.data;
 
                     // Map the result to TranscriptionResult
                     return {
-                        text: result.text,
-                        model: result.model,
-                        timestamp: result.timestamp,
-                        id: result.id,
-                        segments: result.segments,
-                        detectedLanguage: result.detectedLanguage,
-                        duration: result.duration,
-                        usage: result.usage ? {
+                        text: result?.text ?? "",
+                        model: result?.model ?? modelId,
+                        timestamp: result?.timestamp ? new Date(result.timestamp) : new Date(),
+                        id: result?.id ?? "",
+                        segments: result?.segments,
+                        detectedLanguage: result?.detectedLanguage,
+                        duration: result?.duration,
+                        usage: result?.usage ? {
                             promptTokens: result.usage.promptTokens || 0,
                             completionTokens: result.usage.completionTokens || 0,
                             totalTokens: result.usage.totalTokens || 0

@@ -47,7 +47,7 @@ export interface ProviderServiceApi {
      */
     getProviderClient(
         providerName: ProvidersType
-    ): Effect.Effect<EffectiveProviderApi, ProviderConfigError | ProviderNotFoundError | ProviderOperationError>;
+    ): Effect.Effect<ProviderClientApi, ProviderConfigError | ProviderNotFoundError | ProviderOperationError>;
 }
 
 /**

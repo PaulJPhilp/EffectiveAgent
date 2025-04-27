@@ -3,71 +3,77 @@
  * @module services/ai/producers/transcription/errors
  */
 
-import { AIError } from "@/services/ai/errors.js";
+import { EffectiveError } from "@/effective-error.js";
 
 /**
  * Error thrown when there are issues with transcription model configuration or access
  */
-export class TranscriptionModelError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
-            code: "transcription_model_error",
-            name: "TranscriptionModelError",
-            module: "TranscriptionService",
-            method: "transcribe"
-        })
+/**
+ * Error thrown when there are issues with transcription model configuration or access.
+ * @extends EffectiveError
+ */
+export class TranscriptionModelError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 }
 
 /**
  * Error thrown when there are issues with transcription provider configuration or access
  */
-export class TranscriptionProviderError extends AIError {
-    constructor(message: string, options?: ErrorOptions & {
-        status?: number;
-        response?: unknown;
-    }) {
-        super(message, {
-            ...options,
-            code: "transcription_provider_error",
-            name: "TranscriptionProviderError",
-            module: "TranscriptionService",
-            method: "transcribe"
-        })
+/**
+ * Error thrown when there are issues with transcription provider configuration or access.
+ * @extends EffectiveError
+ */
+export class TranscriptionProviderError extends EffectiveError {
+    public readonly status?: number;
+    public readonly response?: unknown;
+    constructor(params: { status?: number; response?: unknown; description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+        this.status = params.status;
+        this.response = params.response;
     }
 }
 
 /**
  * Error thrown when the transcription request fails
  */
-export class TranscriptionError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
-            code: "transcription_error",
-            name: "TranscriptionError",
-            module: "TranscriptionService",
-            method: "transcribe"
-        })
+/**
+ * Error thrown when the transcription request fails.
+ * @extends EffectiveError
+ */
+export class TranscriptionError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 }
 
 /**
  * Error thrown when the audio file validation or processing fails
  */
-export class TranscriptionAudioError extends AIError {
-    constructor(message: string, options?: ErrorOptions & {
+/**
+ * Error thrown when the audio file validation or processing fails
+ * @extends EffectiveError
+ */
+export class TranscriptionAudioError extends EffectiveError {
+    public readonly fileType?: string;
+    public readonly fileSize?: number;
+    public readonly maxSize?: number;
+    /**
+     * @param params - Error details
+     */
+    constructor(params: {
+        description: string;
+        module: string;
+        method: string;
+        cause?: unknown;
         fileType?: string;
         fileSize?: number;
         maxSize?: number;
     }) {
-        super(message, {
-            ...options,
-            code: "transcription_audio_error",
-            name: "TranscriptionAudioError",
-            module: "TranscriptionService",
-            method: "transcribe"
-        })
+        super(params);
+        this.fileType = params.fileType;
+        this.fileSize = params.fileSize;
+        this.maxSize = params.maxSize;
     }
-} 
+}

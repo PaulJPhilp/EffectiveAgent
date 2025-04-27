@@ -33,9 +33,10 @@
     "noEmit": false, // <--- Changed to false (assuming this is for building JS)
 
     // --- Path Aliases ---
-    "baseUrl": ".", // Base directory for path resolution
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"], // Make path relative to baseUrl
+      "@/*": ["src/*"],
+      "@provider/*": ["./src/services/ai/provider/*"],
       "@services/*": ["./src/services/*"], // <--- UPDATED: Access global services files
       "@core/*": ["./src/services/core/*"], // <--- NEW: Access core services/shared definitions
       "@ai/*": ["./src/services/ai/*"], // <--- NEW: Access AI services

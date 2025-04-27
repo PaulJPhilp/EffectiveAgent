@@ -4,6 +4,7 @@
  */
 
 import { EffectiveInput } from '@/services/ai/input/service.js';
+import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
@@ -110,17 +111,31 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                 Effect.gen(function* () {
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new ObjectModelError("Model ID must be provided"))
+                        Effect.mapError(() => new ObjectModelError({
+                            description: "Model ID must be provided",
+                            module: "ObjectService",
+                            method: "generate"
+                        }))
                     );
 
                     // Get provider name from model service
                     const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new ObjectProviderError("Failed to get provider name for model", { cause: error }))
+                        Effect.mapError((error) => new ObjectProviderError({
+                            description: "Failed to get provider name for model",
+                            module: "ObjectService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // Get provider client
-                    const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new ObjectProviderError("Failed to get provider client", { cause: error }))
+                    const providerClient: ProviderClientApi = yield* providerService.getProviderClient(providerName).pipe(
+                        Effect.mapError((error) => new ObjectProviderError({
+                            description: "Failed to get provider client",
+                            module: "ObjectService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // If system prompt is provided, prepend it to the prompt
@@ -133,7 +148,10 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                     // Add schema details to the prompt
                     const schemaDescription = yield* Effect.try({
                         try: () => JSON.stringify(JSONSchema.make(options.schema), null, 2),
-                        catch: error => new ObjectSchemaError("Failed to stringify schema", {
+                        catch: error => new ObjectSchemaError({
+                            description: "Failed to stringify schema",
+                            module: "ObjectService",
+                            method: "generate",
                             cause: error,
                             schema: options.schema
                         })
@@ -160,12 +178,20 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                             }
                         ))
                     ).pipe(
-                        Effect.mapError((error) => new ObjectGenerationError("Object generation failed", { cause: error }))
+                        Effect.mapError((error) => new ObjectGenerationError({
+                            description: "Object generation failed",
+                            module: "ObjectService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // Validate and parse the result with the schema
                     const parsedObject = yield* S.decode(options.schema)(result.data.object as any).pipe(
-                        Effect.mapError(error => new ObjectSchemaError("Generated object does not match schema", {
+                        Effect.mapError(error => new ObjectSchemaError({
+                            description: "Generated object does not match schema",
+                            module: "ObjectService",
+                            method: "generate",
                             cause: error,
                             schema: options.schema,
                             result: result.data.object,

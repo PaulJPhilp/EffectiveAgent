@@ -3,53 +3,48 @@
  * @module services/ai/producers/image/errors
  */
 
-import { AIError } from "@/services/ai/errors.js";
+import { EffectiveError } from "@/effective-error.js";
 
 /**
  * Error thrown when there are issues with image model configuration or access
  */
-export class ImageModelError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
-            code: "image_model_error",
-            name: "ImageModelError",
-            module: "ImageService",
-            method: "generate"
-        })
+/**
+ * Error thrown when there are issues with image model configuration or access.
+ * @extends EffectiveError
+ */
+export class ImageModelError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 }
 
 /**
  * Error thrown when there are issues with image provider configuration or access
  */
-export class ImageProviderError extends AIError {
-    constructor(message: string, options?: ErrorOptions & {
-        status?: number;
-        response?: unknown;
-    }) {
-        super(message, {
-            ...options,
-            code: "image_provider_error",
-            name: "ImageProviderError",
-            module: "ImageService",
-            method: "generate"
-        })
+/**
+ * Error thrown when there are issues with image provider configuration or access.
+ * @extends EffectiveError
+ */
+export class ImageProviderError extends EffectiveError {
+    public readonly status?: number;
+    public readonly response?: unknown;
+    constructor(params: { status?: number; response?: unknown; description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+        this.status = params.status;
+        this.response = params.response;
     }
 }
 
 /**
  * Error thrown when the image generation request fails
  */
-export class ImageGenerationError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
-            code: "image_generation_error",
-            name: "ImageGenerationError",
-            module: "ImageService",
-            method: "generate"
-        })
+/**
+ * Error thrown when the image generation request fails.
+ * @extends EffectiveError
+ */
+export class ImageGenerationError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
     }
 }
 
