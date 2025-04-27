@@ -6,9 +6,6 @@
 import { EffectiveError } from "@/effective-error.js";
 
 /**
- * Error thrown when there are issues with text model configuration or access
- */
-/**
  * Error thrown when there are issues with text model configuration or access.
  * @extends EffectiveError
  */
@@ -18,9 +15,6 @@ export class TextModelError extends EffectiveError {
     }
 }
 
-/**
- * Error thrown when there are issues with text provider configuration or access
- */
 /**
  * Error thrown when there are issues with text provider configuration or access.
  * @extends EffectiveError
@@ -36,9 +30,6 @@ export class TextProviderError extends EffectiveError {
 }
 
 /**
- * Error thrown when the text generation request fails
- */
-/**
  * Error thrown when the text generation request fails.
  * @extends EffectiveError
  */
@@ -46,4 +37,23 @@ export class TextGenerationError extends EffectiveError {
     constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
         super(params);
     }
-} 
+}
+
+/**
+ * Error thrown when the text generation request fails.
+ * @extends EffectiveError
+ */
+export class TextInputError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}
+
+/**
+ * Union type of all text-related errors.
+ */
+export type TextServiceError =
+  | TextModelError
+  | TextProviderError
+  | TextGenerationError
+  | TextInputError;

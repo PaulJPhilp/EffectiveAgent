@@ -5,16 +5,18 @@
 
 import { EffectiveInput } from '@/services/ai/input/service.js';
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
-import { ProviderService, ProviderServiceApi } from "@/services/ai/provider/service.js";
-import { AiError } from "@effect/ai/AiError";
+import { ProviderService } from "@/services/ai/provider/service.js";
 import { Message } from "@effect/ai/AiInput";
-import { AiResponse } from "@effect/ai/AiResponse";
-import { Layer } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
 import { TextGenerationError, TextModelError, TextProviderError } from "./errors.js";
+/**
+ * TextService interface for handling AI text generation
+ */
+import { ProviderServiceApi } from '../../provider/api.js';
+import type { TextServiceApi } from "./api.js";
 
 /**
  * Result shape expected from the underlying provider client's generateText method
@@ -72,12 +74,7 @@ export interface TextGenerationOptions {
     };
 }
 
-/**
- * TextService interface for handling AI text generation
- */
-export interface TextServiceApi {
-    readonly generate: (options: TextGenerationOptions) => Effect.Effect<AiResponse, AiError>;
-}
+
 
 /**
  * TextService provides methods for generating AI text responses using configured providers.
@@ -94,30 +91,30 @@ export class TextService extends Effect.Service<TextServiceApi>()("TextService",
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
                         Effect.mapError(() => new TextModelError({
-    description: "Model ID must be provided",
-    module: "TextService",
-    method: "generate"
-}))
+                            description: "Model ID must be provided",
+                            module: "TextService",
+                            method: "generate"
+                        }))
                     );
 
                     // Get provider name from model service
                     const providerName = yield* modelService.getProviderName(modelId).pipe(
                         Effect.mapError((error) => new TextProviderError({
-    description: "Failed to get provider name for model",
-    module: "TextService",
-    method: "generate",
-    cause: error
-}))
+                            description: "Failed to get provider name for model",
+                            module: "TextService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // Get provider client
                     const providerClient = yield* providerService.getProviderClient(providerName).pipe(
                         Effect.mapError((error) => new TextProviderError({
-    description: "Failed to get provider client",
-    module: "TextService",
-    method: "generate",
-    cause: error
-}))
+                            description: "Failed to get provider client",
+                            module: "TextService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // If system prompt is provided, prepend it to the prompt
@@ -133,23 +130,23 @@ export class TextService extends Effect.Service<TextServiceApi>()("TextService",
                     // Create EffectiveInput from the final prompt
                     const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
 
-                    // Call Vercel AI SDK's generateText function via providerClient
-                    const result = yield* Effect.promise(
-                        (): Promise<ProviderTextGenerationResult> => Effect.runPromise(providerClient.generateText(
-                            effectiveInput,
-                            {
-                                modelId,
-                                system: systemPrompt,
-                                ...options.parameters
-                            }
-                        ))
+                    const result = yield* providerClient.generateText(
+                        effectiveInput,
+                        { modelId, system: systemPrompt, ...options.parameters }
                     ).pipe(
+                        Effect.map((res) => ({
+                            ...res,
+                            metadata: {
+                                ...res.metadata,
+                                finishReason: res.metadata.finishReason ?? "unknown"
+                            }
+                        })),
                         Effect.mapError((error) => new TextGenerationError({
-    description: "Text generation failed",
-    module: "TextService",
-    method: "generate",
-    cause: error
-}))
+                            description: "Text generation failed",
+                            module: "TextService",
+                            method: "generate",
+                            cause: error
+                        }))
                     );
 
                     // Map the result to AiResponse
@@ -161,7 +158,7 @@ export class TextService extends Effect.Service<TextServiceApi>()("TextService",
                         messages: result.data.messages,
                         warnings: result.data.warnings,
                         usage: result.metadata.usage,
-                        finishReason: result.metadata.finishReason,
+                        finishReason: result.metadata.finishReason ?? "unknown",
                         model: result.metadata.model,
                         timestamp: result.metadata.timestamp,
                         id: result.metadata.id
@@ -170,13 +167,6 @@ export class TextService extends Effect.Service<TextServiceApi>()("TextService",
                     Effect.withSpan("TextService.generate")
                 )
         };
-    })
+    }),
+    dependencies: [ModelService.Default, ProviderService.Default] as const
 }) { }
-
-/**
- * Default Layer for TextService
- */
-export const TextServiceLive = Layer.effect(
-    TextService,
-    TextService
-); 
