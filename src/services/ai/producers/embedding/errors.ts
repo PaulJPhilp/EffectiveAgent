@@ -6,9 +6,6 @@
 import { EffectiveError } from "@/effective-error.js";
 
 /**
- * Base error class for embedding-related errors
- */
-/**
  * Base error type for embedding-related errors.
  * @extends EffectiveError
  */
@@ -19,9 +16,6 @@ export class EmbeddingError extends EffectiveError {
 }
 
 /**
- * Error thrown when there's an issue with the embedding model
- */
-/**
  * Error thrown when there's an issue with the embedding model.
  * @extends EffectiveError
  */
@@ -31,9 +25,6 @@ export class EmbeddingModelError extends EffectiveError {
     }
 }
 
-/**
- * Error thrown when there's an issue with the embedding provider
- */
 /**
  * Error thrown when there's an issue with the embedding provider.
  * @extends EffectiveError
@@ -47,9 +38,6 @@ export class EmbeddingProviderError extends EffectiveError {
 }
 
 /**
- * Error thrown when embedding generation fails
- */
-/**
  * Error thrown when embedding generation fails.
  * @extends EffectiveError
  */
@@ -62,9 +50,6 @@ export class EmbeddingGenerationError extends EffectiveError {
 }
 
 /**
- * Error thrown when input validation fails
- */
-/**
  * Error thrown when input validation fails.
  * @extends EffectiveError
  */
@@ -74,4 +59,14 @@ export class EmbeddingInputError extends EffectiveError {
         super(params);
         this.input = params.input;
     }
-} 
+}
+
+/**
+ * Union type of all embedding-related errors.
+ */
+export type EmbeddingServiceError =
+  | EmbeddingError
+  | EmbeddingModelError
+  | EmbeddingProviderError
+  | EmbeddingGenerationError
+  | EmbeddingInputError;

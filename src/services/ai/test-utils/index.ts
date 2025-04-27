@@ -6,12 +6,14 @@
  * Extend as needed for error mocks, spans, test data, and helpers.
  */
 
-import { Exit } from "effect/Exit";
-import { MockModelService } from "../model/__mocks__/model-service.mock.js";
-import { MockProviderService } from "../provider/__mocks__/provider-service.mock.js";
+
 import type { LanguageModelV1 } from "ai";
+import { Context, Effect, Option } from "effect";
+import { Exit } from "effect/Exit";
 import type { Span, SpanLink } from "effect/Tracer";
-import { Context, Option } from "effect";
+import { MockModelService } from "@/services/ai/model/__mocks__/model-service.mock.js";
+import type { EmbeddingGenerationOptions, EmbeddingService } from "@/services/ai/producers/embedding/service.js";
+import { MockProviderService } from "@/services/ai/provider/__mocks__/provider-service.mock.js";
 
 // Minimal valid LanguageModelV1 mock
 export const MockLanguageModelV1: LanguageModelV1 = {
@@ -133,5 +135,78 @@ export function createAiTestHarness<T>(
   };
 }
 
+
+/**
+ * Runs service.generate and returns an Effect.Either result for test assertions.
+ */
+export async function runEither(
+  service: EmbeddingService,
+  opts: Partial<EmbeddingGenerationOptions> & { input: string },
+  mockSpan: Span
+): Promise<unknown>;
+
+export async function runEither(
+  service: EmbeddingService,
+  opts: Partial<EmbeddingGenerationOptions> & { input: string[] },
+  mockSpan: Span
+): Promise<unknown>;
+
+export async function runEither(
+  service: EmbeddingService,
+  opts: Partial<EmbeddingGenerationOptions> & { input: string | string[] },
+  mockSpan: Span
+): Promise<unknown> {
+  return await Effect.runPromise(
+    Effect.either(
+      service.generate({
+        modelId: opts.modelId,
+        input: opts.input,
+        span: opts.span ?? mockSpan
+      })
+    )
+  );
+}
+
+
+/**
+ * Asserts that result is a Left (error) and error is of expected class.
+ */
+export const expectLeft = (
+  result: unknown,
+  errorClass: new (...args: any[]) => unknown,
+  expect: (value: unknown) => any
+) => {
+  expect(result).toBeDefined();
+  if (
+    typeof result === "object" &&
+    result !== null &&
+    "_tag" in result &&
+    (result as any)._tag === "Left"
+  ) {
+    expect((result as any).left).toBeInstanceOf(errorClass);
+  } else {
+    throw new Error("Expected Left, got Right or malformed Either");
+  }
+};
+
+/**
+ * Asserts that result is a Right (success).
+ */
+export const expectRight = (
+  result: unknown,
+  expect: (value: unknown) => any
+) => {
+  expect(result).toBeDefined();
+  if (
+    typeof result === "object" &&
+    result !== null &&
+    "_tag" in result &&
+    (result as any)._tag === "Right"
+  ) {
+    expect((result as any).right).toBeDefined();
+  } else {
+    throw new Error("Expected Right, got Left or malformed Either");
+  }
+};
 
 export { MockModelService, MockProviderService };

@@ -25,7 +25,7 @@
     "@effect/platform-bun": "^0.60.22",
     "@effect/platform-node": "^0.76.22",
     "@effect/schema": "^0.75.5",
-    "@effect/vitest": "^0.20.15",
+    "@effect/vitest": "0.20.14",
     "@langchain/core": "^0.3.49",
     "@langchain/langgraph": "^0.2.67",
     "@langchain/langgraph-sdk": "^0.0.54",
@@ -43,6 +43,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.3",
+    "@effect/test": "^0.1.0",
     "@js-temporal/polyfill": "^0.5.1",
     "@types/bun": "^1.2.10",
     "@types/node": "^20.17.31",
@@ -53,7 +54,7 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.8.3",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^1.6.1"
+    "vitest": "^3.1.2"
   },
   "bun": {
     "baseUrl": ".",

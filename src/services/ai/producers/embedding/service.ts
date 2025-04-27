@@ -52,11 +52,9 @@ export interface EmbeddingGenerationResult {
 }
 
 /**
- * EmbeddingService interface for generating vector embeddings
+ * EmbeddingService interface for generating vector embeddings.
  */
-export interface EmbeddingServiceApi {
-    readonly generate: (options: EmbeddingGenerationOptions) => Effect.Effect<EmbeddingGenerationResult, AiError>;
-}
+import type { EmbeddingServiceApi } from "./api.js";
 
 /**
  * EmbeddingService provides methods for generating vector embeddings using AI providers.
@@ -186,11 +184,3 @@ export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()("Emb
     }),
     dependencies: [ModelService.Default, ProviderService.Default] as const
 }) { }
-
-/**
- * Default Layer for EmbeddingService
- */
-export const EmbeddingServiceLive = Layer.effect(
-    EmbeddingService,
-    EmbeddingService
-); 
