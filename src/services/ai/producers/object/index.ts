@@ -3,19 +3,21 @@
  * @module services/ai/producers/object
  */
 
-// Export service implementation
-export {
-    ObjectService,
-    ObjectServiceLive, type ObjectGenerationOptions,
-    type ObjectGenerationResult, type ObjectServiceApi
-} from "./service.js";
+// Export service and API types
+export { ObjectService } from "./service.js";
+export type {
+  ObjectServiceApi,
+  ObjectGenerationOptions,
+  ObjectGenerationResult
+} from "./api.js";
 
-// Export error types
+// Export error types and union
 export {
-    ObjectGenerationError,
-    ObjectModelError,
-    ObjectProviderError,
-    ObjectSchemaError
+  ObjectGenerationError,
+  ObjectModelError,
+  ObjectProviderError,
+  ObjectSchemaError,
+  type ObjectServiceError
 } from "./errors.js";
 
 // Export schema utilities

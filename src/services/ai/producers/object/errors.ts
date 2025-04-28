@@ -74,3 +74,12 @@ export class ObjectSchemaError extends EffectiveError {
         this.validationErrors = params.validationErrors;
     }
 }
+
+/**
+ * Union type of all ObjectService errors.
+ */
+export type ObjectServiceError =
+    | ObjectModelError
+    | ObjectProviderError
+    | ObjectGenerationError
+    | ObjectSchemaError;

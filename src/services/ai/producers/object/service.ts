@@ -9,12 +9,13 @@ import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
-import { JSONSchema, Layer, Schema as S } from "effect";
+import { JSONSchema, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
 import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "./errors.js";
+import type { ObjectServiceApi, ObjectGenerationOptions, ObjectGenerationResult } from "./api.js";
 
 /**
  * Result shape expected from the underlying provider client's generateObject method
@@ -33,69 +34,11 @@ export interface ProviderObjectGenerationResult<T> {
     };
 }
 
-/**
- * Options for object generation
- */
-export interface ObjectGenerationOptions<T> {
-    /** The model ID to use */
-    readonly modelId?: string;
-    /** The text prompt to process */
-    readonly prompt: string;
-    /** The system prompt or instructions */
-    readonly system: Option.Option<string>;
-    /** Schema to validate and parse the result */
-    readonly schema: S.Schema<T>;
-    /** Tracing span for observability */
-    readonly span: Span;
-    /** Optional parameters for model behavior */
-    readonly parameters?: {
-        /** Maximum steps to take in generation */
-        maxSteps?: number;
-        /** Maximum retries on failure */
-        maxRetries?: number;
-        /** Temperature (0-2) */
-        temperature?: number;
-        /** Top-p sampling */
-        topP?: number;
-        /** Top-k sampling */
-        topK?: number;
-        /** Presence penalty */
-        presencePenalty?: number;
-        /** Frequency penalty */
-        frequencyPenalty?: number;
-        /** Random seed */
-        seed?: number;
-        /** Stop sequences */
-        stop?: string[];
-    };
-}
 
-/**
- * Result of the object generation
- */
-export interface ObjectGenerationResult<T> {
-    /** The generated object */
-    readonly data: T;
-    /** The model used */
-    readonly model: string;
-    /** The timestamp of the generation */
-    readonly timestamp: Date;
-    /** The ID of the response */
-    readonly id: string;
-    /** Optional usage statistics */
-    readonly usage?: {
-        promptTokens: number;
-        completionTokens: number;
-        totalTokens: number;
-    };
-}
 
-/**
- * ObjectService interface for handling AI structured object generation
- */
-export interface ObjectServiceApi {
-    readonly generate: <T>(options: ObjectGenerationOptions<T>) => Effect.Effect<ObjectGenerationResult<T>, AiError>;
-}
+
+
+
 
 /**
  * ObjectService provides methods for generating structured objects using AI providers.
@@ -217,11 +160,3 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
         };
     })
 }) { }
-
-/**
- * Default Layer for ObjectService
- */
-export const ObjectServiceLive = Layer.effect(
-    ObjectService,
-    ObjectService
-); 

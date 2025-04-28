@@ -4,6 +4,7 @@
  */
 
 import { Schema as S } from "effect";
+import { object } from "zod"
 
 /**
  * Creates a schema for a list of items
