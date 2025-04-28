@@ -18,26 +18,9 @@ import { ImageGenerationError, ImageModelError, ImageProviderError, ImageSizeErr
 /**
  * Result shape expected from the underlying provider client's generateImage method
  */
-export interface ProviderImageGenerationResult {
-    readonly data: {
-        readonly imageUrl: string;
-        readonly additionalImages?: readonly string[];
-        readonly parameters: {
-            readonly size?: string;
-            readonly quality?: string;
-            readonly style?: string;
-        };
-    };
-    readonly metadata: {
-        readonly model: string;
-        readonly timestamp: Date;
-        readonly id: string;
-        readonly usage?: {
-            readonly promptTokens?: number;
-            readonly totalTokens?: number;
-        };
-    };
-}
+// ProviderImageGenerationResult now matches EffectiveResponse<GenerateImageResult>
+export type ProviderImageGenerationResult = import("@/services/ai/provider/types.js").EffectiveResponse<import("@/services/ai/provider/types.js").GenerateImageResult>;
+
 
 /**
  * Supported image sizes
@@ -159,10 +142,13 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
 
             const supportedSizes = Object.values(ImageSizes);
             if (!supportedSizes.includes(size as ImageSize)) {
-                return Effect.fail(new ImageSizeError(
-                    `Unsupported image size: ${size}. Supported sizes are: ${supportedSizes.join(", ")}`,
-                    { requestedSize: size, supportedSizes }
-                ));
+                return Effect.fail(new ImageSizeError({
+                    description: `Unsupported image size: ${size}. Supported sizes are: ${supportedSizes.join(", ")}`,
+                    module: "ImageService",
+                    method: "validateSize",
+                    requestedSize: size,
+                    supportedSizes
+                }));
             }
 
             return Effect.succeed(size);
@@ -274,11 +260,3 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
         };
     })
 }) { }
-
-/**
- * Default Layer for ImageService
- */
-export const ImageServiceLive = Layer.effect(
-    ImageService,
-    ImageService
-); 

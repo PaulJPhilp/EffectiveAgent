@@ -4,71 +4,124 @@
  */
 
 import { EffectiveInput } from '@/services/ai/input/service.js';
-import { ModelService } from "@/services/ai/model/service.js";
+import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js";
 import { Message } from "@effect/ai/AiInput";
 import { describe, expect, it, vi } from "@effect/vitest";
 import { Chunk, Effect, Layer, Option } from "effect";
 import { ImageGenerationError, ImageModelError, ImageProviderError, ImageSizeError } from "../errors.js";
+import { mockSpan } from "@/services/ai/test-utils/index.js";
 import { type ImageGenerationOptions, ImageService, ImageSizes } from "../service.js";
+import { ProviderClientApi, ProviderServiceApi } from '@/services/ai/provider/api.js';
+import { PROVIDER_NAMES } from "@/services/ai/provider/provider-universe.js";
+import { Provider, ProviderFile } from "@/services/ai/provider/schema.js";
+import type { Model, ModelFile, Provider as ProviderType } from "@/services/ai/model/schema.js";
+import type { LanguageModelV1 } from "@ai-sdk/provider";
 
 // Mock provider client with minimal implementation
-const mockProviderClient = {
-    generateImage: vi.fn().mockImplementation(() =>
-        Effect.succeed({
-            id: "test-image-123",
-            model: "test-model",
-            imageUrl: "https://example.com/test-image.jpg",
-            timestamp: new Date(),
-            parameters: {
-                size: "1024x1024",
-                quality: "standard",
-                style: "natural"
-            }
-        })
-    ),
-    // Add stubs for required methods in the interface
-    generateText: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    streamText: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    generateObject: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    streamObject: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    chat: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    generateEmbeddings: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    generateSpeech: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    transcribe: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    getCapabilities: vi.fn().mockImplementation(() => new Set(["image-generation"])),
-    getModels: vi.fn().mockImplementation(() => Effect.succeed([])),
-    streamChat: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
-    getProviderName: vi.fn().mockImplementation(() => "mock-provider"),
-    setVercelProvider: vi.fn().mockImplementation(() => Effect.succeed({ name: "mock-provider", provider: {}, capabilities: new Set() }))
-};
+/**
+ * Creates a mock provider client with minimal implementation.
+ * @returns A mock provider client.
+ */
+function createMockProviderClient(): ProviderClientApi {
+    return {
+        generateImage: vi.fn().mockImplementation((input: EffectiveInput) => {
+            // If input is an object with a 'prompt' property, record it for assertion
+            (createMockProviderClient as any).lastPrompt = (input as any)?.prompt ?? input;
+            return Effect.succeed({
+                id: "test-image-123",
+                model: "test-model",
+                imageUrl: "https://example.com/test-image.jpg",
+                timestamp: new Date(),
+                parameters: {
+                    size: "1024x1024",
+                    quality: "standard",
+                    style: "natural"
+                }
+            });
+        }),
+        generateText: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
+        generateObject: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
 
-// Mock model service with minimal implementation
-const mockModelService = {
-    getProviderName: vi.fn().mockImplementation((modelId) => Effect.succeed("openai")),
-    // Add stubs for required methods in the interface
-    load: vi.fn().mockImplementation(() => Effect.succeed({})),
-    findModelsByCapability: vi.fn().mockImplementation(() => Effect.succeed([])),
-    findModelsByCapabilities: vi.fn().mockImplementation(() => Effect.succeed([])),
-    validateModel: vi.fn().mockImplementation(() => Effect.succeed(true))
-};
+        generateEmbeddings: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
+        generateSpeech: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
+        transcribe: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented"))),
+        getCapabilities: vi.fn().mockImplementation(() => new Set(["image-generation"])),
+        getModels: vi.fn().mockImplementation(() => Effect.succeed([])),
 
-// Mock provider service with minimal implementation
-const mockProviderService = {
-    load: vi.fn().mockImplementation(() => Effect.succeed({
+
+        setVercelProvider: vi.fn().mockImplementation(() => Effect.succeed({ name: "mock-provider", provider: {}, capabilities: new Set() })),
+        getProvider: vi.fn().mockImplementation(() => Effect.succeed({ name: "mock-provider", provider: {}, capabilities: new Set() }))
+    };
+}
+
+/**
+ * Creates a mock provider service with Effect-returning methods.
+ * @returns A mock ProviderServiceApi implementation.
+ */
+function createMockProviderService(): ProviderServiceApi {
+    const mockProvider = new Provider({
+        name: PROVIDER_NAMES.includes("openai") ? "openai" : PROVIDER_NAMES[0],
+        displayName: "OpenAI",
+        type: "llm",
+        apiKeyEnvVar: "OPENAI_API_KEY",
+        baseUrl: "https://api.openai.com/v1"
+        // rateLimit: undefined // only if needed by schema
+    });
+    const mockProviderFile = new ProviderFile({
         name: "providers",
         description: "Test providers",
-        providers: [{ name: "openai" }]
-    })),
-    getProviderClient: vi.fn().mockImplementation(() => Effect.succeed(mockProviderClient))
+        providers: [mockProvider]
+    });
+    return {
+        load: Effect.succeed(mockProviderFile),
+        getProviderClient: (_providerName: string) => Effect.succeed(createMockProviderClient())
+    };
+} // End createMockProviderService
+
+/**
+ * Creates a mock model service with Effect-returning methods.
+ * @returns A mock ModelServiceApi implementation.
+ */
+/**
+ * Minimal valid mock Model and ModelFile for ModelServiceApi mocks.
+ */
+const mockModel: Model = {
+    id: "mock-model",
+    name: "Mock Model",
+    version: "0.1.0",
+    provider: "openai" as ProviderType,
+    modelName: "mock-model",
+    capabilities: ["image-generation"] as any
+};
+const mockModelFile: ModelFile = {
+    name: "mock-model-config",
+    version: "0.1.0",
+    models: [mockModel]
 };
 
-// Mock layers for dependencies
-const mockProviderServiceLayer = Layer.succeed(ProviderService, mockProviderService);
-const mockModelServiceLayer = Layer.succeed(ModelService, mockModelService);
+// --- Mock ModelService ---
+function createMockModelService(): ModelServiceApi {
+    return {
+        load: () => Effect.succeed(mockModelFile),
+        getProviderName: (_modelId: string) => Effect.succeed("openai"),
+        findModelsByCapability: (_capability) => Effect.succeed([mockModel]),
+        findModelsByCapabilities: (_capabilities) => Effect.succeed([mockModel]),
+        getDefaultModelId: (_provider, _capability) => Effect.succeed("mock-model"),
+        getModelsForProvider: (_provider) => Effect.succeed([] as LanguageModelV1[]),
+        validateModel: (_modelId, _capabilities) => Effect.succeed(true)
+    };
+}
 
-// Create test harness
+// Mock layers for dependencies
+const mockProviderServiceLayer = Layer.succeed(ProviderService, createMockProviderService());
+const mockModelServiceLayer = Layer.succeed(ModelService, createMockModelService());
+
+// Compose layers for all dependencies
+const composedLayer = Layer.merge(mockProviderServiceLayer, mockModelServiceLayer);
+
+// Create test harness with composedLayer
 const serviceHarness = createServiceTestHarness(
     ImageService,
     () => Effect.gen(function* () {
@@ -80,87 +133,28 @@ const serviceHarness = createServiceTestHarness(
             if (!size) {
                 return Effect.succeed(ImageSizes.MEDIUM);
             }
-
             const supportedSizes = Object.values(ImageSizes);
             if (!supportedSizes.includes(size as any)) {
-                return Effect.fail(new ImageSizeError(
-                    `Unsupported image size: ${size}. Supported sizes are: ${supportedSizes.join(", ")}`,
-                    { requestedSize: size, supportedSizes }
-                ));
+                return Effect.fail(new ImageSizeError({
+                    description: `Invalid image size: ${size}`,
+                    module: "ImageService",
+                    method: "validateSize",
+                    requestedSize: size,
+                    supportedSizes
+                }));
             }
-
             return Effect.succeed(size);
         };
 
         return {
-            generate: (options: ImageGenerationOptions) =>
-                Effect.gen(function* () {
-                    // Validate model ID
-                    const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new ImageModelError("Model ID must be provided"))
-                    );
-
-                    // Get provider name
-                    const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new ImageProviderError("Failed to get provider name for model", { cause: error }))
-                    );
-
-                    // Get provider client
-                    const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new ImageProviderError("Failed to get provider client", { cause: error }))
-                    );
-
-                    // Validate size
-                    const size = yield* validateSize(options.size);
-
-                    // Build prompt
-                    let finalPrompt = options.prompt;
-                    const systemPrompt = Option.getOrUndefined(options.system);
-
-                    if (systemPrompt) {
-                        finalPrompt = `${systemPrompt}\n\n${finalPrompt}`;
-                    }
-
-                    if (options.negativePrompt) {
-                        finalPrompt = `${finalPrompt}\nDO NOT INCLUDE: ${options.negativePrompt}`;
-                    }
-
-                    // Create EffectiveInput from the final prompt
-                    const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
-
-                    // Call provider and map error
-                    const result = yield* providerClient.generateImage(
-                        effectiveInput,
-                        {
-                            modelId,
-                            size,
-                            quality: options.quality,
-                            style: options.style,
-                            n: options.n || 1
-                        }
-                    ).pipe(
-                        Effect.mapError((error) => new ImageGenerationError("Image generation failed", { cause: error }))
-                    );
-
-                    // Return result, accessing data and metadata
-                    return {
-                        imageUrl: result.data.imageUrl,
-                        additionalImages: result.data.additionalImages,
-                        parameters: {
-                            size: result.data.parameters.size,
-                            quality: result.data.parameters.quality,
-                            style: result.data.parameters.style
-                        },
-                        model: result.metadata.model,
-                        timestamp: result.metadata.timestamp,
-                        id: result.metadata.id,
-                        usage: result.metadata.usage || undefined
-                    };
-                })
+            providerService,
+            modelService,
+            validateSize
         };
     })
 );
 
+// --- Test Cases ---
 describe("ImageService", () => {
     it("should generate an image successfully", async () => {
         const effect = Effect.gen(function* () {
@@ -170,7 +164,7 @@ describe("ImageService", () => {
                 modelId: "dall-e-3",
                 prompt: "A mountain landscape",
                 system: Option.none(),
-                span: {} as any  // Mock span for test
+                span: mockSpan  // Mock span for test
             });
 
             expect(result.imageUrl).toBe("https://example.com/test-image.jpg");
@@ -180,7 +174,10 @@ describe("ImageService", () => {
             return result;
         });
 
-        await serviceHarness.runTest(effect);
+        await serviceHarness.runTest(
+            effect.pipe(Effect.provide(composedLayer)),
+            { layer: composedLayer }
+        );
     });
 
     it("should fail when no model ID is provided", async () => {
@@ -190,11 +187,14 @@ describe("ImageService", () => {
             return yield* service.generate({
                 prompt: "A mountain landscape",
                 system: Option.none(),
-                span: {} as any
+                span: mockSpan
             });
         });
 
-        await serviceHarness.expectError(effect, "ImageModelError" as any);
+        await serviceHarness.expectError(
+            effect.pipe(Effect.provide(composedLayer)),
+            ImageModelError
+        );
     });
 
     it("should fail with invalid image size", async () => {
@@ -206,16 +206,16 @@ describe("ImageService", () => {
                 prompt: "A mountain landscape",
                 system: Option.none(),
                 size: "invalid-size" as any,
-                span: {} as any
+                span: mockSpan
             });
         });
 
-        await serviceHarness.expectError(effect, "ImageSizeError" as any);
+        await serviceHarness.expectError(effect.pipe(Effect.provide(composedLayer)), ImageSizeError);
     });
 
     it("should include negative prompt when provided", async () => {
         // Set up a spy on the generateImage method
-        const promptSpy = vi.spyOn(mockProviderClient, "generateImage");
+        const promptSpy = vi.spyOn(createMockProviderClient(), "generateImage");
 
         const effect = Effect.gen(function* () {
             const service = yield* ImageService;
@@ -225,14 +225,67 @@ describe("ImageService", () => {
                 prompt: "A mountain landscape",
                 negativePrompt: "blurry, distorted",
                 system: Option.none(),
-                span: {} as any
+                span: mockSpan
             });
         });
 
-        await serviceHarness.runTest(effect);
+        await serviceHarness.runTest(
+            effect.pipe(Effect.provide(composedLayer)),
+            { layer: composedLayer }
+        );
 
         // Verify the negative prompt was included
-        const calledPrompt = promptSpy.mock.calls[0]?.[0] as string;
+        const calledInput = promptSpy.mock.calls[0]?.[0];
+        const calledPrompt = (calledInput as any)?.prompt ?? calledInput;
         expect(calledPrompt).toContain("DO NOT INCLUDE: blurry, distorted");
+    });
+
+    it("should include system prompt when provided", async () => {
+        // Set up a spy on the generateImage method
+        const promptSpy = vi.spyOn(createMockProviderClient(), "generateImage");
+
+        const effect = Effect.gen(function* () {
+            const service = yield* ImageService;
+
+            return yield* service.generate({
+                modelId: "dall-e-3",
+                prompt: "A mountain landscape",
+                system: Option.some("System prompt"),
+                span: mockSpan
+            });
+        });
+
+        await serviceHarness.runTest(
+            effect.pipe(Effect.provide(composedLayer)),
+            { layer: composedLayer }
+        );
+
+        // Verify the system prompt was included
+        const calledInput = promptSpy.mock.calls[0]?.[0];
+        const calledPrompt = (calledInput as any)?.prompt ?? calledInput;
+        expect(calledPrompt).toContain("System prompt");
+    });
+
+    it("should handle multiple images", async () => {
+        const effect = Effect.gen(function* () {
+            const service = yield* ImageService;
+
+            const result = yield* service.generate({
+                modelId: "dall-e-3",
+                prompt: "A mountain landscape",
+                system: Option.none(),
+                n: 2,
+                span: mockSpan
+            });
+
+            expect(result.additionalImages).toHaveLength(1);
+
+            return result;
+        });
+
+        await serviceHarness.runTest(
+            effect.pipe(Effect.provide(composedLayer)),
+            { layer: composedLayer }
+        );
     });
 }); 

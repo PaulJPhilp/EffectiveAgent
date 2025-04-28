@@ -51,17 +51,23 @@ export class ImageGenerationError extends EffectiveError {
 /**
  * Error thrown when trying to generate an unsupported image size
  */
-export class ImageSizeError extends AIError {
-    constructor(message: string, options?: ErrorOptions & {
-        requestedSize?: string;
-        supportedSizes?: string[];
-    }) {
-        super(message, {
-            ...options,
-            code: "image_size_error",
-            name: "ImageSizeError",
-            module: "ImageService",
-            method: "generate"
-        })
-    }
-} 
+/**
+ * Error thrown when trying to generate an unsupported image size
+ * @extends EffectiveError
+ */
+export class ImageSizeError extends EffectiveError {
+  public readonly requestedSize?: string;
+  public readonly supportedSizes?: string[];
+  constructor(params: {
+    description: string;
+    module: string;
+    method: string;
+    requestedSize?: string;
+    supportedSizes?: string[];
+    cause?: unknown;
+  }) {
+    super(params);
+    this.requestedSize = params.requestedSize;
+    this.supportedSizes = params.supportedSizes;
+  }
+}

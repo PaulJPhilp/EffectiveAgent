@@ -17,10 +17,12 @@ import {
     GenerateObjectResult,
     GenerateSpeechResult,
     GenerateTextResult,
+    GenerateImageResult,
     ProviderGenerateEmbeddingsOptions,
     ProviderGenerateObjectOptions,
     ProviderGenerateSpeechOptions,
     ProviderGenerateTextOptions,
+    ProviderGenerateImageOptions,
     ProviderTranscribeOptions,
     TranscribeResult
 } from "./types.js";
@@ -106,6 +108,20 @@ export interface ProviderClientApi {
         options: ProviderGenerateEmbeddingsOptions,
     ) => Effect.Effect<
         EffectiveResponse<GenerateEmbeddingsResult>,
+        ProviderOperationError | ProviderConfigError
+    >;
+
+    /**
+     * Generate an image using the provider's image generation capability.
+     * @param input - The effective input (prompt, parameters, etc)
+     * @param options - Provider-specific image generation options
+     * @returns An Effect containing the image generation result or an error
+     */
+    readonly generateImage: (
+        input: EffectiveInput,
+        options: ProviderGenerateImageOptions,
+    ) => Effect.Effect<
+        EffectiveResponse<GenerateImageResult>,
         ProviderOperationError | ProviderConfigError
     >;
 

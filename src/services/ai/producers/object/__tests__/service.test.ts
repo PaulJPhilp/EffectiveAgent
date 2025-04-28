@@ -3,7 +3,7 @@
  */
 
 import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js";
-import { Effect, Option } from "effect";
+import { Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 import {
   createPersonSchema,
@@ -47,9 +47,12 @@ describe("ObjectService", () => {
         } as any),
     });
 
+  const dummyLayer = Layer.effect(ObjectService, createTestObjectService());
+
   const serviceHarness = createServiceTestHarness(
     ObjectService,
     createTestObjectService,
+    dummyLayer,
   );
 
   it("should generate an object successfully", async () => {
@@ -71,7 +74,10 @@ describe("ObjectService", () => {
       expect(result.usage?.totalTokens).toBe(150);
       return result;
     });
-    await serviceHarness.runTest(effect);
+    await serviceHarness.runTest(
+      effect.pipe(Effect.provide(dummyLayer)),
+      { layer: dummyLayer }
+    );
   });
 
   // --- Missing modelId ---
@@ -89,6 +95,7 @@ describe("ObjectService", () => {
   const missingModelIdHarness = createServiceTestHarness(
     ObjectService,
     createMissingModelIdService,
+    dummyLayer,
   );
 
   it("should fail if modelId is missing", async () => {
@@ -105,7 +112,10 @@ describe("ObjectService", () => {
         });
       }),
     );
-    const result = await missingModelIdHarness.runTest(effect);
+    const result = await missingModelIdHarness.runTest(
+      effect.pipe(Effect.provide(missingModelIdHarness.layer)),
+      { layer: missingModelIdHarness.layer }
+    );
     expect(result._tag).toBe("Left");
     if (result._tag === "Left") {
       expect(result.left).toBeInstanceOf(ObjectModelError);
@@ -128,6 +138,7 @@ describe("ObjectService", () => {
   const providerErrorHarness = createServiceTestHarness(
     ObjectService,
     createProviderErrorService,
+    dummyLayer
   );
 
   it("should handle provider errors", async () => {
@@ -144,7 +155,10 @@ describe("ObjectService", () => {
         });
       }),
     );
-    const result = await providerErrorHarness.runTest(effect);
+    const result = await providerErrorHarness.runTest(
+  effect.pipe(Effect.provide(providerErrorHarness.layer)),
+  { layer: providerErrorHarness.layer }
+);
     expect(result._tag).toBe("Left");
     if (result._tag === "Left") {
       expect(result.left).toBeInstanceOf(ObjectProviderError);
@@ -184,7 +198,10 @@ describe("ObjectService", () => {
         });
       }),
     );
-    const result = await generationErrorHarness.runTest(effect);
+    const result = await generationErrorHarness.runTest(
+      effect.pipe(Effect.provide(generationErrorHarness.layer)),
+      { layer: generationErrorHarness.layer }
+    );
     expect(result._tag).toBe("Left");
     if (result._tag === "Left") {
       expect(result.left).toBeInstanceOf(ObjectGenerationError);
@@ -229,7 +246,10 @@ describe("ObjectService", () => {
         });
       }),
     );
-    const result = await schemaErrorHarness.runTest(effect);
+    const result = await schemaErrorHarness.runTest(
+      effect.pipe(Effect.provide(schemaErrorHarness.layer)),
+      { layer: schemaErrorHarness.layer }
+    );
     expect(result._tag).toBe("Left");
     if (result._tag === "Left") {
       expect(result.left).toBeInstanceOf(ObjectSchemaError);
@@ -237,8 +257,8 @@ describe("ObjectService", () => {
         "Generated object does not match schema",
       );
       if (result.left instanceof ObjectSchemaError) {
-  expect(Array.isArray(result.left.validationErrors)).toBe(true);
-}
+        expect(Array.isArray(result.left.validationErrors)).toBe(true);
+      }
     }
   });
 
@@ -285,7 +305,10 @@ describe("ObjectService", () => {
       expect(result.usage?.totalTokens).toBe(120);
       return result;
     });
-    await optionalFieldHarness.runTest(effect);
+    await optionalFieldHarness.runTest(
+  effect.pipe(Effect.provide(optionalFieldHarness.layer)),
+  { layer: optionalFieldHarness.layer }
+);
   });
 
   // --- List Schema ---
@@ -332,6 +355,9 @@ describe("ObjectService", () => {
       expect(result.usage?.totalTokens).toBe(180);
       return result;
     });
-    await listHarness.runTest(effect);
+    await listHarness.runTest(
+  effect.pipe(Effect.provide(listHarness.layer)),
+  { layer: listHarness.layer }
+);
   });
 });

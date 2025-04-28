@@ -5,6 +5,8 @@
  * and dependency injection, avoiding common inference issues.
  */
 
+import { ModelServiceApi } from "@/services/ai/model/service.js";
+import { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { Cause, Context, Effect, Exit, Layer } from "effect";
 
 /**
@@ -33,7 +35,7 @@ export function createServiceTestHarness<Tag, S, E = never>(
         : serviceLayer;
 
     // Helper to run tests expecting success
-    const runTest = <A, E2>(effect: Effect.Effect<A, E2, any>): Promise<A> => {
+    const runTest = <A, E2>(effect: Effect.Effect<A, E2, any>, p0: { layer: Layer.Layer<any, any, any>; }): Promise<A> => {
         // Provide the test layer to the effect
         const providedEffect = Effect.provide(effect, TestLayer);
 
@@ -99,6 +101,8 @@ export function createServiceTestHarness<Tag, S, E = never>(
         TestLayer,
         runTest,
         runFailTest,
-        expectError
+        expectError,
+        layer: TestLayer as Layer.Layer<any, any, any>,
     };
-} 
+
+}
