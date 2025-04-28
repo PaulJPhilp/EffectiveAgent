@@ -4,20 +4,19 @@
  */
 
 import { EffectiveInput } from '@/services/ai/input/service.js';
+import type { Model, ModelFile, Provider as ProviderType } from "@/services/ai/model/schema.js";
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js";
-import { Message } from "@effect/ai/AiInput";
-import { describe, expect, it, vi } from "@effect/vitest";
-import { Chunk, Effect, Layer, Option } from "effect";
-import { ImageGenerationError, ImageModelError, ImageProviderError, ImageSizeError } from "../errors.js";
-import { mockSpan } from "@/services/ai/test-utils/index.js";
-import { type ImageGenerationOptions, ImageService, ImageSizes } from "../service.js";
 import { ProviderClientApi, ProviderServiceApi } from '@/services/ai/provider/api.js';
 import { PROVIDER_NAMES } from "@/services/ai/provider/provider-universe.js";
 import { Provider, ProviderFile } from "@/services/ai/provider/schema.js";
-import type { Model, ModelFile, Provider as ProviderType } from "@/services/ai/model/schema.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { mockSpan } from "@/services/ai/test-utils/index.js";
+import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js";
 import type { LanguageModelV1 } from "@ai-sdk/provider";
+import { describe, expect, it, vi } from "@effect/vitest";
+import { Effect, Layer, Option } from "effect";
+import { ImageModelError, ImageSizeError } from "../errors.js";
+import { ImageService, ImageSizes } from "../service.js";
 
 // Mock provider client with minimal implementation
 /**
@@ -52,7 +51,8 @@ function createMockProviderClient(): ProviderClientApi {
 
 
         setVercelProvider: vi.fn().mockImplementation(() => Effect.succeed({ name: "mock-provider", provider: {}, capabilities: new Set() })),
-        getProvider: vi.fn().mockImplementation(() => Effect.succeed({ name: "mock-provider", provider: {}, capabilities: new Set() }))
+        getProvider: vi.fn().mockImplementation(() => Effect.succeed({ name: "mock-provider", provider: {}, capabilities: new Set() })),
+        chat: vi.fn().mockImplementation(() => Effect.fail(new Error("Not implemented")))
     };
 }
 

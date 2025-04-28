@@ -374,6 +374,67 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
                     return yield* providerImpl.generateEmbeddings(texts, options);
                 });
             
+            /**
+             * Chat completion from input.
+             * @param effectiveInput - The input for chat generation
+             * @param options - Provider-specific chat options
+             * @returns Effect<EffectiveResponse<ChatResult>, ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError>
+             */
+            const chat = (
+                effectiveInput: EffectiveInput,
+                options: {
+                    maxSteps?: number;
+                    maxRetries?: number;
+                    temperature?: number;
+                    topP?: number;
+                    topK?: number;
+                    presencePenalty?: number;
+                    frequencyPenalty?: number;
+                    seed?: number;
+                    stop?: string[];
+                    modelId: string;
+                    system: string;
+                }
+            ): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError> =>
+                Effect.gen(function* () {
+                    const provider = yield* getProvider();
+                    const modelId = yield* validateModelId({
+                        options,
+                        method: "chat"
+                    });
+                    yield* validateCapabilities({
+                        providerName: provider.name,
+                        required: "chat",
+                        actual: provider.capabilities,
+                        method: "chat"
+                    });
+                    const providerImpl = provider.provider;
+                    return yield* Effect.catchAll(
+                        Effect.flatMap(
+                            providerImpl.chat(
+                                effectiveInput,
+                                { ...options, modelId, system: options.system }
+                            ) as Effect.Effect<GenerateTextResult, ProviderOperationError | ProviderConfigError>,
+                            (result) => createResponse<GenerateTextResult>(result)
+                        ),
+                        (err) =>
+                            Effect.flatMap(
+                                logDebug("chat", "Provider error", {
+                                    error: err instanceof Error ? err.message : String(err)
+                                }),
+                                () => Effect.fail(
+                                    handleProviderError({
+                                        operation: "chat",
+                                        err,
+                                        providerName: provider.name,
+                                        module: "ProviderClient",
+                                        method: "chat"
+                                    })
+                                )
+                            )
+                    );
+                });
+
             return {
                 getProvider,
                 setVercelProvider,
@@ -382,6 +443,7 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
                 generateSpeech,
                 transcribe,
                 generateEmbeddings,
+                chat,
                 getCapabilities,
                 getModels
             };

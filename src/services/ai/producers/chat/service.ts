@@ -3,6 +3,8 @@
  * @module services/ai/producers/chat/service
  */
 
+import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
+import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import { EffectiveInput } from '@/services/ai/input/service.js';
 import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
@@ -10,7 +12,6 @@ import type { ProviderChatOptions as ChatOptions } from "@/services/ai/provider/
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
 import { AiResponse } from "@effect/ai/AiResponse";
-import { Layer } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import type * as JsonSchema from "effect/JSONSchema";
@@ -18,6 +19,7 @@ import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
 import { ChatCompletionError, ChatModelError, ChatProviderError } from "./errors.js";
 import { mapEffectMessagesToClientCoreMessages } from "./utils.js";
+import { ConfigProvider } from "effect";
 
 /**
  * Extended options for chat interactions
@@ -83,30 +85,30 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
                         Effect.mapError(() => new ChatModelError({
-    description: "Model ID must be provided",
-    module: "ChatService",
-    method: "create"
-}))
+                            description: "Model ID must be provided",
+                            module: "ChatService",
+                            method: "create"
+                        }))
                     );
 
                     // Get provider name from model service
                     const providerName = yield* modelService.getProviderName(modelId).pipe(
                         Effect.mapError((error) => new ChatProviderError({
-    description: "Failed to get provider name for model",
-    module: "ChatService",
-    method: "create",
-    cause: error
-}))
+                            description: "Failed to get provider name for model",
+                            module: "ChatService",
+                            method: "create",
+                            cause: error
+                        }))
                     );
 
                     // Get provider client
                     const providerClient = yield* providerService.getProviderClient(providerName).pipe(
                         Effect.mapError((error) => new ChatProviderError({
-    description: "Failed to get provider client",
-    module: "ChatService",
-    method: "create",
-    cause: error
-}))
+                            description: "Failed to get provider client",
+                            module: "ChatService",
+                            method: "create",
+                            cause: error
+                        }))
                     );
 
                     // Map messages
@@ -125,20 +127,20 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                     const effectiveInput = new EffectiveInput(options.input);
 
                     // Call provider chat method with proper options
-                    const result = yield* providerClient.chat(
+                    const result = yield* (providerClient.chat(
                         effectiveInput,
                         {
                             modelId,
                             system: systemPrompt || "",
                             ...options.parameters
                         }
-                    ).pipe(
+                    ) as Effect.Effect<EffectiveResponse<GenerateTextResult>, ChatCompletionError>).pipe(
                         Effect.mapError((error) => new ChatCompletionError({
-    description: "Chat completion failed",
-    module: "ChatService",
-    method: "create",
-    cause: error
-}))
+                            description: "Chat completion failed",
+                            module: "ChatService",
+                            method: "create",
+                            cause: error
+                        }))
                     );
 
                     // Map the result to AiResponse
@@ -151,7 +153,7 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                         warnings: result.data.warnings,
                         usage: result.metadata.usage,
                         finishReason: result.metadata.finishReason,
-                        model: result.metadata.model,
+
                         timestamp: result.metadata.timestamp,
                         id: result.metadata.id
                     };
@@ -159,13 +161,6 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                     Effect.withSpan("ChatService.create")
                 )
         };
-    })
+    }),
+    dependencies: [ModelService.Default, ProviderService.Default] as const
 }) { }
-
-/**
- * Default Layer for ChatService
- */
-export const ChatServiceLive = Layer.effect(
-    ChatService,
-    ChatService
-);

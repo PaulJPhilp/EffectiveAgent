@@ -5,6 +5,7 @@
  * and dependency injection, avoiding common inference issues.
  */
 
+import { ChatModelError } from "@/services/ai/index.js";
 import { ModelServiceApi } from "@/services/ai/model/service.js";
 import { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { Cause, Context, Effect, Exit, Layer } from "effect";
@@ -76,25 +77,20 @@ export function createServiceTestHarness<Tag, S, E = never>(
     // Helper to assert a specific error was thrown
     const expectError = async <A, E extends Error>(
         effect: Effect.Effect<A, E, any>,
-        errorClass: new (...args: any[]) => E
+        errorClass: new (...args: any[]) => E,
+        options?: { layer?: Layer.Layer<any, any, any> }
     ): Promise<void> => {
         const exit = await runFailTest(effect);
 
         if (!Exit.isFailure(exit)) {
-            throw new Error(`Expected error of type ${errorClass.name}, but effect succeeded`);
+            throw new Error(`Expected failure, but got success: ${JSON.stringify(exit)}`);
         }
 
-        const failure = Cause.failureOption(exit.cause);
+        const error = Cause.failureOrCause(exit.cause);
 
-        if (Exit.isFailure(exit) && failure._tag === "Some") {
-            const error = failure.value;
-            if (error instanceof errorClass) {
-                return; // Success case - error of correct class was thrown
-            }
-            throw new Error(`Expected error of type ${errorClass.name}, got ${error.constructor.name}`);
+        if (!(error instanceof errorClass)) {
+            throw new Error(`Expected error of type ${errorClass.name}, but got: ${error}`);
         }
-
-        throw new Error(`Expected error of type ${errorClass.name}, but got a different failure`);
     };
 
     return {

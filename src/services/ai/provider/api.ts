@@ -57,6 +57,7 @@ export interface ProviderServiceApi {
  * Methods are specifically typed to match capabilities and return types.
  */
 export interface ProviderClientApi {
+    chat(effectiveInput: EffectiveInput, arg1: { maxSteps?: number; maxRetries?: number; temperature?: number; topP?: number; topK?: number; presencePenalty?: number; frequencyPenalty?: number; seed?: number; stop?: string[]; modelId: string; system: string; }): unknown;
     /**
      * Set a Vercel AI SDK provider for this client.
      * @param vercelProvider The Vercel AI SDK provider instance with provider name as discriminator

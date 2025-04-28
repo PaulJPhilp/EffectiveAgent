@@ -138,7 +138,7 @@ describe("EmbeddingService (harnessed)", () => {
     const harness = createAiTestHarness(TestEmbeddingService);
 
     it("should generate embeddings for valid input (happy path)", async () => {
-        const result = await harness.run(async (service) => {
+        const result = harness.run( (service) => {
             return await Effect.runPromise(
                 service.generate({ modelId: testModelId, input: testInput, span: harness.mockSpan })
             );

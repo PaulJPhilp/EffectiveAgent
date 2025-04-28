@@ -8,7 +8,7 @@
 
 
 import type { LanguageModelV1 } from "ai";
-import { Context, Effect, Option } from "effect";
+import { ConfigProvider, Context, Effect, Option } from "effect";
 import { Exit } from "effect/Exit";
 import type { Span, SpanLink } from "effect/Tracer";
 import { MockModelService } from "@/services/ai/model/__mocks__/model-service.mock.js";
@@ -107,21 +107,23 @@ export const mockSpan: Span = {
   }
 };
 
+
+
 export interface AiTestHarness<T> {
   service: T;
   modelService: unknown;
   providerService: unknown;
   mockSpan: Span;
-  run<R>(effect: (service: T) => Promise<R>): Promise<R>;
+  configProvider: ConfigProvider.ConfigProvider;
+  run<R>(effect: (service: T) => Effect.Effect<R, unknown, ConfigProvider.ConfigProvider>): Promise<R>
 }
 
 export function createAiTestHarness<T>(
-  ServiceClass: ServiceCtor<T>,
-  overrides: AiTestHarnessOverrides = {}
+  ServiceClass: ServiceCtor<T>
 ): AiTestHarness<T> {
-  const modelService = overrides.modelService ?? MockModelService;
-  const providerService = overrides.providerService ?? MockProviderService;
-
+  const modelService = MockModelService;
+  const providerService = MockProviderService;
+  const configProvider: ConfigProvider.ConfigProvider = ConfigProvider.fromMap(new Map());
   const service = new ServiceClass({ modelService, providerService });
 
   return {
@@ -129,8 +131,11 @@ export function createAiTestHarness<T>(
     modelService,
     providerService,
     mockSpan,
-    async run<R>(effect: (service: T) => Promise<R>): Promise<R> {
-      return await effect(service);
+    configProvider,
+    async run<R>(effect: (service: T) => Effect.Effect<R, unknown, ConfigProvider.ConfigProvider>): Promise<R> {
+      return await Effect.runPromise(
+        Effect.provideService(effect(service), ConfigProvider.ConfigProvider, configProvider)
+      );
     }
   };
 }
