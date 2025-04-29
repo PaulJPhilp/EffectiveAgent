@@ -1,65 +1,11 @@
 import { Effect, Layer, TestConfig } from "effect";
-
-/**
- * Configuration shape for TextService used in tests.
- */
-export interface AiTestConfig {
-  getConfig: Effect.Effect<{ logLevel: string; connection: string }>;
-}
-
-import * as Context from "effect/Context";
-import type { Either } from "effect/Either";
-import type { Exit } from "effect/Exit";
-
-/**
- * Interface for test configuration.
- */
-export interface TestConfig {
-  readonly getConfig: Effect.Effect<{
-    readonly logLevel: string;
-    readonly connection: string;
-  }>;
-}
-
-/**
- * Tag for test configuration.
- */
-export const TestConfigTag = Context.GenericTag<TestConfig>("TestConfig");
-
-/**
- * Provides a static configuration for testing.
- */
-export const ConfigLive = Layer.succeed(
-  TestConfigTag,
-  {
-    getConfig: Effect.succeed({
-      logLevel: "INFO",
-      connection: "mysql://username:password@hostname:port/database_name"
-    })
-  } as const
-);
-
 import { expect } from "vitest";
 import ModelService from "@/services/ai/model/service.js";
 import ProviderService from "@/services/ai/provider/service.js";
-import type { TestHarnessService as TestHarnessServiceApi } from "@/services/ai/test-utils/api.js";
-
-/**
- * Converts Either<A, E> to Either<E, A> for type safety.
- */
-function swapEither<A, E>(either: Either<A, E>): Either<E, A> {
-  return either._tag === "Left"
-    ? { _tag: "Left", left: either.left } as unknown as Either<E, A>
-    : { _tag: "Right", right: either.right } as unknown as Either<E, A>;
-}
-
-/**
- * Converts Exit<A, E> to Exit<E, A> for type safety.
- * Note: Uses a double cast for test harness only.
- */
-function swapExit<A, E>(exit: Exit<A, E>): Exit<E, A> {
-  return exit as unknown as Exit<E, A>;
-}
+import type { TestHarnessService as TestHarnessServiceApi } from "./api.js";
+import type { Either } from "effect/Either";
+import type { Exit } from "effect/Exit";
+import { swapEither, swapExit } from "./helper.js";
 
 class TestHarnessService extends Effect.Service<TestHarnessServiceApi>()("TestHarnessService", {
   /**
@@ -74,22 +20,7 @@ class TestHarnessService extends Effect.Service<TestHarnessServiceApi>()("TestHa
       /**
        * A minimal mock LanguageModelV1 for use in tests.
        */
-      mockLanguageModelV1: {
-        specificationVersion: 'v1',
-        provider: 'test-provider',
-        modelId: 'test-model-id',
-        defaultObjectGenerationMode: 'json',
-        doGenerate: async () => ({
-          text: "mocked",
-          finishReason: "stop" as any,
-          usage: { promptTokens: 1, completionTokens: 1 },
-          rawCall: { rawPrompt: "", rawSettings: {} }
-        }),
-        doStream: async () => ({
-          stream: new ReadableStream(),
-          rawCall: { rawPrompt: "", rawSettings: {} }
-        })
-      } as import("ai").LanguageModelV1,
+      mockLanguageModelV1: createMockLanguageModel(),
       /**
        * A mock Span for use in tests.
        */
@@ -221,7 +152,6 @@ class TestHarnessService extends Effect.Service<TestHarnessServiceApi>()("TestHa
    * Real ModelService and ProviderService are required dependencies for the harness.
    */
   dependencies: [
-    ConfigLive,
     ModelService.Default,
     ProviderService.Default
   ] as const,

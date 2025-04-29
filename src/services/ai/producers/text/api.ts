@@ -1,10 +1,21 @@
 /**
  * TextService interface for handling AI text generation.
  */
-import type { Effect } from "effect";
-import type { TextGenerationOptions } from "@/services/ai/producers/text/service.js";
+import type { Effect, ConfigProvider, Option } from "effect"; 
+import type { Span } from "effect/Tracer"; 
 import type { AiResponse } from "@effect/ai/AiResponse";
-import type { TextModelError, TextProviderError, TextGenerationError } from "@/services/ai/producers/text/errors.js";
+import type { TextModelError, TextProviderError, TextGenerationError, TextInputError } from "@/services/ai/producers/text/errors.js";
+
+/**
+ * Options for text generation.
+ */
+export interface TextGenerationOptions {
+  readonly modelId?: string;
+  readonly prompt: string;
+  readonly system: Option.Option<string>;
+  readonly span?: Span; 
+  readonly parameters?: Record<string, any>; 
+}
 
 export interface TextServiceApi {
   /**
@@ -17,5 +28,9 @@ export interface TextServiceApi {
    */
   readonly generate: (
     options: TextGenerationOptions
-  ) => Effect.Effect<AiResponse, TextModelError | TextProviderError | TextGenerationError>;
+  ) => Effect.Effect<
+    AiResponse,
+    TextModelError | TextProviderError | TextGenerationError | TextInputError,
+    ConfigProvider.ConfigProvider
+  >;
 }
