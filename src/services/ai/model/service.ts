@@ -46,7 +46,7 @@ export type ModelServiceApi = {
     validateModel: (modelId: string, capabilities: typeof ModelCapability) => Effect.Effect<boolean, ModelConfigError | ModelValidationError>;
 }
 
-export class ModelService extends Effect.Service<ModelServiceApi>()("ModelService", {
+class ModelService extends Effect.Service<ModelServiceApi>()("ModelService", {
     succeed: Effect.gen(function* () {
         let modelRef: Ref.Ref<ModelFile>;
 
@@ -194,4 +194,6 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                 )
         }
     })
-}) { }
+}) {}
+
+export default ModelService;

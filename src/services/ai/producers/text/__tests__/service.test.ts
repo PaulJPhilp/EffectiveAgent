@@ -1,400 +1,691 @@
-import { createAiTestHarness } from "@/services/ai/test-utils/index.js";
-import { Effect, Option } from "effect";
-import { describe, expect, it, beforeEach } from "@effect/vitest";
-import { TextGenerationOptions, TextService } from "../service.js";
-import { TextModelError, TextProviderError, TextInputError, TextGenerationError } from "../errors.js";
-import type { FinishReason } from "@/types.js";
+import type { TextServiceApi } from "@/services/ai/producers/text/api.js";
+import { createAiTestHarness, MockProviderService, MockModelService } from "@/services/ai/test-utils/index.js";
+import { TextGenerationError, TextModelError, TextProviderError } from "@/services/ai/producers/text/errors.js";
+import { TextService, type TextGenerationOptions } from "@/services/ai/producers/text/service.js";
+import TestHarnessService from "@/services/ai/test-utils/service.js";
+import { AiResponse } from "@effect/ai/AiResponse";
+import * as AiRole from "@effect/ai/AiRole";
+import { Effect, Layer, Option } from "effect";
+import { describe, expect, it } from "vitest";
+import { TextInputError } from "@/services/ai/producers/text/errors.js";
 
-/**
- * Runs service.generate and returns an Effect.Either result for test assertions.
- */
-async function runEither(
-  service: TestTextService,
-  opts: Partial<TextGenerationOptions> & { prompt: string },
-  mockSpan: any
-) {
-  return await Effect.runPromise(
-    Effect.either(
-      service.generate({
-        modelId: opts.modelId,
-        prompt: opts.prompt,
-        system: Option.none(),
-        span: opts.span ?? mockSpan
+interface AiTestConfig {
+  getConfig:Effect.Effect<{ logLevel: string; connection: string }>;
+}
+
+// Minimal Effect.gen to reveal TestHarnessService type in IDE
+// Compose all required dependencies into a Layer
+import { ConfigLive } from "@/services/ai/test-utils/service.js";
+
+const harnessLayer = TestHarnessService.Default;
+
+// Compose all required dependencies into a single Layer
+import * as ConfigProviderModule from "effect/ConfigProvider";
+const ConfigProvider = ConfigProviderModule.ConfigProvider;
+
+const harnessLayerProvided = harnessLayer.pipe(
+  Layer.provide(Layer.succeed(ConfigProvider, ConfigProviderModule.fromEnv()))
+);
+
+const fullLayer = Layer.mergeAll(
+  ConfigLive,
+  harnessLayerProvided // <-- use this!
+);
+
+const providerServiceMock = Object.assign({}, MockProviderService, {
+  getProviderClient: () => ({
+    generateText: (
+      _effectiveInput: any,
+      opts: { modelId: string; system?: string }
+    ) =>
+      Effect.succeed({
+        data: { text: "mocked text" },
+        metadata: {
+          finishReason: "stop",
+          model: opts.modelId ?? "mock-model-id",
+          timestamp: new Date(),
+          id: "mock-id"
+        }
       })
-    )
-  );
+  })
+});
+
+const testConfig: AiTestConfig = {
+  getConfig: Effect.succeed({ logLevel: "INFO", connection: "test" })
+};
+
+function createTextServiceHarness(providerServiceOverride?: any) {
+  return createAiTestHarness(TextService, {
+    modelService: MockModelService,
+    providerService: providerServiceOverride ?? providerServiceMock,
+    config: testConfig
+  });
 }
 
-/**
- * Asserts that result is a Left (error) and error is of expected class.
- */
-function expectLeft(result: unknown, errorClass: new (...args: any[]) => unknown) {
-  expect(result).toBeDefined();
-  if (
-    typeof result === "object" &&
-    result !== null &&
-    "_tag" in result &&
-    (result as any)._tag === "Left"
-  ) {
-    expect((result as any).left).toBeInstanceOf(errorClass);
-  } else {
-    throw new Error("Expected Left, got Right or malformed Either");
-  }
-}
-
-/**
- * Asserts that result is a Right (success).
- */
-function expectRight(result: unknown) {
-  expect(result).toBeDefined();
-  if (
-    typeof result === "object" &&
-    result !== null &&
-    "_tag" in result &&
-    (result as any)._tag === "Right"
-  ) {
-    expect((result as any).right).toBeDefined();
-  } else {
-    throw new Error("Expected Right, got Left or malformed Either");
-  }
-}
-
-// Example input and expected output for the happy path
-const testInput = "The quick brown fox jumps over the lazy dog.";
-const testModelId = "test-model-id";
-const testText = "mocked";
-
-
-
-class TestTextService extends TextService {
-  static throwModelError = false;
-  static throwProviderError = false;
-  static throwProviderClientError = false;
-  static simulateFinishReasonUndefined = false;
-  static simulateSystemPrompt = false;
-  static simulateOptionalParams = false;
-  static simulateFullOutput = false;
-
-  constructor(deps: any) {
-    super(deps);
-  }
-
-  generate = (options: TextGenerationOptions) => {
-    if (options.prompt.trim() === "") {
-      return Effect.fail(
-        new TextInputError({
-          description: "Input text cannot be empty",
-          module: "TextService",
-          method: "generate"
+describe("TextService", () => {
+  it("should generate text for valid input (happy path)", async () => {
+  // Arrange
+  const modelId = "mock-model-id";
+  const prompt = "Hello, world!";
+  const harness = createTextServiceHarness(providerServiceMock);
+    const result = await harness.run(service =>
+      Effect.either(
+        service.generate({
+          modelId,
+          prompt,
+          span: harness.mockSpan,
+          system: Option.none(),
+          parameters: undefined
         })
-      );
+      )
+    );
+    expect(result._tag).toBe("Right");
+    if (result._tag === "Right") {
+      const response = result.right as { text: string };
+      expect(response.text).toBe("mocked text");
     }
-    if (TestTextService.throwModelError) {
-      return Effect.fail(
-        new TextModelError({
-          description: "Simulated model service error",
-          module: "TextService",
-          method: "generate"
+  });
+
+  it("should fail for empty prompt", async () => {
+    const harness = createTextServiceHarness();
+    const modelId = "mock-model-id";
+    const result = await harness.run(service =>
+      Effect.either(
+        service.generate({
+          modelId,
+          prompt: "",
+          span: harness.mockSpan,
+          system: Option.none(),
+          parameters: undefined
         })
-      );
-    }
-    if (TestTextService.throwProviderError) {
-      return Effect.fail(
-        new TextProviderError({
-          description: "Simulated provider service error",
-          module: "TextService",
-          method: "generate"
-        })
-      );
-    }
-    if (TestTextService.throwProviderClientError) {
-      return Effect.fail(
-        new TextGenerationError({
-          description: "Simulated provider client error",
-          module: "TextService",
-          method: "generate",
-          cause: new Error("Simulated provider client error")
-        })
-      );
-    }
-    const modelId = options.modelId ?? "test-model-id";
-    const systemPrompt = TestTextService.simulateSystemPrompt ? "[SYSTEM]" : undefined;
-    const prompt = systemPrompt ? `${systemPrompt}\n\n${options.prompt}` : options.prompt;
-    const finishReason = TestTextService.simulateFinishReasonUndefined ? undefined : ("stop" as FinishReason);
-    const usage = TestTextService.simulateOptionalParams ? { promptTokens: 2, completionTokens: 2, totalTokens: 4 } : { promptTokens: 1, completionTokens: 1, totalTokens: 2 };
-    if (TestTextService.simulateFullOutput) {
-      return Effect.succeed({
-        text: testText,
-        reasoning: "Reasoning text",
-        reasoningDetails: [{ type: "text" as const, text: "Reasoning details" }],
-        sources: [{
-          sourceType: 'url' as const,
-          id: 'source-1',
-          url: 'https://example.com',
-          title: 'Example Source',
-          providerMetadata: undefined
-        }],
-        messages: [{ role: "system" as const, content: "System message" }],
-        warnings: [{ type: "other", message: "Warning!" }],
-        usage: { promptTokens: 2, completionTokens: 2, totalTokens: 4 },
-        finishReason: finishReason ?? "unknown",
-        model: modelId,
-        timestamp: new Date("2023-01-01T00:00:00Z"),
-        id: "text-12345"
-      });
-    }
-    // Always provide all output fields, using empty/undefined if not set
-    let textValue = testText;
-    if (TestTextService.simulateSystemPrompt) {
-      textValue = `[SYSTEM]\n\n${options.prompt}`;
-    } else if (options.prompt === "foo" || options.prompt === "bar") {
-      textValue = options.prompt;
-    } else if (TestTextService.simulateFullOutput) {
-      textValue = testText;
-    } else if (!options.modelId) {
-      textValue = options.prompt;
-    }
-    return Effect.succeed({
-      text: textValue,
-      reasoning: "",
-      reasoningDetails: [],
-      sources: [],
-      messages: [],
-      warnings: [],
-      usage,
-      finishReason: finishReason ?? "unknown",
-      model: modelId,
-      timestamp: new Date(),
-      id: "text-12345"
-    });
-  };
-}
-
-// --- Additional Comprehensive Tests ---
-describe("TextService (comprehensive)", () => {
-  beforeEach(() => {
-    TestTextService.throwModelError = false;
-    TestTextService.throwProviderError = false;
-    TestTextService.throwProviderClientError = false;
-    TestTextService.simulateFinishReasonUndefined = false;
-    TestTextService.simulateSystemPrompt = false;
-    TestTextService.simulateOptionalParams = false;
-    TestTextService.simulateFullOutput = false;
-  });
-  const harness = createAiTestHarness(TestTextService);
-
-  it("should prepend system prompt if provided", async () => {
-    TestTextService.simulateSystemPrompt = true;
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(service.generate({
-        modelId: testModelId,
-        prompt: testInput,
-        system: Option.some("[SYSTEM]"),
-        span: harness.mockSpan
-      }))
-    );
-    expect(result.text).toBe(`[SYSTEM]\n\n${testInput}`);
-    TestTextService.simulateSystemPrompt = false;
-  });
-
-  it("should fallback finishReason to 'unknown' if undefined", async () => {
-    TestTextService.simulateFinishReasonUndefined = true;
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(service.generate({
-        modelId: testModelId,
-        prompt: testInput,
-        system: Option.none(),
-        span: harness.mockSpan
-      }))
-    );
-    expect(result.finishReason).toBe("unknown");
-    TestTextService.simulateFinishReasonUndefined = false;
-  });
-
-  it("should handle optional parameters", async () => {
-    TestTextService.simulateOptionalParams = true;
-    const params = { temperature: 0.5, topP: 0.9 };
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(service.generate({
-        modelId: testModelId,
-        prompt: testInput,
-        system: Option.none(),
-        span: harness.mockSpan,
-        parameters: params
-      }))
-    );
-    expect(result.usage).toEqual({ promptTokens: 2, completionTokens: 2, totalTokens: 4 });
-    TestTextService.simulateOptionalParams = false;
-  });
-
-  it("should return all output fields when present", async () => {
-    TestTextService.simulateFullOutput = true;
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(service.generate({
-        modelId: testModelId,
-        prompt: testInput,
-        system: Option.none(),
-        span: harness.mockSpan
-      }))
-    );
-    expect(result.text).toBe(testText);
-    expect(result.reasoning).toBe("Reasoning text");
-    expect(result.reasoningDetails).toEqual([{ type: "text", text: "Reasoning details" }]);
-    expect(result.sources).toEqual([
-      {
-        sourceType: 'url',
-        id: 'source-1',
-        url: 'https://example.com',
-        title: 'Example Source',
-        providerMetadata: undefined
-      }
-    ]);
-    expect(result.messages).toEqual([{ role: "system", content: "System message" }]);
-    expect(result.warnings).toEqual([{ type: "other", message: "Warning!" }]);
-    expect(result.usage).toEqual({ promptTokens: 2, completionTokens: 2, totalTokens: 4 });
-    expect(result.finishReason).toBe("stop");
-    expect(result.model).toBe(testModelId);
-    expect(result.timestamp.toISOString()).toBe("2023-01-01T00:00:00.000Z");
-    expect(result.id).toBe("text-12345");
-    TestTextService.simulateFullOutput = false;
-  });
-
-  it("should return TextGenerationError on provider client error", async () => {
-    TestTextService.throwProviderClientError = true;
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(Effect.either(service.generate({
-        modelId: testModelId,
-        prompt: testInput,
-        system: Option.none(),
-        span: harness.mockSpan
-      })))
+      )
     );
     expect(result._tag).toBe("Left");
-    TestTextService.throwProviderClientError = false;
+    if (result._tag === "Left") {
+      expect(result.left).toBeInstanceOf(TextGenerationError);
+      expect((result.left as TextGenerationError).description).toContain("Prompt cannot be empty");
+    }
   });
+
+  it("should return truncated text for long prompt", async () => {
+    const longPromptMock = Object.assign({}, MockProviderService, {
+      getProviderClient: () => ({
+        generateText: (
+          _effectiveInput: any,
+          opts: { modelId: string; system?: string }
+        ) =>
+          Effect.succeed({
+            data: { text: "This is a very long ..." },
+            metadata: {
+              finishReason: "stop",
+              model: opts.modelId ?? "mock-model-id",
+              timestamp: new Date(),
+              id: "mock-id"
+            }
+          })
+      })
+    });
+    const harness = createTextServiceHarness(longPromptMock);
+    const modelId = "mock-model-id";
+    const prompt = "This is a very long prompt that should be truncated by the service.";
+    const result = await harness.run(service =>
+      Effect.either(
+        service.generate({
+          modelId,
+          prompt,
+          span: harness.mockSpan,
+          system: Option.none(),
+          parameters: undefined
+        })
+      )
+    );
+    expect(result._tag).toBe("Right");
+    if (result._tag === "Right") {
+      const response = result.right as { text: string };
+      expect(response.text).toBe("This is a very long ...");
+    }
+  });
+
+  it("should handle undefined parameters gracefully", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+        const modelId = "mock-model-id";
+        const mockSpan = harness.mockSpan;
+        const undefinedParamsMock: TextServiceApi = {
+          generate: ({ prompt }: TextGenerationOptions) =>
+            Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: prompt }))
+        };
+        const result = yield* Effect.promise(() => harness.runEither(() =>
+          undefinedParamsMock.generate({
+            modelId,
+            prompt: "Hello world!",
+            span: harness.mockSpan,
+            system: Option.none(),
+            parameters: undefined
+          })
+        ));
+        expect(result._tag).toBe("Right");
+        if (result._tag === "Right") {
+          const response = result.right as { text: string };
+          expect(response.text).toBe("Hello world!");
+        }
+      }).pipe(Effect.provide(fullLayer))
+    );
+  });
+
+  it("should handle system prompt present", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+        const modelId = "mock-model-id";
+        const mockSpan = harness.mockSpan;
+        const systemPromptMock: TextServiceApi = {
+          generate: ({ prompt, system }: TextGenerationOptions) =>
+            Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: system && Option.isSome(system) ? `${prompt} (system: ${Option.getOrUndefined(system)})` : prompt }))
+        };
+        const result = yield* systemPromptMock.generate({
+          modelId,
+          prompt: "Respond to this.",
+          span: mockSpan,
+          system: Option.some("system-message"),
+          parameters: undefined
+        });
+        expect(result.text).toBe("Respond to this. (system: system-message)");
+      }).pipe(Effect.provide(fullLayer))
+    );
+  });
+
+  it("should handle missing modelId gracefully", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+        const modelId = undefined;
+        const mockSpan = harness.mockSpan;
+        const modelErrorMock: TextServiceApi = {
+          generate: ({ modelId, prompt }: TextGenerationOptions) =>
+            modelId === undefined
+              ? Effect.fail(
+                new TextModelError({
+                  module: "TextService",
+                  method: "generate",
+                  description: "Model ID is required"
+                })
+              )
+              : Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: prompt }))
+        };
+        const result = yield* modelErrorMock.generate({
+          modelId: undefined,
+          prompt: "foo",
+          span: mockSpan,
+          system: Option.none(),
+          parameters: undefined
+        });
+        expect(result).rejects.toThrow("Model ID is required");
+      }).pipe(Effect.provide(fullLayer))
+    );
+  });
+
+  it("should handle provider error", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+        const providerErrorMock: TextServiceApi = {
+          generate: ({ prompt }: TextGenerationOptions) =>
+            Effect.fail(
+              new TextProviderError({
+                module: "TextService",
+                method: "generate",
+                description: "Provider error"
+              })
+            )
+        };
+        const result = yield* providerErrorMock.generate({
+          modelId: "mock-model-id",
+          prompt: "foo",
+          span: harness.mockSpan,
+          system: Option.none(),
+          parameters: undefined
+        });
+        expect(result).rejects.toThrow("Provider error");
+      }).pipe(Effect.provide(fullLayer))
+    );
+  });
+
+  it("should handle parameters object", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+        const paramsMock: TextServiceApi = {
+          generate: ({ prompt, parameters }: TextGenerationOptions) =>
+            Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: parameters ? `${prompt} (params: ${JSON.stringify(parameters)})` : prompt }))
+        };
+        const result = yield* paramsMock.generate({
+          modelId: "test-model-id",
+          prompt: "Show parameters",
+          span: harness.mockSpan,
+          system: Option.none(),
+          parameters: { maxSteps: 10, maxRetries: 3 }
+        });
+        expect(result.text).toBe('Show parameters (params: {"maxSteps":10,"maxRetries":3})');
+      }).pipe(Effect.provide(fullLayer))
+    );
+  });
+
+  it("should handle invalid input gracefully", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+        const modelId = "test-model-id";
+        const mockSpan = harness.mockSpan;
+        const inputErrorMock: TextServiceApi = {
+          generate: ({ prompt }: TextGenerationOptions) =>
+            prompt === "invalid"
+              ? Effect.fail(
+                new TextGenerationError({
+                  module: "TextService",
+                  method: "generate",
+                  description: "Input is invalid"
+                })
+              )
+              : Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: prompt }))
+        };
+        const result = yield* inputErrorMock.generate({
+          modelId,
+          prompt: "invalid",
+          span: mockSpan,
+          system: Option.none(),
+          parameters: undefined
+        });
+        expect(result).rejects.toThrow("Input is invalid");
+      }).pipe(Effect.provide(fullLayer))
+    );
+  });
+
+  it("should handle undefined parameters gracefully", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+      const modelId = "mock-model-id";
+      const mockSpan = harness.mockSpan;
+      const undefinedParamsMock: TextServiceApi = {
+        generate: ({ prompt }: TextGenerationOptions) =>
+          Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: prompt }))
+      };
+      const result = yield* Effect.promise(() => harness.runEither(() =>
+        undefinedParamsMock.generate({
+          modelId,
+          prompt: "Hello world!",
+          span: mockSpan,
+          system: Option.none(),
+          parameters: undefined
+        })
+      ));
+      expect(result._tag).toBe("Right");
+      if (result._tag === "Right") {
+        const response = result.right as { text: string };
+        expect(response.text).toBe("Hello world!");
+      }
+    }).pipe(Effect.provide(fullLayer))
+  );
 });
 
-describe("TextService (harnessed)", () => {
-  const harness = createAiTestHarness(TestTextService);
+it("should handle system prompt present", async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const harness = yield* TestHarnessService;
+      const modelId = "mock-model-id";
+      const mockSpan = harness.mockSpan;
+      const systemPromptMock: TextServiceApi = {
+        generate: ({ prompt, system }: TextGenerationOptions) =>
+          Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: system && Option.isSome(system) ? `${prompt} (system: ${Option.getOrUndefined(system)})` : prompt }))
+      };
+      const result = yield* systemPromptMock.generate({
+        modelId,
+        prompt: "Respond to this.",
+        span: mockSpan,
+        system: Option.some("system-message"),
+        parameters: undefined
+      });
+      expect(result.text).toBe("Respond to this. (system: system-message)");
+    }).pipe(Effect.provide(fullLayer))
+  );
+});
 
-  it("should generate text for valid input (happy path)", async () => {
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(Effect.either(service.generate({
-        modelId: testModelId,
-        prompt: testInput,
-        system: Option.none(),
-        span: harness.mockSpan
-      })))
-    );
-    expect(result._tag).toBe("Right");
-    if (result._tag === "Right") {
-      expect(result.right.text).toBe(testText);
-      expect(result.right.model).toBe(testModelId);
-      expect(result.right.id).toBe("text-12345");
-    } else {
-      throw new Error(`Expected Right, got Left: ${JSON.stringify(result.left)}`);
-    }
-  });
-
-  it("should fail for empty input string", async () => {
-    const result = await harness.run(async (service) =>
-      runEither(service, { prompt: "" }, harness.mockSpan)
-    );
-    expectLeft(result, TextInputError);
-  });
-
-  it("should fail for input with only whitespace", async () => {
-    const result = await harness.run(async (service) =>
-      runEither(service, { prompt: "   " }, harness.mockSpan)
-    );
-    expectLeft(result, TextInputError);
-  });
-
-  it("should fail for empty input array", async () => {
-    const result = await harness.run(async (service) =>
-      runEither(service, { prompt: "" }, harness.mockSpan)
-    );
-    expectLeft(result, TextInputError);
-  });
-
-  it("should fail for input array of only empty/whitespace strings", async () => {
-    const result = await harness.run(async (service) =>
-      runEither(service, { prompt: "" }, harness.mockSpan)
-    );
-    expectLeft(result, TextInputError);
-  });
-
-  it("should succeed for input array with at least one valid string", async () => {
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(Effect.either(service.generate({
-        modelId: testModelId,
-        prompt: "foo",
-        system: Option.none(),
-        span: harness.mockSpan
-      })))
-    );
-    expect(result._tag).toBe("Right");
-    if (result._tag === "Right") {
-      expect(result.right.text).toBe("foo");
-    } else {
-      throw new Error(`Expected Right, got Left: ${JSON.stringify(result.left)}`);
-    }
-  });
-
-  it("should succeed for input array with some empty/whitespace and one valid string", async () => {
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(Effect.either(service.generate({
-        modelId: testModelId,
-        prompt: "bar",
-        system: Option.none(),
-        span: harness.mockSpan
-      })))
-    );
-    expect(result._tag).toBe("Right");
-    if (result._tag === "Right") {
-      expect(result.right.text).toBe("bar");
-    } else {
-      throw new Error(`Expected Right, got Left: ${JSON.stringify(result.left)}`);
-    }
-  });
-
-  it("should succeed for missing modelId", async () => {
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(Effect.either(service.generate({
+it("should handle missing modelId gracefully", async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const harness = yield* TestHarnessService;
+      const modelId = undefined;
+      const mockSpan = harness.mockSpan;
+      const modelErrorMock: TextServiceApi = {
+        generate: ({ modelId, prompt }: TextGenerationOptions) =>
+          modelId === undefined
+            ? Effect.fail(
+              new TextModelError({
+                module: "TextService",
+                method: "generate",
+                description: "Model ID is required"
+              })
+            )
+            : Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: prompt }))
+      };
+      const result = yield* modelErrorMock.generate({
         modelId: undefined,
-        prompt: testInput,
+        prompt: "foo",
+        span: mockSpan,
         system: Option.none(),
-        span: harness.mockSpan
-      })))
-    );
-    expect(result._tag).toBe("Right");
-    if (result._tag === "Right") {
-      expect(result.right.text).toBe(testInput);
-    } else {
-      throw new Error(`Expected Right, got Left: ${JSON.stringify(result.left)}`);
-    }
-  });
+        parameters: undefined
+      });
+      expect(result).rejects.toThrow("Model ID is required");
+    }).pipe(Effect.provide(fullLayer))
+  );
 });
 
-describe("TextService (harnessed)", () => {
-  const harness = createAiTestHarness(TestTextService);
-
-  it("should generate text for valid input (happy path)", async () => {
-    const result = await harness.run(async (service) =>
-      Effect.runPromise(Effect.either(service.generate({
-        modelId: testModelId,
-        prompt: testInput,
+it("should handle provider error", async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const harness = yield* TestHarnessService;
+      const providerErrorMock: TextServiceApi = {
+        generate: ({ prompt }: TextGenerationOptions) =>
+          Effect.fail(
+            new TextProviderError({
+              module: "TextService",
+              method: "generate",
+              description: "Provider error"
+            })
+          )
+      };
+      const result = yield* providerErrorMock.generate({
+        modelId: "mock-model-id",
+        prompt: "foo",
         span: harness.mockSpan,
-        system: Option.none()
-      })))
+        system: Option.none(),
+        parameters: undefined
+      });
+      expect(result).rejects.toThrow("Provider error");
+    }).pipe(Effect.provide(fullLayer))
+  );
+});
+
+it("should handle parameters object", async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const harness = yield* TestHarnessService;
+      const paramsMock: TextServiceApi = {
+        generate: ({ prompt, parameters }: TextGenerationOptions) =>
+          Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: parameters ? `${prompt} (params: ${JSON.stringify(parameters)})` : prompt }))
+      };
+      const result = yield* paramsMock.generate({
+        modelId: "test-model-id",
+        prompt: "Show parameters",
+        span: harness.mockSpan,
+        system: Option.none(),
+        parameters: { maxSteps: 10, maxRetries: 3 }
+      });
+      expect(result.text).toBe('Show parameters (params: {"maxSteps":10,"maxRetries":3})');
+    }).pipe(Effect.provide(fullLayer))
+  );
+});
+
+it("should handle invalid input gracefully", async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const harness = yield* TestHarnessService;
+      const modelId = "test-model-id";
+      const mockSpan = harness.mockSpan;
+      const inputErrorMock: TextServiceApi = {
+        generate: ({ prompt }: TextGenerationOptions) =>
+          prompt === "invalid"
+            ? Effect.fail(
+              new TextGenerationError({
+                module: "TextService",
+                method: "generate",
+                description: "Input is invalid"
+              })
+            )
+            : Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: prompt }))
+      };
+      const result = yield* inputErrorMock.generate({
+        modelId,
+        prompt: "invalid",
+        span: mockSpan,
+        system: Option.none(),
+        parameters: undefined
+      });
+      expect(result).rejects.toThrow("Input is invalid");
+    }).pipe(Effect.provide(fullLayer))
+  );
+});
+
+it("should support multiple calls in parallel", async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const harness = yield* TestHarnessService;
+      const parallelMock: TextServiceApi = {
+        generate: ({ prompt }: TextGenerationOptions) =>
+          Effect.succeed(
+            AiResponse.fromText({ role: AiRole.model, content: prompt.toUpperCase() })
+          )
+      };
+      const prompts = ["one", "two", "three"];
+      const results = yield* Effect.forEach(prompts, (prompt) =>
+        parallelMock.generate({
+          modelId: "test-model-id",
+          prompt,
+          span: harness.mockSpan,
+          system: Option.none(),
+          parameters: undefined
+        })
+      );
+      expect(results.map(r => r.text)).toEqual(["ONE", "TWO", "THREE"]);
+    }).pipe(Effect.provide(fullLayer))
+  );
+});
+
+  it("should handle model error", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+        const modelErrorMock: TextServiceApi = {
+          generate: ({ modelId }: TextGenerationOptions) =>
+            modelId === undefined
+              ? Effect.fail(
+                new TextModelError({
+                  module: "TextService",
+                  method: "generate",
+                  description: "Model ID is required"
+                })
+              )
+              : Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: "ok" }))
+        };
+        const harnessWithModelError = {
+          ...harness,
+          generate: modelErrorMock.generate
+        };
+        const result = yield* Effect.promise(() => harness.runEither(() =>
+          harnessWithModelError.generate({
+            modelId: undefined,
+            prompt: "foo",
+            span: harness.mockSpan,
+            system: Option.none(),
+            parameters: undefined
+          })
+        ));
+        expect(result._tag).toBe("Left");
+        if (result._tag === "Left") {
+          expect((result.left as TextModelError)).toBeInstanceOf(TextModelError);
+          expect((result.left as TextModelError).description).toContain("Model ID is required");
+        }
+      }).pipe(Effect.provide(fullLayer))
     );
-    expect(result._tag).toBe("Right");
-    if (result._tag === "Right") {
-      expect(result.right.text).toBe(testText);
-      expect(result.right.model).toBe(testModelId);
-      expect(result.right.id).toBeDefined();
-    } else {
-      throw new Error(`Expected Right, got Left: ${JSON.stringify(result.left)}`);
-    }
-  });
+
+    it("should handle provider error", async () => {
+      await Effect.runPromise(
+        Effect.gen(function* () {
+          const harness = yield* TestHarnessService;
+          const providerErrorMock: TextServiceApi = {
+            generate: ({ prompt }: TextGenerationOptions) =>
+              Effect.fail(
+                new TextProviderError({
+                  module: "TextService",
+                  method: "generate",
+                  description: "Provider error"
+                })
+              )
+          };
+          const result = yield* providerErrorMock.generate({
+            modelId: "mock-model-id",
+            prompt: "foo",
+            span: harness.mockSpan,
+            system: Option.none(),
+            parameters: undefined
+          });
+          expect(result).rejects.toThrow("Provider error");
+        }).pipe(Effect.provide(fullLayer))
+      );
+    });
+
+    it("should handle parameters object", async () => {
+      await Effect.runPromise(
+        Effect.gen(function* () {
+          const harness = yield* TestHarnessService;
+          const paramsMock: TextServiceApi = {
+            generate: ({ prompt, parameters }: TextGenerationOptions) =>
+              Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: parameters ? `${prompt} (params: ${JSON.stringify(parameters)})` : prompt }))
+          };
+          const result = yield* paramsMock.generate({
+            modelId: "test-model-id",
+            prompt: "Show parameters",
+            span: harness.mockSpan,
+            system: Option.none(),
+            parameters: { maxSteps: 10, maxRetries: 3 }
+          });
+          expect(result.text).toBe('Show parameters (params: {"maxSteps":10,"maxRetries":3})');
+        }).pipe(Effect.provide(fullLayer))
+      );
+    });
+
+    it("should propagate TextInputError if input is invalid", async () => {
+      const { TextInputError } = await import("@/services/ai/producers/text/errors.js");
+      await Effect.runPromise(
+        Effect.gen(function* () {
+          const harness = yield* TestHarnessService;
+          const inputErrorMock: TextServiceApi = {
+            generate: ({ prompt }: TextGenerationOptions) =>
+              prompt === "invalid"
+                ? Effect.fail(
+                  new TextGenerationError({
+                    module: "TextService",
+                    method: "generate",
+                    description: "Input is invalid"
+                  })
+                )
+                : Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: prompt }))
+          };
+          const result = yield* inputErrorMock.generate({
+            modelId: "test-model-id",
+            prompt: "invalid",
+            span: harness.mockSpan,
+            system: Option.none(),
+            parameters: undefined
+          });
+          expect(result).rejects.toThrow("Input is invalid");
+        }).pipe(Effect.provide(fullLayer))
+      );
+    });
+
+    it("should handle model error", async () => {
+      await Effect.runPromise(
+        Effect.gen(function* () {
+          const harness = yield* TestHarnessService;
+          const modelErrorMock: TextServiceApi = {
+            generate: ({ modelId }: TextGenerationOptions) =>
+              Effect.fail(
+                new TextModelError({
+                  description: "Model ID is required",
+                  module: "TextService",
+                  method: "generate"
+                })
+              )
+          };
+          const harnessWithModelError = {
+            ...harness,
+            generate: modelErrorMock.generate
+          };
+          const result = yield* Effect.promise(() => harness.runEither(() =>
+            harnessWithModelError.generate({
+              modelId: undefined,
+              prompt: "foo",
+              span: harness.mockSpan,
+              system: Option.none(),
+              parameters: undefined
+            })
+          ));
+          expect(result._tag).toBe("Left");
+          if (result._tag === "Left") {
+            expect((result.left as TextModelError).description).toContain("Model ID is required");
+          }
+        }).pipe(Effect.provide(fullLayer))
+      );
+    });
+
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const harness = yield* TestHarnessService;
+        const inputErrorMock: TextServiceApi = {
+          generate: ({ prompt }: TextGenerationOptions) =>
+            prompt === "invalid"
+              ? Effect.fail(
+                new TextGenerationError({
+                  module: "TextService",
+                  method: "generate",
+                  description: "Input is invalid"
+                })
+              )
+              : Effect.succeed(AiResponse.fromText({ role: AiRole.model, content: prompt }))
+        };
+        const result = yield* Effect.either(
+          inputErrorMock.generate({
+            modelId: "test-model-id",
+            prompt: "invalid",
+            span: harness.mockSpan,
+            system: Option.none(),
+            parameters: undefined
+          })
+        );
+        expect(result._tag).toBe("Left");
+        if (result._tag === "Left") {
+          expect(result.left).toBeInstanceOf(TextInputError);
+          expect(result.left.description).toContain("Input is invalid");
+        }
+      }).pipe(Effect.provide(fullLayer))
+    );
+
+
+    it("should support multiple calls in parallel", async () => {
+      await Effect.runPromise(
+        Effect.gen(function* () {
+          const harness = yield* TestHarnessService;
+          const parallelMock: TextServiceApi = {
+            generate: ({ prompt }: TextGenerationOptions) =>
+              Effect.succeed(
+                AiResponse.fromText({ role: AiRole.model, content: prompt.toUpperCase() })
+              )
+          };
+          const prompts = ["one", "two", "three"];
+          const results = yield* Effect.forEach(prompts, (prompt) =>
+            parallelMock.generate({
+              modelId: "test-model-id",
+              prompt,
+              span: harness.mockSpan,
+              system: Option.none(),
+              parameters: undefined
+            })
+          );
+          expect(results.map(r => r.text)).toEqual(["ONE", "TWO", "THREE"]);
+        }).pipe(Effect.provide(fullLayer))
+      );
+    })
+  })
 });

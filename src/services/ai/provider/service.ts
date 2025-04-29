@@ -41,7 +41,7 @@ const validateProviderConfig = (parsedConfig: any, method: string) => {
  */
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 
-export class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderService", {
+class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderService", {
     effect: Effect.gen(function* () {
         const configProvider = yield* ConfigProvider.ConfigProvider;
         
@@ -129,3 +129,5 @@ export class ProviderService extends Effect.Service<ProviderServiceApi>()("Provi
     }),
     dependencies: []
 }) {}
+
+export default ProviderService;

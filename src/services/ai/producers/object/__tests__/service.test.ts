@@ -2,7 +2,7 @@
  * @file Complete test suite for ObjectService
  */
 
-import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js";
+
 import { Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 import {
@@ -47,13 +47,25 @@ describe("ObjectService", () => {
         } as any),
     });
 
-  const dummyLayer = Layer.effect(ObjectService, createTestObjectService());
-
-  const serviceHarness = createServiceTestHarness(
-    ObjectService,
-    createTestObjectService,
-    dummyLayer,
-  );
+  const mockObjectServiceImpl = {
+    generate: <T>(_options: any) =>
+      Effect.succeed({
+        data: {
+          name: "John Doe",
+          age: 30,
+          email: "john@example.com",
+        },
+        model: "test-model",
+        timestamp: new Date(),
+        id: "test-response-id",
+        usage: {
+          promptTokens: 100,
+          completionTokens: 50,
+          totalTokens: 150,
+        },
+      } as any),
+  };
+  const mockObjectServiceLayer = Layer.succeed(ObjectService, mockObjectServiceImpl as any);
 
   it("should generate an object successfully", async () => {
     const schema = createPersonSchema();
@@ -74,10 +86,8 @@ describe("ObjectService", () => {
       expect(result.usage?.totalTokens).toBe(150);
       return result;
     });
-    await serviceHarness.runTest(
-      effect.pipe(Effect.provide(dummyLayer)),
-      { layer: dummyLayer }
-    );
+    await Effect.runPromise(effect.pipe(Effect.provide(mockObjectServiceLayer)));
+  });
   });
 
   // --- Missing modelId ---
@@ -92,11 +102,17 @@ describe("ObjectService", () => {
           }),
         ),
     });
-  const missingModelIdHarness = createServiceTestHarness(
-    ObjectService,
-    createMissingModelIdService,
-    dummyLayer,
-  );
+  const mockMissingModelIdImpl = {
+    generate: <T>(_options: any) =>
+      Effect.fail(
+        new ObjectModelError({
+          description: "Model ID must be provided",
+          module: "ObjectService",
+          method: "generate",
+        }),
+      ),
+  };
+  const mockMissingModelIdLayer = Layer.succeed(ObjectService, mockMissingModelIdImpl as any);
 
   it("should fail if modelId is missing", async () => {
     const schema = createPersonSchema();
@@ -112,10 +128,8 @@ describe("ObjectService", () => {
         });
       }),
     );
-    const result = await missingModelIdHarness.runTest(
-      effect.pipe(Effect.provide(missingModelIdHarness.layer)),
-      { layer: missingModelIdHarness.layer }
-    );
+    const result = await Effect.runPromise(effect.pipe(Effect.provide(mockMissingModelIdLayer)));
+
     expect(result._tag).toBe("Left");
     if (result._tag === "Left") {
       expect(result.left).toBeInstanceOf(ObjectModelError);
@@ -135,11 +149,18 @@ describe("ObjectService", () => {
           }),
         ),
     });
-  const providerErrorHarness = createServiceTestHarness(
-    ObjectService,
-    createProviderErrorService,
-    dummyLayer
-  );
+  const mockProviderErrorImpl = {
+    generate: <T>(_options: any) =>
+      Effect.fail(
+        new ObjectProviderError({
+          description: "Failed to get provider client",
+          module: "ObjectService",
+          method: "generate",
+          cause: new Error("Provider unavailable"),
+        }),
+      ),
+  };
+  const mockProviderErrorLayer = Layer.succeed(ObjectService, mockProviderErrorImpl as any);
 
   it("should handle provider errors", async () => {
     const schema = createProductSchema();
@@ -155,10 +176,8 @@ describe("ObjectService", () => {
         });
       }),
     );
-    const result = await providerErrorHarness.runTest(
-  effect.pipe(Effect.provide(providerErrorHarness.layer)),
-  { layer: providerErrorHarness.layer }
-);
+    const result = await Effect.runPromise(effect.pipe(Effect.provide(mockProviderErrorLayer)));
+
     expect(result._tag).toBe("Left");
     if (result._tag === "Left") {
       expect(result.left).toBeInstanceOf(ObjectProviderError);
@@ -179,10 +198,17 @@ describe("ObjectService", () => {
           }),
         ),
     });
-  const generationErrorHarness = createServiceTestHarness(
-    ObjectService,
-    createGenerationErrorService,
-  );
+  const mockGenerationErrorImpl = {
+    generate: <T>(_options: any) =>
+      Effect.fail(
+        new ObjectGenerationError({
+          description: "Object generation failed",
+          module: "ObjectService",
+          method: "generate",
+        }),
+      ),
+  };
+  const mockGenerationErrorLayer = Layer.succeed(ObjectService, mockGenerationErrorImpl as any);
 
   it("should handle object generation errors", async () => {
     const schema = createTaskSchema();
@@ -198,10 +224,8 @@ describe("ObjectService", () => {
         });
       }),
     );
-    const result = await generationErrorHarness.runTest(
-      effect.pipe(Effect.provide(generationErrorHarness.layer)),
-      { layer: generationErrorHarness.layer }
-    );
+    const result = await Effect.runPromise(effect.pipe(Effect.provide(mockGenerationErrorLayer)));
+
     expect(result._tag).toBe("Left");
     if (result._tag === "Left") {
       expect(result.left).toBeInstanceOf(ObjectGenerationError);
@@ -227,10 +251,18 @@ describe("ObjectService", () => {
           }),
         ),
     });
-  const schemaErrorHarness = createServiceTestHarness(
-    ObjectService,
-    createSchemaErrorService,
-  );
+  const mockSchemaErrorImpl = {
+    generate: <T>(_options: any) =>
+      Effect.fail(
+        new ObjectSchemaError({
+          description: "Generated object does not match schema",
+          module: "ObjectService",
+          method: "generate",
+          validationErrors: [],
+        }),
+      ),
+  };
+  const mockSchemaErrorLayer = Layer.succeed(ObjectService, mockSchemaErrorImpl as any);
 
   it("should handle schema validation errors", async () => {
     const schema = createPersonSchema();
@@ -246,10 +278,8 @@ describe("ObjectService", () => {
         });
       }),
     );
-    const result = await schemaErrorHarness.runTest(
-      effect.pipe(Effect.provide(schemaErrorHarness.layer)),
-      { layer: schemaErrorHarness.layer }
-    );
+    const result = await Effect.runPromise(effect.pipe(Effect.provide(mockSchemaErrorLayer)));
+
     expect(result._tag).toBe("Left");
     if (result._tag === "Left") {
       expect(result.left).toBeInstanceOf(ObjectSchemaError);
@@ -265,29 +295,25 @@ describe("ObjectService", () => {
   // --- Optional Fields ---
   it("should handle optional fields correctly", async () => {
     const schema = createPersonSchema();
-    const createOptionalFieldService = () =>
-      Effect.succeed({
-        generate: <T>(_options: any) =>
-          Effect.succeed({
-            data: {
-              name: "Jane Doe",
-              age: 25,
-              // email omitted intentionally
-            },
-            model: "test-model",
-            timestamp: new Date(),
-            id: "test-response-id-2",
-            usage: {
-              promptTokens: 80,
-              completionTokens: 40,
-              totalTokens: 120,
-            },
-          } as any),
-      });
-    const optionalFieldHarness = createServiceTestHarness(
-      ObjectService,
-      createOptionalFieldService,
-    );
+    const mockOptionalFieldImpl = {
+      generate: <T>(_options: any) =>
+        Effect.succeed({
+          data: {
+            name: "Jane Doe",
+            age: 25,
+            // email omitted intentionally
+          },
+          model: "test-model",
+          timestamp: new Date(),
+          id: "test-response-id-2",
+          usage: {
+            promptTokens: 80,
+            completionTokens: 40,
+            totalTokens: 120,
+          },
+        } as any),
+    };
+    const mockOptionalFieldLayer = Layer.succeed(ObjectService, mockOptionalFieldImpl as any);
     const effect = Effect.gen(function* () {
       const service = yield* ObjectService;
       const result = yield* service.generate<Person>({
@@ -305,38 +331,31 @@ describe("ObjectService", () => {
       expect(result.usage?.totalTokens).toBe(120);
       return result;
     });
-    await optionalFieldHarness.runTest(
-  effect.pipe(Effect.provide(optionalFieldHarness.layer)),
-  { layer: optionalFieldHarness.layer }
-);
+    await Effect.runPromise(effect.pipe(Effect.provide(mockOptionalFieldLayer)));
   });
 
   // --- List Schema ---
   it("should generate a list of objects", async () => {
     const personSchema = createPersonSchema();
     const listSchema = createListSchema(personSchema);
-    const createListService = () =>
-      Effect.succeed({
-        generate: <T>(_options: any) =>
-          Effect.succeed({
-            data: [
-              { name: "Alice", age: 20 },
-              { name: "Bob", age: 22, email: "bob@example.com" },
-            ],
-            model: "test-model",
-            timestamp: new Date(),
-            id: "test-response-id-3",
-            usage: {
-              promptTokens: 120,
-              completionTokens: 60,
-              totalTokens: 180,
-            },
-          } as any),
-      });
-    const listHarness = createServiceTestHarness(
-      ObjectService,
-      createListService,
-    );
+    const mockListImpl = {
+      generate: <T>(_options: any) =>
+        Effect.succeed({
+          data: [
+            { name: "Alice", age: 20 },
+            { name: "Bob", age: 22, email: "bob@example.com" },
+          ],
+          model: "test-model",
+          timestamp: new Date(),
+          id: "test-response-id-3",
+          usage: {
+            promptTokens: 120,
+            completionTokens: 60,
+            totalTokens: 180,
+          },
+        } as any),
+    };
+    const mockListLayer = Layer.succeed(ObjectService, mockListImpl as any);
     const effect = Effect.gen(function* () {
       const service = yield* ObjectService;
       const result = yield* service.generate<ReadonlyArray<Person>>({
@@ -355,9 +374,5 @@ describe("ObjectService", () => {
       expect(result.usage?.totalTokens).toBe(180);
       return result;
     });
-    await listHarness.runTest(
-  effect.pipe(Effect.provide(listHarness.layer)),
-  { layer: listHarness.layer }
-);
-  });
-});
+    await Effect.runPromise(effect.pipe(Effect.provide(mockListLayer)));
+  })

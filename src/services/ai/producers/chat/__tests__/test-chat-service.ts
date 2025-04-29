@@ -23,7 +23,7 @@ export class TestChatService implements ChatServiceApi {
     return Effect.succeed(
       AiResponse.fromText({
         role: new User(),
-        content: "Mock response"
+        content: "Hello, world!"
       })
     );
   }

@@ -7,6 +7,7 @@
  */
 
 
+import { expect } from "vitest";
 import type { LanguageModelV1 } from "ai";
 import { ConfigProvider, Context, Effect, Option } from "effect";
 import { Exit } from "effect/Exit";
@@ -14,6 +15,8 @@ import type { Span, SpanLink } from "effect/Tracer";
 import { MockModelService } from "@/services/ai/model/__mocks__/model-service.mock.js";
 import type { EmbeddingGenerationOptions, EmbeddingService } from "@/services/ai/producers/embedding/service.js";
 import { MockProviderService } from "@/services/ai/provider/__mocks__/provider-service.mock.js";
+import { ModelServiceApi } from "../model/service.js";
+import TextService from "../producers/text/service.js";
 
 // Minimal valid LanguageModelV1 mock
 export const MockLanguageModelV1: LanguageModelV1 = {
@@ -50,12 +53,10 @@ export interface AiTestHarnessOverrides {
  * Accepts optional overrides for either mock.
  * Extend as needed for spans, context, error mocks, etc.
  */
-interface AiServiceDeps {
-  modelService: unknown;
-  providerService: unknown;
-}
+import type { TextServiceDeps } from "../producers/text/service.js";
+import { AiTestConfig } from "./service.js";
 
-type ServiceCtor<T> = new (deps: AiServiceDeps) => T;
+type ServiceCtor<T> = new (deps: TextServiceDeps) => T;
 
 export const mockSpan: Span = {
   _tag: "Span",
@@ -118,21 +119,21 @@ export interface AiTestHarness<T> {
   run<R>(effect: (service: T) => Effect.Effect<R, unknown, ConfigProvider.ConfigProvider>): Promise<R>
 }
 
-export function createAiTestHarness<T>(
-  ServiceClass: ServiceCtor<T>
-): AiTestHarness<T> {
-  const modelService = MockModelService;
-  const providerService = MockProviderService;
+export function createAiTestHarness<TServiceApi>(
+  ServiceClass: ServiceCtor<TServiceApi>,
+  overrides: { modelService: any; providerService: any; config: AiTestConfig }
+): AiTestHarness<TServiceApi> {
+  const { modelService, providerService, config } = overrides;
   const configProvider: ConfigProvider.ConfigProvider = ConfigProvider.fromMap(new Map());
-  const service = new ServiceClass({ modelService, providerService });
-
+  // Pass all required deps including config
+  const service = new ServiceClass({ modelService, providerService, config });
   return {
     service,
     modelService,
     providerService,
     mockSpan,
     configProvider,
-    async run<R>(effect: (service: T) => Effect.Effect<R, unknown, ConfigProvider.ConfigProvider>): Promise<R> {
+    async run<R>(effect: (service: TServiceApi) => Effect.Effect<R, unknown, ConfigProvider.ConfigProvider>): Promise<R> {
       return await Effect.runPromise(
         Effect.provideService(effect(service), ConfigProvider.ConfigProvider, configProvider)
       );
@@ -215,3 +216,49 @@ export const expectRight = (
 };
 
 export { MockModelService, MockProviderService };
+
+// --- Producer Test Helper Functions ---
+
+/**
+ * Helper for use with Exit.match in Effect-based tests.
+ * Throws if called (for use as onSuccess in failure-expected tests).
+ *
+ * @param _ - The value (ignored)
+ * @throws Always throws an error indicating unexpected success.
+ */
+export function expectFailure(_?: unknown): never {
+  throw new Error("Expected failure, got success");
+}
+
+/**
+ * Helper for use with Exit.match in Effect-based tests.
+ * Asserts that the error message contains the given substring.
+ *
+ * @param error - The error value
+ * @param substring - Substring to expect in error message
+ */
+export function expectErrorContains(error: unknown, substring: string): void {
+  expect(error?.toString()).toContain(substring);
+}
+
+/**
+ * Helper to extract and assert the first text part from a chat response.
+ * Throws a descriptive error if the structure is not as expected.
+ *
+ * @param response - The chat response object
+ * @param expectedContent - The expected text content
+ */
+export function expectFirstTextPart(response: { role: unknown; parts: any }, expectedContent: string): void {
+  expect(response.role).toBeDefined();
+  const firstPartOption = Array.isArray(response.parts) ? response.parts[0] : response.parts?.get?.(0) ?? response.parts?.[0];
+  if (firstPartOption && (firstPartOption._tag === "Text" || firstPartOption._tag === "Some")) {
+    const textPart = firstPartOption._tag === "Some" ? firstPartOption.value : firstPartOption;
+    if (textPart._tag === "Text") {
+      expect(textPart.content).toBe(expectedContent);
+    } else {
+      throw new Error("First part is not a TextPart");
+    }
+  } else {
+    throw new Error("Expected at least one part in result.parts");
+  }
+}

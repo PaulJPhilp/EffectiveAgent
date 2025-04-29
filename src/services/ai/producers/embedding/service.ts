@@ -2,11 +2,7 @@
  * @file Implements the EmbeddingService for generating vector embeddings from text.
  * @module services/ai/producers/embedding/service
  */
-
-import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { AiError } from "@effect/ai/AiError";
-import { Layer } from "effect";
+import ModelService, { ModelServiceApi } from "@/services/ai/model/service.js";
 import * as Effect from "effect/Effect";
 import type { Span } from "effect/Tracer";
 import { EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
@@ -55,6 +51,7 @@ export interface EmbeddingGenerationResult {
  * EmbeddingService interface for generating vector embeddings.
  */
 import type { EmbeddingServiceApi } from "./api.js";
+import ProviderService from "../../provider/service.js";
 
 /**
  * EmbeddingService provides methods for generating vector embeddings using AI providers.
