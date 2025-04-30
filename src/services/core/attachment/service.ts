@@ -1,5 +1,5 @@
 /**
- * @file Live implementation of the AttachmentApi service.
+ * @file Implementation of the AttachmentService using Effect.Service pattern.
  */
 
 import type { EntityId } from "@/types.js";
@@ -11,17 +11,22 @@ import { EntityNotFoundError as RepoEntityNotFoundError } from "@core/repository
 import {
     AttachmentDbError,
     AttachmentLinkNotFoundError,
-} from "@services/core/attachment/errors.js";
-import {
-    AttachmentApi,
-    AttachmentLinkRepository,
-    CreateAttachmentLinkInput,
-} from "@services/core/attachment/types.js";
+} from "@core/attachment/errors.js";
+import { AttachmentServiceApi } from "@core/attachment/api.js";
+import { CreateAttachmentLinkInput } from "@core/attachment/types.js";
+import { RepositoryService } from "@core/repository/service.js";
 import { Effect, Layer, Option } from "effect";
 
-// Implementation Factory
-export const make = Effect.gen(function* () {
-    const repo = yield* AttachmentLinkRepository;
+/**
+ * Implementation of the AttachmentService using Effect.Service pattern.
+ * Provides methods for creating, querying, and managing attachment links between entities.
+ */
+export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
+    "AttachmentService",
+    {
+        effect: Effect.gen(function* (_) {
+            // Get repository instance for AttachmentLinkEntity
+            const repo = yield* RepositoryService<AttachmentLinkEntity>().Tag;
 
     const createLink = (
         input: CreateAttachmentLinkInput,
@@ -106,17 +111,25 @@ export const make = Effect.gen(function* () {
             ),
         );
 
-    return {
-        createLink,
-        deleteLink,
-        findLinksFrom,
-        findLinksTo,
-        getLinkById,
-    };
-});
+            return {
+                createLink,
+                deleteLink,
+                findLinksFrom,
+                findLinksTo,
+                getLinkById,
+            };
+        }),
+        dependencies: [] // No explicit dependencies here as they're provided through the layer system
+    }
+) {}
 
-// Live Layer
-export const AttachmentApiLiveLayer = Layer.effect(
-    AttachmentApi,
-    make
-);
+/**
+ * Live Layer for the AttachmentService.
+ * Provides the default implementation for attachment link operations.
+ */
+export const AttachmentServiceLive = Layer.succeed(AttachmentService);
+
+/**
+ * Default export for the AttachmentService.
+ */
+export default AttachmentService;

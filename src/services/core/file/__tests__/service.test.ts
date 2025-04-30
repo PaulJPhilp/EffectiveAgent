@@ -8,7 +8,7 @@ import { describe, expect, it } from "vitest";
 import { FileDbError, FileNotFoundError } from "@core/file/errors.js";
 import type { FileEntity } from "@core/file/schema.js";
 import type { FileInput, FileServiceApi } from "@core/file/types.js";
-import { FileService, FileServiceLive } from "@core/file/live.js";
+import { FileService, FileServiceLive } from "@core/file/service.js";
 
 import { RepositoryService } from "@core/repository/service.js";
 import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";

@@ -7,7 +7,8 @@
 import type { EntityId } from "@/types.js";
 import { FileDbError, FileNotFoundError } from "@core/file/errors.js";
 import type { FileEntity, FileEntityData } from "@core/file/schema.js";
-import type { FileServiceApi, FileInfo, FileInput } from "@core/file/types.js";
+import type { FileServiceApi } from "@core/file/api.js";
+import type { FileInput, FileInfo } from "@core/file/types.js";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "@core/repository/errors.js";
 import { RepositoryService } from "@core/repository/service.js";
 import type { RepositoryServiceApi } from "@core/repository/api.js";
@@ -89,7 +90,7 @@ export class FileService extends Effect.Service<FileServiceApi>()(
                                     new FileDbError({
                                         operation: "retrieveFileContent",
                                         fileId: id,
-                                        message: "Failed to decode Base64 content",
+                                        message: "Base64 decoding error",
                                         cause: error,
                                     }),
                             }),
