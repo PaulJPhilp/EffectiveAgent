@@ -1,5 +1,5 @@
 /**
- * @file Live implementation of the FileApi service.
+ * @file Implementation of the FileService using Effect.Service pattern.
  * Uses a RepositoryApi<FileEntity> for database interaction.
  * Handles Base64 encoding/decoding for file content.
  */
@@ -7,18 +7,22 @@
 import type { EntityId } from "@/types.js";
 import { FileDbError, FileNotFoundError } from "@core/file/errors.js";
 import type { FileEntity, FileEntityData } from "@core/file/schema.js";
-import { FileApi, FileInfo, FileInput } from "@core/file/types.js";
+import type { FileServiceApi, FileInfo, FileInput } from "@core/file/types.js";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "@core/repository/errors.js";
-import type { RepositoryApi } from "@core/repository/types.js";
-import { Context, Effect, Layer, Option } from "effect";
+import { RepositoryService } from "@core/repository/service.js";
+import type { RepositoryServiceApi } from "@core/repository/api.js";
+import { Effect, Layer, Option } from "effect";
 
-// --- Define the specific Repository Tag needed ---
-export const FileRepository = Context.GenericTag<RepositoryApi<FileEntity>>(
-    "FileRepository",
-);
-
-export const make = Effect.gen(function* () {
-    const repo = yield* FileRepository;
+/**
+ * FileService implementation using Effect.Service pattern.
+ * This service provides file storage and retrieval functionality.
+ */
+export class FileService extends Effect.Service<FileServiceApi>()(
+    "FileService",
+    {
+        effect: Effect.gen(function* (_) {
+            // Get repository instance for FileEntity
+            const repo = yield* RepositoryService<FileEntity>().Tag;
 
     const storeFile = (
         input: FileInput,
@@ -159,8 +163,8 @@ export const make = Effect.gen(function* () {
         ownerId: EntityId,
     ): Effect.Effect<ReadonlyArray<FileInfo>, FileDbError> =>
         repo.findMany({ filter: { ownerId } }).pipe(
-            Effect.map((entities) =>
-                entities.map((fileEntity): FileInfo => {
+            Effect.map((entities: ReadonlyArray<FileEntity>) =>
+                entities.map((fileEntity: FileEntity): FileInfo => {
                     const { contentBase64, ...metadataData } = fileEntity.data;
                     return {
                         id: fileEntity.id,
@@ -180,21 +184,25 @@ export const make = Effect.gen(function* () {
             ),
         );
 
-    // Return the service implementation object
-    return {
-        storeFile,
-        retrieveFileContent,
-        retrieveFileMetadata,
-        deleteFile,
-        findFilesByOwner,
-    };
-});
+            return {
+                storeFile,
+                retrieveFileContent,
+                retrieveFileMetadata,
+                deleteFile,
+                findFilesByOwner,
+            };
+        }),
+        dependencies: []
+    }
+) {}
 
 /**
- * Live Layer for the FileApi service.
+ * Live Layer for the FileService.
+ * Provides the default file storage and retrieval implementation.
  */
-export const FileApiLiveLayer: Layer.Layer<
-    FileApi,
-    never,
-    RepositoryApi<FileEntity>
-> = Layer.effect(FileApi, make);
+export const FileServiceLive = Layer.succeed(FileService);
+
+/**
+ * Default export for the FileService.
+ */
+export default FileService;

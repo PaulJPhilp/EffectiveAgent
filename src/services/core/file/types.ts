@@ -1,11 +1,11 @@
 /**
- * @file Defines the API structure and Tag for the File service.
+ * @file Defines the API structure for the File service.
  */
 
 import type { EntityId, Timestamp } from "@/types.js";
 import type { FileError, FileNotFoundError } from "@core/file/errors.js";
 import type { FileEntity, FileEntityData } from "@core/file/schema.js";
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 
 // Define the input data for storing a file - uses Buffer for content
 // Renamed from StoreFileInputData
@@ -26,7 +26,7 @@ export type FileInfo = {
  * Interface defining operations for storing and retrieving file content
  * and metadata from the database. Handles Buffer <-> Base64 conversion.
  */
-export interface FileApi {
+export interface FileServiceApi {
     /**
      * Stores file metadata and content (as Base64) in the database.
      * @param input Metadata and the raw content Buffer.
@@ -81,5 +81,4 @@ export interface FileApi {
     >;
 }
 
-/** Tag for the FileApi service. */
-export const FileApi = Context.GenericTag<FileApi>("FileApi");
+// No Tag needed here - Effect.Service pattern doesn't use Context.GenericTag
