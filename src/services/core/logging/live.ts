@@ -1,129 +1,142 @@
 /**
- * @file Live implementation of the LoggingApi service using Effect's Console logger.
+ * @file Implementation of the LoggingService using Effect's built-in logger.
  */
 
-import type { JsonObject } from "@/types.js"; // Use path alias
-import { LoggingApi } from "@core/logging/types.js"; // Use path alias
+import type { JsonObject } from "@/types.js";
+import type { LoggingServiceApi } from "@core/logging/types.js";
 import { Cause, Effect, Layer, LogLevel, Logger, Option } from "effect";
 
-// --- Implementation Factory ---
-
 /**
- * Factory function for creating the LoggingApi service implementation.
- * This implementation uses the default Effect logger.
+ * LoggingService implementation using Effect.Service pattern.
+ * This service provides logging functionality using Effect's built-in logger.
  */
-export const make = () => {
-    // Use Effect.log directly with options for the generic log method
-    const log = (
+export class LoggingService extends Effect.Service<LoggingServiceApi>()(
+  "LoggingService",
+  {
+    // Define service implementation
+    effect: Effect.succeed({
+      /**
+       * Log a message with a specific level
+       */
+      log: (
         level: LogLevel.LogLevel,
         message: string,
         data?: JsonObject,
-    ): Effect.Effect<void> => {
+      ): Effect.Effect<void> => {
         const options = { logLevel: Option.some(level) };
         if (data) {
-            return Effect.log(options, message, data);
+          return Effect.log(options, message, data);
         } else {
-            return Effect.log(options, message);
+          return Effect.log(options, message);
         }
-    };
+      },
 
-    // Use specific log level functions for direct methods
-    const debug = (
+      /**
+       * Log a debug message
+       */
+      debug: (
         message: string,
         data?: JsonObject,
-    ): Effect.Effect<void> => {
+      ): Effect.Effect<void> => {
         if (data) {
-            return Effect.logDebug(message, data);
+          return Effect.logDebug(message, data);
         } else {
-            return Effect.logDebug(message);
+          return Effect.logDebug(message);
         }
-    };
+      },
 
-    const info = (message: string, data?: JsonObject): Effect.Effect<void> => {
+      /**
+       * Log an info message
+       */
+      info: (message: string, data?: JsonObject): Effect.Effect<void> => {
         if (data) {
-            return Effect.logInfo(message, data);
+          return Effect.logInfo(message, data);
         } else {
-            return Effect.logInfo(message);
+          return Effect.logInfo(message);
         }
-    };
+      },
 
-    const warn = (message: string, data?: JsonObject): Effect.Effect<void> => {
+      /**
+       * Log a warning message
+       */
+      warn: (message: string, data?: JsonObject): Effect.Effect<void> => {
         if (data) {
-            return Effect.logWarning(message, data);
+          return Effect.logWarning(message, data);
         } else {
-            return Effect.logWarning(message);
+          return Effect.logWarning(message);
         }
-    };
+      },
 
-    const error = (
+      /**
+       * Log an error message
+       */
+      error: (
         message: string,
         data?: JsonObject | Error,
-    ): Effect.Effect<void> => {
+      ): Effect.Effect<void> => {
         if (data instanceof Error) {
-            return Effect.logError(message, Cause.die(data));
+          return Effect.logError(message, Cause.die(data));
         } else if (data) {
-            return Effect.logError(message, data);
+          return Effect.logError(message, data);
         } else {
-            return Effect.logError(message);
+          return Effect.logError(message);
         }
-    };
+      },
 
-    const trace = (
+      /**
+       * Log a trace message
+       */
+      trace: (
         message: string,
         data?: JsonObject,
-    ): Effect.Effect<void> => {
+      ): Effect.Effect<void> => {
         if (data) {
-            return Effect.logTrace(message, data);
+          return Effect.logTrace(message, data);
         } else {
-            return Effect.logTrace(message);
+          return Effect.logTrace(message);
         }
-    };
+      },
 
-    // Log Cause directly using Effect.log with level option
-    const logCause = (
+      /**
+       * Log a cause with a specific level
+       */
+      logCause: (
         level: LogLevel.LogLevel,
         cause: Cause.Cause<unknown>,
-    ): Effect.Effect<void> => {
+      ): Effect.Effect<void> => {
         const options = { logLevel: Option.some(level), cause: Option.some(cause) };
         return Effect.log(options, "Logging Cause");
-    };
+      },
 
-    // Shortcut for logging error cause
-    const logErrorCause = (
+      /**
+       * Log an error cause
+       */
+      logErrorCause: (
         cause: Cause.Cause<unknown>,
-    ): Effect.Effect<void> => {
+      ): Effect.Effect<void> => {
         return Effect.logError("Logging Error Cause:", cause);
-    };
-
-    // Return the service implementation object
-    return {
-        log,
-        debug,
-        info,
-        warn,
-        error,
-        trace,
-        logCause,
-        logErrorCause,
-    };
-};
-
-// --- Layer Definition ---
+      }
+    }),
+    dependencies: []
+  }
+) {}
 
 /**
- * Live Layer for the LoggingApi service.
+ * Live Layer for the LoggingService.
  * Provides the default logging implementation.
  */
-export const LoggingApiLiveLayer: Layer.Layer<LoggingApi> = Layer.succeed(
-    LoggingApi, // The Tag
-    make(), // The implementation instance created by the factory
-);
+export const LoggingServiceLive = Layer.succeed(LoggingService);
 
 /**
  * Layer that sets the minimum log level for the default logger.
- * Can be composed with other layers using Layer.provideMerge or Layer.provide.
+ * Can be composed with other layers using Layer.merge or Layer.provide.
  * @param level The minimum LogLevel to output.
  */
 export const LoggingLevelLayer = (
-    level: LogLevel.LogLevel,
+  level: LogLevel.LogLevel,
 ): Layer.Layer<never, never, never> => Logger.minimumLogLevel(level);
+
+/**
+ * Default export for the LoggingService.
+ */
+export default LoggingService;

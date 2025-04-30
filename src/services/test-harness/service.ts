@@ -8,7 +8,7 @@ import { FixtureService } from "./components/fixtures/service.js";
 /**
  * Define the TestHarnessService tag
  */
-export const TestHarnessService = Context.Tag<TestHarnessApi>();
+export const TestHarnessService = Context.GenericTag<TestHarnessApi>("TestHarnessService");
 
 /**
  * Implementation of the TestHarnessService class

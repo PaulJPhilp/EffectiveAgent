@@ -88,8 +88,12 @@ export function createServiceTestHarness<Tag, S, E = never>(
 
         const error = Cause.failureOrCause(exit.cause);
 
-        if (!(error instanceof errorClass)) {
-            throw new Error(`Expected error of type ${errorClass.name}, but got: ${error}`);
+        if (error._tag === "Left") {
+            if (!(error.left instanceof errorClass)) {
+                throw new Error(`Expected error of type ${errorClass.name}, but got: ${JSON.stringify(error)}`);
+            }
+        } else if (!(error instanceof errorClass)) {
+            throw new Error(`Expected error of type ${errorClass.name}, but got: ${JSON.stringify(error)}`);
         }
     };
 

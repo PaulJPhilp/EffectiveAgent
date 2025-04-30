@@ -31,7 +31,7 @@
     "@langchain/langgraph-sdk": "^0.0.54",
     "@openrouter/ai-sdk-provider": "^0.4.5",
     "ai": "^4.3.10",
-    "drizzle-orm": "^0.41.0",
+    "drizzle-orm": "^0.43.1",
     "effect": "3.14.6",
     "fs": "^0.0.1-security",
     "googleapis": "^148.0.0",
@@ -39,6 +39,7 @@
     "liquidjs": "^10.21.0",
     "path": "^0.12.7",
     "pg": "^8.15.6",
+    "postgres": "^3.4.5",
     "zod": "^3.24.3"
   },
   "devDependencies": {

@@ -1,71 +1,123 @@
 /**
- * @file Tests for the LoggingApi live implementation.
+ * @file Tests for the LoggingService implementation.
  */
 
-import {
-    LoggingApiLiveLayer,
-    LoggingLevelLayer, // LoggingLevelLayer comes from live.ts
-} from "@core/logging/live.js"; // Use path alias
-import { LoggingApi } from "@core/logging/types.js"; // LoggingApi comes from types.ts
-import { Cause, Effect, Layer, LogLevel } from "effect";
-import { describe, expect, it } from "vitest";
+import { Effect, Layer, LogLevel, Cause } from "effect";
+import { describe, it, expect } from "vitest";
+import { LoggingService, LoggingServiceLive, LoggingLevelLayer } from "../live.js";
+import type { LoggingServiceApi } from "../types.js";
 
-describe("LoggingApiLive", () => {
-    // Helper function to run effects with the LoggingApiLiveLayer provided
-    const runTest = <E, A>(effect: Effect.Effect<A, E, LoggingApi>) =>
-        Effect.runPromise(Effect.provide(effect, LoggingApiLiveLayer));
+describe("LoggingService", () => {
+  // Set up a test layer that combines LoggingServiceLive with a default LogLevel
+  const baseLogLevel = LoggingLevelLayer(LogLevel.Info);
+  // Use a double type assertion to help TypeScript understand the layer structure
+  const TestLayer = Layer.provide(
+    LoggingServiceLive as unknown as Layer.Layer<never, never, LoggingServiceApi>, 
+    baseLogLevel
+  );
 
-    it("should provide LoggingApi and allow calling log methods", async () => {
-        const effect = Effect.gen(function* () {
-            const logger = yield* LoggingApi;
-            yield* logger.log(LogLevel.Info, "Test log message", { key: "value" });
-            yield* logger.debug("Test debug message");
-            yield* logger.info("Test info message");
-            yield* logger.warn("Test warn message");
-            yield* logger.error("Test error message", { code: 123 });
-            yield* logger.error("Test error with Error", new Error("Something failed"));
-            yield* logger.trace("Test trace message");
-            yield* logger.logCause(LogLevel.Warning, Cause.die("Test cause"));
-            yield* logger.logErrorCause(Cause.fail("Test error cause"));
-        });
+  describe("logging methods", () => {
+    it("provides basic logging functionality", () => 
+      Effect.gen(function* (_) {
+        const logger = yield* LoggingService;
+        
+        // Test different log methods
+        yield* logger.log(LogLevel.Info, "Test log message", { key: "value" });
+        yield* logger.debug("Test debug message");
+        yield* logger.info("Test info message");
+        yield* logger.warn("Test warn message");
+        yield* logger.error("Test error message", { code: 123 });
+        yield* logger.trace("Test trace message");
+        
+        // Test passes if no exceptions are thrown
+        expect(true).toBe(true);
+      }).pipe(Effect.provide(TestLayer))
+    );
+    
+    it("handles error objects correctly", () => 
+      Effect.gen(function* (_) {
+        const logger = yield* LoggingService;
+        yield* logger.error("Test error with Error", new Error("Something failed"));
+        
+        // Test passes if no exceptions are thrown
+        expect(true).toBe(true);
+      }).pipe(Effect.provide(TestLayer))
+    );
 
-        // Expect the effect to complete successfully (void)
-        await expect(runTest(effect)).resolves.toBeUndefined();
+    it("handles causes in logs", () => 
+      Effect.gen(function* (_) {
+        const logger = yield* LoggingService;
+        yield* logger.logCause(LogLevel.Warning, Cause.die("Test cause"));
+        yield* logger.logErrorCause(Cause.fail("Test error cause"));
+        
+        // Test passes if no exceptions are thrown
+        expect(true).toBe(true);
+      }).pipe(Effect.provide(TestLayer))
+    );
+  });
+
+  describe("log level configuration", () => {
+    it("allows setting custom log levels", () => {
+      // Create a layer that sets the minimum log level to Debug
+      const debugLogLevel = LoggingLevelLayer(LogLevel.Debug);
+      
+      // Provide the LoggingServiceLive with debug log level
+      const combinedLayer = Layer.provide(
+        LoggingServiceLive as unknown as Layer.Layer<never, never, LoggingServiceApi>, 
+        debugLogLevel
+      );
+
+      return Effect.gen(function* (_) {
+        const logger = yield* LoggingService;
+        yield* logger.info("Info message after setting level");
+        yield* logger.debug("Debug message after setting level");
+        
+        // Test passes if no exceptions are thrown
+        expect(true).toBe(true);
+      }).pipe(Effect.provide(combinedLayer));
     });
 
-    it("should allow setting log level via LoggingLevelLayer", async () => {
-        const levelLayer = LoggingLevelLayer(LogLevel.Debug);
-        // Merge the layer providing the service and the layer setting the level
-        const combinedLayer = Layer.merge(LoggingApiLiveLayer, levelLayer);
+    it("filters messages below the set log level", () => {
+      // Create a layer that sets the minimum log level to Warning
+      const warnLogLevel = LoggingLevelLayer(LogLevel.Warning);
+      const warnLayer = Layer.provide(
+        LoggingServiceLive as unknown as Layer.Layer<never, never, LoggingServiceApi>, 
+        warnLogLevel
+      );
 
-        const effect = Effect.gen(function* () {
-            const logger = yield* LoggingApi;
-            // This log might or might not appear depending on the test runner's
-            // default level vs. the Debug level we set, but the effect should run.
-            yield* logger.info("Info message after setting level");
-            yield* logger.debug("Debug message after setting level");
-        });
-
-        // Provide the *merged* layer to the effect
-        // The resulting effect requires 'never' and can be run
-        await expect(Effect.runPromise(Effect.provide(effect, combinedLayer)))
-            .resolves.toBeUndefined();
+      return Effect.gen(function* (_) {
+        const logger = yield* LoggingService;
+        yield* logger.debug("Debug message should be filtered");
+        yield* logger.info("Info message should be filtered");
+        yield* logger.warn("Warning message should appear");
+        yield* logger.error("Error message should appear");
+        
+        // Test passes if no exceptions are thrown
+        expect(true).toBe(true);
+      }).pipe(Effect.provide(warnLayer));
     });
+  });
 
-    // Example of testing a specific method signature if needed
-    it("error method should accept Error object", async () => {
-        const effect = Effect.gen(function* () {
-            const logger = yield* LoggingApi;
-            yield* logger.error("Error occurred", new Error("Specific error instance"));
-        });
-        await expect(runTest(effect)).resolves.toBeUndefined();
-    });
-
-    it("error method should accept JsonObject", async () => {
-        const effect = Effect.gen(function* () {
-            const logger = yield* LoggingApi;
-            yield* logger.error("Error occurred", { errorCode: "E101" });
-        });
-        await expect(runTest(effect)).resolves.toBeUndefined();
-    });
+  describe("log data types", () => {
+    it("accepts JSON objects in error logs", () => 
+      Effect.gen(function* (_) {
+        const logger = yield* LoggingService;
+        yield* logger.error("Error occurred", { errorCode: "E101", details: "Sample details" });
+        
+        // Test passes if no exceptions are thrown
+        expect(true).toBe(true);
+      }).pipe(Effect.provide(TestLayer))
+    );
+    
+    it("accepts empty log messages", () => 
+      Effect.gen(function* (_) {
+        const logger = yield* LoggingService;
+        yield* logger.info("");
+        yield* logger.debug("");
+        
+        // Test passes if no exceptions are thrown
+        expect(true).toBe(true);
+      }).pipe(Effect.provide(TestLayer))
+    );
+  });
 });

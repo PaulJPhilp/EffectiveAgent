@@ -10,10 +10,10 @@ import {
     EntityNotFoundError,
     RepositoryError,
 } from "@core/repository/errors.js";
+import type { RepositoryServiceApi } from "@core/repository/api.js";
 import type {
     BaseEntity,
     FindOptions,
-    RepositoryApi,
 } from "@core/repository/types.js";
 import { Context, Effect, Layer, Option, Ref } from "effect"; // Removed Clock
 import * as Arr from "effect/Array";
@@ -25,7 +25,7 @@ import { v4 as uuidv4 } from "uuid";
 export const make = <TEntity extends BaseEntity>(
     entityType: string,
     store: Ref.Ref<Map<EntityId, TEntity>>, // Accept Ref store as argument
-): RepositoryApi<TEntity> => { // Returns the implementation object directly
+): RepositoryServiceApi<TEntity> => { // Returns the implementation object directly
     // --- Helper ---
     const matchesFilter = (
         entity: TEntity,
@@ -220,7 +220,7 @@ export const make = <TEntity extends BaseEntity>(
 // --- In-Memory Repository Layer Factory (No Clock Requirement) ---
 export const InMemoryRepositoryLiveLayer = <
     TEntity extends BaseEntity,
-    TService extends RepositoryApi<TEntity>
+    TService extends RepositoryServiceApi<TEntity>
 >(
     tag: Context.Tag<TService, TService>,
     entityType: string,
