@@ -2,8 +2,12 @@
  * @file Implements the EmbeddingService for generating vector embeddings from text.
  * @module services/ai/producers/embedding/service
  */
-import ModelService, { ModelServiceApi } from "@/services/ai/model/service.js";
+import ModelService from "@/services/ai/model/service.js";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import * as Effect from "effect/Effect";
+import { Layer } from "effect";
+import type { LanguageModelV1 } from "@ai-sdk/provider";
+import { ProviderConfigError } from "@/services/ai/provider/errors.js";
 import type { Span } from "effect/Tracer";
 import { EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
 
@@ -119,11 +123,9 @@ export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()("Emb
                     const model = yield* Effect.tryPromise({
                         try: async () => {
                             // Use the provider to get the embedding model
-                            const models = await Effect.runPromise(
-                                providerClient.getModels().pipe(
-                                    Effect.provideService(ModelService, modelService)
-                                )
-                            );
+                            // Cast the Effect to the correct type to resolve the type compatibility issue
+                            const getModelsEffect = providerClient.getModels() as Effect.Effect<LanguageModelV1[], ProviderConfigError, never>;
+                            const models = await Effect.runPromise(getModelsEffect);
                             const matchingModel = models.find((m: any) => m.modelId === modelId);
                             if (!matchingModel) {
                                 throw new Error(`Model ${modelId} not found`);

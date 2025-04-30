@@ -1,6 +1,46 @@
 import type { LanguageModelV1 } from "@ai-sdk/provider";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
+import type { EmbeddingServiceApi } from "@/services/ai/producers/embedding/api.js";
+import type { TextServiceApi } from "@/services/ai/producers/text/api.js";
+import type { ObjectServiceApi } from "@/services/ai/producers/object/api.js";
+import type { Effect } from "effect";
+import type { Span } from "effect/Tracer";
+
+// Define interfaces for services that don't have API files
+interface ImageServiceApi {
+  generate: (options: {
+    modelId?: string;
+    prompt: string;
+    negativePrompt?: string;
+    system?: unknown;
+    size?: string;
+    quality?: string;
+    style?: string;
+    n?: number;
+    span: Span;
+  }) => Effect.Effect<any, any, any>;
+}
+
+interface TranscriptionServiceApi {
+  transcribe: (options: {
+    modelId?: string;
+    audioData: string;
+    language?: string;
+    prompt?: string;
+    span: Span;
+  }) => Effect.Effect<any, any, any>;
+}
+
+interface ChatServiceApi {
+  chat: (options: {
+    modelId?: string;
+    messages: Array<{ role: string; content: string }>;
+    system?: string;
+    temperature?: number;
+    span: Span;
+  }) => Effect.Effect<any, any, any>;
+}
 
 /**
  * Defines the API for accessing standard mock objects provided by the test harness.
@@ -24,4 +64,40 @@ export interface MockAccessorApi {
    * Useful for asserting interactions or configuring the mock provider service behavior.
    */
   readonly mockProviderService: ProviderServiceApi;
+  
+  /**
+   * Provides access to standardized mock implementations of all producer services.
+   * These mocks can be used for testing components that depend on producer services.
+   */
+  readonly mockProducerServices: {
+    /**
+     * Mock implementation of the EmbeddingService.
+     */
+    readonly mockEmbeddingService: EmbeddingServiceApi;
+    
+    /**
+     * Mock implementation of the TextService.
+     */
+    readonly mockTextService: TextServiceApi;
+    
+    /**
+     * Mock implementation of the ImageService.
+     */
+    readonly mockImageService: ImageServiceApi;
+    
+    /**
+     * Mock implementation of the ObjectService.
+     */
+    readonly mockObjectService: ObjectServiceApi;
+    
+    /**
+     * Mock implementation of the TranscriptionService.
+     */
+    readonly mockTranscriptionService: TranscriptionServiceApi;
+    
+    /**
+     * Mock implementation of the ChatService.
+     */
+    readonly mockChatService: ChatServiceApi;
+  };
 }
