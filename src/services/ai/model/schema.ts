@@ -5,6 +5,7 @@
 
 import { ContextWindowSize, Description, Identifier, ModelCapability, Name, PositiveNumber, Version } from "@/schema.js";
 import { PROVIDER_NAMES } from "../provider/provider-universe.js";
+import { MODEL_IDS } from "./model-universe.js";
 import { Schema as S } from "effect";
 
 export const Provider = S.Literal(...PROVIDER_NAMES);
@@ -29,7 +30,7 @@ const ResponseFormatSchema = S.Struct({
 export class Model extends S.Class<Model>(
     "Model"
 )({
-    id: Identifier,
+    id: S.Literal(...MODEL_IDS), // Use MODEL_IDS for validation
     name: Identifier,
     version: Version,
     provider: Provider,

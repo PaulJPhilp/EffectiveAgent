@@ -1,129 +1,89 @@
 /**
- * @file Defines types and the Context Tag for the AI Provider configuration data.
- * @module services/ai/provider/types
+ * @file Implements the ModelService which provides access to AI model configurations and metadata.
+ * @module services/ai/model/service
  */
 
 import { ModelCapability } from "@/schema.js";
 import { Provider } from "./schema.js";
-import { EntityParseError } from "@/services/core/errors.js";
-import { LanguageModelV1 } from '@ai-sdk/provider';
-import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
+import { Effect } from "effect";
 import { ModelServiceApi } from "./api.js";
 import {
-    MissingModelIdError,
     ModelConfigError,
     ModelNotFoundError,
     ModelValidationError
 } from "./errors.js";
-import { Model, ModelFile } from "./schema.js";
+import { Model } from "./schema.js";
+import { MODEL_UNIVERSE, ModelMetadata } from "./model-universe.js";
 
-class ModelService extends Effect.Service<ModelServiceApi>()("ModelService", {
-    succeed: Effect.gen(function* () {
-        let modelRef: Ref.Ref<ModelFile>;
+class ModelService extends Effect.Service<ModelServiceApi>()(
+    "ModelService", {
+    effect: Effect.gen(function* () {
+        // Convert MODEL_UNIVERSE items to Model objects for consistency with existing code
+        const convertToModel = (meta: ModelMetadata): Model => ({
+            id: meta.id,
+            name: meta.name,
+            version: meta.version,
+            provider: meta.provider,
+            modelName: meta.modelName,
+            capabilities: meta.capabilities,
+            contextWindowSize: meta.contextWindowSize,
+            maxTokens: meta.maxTokens,
+            temperature: meta.temperature,
+            costPer1kInputTokens: meta.costPer1kInputTokens,
+            costPer1kOutputTokens: meta.costPer1kOutputTokens,
+            // Optional fields
+            metadata: meta.description ? { description: meta.description } : undefined,
+            supportedLanguages: meta.supportedLanguages ? [...meta.supportedLanguages] : undefined,
+            responseFormat: meta.responseFormat ? {
+                type: meta.responseFormat.type,
+                supportedFormats: [...meta.responseFormat.supportedFormats]
+            } : undefined
+        });
 
         return {
             /**
-             * Loads the model configuration from the config provider and validates it against the schema.
-             * @returns An Effect resolving to the loaded and validated ModelFile.
+             * Loads the model configuration from the MODEL_UNIVERSE.
+             * @returns An Effect resolving to the loaded model data.
              */
             load: () => {
-                return Effect.gen(function* () {
-                    const configProvider = yield* ConfigProvider.ConfigProvider;
-                    const rawConfig = yield* configProvider.load(Config.string("provider")).pipe(
-                        Effect.mapError(cause => new ModelConfigError({
-                            message: "Failed to load model config",
-                            method: "load",
-                            cause: new EntityParseError({
-                                filePath: "models.json",
-                                cause
-                            })
-                        }))
-                    );
-
-                    const parsedConfig = yield* Effect.try({
-                        try: () => JSON.parse(rawConfig),
-                        catch: (error) => new ModelConfigError({
-                            message: "Failed to parse model config",
-                            method: "load",
-                            cause: new EntityParseError({
-                                filePath: "models.json",
-                                cause: error instanceof Error ? error : new Error(String(error))
-                            })
-                        })
-                    });
-
-                    const validConfig = yield* S.decode(ModelFile)(parsedConfig).pipe(
-                        Effect.mapError(cause => new ModelConfigError({
-                            message: "Failed to validate model config",
-                            method: "load",
-                            cause: new EntityParseError({
-                                filePath: "models.json",
-                                cause
-                            })
-                        }))
-                    );
-
-                    modelRef = yield* Ref.make<ModelFile>(validConfig);
-                    return validConfig;
-                })
+                return Effect.succeed({
+                    name: "ModelUniverse",
+                    version: "1.0.0",
+                    models: MODEL_UNIVERSE.map(convertToModel)
+                });
             },
 
-            getProviderName: (modelId: string): Effect.Effect<Provider, ModelConfigError | ModelNotFoundError> =>
-                modelRef.get.pipe(
-                    Effect.flatMap((modelFile) => {
-                        const model = modelFile.models.find((m) => m.id === modelId);
-                        if (!model) {
-                            return Effect.fail(new ModelNotFoundError({
-                                modelId,
-                                method: "getProviderName"
-                            }));
-                        }
-                        return Effect.succeed(model.provider as Provider);
-                    }),
-                    Effect.mapError((cause) =>
-                        cause instanceof ModelNotFoundError ? cause :
-                            new ModelConfigError({
-                                message: "Failed to access models for provider search",
-                                method: "getProviderName",
-                                cause
-                            })
-                    )
-                ),
+            getProviderName: (modelId: string): Effect.Effect<Provider, ModelNotFoundError> => {
+                const model = MODEL_UNIVERSE.find(m => m.id === modelId);
+                if (!model) {
+                    return Effect.fail(new ModelNotFoundError({
+                        modelId,
+                        method: "getProviderName"
+                    }));
+                }
+                return Effect.succeed(model.provider);
+            },
 
-            findModelsByCapability: (capability: typeof ModelCapability): Effect.Effect<Array<Model>, ModelConfigError> =>
-                modelRef.get.pipe(
-                    Effect.map((modelFile) =>
-                        modelFile.models.filter((model) => model.capabilities.includes(capability.literals[0]))
-                    ),
-                    Effect.mapError((cause) =>
-                        new ModelConfigError({
-                            message: "Failed to access models for capability search",
-                            method: "findModelsByCapability",
-                            cause
-                        })
-                    )
-                ),
+            findModelsByCapability: (capability: typeof ModelCapability): Effect.Effect<Array<Model>, never> => {
+                const filteredModels = MODEL_UNIVERSE
+                    .filter(model => model.capabilities.includes(capability.literals[0]))
+                    .map(convertToModel);
+                    
+                return Effect.succeed(filteredModels);
+            },
 
             /**
              * Finds all models that include ALL of the specified capabilities.
              * @param capabilities Array of capabilities to search for.
              * @returns An Effect resolving to an array of Model objects that have all specified capabilities.
              */
-            findModelsByCapabilities: (capabilities: typeof ModelCapability): Effect.Effect<Array<Model>, ModelConfigError> =>
-                modelRef.get.pipe(
-                    Effect.map((modelFile) =>
-                        modelFile.models.filter((model) =>
-                            capabilities.literals.every((cap) => model.capabilities.includes(cap))
-                        )
-                    ),
-                    Effect.mapError((cause) =>
-                        new ModelConfigError({
-                            message: "Failed to access models for capabilities search",
-                            method: "findModelsByCapabilities",
-                            cause
-                        })
-                    )
-                ),
+            findModelsByCapabilities: (capabilities: typeof ModelCapability): Effect.Effect<Array<Model>, never> => {
+                const filteredModels = MODEL_UNIVERSE
+                    .filter(model => capabilities.literals.every(cap => model.capabilities.includes(cap)))
+                    .map(convertToModel);
+                    
+                return Effect.succeed(filteredModels);
+            },
 
             /**
              * Validates if a model has all the specified capabilities.
@@ -131,38 +91,29 @@ class ModelService extends Effect.Service<ModelServiceApi>()("ModelService", {
              * @param capabilities Array of capabilities to validate against.
              * @returns An Effect resolving to true if the model exists and has all specified capabilities, false otherwise.
              */
-            validateModel: (modelId: string, capabilities: typeof ModelCapability): Effect.Effect<boolean, ModelConfigError | ModelValidationError> =>
-                modelRef.get.pipe(
-                    Effect.flatMap((modelFile) => {
-                        const model = modelFile.models.find((m) => m.id === modelId);
-                        if (!model) {
-                            return Effect.fail(new ModelValidationError({
-                                modelId,
-                                message: `Model not found: ${modelId}`,
-                                capabilities: capabilities.literals as unknown as string[],
-                                method: "validateModel"
-                            }));
-                        }
-                        const hasCapabilities = capabilities.literals.every((cap) => model.capabilities.includes(cap));
-                        if (!hasCapabilities) {
-                            return Effect.fail(new ModelValidationError({
-                                modelId,
-                                message: `Model ${modelId} does not have all required capabilities`,
-                                capabilities: capabilities.literals as unknown as string[],
-                                method: "validateModel"
-                            }));
-                        }
-                        return Effect.succeed(true);
-                    }),
-                    Effect.mapError((cause) =>
-                        cause instanceof ModelValidationError ? cause :
-                            new ModelConfigError({
-                                message: "Failed to access models for validation",
-                                method: "validateModel",
-                                cause
-                            })
-                    )
-                )
+            validateModel: (modelId: string, capabilities: typeof ModelCapability): Effect.Effect<boolean, ModelValidationError> => {
+                const model = MODEL_UNIVERSE.find(m => m.id === modelId);
+                if (!model) {
+                    return Effect.fail(new ModelValidationError({
+                        modelId,
+                        message: `Model not found: ${modelId}`,
+                        capabilities: capabilities.literals as unknown as string[],
+                        method: "validateModel"
+                    }));
+                }
+                
+                const hasCapabilities = capabilities.literals.every(cap => model.capabilities.includes(cap));
+                if (!hasCapabilities) {
+                    return Effect.fail(new ModelValidationError({
+                        modelId,
+                        message: `Model ${modelId} does not have all required capabilities`,
+                        capabilities: capabilities.literals as unknown as string[],
+                        method: "validateModel"
+                    }));
+                }
+                
+                return Effect.succeed(true);
+            }
         }
     })
 }) {}
