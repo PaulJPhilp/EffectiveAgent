@@ -5,8 +5,8 @@
 
 import { describe, it, expect, vi } from "vitest";
 import { Effect, Layer, Exit } from "effect";
+import type { Span } from "effect/Tracer";
 import { TranscriptionService } from "../service.js";
-import { createAiTestHarness } from "@/services/ai/test-utils/index.js";
 
 // --- Minimal mock for TranscriptionService ---
 const mockTranscriptionServiceImpl = {
@@ -38,6 +38,28 @@ const mockTranscriptionServiceLayer = Layer.succeed(
 );
 
 describe("TranscriptionService", () => {
+  it("should handle abort signal", () =>
+    Effect.gen(function* (_) {
+      const controller = new AbortController();
+      const service = yield* TranscriptionService;
+      const options = {
+        modelId: "test-transcription-model",
+        audioData: "base64audio",
+        span: {} as Span,
+        signal: controller.signal
+      };
+
+      // Abort after a short delay
+      setTimeout(() => controller.abort(), 100);
+
+      // The operation should be aborted
+      const result = yield* service.transcribe(options);
+      return result;
+    }).pipe(
+      Effect.provide(TranscriptionService.Default)
+    )
+  );
+
   it("should successfully transcribe audio", async () => {
     const effect = Effect.gen(function* () {
       const service = yield* TranscriptionService;

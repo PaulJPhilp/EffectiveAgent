@@ -118,4 +118,5 @@ class ModelService extends Effect.Service<ModelServiceApi>()(
     })
 }) {}
 
+export { ModelService };
 export default ModelService;

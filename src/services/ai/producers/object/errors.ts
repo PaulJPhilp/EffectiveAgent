@@ -49,6 +49,16 @@ export class ObjectGenerationError extends EffectiveError {
 }
 
 /**
+ * Error thrown when object input validation fails.
+ * @extends EffectiveError
+ */
+export class ObjectInputError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}
+
+/**
  * Error thrown when the schema validation fails for a generated object
  */
 /**

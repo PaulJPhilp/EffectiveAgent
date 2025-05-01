@@ -21,6 +21,8 @@ export interface EmbeddingGenerationOptions {
     readonly input: string | string[];
     /** Tracing span for observability */
     readonly span: Span;
+    /** Optional abort signal for cancellation */
+    readonly signal?: AbortSignal;
     /** Optional parameters for model behavior */
     readonly parameters?: {
         /** The dimensionality of the embeddings */

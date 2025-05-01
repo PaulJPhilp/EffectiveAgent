@@ -49,4 +49,21 @@ export const Url = S.String.pipe(S.pattern(/^https?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\
 export const EffectiveRole = S.Union(S.Literal("user"), S.Literal("assistant"), S.Literal("system"), S.Literal("tool"))
 export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>
 
+/**
+ * Base schema for database entities with standard metadata fields
+ * Used as the foundation for entity schemas across services
+ */
+export class BaseEntitySchema extends S.Class<BaseEntitySchema>("BaseEntitySchema")({
+  /** Unique identifier for the entity */
+  id: S.String,
+  /** When the entity was created (ISO format timestamp) */
+  createdAt: S.String,
+  /** When the entity was last updated (ISO format timestamp) */
+  updatedAt: S.String,
+}) {}
+
+/**
+ * Type for the base entity structure
+ */
+export type BaseEntity = S.Schema.Type<typeof BaseEntitySchema>;
 

@@ -24,6 +24,8 @@ export interface ObjectGenerationOptions<T> {
   readonly schema: Schema<T>;
   /** Tracing span for observability. */
   readonly span: Span;
+  /** Optional abort signal for cancellation. */
+  readonly signal?: AbortSignal;
   /** Optional model parameters. */
   readonly parameters?: {
     maxSteps?: number;

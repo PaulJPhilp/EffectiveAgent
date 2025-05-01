@@ -6,9 +6,10 @@
 import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
 import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import { EffectiveInput } from '@/services/ai/input/service.js';
-import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import type { ProviderChatOptions as ChatOptions } from "@/services/ai/provider/types.ts";
+import ModelService from "@/services/ai/model/service.js";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import ProviderService from "@/services/ai/provider/service.js";
+import type { ProviderChatOptions } from "@/services/ai/provider/types.js";
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
 import { AiResponse } from "@effect/ai/AiResponse";
@@ -17,14 +18,16 @@ import * as Effect from "effect/Effect";
 import type * as JsonSchema from "effect/JSONSchema";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
-import { ChatCompletionError, ChatModelError, ChatProviderError } from "./errors.js";
+import { ChatCompletionError, ChatModelError, ChatProviderError, ChatInputError } from "./errors.js";
 import { mapEffectMessagesToClientCoreMessages } from "./utils.js";
 import { ConfigProvider } from "effect";
 
 /**
  * Extended options for chat interactions
  */
-export interface ChatCompletionOptions extends Omit<ChatOptions, 'messages' | 'system'> {
+export interface ChatCompletionOptions {
+    /** The model ID to use for the operation */
+    readonly modelId: string;
     /** The system prompt or instructions */
     readonly system: Option.Option<string>;
     /** The input messages to process */
@@ -40,10 +43,12 @@ export interface ChatCompletionOptions extends Omit<ChatOptions, 'messages' | 's
     readonly required: boolean | string;
     /** Tracing span for observability */
     readonly span: Span;
+    /** Optional abort signal for cancellation */
+    readonly signal?: AbortSignal;
     /** Optional parameters for model behavior */
     readonly parameters?: {
-        /** Maximum steps to take in generation */
-        maxSteps?: number;
+        /** Maximum tokens to generate */
+        maxTokens?: number;
         /** Maximum retries on failure */
         maxRetries?: number;
         /** Temperature (0-2) */
@@ -82,6 +87,15 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
         return {
             create: (options: ChatCompletionOptions) =>
                 Effect.gen(function* () {
+                    // Validate input messages
+                    if (Chunk.isEmpty(options.input)) {
+                        return yield* Effect.fail(new ChatInputError({
+                            description: "Input messages cannot be empty",
+                            module: "ChatService",
+                            method: "create"
+                        }));
+                    }
+
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
                         Effect.mapError(() => new ChatModelError({
@@ -132,7 +146,18 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                         {
                             modelId,
                             system: systemPrompt || "",
-                            ...options.parameters
+                            signal: options.signal,
+                            parameters: {
+                                maxTokens: options.parameters?.maxTokens,
+                                maxRetries: options.parameters?.maxRetries,
+                                temperature: options.parameters?.temperature,
+                                topP: options.parameters?.topP,
+                                topK: options.parameters?.topK,
+                                presencePenalty: options.parameters?.presencePenalty,
+                                frequencyPenalty: options.parameters?.frequencyPenalty,
+                                seed: options.parameters?.seed,
+                                stop: options.parameters?.stop
+                            }
                         }
                     ) as Effect.Effect<EffectiveResponse<GenerateTextResult>, ChatCompletionError>).pipe(
                         Effect.mapError((error) => new ChatCompletionError({

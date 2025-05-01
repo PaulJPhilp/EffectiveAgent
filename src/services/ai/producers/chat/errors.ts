@@ -42,4 +42,14 @@ export class ChatCompletionError extends EffectiveError {
     constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
         super(params);
     }
-} 
+}
+
+/**
+ * Error thrown when chat input validation fails.
+ * @extends EffectiveError
+ */
+export class ChatInputError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}

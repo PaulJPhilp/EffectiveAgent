@@ -3,12 +3,11 @@
  * @module services/ai/producers/embedding/__tests__/service
  */
 
-import { describe, it, expect } from "@effect/vitest";
-import { Effect, Layer, Option, Either } from "effect";
+import { describe, it } from "@effect/vitest";
+import { expect } from "vitest";
+import { Effect, Layer, Option, Either, Tracer, Context } from "effect";
 import { EmbeddingService } from "../service.js";
 import { EmbeddingInputError } from "../errors.js";
-import { createAiTestHarness } from "@/services/ai/test-utils/index.js";
-
 // --- Minimal mocks for dependencies ---
 const mockEmbeddingServiceImpl = {
   generate: ({ modelId, input, span }: any) => {
@@ -46,10 +45,49 @@ const mockEmbeddingServiceLayer = Layer.succeed(
   mockEmbeddingServiceImpl as any
 );
 
-import { mockSpan } from "@/services/ai/test-utils/index.js";
+// Mock span for testing
+const mockSpan: Tracer.Span = {
+  _tag: "Span",
+  name: "test-span",
+  spanId: "test-span",
+  traceId: "test-trace",
+  parent: Option.none(),
+  context: Context.empty(),
+  status: { _tag: "Started", startTime: BigInt(0) },
+  attributes: new Map(),
+  end: (_endTime, _exit) => { },
+  links: [],
+  event: (_name, _startTime, _attributes) => { },
+  sampled: true,
+  kind: "internal",
+  attribute: (_key, _value) => { },
+  addLinks: () => { }
+};
 
 // --- Test Cases ---
 describe("EmbeddingService", () => {
+  it("should handle abort signal", () =>
+    Effect.gen(function* (_) {
+      const controller = new AbortController();
+      const service = yield* EmbeddingService;
+      const options = {
+        modelId: "test-model-id",
+        input: "test input",
+        span: mockSpan,
+        signal: controller.signal
+      };
+
+      // Abort after a short delay
+      setTimeout(() => controller.abort(), 100);
+
+      // The operation should be aborted
+      const result = yield* service.generate(options);
+      return result;
+    }).pipe(
+      Effect.provide(EmbeddingService.Default)
+    )
+  );
+
   it("should generate embeddings for valid input (happy path)", async () => {
     const effect = Effect.gen(function* () {
       const service = yield* EmbeddingService;

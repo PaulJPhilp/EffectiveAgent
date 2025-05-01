@@ -8,6 +8,9 @@ import type { ObjectServiceApi } from "@/services/ai/producers/object/api.js";
 import { EmbeddingInputError } from "@/services/ai/producers/embedding/errors.js";
 import { ObjectModelError, ObjectProviderError, ObjectGenerationError, ObjectSchemaError } from "@/services/ai/producers/object/errors.js";
 import { MockAccessorApi } from "./api.js";
+import { AiResponse } from "@effect/ai/AiResponse";
+import { User } from "@effect/ai/AiRole";
+import { ChatCompletionOptions } from "@/services/ai/producers/chat/service.js";
 
 /**
  * Implementation of the MockAccessorService using Effect.Service pattern.
@@ -312,31 +315,17 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
          * Mock implementation of the ChatService.
          */
         mockChatService: {
-          chat: ({ modelId, messages, system, temperature, span }: {
-            modelId: string;
-            messages: Array<{ content: string }>;
-            system?: string;
-            temperature?: number;
-            span?: unknown;
-          }) => {
-            if (!modelId) {
+          create: (options: ChatCompletionOptions) => {
+            if (!options.modelId) {
               return Effect.fail(new Error("ChatModelError: Model ID must be provided"));
             }
             
-            const lastMessage = messages[messages.length - 1];
-            
-            return Effect.succeed({
-              response: `Mock response to: ${lastMessage.content}`,
-              model: modelId,
-              timestamp: new Date(),
-              id: "chat-123",
-              usage: {
-                promptTokens: messages.reduce((acc: number, msg: { content: string }) => acc + msg.content.length, 0),
-                completionTokens: 20,
-                totalTokens: messages.reduce((acc: number, msg: { content: string }) => acc + msg.content.length, 0) + 20
-              },
-              finishReason: "stop"
-            });
+            return Effect.succeed(
+              new AiResponse({
+                role: new User(),
+                content: "Hello, world!"
+              })
+            );
           }
         }
       }

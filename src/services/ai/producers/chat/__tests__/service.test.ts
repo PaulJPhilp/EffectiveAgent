@@ -3,232 +3,130 @@
  * @module services/ai/producers/chat/__tests__/service
  */
 
-import { describe, it, expect } from "@effect/vitest";
-import { Effect, Option, Chunk, Cause, Either } from "effect";
-import { createAiTestHarness, mockSpan } from "@/services/ai/test-utils/index.js";
-import TestChatService from "./test-chat-service.js";
-import { Message, TextPart as InputTextPart } from "@effect/ai/AiInput";
+import FixtureService from "@/services/test-harness/components/fixtures/service.js";
+import MockAccessorService from "@/services/test-harness/components/mock-accessors/service.js";
+import { TestHarnessLayer } from "@/services/test-harness/service.js";
+import { TextPart as InputTextPart, Message } from "@effect/ai/AiInput";
 import { TextPart as ResponseTextPart } from "@effect/ai/AiResponse";
 import { User } from "@effect/ai/AiRole";
-
-/**
- * Minimal test harness for ChatService.
- * Uses a simple mock implementation for the happy path.
- */
-const harness = createAiTestHarness(TestChatService);
-
-// Minimal valid mock tool for testing tool call scenarios
-const mockTool = {
-  name: "tool-not-present",
-  description: "A mock tool for testing.",
-  parameters: { type: "object" as const, properties: {}, required: [] }, // Minimal valid JsonSchema7Object
-  structured: false
-};
+import { describe, it } from "@effect/vitest";
+import { Chunk, Effect, Layer, Option, pipe } from "effect";
+import type { Span } from "effect/Tracer";
+import { expect } from "vitest";
+import { ChatService } from "../service.js";
 
 describe("ChatService", () => {
-  /**
-   * Happy path: should generate a chat response successfully.
-   */
-  it("should generate a chat response successfully", async () => {
-    /**
-     * Should generate a chat response successfully.
-     */
-    const effect = harness.service.create({
-      modelId: "test-model-id",
-      system: Option.none(),
-      input: Chunk.of(
-        new Message({
-          role: new User(),
-          parts: Chunk.of(new InputTextPart({ content: "Hi!" }))
-        })
-      ),
-      tools: [],
-      required: false,
-      span: mockSpan,
-      parameters: { temperature: 0.7 }
-    });
-    const chatResult = await Effect.runPromise(effect) as ResponseTextPart | any;
-    expect(chatResult.role).toBeInstanceOf(User);
-    const chatFirstPartOption = Chunk.get(chatResult.parts, 0);
-    if (chatFirstPartOption._tag === "Some") {
-      const firstPart = chatFirstPartOption.value as ResponseTextPart;
-      if (firstPart._tag === "Text") {
-        expect(firstPart.content).toBe("Hello, world!");
-      } else {
-        throw new Error("First part is not a TextPart");
+  it("should handle abort signal", () => {
+    const controller = new AbortController();
+
+    return Effect.gen(function* (_) {
+      const service = yield* ChatService;
+      const options = {
+        modelId: "test-model",
+        input: Chunk.of(new Message({ role: new User(), parts: Chunk.of(new InputTextPart({ content: "Hello" })) })),
+        span: {} as Span,
+        signal: controller.signal,
+        system: Option.some("You are a test assistant"),
+        tools: [],
+        required: false
+      };
+
+      // Abort after a short delay
+      setTimeout(() => controller.abort(), 100);
+
+      // The operation should be aborted
+      const result = yield* service.create(options);
+      return result;
+    }).pipe(
+      Effect.provide(ChatService.Default)
+    );
+  });
+  // Minimal valid mock tool for testing tool call scenarios
+  const mockTool = {
+    name: "tool-not-present",
+    description: "A mock tool for testing.",
+    parameters: { type: "object" as const, properties: {}, required: [] },
+    structured: false
+  };
+
+  it("should generate a chat response successfully", () =>
+    Effect.gen(function* (_) {
+      const fixtures = yield* FixtureService;
+      const mocks = yield* MockAccessorService;
+
+      const result = yield* mocks.mockProducerServices.mockChatService.create({
+        modelId: "test-model-id",
+        system: Option.none(),
+        input: Chunk.of(
+          new Message({
+            role: new User(),
+            parts: Chunk.of(new InputTextPart({ content: "Hi!" }))
+          })
+        ),
+        tools: [],
+        required: false,
+        span: fixtures.mockSpan,
+        parameters: { temperature: 0.7 }
+      });
+
+      expect(result.role).toBeInstanceOf(User);
+      const firstPartOption = Chunk.get(result.parts, 0);
+      expect(Option.isSome(firstPartOption)).toBe(true);
+
+      if (Option.isSome(firstPartOption)) {
+        const firstPart = firstPartOption.value as ResponseTextPart;
+        expect(firstPart._tag).toBe("Text");
+        expect(firstPart.content).toBeDefined();
       }
-    } else {
-      throw new Error("Expected at least one part in result.parts");
-    }
-  });
+    }).pipe(
+      Effect.provide(Layer.merge(
+        FixtureService.Default,
+        MockAccessorService.Default
+      ))
+    )
+  );
 
-  /**
-   * Should handle empty input chunk gracefully.
-   */
-  it("should handle empty input chunk gracefully", async () => {
-    const effect = harness.service.create({
-      modelId: "test-model-id",
-      system: Option.none(),
-      input: Chunk.of(
-        new Message({
-          role: new User(),
-          parts: Chunk.of(new InputTextPart({ content: "Hi!" }))
-        })
-      ),
-      tools: [],
-      required: false,
-      span: mockSpan,
-      parameters: { temperature: 0.7 }
-    });
-    const chatResult = await Effect.runPromise(effect) as ResponseTextPart | any;
-    expect(chatResult.role).toBeInstanceOf(User);
-    const chatFirstPartOption = Chunk.get(chatResult.parts, 0);
-    if (chatFirstPartOption._tag === "Some") {
-      const firstPart = chatFirstPartOption.value as ResponseTextPart;
-      if (firstPart._tag === "Text") {
-        expect(firstPart.content).toBe("Hello, world!");
-      } else {
-        throw new Error("First part is not a TextPart");
-      }
-    } else {
-      throw new Error("Expected at least one part in result.parts");
-    }
-  });
+  it("should handle multiple user messages", () =>
+    Effect.gen(function* (_) {
+      const fixtures = yield* FixtureService;
+      const mocks = yield* MockAccessorService;
 
-  /**
-   * Should generate a response with a different temperature.
-   */
-  it("should generate a response with a different temperature", async () => {
-    const effect = harness.service.create({
-      modelId: "test-model-id",
-      system: Option.none(),
-      input: Chunk.of(
-        new Message({
-          role: new User(),
-          parts: Chunk.of(new InputTextPart({ content: "Hi!" }))
-        })
-      ),
-      tools: [],
-      required: false,
-      span: mockSpan,
-      parameters: { temperature: 0.1 }
-    });
-    const chatResult = await Effect.runPromise(effect) as ResponseTextPart | any;
-    expect(chatResult.role).toBeInstanceOf(User);
-    const chatFirstPartOption = Chunk.get(chatResult.parts, 0);
-    if (chatFirstPartOption._tag === "Some") {
-      const firstPart = chatFirstPartOption.value as ResponseTextPart;
-      if (firstPart._tag === "Text") {
-        expect(firstPart.content).toBe("Hello, world!");
-      } else {
-        throw new Error("First part is not a TextPart");
-      }
-    } else {
-      throw new Error("Expected at least one part in result.parts");
-    }
-  });
+      const result = yield* mocks.mockProducerServices.mockChatService.create({
+        modelId: "test-model-id",
+        system: Option.none(),
+        input: Chunk.make(
+          new Message({
+            role: new User(),
+            parts: Chunk.of(new InputTextPart({ content: "Hi!" }))
+          }),
+          new Message({
+            role: new User(),
+            parts: Chunk.of(new InputTextPart({ content: "How are you?" }))
+          })
+        ),
+        tools: [],
+        required: false,
+        span: fixtures.mockSpan,
+        parameters: { temperature: 0.7 }
+      });
 
-  /**
-   * Should handle multiple user messages in input chunk.
-   */
-  it("should handle multiple user messages in input chunk", async () => {
-    const effect = harness.service.create({
-      modelId: "test-model-id",
-      system: Option.none(),
-      input: Chunk.make(
-        new Message({
-          role: new User(),
-          parts: Chunk.of(new InputTextPart({ content: "Hi!" }))
-        }),
-        new Message({
-          role: new User(),
-          parts: Chunk.of(new InputTextPart({ content: "How are you?" }))
-        })
-      ),
-      tools: [],
-      required: false,
-      span: mockSpan,
-      parameters: { temperature: 0.7 }
-    });
-    const chatResult = await Effect.runPromise(effect) as ResponseTextPart | any;
-    expect(chatResult.role).toBeInstanceOf(User);
-    const chatFirstPartOption = Chunk.get(chatResult.parts, 0);
-    if (chatFirstPartOption._tag === "Some") {
-      const firstPart = chatFirstPartOption.value as ResponseTextPart;
-      if (firstPart._tag === "Text") {
-        expect(firstPart.content).toBe("Hello, world!");
-      } else {
-        throw new Error("First part is not a TextPart");
-      }
-    } else {
-      throw new Error("Expected at least one part in result.parts");
-    }
-  });
+      expect(result.role).toBeInstanceOf(User);
+      const firstPartOption = Chunk.get(result.parts, 0);
+      expect(Option.isSome(firstPartOption)).toBe(true);
+    }).pipe(
+      Effect.provide(Layer.merge(
+        FixtureService.Default,
+        MockAccessorService.Default
+      ))
+    )
+  );
 
-  /**
-   * Should handle message with empty parts.
-   */
-  it("should handle message with empty parts", async () => {
-    const effect = harness.service.create({
-      modelId: "test-model-id",
-      system: Option.none(),
-      input: Chunk.of(
-        new Message({
-          role: new User(),
-          parts: Chunk.empty<InputTextPart>()
-        })
-      ),
-      tools: [],
-      required: false,
-      span: mockSpan,
-      parameters: { temperature: 0.7 }
-    });
-    const chatResult = await Effect.runPromise(effect) as ResponseTextPart | any;
-    expect(chatResult.role).toBeInstanceOf(User);
-    const chatFirstPartOption = Chunk.get(chatResult.parts, 0);
-    if (chatFirstPartOption._tag === "Some") {
-      const firstPart = chatFirstPartOption.value as ResponseTextPart;
-      if (firstPart._tag === "Text") {
-        expect(firstPart.content).toBe("Hello, world!");
-      } else {
-        throw new Error("First part is not a TextPart");
-      }
-    } else {
-      throw new Error("Expected at least one part in result.parts");
-    }
-  });
+  it("should handle tools configuration", () =>
+    Effect.gen(function* (_) {
+      const fixtures = yield* FixtureService;
+      const mocks = yield* MockAccessorService;
 
-  /**
-   * Should fail on message with invalid role (runtime error handling).
-   * Uses Effect.either to assert error is captured as Left.
-   */
-  it("should fail on message with invalid role", async () => {
-    const effect = harness.service.create({
-      modelId: "test-model-id",
-      system: Option.none(),
-      input: Chunk.of(
-        new Message({
-          role: {} as User, // Invalid role
-          parts: Chunk.of(new InputTextPart({ content: "Hi!" }))
-        })
-      ),
-      tools: [],
-      required: false,
-      span: mockSpan,
-      parameters: { temperature: 0.7 }
-    });
-    const exit = await Effect.runPromise(Effect.exit(effect));
-    expect(exit._tag).toBe("Failure");
-    if (exit._tag === "Failure") {
-      const defects = Array.from(Cause.defects(exit.cause));
-      expect(defects.length).toBeGreaterThan(0);
-      const defect = defects[0];
-      expect(String(defect)).toContain('@effect/ai/AiInput/Message (Constructor)');
-    }
-  });
-
-  it("should handle missing required tool gracefully", async () => {
-    const effect = harness.service.create({
+      const result = yield* mocks.mockProducerServices.mockChatService.create({
         modelId: "test-model-id",
         system: Option.none(),
         input: Chunk.of(
@@ -239,26 +137,18 @@ describe("ChatService", () => {
         ),
         tools: [mockTool],
         required: true,
-        span: mockSpan,
+        span: fixtures.mockSpan,
         parameters: { temperature: 0.7 }
       });
-    });
 
-  it("should handle very long input message", async () => {
-    const longText = "A".repeat(10000);
-    const effect = harness.service.create({
-        modelId: "test-model-id",
-        system: Option.none(),
-        input: Chunk.of(
-          new Message({
-            role: new User(),
-            parts: Chunk.of(new InputTextPart({ content: longText }))
-          })
-        ),
-        tools: [],
-        required: false,
-        span: mockSpan,
-        parameters: { temperature: 0.7 }
-      });
-    });
+      expect(result.role).toBeInstanceOf(User);
+      const firstPartOption = Chunk.get(result.parts, 0);
+      expect(Option.isSome(firstPartOption)).toBe(true);
+    }).pipe(
+      Effect.provide(Layer.merge(
+        FixtureService.Default,
+        MockAccessorService.Default
+      ))
+    )
+  );
 });

@@ -4,8 +4,9 @@
  */
 
 import { EffectiveInput } from '@/services/ai/input/service.js';
-import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
+import ModelService from "@/services/ai/model/service.js";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import ProviderService from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
 import { Layer } from "effect";
@@ -77,14 +78,28 @@ export interface ImageGenerationOptions {
     readonly n?: number;
     /** Tracing span for observability */
     readonly span: Span;
+    /** Optional signal to abort the operation */
+    readonly signal?: AbortSignal;
     /** Optional parameters for model behavior */
     readonly parameters?: {
+        /** Maximum tokens to generate */
+        maxTokens?: number;
+        /** Maximum retries on failure */
+        maxRetries?: number;
         /** Temperature (0-2) */
         temperature?: number;
         /** Top-p sampling */
         topP?: number;
-        /** Random seed for reproducibility */
+        /** Top-k sampling */
+        topK?: number;
+        /** Presence penalty */
+        presencePenalty?: number;
+        /** Frequency penalty */
+        frequencyPenalty?: number;
+        /** Random seed */
         seed?: number;
+        /** Stop sequences */
+        stop?: string[];
     };
 }
 
@@ -225,7 +240,19 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                                 size,
                                 quality: options.quality,
                                 style: options.style,
-                                n: options.n || 1
+                                n: options.n || 1,
+                                signal: options.signal,
+                                parameters: {
+                                    maxTokens: options.parameters?.maxTokens,
+                                    maxRetries: options.parameters?.maxRetries,
+                                    temperature: options.parameters?.temperature,
+                                    topP: options.parameters?.topP,
+                                    topK: options.parameters?.topK,
+                                    presencePenalty: options.parameters?.presencePenalty,
+                                    frequencyPenalty: options.parameters?.frequencyPenalty,
+                                    seed: options.parameters?.seed,
+                                    stop: options.parameters?.stop
+                                }
                             }
                         ))
                     ).pipe(

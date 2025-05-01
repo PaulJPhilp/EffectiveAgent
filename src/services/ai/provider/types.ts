@@ -340,7 +340,7 @@ export interface BaseProviderOptions {
         maxTokens?: number; // Renamed from maxSteps for clarity
     };
     /** Optional signal to abort the operation */
-    readonly abortSignal?: AbortSignal;
+    readonly signal?: AbortSignal;
 }
 
 /**

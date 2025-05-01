@@ -45,6 +45,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.3",
     "@effect/test": "^0.1.0",
+    "test": "^3.3.0",
     "@js-temporal/polyfill": "^0.5.1",
     "@types/bun": "^1.2.10",
     "@types/node": "^20.17.31",

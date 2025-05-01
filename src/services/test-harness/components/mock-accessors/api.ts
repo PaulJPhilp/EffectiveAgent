@@ -32,14 +32,12 @@ interface TranscriptionServiceApi {
   }) => Effect.Effect<any, any, any>;
 }
 
+import type { ChatCompletionOptions } from "@/services/ai/producers/chat/service.js";
+import type { AiResponse } from "@effect/ai/AiResponse";
+import type { AiError } from "@effect/ai/AiError";
+
 interface ChatServiceApi {
-  chat: (options: {
-    modelId?: string;
-    messages: Array<{ role: string; content: string }>;
-    system?: string;
-    temperature?: number;
-    span: Span;
-  }) => Effect.Effect<any, any, any>;
+  create: (options: ChatCompletionOptions) => Effect.Effect<AiResponse, AiError>;
 }
 
 /**

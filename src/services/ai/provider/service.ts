@@ -130,4 +130,5 @@ class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderServ
     dependencies: []
 }) {}
 
+export { ProviderService };
 export default ProviderService;

@@ -3,7 +3,8 @@
  * @module services/ai/producers/image/__tests__/utils
  */
 
-import { describe, expect, it } from "@effect/vitest";
+import { describe, it } from "@effect/vitest";
+import { expect } from "vitest";
 import {
     createContentImagePrompt,
     createNegativePrompt,

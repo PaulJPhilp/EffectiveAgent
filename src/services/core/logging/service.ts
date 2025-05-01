@@ -130,14 +130,4 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
     }),
     dependencies: [] // No explicit dependencies
   }
-) {}
-
-/**
- * Live implementation of the LoggingService
- */
-export const LoggingServiceLive = Layer.succeed(LoggingService);
-
-/**
- * Default export for more idiomatic imports
- */
-export default LoggingService;
+) { }

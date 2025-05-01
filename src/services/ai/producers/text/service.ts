@@ -12,10 +12,28 @@ import type { TextServiceError } from "./errors.js";
 import { AiRole } from '@effect/ai';
 import { ProviderServiceApi } from '../../provider/api.js';
 import type { TextServiceApi, TextGenerationOptions } from "./api.js";
-import type { ModelServiceApi } from "../../model/api.js";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import ModelService from "@/services/ai/model/service.js";
+import ProviderService from "@/services/ai/provider/service.js";
 import { TestConfig } from "effect/TestConfig";
 import { EffectiveInput } from "../../input/service.js";
-import { TextModelError, TextProviderError, TextGenerationError } from "./errors.js";
+import { TextModelError, TextProviderError, TextGenerationError, TextInputError } from "./errors.js";
+
+/**
+ * Parameters for text generation
+ */
+export interface TextGenerationParameters {
+    [key: string]: unknown;
+    maxSteps?: number;
+    maxRetries?: number;
+    temperature?: number;
+    topP?: number;
+    topK?: number;
+    presencePenalty?: number;
+    frequencyPenalty?: number;
+    seed?: number;
+    stop?: string[];
+}
 
 /**
  * Result shape expected from the underlying provider client's generateText method
@@ -41,37 +59,43 @@ export interface ProviderTextGenerationResult {
 /**
  * Dependencies for TextService.
  */
-import type { AiTestConfig } from "../../test-utils/service.js";
+import type { TestHarnessApi } from "@/services/test-harness/api.js";
 
 export interface TextServiceDeps {
     readonly modelService: ModelServiceApi;
     readonly providerService: ProviderServiceApi;
-    readonly config: AiTestConfig;
+    readonly testHarness: TestHarnessApi;
 }
 
 /**
  * TextService provides methods for generating AI text responses using configured providers.
  */
 class TextService extends Effect.Service<TextServiceApi>()("TextService", {
-  effect: Effect.gen(function* (_) {
-    // Create a reference to store dependencies
-    const depsRef = yield* Effect.succeed({
-      modelService: null as unknown as ModelServiceApi,
-      providerService: null as unknown as ProviderServiceApi,
-      config: null as unknown as AiTestConfig
-    });
-    
+  effect: Effect.gen(function* () {
+    // Get services
+    const modelService = yield* ModelService;
+    const providerService = yield* ProviderService;
+
     return {
       /**
        * Generates a text completion from the given prompt and model.
        */
       generate: (options: TextGenerationOptions): Effect.Effect<
         AiResponse,
-        TextModelError | TextProviderError | TextGenerationError,
+        TextModelError | TextProviderError | TextGenerationError | TextInputError,
         ConfigProvider.ConfigProvider
       > => {
-        const { modelService, providerService } = depsRef;
+
         return Effect.gen(function* (_) {
+          // Validate prompt
+          if (!options.prompt || options.prompt.trim() === "") {
+            return yield* Effect.fail(new TextInputError({
+              description: "Prompt cannot be empty",
+              module: "TextService",
+              method: "generate"
+            }));
+          }
+
           // Get model ID or fail
           const modelId = yield* Effect.fromNullable(options.modelId).pipe(
             Effect.mapError(() => new TextModelError({
@@ -116,7 +140,22 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
 
           const result = yield* providerClient.generateText(
             effectiveInput,
-            { modelId, system: systemPrompt, ...options.parameters }
+            {
+              modelId,
+              system: systemPrompt,
+              parameters: {
+                maxTokens: options.parameters?.['maxSteps'],
+                maxRetries: options.parameters?.['maxRetries'],
+                temperature: options.parameters?.['temperature'],
+                topP: options.parameters?.['topP'],
+                topK: options.parameters?.['topK'],
+                presencePenalty: options.parameters?.['presencePenalty'],
+                frequencyPenalty: options.parameters?.['frequencyPenalty'],
+                seed: options.parameters?.['seed'],
+                stop: options.parameters?.['stop']
+              },
+              signal: options.signal
+            }
           ).pipe(
             Effect.map((res) => res.data),
             Effect.mapError((error) => new TextGenerationError({
@@ -138,29 +177,7 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
       }
     };
   }),
-  dependencies: [
-    {
-      service: "modelService",
-      layer: (deps: TextServiceDeps) => Effect.succeed(deps.modelService)
-    },
-    {
-      service: "providerService",
-      layer: (deps: TextServiceDeps) => Effect.succeed(deps.providerService)
-    },
-    {
-      service: "config",
-      layer: (deps: TextServiceDeps) => Effect.succeed(deps.config)
-    }
-  ]
+  dependencies: [ModelService.Default, ProviderService.Default] as const
 }) {}
-
-/**
- * Factory function to create a new TextService instance with dependencies.
- * @param deps - Required service dependencies
- * @returns Effect containing the TextService Layer
- */
-export const makeTextService = (deps: TextServiceDeps) => {
-  return Effect.succeed(deps);
-};
 
 export default TextService;

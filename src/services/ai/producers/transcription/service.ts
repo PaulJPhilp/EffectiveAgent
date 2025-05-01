@@ -3,7 +3,8 @@
  * @module services/ai/producers/transcription/service
  */
 
-import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
@@ -37,6 +38,8 @@ export interface TranscriptionOptions {
     readonly audioFormat?: (typeof AudioFormats)[keyof typeof AudioFormats];
     /** Tracing span for observability */
     readonly span: Span;
+    /** Optional abort signal for cancellation */
+    readonly signal?: AbortSignal;
     /** Optional parameters for transcription behavior */
     readonly parameters?: {
         /** Language hint (e.g., 'en-US', 'fr-FR') */

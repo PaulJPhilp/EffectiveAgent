@@ -45,7 +45,7 @@ export interface PolicyRecordContext {
   readonly pipelineId?: string;
   readonly modelUsed: string;
   readonly operationType: string;
-  readonly status: 'success' | 'failure';
+  readonly status: 'success' | 'error' | 'blocked';
   readonly latencyMs: number;
   readonly usage?: TokenUsage;
   readonly error?: { 

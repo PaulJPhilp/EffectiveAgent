@@ -13,8 +13,10 @@ export interface TextGenerationOptions {
   readonly modelId?: string;
   readonly prompt: string;
   readonly system: Option.Option<string>;
-  readonly span?: Span; 
-  readonly parameters?: Record<string, any>; 
+  readonly span?: Span;
+  /** Optional abort signal for cancellation */
+  readonly signal?: AbortSignal;
+  readonly parameters?: Record<string, any>;
 }
 
 export interface TextServiceApi {

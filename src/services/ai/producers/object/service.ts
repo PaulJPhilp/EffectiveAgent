@@ -5,8 +5,9 @@
 
 import { EffectiveInput } from '@/services/ai/input/service.js';
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
-import { ModelService, type ModelServiceApi } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
+import ModelService from "@/services/ai/model/service.js";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import ProviderService from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
 import { JSONSchema, Schema as S } from "effect";
@@ -14,7 +15,7 @@ import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
-import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "./errors.js";
+import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSchemaError, ObjectInputError } from "./errors.js";
 import type { ObjectServiceApi, ObjectGenerationOptions, ObjectGenerationResult } from "./api.js";
 
 /**
@@ -34,12 +35,6 @@ export interface ProviderObjectGenerationResult<T> {
     };
 }
 
-
-
-
-
-
-
 /**
  * ObjectService provides methods for generating structured objects using AI providers.
  */
@@ -52,6 +47,15 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
         return {
             generate: <T>(options: ObjectGenerationOptions<T>) =>
                 Effect.gen(function* () {
+                    // Validate prompt
+                    if (!options.prompt || options.prompt.trim() === "") {
+                        return yield* Effect.fail(new ObjectInputError({
+                            description: "Prompt cannot be empty",
+                            module: "ObjectService",
+                            method: "generate"
+                        }));
+                    }
+
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
                         Effect.mapError(() => new ObjectModelError({
@@ -117,6 +121,7 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                                 modelId,
                                 schema: options.schema,
                                 system: systemPrompt,
+                                signal: options.signal,
                                 ...options.parameters
                             }
                         ))

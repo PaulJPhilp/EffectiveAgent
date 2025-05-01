@@ -26,6 +26,31 @@ interface Person {
 }
 
 describe("ObjectService", () => {
+  it("should handle abort signal", () =>
+    Effect.gen(function* (_) {
+      const controller = new AbortController();
+      const schema = createPersonSchema();
+      const service = yield* ObjectService;
+      const options = {
+        modelId: "test-model",
+        prompt: "Generate a person",
+        system: Option.none(),
+        schema,
+        span: {} as any,
+        signal: controller.signal
+      };
+
+      // Abort after a short delay
+      setTimeout(() => controller.abort(), 100);
+
+      // The operation should be aborted
+      const result = yield* service.generate<Person>(options);
+      return result;
+    }).pipe(
+      Effect.provide(ObjectService.Default)
+    )
+  );
+
   // --- Success Case ---
   const createTestObjectService = () =>
     Effect.succeed({
