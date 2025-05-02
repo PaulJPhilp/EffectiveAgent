@@ -1,61 +1,59 @@
 /**
- * @file Defines types and the Context Tag for the AI Intelligence configuration data.
- * @module services/ai/Intelligence/types
+ * @file Implements the Intelligence service for managing AI intelligence configurations.
+ * @module services/capabilities/intelligence/service
  */
 
-import { EntityParseError } from "@/services/core/errors.js";
-// Import Schema, Context, Data, HashMap from 'effect'
-import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
+import { Config, ConfigProvider, Effect, Layer, Schema as S } from "effect";
+import type { IntelligenceServiceApi } from "./api.js";
 import { IntelligenceConfigError } from "./errors.js";
-// Import types derived from schemas using 'import type'
-import { IntelligenceFile } from "./schema.js";
+import { IntelligenceFile, type Intelligence } from "./schema.js";
 
-export class IntelligenceService extends Effect.Service<IntelligenceService>()("IntelligenceService", {
-	effect: Effect.gen(function* () {
-		let IntelligenceRef: Ref.Ref<IntelligenceFile>;
+export class IntelligenceService extends Effect.Service<IntelligenceService>()(
+  "IntelligenceService",
+  {
+    
+    effect: Effect.gen(function* () {
+      const config = yield* ConfigProvider.ConfigProvider;
 
-		return {
-			load: () => {
-				return Effect.gen(function* () {
-					const configIntelligence = yield* ConfigProvider.ConfigProvider;
-					const rawConfig = yield* configIntelligence.load(Config.string("intelligence")).pipe(
-						Effect.mapError(cause => new IntelligenceConfigError({
-							message: "Failed to load model config",
-							cause: new EntityParseError({
-								filePath: "models.json",
-								cause
-							})
-						}))
-					);
+      return {
+        load: () => Effect.gen(function* () {
+          const rawConfig = yield* config.load(Config.string("intelligence"));
+          const parsedConfig = yield* Effect.try({
+            try: () => JSON.parse(rawConfig as string),
+            catch: (error) => new IntelligenceConfigError({
+              description: "Failed to parse intelligence configuration JSON",
+              module: "IntelligenceService",
+              method: "load",
+              cause: error
+            })
+          });
 
-					const parsedConfig = Effect.try({
-						try: () => JSON.parse(rawConfig),
-						catch: (error) => {
-							throw new IntelligenceConfigError({
-								message: "Failed to parse model config",
-								cause: new EntityParseError({
-									filePath: "models.json",
-									cause: error
-								})
-							});
-						}
-					});
+          return yield* Effect.mapError(
+            S.decode(IntelligenceFile)(parsedConfig),
+            (error) => new IntelligenceConfigError({
+              description: "Failed to validate intelligence configuration",
+              module: "IntelligenceService",
+              method: "load",
+              cause: error
+            })
+          );
+        }),
 
-					const data = yield* parsedConfig
-					const validConfig = yield* S.decode(IntelligenceFile)(data).pipe(
-						Effect.mapError(cause => new IntelligenceConfigError({
-							message: "Failed to validate model config",
-							cause: new EntityParseError({
-								filePath: "models.json",
-								cause
-							})
-						}))
-					);
+        getProfile: (name: string) => Effect.gen(function* (this: IntelligenceServiceApi) {
+          const config = yield* this.load();
+          const profile = config.intelligences.find((p: Intelligence) => p.name === name);
 
-					IntelligenceRef = yield* Ref.make<IntelligenceFile>(validConfig);
-					return yield* IntelligenceRef.get;
-				})
-			}
-		}
-	})
-}) { }
+          if (!profile) {
+            return yield* Effect.fail(new IntelligenceConfigError({
+              description: `Intelligence profile '${name}' not found`,
+              module: "IntelligenceService",
+              method: "getProfile"
+            }));
+          }
+
+          return profile;
+        })
+      };
+    })
+  }
+) { }

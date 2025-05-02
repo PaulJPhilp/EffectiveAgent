@@ -17,7 +17,7 @@ import * as Effect from "effect/Effect";
 import type * as JsonSchema from "effect/JSONSchema";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
-import { ChatCompletionError, ChatModelError, ChatProviderError, ChatInputError } from "./errors.js";
+import { ChatCompletionError, ChatModelError, ChatProviderError, ChatInputError, ChatToolError, ChatParameterError } from "./errors.js";
 import { mapEffectMessagesToClientCoreMessages } from "./utils.js";
 
 /**
@@ -127,9 +127,146 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                     const messages = mapEffectMessagesToClientCoreMessages(options.input);
                     const systemPrompt = Option.getOrUndefined(options.system);
 
-                    // Handle tool warning if needed
+                    // Validate tools configuration
                     if (options.tools.length > 0) {
+                        // Validate each tool
+                        for (const tool of options.tools) {
+                            // Check required tool properties
+                            if (!tool.name || tool.name.trim() === "") {
+                                return yield* Effect.fail(new ChatToolError({
+                                    description: "Tool configuration is invalid - missing or empty name",
+                                    module: "ChatService",
+                                    method: "create"
+                                }));
+                            }
+
+                            if (!tool.description || tool.description.trim() === "") {
+                                return yield* Effect.fail(new ChatToolError({
+                                    description: `Tool '${tool.name}' is missing description`,
+                                    module: "ChatService",
+                                    method: "create"
+                                }));
+                            }
+
+                            if (!tool.parameters) {
+                                return yield* Effect.fail(new ChatToolError({
+                                    description: `Tool '${tool.name}' is missing parameters schema`,
+                                    module: "ChatService",
+                                    method: "create"
+                                }));
+                            }
+
+                            // Validate tool parameters schema
+                            const schema = tool.parameters as { 
+                                type: string; 
+                                properties: Record<string, { type?: string }>
+                                required?: string[]
+                            };
+
+                            // Validate schema type
+                            if (!schema.type || schema.type !== "object") {
+                                return yield* Effect.fail(new ChatToolError({
+                                    description: `Tool '${tool.name}' has invalid parameter schema type - must be 'object'`,
+                                    module: "ChatService",
+                                    method: "create"
+                                }));
+                            }
+
+                            // Validate properties
+                            if (!schema.properties || Object.keys(schema.properties).length === 0) {
+                                return yield* Effect.fail(new ChatToolError({
+                                    description: `Tool '${tool.name}' has no parameter properties defined`,
+                                    module: "ChatService",
+                                    method: "create"
+                                }));
+                            }
+
+                            // Validate property types
+                            for (const [paramName, param] of Object.entries(schema.properties)) {
+                                if (!param.type) {
+                                    return yield* Effect.fail(new ChatToolError({
+                                        description: `Tool '${tool.name}' parameter '${paramName}' is missing type`,
+                                        module: "ChatService",
+                                        method: "create"
+                                    }));
+                                }
+                            }
+
+                            // Validate required parameters
+                            if (schema.required) {
+                                for (const requiredParam of schema.required) {
+                                    if (!schema.properties[requiredParam]) {
+                                        return yield* Effect.fail(new ChatToolError({
+                                            description: `Tool '${tool.name}' lists '${requiredParam}' as required but it is not defined in properties`,
+                                            module: "ChatService",
+                                            method: "create"
+                                        }));
+                                    }
+                                }
+                            }
+                        }
+
                         yield* Effect.logWarning("Tools are defined but may not be supported by the provider");
+                    }
+
+                    // Validate parameters
+                    if (options.parameters) {
+                        const { temperature, topP, topK, presencePenalty, frequencyPenalty } = options.parameters;
+
+                        // Temperature should be between 0 and 2
+                        if (temperature !== undefined && (temperature < 0 || temperature > 2)) {
+                            return yield* Effect.fail(new ChatParameterError({
+                                description: "Temperature must be between 0 and 2",
+                                module: "ChatService",
+                                method: "create",
+                                parameter: "temperature",
+                                value: temperature
+                            }));
+                        }
+
+                        // Top-p should be between 0 and 1
+                        if (topP !== undefined && (topP < 0 || topP > 1)) {
+                            return yield* Effect.fail(new ChatParameterError({
+                                description: "Top-p must be between 0 and 1",
+                                module: "ChatService",
+                                method: "create",
+                                parameter: "topP",
+                                value: topP
+                            }));
+                        }
+
+                        // Top-k should be positive
+                        if (topK !== undefined && topK <= 0) {
+                            return yield* Effect.fail(new ChatParameterError({
+                                description: "Top-k must be positive",
+                                module: "ChatService",
+                                method: "create",
+                                parameter: "topK",
+                                value: topK
+                            }));
+                        }
+
+                        // Presence penalty should be between -2 and 2
+                        if (presencePenalty !== undefined && (presencePenalty < -2 || presencePenalty > 2)) {
+                            return yield* Effect.fail(new ChatParameterError({
+                                description: "Presence penalty must be between -2 and 2",
+                                module: "ChatService",
+                                method: "create",
+                                parameter: "presencePenalty",
+                                value: presencePenalty
+                            }));
+                        }
+
+                        // Frequency penalty should be between -2 and 2
+                        if (frequencyPenalty !== undefined && (frequencyPenalty < -2 || frequencyPenalty > 2)) {
+                            return yield* Effect.fail(new ChatParameterError({
+                                description: "Frequency penalty must be between -2 and 2",
+                                module: "ChatService",
+                                method: "create",
+                                parameter: "frequencyPenalty",
+                                value: frequencyPenalty
+                            }));
+                        }
                     }
 
                     yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);

@@ -31,66 +31,121 @@ const validConfigLayer = Layer.succeed(
 
 // --- Tests ---
 describe("IntelligenceService", () => {
-    it("should load and validate intelligence config successfully", async () => {
-        const effect = Effect.gen(function* () {
-            const service = yield* IntelligenceService;
-            const loaded = yield* service.load();
-            expect(loaded.name).toBe("test-intelligence-config");
-            expect(loaded.intelligences).toHaveLength(1);
-            expect(loaded.intelligences[0].name).toBe("test-profile");
-            return loaded;
-        });
-        const runnable = Effect.provide(effect, validConfigLayer);
-        const layer = IntelligenceService.Default;
-        const provided = Effect.provide(runnable, layer);
-        await Effect.runPromise(provided);
-    });
+    it("should load and validate intelligence config successfully", () => 
+        Effect.gen(function* () {
+            // Setup test environment with valid config
+            const configLayer = Layer.succeed(
+                ConfigProvider.ConfigProvider,
+                ConfigProvider.fromMap(new Map([
+                    ["intelligence", JSON.stringify(validIntelligenceConfig)]
+                ]))
+            );
+            
+            // Access the service and provide the environment
+            const effect = Effect.gen(function* () {
+                const service = yield* IntelligenceService;
+                const config = yield* service.load();
+                
+                // Assertions
+                expect(config.name).toBe("test-intelligence-config");
+                expect(config.intelligences).toHaveLength(1);
+                expect(config.intelligences[0].name).toBe("test-profile");
+                
+                return config;
+            });
+            
+            return yield* Effect.provide(
+                effect,
+                Layer.merge(IntelligenceService.Default, configLayer)
+            );
+        })
+    );
 
-    it("should fail with IntelligenceConfigError if config is invalid JSON", async () => {
-        const invalidJsonLayer = Layer.succeed(
-            ConfigProvider.ConfigProvider,
-            ConfigProvider.fromMap(new Map([
-                ["intelligence", "not a json"]
-            ]))
-        );
-        const effect = Effect.gen(function* () {
-            const service = yield* IntelligenceService;
-            return yield* service.load();
-        });
-        const runnable = Effect.provide(effect, invalidJsonLayer);
-        const layer = IntelligenceService.Default;
-        const provided = Effect.provide(runnable, layer);
-        const exit = await Effect.runPromise(Effect.exit(provided));
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isSuccess(exit)) throw new Error("Expected failure but got success");
-        // Try failureOption first, then check for defectOption
-        let error = Cause.failureOption(exit.cause);
-        if (Option.isNone(error)) {
-            error = Cause.failureOption(exit.cause);
-        }
-        expect(Option.isSome(error)).toBe(false);
-    });
+    it("should fail with IntelligenceConfigError if config is invalid JSON", () =>
+        Effect.gen(function* () {
+            // Setup test environment with invalid JSON
+            const invalidJsonLayer = Layer.succeed(
+                ConfigProvider.ConfigProvider,
+                ConfigProvider.fromMap(new Map([
+                    ["intelligence", "not a json"]
+                ]))
+            );
+            
+            // Create an effect that should fail
+            const testEffect = Effect.gen(function* () {
+                const service = yield* IntelligenceService;
+                return yield* service.load();
+            });
+            
+            // Run with Exit to capture the failure
+            const exit = yield* Effect.provide(
+                Effect.exit(testEffect),
+                Layer.merge(IntelligenceService.Default, invalidJsonLayer)
+            );
+            
+            // Assertions
+            expect(Exit.isFailure(exit)).toBe(true);
+            
+            if (Exit.isSuccess(exit)) {
+                throw new Error("Expected failure but got success");
+            }
+            
+            const error = Cause.failureOption(exit.cause);
+            expect(Option.isSome(error)).toBe(true);
+            
+            const value = Option.getOrThrow(error);
+            expect(value).toBeInstanceOf(IntelligenceConfigError);
+            
+            // Type check before accessing properties
+            if (value instanceof IntelligenceConfigError) {
+                expect(value.description).toBe("Failed to parse intelligence configuration JSON");
+            } else {
+                throw new Error(`Expected IntelligenceConfigError but got ${value.constructor.name}`);
+            }
+        })
+    );
 
-    it("should fail with IntelligenceConfigError if config fails schema validation", async () => {
-        const invalidSchemaLayer = Layer.succeed(
-            ConfigProvider.ConfigProvider,
-            ConfigProvider.fromMap(new Map([
-                ["intelligence", JSON.stringify({ description: "Missing name and intelligences" })]
-            ]))
-        );
-        const effect = Effect.gen(function* () {
-            const service = yield* IntelligenceService;
-            return yield* service.load();
-        });
-        const runnable = Effect.provide(effect, invalidSchemaLayer);
-        const layer = IntelligenceService.Default;
-        const provided = Effect.provide(runnable, layer);
-        const exit = await Effect.runPromise(Effect.exit(provided));
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isSuccess(exit)) throw new Error("Expected failure but got success");
-        const error = Cause.failureOption(exit.cause);
-        expect(Option.isSome(error)).toBe(true);
-        const value = Option.getOrThrow(error);
-        expect(value).toBeInstanceOf(IntelligenceConfigError);
-    });
+    it("should fail with IntelligenceConfigError if config fails schema validation", () =>
+        Effect.gen(function* () {
+            // Setup test environment with schema-invalid config
+            const invalidSchemaLayer = Layer.succeed(
+                ConfigProvider.ConfigProvider,
+                ConfigProvider.fromMap(new Map([
+                    ["intelligence", JSON.stringify({ description: "Missing name and intelligences" })]
+                ]))
+            );
+            
+            // Create an effect that should fail
+            const testEffect = Effect.gen(function* () {
+                const service = yield* IntelligenceService;
+                return yield* service.load();
+            });
+            
+            // Run with Exit to capture the failure
+            const exit = yield* Effect.provide(
+                Effect.exit(testEffect),
+                Layer.merge(IntelligenceService.Default, invalidSchemaLayer)
+            );
+            
+            // Assertions
+            expect(Exit.isFailure(exit)).toBe(true);
+            
+            if (Exit.isSuccess(exit)) {
+                throw new Error("Expected failure but got success");
+            }
+            
+            const error = Cause.failureOption(exit.cause);
+            expect(Option.isSome(error)).toBe(true);
+            
+            const value = Option.getOrThrow(error);
+            expect(value).toBeInstanceOf(IntelligenceConfigError);
+            
+            // Type check before accessing properties
+            if (value instanceof IntelligenceConfigError) {
+                expect(value.description).toBe("Failed to validate intelligence configuration");
+            } else {
+                throw new Error(`Expected IntelligenceConfigError but got ${value.constructor.name}`);
+            }
+        })
+    );
 });
