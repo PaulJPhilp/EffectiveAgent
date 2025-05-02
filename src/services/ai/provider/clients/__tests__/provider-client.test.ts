@@ -43,6 +43,8 @@ describe("ProviderClient Implementations", () => {
         generateEmbeddings: () => Effect.succeed({} as any),
         getCapabilities: () => Effect.succeed(new Set(["text-generation"] as const)),
         getModels: () => Effect.succeed([]),
+        chat: () => Effect.succeed({} as any),
+        generateImage: () => Effect.succeed({} as any),
       };
 
 
@@ -77,6 +79,12 @@ describe("ProviderClient Implementations", () => {
               throw new Error("Function not implemented.");
             },
             getModels: function (): Effect.Effect<LanguageModelV1[], ProviderConfigError, ModelServiceApi> {
+              throw new Error("Function not implemented.");
+            },
+            chat: function (): Effect.Effect<any, any> {
+              throw new Error("Function not implemented.");
+            },
+            generateImage: function (): Effect.Effect<any, any> {
               throw new Error("Function not implemented.");
             }
           },

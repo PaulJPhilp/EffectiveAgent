@@ -1,10 +1,7 @@
 import { Effect } from "effect";
 import { PromptService } from "../service.js";
-import { ConfigProvider } from "../../config/provider.js";
-import type { RenderStringParams, RenderTemplateParams } from "../types.js";
 import type { PromptFile } from "../schema.js";
 import { describe, expect, it } from "vitest";
-import { RenderingError, TemplateNotFoundError } from "../../errors.js";
 
 // Direct service reference - no Layer usage
 const TestPromptService = PromptService;
@@ -55,7 +52,7 @@ describe("PromptService", () => {
                 const service = yield* PromptService;
                 yield* service.load();
                 const prompt = yield* service.getPrompt("test-prompt");
-                expect(prompt).toEqual(mockPrompts[0]);
+                expect(prompt).toEqual(mockPromptFile.prompts[0]);
             }));
 
             it("should handle missing prompt", () => Effect.gen(function* () {

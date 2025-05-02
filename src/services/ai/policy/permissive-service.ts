@@ -18,42 +18,33 @@ import { PolicyError } from "./errors.js";
  * This implementation is meant to be used in development or testing
  * environments where policy enforcement is not required.
  */
-export class PermissivePolicyService implements PolicyServiceApi {
-  /**
-   * Create a new instance of PermissivePolicyService
-   */
-  static make = (): Effect.Effect<PermissivePolicyService> => {
-    return Effect.succeed(new PermissivePolicyService());
-  };
+export class PermissivePolicyService extends Effect.Service<PolicyServiceApi>()(
+  "PermissivePolicyService",
+  {
+    effect: Effect.gen(function* () {
+      return {
+        checkPolicy: (context: PolicyCheckContext): Effect.Effect<PolicyCheckResult, PolicyError> => 
+          Effect.succeed({
+            allowed: true,
+            effectiveModel: context.requestedModel
+          }),
 
-  /**
-   * Always allows the request and returns the requested model.
-   * 
-   * @param context The context containing details about the requested operation
-   * @returns Effect with PolicyCheckResult always allowing the operation
-   */
-  checkPolicy(context: PolicyCheckContext): Effect.Effect<PolicyCheckResult, PolicyError> {
-    return Effect.succeed({
-      allowed: true,
-      effectiveModel: context.requestedModel
-    });
-  }
+        recordOutcome: (outcome: PolicyRecordContext): Effect.Effect<void, PolicyError> =>
+          Effect.sync(() => {
+            // Just log outcome in development
+            if (process.env.NODE_ENV !== 'production') {
+              console.log(`[PolicyService] Recorded outcome: ${outcome.status} for ${outcome.operationType} using ${outcome.modelUsed}`);
+            }
+          }),
 
-  /**
-   * No-op implementation that just logs the outcome.
-   * 
-   * @param outcome The context containing details about the operation outcome
-   * @returns Effect with void
-   */
-  recordOutcome(outcome: PolicyRecordContext): Effect.Effect<void, PolicyError> {
-    return Effect.sync(() => {
-      // Just log outcome in development
-      if (process.env.NODE_ENV !== 'production') {
-        console.log(`[PolicyService] Recorded outcome: ${outcome.status} for ${outcome.operationType} using ${outcome.modelUsed}`);
-      }
-    });
+        createRule: () => Effect.succeed(undefined),
+        getRule: () => Effect.succeed(undefined),
+        updateRule: () => Effect.succeed(undefined),
+        deleteRule: () => Effect.succeed(undefined)
+      };
+    })
   }
-}
+) {}
 
 /**
  * Default export for the PermissivePolicyService.

@@ -11,6 +11,9 @@ import { EffectiveProviderApi } from "./types.js";
 
 import { ModelCapability } from "@/schema.js";
 import { EffectiveInput } from "../input/service.js";
+import type { ModelServiceApi } from "../model/api.js";
+import { ModelService } from "../model/service.js";
+
 import {
     ProviderConfigError,
     ProviderMissingCapabilityError,
@@ -33,6 +36,7 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
     "ProviderClient",
     {
         effect: Effect.gen(function* () {
+
             // Provider state ref
             const providerRef = yield* Ref.make<{
                 provider: EffectiveProviderApi;
@@ -86,7 +90,7 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
                         return capabilities;
                     }),
 
-                chat: (input: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError> =>
+                chat: (input: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError, ModelServiceApi> =>
                     Effect.gen(function* () {
                         const { provider, name } = yield* getProvider();
                         const modelId = yield* validateModelId({
