@@ -189,6 +189,11 @@ describe("ModelService", () => {
     );
 
     describe("configuration validation", () => {
+        beforeEach(() => Effect.runPromise(Effect.gen(function* () {
+            const service = yield* ModelService;
+            yield* service.load();
+        })));
+
         it("should validate model schema successfully", async () => {
             const effect = Effect.gen(function* () {
                 const service = yield* ModelService;
@@ -507,6 +512,11 @@ describe("ModelService", () => {
     });
 
     describe("provider compatibility", () => {
+        beforeEach(() => Effect.runPromise(Effect.gen(function* () {
+            const service = yield* ModelService;
+            yield* service.load();
+        })));
+
         it("should group models by provider", async () => {
             const effect = Effect.gen(function* () {
                 const service = yield* ModelService;

@@ -1,8 +1,15 @@
 /**
  * @file Defines the Repository Service API interface.
+ *
+ * IMPORTANT: The Repository service is the ONLY service in the codebase that
+ * is allowed to use Context.Tag for dependency injection. All other services
+ * must follow the Effect.Service pattern without Context.Tag usage.
+ *
+ * This exception exists because the Repository service needs to be dynamically
+ * instantiated with different entity types, making it impossible to use the
+ * standard Effect.Service pattern directly.
  */
 
-import type { EntityId, JsonObject } from "@/types.js";
 import type { EntityNotFoundError, RepositoryError } from "./errors.js";
 import type { BaseEntity, FindOptions } from "./types.js";
 import { Effect, Option } from "effect";

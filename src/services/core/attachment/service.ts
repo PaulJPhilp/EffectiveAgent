@@ -12,8 +12,8 @@ import {
     AttachmentDbError,
     AttachmentLinkNotFoundError,
 } from "@core/attachment/errors.js";
-import { AttachmentServiceApi } from "@core/attachment/api.js";
-import { CreateAttachmentLinkInput } from "@core/attachment/types.js";
+import type { AttachmentServiceApi } from "@core/attachment/api.js";
+import type { CreateAttachmentLinkInput } from "@core/attachment/types.js";
 import { RepositoryService } from "@core/repository/service.js";
 import { Effect, Layer, Option } from "effect";
 

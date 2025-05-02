@@ -4,7 +4,7 @@
 
 import type { JsonObject } from "@/types.js";
 import type { LoggingServiceApi } from "@core/logging/api.js";
-import { Cause, Effect, Layer, LogLevel, Option } from "effect";
+import { Cause, Effect, LogLevel, Option } from "effect";
 
 /**
  * LoggingService implementation using Effect.Service pattern.

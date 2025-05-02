@@ -25,7 +25,7 @@ import type { IntelligenceData, IntelligenceDataTag } from "@/services/capabilit
 // Import types needed for SkillApi requirements (R channel)
 import type { PersonaData, PersonaDataTag } from "@/services/capabilities/persona/types"; // Adjust path
 import type { LoggingApi, LoggingApiTag } from "@/services/core/logging/types"; // Adjust path
-import type { ToolExecutorService, ToolExecutorServiceTag } from "@/services/tools/types"; // Adjust path
+import type { ToolExecutorService, ToolExecutorServiceTag } from "@/services/ai/tools/types"; // Adjust path
 // Import Config if needed for API keys etc.
 // import type { Config } from "effect";
 // Import specific @effect/ai provider layers/tags if needed directly

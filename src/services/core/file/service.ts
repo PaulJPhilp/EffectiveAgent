@@ -11,7 +11,6 @@ import type { FileServiceApi } from "@core/file/api.js";
 import type { FileInput, FileInfo } from "@core/file/types.js";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "@core/repository/errors.js";
 import { RepositoryService } from "@core/repository/service.js";
-import type { RepositoryServiceApi } from "@core/repository/api.js";
 import { Effect, Layer, Option } from "effect";
 
 /**

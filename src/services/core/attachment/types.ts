@@ -2,8 +2,8 @@
  * @file Defines the types for the Attachment service.
  */
 
-import type { AttachmentLinkEntityData } from "@core/attachment/schema.js";
-import type { AttachmentServiceApi } from "@core/attachment/api.js";
+import type { AttachmentLinkEntityData } from "./schema.js";
+import type { AttachmentServiceApi } from "./api.js";
 
 /**
  * Input type for creating a link (omitting system fields)

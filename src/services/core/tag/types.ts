@@ -2,16 +2,16 @@
  * @file Defines additional types for the Tag service.
  */
 
-import type { EntityId } from "@/types.js";
-import type { RepositoryApi } from "@core/repository/types.js";
-import type { EntityTagLinkEntity, TagEntity } from "@core/tag/schema.js";
+import type { EntityId } from "../../../types.js";
+import type { RepositoryServiceApi } from "../repository/api.js";
+import type { EntityTagLinkEntity, TagEntity } from "./schema.js";
 
 /**
  * Repository dependencies for the Tag service.
  */
 export interface TagRepositoryDeps {
-  readonly tagRepo: RepositoryApi<TagEntity>;
-  readonly linkRepo: RepositoryApi<EntityTagLinkEntity>;
+  readonly tagRepo: RepositoryServiceApi<TagEntity>;
+  readonly linkRepo: RepositoryServiceApi<EntityTagLinkEntity>;
 }
 
 /**

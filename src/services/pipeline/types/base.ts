@@ -21,4 +21,3 @@ export interface GenerateBaseResult {
   finishReason?: FinishReason;
   providerMetadata?: ProviderMetadata;
 }
-

@@ -3,10 +3,10 @@ import { eq, sql } from "drizzle-orm";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import type { PgColumn, PgTable, PgTableWithColumns, TableConfig } from "drizzle-orm/pg-core";
 import { v4 as uuidv4 } from "uuid";
-import type { EntityId } from "@/types.js";
-import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
-import type { BaseEntity, FindOptions } from "@core/repository/types.js";
-import type { RepositoryServiceApi } from "@core/repository/api.js";
+import type { EntityId } from "../../../../../types.js";
+import { EntityNotFoundError, RepositoryError } from "../../errors.js";
+import type { BaseEntity, FindOptions } from "../../types.js";
+import type { RepositoryServiceApi } from "../../api.js";
 
 /**
  * Creates a Drizzle/Postgres implementation of the RepositoryService.
@@ -18,7 +18,7 @@ export interface DrizzleRepositoryDeps {
 }
 
 export const DrizzleRepository = <TEntity extends BaseEntity>() => {
-  const Tag = Context.GenericTag<"RepositoryService", RepositoryServiceApi<TEntity>>("RepositoryService");
+  const Tag = Context.GenericTag<"RepositoryService", RepositoryServiceApi<TEntity>>("DrizzleRepository");
 
 
 

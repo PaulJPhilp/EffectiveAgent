@@ -118,7 +118,7 @@ export class EffectiveWorkspaceBuilder {
  *
  * @returns A new EffectiveWorkspaceBuilder.
  * @example
- * import { createEffectiveWorkspace } from "@/services/tools/builder";
+ * import { createEffectiveWorkspace } from "@/services/ai/tools/builder";
  * import { myTool1, myTool2 } from "./myTools";
  *
  * const projectWorkspace = createEffectiveWorkspace()

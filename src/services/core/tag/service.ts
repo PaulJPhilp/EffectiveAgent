@@ -3,26 +3,23 @@
  */
 
 import type { EntityId } from "@/types.js";
-import type { RepositoryServiceApi } from "@core/repository/api.js";
 import {
   DuplicateTagNameError,
   LinkAlreadyExistsError,
   LinkNotFoundError,
   TagDbError,
   TagNotFoundError,
-} from "./errors.js";
+} from "@core/tag/errors.js";
 import type {
   EntityTagLinkEntity,
-  EntityTagLinkEntityData,
   TagEntity,
 } from "@core/tag/schema.js";
 import * as Effect from "effect/Effect";
 import { Layer, Option } from "effect";
-import type { TagServiceApi } from "./api.js";
-import type { TaggedEntityRef } from "./types.js";
-import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
-import RepositoryService from "../repository/service.js";
-import { FindOptions } from "../repository/types.js";
+import type { TagServiceApi } from "@core/tag/api.js";
+import type { TaggedEntityRef } from "@core/tag/types.js";
+import { EntityNotFoundError } from "@core/repository/errors.js";
+import { RepositoryService } from "@core/repository/service.js";
 
 /**
  * Helper function to normalize tag names for consistent storage and lookup.

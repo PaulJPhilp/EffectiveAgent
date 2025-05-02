@@ -35,23 +35,32 @@
     // --- Path Aliases ---
     "baseUrl": ".",
     "paths": {
+      // Root path
       "@/*": ["src/*"],
-      "@provider/*": ["./src/services/ai/provider/*"],
-      "@services/*": ["./src/services/*"], // <--- UPDATED: Access global services files
-      "@core/*": ["./src/services/core/*"], // <--- NEW: Access core services/shared definitions
-      "@ai/*": ["./src/services/ai/*"], // <--- NEW: Access AI services
-      "@capabilities/*": ["./src/services/capabilities/*"], // <--- NEW: Access capabilities services
-      "@execution/*": ["./src/services/execution/*"], // <--- NEW: Access execution services
-      "@memory/*": ["./src/services/memory/*"], // <--- NEW: Access memory services
-      "@agents/*": ["./src/agents/*"], // Keep if src/agents exists
-      "@apps/*": ["./src/apps/*"] // Add if src/apps exists
-      // Remove "@shared/*" unless src/shared still exists and is needed
+
+      // Service paths
+      "@services/*": ["src/services/*"],
+      "@core/*": ["src/services/core/*"],
+      "@ai/*": ["src/services/ai/*"],
+      "@pipeline/*": ["src/services/pipeline/*"],
+      "@test-harness/*": ["src/services/test-harness/*"],
+
+      // AI service subpaths
+      "@ai/provider/*": ["src/services/ai/provider/*"],
+      "@ai/memory/*": ["src/services/ai/memory/*"],
+
+      // Core service subpaths
+      "@core/attachment/*": ["src/services/core/attachment/*"],
+      "@core/file/*": ["src/services/core/file/*"],
+      "@core/logging/*": ["src/services/core/logging/*"],
+      "@core/repository/*": ["src/services/core/repository/*"],
+      "@core/tag/*": ["src/services/core/tag/*"]
     }
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx" // Include TSX if using JSX
-    // Consider adding test files here if you want them checked by this config:
+, "ServiceMaster.ts"    // Consider adding test files here if you want them checked by this config:
     // "test/**/*.ts"
   ],
   "exclude": [

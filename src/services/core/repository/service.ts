@@ -1,7 +1,7 @@
 import { Context, Effect, Layer, Option } from "effect";
-import type { RepositoryServiceApi } from "./api.js";
-import { BaseEntity, FindOptions } from "./types.js";
-import { EntityNotFoundError, RepositoryError } from "./errors.js";
+import type { RepositoryServiceApi } from "@core/repository/api.js";
+import { BaseEntity, FindOptions } from "@core/repository/types.js";
+import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
 
 /**
  * Repository service implementation using Context.Tag pattern.

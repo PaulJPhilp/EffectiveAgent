@@ -2,7 +2,7 @@
  * @file Types for the Logging service.
  */
 
-import type { LoggingServiceApi } from "@core/logging/api.js";
+import type { LoggingServiceApi } from "./api.js";
 
 // Re-export the service API for backward compatibility
 export type { LoggingServiceApi };

@@ -89,8 +89,8 @@ export const ToolingLiveLayer = Layer.provideMerge(
 
 // Example of how a user might compose this in main.ts:
 /*
-import { ToolingLiveLayer } from "@/services/tools/layers";
-import { ProjectWorkspaceTag } from "@/services/tools/types";
+import { ToolingLiveLayer } from "@/services/ai/tools/layers";
+import { ProjectWorkspaceTag } from "@/services/ai/tools/types";
 import { MyProjectWorkspace } from "@/tools/workspace"; // User's data
 import { BunContext } from "@effect/platform-bun";
 import { Layer } from "effect";
