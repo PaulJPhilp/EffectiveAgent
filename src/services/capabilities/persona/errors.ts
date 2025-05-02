@@ -3,7 +3,6 @@
  * @module services/capabilities/persona/errors
  */
 
-import { EntityParseError } from "@/services/core/errors.js";
 import { EffectiveError } from "@/errors.js";
 
 /**
@@ -15,7 +14,7 @@ export class PersonaConfigError extends EffectiveError {
         description: string;
         module: string;
         method: string;
-        cause?: EntityParseError;
+        cause?: unknown;
     }) {
         super(params);
     }

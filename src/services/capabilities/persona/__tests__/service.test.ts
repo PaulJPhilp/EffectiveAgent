@@ -27,63 +27,109 @@ const validConfigLayer = Layer.succeed(
 
 // --- Tests ---
 describe("PersonaService", () => {
-    it("should load and validate intelligence config successfully", async () => {
-        const effect = Effect.gen(function* () {
-            const service = yield* PersonaService;
-            const loaded = yield* service.load();
-            expect(loaded.name).toBe("test-persona-config");
-            expect(loaded.personas).toHaveLength(1);
-            expect(loaded.personas[0].name).toBe("test-profile");
-            return loaded;
-        });
-        const runnable = Effect.provide(effect, validConfigLayer);
-        const layer = PersonaService.Default;
-        const provided = Effect.provide(runnable, layer);
-        await Effect.runPromise(provided);
-    });
+    it("should load and validate persona config successfully", () => 
+        Effect.gen(function* () {
+            // Setup test environment with valid config
+            const configLayer = Layer.succeed(
+                ConfigProvider.ConfigProvider,
+                ConfigProvider.fromMap(new Map([
+                    ["personas", JSON.stringify(validPersonaConfig)]
+                ]))
+            );
+            
+            // Access the service and provide the environment
+            const effect = Effect.gen(function* () {
+                const service = yield* PersonaService;
+                const config = yield* service.load();
+                
+                // Assertions
+                expect(config.name).toBe("test-persona-config");
+                expect(config.personas).toHaveLength(1);
+                expect(config.personas[0].name).toBe("test-profile");
+                
+                return config;
+            });
+            
+            return yield* Effect.provide(
+                effect,
+                Layer.merge(PersonaService.Default, configLayer)
+            );
+        })
+    );
 
-    it("should fail with PersonaConfigError if config is invalid JSON", async () => {
-        const invalidJsonLayer = Layer.succeed(
-            ConfigProvider.ConfigProvider,
-            ConfigProvider.fromMap(new Map([
-                ["personas", "not a json"]
-            ]))
-        );
-        const effect = Effect.gen(function* () {
-            const service = yield* PersonaService;
-            return yield* service.load();
-        });
-        const runnable = Effect.provide(effect, invalidJsonLayer);
-        const layer = PersonaService.Default;
-        const provided = Effect.provide(runnable, layer);
-        const exit = await Effect.runPromise(Effect.exit(provided));
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isSuccess(exit)) throw new Error("Expected failure but got success");
-        // Only check failureOption (defectOption does not exist in Effect)
-        const error = Cause.failureOption(exit.cause);
-        expect(Option.isSome(error)).toBe(false);
-    });
+    it("should fail with PersonaConfigError if config is invalid JSON", () =>
+        Effect.gen(function* () {
+            // Setup test environment with invalid JSON
+            const invalidJsonLayer = Layer.succeed(
+                ConfigProvider.ConfigProvider,
+                ConfigProvider.fromMap(new Map([
+                    ["personas", "not a json"]
+                ]))
+            );
+            
+            // Create an effect that should fail
+            const testEffect = Effect.gen(function* () {
+                const service = yield* PersonaService;
+                return yield* service.load();
+            });
+            
+            // Run with Exit to capture the failure
+            const exit = yield* Effect.provide(
+                Effect.exit(testEffect),
+                Layer.merge(PersonaService.Default, invalidJsonLayer)
+            );
+            
+            // Assertions - verify failure without throw
+            expect(Exit.isFailure(exit)).toBe(true);
+            
+            const error = Cause.failureOption(exit.cause);
+            expect(Option.isSome(error)).toBe(true);
+            
+            const value = Option.getOrThrow(error);
+            expect(value).toBeInstanceOf(PersonaConfigError);
+            
+            // Type check before accessing properties
+            if (value instanceof PersonaConfigError) {
+                expect(value.description).toBe("Failed to parse persona configuration JSON");
+            }
+        })
+    );
 
-    it("should fail with PersonaConfigError if config fails schema validation", async () => {
-        const invalidSchemaLayer = Layer.succeed(
-            ConfigProvider.ConfigProvider,
-            ConfigProvider.fromMap(new Map([
-                ["personas", JSON.stringify({ description: "Missing name and personas" })]
-            ]))
-        );
-        const effect = Effect.gen(function* () {
-            const service = yield* PersonaService;
-            return yield* service.load();
-        });
-        const runnable = Effect.provide(effect, invalidSchemaLayer);
-        const layer = PersonaService.Default;
-        const provided = Effect.provide(runnable, layer);
-        const exit = await Effect.runPromise(Effect.exit(provided));
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isSuccess(exit)) throw new Error("Expected failure but got success");
-        const error = Cause.failureOption(exit.cause);
-        expect(Option.isSome(error)).toBe(true);
-        const value = Option.getOrThrow(error);
-        expect(value).toBeInstanceOf(PersonaConfigError);
-    });
+    it("should fail with PersonaConfigError if config fails schema validation", () =>
+        Effect.gen(function* () {
+            // Setup test environment with schema-invalid config
+            const invalidSchemaLayer = Layer.succeed(
+                ConfigProvider.ConfigProvider,
+                ConfigProvider.fromMap(new Map([
+                    ["personas", JSON.stringify({ description: "Missing name and personas" })]
+                ]))
+            );
+            
+            // Create an effect that should fail
+            const testEffect = Effect.gen(function* () {
+                const service = yield* PersonaService;
+                return yield* service.load();
+            });
+            
+            // Run with Exit to capture the failure 
+            const exit = yield* Effect.provide(
+                Effect.exit(testEffect),
+                Layer.merge(PersonaService.Default, invalidSchemaLayer)
+            );
+            
+            // Assertions - verify failure without throw
+            expect(Exit.isFailure(exit)).toBe(true);
+            
+            const error = Cause.failureOption(exit.cause);
+            expect(Option.isSome(error)).toBe(true);
+            
+            const value = Option.getOrThrow(error);
+            expect(value).toBeInstanceOf(PersonaConfigError);
+            
+            // Type check before accessing properties
+            if (value instanceof PersonaConfigError) {
+                expect(value.description).toBe("Failed to validate persona configuration");
+            }
+        })
+    );
 });
