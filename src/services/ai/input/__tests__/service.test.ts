@@ -15,7 +15,7 @@ describe("EffectiveInput", () => {
             }))
             const messages = Chunk.toReadonlyArray(message.getMessages())
             expect(messages.length).toBe(1)
-            expect(messages[0].role).toBe("user")
+            expect(messages[0].role.kind).toBe("user")
             expect(messages[0].parts.length).toBe(1)
             const parts = Chunk.toReadonlyArray(messages[0].parts)
             expect(parts[0]).toBeInstanceOf(TextPart)
@@ -30,7 +30,7 @@ describe("EffectiveInput", () => {
             }))
             const messages = Chunk.toReadonlyArray(message.getMessages())
             expect(messages.length).toBe(1)
-            expect(messages[0].role).toBe("assistant")
+            expect(messages[0].role.kind).toBe("model")
             expect(messages[0].parts.length).toBe(1)
             const parts = Chunk.toReadonlyArray(messages[0].parts)
             expect(parts[0]).toBeInstanceOf(TextPart)
@@ -42,7 +42,7 @@ describe("EffectiveInput", () => {
             const systemMessage = input.addTextPart("Hello", "system")
             const messages = Chunk.toReadonlyArray(systemMessage.getMessages())
             expect(messages.length).toBe(1)
-            expect(messages[0].role).toBe("system")
+            expect(messages[0].role.kind).toBe("model")
             expect(messages[0].parts.length).toBe(1)
             const parts = Chunk.toReadonlyArray(messages[0].parts)
             expect(parts[0]).toBeInstanceOf(TextPart)
@@ -233,7 +233,7 @@ describe("EffectiveInput", () => {
             const messages = Chunk.toReadonlyArray(updatedInput.getMessages())
 
             // Verify role mapping
-            expect(messages[0].role).toBe("user")
+            expect(messages[0].role.kind).toBe("user")
         })
 
         it("should map assistant role correctly", () => {
@@ -248,7 +248,7 @@ describe("EffectiveInput", () => {
             const messages = Chunk.toReadonlyArray(updatedInput.getMessages())
 
             // Verify role mapping
-            expect(messages[0].role).toBe("assistant")
+            expect(messages[0].role.kind).toBe("model")
         })
 
         it("should map system role correctly", () => {
@@ -259,7 +259,7 @@ describe("EffectiveInput", () => {
             const messages = Chunk.toReadonlyArray(systemMessage.getMessages())
 
             // Verify role mapping
-            expect(messages[0].role).toBe("system")
+            expect(messages[0].role.kind).toBe("model")
         })
     })
 }) 

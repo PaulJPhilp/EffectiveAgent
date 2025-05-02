@@ -1,9 +1,8 @@
-
 import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
-import { ProviderConfigError } from "../ai/provider/errors.js";
-import { EntityParseError } from "../core/errors.js";
+import { EntityParseError } from "@core/errors.js";
 import { WorkbenchConfigError } from "./errors.js";
 import { Tool, Toolbox, WorkbenchFile } from "./schema.js";
+import { ProviderConfigError } from "../../errors.js";
 
 export class ToolboxService extends Effect.Service<ToolboxService>()("ToolboxService", {
     effect: Effect.gen(function* () {
@@ -45,9 +44,14 @@ export class WorkbenchService extends Effect.Service<WorkbenchService>()("Workbe
                     const configProvider = yield* ConfigProvider.ConfigProvider;
                     const rawConfig = yield* configProvider.load(Config.string("workbench")).pipe(
                         Effect.mapError(cause => new WorkbenchConfigError({
-                            message: "Failed to load model config",
+                            description: "No workbench configured",
+                            module: "WorkbenchService",
+                            method: "load",
                             cause: new EntityParseError({
                                 filePath: "models.json",
+                                description: "No workbench configured",
+                                module: "WorkbenchService",
+                                method: "load",
                                 cause
                             })
                         }))
@@ -57,9 +61,14 @@ export class WorkbenchService extends Effect.Service<WorkbenchService>()("Workbe
                         try: () => JSON.parse(rawConfig),
                         catch: (error) => {
                             throw new ProviderConfigError({
-                                message: "Failed to parse model config",
+                                description: "Failed to parse model config",
+                                module: "WorkbenchService",
+                                method: "load",
                                 cause: new EntityParseError({
                                     filePath: "models.json",
+                                    description: "Failed to parse model config",
+                                    module: "WorkbenchService",
+                                    method: "load",
                                     cause: error
                                 })
                             });
@@ -70,9 +79,14 @@ export class WorkbenchService extends Effect.Service<WorkbenchService>()("Workbe
                     const data = yield* parsedConfig
                     const validConfig = yield* S.decode(WorkbenchFile)(data).pipe(
                         Effect.mapError(cause => new WorkbenchConfigError({
-                            message: "Failed to validate model config",
+                            description: "Invalid workbench configuration",
+                            module: "WorkbenchService",
+                            method: "load",
                             cause: new EntityParseError({
                                 filePath: "models.json",
+                                description: "Invalid workbench configuration",
+                                module: "WorkbenchService",
+                                method: "load",
                                 cause
                             })
                         }))

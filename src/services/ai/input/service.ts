@@ -25,11 +25,7 @@ export class EffectiveInput {
     }
 
     addTextPart(text: string, role: EffectiveRole = "assistant"): EffectiveInput {
-        const textPart: TextPart = {
-            _tag: "Text",
-            content: text,
-            [PartTypeId]: PartTypeId
-        };
+        const textPart = new TextPart({ content: text });
         return this.addPartAsMessage(textPart, role);
     }
 
@@ -88,11 +84,7 @@ export class EffectiveInput {
 
     // Helper methods
     private createTextPart(text: string): TextPart {
-        return {
-            _tag: "Text",
-            content: text,
-            [PartTypeId]: PartTypeId
-        };
+        return new TextPart({ content: text });
     }
 
     private addPartAsMessage(part: Part, role: EffectiveRole = "assistant"): EffectiveInput {
@@ -114,11 +106,7 @@ export class EffectiveMessage extends Message {
 
     static fromEffectivePart(part: EffectivePartType): EffectiveMessage {
         // Helper to create a proper TextPart
-        const createTextPart = (content: string): Part => ({
-            [PartTypeId]: PartTypeId,
-            _tag: "Text" as const,
-            content
-        });
+        const createTextPart = (content: string): Part => new TextPart({ content });
 
         // Handle new EffectivePart types with custom message creation
         if (part instanceof FilePart) {

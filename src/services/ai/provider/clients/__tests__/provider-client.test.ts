@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
 import * as OpenAI from "../openai-provider-client.js";
 import * as Anthropic from "../anthropic-provider-client.js";
 import * as Google from "../google-provider-client.js";
@@ -12,7 +12,7 @@ import type { EffectiveProviderApi, EffectiveResponse, GenerateEmbeddingsResult,
 import type { ProviderClientApi } from "../../api.js";
 import { ModelCapability } from "@/schema.js";
 import { EffectiveInput } from "@/services/ai/input/service.js";
-import { ModelServiceApi } from "@/services/ai/model/service.js";
+import { ModelService, ModelServiceApi } from "@/services/ai/model/service.js";
 import { LanguageModelV1 } from "ai";
 import { ProviderClient } from "../../client.js";
 

@@ -3,7 +3,7 @@
  * @module services/ai/producers/object/errors
  */
 
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Error thrown when there are issues with object model configuration or access

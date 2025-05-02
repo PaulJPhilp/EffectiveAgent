@@ -321,7 +321,7 @@ export function mapProviderError(error: Error): AIError {
     if (error.message.includes("content filter") || error.message.includes("moderation")) {
         return new ContentFilterError(error.message, { cause: error })
     }
-    if (error.name === "TimeoutError" || error.message.includes("timeout")) {
+    if (error.name === "TimeoutError" || error.message.toLowerCase().includes("timed out") || error.message.toLowerCase().includes("timeout")) {
         return new TimeoutError(error.message, { cause: error })
     }
 
@@ -333,6 +333,6 @@ export function mapProviderError(error: Error): AIError {
  * Effect middleware to map provider errors
  */
 export const withErrorMapping = <R, E, A>(effect: Effect.Effect<R, E, A>): Effect.Effect<R, AIError, A> =>
-    Effect.catchAll(effect, error =>
-        Effect.fail(error instanceof Error ? mapProviderError(error) : new AIError(String(error)))
-    ) 
+    Effect.mapError(effect, error => 
+        error instanceof Error ? mapProviderError(error) : new AIError(String(error))
+    )

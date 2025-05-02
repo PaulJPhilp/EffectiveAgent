@@ -112,7 +112,6 @@ describe("AI Error Types", () => {
             const program = failingEffect.pipe(withErrorMapping)
 
             const result = await Effect.runPromiseExit(program)
-            expect(Effect.isFailure(result)).toBe(true)
             Exit.match(result, {
                 onFailure: (cause) => {
                     const error = Cause.failureOption(cause);
@@ -131,10 +130,14 @@ describe("AI Error Types", () => {
             const program = successEffect.pipe(withErrorMapping)
 
             const result = await Effect.runPromiseExit(program)
-            expect(Effect.isSuccess(result)).toBe(true)
-            if (Effect.isSuccess(result)) {
-                expect(Effect.succeed(result)).toBe("success")
-            }
+            Exit.match(result, {
+                onFailure: () => {
+                    expect.fail("Expected success")
+                },
+                onSuccess: (value) => {
+                    expect(value).toBe("success")
+                }
+            });
         })
 
         it("should handle non-Error failures", async () => {
@@ -142,7 +145,6 @@ describe("AI Error Types", () => {
             const program = failingEffect.pipe(withErrorMapping)
 
             const result = await Effect.runPromiseExit(program)
-            expect(Effect.isFailure(result)).toBe(true)
             Exit.match(result, {
                 onFailure: (cause) => {
                     const error = Cause.failureOption(cause);

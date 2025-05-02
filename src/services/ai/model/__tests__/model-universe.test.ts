@@ -4,7 +4,7 @@
 
 import { Effect, pipe, Schema as S } from "effect";
 import { describe, it, expect } from "vitest";
-import ModelService from "../service.js";
+import { ModelService } from "../service.js";
 import { MODEL_UNIVERSE, MODEL_IDS } from "../model-universe.js";
 import { ModelCapability } from "@/schema.js";
 

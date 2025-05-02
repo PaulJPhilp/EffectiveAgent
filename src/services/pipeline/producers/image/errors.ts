@@ -3,7 +3,7 @@
  * @module services/ai/producers/image/errors
  */
 
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Error thrown when there are issues with image model configuration or access

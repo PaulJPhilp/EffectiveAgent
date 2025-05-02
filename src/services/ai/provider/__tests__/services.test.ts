@@ -1,17 +1,17 @@
 /**
  * @file Scaffold for ProviderService integration tests using Effect VitestService.
- */
-
-/**
  * @file Scaffold for ProviderService integration tests using effect/vitest.
  */
 
-import { Effect } from "effect";
-import { ProviderService } from "../service.js";
-import { ProviderConfigError, ProviderNotFoundError } from "../errors.js";
-import { ProviderFile } from "../schema.js";
-import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js";
-import { expect, it, describe } from "@effect/vitest";
+import { Effect } from "effect"
+import { ProviderService } from "../service.js"
+import type { ProviderServiceApi, ProviderClientApi } from "../api.js"
+import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "../errors.js"
+import { ProviderFile } from "../schema.js"
+import type { EffectiveProviderApi, EffectiveResponse, GenerateObjectResult, GenerateSpeechResult, GenerateTextResult, GenerateImageResult, TranscribeResult, GenerateEmbeddingsResult } from "../types.js";
+import { mockService, withResource, provideMockService } from "@/services/core/test-harness/utils/context-management.js";
+import { createTypedMock, mockSuccess, mockFailure } from "@/services/core/test-harness/utils/typed-mocks.js";
+import { expect, it, describe } from "vitest";
 
 // Valid test config
 const validConfig: ProviderFile = {
@@ -34,46 +34,67 @@ const invalidConfig: any = {
   providers: "not-an-array"
 };
 
-// Test harness factories for ProviderService
-const makeProviderService = (config: ProviderFile | any) =>
-  Effect.succeed({
-    load:
-      typeof config.name !== "string" || !Array.isArray(config.providers)
-        ? Effect.fail(
-            new ProviderConfigError({
-              description: "Invalid provider config",
-              module: "ProviderService",
-              method: "load"
-            })
-          )
-        : Effect.succeed(config as ProviderFile),
+// Create test layer for provider service
+const createTestLayer = (config: any) =>
+  Effect.provideServiceEffect(ProviderService, Effect.succeed<ProviderServiceApi>({
+    load: Effect.gen(function* () {
+      // Validate the config
+      if (typeof config.name !== 'string' || !Array.isArray(config.providers)) {
+        return yield* Effect.fail(new ProviderConfigError({
+          description: "Invalid provider config",
+          module: "ProviderService",
+          method: "load",
+          cause: new Error("Invalid config structure")
+        }));
+      }
+      return config;
+    }),
     getProviderClient: (providerName: string) =>
-      Array.isArray(config.providers) &&
-      config.providers.some((p: any) => p.name === providerName)
-        ? Effect.succeed({ name: providerName, client: {} })
-        : Effect.fail(
-            new ProviderNotFoundError({
-              providerName,
-              module: "ProviderService",
-              method: "getProviderClient"
-            })
-          )
-  });
-
-// Test harness for valid config
-const validHarness = createServiceTestHarness(
-  ProviderService,
-  () => makeProviderService(validConfig)
-);
-
-// Test harness for invalid config
-const invalidHarness = createServiceTestHarness(
-  ProviderService,
-  () => makeProviderService(invalidConfig)
-);
+      config.providers.some((p: { name: string }) => p.name === providerName)
+        ? Effect.succeed({
+            name: providerName,
+            chat: () => Effect.succeed({ 
+              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test" }, 
+              metadata: { id: "test", timestamp: new Date() } 
+            }) as Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderConfigError | ProviderOperationError, never>,
+            setVercelProvider: () => Effect.succeed(undefined),
+            getProvider: () => Effect.succeed({} as EffectiveProviderApi),
+            generateText: () => Effect.succeed({ 
+              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test" }, 
+              metadata: { id: "test", timestamp: new Date() } 
+            }) as Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderConfigError | ProviderOperationError, never>,
+            generateObject: <T>() => Effect.succeed({ 
+              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, object: {} as T }, 
+              metadata: { id: "test", timestamp: new Date() } 
+            }) as Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, ProviderConfigError | ProviderOperationError, never>,
+            generateSpeech: () => Effect.succeed({ 
+              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, audioData: "test", format: "mp3", parameters: { voice: "test" } }, 
+              metadata: { id: "test", timestamp: new Date() } 
+            }) as Effect.Effect<EffectiveResponse<GenerateSpeechResult>, never, never>,
+            transcribe: () => Effect.succeed({ 
+              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test", duration: 0, parameters: { language: "en" } }, 
+              metadata: { id: "test", timestamp: new Date() } 
+            }) as Effect.Effect<EffectiveResponse<TranscribeResult>, never, never>,
+            generateEmbeddings: () => Effect.succeed({ 
+              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, embeddings: [[0]], dimensions: 1, texts: ["test"], parameters: {} }, 
+              metadata: { id: "test", timestamp: new Date() } 
+            }) as Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, never, never>,
+            generateImage: () => Effect.succeed({ 
+              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, imageUrl: "test", parameters: { size: "1024x1024" } }, 
+              metadata: { id: "test", timestamp: new Date() } 
+            }) as Effect.Effect<EffectiveResponse<GenerateImageResult>, ProviderConfigError | ProviderOperationError, never>,
+            getCapabilities: () => Effect.succeed(new Set()),
+            getModels: () => Effect.succeed([])
+          })
+        : Effect.fail(new ProviderNotFoundError({
+            providerName,
+            module: "ProviderService",
+            method: "getProviderClient"
+          }))
+  }));
 
 /**
- * @file Minimal working ProviderService test using @effect/vitest.
+ * @file ProviderService tests using Effect test harness.
  */
 
 describe("ProviderService", () => {
@@ -85,7 +106,7 @@ describe("ProviderService", () => {
       expect(loaded.providers.length).toBe(validConfig.providers.length);
       expect(loaded.providers[0].name).toBe(validConfig.providers[0].name);
     });
-    await validHarness.runTest(effect);
+    await Effect.runPromise(createTestLayer(validConfig)(effect));
   });
 
   it("throws on invalid provider config", async () => {
@@ -98,7 +119,7 @@ describe("ProviderService", () => {
         expect(error).toBeInstanceOf(ProviderConfigError);
       }
     });
-    await invalidHarness.runTest(effect);
+    await Effect.runPromise(createTestLayer(invalidConfig)(effect));
   });
 
   it("returns a provider client for a valid provider name", async () => {
@@ -106,9 +127,8 @@ describe("ProviderService", () => {
       const service = yield* ProviderService;
       const client = yield* service.getProviderClient("openai");
       expect(client).toBeDefined();
-      // Optionally: check client properties or capabilities if needed
     });
-    await validHarness.runTest(effect);
+    await Effect.runPromise(createTestLayer(validConfig)(effect));
   });
 
   it("throws on unknown provider name", async () => {
@@ -117,14 +137,10 @@ describe("ProviderService", () => {
       const result = yield* Effect.either(service.getProviderClient("nonexistent"));
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
-        // Check for ProviderNotFoundError by class or name property
-        expect(
-          result.left.name === "ProviderNotFoundError" ||
-          result.left.constructor.name === "ProviderNotFoundError"
-        ).toBe(true);
+        expect(result.left).toBeInstanceOf(ProviderNotFoundError);
       }
     });
-    await validHarness.runTest(effect);
+    await Effect.runPromise(createTestLayer(validConfig)(effect));
   });
 
   it("returns Left for empty provider name", async () => {
@@ -136,15 +152,11 @@ describe("ProviderService", () => {
         expect(result.left).toBeInstanceOf(ProviderNotFoundError);
       }
     });
-    await validHarness.runTest(effect);
+    await Effect.runPromise(createTestLayer(validConfig)(effect));
   });
 
   it("handles config with empty providers array", async () => {
     const emptyProvidersConfig = { ...validConfig, providers: [] };
-    const harness = createServiceTestHarness(
-      ProviderService,
-      () => makeProviderService(emptyProvidersConfig)
-    );
     const effect = Effect.gen(function* () {
       const service = yield* ProviderService;
       const loaded = yield* service.load;
@@ -155,7 +167,7 @@ describe("ProviderService", () => {
         expect(result.left).toBeInstanceOf(ProviderNotFoundError);
       }
     });
-    await harness.runTest(effect);
+    await Effect.runPromise(createTestLayer(emptyProvidersConfig)(effect));
   });
 
   it("handles config with duplicate provider names", async () => {
@@ -166,10 +178,6 @@ describe("ProviderService", () => {
         { ...validConfig.providers[0] }
       ]
     };
-    const harness = createServiceTestHarness(
-      ProviderService,
-      () => makeProviderService(dupConfig)
-    );
     const effect = Effect.gen(function* () {
       const service = yield* ProviderService;
       const loaded = yield* service.load;
@@ -178,20 +186,17 @@ describe("ProviderService", () => {
       const client = yield* service.getProviderClient("openai");
       expect(client).toBeDefined();
     });
-    await harness.runTest(effect);
+    await Effect.runPromise(createTestLayer(dupConfig)(effect));
   });
 
   it("loads config with missing optional fields", async () => {
     const minimalConfig = {
       name: "minimal",
+      description: "Minimal test config",
       providers: [
         { name: "openai", displayName: "OpenAI", type: "llm" }
       ]
     };
-    const harness = createServiceTestHarness(
-      ProviderService,
-      () => makeProviderService(minimalConfig)
-    );
     const effect = Effect.gen(function* () {
       const service = yield* ProviderService;
       const loaded = yield* service.load;
@@ -199,6 +204,6 @@ describe("ProviderService", () => {
       expect(loaded.providers[0].apiKeyEnvVar).toBeUndefined();
       expect(loaded.providers[0].baseUrl).toBeUndefined();
     });
-    await harness.runTest(effect);
+    await Effect.runPromise(createTestLayer(minimalConfig)(effect));
   });
 });

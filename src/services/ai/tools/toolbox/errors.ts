@@ -1,4 +1,4 @@
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Represents an error occurring during the validation or update

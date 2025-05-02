@@ -3,7 +3,7 @@
  * @module services/ai/producers/embedding/errors
  */
 
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Base error type for embedding-related errors.

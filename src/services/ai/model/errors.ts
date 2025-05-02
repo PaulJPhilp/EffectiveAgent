@@ -3,7 +3,7 @@
  * @module services/ai/model/errors
  */
 
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 import type { EntityLoadError, EntityParseError } from "@/services/core/errors.js";
 
 /**

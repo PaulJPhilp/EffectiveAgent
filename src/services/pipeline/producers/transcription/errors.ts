@@ -3,7 +3,7 @@
  * @module services/ai/producers/transcription/errors
  */
 
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Error thrown when there are issues with transcription model configuration or access

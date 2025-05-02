@@ -6,7 +6,7 @@ interface AiServiceDeps {
   providerService: unknown;
 }
 
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 import { AiResponse } from "@effect/ai/AiResponse";
 import { User } from "@effect/ai/AiRole";
 

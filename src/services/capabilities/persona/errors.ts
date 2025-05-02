@@ -4,7 +4,7 @@
  */
 
 import { EntityParseError } from "@/services/core/errors.js";
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Error thrown when there are issues with persona configuration.

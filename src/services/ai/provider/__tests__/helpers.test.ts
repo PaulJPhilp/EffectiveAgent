@@ -13,6 +13,14 @@ const mockConfigProvider = ConfigProvider.fromMap(new Map([
 function deepFindProviderConfigError(err: unknown, maxDepth = 10): boolean {
   if (!err || typeof err !== 'object' || maxDepth <= 0) return false;
   if (err instanceof ProviderConfigError) return true;
+  // Handle Effect errors which have a 'cause' property
+  if ('cause' in err && err.cause) {
+    if (deepFindProviderConfigError(err.cause, maxDepth - 1)) return true;
+  }
+  // Handle Effect errors which have a 'left' property (Either type)
+  if ('left' in err && err.left) {
+    if (deepFindProviderConfigError(err.left, maxDepth - 1)) return true;
+  }
   // Check all string keys
   for (const key of Object.keys(err)) {
     // @ts-ignore
@@ -38,12 +46,13 @@ describe('helpers.ts', () => {
       // Use an empty provider with no config string
       const emptyProvider = ConfigProvider.fromMap(new Map());
       const effect = loadConfigString(emptyProvider, 'testMethod');
-      try {
-        await Effect.runPromise(effect);
-        throw new Error('Should have thrown');
-      } catch (err: any) {
-
-        expect(deepFindProviderConfigError(err)).toBe(true);
+      const result = await Effect.runPromiseExit(effect);
+      expect(result._tag).toBe('Failure');
+      if (result._tag === 'Failure') {
+        expect(result.cause._tag).toBe('Fail');
+        if (result.cause._tag === 'Fail') {
+          expect(result.cause.error).toBeInstanceOf(ProviderConfigError);
+        }
       }
     });
   });

@@ -1,4 +1,4 @@
-import { EffectiveError } from "../../../effective-error.js";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Base error class for all policy service related errors

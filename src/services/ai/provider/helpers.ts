@@ -1,13 +1,16 @@
 import { randomUUID } from "node:crypto";
-import type { EffectiveResponse, GenerateBaseResult } from "@/services/ai/pipeline/types.js";
+import type { JsonObject } from "@/types.js";
+import type { EffectiveResponse, GenerateBaseResult } from "./types.js";
 import { ProviderOperationError, ProviderConfigError, ProviderMissingCapabilityError } from "./errors.js";
-import { ModelServiceApi } from "../model/service.js";
-import { LoggingApi } from "@/services/core/logging/types.js";
 import { Effect } from "effect";
+import { ModelService } from "../model/service.js";
+import { ConfigProvider, Config } from "effect";
 import { ProvidersType } from "./schema.js";
 import { ModelCapability } from "@/schema.js";
-import { ConfigProvider, Config } from "effect";
-import { EntityParseError } from "@/services/core/errors.js";
+import { Provider } from "./schema.js";
+import { EntityParseError } from "../../core/errors.js";
+import { ModelServiceApi } from "../model/api.js";
+import { LoggingServiceApi } from "@/services/core/logging/api.js";
 
 /**
  * Loads the provider configuration string from the provided ConfigProvider
@@ -26,7 +29,7 @@ export const loadConfigString = (
         description: "Failed to load provider config string (sync error)",
         module: "ProviderService",
         method,
-        cause: new EntityParseError({ filePath: "config", cause: error instanceof Error ? error : new Error(String(error)) })
+        cause: error instanceof Error ? error : new Error(String(error))
       })
   }).pipe(
     Effect.flatten,
@@ -35,7 +38,7 @@ export const loadConfigString = (
         description: "Failed to load provider config string",
         module: "ProviderService",
         method,
-        cause: new EntityParseError({ filePath: "config", cause })
+        cause: cause instanceof Error ? cause : new Error(String(cause))
       })
     )
   );
@@ -66,10 +69,30 @@ export const parseConfigJson = (
 /**
  * Wraps a provider's result in a standardized response object with metadata.
  * @template T
- * @param {T} result - The provider result to wrap
- * @returns {EffectiveResponse<T>} The standardized response
+ * @param result - The provider result to wrap
+ * @returns Effect<EffectiveResponse<T>, never>
  */
+export const createResponse = <T extends GenerateBaseResult>(result: T): Effect.Effect<EffectiveResponse<T>, never> =>
+    Effect.succeed({
+        data: result,
+        metadata: {
+            id: result.id,
+            model: result.model,
+            timestamp: result.timestamp,
+            usage: result.usage,
+            finishReason: result.finishReason,
+            providerMetadata: result.providerMetadata
+        }
+    });
 
+
+/**
+ * Helper function for logging debug messages with consistent formatting
+ * @param method - The method name for context
+ * @param message - The message to log
+ * @param data - Optional data to include in the log
+ * @returns Effect<void, never>
+ */
 
 /**
  * Looks up the provider name for a given modelId, logs and maps errors.
@@ -79,7 +102,7 @@ export const parseConfigJson = (
 export function getProviderName(params: {
   modelService: ModelServiceApi;
   modelId: string;
-  logger: LoggingApi;
+  logger: LoggingServiceApi;
   method: string;
 }): Effect.Effect<string, ProviderConfigError> {
   const { modelService, modelId, logger, method } = params;
@@ -106,25 +129,49 @@ export function getProviderName(params: {
  * @param params - Object with options and method
  * @returns Effect<string, ProviderConfigError>
  */
-export function validateModelId(params: {
-  options: { modelId?: string };
-  method: string;
-}): Effect.Effect<string, ProviderConfigError> {
-  const { options, method } = params;
-  return Effect.gen(function* () {
-    const { modelId } = options;
-    if (!modelId) {
-      yield* Effect.fail(
-        new ProviderConfigError({
-          description: "No modelId provided in ProviderGenerateTextOptions",
-          module: "ProviderClient",
-          method
-        })
-      );
+export const validateModelId = ({ options, method }: {
+    options: { modelId?: string },
+    method: string,
+}): Effect.Effect<string, ProviderConfigError, ModelServiceApi> => Effect.gen(function* () {
+    if (!options.modelId) {
+        yield* Effect.logDebug(`[ProviderClient:${method}] No modelId provided, using default model`);
+        const defaultId = yield* Effect.mapError(
+            Effect.gen(function* () {
+                const modelService = yield* ModelService;
+                return yield* modelService.getDefaultModelId("openai" as const, ModelCapability.literals[1]);
+            }),
+            err => new ProviderConfigError({
+                description: `Failed to get default model ID: ${err instanceof Error ? err.message : String(err)}`,
+                module: "ProviderClient",
+                method
+            })
+        );
+        return defaultId;
     }
-    return modelId!;
-  });
-}
+
+    const modelId = options.modelId;
+    const exists = yield* Effect.mapError(
+        Effect.gen(function* () {
+            const modelService = yield* ModelService;
+            return yield* modelService.exists(modelId);
+        }),
+        err => new ProviderConfigError({
+            description: `Failed to check if model ${modelId} exists: ${err instanceof Error ? err.message : String(err)}`,
+            module: "ProviderClient",
+            method
+        })
+    );
+
+    if (!exists) {
+        throw new ProviderConfigError({
+            description: `Model ${modelId} not found`,
+            module: "ProviderClient",
+            method
+        });
+    }
+
+    return modelId;
+});
 
 /**
  * Converts an unknown error to a ProviderOperationError or ProviderConfigError.

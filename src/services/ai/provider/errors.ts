@@ -3,7 +3,7 @@
  * @module services/ai/provider/errors
  */
 
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 import type { ModelCapability } from "@/schema.js";
 import type { ProvidersType } from "./schema.js";
 

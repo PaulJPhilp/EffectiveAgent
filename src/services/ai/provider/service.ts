@@ -3,7 +3,7 @@
  * @module services/ai/provider/service
  */
 
-import { EntityParseError } from "@/services/core/errors.js";
+import { EntityParseError } from "@core/errors.js";
 import { Config, ConfigProvider, Effect, Schema as S } from "effect";
 import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "./errors.js";
 import { ProviderFile, ProvidersType } from "./schema.js";

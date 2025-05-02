@@ -3,7 +3,7 @@
  * @module services/capabilities/skill/errors
  */
 
-import { EffectiveError } from "@/effective-error.js";
+import { EffectiveError } from "@/errors.js";
 import type { ParseError } from "effect/ParseResult";
 
 /**

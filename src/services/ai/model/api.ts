@@ -13,6 +13,7 @@ import type { Model, ModelFile, Provider } from "./schema.js";
  * Defines the public API for the ModelService.
  */
 export type ModelServiceApi = {
+  exists: (modelId: string) => Effect.Effect<boolean, ModelNotFoundError>;
   /**
    * Loads the model configuration from the config provider and validates it.
    * @returns An Effect resolving to the loaded and validated ModelFile.

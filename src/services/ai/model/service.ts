@@ -6,7 +6,8 @@
 import { ModelCapability } from "@/schema.js";
 import { Provider } from "./schema.js";
 import { Effect } from "effect";
-import { ModelServiceApi } from "./api.js";
+import type { ModelServiceApi } from "./api.js";
+export type { ModelServiceApi };
 import {
     ModelConfigError,
     ModelNotFoundError,
@@ -15,7 +16,7 @@ import {
 import { Model } from "./schema.js";
 import { MODEL_UNIVERSE, ModelMetadata } from "./model-universe.js";
 
-class ModelService extends Effect.Service<ModelServiceApi>()(
+export class ModelService extends Effect.Service<ModelServiceApi>()(
     "ModelService", {
     effect: Effect.gen(function* () {
         // Convert MODEL_UNIVERSE items to Model objects for consistency with existing code
@@ -91,6 +92,17 @@ class ModelService extends Effect.Service<ModelServiceApi>()(
              * @param capabilities Array of capabilities to validate against.
              * @returns An Effect resolving to true if the model exists and has all specified capabilities, false otherwise.
              */
+            exists: (modelId: string): Effect.Effect<boolean, ModelNotFoundError> => {
+                const model = MODEL_UNIVERSE.find(m => m.id === modelId);
+                if (!model) {
+                    return Effect.fail(new ModelNotFoundError({
+                        modelId,
+                        method: "exists"
+                    }));
+                }
+                return Effect.succeed(true);
+            },
+
             validateModel: (modelId: string, capabilities: typeof ModelCapability): Effect.Effect<boolean, ModelValidationError> => {
                 const model = MODEL_UNIVERSE.find(m => m.id === modelId);
                 if (!model) {
@@ -117,6 +129,3 @@ class ModelService extends Effect.Service<ModelServiceApi>()(
         }
     })
 }) {}
-
-export { ModelService };
-export default ModelService;
