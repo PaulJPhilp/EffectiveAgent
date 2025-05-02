@@ -1,0 +1,597 @@
+/**
+ * @file ExecutiveService Implementation
+ * @description Implementation of the ExecutiveService using Effect.Service pattern.
+ */
+
+import { Effect, HashMap, Option, pipe, Ref } from "effect";
+import { v4 as uuid } from "uuid";
+import { PolicyService } from "../policy/service.js";
+import { TextService } from "../text/service.js";
+import { ExecutiveServiceApi, TextExecuteOptions } from "./api.js";
+import { ConstraintError, ExecutiveServiceError } from "./errors.js";
+import type { AiResponse } from "../text/api.js";
+import type { TextModelError, TextProviderError, TextGenerationError, TextInputError } from "../text/errors.js";
+} from "@/services/ai/producers/text/errors.js";
+import { v4 as uuidv4 } from "uuid";
+
+import {
+  ExecutiveServiceApi,
+  BaseExecuteOptions,
+  TextExecuteOptions,
+  DEFAULT_EXECUTE_OPTIONS
+} from "./api.js";
+
+import { ExecutiveServiceError } from "./errors.js";
+
+/**
+ * Internal state tracking for executions
+ */
+interface ExecutionState {
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  startTime: number;
+  error?: Error;
+}
+
+export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>() {
+  static readonly Tag = Effect.Tag<ExecutiveServiceApi>();
+
+  static readonly Live = Effect.gen(function* () {
+    // Get dependencies
+    const policyService = yield* PolicyService;
+    const textService = yield* TextService;
+    
+    // Create state store
+    const stateStore = yield* Ref.make<HashMap.HashMap<string, ExecutionState>>(
+      HashMap.empty()
+    );
+
+    // Helper for state management
+    const setState = (executionId: string, state: ExecutionState) =>
+      pipe(
+        stateStore,
+        Ref.update(store => HashMap.set(store, executionId, state))
+      );
+
+    return ExecutiveService.implement({
+    effect: Effect.gen(function* () {
+      // Obtain dependencies
+      const policyService = yield* PolicyService;
+      const textService = yield* TextService;
+      const stateStore = yield* Ref.make<HashMap.HashMap<string, ExecutionState>>(
+        HashMap.empty<string, ExecutionState>()
+      );
+
+      // Helper functions for state management
+      const getState = (executionId: string) => pipe(
+        stateStore,
+        Ref.get,
+        Effect.map(store => HashMap.get(store, executionId))
+      );
+
+      const setState = (executionId: string, state: ExecutionState) => pipe(
+        stateStore,
+        Ref.update(store => HashMap.set(store, executionId, state))
+      );
+
+      return {
+        execute: <R, E, A>(
+          effect: Effect.Effect<A, E, R>,
+          options?: BaseExecuteOptions
+        ): Effect.Effect<A, E | ExecutiveServiceError, R> => {
+          const executionId = uuidv4();
+          const opts = { ...DEFAULT_EXECUTE_OPTIONS, ...options };
+
+          return Effect.gen(function* () {
+            // Initialize execution state
+            yield* setState(executionId, {
+              status: 'pending',
+              startTime: Date.now()
+            });
+
+            // Execute effect
+            try {
+              const result = yield* effect;
+              yield* setState(executionId, {
+                status: 'completed',
+                startTime: Date.now()
+              });
+              return result;
+            } catch (error) {
+              yield* setState(executionId, {
+                status: 'failed',
+                startTime: Date.now(),
+                error: error as Error
+              });
+              throw error;
+            }
+          });
+        },
+
+        executeText: (
+          options: TextExecuteOptions
+        ): Effect.Effect<
+          AiResponse,
+          | TextModelError
+          | TextProviderError
+          | TextGenerationError
+          | TextInputError
+          | ExecutiveServiceError,
+          never
+        > => {
+          const executionId = uuidv4();
+          const opts = { ...DEFAULT_EXECUTE_OPTIONS, ...options };
+
+          return Effect.gen(function* () {
+            // Initialize execution state
+            yield* setState(executionId, {
+              status: 'pending',
+              startTime: Date.now()
+            });
+
+            // Execute text generation
+            const result = yield* pipe(
+              textService.generate({
+                modelId: opts.modelId,
+                prompt: opts.prompt,
+                system: opts.system ? Option.some(opts.system) : Option.none(),
+                parameters: opts.parameters
+              }),
+              Effect.map(response => response as AiResponse),
+              Effect.mapError(error => error)
+            );
+
+            // Update state and return result
+            yield* setState(executionId, {
+              status: 'completed',
+              startTime: Date.now()
+            });
+
+            return result;
+          });
+        }
+      execute: <R, E, A>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E | ExecutiveServiceError, R> => {
+        return Effect.gen(function* () {
+          const executionId = uuid();
+          
+          // Initialize execution state
+          yield* setState(executionId, {
+            status: 'pending',
+            startTime: Date.now(),
+            retryCount: 0
+          });
+
+          try {
+            const result = yield* effect;
+            yield* setState(executionId, {
+              status: 'completed',
+              startTime: Date.now(),
+              retryCount: 0
+            });
+            return result;
+          } catch (error) {
+            yield* setState(executionId, {
+              status: 'failed',
+              startTime: Date.now(),
+              retryCount: 0,
+              error: error as Error
+            });
+            throw error;
+          }
+        });
+      },
+
+      executeText: (opts: TextExecuteOptions): Effect.Effect<AiResponse, ExecutiveServiceError | TextModelError | TextProviderError | TextGenerationError | TextInputError, never> => {
+        return Effect.gen(function* () {
+          const executionId = uuid();
+
+          // Initialize execution state
+          yield* setState(executionId, {
+            status: 'pending',
+            startTime: Date.now(),
+            retryCount: 0
+          });
+
+          try {
+            // Check policy constraints
+            const policyCheck = yield* policyService.checkTextPolicy({
+              modelId: opts.modelId,
+              prompt: opts.prompt,
+              system: opts.system
+            });
+
+            if (!policyCheck.allowed) {
+              throw new ConstraintError(policyCheck.reason);
+            }
+
+            // Execute text generation
+            const result = yield* textService.generate({
+              modelId: opts.modelId,
+              prompt: opts.prompt,
+              system: opts.system ? Option.some(opts.system) : Option.none(),
+              parameters: opts.parameters
+            });
+
+            yield* setState(executionId, {
+              status: 'completed',
+              startTime: Date.now(),
+              retryCount: 0
+            });
+
+            return result;
+          } catch (error) {
+            yield* setState(executionId, {
+              status: 'failed',
+              startTime: Date.now(),
+              retryCount: 0,
+              error: error as Error
+            });
+            throw error;
+          }
+        });
+      }
+    });
+  });
+}
+      };
+    })
+  }
+) { }
+        stateStore,
+        Ref.update(store => HashMap.set(store, executionId, state))
+      );
+
+      const deleteState = (executionId: string) => pipe(
+        stateStore,
+        Ref.update(store => HashMap.remove(store, executionId))
+      );
+
+      // Return service implementation
+      return {
+        execute: <A, E>(effect: Effect.Effect<A, E, never>, options?: ExecuteOptions): Effect.Effect<A, E | ExecutiveServiceError, never> => Effect.gen(function* (_) {
+          const executionId = uuidv4();
+          const {
+            maxAttempts = DEFAULT_EXECUTE_OPTIONS.maxAttempts,
+            baseDelayMs = DEFAULT_EXECUTE_OPTIONS.baseDelayMs,
+            maxDelayMs = DEFAULT_EXECUTE_OPTIONS.maxDelayMs
+          } = options ?? DEFAULT_EXECUTE_OPTIONS;
+
+          // Create exponential backoff retry schedule with max attempts
+          const retrySchedule: Schedule.Schedule<string, unknown, never> = pipe(
+            Schedule.exponential(`${baseDelayMs} millis`, 2),
+            Schedule.upTo(`${maxDelayMs} millis`),
+            Schedule.recurs(maxAttempts - 1)
+          );
+
+          // Set initial state
+          yield* setState(executionId, {
+            status: 'pending',
+            startTime: Date.now(),
+            retryCount: 0
+          });
+
+          // Execute with retry logic
+          const result = yield* pipe(
+            effect,
+            Effect.onInterrupt(() => deleteState(executionId)),
+            Effect.tap(() => setState(executionId, {
+              status: 'running',
+              startTime: Date.now(),
+              retryCount: 0
+            })),
+            Effect.tapError((error) => setState(executionId, {
+              status: 'failed',
+              startTime: Date.now(),
+              retryCount: 0,
+              error: error instanceof Error ? error : new Error(String(error))
+            })),
+            Effect.retry(retrySchedule)
+          );
+
+          // Update final state
+          yield* setState(executionId, {
+            status: 'completed',
+            startTime: Date.now(),
+            retryCount: 0
+          });
+
+          return result;
+        }),
+
+        executeText: (options: TextExecuteOptions): Effect.Effect<string, ExecutiveServiceError | PolicyServiceError, never> => Effect.gen(function* (_) {
+          const { text, model, maxTokens } = options;
+          const executionId = uuidv4();
+
+          // Check policy before execution
+          const policyContext = yield* policyService.checkPolicy({
+            text,
+            model,
+            maxTokens
+          });
+
+          if (!policyContext.allowed) {
+            yield* setState(executionId, {
+              status: 'failed',
+              startTime: Date.now(),
+              retryCount: 0,
+              error: new Error(`Policy check failed: ${policyContext.reason}`)
+            });
+            return Effect.fail(new PolicyServiceError(policyContext.reason));
+          }
+
+          // Execute text generation with retry
+          return yield* pipe(
+            textService.generate({
+              text,
+              model,
+              maxTokens
+            }),
+            Effect.mapError((error) => new ExecutiveServiceError(
+              error instanceof Error ? error.message : String(error)
+            )),
+            (effect) => this.execute(effect, options)
+          );
+        })
+
+      } = options ?? DEFAULT_EXECUTE_OPTIONS;
+
+      // Create exponential backoff retry schedule with max attempts
+      const retrySchedule: Schedule.Schedule<string, unknown, never> = pipe(
+        Schedule.exponential(`${baseDelayMs} millis`, 2),
+        Schedule.upTo(`${maxDelayMs} millis`),
+        Schedule.recurs(maxAttempts - 1)
+      );
+
+      // Wrap effect with abort handling and state tracking
+      const abortable = pipe(
+        effect,
+        Effect.onInterrupt(() => deleteState(executionId))
+      );
+
+      return pipe(
+        Effect.gen(function* () {
+          // Set initial state
+          yield* setState(executionId, {
+            status: 'pending',
+            startTime: Date.now(),
+            retryCount: 0
+          });
+
+          // Execute effect
+          const result = yield* abortable;
+
+          // Update state on success
+          yield* setState(executionId, {
+            status: 'completed',
+            startTime: Date.now(),
+            retryCount: 0
+          });
+
+          return result;
+        }),
+        Effect.catchTag('RetryError', (error) => {
+          return pipe(
+            setState(executionId, {
+              status: 'failed',
+              startTime: Date.now(),
+              retryCount: 0,
+              error
+            }),
+            Effect.flatMap(() => Effect.fail(error))
+          );
+        }),
+        Effect.retry(retrySchedule)
+      );
+    };
+
+    const executeText = (text: string, options?: BaseExecuteOptions) => {
+      return pipe(
+        policyService.checkPolicy({ operationType: 'text' }),
+        Effect.flatMap(() => execute(Effect.succeed(text), options))
+      );
+    };
+
+    return {
+      execute,
+      executeText
+    };
+  }),
+  dependencies: [PolicyService.Default] as const
+  }
+) { }
+
+// Check policy
+const startTime = Date.now();
+const result = yield * policyService.checkPolicy(policyContext);
+
+if (!result.allowed) {
+  // Record blocked outcome
+  yield * Effect.forkDaemon(
+    policyService.recordOutcome({
+      auth: { userId: "system" }, // Simple default auth for now
+      pipelineId: options.pipelineId,
+      modelUsed: policyContext.requestedModel,
+      operationType: policyContext.operationType,
+      status: 'blocked',
+      latencyMs: Date.now() - startTime,
+      tags: options.tags,
+      error: {
+        code: 'POLICY_DENIED',
+        message: result.reason || 'Operation not allowed by policy'
+      }
+    })
+  );
+
+  throw new ExecutiveServiceError({
+    description: result.reason || "Policy denied this operation",
+    module: "services/executive",
+    method: "execute"
+  });
+}
+
+// Use provided options or defaults
+const {
+  maxAttempts,
+  baseDelayMs,
+  maxDelayMs
+} = options ?? DEFAULT_EXECUTE_OPTIONS;
+
+// Create error-specific retry schedules
+const retrySchedule = pipe(
+  Schedule.exponential(baseDelayMs, 2),
+  Schedule.upTo(maxDelayMs),
+  Schedule.recurs(maxAttempts - 1),
+  Schedule.map((attempt) => {
+    // Return retry delay based on error type
+    return (error: Error) => {
+      if (error.message.includes('rate limit')) {
+        return Math.min(1000 * Math.pow(2, attempt), 30000); // Max 30s for rate limits
+      } else if (error.message.includes('timeout')) {
+        return Math.min(500 * Math.pow(1.5, attempt), 5000); // Max 5s for timeouts
+      } else {
+        return Math.min(baseDelayMs * Math.pow(2, attempt), maxDelayMs);
+      }
+    };
+  })
+);
+
+// Wrap effect with abort handling
+const abortableEffect = options.signal
+  ? pipe(
+    effect,
+    Effect.interruptible,
+    Effect.race(
+      Effect.async<never, Error>((resume, signal) => {
+        const abort = () => resume(Effect.fail(new Error("Operation aborted")));
+        const abortSignal = options.signal!;
+        abortSignal.addEventListener("abort", abort);
+        signal.addEventListener("abort", abort);
+        return Effect.sync(() => {
+          abortSignal.removeEventListener("abort", abort);
+          signal.removeEventListener("abort", abort);
+        });
+      })
+    )
+  )
+  : effect;
+
+// Create token counter if maxCumulativeTokens is set
+const tokenCounter = options.maxCumulativeTokens
+  ? yield * Ref.make(0)
+  : null;
+
+// Track execution state
+const executionId = uuidv4();
+yield * Ref.update(stateStore, store => HashMap.set(store, executionId, {
+  status: 'pending',
+  startTime: Date.now(),
+  retryCount: 0
+}));
+
+// Execute with retry logic and token tracking
+const executionResult = yield * pipe(
+  abortableEffect,
+  Effect.tap(() =>
+    Ref.update(stateStore, store => HashMap.set(store, executionId, {
+      ...HashMap.get(store, executionId)!.value,
+      status: 'running'
+    }))
+  ),
+  Effect.tapError(error =>
+    Ref.update(stateStore, store => HashMap.set(store, executionId, {
+      ...HashMap.get(store, executionId)!.value,
+      status: 'failed',
+      lastError: error instanceof Error ? error : new Error(String(error))
+    }))
+  ),
+  Effect.flatMap((result: any) => Effect.gen(function* () {
+    // If result has token usage info, track it
+    if (tokenCounter &&
+      typeof result === 'object' &&
+      result !== null &&
+      'metadata' in result &&
+      result.metadata?.usage?.totalTokens) {
+      const currentTotal = yield* tokenCounter.get;
+      const newTotal = currentTotal + result.metadata.usage.totalTokens;
+
+      // Check if we've exceeded the token limit
+      if (options.maxCumulativeTokens && newTotal > options.maxCumulativeTokens) {
+        return yield* Effect.fail(new ExecutiveServiceError({
+          description: `Token limit exceeded: ${newTotal} > ${options.maxCumulativeTokens}`,
+          module: "services/executive",
+          method: "execute"
+        }));
+      }
+
+      // Update token counter
+      yield* Ref.set(newTotal)(tokenCounter);
+    }
+    return result;
+  })),
+  Effect.retry(retrySchedule)
+);
+
+// Get final token usage for policy record
+const tokenUsage = tokenCounter
+  ? {
+    totalTokens: yield * tokenCounter.get
+  }
+  : undefined;
+
+// Record successful outcome
+yield * Effect.forkDaemon(
+  policyService.recordOutcome({
+    auth: { userId: "system" }, // Simple default auth for now
+    pipelineId: options.pipelineId,
+    modelUsed: result.effectiveModel,
+    operationType: policyContext.operationType,
+    status: 'success',
+    latencyMs: Date.now() - startTime,
+    tags: options.tags,
+    usage: tokenUsage
+  })
+);
+
+return executionResult;
+        }) as Effect.Effect<A, E | ExecutiveServiceError, R>;
+
+const executeText = (
+  options: TextExecuteOptions
+) => Effect.gen(function* () {
+  const policyService = yield* PolicyService;
+
+  const stateStore = yield* Ref.make<HashMap.HashMap<string, {
+    status: string;
+    startTime: number;
+    retryCount: number;
+  }>>(HashMap.empty());
+  const textService = yield* TextService;
+  const effect = textService.generate({
+    modelId: options.modelId,
+    prompt: options.prompt,
+    system: options.system ?? Option.none(),
+    signal: options.signal,
+    parameters: options.parameters
+  });
+
+  return yield* execute(effect, {
+    maxAttempts: options.maxAttempts,
+    baseDelayMs: options.baseDelayMs,
+    maxDelayMs: options.maxDelayMs,
+    signal: options.signal,
+    pipelineId: options.pipelineId,
+    tags: options.tags,
+    maxCumulativeTokens: options.maxCumulativeTokens,
+    operationType: 'text',
+    modelId: options.modelId
+  });
+});
+
+// Return the service API implementation
+return {
+  execute,
+  executeText
+};
+    }),
+dependencies: [PolicyService.Default, TextService.Default] as const
+  }
+)

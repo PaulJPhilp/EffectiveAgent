@@ -3,77 +3,136 @@
  * @module services/tools/errors
  */
 
-import { Data } from "effect";
-// Correct import path for ParseError
+import { EffectiveError } from "@/effective-error.js";
 import type { ParseError } from "effect/ParseResult";
 
-// --- Base Tool Error (Optional but good practice) ---
-/** Base error for all tool-related failures. */
-export class ToolError extends Data.TaggedError("ToolError")<{
-    readonly toolName?: string; // Optional: Tool name might not be known for all errors
-    readonly message: string;
-    readonly cause?: unknown; // Underlying cause
-}> { }
+/**
+ * Base error for all tool-related failures.
+ * @extends EffectiveError
+ */
+export class ToolError extends EffectiveError {
+    public readonly toolName?: string;
 
-// --- Specific Tool Errors ---
-
-/** Error when a requested tool cannot be found in the registry. */
-export class ToolNotFoundError extends Data.TaggedClass("ToolNotFoundError")<{
-    readonly toolName: string;
-}> {
-    get message() {
-        return `Tool not found in registry: ${this.toolName}`;
+    constructor(params: {
+        toolName?: string;
+        description: string;
+        module: string;
+        method: string;
+        cause?: unknown;
+    }) {
+        super({
+            description: params.description,
+            module: params.module,
+            method: params.method,
+            cause: params.cause,
+        });
+        this.toolName = params.toolName;
     }
-    // Optionally extend ToolError if base class is used
 }
 
-/** Error when the input provided to a tool fails validation against its inputSchema. */
-export class ToolInputValidationError extends Data.TaggedClass(
-    "ToolInputValidationError",
-)<{
-    readonly toolName: string;
-    readonly cause: ParseError; // The specific schema validation error
-}> {
-    get message() {
-        return `Invalid input provided for tool: ${this.toolName}`;
+/**
+ * Error when a requested tool cannot be found in the registry.
+ * @extends EffectiveError
+ */
+export class ToolNotFoundError extends EffectiveError {
+    public readonly toolName: string;
+
+    constructor(params: {
+        toolName: string;
+        module: string;
+        method: string;
+    }) {
+        super({
+            description: `Tool not found in registry: ${params.toolName}`,
+            module: params.module,
+            method: params.method,
+        });
+        this.toolName = params.toolName;
     }
-    // Optionally extend ToolError
 }
 
-/** Error when the output produced by a tool's implementation fails validation against its outputSchema. */
-export class ToolOutputValidationError extends Data.TaggedClass(
-    "ToolOutputValidationError",
-)<{
-    readonly toolName: string;
-    readonly cause: ParseError; // The specific schema validation error
-}> {
-    get message() {
-        return `Invalid output received from tool implementation: ${this.toolName}`;
+/**
+ * Error when the input provided to a tool fails validation against its inputSchema.
+ * @extends EffectiveError
+ */
+export class ToolInputValidationError extends EffectiveError {
+    public readonly toolName: string;
+
+    constructor(params: {
+        toolName: string;
+        module: string;
+        method: string;
+        cause: ParseError;
+    }) {
+        super({
+            description: `Invalid input provided for tool: ${params.toolName}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause,
+        });
+        this.toolName = params.toolName;
     }
-    // Optionally extend ToolError
 }
 
-/** Generic error occurring during the execution of a tool's implementation logic. */
-export class ToolExecutionError extends Data.TaggedClass("ToolExecutionError")<{
-    readonly toolName: string;
-    readonly input?: unknown; // Optional input context for debugging
-    readonly cause: unknown; // The original error (e.g., from Effect impl, HTTP client, MCP client, permission denial)
-}> {
-    get message() {
-        // Provide a more informative message if possible
+/**
+ * Error when the output produced by a tool's implementation fails validation against its outputSchema.
+ * @extends EffectiveError
+ */
+export class ToolOutputValidationError extends EffectiveError {
+    public readonly toolName: string;
+
+    constructor(params: {
+        toolName: string;
+        module: string;
+        method: string;
+        cause: ParseError;
+    }) {
+        super({
+            description: `Invalid output received from tool implementation: ${params.toolName}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause,
+        });
+        this.toolName = params.toolName;
+    }
+}
+
+/**
+ * Generic error occurring during the execution of a tool's implementation logic.
+ * @extends EffectiveError
+ */
+export class ToolExecutionError extends EffectiveError {
+    public readonly toolName: string;
+    public readonly input?: unknown;
+
+    constructor(params: {
+        toolName: string;
+        input?: unknown;
+        module: string;
+        method: string;
+        cause?: unknown;
+    }) {
         let detail = "Unknown execution error";
-        if (this.cause instanceof Error) {
-            detail = this.cause.message;
-        } else if (typeof this.cause === 'string') {
-            // Include permission denial message directly
-            if (this.cause.startsWith("Permission denied")) return this.cause;
-            detail = this.cause;
-        }
-        return `Error during execution of tool '${this.toolName}': ${detail}`;
-    }
-    // Optionally extend ToolError
-}
+        const cause = params.cause;
 
-// --- Optional: MCP Client Specific Errors ---
-// If we build a dedicated McpClient service, it might have its own errors
-// export class McpClientError extends Data.TaggedError("McpClientError")<{...}> {}
+        if (cause instanceof Error) {
+            detail = cause.message;
+        } else if (typeof cause === 'string') {
+            // Include permission denial message directly
+            if (cause.startsWith("Permission denied")) {
+                detail = cause;
+            } else {
+                detail = cause;
+            }
+        }
+
+        super({
+            description: `Error during execution of tool '${params.toolName}': ${detail}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause,
+        });
+        this.toolName = params.toolName;
+        this.input = params.input;
+    }
+}

@@ -3,17 +3,20 @@
  * @module services/capabilities/intelligence/errors
  */
 
-import { Data } from "effect";
-
+import { EffectiveError } from "@/effective-error.js";
 
 /**
  * Represents an error occurring during the validation or update
  * of an Intelligence definition against its schema.
+ * @extends EffectiveError
  */
-export class IntelligenceConfigError extends Data.TaggedError(
-	"IntelligenceConfigError",
-)<{
-	readonly message: string;
-	/** The underlying error (could be loading, parsing, etc.). */
-	readonly cause: unknown;
-}> { }
+export class IntelligenceConfigError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module: string;
+        method: string;
+        cause?: unknown;
+    }) {
+        super(params);
+    }
+}

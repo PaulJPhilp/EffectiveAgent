@@ -47,6 +47,26 @@ export const PolicyRuleDataSchema = S.Struct({
    * Optional explanation for this policy rule
    */
   description: S.optional(S.String),
+
+  /**
+   * Rate limit configuration
+   */
+  rateLimit: S.optional(S.Struct({
+    /**
+     * Maximum number of requests allowed
+     */
+    maxRequests: S.Number,
+
+    /**
+     * Time window in seconds
+     */
+    windowSeconds: S.Number,
+
+    /**
+     * Optional scope for rate limiting (user, global, etc.)
+     */
+    scope: S.Literal("user", "global")
+  }))
 });
 
 /**

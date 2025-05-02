@@ -7,7 +7,8 @@ import { Effect, Option, ConfigProvider } from "effect";
 import * as Chunk from "effect/Chunk";
 import { Message } from "@effect/ai/AiInput";
 import type { Span } from "effect/Tracer";
-import { AiResponse } from "@effect/ai/AiResponse";
+import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
+import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import type { TextServiceError } from "./errors.js";
 import { AiRole } from '@effect/ai';
 import { ProviderServiceApi } from '../../provider/api.js';
@@ -81,7 +82,7 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
        * Generates a text completion from the given prompt and model.
        */
       generate: (options: TextGenerationOptions): Effect.Effect<
-        AiResponse,
+        EffectiveResponse<GenerateTextResult>,
         TextModelError | TextProviderError | TextGenerationError | TextInputError,
         ConfigProvider.ConfigProvider
       > => {
@@ -166,11 +167,17 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
             }))
           );
 
-          // Map the result to AiResponse
-          return AiResponse.fromText({
-            role: AiRole.model,
-            content: result.text
-          });
+          // Return the result directly
+          return {
+            data: result,
+            metadata: {
+              usage: result.usage,
+              finishReason: result.finishReason,
+              model: result.model,
+              timestamp: result.timestamp,
+              id: result.id
+            }
+          };
         }).pipe(
           Effect.withSpan("TextService.generate")
         );

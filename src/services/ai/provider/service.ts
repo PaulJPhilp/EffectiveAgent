@@ -29,7 +29,13 @@ const validateProviderConfig = (parsedConfig: any, method: string) => {
             description: "Failed to validate provider config",
             module: "ProviderService",
             method,
-            cause: new EntityParseError({ filePath: "config", cause })
+            cause: new EntityParseError({
+                filePath: "config",
+                description: "Failed to parse provider config",
+                module: "ProviderService",
+                method,
+                cause
+            })
         }))
     );
 };

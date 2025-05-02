@@ -1,12 +1,17 @@
-import { Data } from "effect";
+import { EffectiveError } from "@/effective-error.js";
 
 /**
  * Represents an error occurring during the validation or update
- * of an Intelligence definition against its schema.
+ * of a Workbench configuration.
+ * @extends EffectiveError
  */
-export class WorkbenchConfigError extends Data.TaggedError(
-    "IntelligenceConfigError",
-)<{
-    readonly message: string;
-    readonly cause: unknown;
-}> { }
+export class WorkbenchConfigError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module: string;
+        method: string;
+        cause?: unknown;
+    }) {
+        super(params);
+    }
+}

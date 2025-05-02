@@ -21,19 +21,17 @@ import type { ObjectServiceApi, ObjectGenerationOptions, ObjectGenerationResult 
 /**
  * Result shape expected from the underlying provider client's generateObject method
  */
-export interface ProviderObjectGenerationResult<T> {
-    readonly data: {
-        readonly object: T; // The generated object
-        readonly model: string;
-        readonly timestamp: Date;
-        readonly id: string;
-        readonly usage?: {
-            readonly promptTokens?: number;
-            readonly completionTokens?: number;
-            readonly totalTokens?: number;
-        };
+export type ProviderObjectGenerationResult<T> = import("@/services/ai/provider/types.js").EffectiveResponse<{
+    readonly object: T; // The generated object
+    readonly model: string;
+    readonly timestamp: Date;
+    readonly id: string;
+    readonly usage?: {
+        readonly promptTokens?: number;
+        readonly completionTokens?: number;
+        readonly totalTokens?: number;
     };
-}
+}>;
 
 /**
  * ObjectService provides methods for generating structured objects using AI providers.

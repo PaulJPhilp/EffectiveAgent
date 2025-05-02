@@ -3,6 +3,7 @@
  * @module services/ai/producers/transcription/service
  */
 
+import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
@@ -195,7 +196,7 @@ export class TranscriptionService extends Effect.Service<TranscriptionServiceApi
                         inputBuffer = options.audioData as ArrayBuffer;
                     }
 
-                    const response = yield* Effect.tryPromise({
+                    const response: EffectiveResponse<TranscriptionResult> = yield* Effect.tryPromise({
                         try: async () => {
                             return await Effect.runPromise(providerClient.transcribe(
                                 inputBuffer,
@@ -213,22 +214,10 @@ export class TranscriptionService extends Effect.Service<TranscriptionServiceApi
                         })
                     });
 
-                    const result = response.data;
-
-                    // Map the result to TranscriptionResult
+                    // Return the result directly
                     return {
-                        text: result?.text ?? "",
-                        model: result?.model ?? modelId,
-                        timestamp: result?.timestamp ? new Date(result.timestamp) : new Date(),
-                        id: result?.id ?? "",
-                        segments: result?.segments,
-                        detectedLanguage: result?.detectedLanguage,
-                        duration: result?.duration,
-                        usage: result?.usage ? {
-                            promptTokens: result.usage.promptTokens || 0,
-                            completionTokens: result.usage.completionTokens || 0,
-                            totalTokens: result.usage.totalTokens || 0
-                        } : undefined
+                        data: response.data,
+                        metadata: response.metadata
                     };
                 }).pipe(
                     Effect.withSpan("TranscriptionService.transcribe")

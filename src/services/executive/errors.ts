@@ -1,4 +1,56 @@
 import { EffectiveError } from "@/effective-error.js";
+import type { AuthErrorType } from "./api.js";
+
+/**
+ * Error thrown when auth validation fails
+ */
+/**
+ * Error thrown when rate limit is exceeded
+ */
+export class RateLimitError extends EffectiveError {
+  constructor({
+    description,
+    retryAfterMs,
+    module = "ExecutiveService",
+    method = "checkRateLimit"
+  }: {
+    description: string;
+    retryAfterMs?: number;
+    module?: string;
+    method?: string;
+  }) {
+    super({
+      description,
+      module,
+      method,
+      cause: { retryAfterMs }
+    });
+  }
+}
+
+export class AuthError extends EffectiveError {
+  readonly errorType: AuthErrorType;
+
+  constructor({
+    description,
+    errorType,
+    module = "ExecutiveService",
+    method = "validateAuth"
+  }: {
+    description: string;
+    errorType: AuthErrorType;
+    module?: string;
+    method?: string;
+  }) {
+    super({
+      description,
+      module,
+      method,
+      cause: errorType
+    });
+    this.errorType = errorType;
+  }
+}
 
 /**
  * Base error for Executive Service operations.

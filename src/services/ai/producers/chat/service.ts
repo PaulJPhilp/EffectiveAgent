@@ -3,7 +3,6 @@
  * @module services/ai/producers/chat/service
  */
 
-import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
 import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import { EffectiveInput } from '@/services/ai/input/service.js';
 import ModelService from "@/services/ai/model/service.js";
@@ -12,7 +11,7 @@ import ProviderService from "@/services/ai/provider/service.js";
 import type { ProviderChatOptions } from "@/services/ai/provider/types.js";
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
-import { AiResponse } from "@effect/ai/AiResponse";
+import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import type * as JsonSchema from "effect/JSONSchema";
@@ -72,7 +71,7 @@ export interface ChatCompletionOptions {
  * ChatService interface for handling AI chat interactions
  */
 export interface ChatServiceApi {
-    readonly create: (options: ChatCompletionOptions) => Effect.Effect<AiResponse, AiError>;
+    readonly create: (options: ChatCompletionOptions) => Effect.Effect<EffectiveResponse<GenerateTextResult>, AiError>;
 }
 
 /**
@@ -168,19 +167,10 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                         }))
                     );
 
-                    // Map the result to AiResponse
+                    // Return the result directly
                     return {
-                        text: result.data.text,
-                        reasoning: result.data.reasoning,
-                        reasoningDetails: result.data.reasoningDetails,
-                        sources: result.data.sources,
-                        messages: result.data.messages,
-                        warnings: result.data.warnings,
-                        usage: result.metadata.usage,
-                        finishReason: result.metadata.finishReason,
-
-                        timestamp: result.metadata.timestamp,
-                        id: result.metadata.id
+                        data: result.data,
+                        metadata: result.metadata
                     };
                 }).pipe(
                     Effect.withSpan("ChatService.create")

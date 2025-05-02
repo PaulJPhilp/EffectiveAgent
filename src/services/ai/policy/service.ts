@@ -29,6 +29,7 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
   effect: Effect.gen(function* () {
     const ruleRepo = yield* Ref.make(HashMap.empty<string, PolicyRuleEntity>());
     const usageRepo = yield* Ref.make(HashMap.empty<string, PolicyUsageEntity>());
+    const rateLimitRepo = yield* Ref.make(HashMap.empty<string, { count: number, windowStart: number }>());
 
     return {
       checkPolicy: (context: PolicyCheckContext): Effect.Effect<PolicyCheckResult, PolicyError> =>
@@ -48,6 +49,42 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
               const enabled = rule.data.enabled;
               return enabled && resourceMatch;
             });
+
+          // Check rate limits
+          for (const rule of matchingRules) {
+            if (rule.data.rateLimit) {
+              const { maxRequests, windowSeconds, scope } = rule.data.rateLimit;
+              const key = scope === 'user' 
+                ? `${context.auth.userId}:${rule.id}`
+                : `global:${rule.id}`;
+
+              const now = Date.now();
+              const windowMs = windowSeconds * 1000;
+              const rateLimits = yield* Ref.get(rateLimitRepo);
+              const current = HashMap.get(rateLimits, key);
+
+              if (Option.isNone(current) || (now - current.value.windowStart) > windowMs) {
+                // Start new window
+                yield* Ref.set(rateLimitRepo, HashMap.set(rateLimits, key, {
+                  count: 1,
+                  windowStart: now
+                }));
+              } else if (current.value.count >= maxRequests) {
+                // Rate limit exceeded
+                return {
+                  allowed: false,
+                  reason: `Rate limit exceeded: ${maxRequests} requests per ${windowSeconds} seconds`,
+                  effectiveModel: context.requestedModel
+                };
+              } else {
+                // Increment counter
+                yield* Ref.set(rateLimitRepo, HashMap.set(rateLimits, key, {
+                  count: current.value.count + 1,
+                  windowStart: current.value.windowStart
+                }));
+              }
+            }
+          }
 
           if (matchingRules.length === 0) {
             return {

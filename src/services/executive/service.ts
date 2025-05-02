@@ -1,222 +1,335 @@
 /**
- * @file ExecutiveService
- *
- * @description
- * The ExecutiveService is the central orchestrator for executing an Effect
- * representing an AI operation or pipeline step. It enforces policy checks,
- * applies execution constraints (such as retries and token limits), and
- * handles audit logging around the execution of the Effect.
- *
- * - It does not implement AI logic itself, but wraps the execution of Effects
- *   provided by Producer Services (e.g., TextService, ImageService).
- * - It serves as the Policy Enforcement Point (PEP), ensuring all executions
- *   comply with configured policies and operational controls.
- * - It is responsible for recording outcomes and audit logs via dedicated
- *   services, supporting observability and compliance.
- * - All orchestration is performed using Effect-TS idioms for type safety,
- *   composability, and robust async execution.
+ * @file ExecutiveService Implementation
+ * @description Executes Effects from producers with policy enforcement and auditing
  */
 
-// Core imports
-import { Effect, pipe, Schedule, Ref, Option } from "effect";
-
-// Policy service for enforcing usage constraints
+import { Effect, HashMap, Layer, Option, pipe, Ref, Schedule, Metric, Duration } from "effect";
+import { AuthError, RateLimitError } from "./errors.js";
+import { v4 as uuid } from "uuid";
+import { ExecutiveMetrics, trackTokenUsage } from "./metrics.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
-import TextService from "@/services/ai/producers/text/service.js";
-import type { PolicyCheckContext, PolicyRecordContext } from "@/services/ai/policy/types.js";
-
-// Service API and error types
-import type { ExecutiveServiceApi, BaseExecuteOptions, TextExecuteOptions } from "./api.js";
-import { DEFAULT_EXECUTE_OPTIONS } from "./api.js";
-
-import { ExecutiveServiceError } from "./errors.js";
-
+import { ExecutiveServiceApi, BaseExecuteOptions, DEFAULT_EXECUTE_OPTIONS, DEFAULT_RETRY_CONFIG, RetryConfig } from "./api.js";
+import { ConstraintError, ExecutiveServiceError } from "./errors.js";
+import type { AiResponse } from "@effect/ai/AiResponse";
 /**
- * ExecutiveService implementation using Effect.Service pattern.
- * Follows project architectural rules for service definition.
+ * Represents the state of an execution
  */
+interface ExecutionState {
+  status: "pending" | "completed" | "failed";
+  startTime: number;
+  error?: Error;
+}
+
 export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
   "ExecutiveService",
   {
     effect: Effect.gen(function* () {
-      /**
-       * Execute a generic Effect with policy enforcement and constraints.
-       * Before executing the effect, it checks with PolicyService if the operation is allowed.
-       * If the policy check fails, an ExecutiveServiceError is thrown.
-       * Otherwise, the provided effect is executed.
-       */
-      const execute = <R, E, A>(
-        effect: Effect.Effect<A, E, R>,
-        options: BaseExecuteOptions = DEFAULT_EXECUTE_OPTIONS
-      ): Effect.Effect<A, E | ExecutiveServiceError, R> =>
-        Effect.gen(function* (): Generator<any, A, any> {
-          // Get policy service
-          const policyService = yield* PolicyService;
+      // Create state store
+      const stateStore = yield* Ref.make<HashMap.HashMap<string, ExecutionState>>(
+        HashMap.empty()
+      );
 
-          // Create policy check context
-          const policyContext: PolicyCheckContext = {
-            auth: { userId: "system" }, // Simple default auth for now
-            pipelineId: options.pipelineId,
-            requestedModel: options.modelId ?? "default",
-            operationType: options.operationType ?? "execute",
-            tags: options.tags
-          };
+      // Get dependencies
+      const policyService = yield* PolicyService;
 
-          // Check policy
-          const startTime = Date.now();
-          const result = yield* policyService.checkPolicy(policyContext);
-          
-          if (!result.allowed) {
-            // Record blocked outcome
-            yield* Effect.forkDaemon(
-              policyService.recordOutcome({
-                auth: { userId: "system" }, // Simple default auth for now
-                pipelineId: options.pipelineId,
-                modelUsed: policyContext.requestedModel,
-                operationType: policyContext.operationType,
-                status: 'blocked',
-                latencyMs: Date.now() - startTime,
-                tags: options.tags,
-                error: {
-                  code: 'POLICY_DENIED',
-                  message: result.reason || 'Operation not allowed by policy'
-                }
-              })
-            );
-
-            throw new ExecutiveServiceError({
-              description: result.reason || "Policy denied this operation",
-              module: "services/executive",
-              method: "execute"
-            });
-          }
-
-          // Use provided options or defaults
-          const {
-            maxAttempts,
-            baseDelayMs,
-            maxDelayMs
-          } = options ?? DEFAULT_EXECUTE_OPTIONS;
-
-          const retrySchedule = pipe(
-            Schedule.recurs(maxAttempts - 1),
-            Schedule.compose(
-              pipe(
-                Schedule.exponential(baseDelayMs, 2),
-                Schedule.upTo(maxDelayMs)
-              )
-            )
-          );
-
-          // Wrap effect with abort handling
-          const abortableEffect = options.signal
-            ? pipe(
-                effect,
-                Effect.interruptible,
-                Effect.race(
-                  Effect.async<never, Error>((resume, signal) => {
-                    const abort = () => resume(Effect.fail(new Error("Operation aborted")));
-                    const abortSignal = options.signal!;
-                    abortSignal.addEventListener("abort", abort);
-                    signal.addEventListener("abort", abort);
-                    return Effect.sync(() => {
-                      abortSignal.removeEventListener("abort", abort);
-                      signal.removeEventListener("abort", abort);
-                    });
-                  })
-                )
-              )
-            : effect;
-
-          // Create token counter if maxCumulativeTokens is set
-          const tokenCounter = options.maxCumulativeTokens
-            ? yield* Ref.make(0)
-            : null;
-
-          // Execute with retry logic and token tracking
-          const executionResult = yield* pipe(
-            abortableEffect,
-            Effect.flatMap((result: any) => Effect.gen(function* () {
-              // If result has token usage info, track it
-              if (tokenCounter && 
-                  typeof result === 'object' && 
-                  result !== null && 
-                  'metadata' in result && 
-                  result.metadata?.usage?.totalTokens) {
-                const currentTotal = yield* tokenCounter.get;
-                const newTotal = currentTotal + result.metadata.usage.totalTokens;
-                
-                // Check if we've exceeded the token limit
-                if (options.maxCumulativeTokens && newTotal > options.maxCumulativeTokens) {
-                  return yield* Effect.fail(new ExecutiveServiceError({
-                    description: `Token limit exceeded: ${newTotal} > ${options.maxCumulativeTokens}`,
-                    module: "services/executive",
-                    method: "execute"
-                  }));
-                }
-                
-                // Update token counter
-                yield* Ref.set(newTotal)(tokenCounter);
-              }
-              return result;
-            })),
-            Effect.retry(retrySchedule)
-          );
-
-          // Get final token usage for policy record
-          const tokenUsage = tokenCounter
-            ? {
-                totalTokens: yield* tokenCounter.get
-              }
-            : undefined;
-
-          // Record successful outcome
-          yield* Effect.forkDaemon(
-            policyService.recordOutcome({
-              auth: { userId: "system" }, // Simple default auth for now
-              pipelineId: options.pipelineId,
-              modelUsed: result.effectiveModel,
-              operationType: policyContext.operationType,
-              status: 'success',
-              latencyMs: Date.now() - startTime,
-              tags: options.tags,
-              usage: tokenUsage
-            })
-          );
-
-          return executionResult;
-        }) as Effect.Effect<A, E | ExecutiveServiceError, R>;
-
-      const executeText = (
-        options: TextExecuteOptions
-      ) => Effect.gen(function* () {
-        const textService = yield* TextService;
-        const effect = textService.generate({
-          modelId: options.modelId,
-          prompt: options.prompt,
-          system: options.system ?? Option.none(),
-          signal: options.signal,
-          parameters: options.parameters
-        });
-
-        return yield* execute(effect, {
-          maxAttempts: options.maxAttempts,
-          baseDelayMs: options.baseDelayMs,
-          maxDelayMs: options.maxDelayMs,
-          signal: options.signal,
-          pipelineId: options.pipelineId,
-          tags: options.tags,
-          maxCumulativeTokens: options.maxCumulativeTokens,
-          operationType: 'text',
-          modelId: options.modelId
-        });
-      });
+      // Helper for state management
+      const setState = (executionId: string, state: ExecutionState) =>
+        pipe(
+          stateStore,
+          Ref.update(store => HashMap.set(store, executionId, state))
+        );
 
       return {
-        execute,
-        executeText
+        execute: <R, E, A>(
+          effect: Effect.Effect<A, E, R>,
+          options: BaseExecuteOptions = DEFAULT_EXECUTE_OPTIONS
+        ): Effect.Effect<A, E | ExecutiveServiceError, R> => {
+          const DEFAULT_RETRY_CONFIG: RetryConfig = {
+            maxAttempts: 1,
+            baseDelayMs: 100,
+            maxDelayMs: 5000,
+            jitterFactor: 0.1,
+            useExponentialBackoff: true
+          };
+          return Effect.gen(function* () {
+            const executionId = uuid();
+            const startTime = Date.now();
+
+            // Increment total executions counter
+            yield* Metric.increment(ExecutiveMetrics.totalExecutions);
+            // Track token usage if available
+            if (options?.policy?.tokenUsage) {
+              yield* trackTokenUsage(
+                options.policy.modelId ?? "unknown",
+                options.policy.tokenUsage
+              );
+            }
+
+            const retryConfig = options?.retry ?? DEFAULT_RETRY_CONFIG;
+            const policyConfig = options?.policy ?? {};
+            const auditLogger = options?.auditLogger;
+            const authContext = options?.auth;
+            const authValidator = options?.authValidator;
+            const rateLimiter = options?.rateLimiter;
+            const rateLimitConfig = options?.rateLimit;
+
+            // Check rate limits if configured
+            if (rateLimiter && rateLimitConfig) {
+              const rateKey = authContext?.userId ?? "anonymous";
+              const limitResult = yield* rateLimiter.checkLimit(rateKey);
+
+              if (!limitResult.allowed) {
+                return yield* Effect.fail(new RateLimitError({
+                  description: `Rate limit exceeded. Try again in ${limitResult.retryAfterMs}ms`,
+                  retryAfterMs: limitResult.retryAfterMs
+                }));
+              }
+
+              // Record the request
+              yield* rateLimiter.recordRequest(rateKey);
+
+              // Log rate limit check
+              if (auditLogger) {
+                yield* auditLogger.logEvent({
+                  executionId,
+                  eventType: "policy_checked",
+                  timestamp: Date.now(),
+                  details: {
+                    type: "rate_limit",
+                    key: rateKey,
+                    currentCount: limitResult.currentCount,
+                    maxRequests: rateLimitConfig.maxRequests,
+                    windowMs: rateLimitConfig.windowMs
+                  }
+                });
+              }
+            }
+
+            // Validate auth if validator is provided
+            if (authValidator) {
+              if (!authContext) {
+                return yield* Effect.fail(new AuthError({
+                  description: "Auth context is required when auth validator is provided",
+                  errorType: "unauthorized"
+                }));
+              }
+
+              const authResult = yield* authValidator.validate(authContext);
+              if (!authResult.valid) {
+                return yield* Effect.fail(new AuthError({
+                  description: authResult.errorMessage ?? "Auth validation failed",
+                  errorType: authResult.errorType ?? "unauthorized"
+                }));
+              }
+
+              // Log auth validation
+              if (auditLogger) {
+                yield* auditLogger.logEvent({
+                  executionId,
+                  eventType: "policy_checked",
+                  timestamp: Date.now(),
+                  details: {
+                    type: "auth",
+                    userId: authContext.userId,
+                    roles: authContext.roles,
+                    permissions: authContext.permissions
+                  }
+                });
+              }
+            }
+
+            // Log execution start
+            if (auditLogger) {
+              yield* auditLogger.logEvent({
+                executionId,
+                eventType: "execution_started",
+                timestamp: Date.now(),
+                details: {
+                  retryConfig,
+                  policyConfig
+                }
+              });
+            }
+
+            // Initialize execution state
+            yield* setState(executionId, {
+              status: "pending",
+              startTime: Date.now()
+            });
+
+            // Check policy constraints if needed
+            if (policyConfig.modelId || policyConfig.operationType) {
+              const policyCheck = yield* policyService.checkPolicy({
+                auth: { userId: "system" },
+                requestedModel: policyConfig.modelId ?? "",
+                operationType: policyConfig.operationType ?? "execute",
+                pipelineId: policyConfig.pipelineId,
+                tags: policyConfig.tags
+              });
+
+              // Log policy check
+              if (auditLogger) {
+                yield* auditLogger.logEvent({
+                  executionId,
+                  eventType: "policy_checked",
+                  timestamp: Date.now(),
+                  details: {
+                    allowed: policyCheck.allowed,
+                    reason: policyCheck.reason
+                  }
+                });
+              }
+
+              if (!policyCheck.allowed) {
+                return yield* Effect.fail(new ConstraintError({
+                  description: policyCheck.reason || "Operation not allowed by policy",
+                  module: "ExecutiveService",
+                  method: "execute",
+                  constraint: "maxAttempts",
+                  limit: retryConfig.maxAttempts,
+                  actual: 1
+                }));
+              }
+            }
+
+            return yield* pipe(
+              Effect.gen(function* () {
+                // Execute the effect with retries
+                const result = yield* pipe(
+                  Effect.map(effect, (producer) => {
+                    // Add signal to producer if provided
+                    return options.signal
+                      ? { ...producer, signal: options.signal }
+                      : producer;
+                  }),
+                  Effect.retry({
+                    times: retryConfig.maxAttempts - 1,
+                    schedule: Schedule.addDelay(
+                      Schedule.recurs(retryConfig.maxAttempts - 1),
+                      (attempt) => {
+                        // Log retry attempt
+                        if (auditLogger) {
+                          Effect.runSync(auditLogger.logEvent({
+                            executionId,
+                            eventType: "retry_attempted",
+                            timestamp: Date.now(),
+                            details: {
+                              attempt: attempt + 1,
+                              maxAttempts: retryConfig.maxAttempts
+                            }
+                          }));
+                        }
+                        // Calculate base delay with optional exponential backoff
+                        const baseDelay = retryConfig.useExponentialBackoff
+                          ? retryConfig.baseDelayMs * Math.pow(2, attempt)
+                          : retryConfig.baseDelayMs;
+
+                        // Cap the delay at maxDelayMs
+                        const cappedDelay = Math.min(baseDelay, retryConfig.maxDelayMs);
+
+                        // Add jitter
+                        const jitter = retryConfig.jitterFactor ?? 0.1;
+                        const variance = cappedDelay * jitter;
+                        const jitterMs = Math.random() * variance;
+
+                        return cappedDelay + jitterMs;
+                      }
+                    )
+                  })
+                );
+
+                // Update state to completed
+                yield* setState(executionId, {
+                  status: "completed",
+                  startTime: Date.now()
+                });
+
+                // Log completion
+                if (auditLogger) {
+                  yield* auditLogger.logEvent({
+                    executionId,
+                    eventType: "execution_completed",
+                    timestamp: Date.now(),
+                    details: {
+                      result
+                    }
+                  });
+                }
+
+                // Record execution duration
+                yield* Metric.update(
+                  ExecutiveMetrics.executionDuration,
+                  Duration.millis(Date.now() - startTime)
+                );
+
+                return result;
+              }),
+              Effect.catchAll((error: Error | unknown) =>
+                Effect.gen(function* () {
+                  // Update state to failed
+                  yield* setState(executionId, {
+                    status: "failed",
+                    startTime: Date.now(),
+                    error: error instanceof Error ? error : new Error(String(error))
+                  });
+
+                  // Log failure
+                  if (auditLogger) {
+                    yield* auditLogger.logEvent({
+                      executionId,
+                      eventType: "execution_failed",
+                      timestamp: Date.now(),
+                      details: {
+                        error: error instanceof Error ? error.message : String(error)
+                      }
+                    });
+                  }
+
+                  // Increment failed executions counter
+                  yield* Metric.increment(ExecutiveMetrics.failedExecutions);
+
+                  // Record execution duration even for failures
+                  yield* Metric.update(
+                    ExecutiveMetrics.executionDuration,
+                    Duration.millis(Date.now() - startTime)
+                  );
+
+                  return yield* Effect.fail(new ExecutiveServiceError({
+                    description: error instanceof Error ? error.message : String(error),
+                    module: "ExecutiveService",
+                    method: "execute",
+                    cause: error
+                  }));
+                })
+              ),
+              Effect.interruptible,
+              Effect.onInterrupt(() => 
+                Effect.gen(function* () {
+                  yield* setState(executionId, {
+                    status: "failed",
+                    startTime: Date.now(),
+                    error: new Error("Operation interrupted")
+                  });
+
+                  // Log interruption
+                  if (auditLogger) {
+                    yield* auditLogger.logEvent({
+                      executionId,
+                      eventType: "execution_failed",
+                      timestamp: Date.now(),
+                      details: {
+                        error: "Operation interrupted"
+                      }
+                    });
+                  }
+
+                  return yield* Effect.succeed(void 0);
+                })
+              )
+            );
+          });
+        }
       };
     }),
-    dependencies: [PolicyService.Default, TextService.Default] as const
   }
 ) { }

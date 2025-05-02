@@ -4,10 +4,19 @@
  */
 
 import { EntityParseError } from "@/services/core/errors.js";
-import { Data } from "effect";
-// Correct import path for ParseError
+import { EffectiveError } from "@/effective-error.js";
 
-export class PersonaConfigError extends Data.TaggedError("PersonaConfigError")<{
-	readonly message: string;
-	readonly cause: EntityParseError; // Type should now resolve correctly
-}> { }
+/**
+ * Error thrown when there are issues with persona configuration.
+ * @extends EffectiveError
+ */
+export class PersonaConfigError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module: string;
+        method: string;
+        cause?: EntityParseError;
+    }) {
+        super(params);
+    }
+}
