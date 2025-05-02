@@ -2,74 +2,66 @@
  * @file Implements the EmbeddingService for generating vector embeddings from text.
  * @module services/ai/producers/embedding/service
  */
-import ModelService from "@/services/ai/model/service.js";
+import { ModelService } from "@/services/ai/model/service.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import * as Effect from "effect/Effect";
-import { Layer } from "effect";
 import type { LanguageModelV1 } from "@ai-sdk/provider";
-import { ProviderConfigError } from "@/services/ai/provider/errors.js";
+import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "@/services/ai/provider/errors.js";
 import type { Span } from "effect/Tracer";
 import { EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
+import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import type { EmbeddingServiceApi } from "./api.js";
 
 /**
- * Options for embedding generation
+ * Options for generating embeddings
  */
-export interface EmbeddingGenerationOptions {
-    /** The model ID to use */
-    readonly modelId?: string;
-    /** The text(s) to generate embeddings for */
-    readonly input: string | string[];
-    /** Tracing span for observability */
-    readonly span: Span;
-    /** Optional abort signal for cancellation */
-    readonly signal?: AbortSignal;
-    /** Optional parameters for model behavior */
-    readonly parameters?: {
-        /** The dimensionality of the embeddings */
+interface EmbeddingGenerationOptions {
+    /** Model ID to use for generating embeddings */
+    modelId?: string;
+    /** Input text or array of texts to generate embeddings for */
+    input: string | string[];
+    /** Additional parameters for the embedding generation */
+    parameters?: {
+        /** Number of dimensions for the embeddings */
         dimensions?: number;
-        /** Model-specific user identifier */
+        /** User identifier for billing purposes */
         user?: string;
-        /** Encoding format */
+        /** Encoding format for the embeddings */
         encoding?: string;
     };
 }
 
 /**
- * Result of the embedding generation
+ * Result of embedding generation
  */
-export interface EmbeddingGenerationResult {
-    /** The generated embeddings */
-    readonly embeddings: ReadonlyArray<ReadonlyArray<number>>;
-    /** The model used */
-    readonly model: string;
-    /** The timestamp of the generation */
-    readonly timestamp: Date;
-    /** The ID of the response */
-    readonly id: string;
-    /** Optional usage statistics */
-    readonly usage?: {
+interface EmbeddingGenerationResult {
+    /** Generated embeddings */
+    embeddings: number[][];
+    /** Model used for generation */
+    model: string;
+    /** Timestamp of generation */
+    timestamp: Date;
+    /** Unique identifier for this generation */
+    id: string;
+    /** Usage statistics if available */
+    usage?: {
         promptTokens: number;
         totalTokens: number;
     };
 }
 
 /**
- * EmbeddingService interface for generating vector embeddings.
- */
-import type { EmbeddingServiceApi } from "./api.js";
-import ProviderService from "../../provider/service.js";
-
-/**
  * EmbeddingService provides methods for generating vector embeddings using AI providers.
  */
-export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()("EmbeddingService", {
-    effect: Effect.gen(function* () {
-        // Get services
-        const providerService = yield* ProviderService;
-        const modelService: ModelServiceApi = yield* ModelService;
+export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
+    "EmbeddingService",
+    {
+        effect: Effect.gen(function* () {
+            const modelService = yield* ModelService;
+            const providerService = yield* ProviderService;
 
-        return {
-            generate: (options: EmbeddingGenerationOptions) =>
+            const generate = (options: EmbeddingGenerationOptions) =>
                 Effect.gen(function* () {
                     // Validate input
                     if (Array.isArray(options.input) && options.input.length === 0) {
@@ -89,99 +81,74 @@ export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()("Emb
                     }
 
                     // Get model ID or fail
-                    const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new EmbeddingModelError({
+                    if (!options.modelId) {
+                        return yield* Effect.fail(new EmbeddingModelError({
                             description: "Model ID must be provided",
                             module: "EmbeddingService",
                             method: "generate"
-                        }))
-                    );
+                        }));
+                    }
 
                     // Get provider name from model service
-                    const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new EmbeddingProviderError({
+                    const providerName = yield* modelService.getProviderName(options.modelId);
+
+                    if (!providerName) {
+                        return yield* Effect.fail(new EmbeddingProviderError({
                             description: "Failed to get provider name for model",
                             module: "EmbeddingService",
                             method: "generate",
-                            cause: error
-                        }))
-                    );
+                            cause: new Error("Provider name not found")
+                        }));
+                    }
 
                     // Get provider client
-                    const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new EmbeddingProviderError({
+                    const providerClient = yield* providerService.getProviderClient(providerName);
+
+                    if (!providerClient) {
+                        return yield* Effect.fail(new EmbeddingProviderError({
                             description: "Failed to get provider client",
                             module: "EmbeddingService",
                             method: "generate",
-                            cause: error,
+                            cause: new Error("Provider client not found"),
                             providerName
-                        }))
-                    );
+                        }));
+                    }
 
                     yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
-                    yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
-
-                    // Get model from the provider
-                    const model = yield* Effect.tryPromise({
-                        try: async () => {
-                            // Use the provider to get the embedding model
-                            // Cast the Effect to the correct type to resolve the type compatibility issue
-                            const getModelsEffect = providerClient.getModels() as Effect.Effect<LanguageModelV1[], ProviderConfigError, never>;
-                            const models = await Effect.runPromise(getModelsEffect);
-                            const matchingModel = models.find((m: any) => m.modelId === modelId);
-                            if (!matchingModel) {
-                                throw new Error(`Model ${modelId} not found`);
-                            }
-                            return matchingModel;
-                        },
-                        catch: (error) => new EmbeddingModelError({
-                            description: `Failed to get model ${modelId}`,
-                            module: "EmbeddingService",
-                            method: "generate",
-                            cause: error
-                        })
-                    });
+                    yield* Effect.annotateCurrentSpan("ai.model.name", options.modelId);
 
                     // Generate the embeddings using the provider's generateEmbeddings method
-                    const resultResponse = yield* Effect.tryPromise({
-                        try: async () => {
-                            const inputArray: string[] = Array.isArray(options.input)
-                                ? options.input
-                                : [options.input];
-                            return await Effect.runPromise(providerClient.generateEmbeddings(
-                                inputArray,
-                                {
-                                    modelId: modelId,
-                                    ...options.parameters
-                                }
-                            ));
-                        },
-                        catch: (error) => new EmbeddingProviderError({
-                            description: "Failed to generate embeddings",
-                            module: "EmbeddingService",
-                            method: "generate",
-                            cause: error
-                        })
-                    });
+                    const inputArray: string[] = Array.isArray(options.input)
+                        ? options.input
+                        : [options.input];
 
-                    const result = resultResponse.data;
-
-                    // Map the result to EmbeddingGenerationResult
+                    const response = yield* providerClient.generateEmbeddings(
+                        inputArray,
+                        {
+                            modelId: options.modelId || "",
+                            ...options.parameters
+                        }
+                    );
+                    
+                    const result = response.data;
+                    
                     return {
-                        embeddings: result?.embeddings,
-                        model: result?.model ?? modelId,
-                        timestamp: result?.timestamp ? new Date(result.timestamp) : new Date(),
-                        id: result?.id ?? "",
-                        usage: result?.usage ? {
+                        embeddings: result.embeddings || [],
+                        model: result.model || options.modelId || "",
+                        timestamp: new Date(),
+                        id: result.id || "",
+                        usage: result.usage ? {
                             promptTokens: result.usage.promptTokens || 0,
-                            completionTokens: result.usage.completionTokens || 0,
                             totalTokens: result.usage.totalTokens || 0
                         } : undefined
-                    };
+                    } as EmbeddingGenerationResult;
                 }).pipe(
                     Effect.withSpan("EmbeddingService.generate")
-                )
-        };
-    }),
-    dependencies: [ModelService.Default, ProviderService.Default] as const
-}) { }
+                );
+
+            return { generate };
+        })
+    }
+) {
+
+}

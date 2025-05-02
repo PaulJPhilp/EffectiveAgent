@@ -3,7 +3,7 @@
  */
 
 
-import { Effect, Layer, Option } from "effect";
+import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
 import {
   createPersonSchema,
@@ -11,7 +11,10 @@ import {
   createTaskSchema,
   createListSchema,
 } from "../schema-utils.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
 import { ObjectService } from "../service.js";
+import type { ObjectServiceApi } from "../api.js";
 import {
   ObjectModelError,
   ObjectProviderError,
@@ -27,10 +30,9 @@ interface Person {
 
 describe("ObjectService", () => {
   it("should handle abort signal", () =>
-    Effect.gen(function* (_) {
+    Effect.gen(function* () {
       const controller = new AbortController();
       const schema = createPersonSchema();
-      const service = yield* ObjectService;
       const options = {
         modelId: "test-model",
         prompt: "Generate a person",
@@ -44,35 +46,14 @@ describe("ObjectService", () => {
       setTimeout(() => controller.abort(), 100);
 
       // The operation should be aborted
-      const result = yield* service.generate<Person>(options);
+      const objectService = yield* ObjectService;
+      const result = yield* objectService.generate<Person>(options);
       return result;
-    }).pipe(
-      Effect.provide(ObjectService.Default)
-    )
+    })
   );
 
   // --- Success Case ---
-  const createTestObjectService = () =>
-    Effect.succeed({
-      generate: <T>(_options: any) =>
-        Effect.succeed({
-          data: {
-            name: "John Doe",
-            age: 30,
-            email: "john@example.com",
-          },
-          model: "test-model",
-          timestamp: new Date(),
-          id: "test-response-id",
-          usage: {
-            promptTokens: 100,
-            completionTokens: 50,
-            totalTokens: 150,
-          },
-        } as any),
-    });
-
-  const mockObjectServiceImpl = {
+  const mockImplementation = {
     generate: <T>(_options: any) =>
       Effect.succeed({
         data: {
@@ -88,21 +69,20 @@ describe("ObjectService", () => {
           completionTokens: 50,
           totalTokens: 150,
         },
-      } as any),
+      } as any)
   };
-  const mockObjectServiceLayer = Layer.succeed(ObjectService, mockObjectServiceImpl as any);
-
-  it("should generate an object successfully", async () => {
-    const schema = createPersonSchema();
-    const effect = Effect.gen(function* () {
-      const service = yield* ObjectService;
-      const result = yield* service.generate<Person>({
+  it("should generate an object successfully", () =>
+    Effect.gen(function* () {
+      const objectService = yield* ObjectService;
+      const result = yield* objectService.generate<Person>({
         modelId: "test-model",
         prompt: "Generate a person named John Doe",
         system: Option.none(),
-        schema,
+        schema: createPersonSchema(),
         span: {} as any,
+        signal: undefined,
       });
+
       expect(result.data.name).toBe("John Doe");
       expect(result.data.age).toBe(30);
       expect(result.data.email).toBe("john@example.com");
@@ -110,10 +90,10 @@ describe("ObjectService", () => {
       expect(result.id).toBe("test-response-id");
       expect(result.usage?.totalTokens).toBe(150);
       return result;
-    });
-    await Effect.runPromise(effect.pipe(Effect.provide(mockObjectServiceLayer)));
-  });
-  });
+    }).pipe(
+      Effect.provideService(ObjectService, mockImplementation )
+    )
+  );
 
   // --- Missing modelId ---
   const createMissingModelIdService = () =>
@@ -137,29 +117,26 @@ describe("ObjectService", () => {
         }),
       ),
   };
-  const mockMissingModelIdLayer = Layer.succeed(ObjectService, mockMissingModelIdImpl as any);
 
-  it("should fail if modelId is missing", async () => {
-    const schema = createPersonSchema();
-    const effect = Effect.either(
-      Effect.gen(function* () {
-        const service = yield* ObjectService;
-        return yield* service.generate<Person>({
+  it("should fail if modelId is missing", () =>
+    Effect.gen(function* () {
+      const service = yield* ObjectService;
+      const result = yield* Effect.either(
+        service.generate<Person>({
           modelId: undefined,
-          prompt: "Generate a person",
+          prompt: "Generate a person with missing model ID",
           system: Option.none(),
-          schema,
+          schema: createPersonSchema(),
           span: {} as any,
-        });
-      }),
-    );
-    const result = await Effect.runPromise(effect.pipe(Effect.provide(mockMissingModelIdLayer)));
+        })
+      )
 
-    expect(result._tag).toBe("Left");
-    if (result._tag === "Left") {
-      expect(result.left).toBeInstanceOf(ObjectModelError);
-    }
-  });
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        expect(result.left).toBeInstanceOf(ObjectModelError);
+      }
+    })
+  );
 
   // --- Provider Error ---
   const createProviderErrorService = () =>
@@ -185,30 +162,27 @@ describe("ObjectService", () => {
         }),
       ),
   };
-  const mockProviderErrorLayer = Layer.succeed(ObjectService, mockProviderErrorImpl as any);
 
-  it("should handle provider errors", async () => {
-    const schema = createProductSchema();
-    const effect = Effect.either(
-      Effect.gen(function* () {
-        const service = yield* ObjectService;
-        return yield* service.generate({
+  it("should handle provider errors", () =>
+    Effect.gen(function* () {
+      const service = yield* ObjectService;
+      const result = yield* Effect.either(
+        service.generate({
           modelId: "test-model",
-          prompt: "Generate a product",
+          prompt: "Generate a product with provider error",
           system: Option.none(),
-          schema,
+          schema: createProductSchema(),
           span: {} as any,
-        });
-      }),
-    );
-    const result = await Effect.runPromise(effect.pipe(Effect.provide(mockProviderErrorLayer)));
+        })
+      )
 
-    expect(result._tag).toBe("Left");
-    if (result._tag === "Left") {
-      expect(result.left).toBeInstanceOf(ObjectProviderError);
-      expect(result.left.description).toContain("Failed to get provider client");
-    }
-  });
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        expect(result.left).toBeInstanceOf(ObjectProviderError);
+        expect(result.left.description).toContain("Failed to get provider client");
+      }
+    })
+  );
 
   // --- Generation Error ---
   const createGenerationErrorService = () =>
@@ -233,29 +207,27 @@ describe("ObjectService", () => {
         }),
       ),
   };
-  const mockGenerationErrorLayer = Layer.succeed(ObjectService, mockGenerationErrorImpl as any);
 
-  it("should handle object generation errors", async () => {
-    const schema = createTaskSchema();
-    const effect = Effect.either(
-      Effect.gen(function* () {
-        const service = yield* ObjectService;
-        return yield* service.generate({
+  it("should handle object generation errors", () =>
+    Effect.gen(function* () {
+      const service = yield* ObjectService;
+      const result = yield* Effect.either(
+        service.generate({
           modelId: "test-model",
-          prompt: "Generate a task",
+          prompt: "Generate a task with generation error",
           system: Option.none(),
-          schema,
+          schema: createTaskSchema(),
           span: {} as any,
-        });
-      }),
-    );
-    const result = await Effect.runPromise(effect.pipe(Effect.provide(mockGenerationErrorLayer)));
+        })
+      )
 
-    expect(result._tag).toBe("Left");
-    if (result._tag === "Left") {
-      expect(result.left).toBeInstanceOf(ObjectGenerationError);
-      expect(result.left.description).toContain("Object generation failed");
-    }
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        expect(result.left).toBeInstanceOf(ObjectGenerationError);
+        expect(result.left.description).toContain("Object generation failed");
+      }
+    })
+  );
   });
 
   // --- Schema Validation Error ---
@@ -287,65 +259,42 @@ describe("ObjectService", () => {
         }),
       ),
   };
-  const mockSchemaErrorLayer = Layer.succeed(ObjectService, mockSchemaErrorImpl as any);
-
-  it("should handle schema validation errors", async () => {
-    const schema = createPersonSchema();
-    const effect = Effect.either(
-      Effect.gen(function* () {
-        const service = yield* ObjectService;
-        return yield* service.generate<Person>({
+  it("should handle schema validation errors", () =>
+    Effect.gen(function* () {
+      const service = yield* ObjectService;
+      const result = yield* Effect.either(
+        service.generate<Person>({
           modelId: "test-model",
           prompt: "Generate a person with invalid data",
           system: Option.none(),
-          schema,
+          schema: createPersonSchema(),
           span: {} as any,
-        });
-      }),
-    );
-    const result = await Effect.runPromise(effect.pipe(Effect.provide(mockSchemaErrorLayer)));
-
-    expect(result._tag).toBe("Left");
-    if (result._tag === "Left") {
-      expect(result.left).toBeInstanceOf(ObjectSchemaError);
-      expect(result.left.description).toContain(
-        "Generated object does not match schema",
+        })
       );
-      if (result.left instanceof ObjectSchemaError) {
-        expect(Array.isArray(result.left.validationErrors)).toBe(true);
+
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        expect(result.left).toBeInstanceOf(ObjectSchemaError);
+        expect(result.left.description).toContain(
+          "Generated object does not match schema",
+        );
+        if (result.left instanceof ObjectSchemaError) {
+          expect(Array.isArray(result.left.validationErrors)).toBe(true);
+        }
       }
-    }
-  });
+      return result;
+    })
+  );
 
   // --- Optional Fields ---
-  it("should handle optional fields correctly", async () => {
-    const schema = createPersonSchema();
-    const mockOptionalFieldImpl = {
-      generate: <T>(_options: any) =>
-        Effect.succeed({
-          data: {
-            name: "Jane Doe",
-            age: 25,
-            // email omitted intentionally
-          },
-          model: "test-model",
-          timestamp: new Date(),
-          id: "test-response-id-2",
-          usage: {
-            promptTokens: 80,
-            completionTokens: 40,
-            totalTokens: 120,
-          },
-        } as any),
-    };
-    const mockOptionalFieldLayer = Layer.succeed(ObjectService, mockOptionalFieldImpl as any);
-    const effect = Effect.gen(function* () {
-      const service = yield* ObjectService;
-      const result = yield* service.generate<Person>({
+  it("should handle optional fields correctly", () =>
+    Effect.gen(function* () {
+      const objectService = yield* ObjectService;
+      const result = yield* objectService.generate<Person>({
         modelId: "test-model",
         prompt: "Generate a person without email",
         system: Option.none(),
-        schema,
+        schema: createPersonSchema(),
         span: {} as any,
       });
       expect(result.data.name).toBe("Jane Doe");
@@ -355,49 +304,49 @@ describe("ObjectService", () => {
       expect(result.id).toBe("test-response-id-2");
       expect(result.usage?.totalTokens).toBe(120);
       return result;
-    });
-    await Effect.runPromise(effect.pipe(Effect.provide(mockOptionalFieldLayer)));
-  });
+    })
+  );
 
   // --- List Schema ---
-  it("should generate a list of objects", async () => {
-    const personSchema = createPersonSchema();
-    const listSchema = createListSchema(personSchema);
-    const mockListImpl = {
-      generate: <T>(_options: any) =>
-        Effect.succeed({
-          data: [
-            { name: "Alice", age: 20 },
-            { name: "Bob", age: 22, email: "bob@example.com" },
-          ],
-          model: "test-model",
-          timestamp: new Date(),
-          id: "test-response-id-3",
-          usage: {
-            promptTokens: 120,
-            completionTokens: 60,
-            totalTokens: 180,
-          },
-        } as any),
-    };
-    const mockListLayer = Layer.succeed(ObjectService, mockListImpl as any);
-    const effect = Effect.gen(function* () {
-      const service = yield* ObjectService;
-      const result = yield* service.generate<ReadonlyArray<Person>>({
+  it("should generate a list of objects", () =>
+    Effect.gen(function* () {
+      const objectService = yield* ObjectService;
+      const result = yield* objectService.generate<ReadonlyArray<Person>>({
         modelId: "test-model",
         prompt: "Generate a list of people",
         system: Option.none(),
-        schema: listSchema,
+        schema: createListSchema(createPersonSchema()),
         span: {} as any,
       });
+
       expect(Array.isArray(result.data)).toBe(true);
       expect(result.data.length).toBe(2);
       expect(result.data[0].name).toBe("Alice");
-      expect(result.data[1].email).toBe("bob@example.com");
+      expect(result.data[0].age).toBe(25);
+      expect(result.data[1].name).toBe("Bob");
+      expect(result.data[1].age).toBe(30);
       expect(result.model).toBe("test-model");
-      expect(result.id).toBe("test-response-id-3");
-      expect(result.usage?.totalTokens).toBe(180);
+      expect(result.id).toBe("test-response-id");
+      expect(result.usage?.totalTokens).toBe(150);
+      
       return result;
-    });
-    await Effect.runPromise(effect.pipe(Effect.provide(mockListLayer)));
-  })
+    }).pipe(
+      Effect.provideService(ObjectService, {
+        generate: <T>(_options: any) =>
+          Effect.succeed({
+            data: [
+              { name: "Alice", age: 25 },
+              { name: "Bob", age: 30 }
+            ],
+            model: "test-model",
+            timestamp: new Date(),
+            id: "test-response-id",
+            usage: {
+              promptTokens: 100,
+              completionTokens: 50,
+              totalTokens: 150,
+            },
+          } as any)
+      })
+    )
+  );

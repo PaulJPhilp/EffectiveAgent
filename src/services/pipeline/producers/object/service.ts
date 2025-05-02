@@ -5,9 +5,9 @@
 
 import { EffectiveInput } from '@/services/ai/input/service.js';
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
-import ModelService from "@/services/ai/model/service.js";
+import { ModelService } from "@/services/ai/model/service.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import ProviderService from "@/services/ai/provider/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
 import { JSONSchema, Schema as S } from "effect";

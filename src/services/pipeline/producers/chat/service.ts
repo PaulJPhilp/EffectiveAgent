@@ -5,13 +5,13 @@
 
 import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import { EffectiveInput } from '@/services/ai/input/service.js';
-import ModelService from "@/services/ai/model/service.js";
+import { ModelService } from "@/services/ai/model/service.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import ProviderService from "@/services/ai/provider/service.js";
-import type { ProviderChatOptions } from "@/services/ai/provider/types.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
-import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
+import type { EffectiveResponse } from "@/services/pipeline/types/base.js";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import type * as JsonSchema from "effect/JSONSchema";
@@ -19,7 +19,6 @@ import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
 import { ChatCompletionError, ChatModelError, ChatProviderError, ChatInputError } from "./errors.js";
 import { mapEffectMessagesToClientCoreMessages } from "./utils.js";
-import { ConfigProvider } from "effect";
 
 /**
  * Extended options for chat interactions
@@ -177,5 +176,5 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                 )
         };
     }),
-    dependencies: [ModelService.Default, ProviderService.Default] as const
+    dependencies: [] as const
 }) { }

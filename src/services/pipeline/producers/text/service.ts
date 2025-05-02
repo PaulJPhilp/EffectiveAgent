@@ -7,17 +7,16 @@ import { Effect, Option, ConfigProvider } from "effect";
 import * as Chunk from "effect/Chunk";
 import { Message } from "@effect/ai/AiInput";
 import type { Span } from "effect/Tracer";
-import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
+import type { EffectiveResponse } from "@/services/pipeline/types.js";
 import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import type { TextServiceError } from "./errors.js";
 import { AiRole } from '@effect/ai';
-import { ProviderServiceApi } from '../../provider/api.js';
+import { ProviderServiceApi } from '@/services/ai/provider/api.js';
 import type { TextServiceApi, TextGenerationOptions } from "./api.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import ModelService from "@/services/ai/model/service.js";
-import ProviderService from "@/services/ai/provider/service.js";
-import { TestConfig } from "effect/TestConfig";
-import { EffectiveInput } from "../../input/service.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { EffectiveInput } from "@/services/ai/input/service.js";
 import { TextModelError, TextProviderError, TextGenerationError, TextInputError } from "./errors.js";
 
 /**
@@ -60,7 +59,7 @@ export interface ProviderTextGenerationResult {
 /**
  * Dependencies for TextService.
  */
-import type { TestHarnessApi } from "@/services/test-harness/api.js";
+import type { TestHarnessApi } from "@/services/core/test-harness/api.js";
 
 export interface TextServiceDeps {
     readonly modelService: ModelServiceApi;
@@ -184,7 +183,7 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
       }
     };
   }),
-  dependencies: [ModelService.Default, ProviderService.Default] as const
+  dependencies: [] as const
 }) {}
 
 export default TextService;

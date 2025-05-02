@@ -3,8 +3,8 @@
  * @module services/ai/producers/image/__tests__/service
  */
 
-import { FixtureService } from "@/services/test-harness/components/fixtures/service.js";
-import { MockAccessorService } from "@/services/test-harness/components/mock-accessors/service.js";
+import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
+import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
 import { describe, it } from "@effect/vitest";
 import { expect } from "vitest";
 import { Effect, Layer, Option } from "effect";

@@ -1,16 +1,16 @@
-import { Effect, Option } from "effect";
+import { Chunk, Effect, Option } from "effect";
 import type { LanguageModelV1 } from "@ai-sdk/provider";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
-import type { EmbeddingServiceApi } from "@/services/ai/producers/embedding/api.js";
-import type { TextServiceApi } from "@/services/ai/producers/text/api.js";
-import type { ObjectServiceApi } from "@/services/ai/producers/object/api.js";
-import { EmbeddingInputError } from "@/services/ai/producers/embedding/errors.js";
-import { ObjectModelError, ObjectProviderError, ObjectGenerationError, ObjectSchemaError } from "@/services/ai/producers/object/errors.js";
+import type { EmbeddingServiceApi } from "@/services/pipeline/producers/embedding/api.js";
+import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
+import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
+import { EmbeddingInputError } from "@/services/pipeline/producers/embedding/errors.js";
+import { ObjectModelError, ObjectProviderError, ObjectGenerationError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
 import { MockAccessorApi } from "./api.js";
-import { AiResponse } from "@effect/ai/AiResponse";
+import { AiResponse, TextPart as ResponseTextPart } from "@effect/ai/AiResponse";
 import { User } from "@effect/ai/AiRole";
-import { ChatCompletionOptions } from "@/services/ai/producers/chat/service.js";
+import { ChatCompletionOptions } from "@/services/pipeline/producers/chat/service.js";
 
 /**
  * Implementation of the MockAccessorService using Effect.Service pattern.
@@ -323,7 +323,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             return Effect.succeed(
               new AiResponse({
                 role: new User(),
-                content: "Hello, world!"
+                parts: Chunk.of(new ResponseTextPart({ content: "Hello, world!" }))
               })
             );
           }

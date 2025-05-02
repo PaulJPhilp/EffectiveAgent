@@ -3,23 +3,22 @@
  * @module services/ai/producers/chat/__tests__/service
  */
 
-import FixtureService from "@/services/test-harness/components/fixtures/service.js";
-import MockAccessorService from "@/services/test-harness/components/mock-accessors/service.js";
-import { TestHarnessLayer } from "@/services/test-harness/service.js";
+import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
 import { TextPart as InputTextPart, Message } from "@effect/ai/AiInput";
 import { TextPart as ResponseTextPart } from "@effect/ai/AiResponse";
 import { User } from "@effect/ai/AiRole";
 import { describe, it } from "@effect/vitest";
-import { Chunk, Effect, Layer, Option, pipe } from "effect";
+import { Chunk, Effect, Option } from "effect";
 import type { Span } from "effect/Tracer";
 import { expect } from "vitest";
 import { ChatService } from "../service.js";
+import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
 
 describe("ChatService", () => {
   it("should handle abort signal", () => {
     const controller = new AbortController();
 
-    return Effect.gen(function* (_) {
+    return Effect.gen(function* () {
       const service = yield* ChatService;
       const options = {
         modelId: "test-model",
@@ -37,9 +36,7 @@ describe("ChatService", () => {
       // The operation should be aborted
       const result = yield* service.create(options);
       return result;
-    }).pipe(
-      Effect.provide(ChatService.Default)
-    );
+    });
   });
   // Minimal valid mock tool for testing tool call scenarios
   const mockTool = {
@@ -78,12 +75,7 @@ describe("ChatService", () => {
         expect(firstPart._tag).toBe("Text");
         expect(firstPart.content).toBeDefined();
       }
-    }).pipe(
-      Effect.provide(Layer.merge(
-        FixtureService.Default,
-        MockAccessorService.Default
-      ))
-    )
+    })
   );
 
   it("should handle multiple user messages", () =>
@@ -113,12 +105,7 @@ describe("ChatService", () => {
       expect(result.role).toBeInstanceOf(User);
       const firstPartOption = Chunk.get(result.parts, 0);
       expect(Option.isSome(firstPartOption)).toBe(true);
-    }).pipe(
-      Effect.provide(Layer.merge(
-        FixtureService.Default,
-        MockAccessorService.Default
-      ))
-    )
+    })
   );
 
   it("should handle tools configuration", () =>
@@ -144,11 +131,6 @@ describe("ChatService", () => {
       expect(result.role).toBeInstanceOf(User);
       const firstPartOption = Chunk.get(result.parts, 0);
       expect(Option.isSome(firstPartOption)).toBe(true);
-    }).pipe(
-      Effect.provide(Layer.merge(
-        FixtureService.Default,
-        MockAccessorService.Default
-      ))
-    )
+    })
   );
 });
