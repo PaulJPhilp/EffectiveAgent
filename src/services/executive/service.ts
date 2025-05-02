@@ -18,13 +18,15 @@
  */
 
 // Core imports
-import { Effect, pipe, Schedule } from "effect";
+import { Effect, pipe, Schedule, Ref, Option } from "effect";
 
 // Policy service for enforcing usage constraints
 import { PolicyService } from "@/services/ai/policy/service.js";
+import TextService from "@/services/ai/producers/text/service.js";
+import type { PolicyCheckContext, PolicyRecordContext } from "@/services/ai/policy/types.js";
 
 // Service API and error types
-import type { ExecutiveServiceApi, ExecuteOptions } from "./api.js";
+import type { ExecutiveServiceApi, BaseExecuteOptions, TextExecuteOptions } from "./api.js";
 import { DEFAULT_EXECUTE_OPTIONS } from "./api.js";
 
 import { ExecutiveServiceError } from "./errors.js";
@@ -43,21 +45,47 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
        * If the policy check fails, an ExecutiveServiceError is thrown.
        * Otherwise, the provided effect is executed.
        */
-      const execute: ExecutiveServiceApi["execute"] = <R, E, A>(
+      const execute = <R, E, A>(
         effect: Effect.Effect<A, E, R>,
-        options: ExecuteOptions = DEFAULT_EXECUTE_OPTIONS
+        options: BaseExecuteOptions = DEFAULT_EXECUTE_OPTIONS
       ): Effect.Effect<A, E | ExecutiveServiceError, R> =>
         Effect.gen(function* (): Generator<any, A, any> {
+          // Get policy service
           const policyService = yield* PolicyService;
-          const result = yield* policyService.checkPolicy({
-            auth: { userId: "system" },
-            requestedModel: "default",
-            operationType: "execute"
-          });
-          const allowed = result.allowed;
-          if (!allowed) {
+
+          // Create policy check context
+          const policyContext: PolicyCheckContext = {
+            auth: { userId: "system" }, // Simple default auth for now
+            pipelineId: options.pipelineId,
+            requestedModel: options.modelId ?? "default",
+            operationType: options.operationType ?? "execute",
+            tags: options.tags
+          };
+
+          // Check policy
+          const startTime = Date.now();
+          const result = yield* policyService.checkPolicy(policyContext);
+          
+          if (!result.allowed) {
+            // Record blocked outcome
+            yield* Effect.forkDaemon(
+              policyService.recordOutcome({
+                auth: { userId: "system" }, // Simple default auth for now
+                pipelineId: options.pipelineId,
+                modelUsed: policyContext.requestedModel,
+                operationType: policyContext.operationType,
+                status: 'blocked',
+                latencyMs: Date.now() - startTime,
+                tags: options.tags,
+                error: {
+                  code: 'POLICY_DENIED',
+                  message: result.reason || 'Operation not allowed by policy'
+                }
+              })
+            );
+
             throw new ExecutiveServiceError({
-              description: "Policy denied this operation",
+              description: result.reason || "Policy denied this operation",
               module: "services/executive",
               method: "execute"
             });
@@ -100,17 +128,95 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
               )
             : effect;
 
-          // Execute with retry logic
-          return yield* pipe(
+          // Create token counter if maxCumulativeTokens is set
+          const tokenCounter = options.maxCumulativeTokens
+            ? yield* Ref.make(0)
+            : null;
+
+          // Execute with retry logic and token tracking
+          const executionResult = yield* pipe(
             abortableEffect,
+            Effect.flatMap((result: any) => Effect.gen(function* () {
+              // If result has token usage info, track it
+              if (tokenCounter && 
+                  typeof result === 'object' && 
+                  result !== null && 
+                  'metadata' in result && 
+                  result.metadata?.usage?.totalTokens) {
+                const currentTotal = yield* tokenCounter.get;
+                const newTotal = currentTotal + result.metadata.usage.totalTokens;
+                
+                // Check if we've exceeded the token limit
+                if (options.maxCumulativeTokens && newTotal > options.maxCumulativeTokens) {
+                  return yield* Effect.fail(new ExecutiveServiceError({
+                    description: `Token limit exceeded: ${newTotal} > ${options.maxCumulativeTokens}`,
+                    module: "services/executive",
+                    method: "execute"
+                  }));
+                }
+                
+                // Update token counter
+                yield* Ref.set(newTotal)(tokenCounter);
+              }
+              return result;
+            })),
             Effect.retry(retrySchedule)
           );
+
+          // Get final token usage for policy record
+          const tokenUsage = tokenCounter
+            ? {
+                totalTokens: yield* tokenCounter.get
+              }
+            : undefined;
+
+          // Record successful outcome
+          yield* Effect.forkDaemon(
+            policyService.recordOutcome({
+              auth: { userId: "system" }, // Simple default auth for now
+              pipelineId: options.pipelineId,
+              modelUsed: result.effectiveModel,
+              operationType: policyContext.operationType,
+              status: 'success',
+              latencyMs: Date.now() - startTime,
+              tags: options.tags,
+              usage: tokenUsage
+            })
+          );
+
+          return executionResult;
         }) as Effect.Effect<A, E | ExecutiveServiceError, R>;
 
+      const executeText = (
+        options: TextExecuteOptions
+      ) => Effect.gen(function* () {
+        const textService = yield* TextService;
+        const effect = textService.generate({
+          modelId: options.modelId,
+          prompt: options.prompt,
+          system: options.system ?? Option.none(),
+          signal: options.signal,
+          parameters: options.parameters
+        });
+
+        return yield* execute(effect, {
+          maxAttempts: options.maxAttempts,
+          baseDelayMs: options.baseDelayMs,
+          maxDelayMs: options.maxDelayMs,
+          signal: options.signal,
+          pipelineId: options.pipelineId,
+          tags: options.tags,
+          maxCumulativeTokens: options.maxCumulativeTokens,
+          operationType: 'text',
+          modelId: options.modelId
+        });
+      });
+
       return {
-        execute
+        execute,
+        executeText
       };
     }),
-    dependencies: []
+    dependencies: [PolicyService.Default, TextService.Default] as const
   }
 ) { }

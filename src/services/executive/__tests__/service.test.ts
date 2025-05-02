@@ -1,23 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { Effect, Either } from "effect";
 import { ExecutiveService } from "../index.js";
-import { PolicyService } from "@/services/ai/policy/service.js";
-
-// Scaffold for ExecutiveService Test Suite
-// All tests must be written as Effect.gen and use yield* to access the service
-// Example:
-// it("should do something", async () => {
-//   await Effect.runPromise(
-//     Effect.gen(function* () {
-//       // Obtain the service
-//       const service = yield* ExecutiveService;
-//       // Write your test logic here
-//     })
-//   );
-// });
+import { createMockAiResponse, mockSuccess } from "@/services/test-harness/utils/typed-mocks.js";
 
 describe("ExecutiveService Test Suite", () => {
-  it("should return the result of the provided Effect", () => 
+  it("should return the result of the provided Effect", () =>
     Effect.gen(function* (_) {
       const testValue = 42;
       const testEffect = Effect.succeed(testValue);
@@ -61,7 +48,7 @@ describe("ExecutiveService Test Suite", () => {
       });
 
       const service = yield* ExecutiveService;
-      
+
       const result = yield* Effect.either(service.execute(failingEffect, {
         maxAttempts: 2,
         baseDelayMs: 10,
@@ -87,7 +74,7 @@ describe("ExecutiveService Test Suite", () => {
 
       const service = yield* ExecutiveService;
       const controller = new AbortController();
-      
+
       // Schedule abort after 50ms
       setTimeout(() => controller.abort(), 50);
 
@@ -102,6 +89,59 @@ describe("ExecutiveService Test Suite", () => {
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
         expect(result.left.message).toBe("Operation aborted");
+      }
+    }).pipe(Effect.provide(ExecutiveService.Default))
+  );
+
+  it("should enforce token limits across retries", () =>
+    Effect.gen(function* (_) {
+      let attempts = 0;
+
+      const mockResponse = createMockAiResponse("test response");
+      const tokenEffect = mockSuccess(mockResponse);
+
+      const service = yield* ExecutiveService;
+      const result = yield* Effect.either(service.execute(tokenEffect, {
+        maxAttempts: 3,
+        baseDelayMs: 10,
+        maxDelayMs: 100,
+        maxCumulativeTokens: 40
+      }));
+
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left.description).toContain("Token limit exceeded");
+      }
+    }).pipe(Effect.provide(ExecutiveService.Default))
+  );
+
+  it("should enforce token limits across multiple executions", () =>
+    Effect.gen(function* (_) {
+      const service = yield* ExecutiveService;
+
+      // First execution
+      const mockResponse1 = createMockAiResponse("first response");
+      const result1 = yield* service.execute(mockSuccess(mockResponse1), {
+        maxAttempts: 1,
+        baseDelayMs: 10,
+        maxDelayMs: 100,
+        maxCumulativeTokens: 50
+      });
+
+      expect(result1.text).toBe("first response");
+
+      // Second execution should fail due to token limit
+      const mockResponse2 = createMockAiResponse("second response");
+      const result2 = yield* Effect.either(service.execute(mockSuccess(mockResponse2), {
+        maxAttempts: 1,
+        baseDelayMs: 10,
+        maxDelayMs: 100,
+        maxCumulativeTokens: 50
+      }));
+
+      expect(Either.isLeft(result2)).toBe(true);
+      if (Either.isLeft(result2)) {
+        expect(result2.left.description).toContain("Token limit exceeded");
       }
     }).pipe(Effect.provide(ExecutiveService.Default))
   );

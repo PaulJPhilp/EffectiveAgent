@@ -5,7 +5,9 @@
  * interfaces while allowing for flexible customization.
  */
 
-import { Effect } from "effect";
+import { Effect, Option, Chunk } from "effect";
+import type { AiResponse } from "@effect/ai/AiResponse";
+import { Model } from "@effect/ai/AiRole";
 
 /**
  * Creates a strongly typed mock object that conforms to the specified interface.
@@ -100,4 +102,25 @@ export const createMinimalMock = <T extends object>(
   properties: Partial<T>
 ): T => {
   return properties as T;
+};
+
+/**
+ * Creates a mock AiResponse with proper type safety.
+ * 
+ * @param text The response text
+ * @returns A mock AiResponse
+ */
+export const createMockAiResponse = (text: string): AiResponse => {
+  let response: AiResponse;
+  response = createTypedMock<AiResponse>({
+    text,
+    imageUrl: Option.none(),
+    withToolCallsJson: () => mockSuccess(response),
+    withToolCallsUnknown: () => response,
+    concat: (that: AiResponse) => that,
+    role: Model.make(),
+    parts: Chunk.empty(),
+    [Symbol.for("TypeId")]: "AiResponse"
+  });
+  return response;
 };
