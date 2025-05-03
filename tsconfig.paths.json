@@ -7,6 +7,8 @@
       "@core/*": ["src/services/core/*"],
       "@ai/*": ["src/services/ai/*"],
       "@pipeline/*": ["src/services/pipeline/*"],
+      "@capabilities/*": ["src/services/capabilities/*"],
+      "@docs/*": ["src/services/docs/*"],
       "@test-harness/*": ["src/services/test-harness/*"],
       "@ai/provider/*": ["src/services/ai/provider/*"],
       "@ai/memory/*": ["src/services/ai/memory/*"],
@@ -14,7 +16,8 @@
       "@core/file/*": ["src/services/core/file/*"],
       "@core/logging/*": ["src/services/core/logging/*"],
       "@core/repository/*": ["src/services/core/repository/*"],
-      "@core/tag/*": ["src/services/core/tag/*"]
+      "@core/tag/*": ["src/services/core/tag/*"],
+      "@core/test-utils/*": ["src/services/core/test-utils/*"]
     }
   }
 }

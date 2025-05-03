@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     // Enable latest features
     "lib": [
@@ -33,29 +34,8 @@
     "noEmit": false, // <--- Changed to false (assuming this is for building JS)
 
     // --- Path Aliases ---
-    "baseUrl": ".",
-    "paths": {
-      // Root path
-      "@/*": ["src/*"],
-
-      // Service paths
-      "@services/*": ["src/services/*"],
-      "@core/*": ["src/services/core/*"],
-      "@ai/*": ["src/services/ai/*"],
-      "@pipeline/*": ["src/services/pipeline/*"],
-      "@test-harness/*": ["src/services/test-harness/*"],
-
-      // AI service subpaths
-      "@ai/provider/*": ["src/services/ai/provider/*"],
-      "@ai/memory/*": ["src/services/ai/memory/*"],
-
-      // Core service subpaths
-      "@core/attachment/*": ["src/services/core/attachment/*"],
-      "@core/file/*": ["src/services/core/file/*"],
-      "@core/logging/*": ["src/services/core/logging/*"],
-      "@core/repository/*": ["src/services/core/repository/*"],
-      "@core/tag/*": ["src/services/core/tag/*"]
-    }
+    "baseUrl": ".", // Ensure baseUrl is defined here
+    /* paths are inherited from tsconfig.paths.json */
   },
   "include": [
     "src/**/*.ts",

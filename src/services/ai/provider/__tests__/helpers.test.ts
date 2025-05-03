@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
-import { loadConfigString, parseConfigJson } from '../helpers.js';
-import { ProviderConfigError } from '../errors.js';
-import { Effect, ConfigProvider } from 'effect';
+import { ProviderConfigError } from '@ai/provider/errors.js';
+import { loadConfigString, parseConfigJson } from '@ai/provider/helpers.js';
+import { ConfigProvider, Effect } from 'effect';
+import { describe, expect, it } from 'vitest';
 
 // Mocks
 const mockConfigString = '{"providers": [{"name": "openai"}]}' as const;

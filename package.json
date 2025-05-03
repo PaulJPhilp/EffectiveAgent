@@ -59,18 +59,7 @@
     "vitest": "^3.1.2"
   },
   "bun": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"],
-      "@services/*": ["src/services/*"],
-      "@core/*": ["src/services/core/*"],
-      "@ai/*": ["src/services/ai/*"],
-      "@capabilities/*": ["src/services/capabilities/*"],
-      "@execution/*": ["src/services/execution/*"],
-      "@memory/*": ["src/services/memory/*"],
-      "@agents/*": ["src/agents/*"],
-      "@apps/*": ["src/apps/*"]
-    }
+    "baseUrl": "."
   },
   "description": "A framework for building sophisticated AI agents using Effect-TS",
   "files": [
