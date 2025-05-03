@@ -92,6 +92,17 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
       apiKeyEnvVar: "DEEPSEEK_API_KEY",
       baseUrl: "https://api.deepseek.com"
     }
+  },
+  {
+    name: "qwen",
+    displayName: "Alibaba Qwen",
+    logoUrl: "", // Add logo URL if available
+    docsUrl: "https://help.aliyun.com/document_detail/2510115.html", // Link to Qwen docs
+    capabilities: ["text-generation", "chat", "vision", "function-calling"], // Common Qwen capabilities
+    configSchema: {
+      apiKeyEnvVar: "QWEN_API_KEY", // Standard convention
+      baseUrl: "https://dashscope.aliyuncs.com/api/v1" // Common base URL, verify if different for Vercel integration
+    }
   }
 ] as const;
 

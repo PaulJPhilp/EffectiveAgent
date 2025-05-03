@@ -2,7 +2,7 @@
  * @file Defines core Effect schemas used across the application.
  */
 
-import { Schema as S } from "effect"
+import { Schema as S } from "effect";
 
 // --- Core String Schemas ---
 
@@ -85,7 +85,7 @@ export class BaseEntitySchema extends S.Class<BaseEntitySchema>("BaseEntitySchem
   createdAt: S.String,
   /** When the entity was last updated (ISO format timestamp) */
   updatedAt: S.String,
-}) {}
+}) { }
 
 /**
  * Type for the base entity structure.
@@ -107,7 +107,9 @@ export const ModelCapability = S.Literal(
   "audio",
   "image-generation",
   "embeddings",
-  "tool-use"
+  "tool-use",
+  "search",
+  "research"
 );
 
 export type ModelCapability = S.Schema.Type<typeof ModelCapability>
@@ -143,4 +145,4 @@ export class RateLimit extends S.Class<RateLimit>("RateLimit")({
     S.Literal("user"),
     S.Literal("global")
   ).pipe(S.optional)
-}) {}
+}) { }
