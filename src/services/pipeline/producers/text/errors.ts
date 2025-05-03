@@ -49,6 +49,13 @@ export class TextInputError extends EffectiveError {
     }
 }
 
+// Custom error for text completion
+export class TextCompletionError extends EffectiveError {
+  constructor(params: { description: string; cause?: unknown }) {
+    super({ ...params, module: "TextCompletionPipeline", method: "unknown" }); // Consider updating module/method if this is producer-specific
+  }
+}
+
 /**
  * Union type of all text-related errors.
  */
@@ -56,4 +63,5 @@ export type TextServiceError =
   | TextModelError
   | TextProviderError
   | TextGenerationError
-  | TextInputError;
+  | TextInputError
+  | TextCompletionError;

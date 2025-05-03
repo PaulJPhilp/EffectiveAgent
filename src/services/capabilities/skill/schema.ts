@@ -5,9 +5,10 @@
 
 import { Schema } from "effect";
 // Import related schema types if needed for validation/references
-// import { PersonaNameSchema } from "@/services/capabilities/persona/schema"; // Example
-// import { IntelligenceNameSchema } from "@/services/capabilities/intelligence/schema"; // Example
-// import { PromptTemplateNameSchema } from "@/services/ai/prompt/schema"; // Example
+// import { Description, Metadata, Name, Version } from "../../../schema.js";
+// import { PersonaNameSchema } from "../../../services/capabilities/persona/schema"; // Example
+// import { IntelligenceNameSchema } from "../../../services/capabilities/intelligence/schema"; // Example
+// import { PromptTemplateNameSchema } from "../../../services/ai/prompt/schema"; // Example
 
 // --- SkillExecutionParams Class Schema ---
 export class SkillExecutionParams extends Schema.Class<SkillExecutionParams>("SkillExecutionParams")({

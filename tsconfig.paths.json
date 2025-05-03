@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@services/*": ["src/services/*"],
+      "@core/*": ["src/services/core/*"],
+      "@ai/*": ["src/services/ai/*"],
+      "@pipeline/*": ["src/services/pipeline/*"],
+      "@test-harness/*": ["src/services/test-harness/*"],
+      "@ai/provider/*": ["src/services/ai/provider/*"],
+      "@ai/memory/*": ["src/services/ai/memory/*"],
+      "@core/attachment/*": ["src/services/core/attachment/*"],
+      "@core/file/*": ["src/services/core/file/*"],
+      "@core/logging/*": ["src/services/core/logging/*"],
+      "@core/repository/*": ["src/services/core/repository/*"],
+      "@core/tag/*": ["src/services/core/tag/*"]
+    }
+  }
+}

@@ -82,6 +82,14 @@ describe("PersonaService", () => {
             // Assertions - verify failure without throw
             expect(Exit.isFailure(exit)).toBe(true);
             
+            // Use type guard to narrow the type before accessing cause
+            if (!Exit.isFailure(exit)) {
+                // This should never happen because we already verified it's a failure
+                // But we need this for TypeScript type narrowing
+                expect.fail("Expected exit to be a failure");
+                return;
+            }
+            
             const error = Cause.failureOption(exit.cause);
             expect(Option.isSome(error)).toBe(true);
             
@@ -119,6 +127,14 @@ describe("PersonaService", () => {
             
             // Assertions - verify failure without throw
             expect(Exit.isFailure(exit)).toBe(true);
+            
+            // Use type guard to narrow the type before accessing cause
+            if (!Exit.isFailure(exit)) {
+                // This should never happen because we already verified it's a failure
+                // But we need this for TypeScript type narrowing
+                expect.fail("Expected exit to be a failure");
+                return;
+            }
             
             const error = Cause.failureOption(exit.cause);
             expect(Option.isSome(error)).toBe(true);

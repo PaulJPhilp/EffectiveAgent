@@ -3,8 +3,8 @@
  */
 import type { Effect, ConfigProvider, Option } from "effect"; 
 import type { Span } from "effect/Tracer"; 
-import type { AiResponse } from "@effect/ai/AiResponse";
-import type { TextModelError, TextProviderError, TextGenerationError, TextInputError } from "@/services/ai/producers/text/errors.js";
+import type { EffectiveResponse, GenerateTextResult } from "@/services/ai/provider/types.js";
+import type { TextModelError, TextProviderError, TextGenerationError, TextInputError } from "./errors.js";
 
 /**
  * Options for text generation.
@@ -31,7 +31,7 @@ export interface TextServiceApi {
   readonly generate: (
     options: TextGenerationOptions
   ) => Effect.Effect<
-    AiResponse,
+    EffectiveResponse<GenerateTextResult>,
     TextModelError | TextProviderError | TextGenerationError | TextInputError,
     ConfigProvider.ConfigProvider
   >;

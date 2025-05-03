@@ -4,7 +4,7 @@
  */
 
 import type { Effect } from "effect";
-import type { IntelligenceFile } from "./schema.js";
+import type { IntelligenceFile, IntelligenceType } from "./schema.js";
 import type { IntelligenceConfigError } from "./errors.js";
 
 /**
@@ -23,5 +23,5 @@ export interface IntelligenceServiceApi {
    * @param name The name of the intelligence profile to retrieve
    * @returns Effect that resolves to the intelligence profile if found
    */
-  readonly getProfile: (name: string) => Effect.Effect<IntelligenceFile["intelligences"][0], IntelligenceConfigError>;
+  readonly getProfile: (name: string) => Effect.Effect<IntelligenceType, IntelligenceConfigError>;
 }

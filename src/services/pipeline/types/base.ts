@@ -2,7 +2,24 @@ import type { Usage, FinishReason } from "@/types.js";
 import type { ProviderMetadata } from "@/services/ai/provider/types.js";
 
 export interface EffectiveInput {
-  // TODO: Define structure for EffectiveInput
+  /** The input text/prompt to process */
+  text: string;
+  /** Optional metadata for the request */
+  metadata?: {
+    /** Operation name for tracing */
+    operationName?: string;
+    /** Model parameters */
+    parameters?: {
+      temperature?: number;
+      maxTokens?: number;
+      topP?: number;
+      frequencyPenalty?: number;
+      presencePenalty?: number;
+      stop?: string[];
+    };
+    /** Provider-specific metadata */
+    providerMetadata?: ProviderMetadata;
+  };
 }
 
 export interface EffectiveResponse<T = unknown> {

@@ -7,8 +7,7 @@ import { Effect, Option, ConfigProvider } from "effect";
 import * as Chunk from "effect/Chunk";
 import { Message } from "@effect/ai/AiInput";
 import type { Span } from "effect/Tracer";
-import type { EffectiveResponse } from "@/services/pipeline/types.js";
-import type { GenerateTextResult } from "@/services/ai/provider/types.js";
+import type { EffectiveResponse, GenerateTextResult } from "@/services/ai/provider/types.js";
 import type { TextServiceError } from "./errors.js";
 import { AiRole } from '@effect/ai';
 import { ProviderServiceApi } from '@/services/ai/provider/api.js';
@@ -138,7 +137,8 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
           // Create EffectiveInput from the final prompt
           const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
 
-          const result = yield* providerClient.generateText(
+          // Call the provider client and map the error
+          const generationEffect = providerClient.generateText(
             effectiveInput,
             {
               modelId,
@@ -157,7 +157,7 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
               signal: options.signal
             }
           ).pipe(
-            Effect.map((res) => res.data),
+            // Map only the error, keeping the success type as EffectiveResponse<GenerateTextResult>
             Effect.mapError((error) => new TextGenerationError({
               description: "Text generation failed",
               module: "TextService",
@@ -166,17 +166,9 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
             }))
           );
 
-          // Return the result directly
-          return {
-            data: result,
-            metadata: {
-              usage: result.usage,
-              finishReason: result.finishReason,
-              model: result.model,
-              timestamp: result.timestamp,
-              id: result.id
-            }
-          };
+          // Return the Effect directly
+          return yield* generationEffect;
+
         }).pipe(
           Effect.withSpan("TextService.generate")
         );

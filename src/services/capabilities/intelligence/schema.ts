@@ -48,6 +48,11 @@ export class Intelligence extends S.Class<Intelligence>("Intelligence")({
 }) { }
 
 /**
+ * Type alias for Intelligence model
+ */
+export type IntelligenceType = S.Schema.Type<typeof Intelligence>;
+
+/**
  * Schema for the input data used when creating or updating an Intelligence profile.
  * Aliased for now, assuming input matches the definition structure.
  */

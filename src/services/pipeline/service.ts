@@ -1,32 +1,66 @@
-import { Effect } from "effect";
-import type { EffectiveInput, EffectiveResponse } from "./types/base.js";
+import { Effect, Duration, Schedule } from "effect";
 
 /**
- * The AiPipeline service orchestrates the flow of data between AI producers,
- * capabilities, and the executive service. It acts as a mediator that:
- * 1. Processes input through the input service
- * 2. Routes requests to appropriate producers
- * 3. Coordinates with the executive service
- * 4. Manages chat history and context
+ * Parameters for configuring execution
  */
-export interface AiPipelineApi {
-  readonly process: (input: EffectiveInput) => Effect.Effect<EffectiveResponse, never>;
+export interface ExecutiveParameters {
+  readonly operationName?: string;
+  readonly maxRetries?: number;
+  readonly timeoutMs?: number;
+  readonly rateLimit?: boolean;
 }
 
 /**
- * Implementation of the AiPipeline service following the Effect.Service pattern.
+ * The ExecutiveService orchestrates calls to AI models, applying policies,
+ * handling retries, and managing overall execution flow based on provided
+ * configuration.
  */
-export class AiPipeline extends Effect.Service<AiPipelineApi>()(
-  "AiPipeline",
-  {
-    effect: Effect.gen(function* () {
-      return {
-        process: (input: EffectiveInput) => Effect.succeed({
-          text: "Not implemented yet",
-          metadata: {},
-          reasoning: { type: "text", text: "Not implemented yet" }
-        })
-      };
-    })
+export interface ExecutiveServiceApi {
+  readonly _tag: "ExecutiveService";
+  readonly execute: <R, E, A>(effect: Effect.Effect<A, E, R>, parameters?: ExecutiveParameters) => Effect.Effect<A, E | ExecutiveServiceError, R>;
+}
+
+export class ExecutiveServiceError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ExecutiveServiceError";
   }
-) {}
+}
+
+/**
+ * Implementation of the ExecutiveService following the Effect.Service pattern.
+ */
+export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
+  "ExecutiveService",
+  {
+    effect: Effect.succeed({
+      _tag: "ExecutiveService" as const,
+      execute: <R, E, A>(
+        effect: Effect.Effect<A, E, R>,
+        parameters?: ExecutiveParameters
+      ): Effect.Effect<A, E | ExecutiveServiceError, R> => {
+        // Apply retries and timeout if configured
+        const effectWithRetries = parameters?.maxRetries
+          ? Effect.retry(
+            effect,
+            {
+              times: parameters.maxRetries,
+              schedule: Schedule.exponential(Duration.seconds(1)),
+            }
+          )
+          : effect;
+
+        const effectWithTimeout = parameters?.timeoutMs
+          ? Effect.timeout(
+            effectWithRetries,
+            Duration.millis(parameters.timeoutMs)
+          )
+          : effectWithRetries;
+
+        // Execute the effect
+        return effectWithTimeout;
+      },
+    }),
+    dependencies: [],
+  },
+) { }
