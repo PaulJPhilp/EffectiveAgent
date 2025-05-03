@@ -4,10 +4,10 @@
  */
 
 import { describe, it } from "@effect/vitest";
+import { Context, Effect, Either, Layer, Option, Tracer } from "effect";
 import { expect } from "vitest";
-import { Effect, Layer, Option, Either, Tracer, Context } from "effect";
-import { EmbeddingService } from "../service.js";
 import { EmbeddingInputError } from "../errors.js";
+import { EmbeddingService } from "../service.js";
 // --- Minimal mocks for dependencies ---
 const mockEmbeddingServiceImpl = {
   generate: ({ modelId, input, span }: any) => {

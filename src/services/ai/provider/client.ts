@@ -4,7 +4,7 @@
  */
 
 import { Effect, Option, Ref } from "effect";
-import { validateModelId, validateCapabilities } from "./helpers.js";
+import { validateCapabilities, validateModelId } from "./helpers.js";
 
 import { ProviderClientApi } from "./api.js";
 import { EffectiveProviderApi } from "./types.js";
@@ -20,11 +20,11 @@ import {
     ProviderOperationError
 } from "./errors.js";
 import type {
-    GenerateTextResult,
-    ProviderGenerateTextOptions,
-    ProviderChatOptions,
     ChatResult,
-    EffectiveResponse
+    EffectiveResponse,
+    GenerateTextResult,
+    ProviderChatOptions,
+    ProviderGenerateTextOptions
 } from "./types.js";
 
 

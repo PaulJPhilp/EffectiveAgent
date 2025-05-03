@@ -1,4 +1,3 @@
-import type { Effect } from "effect";
 import type { EffectiveError } from "@/errors.js";
 import type {
   InputValidationError,
@@ -6,6 +5,7 @@ import type {
   PipelineConfigurationError,
 } from "@/framework/pipeline/errors.js";
 import type { ExecutiveServiceError } from "@/services/pipeline/service.js";
+import type { Effect } from "effect";
 import { Duration } from "effect";
 
 /** Union of all possible errors the base AiPipeline run method can produce. */

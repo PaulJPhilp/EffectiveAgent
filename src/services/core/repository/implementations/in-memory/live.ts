@@ -6,11 +6,11 @@
  */
 
 import type { EntityId } from "@/types.js";
+import type { RepositoryServiceApi } from "@core/repository/api.js";
 import {
     EntityNotFoundError,
     RepositoryError,
 } from "@core/repository/errors.js";
-import type { RepositoryServiceApi } from "@core/repository/api.js";
 import type {
     BaseEntity,
     FindOptions,

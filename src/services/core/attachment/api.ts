@@ -18,8 +18,8 @@ import type {
 import type {
     AttachmentLinkEntity,
 } from "@core/attachment/schema.js";
-import { Effect, Option } from "effect";
 import type { CreateAttachmentLinkInput } from "@core/attachment/types.js";
+import { Effect, Option } from "effect";
 
 /**
  * Interface defining operations for managing attachment links between entities.

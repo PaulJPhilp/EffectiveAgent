@@ -1,17 +1,17 @@
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
 /**
  * @file Implements the EmbeddingService for generating vector embeddings from text.
  * @module services/ai/producers/embedding/service
  */
 import { ModelService } from "@/services/ai/model/service.js";
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import * as Effect from "effect/Effect";
-import type { LanguageModelV1 } from "@ai-sdk/provider";
-import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "@/services/ai/provider/errors.js";
-import type { Span } from "effect/Tracer";
-import { EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
+import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "@/services/ai/provider/errors.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import type { LanguageModelV1 } from "@ai-sdk/provider";
+import * as Effect from "effect/Effect";
+import type { Span } from "effect/Tracer";
 import type { EmbeddingServiceApi } from "./api.js";
+import { EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
 
 /**
  * Options for generating embeddings

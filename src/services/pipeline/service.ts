@@ -1,4 +1,4 @@
-import { Effect, Duration, Schedule } from "effect";
+import { Duration, Effect, Schedule } from "effect";
 
 /**
  * Parameters for configuring execution

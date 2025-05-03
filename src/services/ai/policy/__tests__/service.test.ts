@@ -1,9 +1,9 @@
-import { Effect, Layer, Ref, HashMap, Option } from "effect";
+import { Effect, HashMap, Layer, Option, Ref } from "effect";
 import { describe, expect, it } from "vitest";
+import { PolicyError } from "../errors.js";
 import { PolicyRuleData, PolicyRuleEntity, PolicyUsageEntity } from "../schema.js";
 import { PolicyService } from "../service.js";
 import { PolicyCheckContext, PolicyRecordContext } from "../types.js";
-import { PolicyError } from "../errors.js";
 
 describe("PolicyService", () => {
   const ServiceLayer = Layer.effect(

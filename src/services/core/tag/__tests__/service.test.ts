@@ -2,17 +2,17 @@
  * @file Tests for TagService implementation
  */
 
-import { Effect, Layer, Option, Exit } from "effect";
+import { Effect, Exit, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { DuplicateTagNameError } from "@core/tag/errors.js";
-import type { TagEntity, EntityTagLinkEntity } from "@core/tag/schema.js";
 import type { TagServiceApi } from "@core/tag/api.js";
+import { DuplicateTagNameError } from "@core/tag/errors.js";
+import type { EntityTagLinkEntity, TagEntity } from "@core/tag/schema.js";
 import { TagService, TagServiceLive } from "../service.js";
 
-import { RepositoryService } from "@core/repository/service.js";
-import { EntityNotFoundError } from "@core/repository/errors.js";
 import type { RepositoryServiceApi } from "@core/repository/api.js";
+import { EntityNotFoundError } from "@core/repository/errors.js";
+import { RepositoryService } from "@core/repository/service.js";
 import type { FindOptions } from "@core/repository/types.js";
 
 // --- Test Setup ---

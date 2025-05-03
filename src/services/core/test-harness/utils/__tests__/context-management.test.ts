@@ -6,7 +6,7 @@
  */
 
 import { Effect } from "effect";
-import { describe, it, expect, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { withResource } from "../context-management.js";
 
 describe("context-management utilities", () => {

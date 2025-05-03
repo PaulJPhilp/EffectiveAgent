@@ -2,18 +2,18 @@
  * @file Tests for FileService implementation
  */
 
-import { Effect, Layer, Option, Exit, Cause } from "effect";
+import { Cause, Effect, Exit, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
 import { FileDbError, FileNotFoundError } from "@core/file/errors.js";
 import type { FileEntity } from "@core/file/schema.js";
-import type { FileInput, FileServiceApi } from "@core/file/types.js";
 import { FileService, FileServiceLive } from "@core/file/service.js";
+import type { FileInput, FileServiceApi } from "@core/file/types.js";
 
-import { RepositoryService } from "@core/repository/service.js";
-import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
-import type { BaseEntity } from "@core/repository/types.js";
 import type { RepositoryServiceApi } from "@core/repository/api.js";
+import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
+import { RepositoryService } from "@core/repository/service.js";
+import type { BaseEntity } from "@core/repository/types.js";
 
 import type { EntityId } from "@/types.js";
 

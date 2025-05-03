@@ -1,12 +1,12 @@
-import { Effect } from "effect";
-import { afterAll, beforeEach, describe, expect, it } from "vitest";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import { createBaseTableSchema } from "./schema.js";
-import { DrizzleRepository } from "./repository.js";
-import { createServiceTestHarness } from "@core/test-utils/effect-test-harness.js";
-import type { BaseEntity } from "@core/repository/types.js";
 import { EntityNotFoundError } from "@core/repository/errors.js";
+import type { BaseEntity } from "@core/repository/types.js";
+import { createServiceTestHarness } from "@core/test-utils/effect-test-harness.js";
+import { drizzle } from "drizzle-orm/postgres-js";
+import { Effect } from "effect";
+import postgres from "postgres";
+import { afterAll, beforeEach, describe, expect, it } from "vitest";
+import { DrizzleRepository } from "./repository.js";
+import { createBaseTableSchema } from "./schema.js";
 
 // Test entity type
 interface TestEntity extends BaseEntity {

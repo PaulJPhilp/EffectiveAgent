@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import * as Chunk from "effect/Chunk";
 import { type EffectiveRole } from "@/schema.js";
 import { Message, type Part } from "@effect/ai/AiInput";
-import { EffectivePartType } from "./schema.js";
+import { Effect } from "effect";
+import * as Chunk from "effect/Chunk";
 import { NoAudioFileError } from "./errors.js";
+import { EffectivePartType } from "./schema.js";
 
 /**
  * API for the Input Service

@@ -4,12 +4,12 @@
 
 import { Effect } from "effect";
 import { PolicyServiceApi } from "./api.js";
+import { PolicyError } from "./errors.js";
 import { 
   PolicyCheckContext, 
   PolicyCheckResult, 
   PolicyRecordContext 
 } from "./types.js";
-import { PolicyError } from "./errors.js";
 
 /**
  * A simple permissive implementation of PolicyService that always

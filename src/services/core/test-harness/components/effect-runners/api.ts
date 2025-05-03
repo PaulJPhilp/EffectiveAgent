@@ -1,6 +1,6 @@
+import { Effect } from "effect";
 import type { Either } from "effect/Either";
 import type { Exit } from "effect/Exit";
-import { Effect } from "effect";
 
 /**
  * Defines the API for Effect runner functions within the test harness.

@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Context, Effect, Layer } from "effect";
 
 /**
  * Simple auth context interface for testing
@@ -9,19 +9,16 @@ export interface AuthContextApi {
   readonly roles: string[];
 }
 
-/**
- * Simple auth context implementation for testing
- */
-export class AuthContext extends Effect.Service<AuthContextApi>()(
+export const AuthContext = Context.Tag<AuthContextApi>("AuthContext");
+
+export const AuthContextLive = Layer.succeed(
   "AuthContext",
   {
-    effect: Effect.gen(function* () {
-      return {
-        _tag: "AuthContext" as const,
-        userId: "test-user",
-        roles: ["user"],
-      };
+    effect: Effect.succeed({
+      userId: "test-user",
+      roles: ["user"],
+      permissions: ["read", "write"],
     }),
     dependencies: [], // No dependencies for this simple test implementation
   },
-) {}
+);

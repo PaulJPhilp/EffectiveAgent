@@ -2,18 +2,18 @@
  * @file Tests for the AttachmentService implementation.
  */
 
-import { Effect, Layer, Option, Exit, Cause } from "effect";
+import { Cause, Effect, Exit, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
 import { AttachmentDbError, AttachmentLinkNotFoundError } from "@core/attachment/errors.js";
 import type { AttachmentLinkEntity } from "@core/attachment/schema.js";
-import type { AttachmentServiceApi, CreateAttachmentLinkInput } from "@core/attachment/types.js";
 import { AttachmentService, AttachmentServiceLive } from "@core/attachment/service.js";
+import type { AttachmentServiceApi, CreateAttachmentLinkInput } from "@core/attachment/types.js";
 
-import { RepositoryService } from "@core/repository/service.js";
-import { EntityNotFoundError as RepoEntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
-import type { BaseEntity } from "@core/repository/types.js";
 import type { RepositoryServiceApi } from "@core/repository/api.js";
+import { EntityNotFoundError as RepoEntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
+import { RepositoryService } from "@core/repository/service.js";
+import type { BaseEntity } from "@core/repository/types.js";
 
 import type { EntityId } from "@/types.js";
 

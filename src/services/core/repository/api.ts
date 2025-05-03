@@ -10,9 +10,9 @@
  * standard Effect.Service pattern directly.
  */
 
+import { Effect, Option } from "effect";
 import type { EntityNotFoundError, RepositoryError } from "./errors.js";
 import type { BaseEntity, FindOptions } from "./types.js";
-import { Effect, Option } from "effect";
 
 /**
  * Generic interface defining standard CRUD operations for a repository.

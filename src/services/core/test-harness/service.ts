@@ -1,9 +1,9 @@
-import { Effect, Layer, Context } from "effect";
+import { Context, Effect, Layer } from "effect";
 import { TestHarnessApi } from "./api.js";
-import { EffectRunnerService } from "./components/effect-runners/service.js";
 import { AssertionHelperService } from "./components/assertion-helpers/service.js";
-import { MockAccessorService } from "./components/mock-accessors/service.js";
+import { EffectRunnerService } from "./components/effect-runners/service.js";
 import { FixtureService } from "./components/fixtures/service.js";
+import { MockAccessorService } from "./components/mock-accessors/service.js";
 
 /**
  * Define the TestHarnessService tag

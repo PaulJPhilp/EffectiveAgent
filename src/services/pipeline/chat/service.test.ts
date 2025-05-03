@@ -2,9 +2,9 @@
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { ChatHistoryService } from "./service.js";
 import type { ChatHistory, ChatMessage } from "./api.js";
 import { ChatHistoryError } from "./api.js";
+import { ChatHistoryService } from "./service.js";
 
 describe("ChatHistoryService", () => {
   // Test data

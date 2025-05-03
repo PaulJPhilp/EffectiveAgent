@@ -2,10 +2,10 @@
  * Mock implementations for AI-related services and types.
  */
 
-import { Effect, Option, Chunk } from "effect";
-import { AiResponse } from "@effect/ai/AiResponse";
 import type { AiError } from "@effect/ai/AiError";
+import { AiResponse } from "@effect/ai/AiResponse";
 import { Model } from "@effect/ai/AiRole";
+import { Chunk, Effect, Option } from "effect";
 
 /**
  * Creates a mock AiResponse object.

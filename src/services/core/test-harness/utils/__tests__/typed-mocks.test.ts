@@ -6,14 +6,14 @@
  */
 
 import { Effect, Either } from "effect";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { 
-  createTypedMock,
-  mockSuccess,
-  mockFailure,
+  createMinimalMock,
   createServiceError,
+  createTypedMock,
   hasRequiredProperties,
-  createMinimalMock
+  mockFailure,
+  mockSuccess
 } from "../typed-mocks.js";
 
 // Define a sample interface for testing

@@ -1,4 +1,4 @@
-import { Effect, Context } from "effect";
+import { Context, Effect } from "effect";
 import { FixtureApi, PersonSchema, ProductSchema, TaskSchema } from "./api.js";
 
 /**

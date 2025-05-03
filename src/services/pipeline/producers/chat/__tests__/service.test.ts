@@ -4,18 +4,18 @@
  */
 
 import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
+import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
 import { TextPart as InputTextPart, Message } from "@effect/ai/AiInput";
-import { ChatToolError, ChatParameterError } from "../errors.js";
 import { TextPart as ResponseTextPart } from "@effect/ai/AiResponse";
 import { User } from "@effect/ai/AiRole";
 import { describe, it } from "@effect/vitest";
-import { Either, Chunk, Effect, Option } from "effect";
+import { Chunk, Effect, Either, Option } from "effect";
 import type * as JsonSchema from "effect/JSONSchema";
 import type { Span } from "effect/Tracer";
 import { expect } from "vitest";
+import { ChatParameterError, ChatToolError } from "../errors.js";
 import { ChatService } from "../service.js";
 import type { ChatCompletionOptions } from "../service.js";
-import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
 
 describe("ChatService", () => {
   it("should handle abort signal", () => {

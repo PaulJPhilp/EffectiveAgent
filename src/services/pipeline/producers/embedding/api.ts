@@ -1,6 +1,6 @@
-import type { Effect } from "effect";
-import type { EmbeddingGenerationOptions, EmbeddingGenerationResult } from "@/services/ai/producers/embedding/service.js";
 import type { EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "@/services/ai/producers/embedding/errors.js";
+import type { EmbeddingGenerationOptions, EmbeddingGenerationResult } from "@/services/ai/producers/embedding/service.js";
+import type { Effect } from "effect";
 
 /**
  * EmbeddingService interface for generating vector embeddings.

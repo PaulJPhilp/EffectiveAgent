@@ -6,10 +6,10 @@
 import { EntityParseError } from "@core/errors.js";
 import { Config, ConfigProvider, Effect, Schema as S } from "effect";
 import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "./errors.js";
-import { ProviderFile, ProvidersType } from "./schema.js";
-import { EffectiveProviderApi } from "./types.js";
 import { loadConfigString, parseConfigJson } from "./helpers.js";
 import { PROVIDER_NAMES } from "./provider-universe.js";
+import { ProviderFile, ProvidersType } from "./schema.js";
+import { EffectiveProviderApi } from "./types.js";
 
 // --- Service Type Definition ---
 import type { ProviderServiceApi } from "./api.js";

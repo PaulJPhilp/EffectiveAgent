@@ -1,7 +1,7 @@
 import { Effect, Either, Option } from "effect";
-import { describe, it, expect } from "vitest";
-import { ObjectModelError, ObjectProviderError, ObjectGenerationError, ObjectSchemaError } from "../errors.js";
-import { createPersonSchema, createProductSchema, createTaskSchema, createListSchema } from "../schema-utils.js";
+import { describe, expect, it } from "vitest";
+import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "../errors.js";
+import { createListSchema, createPersonSchema, createProductSchema, createTaskSchema } from "../schema-utils.js";
 
 /**
  * Type definitions for test objects

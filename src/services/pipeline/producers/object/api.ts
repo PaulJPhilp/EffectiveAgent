@@ -3,11 +3,11 @@
  * Defines the contract for object generation using AI models/providers.
  */
 
+import type { AiError } from "@effect/ai/AiError";
 import type { Effect } from "effect";
 import type { Option } from "effect/Option";
-import type { Span } from "effect/Tracer";
 import type { Schema } from "effect/Schema";
-import type { AiError } from "@effect/ai/AiError";
+import type { Span } from "effect/Tracer";
 
 /**
  * Options for generating a structured object via AI.

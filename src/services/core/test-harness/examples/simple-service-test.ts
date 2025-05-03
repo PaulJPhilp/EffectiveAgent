@@ -5,18 +5,18 @@
  * using the test harness utilities.
  */
 
-import { Effect, Context, Layer } from "effect";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Context, Effect, Layer } from "effect";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { 
   mockService, 
-  withResource,
-  provideMockService 
+  provideMockService, 
+  withResource
 } from "../utils/context-management.js";
 import { 
+  createServiceError, 
   createTypedMock, 
-  mockSuccess, 
   mockFailure,
-  createServiceError 
+  mockSuccess 
 } from "../utils/typed-mocks.js";
 
 // Define a sample database service

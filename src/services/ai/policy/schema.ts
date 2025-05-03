@@ -1,8 +1,8 @@
+import { BaseEntitySchema } from "@/schema.js";
 /**
  * @file Defines the schema for Policy entities.
  */
 import { Schema as S } from "effect";
-import { BaseEntitySchema } from "@/schema.js";
 
 /**
  * Schema for a policy rule

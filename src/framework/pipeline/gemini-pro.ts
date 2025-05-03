@@ -1,8 +1,8 @@
-import { Effect, Option, pipe, Schema } from "effect";
 import type { EffectiveError } from "@/errors.js";
-import TextService from "@/services/pipeline/producers/text/service.js";
 import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
+import TextService from "@/services/pipeline/producers/text/service.js";
+import { Effect, Option, Schema, pipe } from "effect";
 import { AiPipeline } from "./base.js";
 
 /**

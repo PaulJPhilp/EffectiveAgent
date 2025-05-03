@@ -1,10 +1,10 @@
-import { Effect, Either, Option, Chunk } from "effect";
-import { describe, it, expect } from "vitest";
-import { ChatModelError } from "../errors.js";
-import { Message, TextPart as InputTextPart } from "@effect/ai/AiInput";
+import { TextPart as InputTextPart, Message } from "@effect/ai/AiInput";
 import { TextPart as ResponseTextPart } from "@effect/ai/AiResponse";
-import { User } from "@effect/ai/AiRole";
 import { AiResponse } from "@effect/ai/AiResponse";
+import { User } from "@effect/ai/AiRole";
+import { Chunk, Effect, Either, Option } from "effect";
+import { describe, expect, it } from "vitest";
+import { ChatModelError } from "../errors.js";
 
 import FixtureService from "@/services/test-harness/components/fixtures/service.js";
 /**

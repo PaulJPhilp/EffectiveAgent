@@ -1,18 +1,18 @@
-import { describe, it, expect } from "vitest";
-import { Effect, Context, Either } from "effect";
 import * as S from "@effect/schema/Schema";
+import { Context, Effect, Either } from "effect";
+import { describe, expect, it } from "vitest";
 
-// Pipeline components
-import { TextCompletionPipeline } from "@/framework/pipeline/text-completion.js"; 
 import {
   InputValidationError,
   OutputValidationError,
 } from "@/framework/pipeline/errors.js"; 
+// Pipeline components
+import { TextCompletionPipeline } from "@/framework/pipeline/text-completion.js"; 
 
+import type { ChatHistory, ChatMessage } from "@/services/pipeline/chat/api.js";
+import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
 // Service interfaces
 import { ExecutiveService } from "@/services/pipeline/service.js";
-import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
-import type { ChatHistory, ChatMessage } from "@/services/pipeline/chat/api.js";
 
 // Test harness utilities
 import { createTypedMock } from "@/services/core/test-harness/utils/typed-mocks.js";

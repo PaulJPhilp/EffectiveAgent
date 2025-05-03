@@ -2,11 +2,11 @@
  * @file Tests for the LoggingService implementation.
  */
 
-import { Effect, LogLevel, Cause } from "effect";
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { LoggingService } from "../service.js";
-import type { LoggingServiceApi } from "../api.js";
 import type { JsonObject } from "@/types.js";
+import { Cause, Effect, LogLevel } from "effect";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { LoggingServiceApi } from "../api.js";
+import { LoggingService } from "../service.js";
 
 describe("LoggingService", () => {
   // Track logged messages for verification

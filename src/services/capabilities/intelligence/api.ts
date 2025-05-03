@@ -4,8 +4,8 @@
  */
 
 import type { Effect } from "effect";
-import type { IntelligenceFile, IntelligenceType } from "./schema.js";
 import type { IntelligenceConfigError } from "./errors.js";
+import type { IntelligenceFile, IntelligenceType } from "./schema.js";
 
 /**
  * API interface for the Intelligence service.

@@ -3,8 +3,8 @@
  * @module services/core/filesystem/service
  */
 
-import { Effect } from "effect";
 import { FileSystem } from "@effect/platform/FileSystem";
+import { Effect } from "effect";
 import type { FileSystemServiceApi } from "./api.js";
 import { FileSystemError } from "./errors.js";
 

@@ -5,9 +5,9 @@
  * interfaces while allowing for flexible customization.
  */
 
-import { Effect, Option, Chunk } from "effect";
 import type { AiResponse } from "@effect/ai/AiResponse";
 import { Model } from "@effect/ai/AiRole";
+import { Chunk, Effect, Option } from "effect";
 
 /**
  * Creates a strongly typed mock object that conforms to the specified interface.

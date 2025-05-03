@@ -3,20 +3,20 @@
  * @module services/ai/producers/text/service
  */
 
-import { Effect, Option, ConfigProvider } from "effect";
-import * as Chunk from "effect/Chunk";
-import { Message } from "@effect/ai/AiInput";
-import type { Span } from "effect/Tracer";
-import type { EffectiveResponse, GenerateTextResult } from "@/services/ai/provider/types.js";
-import type { TextServiceError } from "./errors.js";
-import { AiRole } from '@effect/ai';
-import { ProviderServiceApi } from '@/services/ai/provider/api.js';
-import type { TextServiceApi, TextGenerationOptions } from "./api.js";
+import { EffectiveInput } from "@/services/ai/input/service.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderServiceApi } from '@/services/ai/provider/api.js';
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { EffectiveInput } from "@/services/ai/input/service.js";
-import { TextModelError, TextProviderError, TextGenerationError, TextInputError } from "./errors.js";
+import type { EffectiveResponse, GenerateTextResult } from "@/services/ai/provider/types.js";
+import { AiRole } from '@effect/ai';
+import { Message } from "@effect/ai/AiInput";
+import { ConfigProvider, Effect, Option } from "effect";
+import * as Chunk from "effect/Chunk";
+import type { Span } from "effect/Tracer";
+import type { TextGenerationOptions, TextServiceApi } from "./api.js";
+import type { TextServiceError } from "./errors.js";
+import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "./errors.js";
 
 /**
  * Parameters for text generation

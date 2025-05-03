@@ -1,5 +1,5 @@
-import type { Usage, FinishReason } from "@/types.js";
 import type { ProviderMetadata } from "@/services/ai/provider/types.js";
+import type { FinishReason, Usage } from "@/types.js";
 
 export interface EffectiveInput {
   /** The input text/prompt to process */

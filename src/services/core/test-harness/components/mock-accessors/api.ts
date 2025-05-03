@@ -1,9 +1,9 @@
-import type { LanguageModelV1 } from "@ai-sdk/provider";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import type { EmbeddingServiceApi } from "@/services/ai/producers/embedding/api.js";
-import type { TextServiceApi } from "@/services/ai/producers/text/api.js";
 import type { ObjectServiceApi } from "@/services/ai/producers/object/api.js";
+import type { TextServiceApi } from "@/services/ai/producers/text/api.js";
+import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
+import type { LanguageModelV1 } from "@ai-sdk/provider";
 import type { Effect } from "effect";
 import type { Span } from "effect/Tracer";
 
@@ -33,8 +33,8 @@ interface TranscriptionServiceApi {
 }
 
 import type { ChatCompletionOptions } from "@/services/ai/producers/chat/service.js";
-import type { AiResponse } from "@effect/ai/AiResponse";
 import type { AiError } from "@effect/ai/AiError";
+import type { AiResponse } from "@effect/ai/AiResponse";
 
 interface ChatServiceApi {
   create: (options: ChatCompletionOptions) => Effect.Effect<AiResponse, AiError>;

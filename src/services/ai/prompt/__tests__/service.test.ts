@@ -1,7 +1,7 @@
 import { Effect } from "effect";
-import { PromptService } from "../service.js";
-import type { PromptFile } from "../schema.js";
 import { describe, expect, it } from "vitest";
+import type { PromptFile } from "../schema.js";
+import { PromptService } from "../service.js";
 
 // Direct service reference - no Layer usage
 const TestPromptService = PromptService;

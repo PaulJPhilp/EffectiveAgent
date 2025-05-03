@@ -3,17 +3,17 @@
  */
 
 import type { EntityId } from "@/types.js";
-import type {
-    AttachmentLinkEntity,
-    AttachmentLinkEntityData,
-} from "@core/attachment/schema.js";
-import { EntityNotFoundError as RepoEntityNotFoundError } from "@core/repository/errors.js";
+import type { AttachmentServiceApi } from "@core/attachment/api.js";
 import {
     AttachmentDbError,
     AttachmentLinkNotFoundError,
 } from "@core/attachment/errors.js";
-import type { AttachmentServiceApi } from "@core/attachment/api.js";
+import type {
+    AttachmentLinkEntity,
+    AttachmentLinkEntityData,
+} from "@core/attachment/schema.js";
 import type { CreateAttachmentLinkInput } from "@core/attachment/types.js";
+import { EntityNotFoundError as RepoEntityNotFoundError } from "@core/repository/errors.js";
 import { RepositoryService } from "@core/repository/service.js";
 import { Effect, Layer, Option } from "effect";
 

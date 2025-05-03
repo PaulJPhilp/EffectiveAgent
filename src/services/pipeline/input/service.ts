@@ -1,11 +1,11 @@
+import { type EffectiveRole } from "@/schema.js";
+import { Message, type Part, PartTypeId, TextPart } from "@effect/ai/AiInput";
+import { Model, User } from "@effect/ai/AiRole";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
-import { Model, User } from "@effect/ai/AiRole";
-import { Message, type Part, PartTypeId, TextPart } from "@effect/ai/AiInput";
-import { type EffectiveRole } from "@/schema.js";
-import { EffectivePartType, FilePart, ReasoningPart, RedactedReasoningPart, ToolPart, ToolResultPart } from "./schema.js";
 import { type InputServiceApi } from "./api.js";
 import { NoAudioFileError } from "./errors.js";
+import { EffectivePartType, FilePart, ReasoningPart, RedactedReasoningPart, ToolPart, ToolResultPart } from "./schema.js";
 
 /**
  * Input Service implementation

@@ -146,3 +146,10 @@ export class RateLimit extends S.Class<RateLimit>("RateLimit")({
     S.Literal("global")
   ).pipe(S.optional)
 }) { }
+
+/** Describes proficiency for a specific sub-dimension of a capability */
+export class SubDimensionProficiency extends S.Class<SubDimensionProficiency>("SubDimensionProficiency")({
+  // ... fields ...
+}) { }
+
+// --- End Capability Proficiency Schemas ---

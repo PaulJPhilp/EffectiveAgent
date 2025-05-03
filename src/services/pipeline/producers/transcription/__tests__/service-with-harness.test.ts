@@ -1,5 +1,5 @@
 import { Effect, Either } from "effect";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { TranscriptionModelError, TranscriptionProviderError } from "../errors.js";
 
 /**

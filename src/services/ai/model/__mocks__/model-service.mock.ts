@@ -1,20 +1,20 @@
-import type { ModelServiceApi } from "../service.js";
-import type { Model, ModelFile } from "../schema.js";
 import { Effect } from "effect";
+import type { ModelServiceApi } from "../api.js";
+import type { ModelFile, PublicModelInfoDefinition } from "../schema.js";
 
 /**
- * Minimal mock ModelServiceApi implementation for testing.
- * Returns static valid data and always succeeds.
- * Extend as needed for more complex test scenarios.
+ * Mock implementation returning the PublicModelInfoDefinition structure.
  */
 
-const testModel: Model = {
+const testModel: PublicModelInfoDefinition = {
   id: "test-model-id",
-  name: "Test Model",
-  provider: "test-provider",
-  capabilities: ["embeddings"],
+  name: "TestModel",
   version: "0.1.0",
-  modelName: "Test Model"
+  provider: "test-provider",
+  modelName: "TestModelName",
+  displayName: "Test Model Display Name",
+  vendorCapabilities: ["chat", "tool-use"],
+  contextWindowSize: 4096
 };
 
 const testModelFile: ModelFile = {
@@ -25,10 +25,11 @@ const testModelFile: ModelFile = {
 
 export const MockModelService: ModelServiceApi = {
   load: () => Effect.succeed(testModelFile),
-  getProviderName: (_modelId: string) => Effect.succeed("test-provider"),
+  exists: (_modelId: string) => Effect.succeed(true),
+  getProviderName: (_modelId: string) => Effect.succeed(testModel.provider),
   findModelsByCapability: () => Effect.succeed([testModel]),
   findModelsByCapabilities: () => Effect.succeed([testModel]),
-  getDefaultModelId: () => Effect.succeed("test-model-id"),
-  getModelsForProvider: () => Effect.succeed([testModel as any]), // Replace with LanguageModelV1 mock if needed
+  getDefaultModelId: () => Effect.succeed(testModel.id),
+  getModelsForProvider: () => Effect.succeed([testModel as any]),
   validateModel: () => Effect.succeed(true),
 };

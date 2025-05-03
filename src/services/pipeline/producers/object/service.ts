@@ -4,9 +4,9 @@
  */
 
 import { EffectiveInput } from '@/services/ai/input/service.js';
-import type { ProviderClientApi } from "@/services/ai/provider/api.js";
-import { ModelService } from "@/services/ai/model/service.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
@@ -15,8 +15,8 @@ import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import type { Span } from "effect/Tracer";
-import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSchemaError, ObjectInputError } from "./errors.js";
-import type { ObjectServiceApi, ObjectGenerationOptions, ObjectGenerationResult } from "./api.js";
+import type { ObjectGenerationOptions, ObjectGenerationResult, ObjectServiceApi } from "./api.js";
+import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "./errors.js";
 
 /**
  * Result shape expected from the underlying provider client's generateObject method

@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { ChatServiceApi, ChatCompletionOptions } from "../service.js";
+import { ChatCompletionOptions, ChatServiceApi } from "../service.js";
 // Inline definition for test harness dependencies
 interface AiServiceDeps {
   modelService: unknown;

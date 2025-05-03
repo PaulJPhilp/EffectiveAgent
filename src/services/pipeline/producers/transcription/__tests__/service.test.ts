@@ -3,9 +3,9 @@
  * @module services/ai/producers/transcription/service.test
  */
 
-import { describe, it, expect, vi } from "vitest";
-import { Effect, Layer, Exit } from "effect";
+import { Effect, Exit, Layer } from "effect";
 import type { Span } from "effect/Tracer";
+import { describe, expect, it, vi } from "vitest";
 import { TranscriptionService } from "../service.js";
 
 // --- Minimal mock for TranscriptionService ---

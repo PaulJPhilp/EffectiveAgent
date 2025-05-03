@@ -1,6 +1,6 @@
+import { EffectiveError } from "@/errors.js";
 // src/services/pipeline/chat/api.ts
 import { Effect } from "effect";
-import { EffectiveError } from "@/errors.js";
 
 /**
  * Represents a message in a chat conversation

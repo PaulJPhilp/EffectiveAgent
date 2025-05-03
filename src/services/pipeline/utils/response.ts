@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
+import { ProviderOperationError } from "@/services/ai/provider/errors.js";
 import type { Effect } from "effect";
 import { Effect as EffectNS } from "effect";
 import type { EffectiveResponse, GenerateBaseResult } from "../types/base.js";
-import { ProviderOperationError } from "@/services/ai/provider/errors.js";
 
 /**
  * Type guard for EffectiveResponse

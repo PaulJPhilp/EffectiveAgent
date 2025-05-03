@@ -1,12 +1,12 @@
-import { Effect, Either, Option } from "effect";
-import { describe, it, expect } from "vitest";
-import { EmbeddingService } from "../service.js";
-import { EmbeddingInputError } from "../errors.js";
 import ModelService from "@/services/ai/model/service.js";
 import ProviderService from "@/services/ai/provider/service.js";
-import { TestHarnessLayer } from "@/services/test-harness/service.js";
-import { MockAccessorService } from "@/services/test-harness/components/mock-accessors/service.js";
 import { FixtureService } from "@/services/test-harness/components/fixtures/service.js";
+import { MockAccessorService } from "@/services/test-harness/components/mock-accessors/service.js";
+import { TestHarnessLayer } from "@/services/test-harness/service.js";
+import { Effect, Either, Option } from "effect";
+import { describe, expect, it } from "vitest";
+import { EmbeddingInputError } from "../errors.js";
+import { EmbeddingService } from "../service.js";
 import { EmbeddingGenerationResult } from "../service.js";
 
 /**

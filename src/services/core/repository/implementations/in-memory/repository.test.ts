@@ -1,7 +1,7 @@
-import { describe, expect, it } from "vitest";
-import { Effect } from "effect";
 import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
 import { createServiceTestHarness } from "@core/test-utils/effect-test-harness.js";
+import { Effect } from "effect";
+import { describe, expect, it } from "vitest";
 import { InMemoryRepository } from "./repository.js";
 
 interface TestEntity {

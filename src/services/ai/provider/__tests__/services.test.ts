@@ -3,15 +3,15 @@
  * @file Scaffold for ProviderService integration tests using effect/vitest.
  */
 
+import { mockService, provideMockService, withResource } from "@/services/core/test-harness/utils/context-management.js";
+import { createTypedMock, mockFailure, mockSuccess } from "@/services/core/test-harness/utils/typed-mocks.js";
 import { Effect } from "effect"
-import { ProviderService } from "../service.js"
-import type { ProviderServiceApi, ProviderClientApi } from "../api.js"
+import { describe, expect, it } from "vitest";
+import type { ProviderClientApi, ProviderServiceApi } from "../api.js"
 import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "../errors.js"
 import { ProviderFile } from "../schema.js"
-import type { EffectiveProviderApi, EffectiveResponse, GenerateObjectResult, GenerateSpeechResult, GenerateTextResult, GenerateImageResult, TranscribeResult, GenerateEmbeddingsResult } from "../types.js";
-import { mockService, withResource, provideMockService } from "@/services/core/test-harness/utils/context-management.js";
-import { createTypedMock, mockSuccess, mockFailure } from "@/services/core/test-harness/utils/typed-mocks.js";
-import { expect, it, describe } from "vitest";
+import { ProviderService } from "../service.js"
+import type { EffectiveProviderApi, EffectiveResponse, GenerateEmbeddingsResult, GenerateImageResult, GenerateObjectResult, GenerateSpeechResult, GenerateTextResult, TranscribeResult } from "../types.js";
 
 // Valid test config
 const validConfig: ProviderFile = {

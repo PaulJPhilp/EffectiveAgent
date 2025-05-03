@@ -5,10 +5,10 @@
  */
 
 import type { EntityId } from "@/types.js";
+import type { FileServiceApi } from "@core/file/api.js";
 import { FileDbError, FileNotFoundError } from "@core/file/errors.js";
 import type { FileEntity, FileEntityData } from "@core/file/schema.js";
-import type { FileServiceApi } from "@core/file/api.js";
-import type { FileInput, FileInfo } from "@core/file/types.js";
+import type { FileInfo, FileInput } from "@core/file/types.js";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "@core/repository/errors.js";
 import { RepositoryService } from "@core/repository/service.js";
 import { Effect, Layer, Option } from "effect";

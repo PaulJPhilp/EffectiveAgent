@@ -1,10 +1,10 @@
+import type { EffectiveResponse, GenerateTextResult } from "@/services/ai/provider/types.js";
 /**
  * TextService interface for handling AI text generation.
  */
-import type { Effect, ConfigProvider, Option } from "effect"; 
+import type { ConfigProvider, Effect, Option } from "effect"; 
 import type { Span } from "effect/Tracer"; 
-import type { EffectiveResponse, GenerateTextResult } from "@/services/ai/provider/types.js";
-import type { TextModelError, TextProviderError, TextGenerationError, TextInputError } from "./errors.js";
+import type { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "./errors.js";
 
 /**
  * Options for text generation.

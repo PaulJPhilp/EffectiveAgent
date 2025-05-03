@@ -3,24 +3,24 @@
  */
 
 
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
 import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
+import type { ObjectServiceApi } from "../api.js";
 import {
+  ObjectGenerationError,
+  ObjectModelError,
+  ObjectProviderError,
+  ObjectSchemaError,
+} from "../errors.js";
+import {
+  createListSchema,
   createPersonSchema,
   createProductSchema,
   createTaskSchema,
-  createListSchema,
 } from "../schema-utils.js";
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
 import { ObjectService } from "../service.js";
-import type { ObjectServiceApi } from "../api.js";
-import {
-  ObjectModelError,
-  ObjectProviderError,
-  ObjectGenerationError,
-  ObjectSchemaError,
-} from "../errors.js";
 
 interface Person {
   name: string;

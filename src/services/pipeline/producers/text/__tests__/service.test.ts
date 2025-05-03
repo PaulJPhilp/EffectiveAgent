@@ -1,11 +1,11 @@
-import { Effect, Either, Option } from "effect";
-import type { Span } from "effect/Tracer";
-import { describe, it, expect } from "vitest";
-import { TextInputError, TextGenerationError, TextModelError, TextProviderError } from "../errors.js";
+import { TestHarnessService } from "@/services/test-harness/service.js";
 import { AiResponse } from "@effect/ai/AiResponse";
 import * as AiRole from "@effect/ai/AiRole";
+import { Effect, Either, Option } from "effect";
+import type { Span } from "effect/Tracer";
+import { describe, expect, it } from "vitest";
+import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "../errors.js";
 import TextService from "../service.js";
-import { TestHarnessService } from "@/services/test-harness/service.js";
 
 /**
  * Simplified TextService tests

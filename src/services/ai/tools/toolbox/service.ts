@@ -1,8 +1,8 @@
-import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
 import { EntityParseError } from "@core/errors.js";
+import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
+import { ProviderConfigError } from "../../errors.js";
 import { WorkbenchConfigError } from "./errors.js";
 import { Tool, Toolbox, WorkbenchFile } from "./schema.js";
-import { ProviderConfigError } from "../../errors.js";
 
 export * from './workbench-service.js';
 

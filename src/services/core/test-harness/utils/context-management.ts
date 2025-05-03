@@ -6,7 +6,7 @@
  * the lifecycle of test resources.
  */
 
-import { Effect, Context, Layer, pipe } from "effect";
+import { Context, Effect, Layer, pipe } from "effect";
 
 /**
  * Creates a Layer that provides a mock service.

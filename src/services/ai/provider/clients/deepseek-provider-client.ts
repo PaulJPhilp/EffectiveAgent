@@ -1,11 +1,10 @@
+import type { LanguageModelV1 } from "ai";
 import { Effect, Layer } from "effect";
+import type { EffectiveInput } from "../../input/service.js";
+import type { ModelServiceApi } from "../../model/service.js";
 import { ProviderClient } from "../client.js";
+import { ProviderConfigError } from "../errors.js";
 import type {
-  ProviderGenerateTextOptions,
-  ProviderGenerateObjectOptions,
-  ProviderGenerateSpeechOptions,
-  ProviderTranscribeOptions,
-  ProviderGenerateEmbeddingsOptions,
   EffectiveProviderApi,
   EffectiveResponse,
   GenerateEmbeddingsResult,
@@ -13,12 +12,13 @@ import type {
   GenerateSpeechResult,
   GenerateTextResult,
   ModelCapability,
+  ProviderGenerateEmbeddingsOptions,
+  ProviderGenerateObjectOptions,
+  ProviderGenerateSpeechOptions,
+  ProviderGenerateTextOptions,
+  ProviderTranscribeOptions,
   TranscribeResult,
 } from "../types.js";
-import type { LanguageModelV1 } from "ai";
-import type { EffectiveInput } from "../../input/service.js";
-import type { ModelServiceApi } from "../../model/service.js";
-import { ProviderConfigError } from "../errors.js";
 
 /**
  * Returns a ProviderClientApi instance pre-configured for DeepSeek.

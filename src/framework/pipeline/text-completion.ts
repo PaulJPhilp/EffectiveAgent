@@ -3,12 +3,12 @@
  * @module framework/pipeline/text-completion
  */
 
-import { Effect, Option, pipe, Schema } from "effect";
-import TextService from "@/services/pipeline/producers/text/service.js";
+import type { EffectiveError } from "@/errors.js";
 import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
+import TextService from "@/services/pipeline/producers/text/service.js";
+import { Effect, Option, Schema, pipe } from "effect";
 import { AiPipeline } from "./base.js";
-import type { EffectiveError } from "@/errors.js";
 
 /**
  * Pipeline for text completion using an AI model.

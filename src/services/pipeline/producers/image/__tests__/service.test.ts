@@ -6,11 +6,11 @@
 import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
 import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
 import { describe, it } from "@effect/vitest";
-import { expect } from "vitest";
 import { Effect, Layer, Option } from "effect";
 import type { Span } from "effect/Tracer";
-import { ImageService } from "../service.js";
+import { expect } from "vitest";
 import { ImageModelError, ImageSizeError } from "../errors.js";
+import { ImageService } from "../service.js";
 
 describe("ImageService", () => {
     it("should handle abort signal", () =>

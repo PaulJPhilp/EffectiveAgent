@@ -2,13 +2,13 @@
  * @file Test suite for InputService
  */
 
-import { Effect, Chunk } from "effect";
-import { describe, expect, it } from "vitest";
 import { Message, TextPart } from "@effect/ai/AiInput";
 import { Model, User } from "@effect/ai/AiRole";
+import { Chunk, Effect } from "effect";
+import { describe, expect, it } from "vitest";
+import { NoAudioFileError } from "../errors.js";
 import { FilePart, ReasoningPart, RedactedReasoningPart, ToolPart, ToolResultPart } from "../schema.js";
 import { InputService } from "../service.js";
-import { NoAudioFileError } from "../errors.js";
 
 describe("InputService", () => {
     // --- Message Creation ---
