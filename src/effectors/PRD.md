@@ -156,4 +156,187 @@ The implementation will proceed in the following phases:
 *   Formal schema definition and validation for `AgentRecord` payloads.
 *   Performance tuning for large numbers of `Effector`s or `AgentRecord`s.
 
+---Okay, understood. If centralized management isn't the primary concern right now, we can focus on making the service-based structure functional by integrating the core processing behavior.
+
+Let's refine the design based on the `EffectorService` code you provided, but explicitly add the requirement and mechanism for running the processing loop for each Effector instance managed by the service.
+
+---
+
+**Detailed Design: `Effector` Component and Service**
+
+**Version:** 0.2.1 (Integrating Processing Loop into Service approach)
+**Date:** 5/3/2025
+**Based on:** PRD v0.1 and provided `EffectorService` code
+
+**1. Core Concept Recap**
+
+Effectors are managed via an `EffectorService`. Each `Effector` instance represents a stateful, message-driven component identified by an `EffectorId`. The service handles creation, termination, state tracking, message delivery (via mailboxes), and event subscription. Crucially, the service (or a mechanism closely tied to it) is also responsible for running the core processing loop for each active Effector.
+
+**2. Central `EffectorService`**
+
+*   **Purpose:** Manages the lifecycle and provides access to all active `Effector` instances. It ensures each active Effector is processing its messages.
+*   **Implementation:** Implemented as an Effect Service (`EffectorService` class extending `Effect.Service<EffectorServiceApi>`).
+*   **Internal State:** Maintains a `Ref<Map<EffectorId, EffectorInstance>>` holding internal details (state `Ref`, mailbox, subscribers, **processing Fiber**) for each active Effector.
+*   **Configuration:** Uses `EffectorServiceConfig` for settings like mailbox size, prioritization, etc. (Defaults provided).
+*   **Dependencies:** Currently defined with no external service dependencies (`dependencies: []`). **Note:** Will likely require dependencies (`R`) needed by the various `processingLogic` functions it runs.
+
+**3. `EffectorInstance` (Internal Service Representation)**
+
+*   **`state: Ref<EffectorState<S>>`:** Holds the Effector's ID, current user-defined state (`S`), status (`IDLE`, `PROCESSING`, `TERMINATED`, etc.), and `lastUpdated` timestamp.
+*   **`mailbox: PrioritizedMailbox`:** A custom mailbox implementation handling incoming `AgentRecord` messages.
+*   **`subscribers: Ref<Set<Queue.Queue<AgentRecord>>>`:** Manages queues for external subscribers.
+*   **`processingFiber: Fiber.Runtime<never, E>`:** Holds the running Fiber executing the Effector's specific `processingLogic` loop. (Type `E` represents potential errors from the loop/logic itself).
+
+**4. `Effector<S>` Interface (Public Handle)**
+
+*   This interface (defined in `effector.contract.ts`) is the public API returned when an Effector is created via the service.
+*   **`id: EffectorId`:** The unique ID.
+*   **`send(record: AgentRecord): Effect<void, Error>`:** Sends a message to this Effector's mailbox via the central service.
+*   **`getState(): Effect<EffectorState<S>, Error>`:** Retrieves the current state object (`EffectorState`) for this Effector from the central service.
+*   **`subscribe(): Stream<AgentRecord, Error>`:** Creates a subscription stream for messages processed by this Effector, managed via the central service.
+
+**5. `EffectorServiceApi` Interface (Service Contract)**
+
+*   This interface (defined in `effector.contract.ts`) defines the operations provided by the central `EffectorService`.
+*   **`create<S, E, R>(id: EffectorId, initialState: S, processingLogic: ProcessingLogic<S, E, R>): Effect<Effector<S>, EffectorError>`:** Creates, registers, **starts the processing loop Fiber**, and returns a new Effector instance handle. Requires the specific `processingLogic` function for this Effector type. Handles ID collisions. **Note:** The service needs access to the environment `R` required by the `processingLogic`.
+*   **`terminate(id: EffectorId): Effect<void, EffectorNotFoundError>`:** Marks an Effector as terminated, **interrupts its processing Fiber**, cleans up mailbox/subscribers (TBD details), and removes it from the active instances map.
+*   **`send(id: EffectorId, record: AgentRecord): Effect<void, ...>`:** Sends a message to the mailbox of the specified Effector ID. Handles not found/terminated errors.
+*   **`getState<S>(id: EffectorId): Effect<EffectorState<S>, EffectorNotFoundError>`:** Retrieves the state object for the specified Effector ID.
+*   **`subscribe(id: EffectorId): Stream<AgentRecord, Error>`:** Creates a subscription stream for the specified Effector ID.
+
+**6. Core Logic / Workflow (Processing Loop - *To be implemented within Service*)**
+
+*   **Initiation:** When `EffectorService.create` is called, after creating the `EffectorInstance` resources, it must **fork** the processing loop `Fiber` using the provided `processingLogic` function. This Fiber needs to be stored in the `EffectorInstance`.
+*   **Loop Logic:** The logic running inside this Fiber will be similar to the loop defined previously:
+    1.  Take the next `AgentRecord` message from the instance's `mailbox`.
+    2.  Retrieve the current state `S` from the instance's `state` Ref (specifically, the `state.state` field).
+    3.  Execute the specific `processingLogic` function (passed during creation) with the record and current state `S`. This requires providing the necessary environment `R`.
+    4.  Update the `state` Ref with the new state `S` returned by the `processingLogic`, also updating `status` and `lastUpdated`.
+    5.  Handle errors (`E`) from the `processingLogic`, potentially updating the `status` to `ERROR`.
+    6.  Notify subscribers via `notifySubscribers` (if applicable, perhaps after state update).
+*   **Termination:** When `EffectorService.terminate` is called, it must retrieve the `processingFiber` from the `EffectorInstance` and explicitly **interrupt** it (`Fiber.interrupt`).
+
+**7. Data Structures**
+
+*   **`EffectorId`:**
+    ```typescript
+    // src/effector/types.ts (Example path)
+    /**
+     * Unique identifier for an Effector instance.
+     * Ensures type safety by distinguishing Effector IDs from plain strings at compile time.
+     * @brand EffectorId
+     */
+    export type EffectorId = string & { readonly _brand: "EffectorId" };
+
+    /** Creates an EffectorId from a string. */
+    export const EffectorId = (value: string): EffectorId =>
+      value as EffectorId;
+    ```
+*   **`EffectorState<S>`:**
+    ```typescript
+    // src/effector/types.ts (Example path)
+    import type { EffectorId } from "./types";
+
+    // Define possible status values
+    export const EffectorStatus = {
+        IDLE: "IDLE", // Initial state, or waiting for messages
+        PROCESSING: "PROCESSING", // Actively processing a message
+        TERMINATED: "TERMINATED", // Terminated via API call
+        ERROR: "ERROR" // Processing logic failed for a message
+    } as const;
+    export type EffectorStatus = typeof EffectorStatus[keyof typeof EffectorStatus];
+
+    /** Represents the tracked state of an Effector instance */
+    export interface EffectorState<S> {
+        readonly id: EffectorId;
+        readonly state: S; // The user-defined state
+        readonly status: EffectorStatus;
+        readonly lastUpdated: number; // Timestamp
+    }
+    ```
+*   **`ProcessingLogic<S, E, R>` Type:** (Needs to be defined, likely in `types.ts`)
+    ```typescript
+    // src/effector/types.ts (Example path)
+    import * as Effect from "effect/Effect";
+    import type { AgentRecord } from "@/agent-record/agent-record.types"; // Adjust path
+
+    /**
+     * Defines the signature for the user-provided function that contains the
+     * specific behavior of an Effector type.
+     * @param record The incoming AgentRecord message.
+     * @param state The current internal state (S) of the Effector.
+     * @returns An Effect yielding the *next* internal state (S), potentially
+     *          requiring environment R and failing with error E.
+     */
+    export type ProcessingLogic<S, E = unknown, R = never> = (
+      record: AgentRecord,
+      state: S,
+    ) => Effect.Effect<S, E, R>;
+    ```
+*   **`AgentRecord`:** (Placeholder - Needs Refinement)
+    ```typescript
+    // src/agent-record/agent-record.types.ts (Example path)
+    // ... (definition as before) ...
+    ```
+*   **Effector Errors:**
+    ```typescript
+    // src/effector/errors.ts
+    // ... (definitions for EffectorError, EffectorNotFoundError, EffectorTerminatedError as before) ...
+    ```
+
+**8. API / Interface Code**
+
+*   **`Effector<S>` and `EffectorServiceApi`:** Defined in `effector.contract.ts`. The `create` method signature in `EffectorServiceApi` needs to be updated to accept the `processingLogic` parameter and include its `E` and `R` types.
+    ```typescript
+    // src/effector/effector.contract.ts (Updated create signature)
+    import { Effect, Queue, Stream } from "effect";
+    import type { AgentRecord, EffectorId, EffectorState, ProcessingLogic } from "./types.js"; // Added ProcessingLogic
+    import { EffectorError, EffectorNotFoundError, EffectorTerminatedError } from "./errors.js";
+
+    // ... Effector<S> interface as before ...
+
+    export interface EffectorServiceApi {
+        /**
+         * Creates a new Effector instance, starts its processing loop, and returns a handle.
+         *
+         * @template S The type of state for the new Effector
+         * @template E The error type of the processing logic
+         * @template R The environment required by the processing logic
+         * @param id - The unique identifier for the new Effector
+         * @param initialState - The initial state for the Effector
+         * @param processingLogic - The function defining the Effector's behavior
+         * @returns Effect<Effector<S>> containing the new Effector instance handle
+         */
+        readonly create: <S, E, R>( // Added E, R generics
+            id: EffectorId,
+            initialState: S,
+            processingLogic: ProcessingLogic<S, E, R> // Added processingLogic param
+        ) => Effect.Effect<Effector<S>, EffectorError, R>; // Added R requirement
+
+        // ... other methods (terminate, send, getState, subscribe) as before ...
+    }
+    ```
+*   **`EffectorService` Implementation:** Defined in `effector.service.ts`. Needs significant updates to:
+    *   Accept `processingLogic` in `create`.
+    *   Fork the processing loop `Fiber` in `create` (providing `R`) and store it.
+    *   Interrupt the `Fiber` in `terminate`.
+    *   Define how the environment `R` is provided to the forked fibers.
+
+**9. Lifecycle Management**
+
+*   Managed by the `EffectorService`:
+    *   `create`: Initializes resources, **starts processing Fiber**.
+    *   `terminate`: **Interrupts processing Fiber**, updates status, removes instance.
+
+**10. Error Handling**
+
+*   Service API defines specific errors.
+*   Errors *within* the `processingLogic` need handling within the loop (e.g., update status to `ERROR`, log).
+*   Fiber interruption errors during `terminate` should be handled.
+
+**11. Integration Points**
+
+*   Consumers use `EffectorService`.
+*   The service needs a way to access the environment `R` required by the diverse `processingLogic` functions it will execute. This might involve requiring `R` on the `EffectorService` itself or using more advanced techniques.
+
 ---
