@@ -1,25 +1,20 @@
+import type { PersonaConfigError } from "@/services/capabilities/persona/errors.js";
+import { Persona } from "@/services/capabilities/persona/schema.js";
 import type { CapabilityService } from "@/services/capabilities/types.js";
-// In src/services/capabilities/persona/types.ts
-import { Context, Effect, Schema } from "effect"; 
-import type { PersonaConfigError } from "./errors.js";
-import { PersonaDefinitionInputSchema, PersonaDefinitionSchema } from "./schema.js"; 
+import { Context, Schema } from "effect";
 
 // Define types from Schema first
-export type PersonaDefinition = Schema.Schema.Type<typeof PersonaDefinitionSchema>;
-export type PersonaDefinitionInput = Schema.Schema.Type<
-  typeof PersonaDefinitionInputSchema
->;
+export type PersonaDefinition = Schema.Schema.Type<typeof Persona>;
+export type PersonaDefinitionInput = Schema.Schema.Type<typeof Persona>;
 
 export interface PersonaService
 	extends CapabilityService<
 		PersonaDefinition,
-		PersonaDefinitionInput, // Input type for updates
-		PersonaConfigError // Specific error type
+		PersonaDefinitionInput,
+		PersonaConfigError
 	> {
 	// Add any Persona-specific methods here if needed in the future
 }
 
 // Use GenericTag for interfaces
-export const PersonaServiceTag = Context.GenericTag<PersonaService>("@services/PersonaService"); 
-
-// Similar definitions would exist for SkillService, IntelligenceService...
+export const PersonaServiceTag = Context.GenericTag<PersonaService>("@services/PersonaService");

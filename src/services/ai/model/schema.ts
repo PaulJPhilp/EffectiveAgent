@@ -4,12 +4,35 @@
  */
 
 import {
-    ModelCapabilityDetail
-} from "@/models/schema.js";
-import { ContextWindowSize, Description, Identifier, ModelCapability, Name, PositiveNumber, Version } from "@/schema.js";
+    ContextWindowSize,
+    Description,
+    Identifier,
+    ModelCapability,
+    Name,
+    PositiveNumber,
+    SubDimensionProficiency,
+    Version,
+} from "@/schema.js";
 import { Schema as S } from "effect";
 import { PROVIDER_NAMES } from "../provider/provider-universe.js";
 import { MODEL_IDS } from "./model-universe.js";
+
+/**
+ * Describes a model's capability, allowing for either an overall proficiency
+ * or a detailed breakdown by sub-dimensions.
+ */
+export class ModelCapabilityDetail extends S.Class<ModelCapabilityDetail>("ModelCapabilityDetail")({
+    /** The core capability */
+    capability: ModelCapability,
+    /** Optional overall proficiency (useful for simpler capabilities) */
+    overallProficiency: S.Literal(
+        "basic",
+        "intermediate",
+        "advanced"
+    ).pipe(S.optional),
+    /** Optional detailed proficiency breakdown for complex capabilities */
+    subDimensions: S.Array(SubDimensionProficiency).pipe(S.optional)
+}) { }
 
 export const Provider = S.Literal(...PROVIDER_NAMES);
 export type Provider = typeof PROVIDER_NAMES[number];
@@ -19,12 +42,12 @@ const RateLimitSchema = S.Struct({
     tokensPerMinute: PositiveNumber.pipe(S.optional)
 });
 
-const MetadataSchema = S.Struct({
+export const MetadataSchema = S.Struct({
     description: S.String.pipe(S.optional)
 });
 
 // Response format schema
-const ResponseFormatSchema = S.Struct({
+export const ResponseFormatSchema = S.Struct({
     type: S.Literal("text", "image", "audio", "embedding"),
     supportedFormats: S.Array(S.String)
 });

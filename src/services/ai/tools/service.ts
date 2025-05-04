@@ -3,18 +3,18 @@
  * @module services/ai/tools/service
  */
 
-import { HttpClient } from "@effect/platform/HttpClient";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
-import { Effect, Layer } from "effect";
-import { ToolService, type ToolServiceApi } from "./api.js";
+import { ToolService, type ToolServiceApi } from "@/services/ai/tools/api.js";
 import {
     ToolExecutionError,
     ToolInputValidationError,
     ToolNotFoundError,
     ToolOutputValidationError
-} from "./errors.js";
+} from "@/services/ai/tools/errors.js";
+import { type HttpImplementation, type McpImplementation, type ToolImplementation, type ToolRegistryData, ToolRegistryDataTag } from "@/services/ai/tools/types.js";
+import { HttpClient } from "@effect/platform/HttpClient";
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
+import { Effect, Layer } from "effect";
 import { mcp_mcp_search_getMcpServer } from "./mcp.js";
-import { type HttpImplementation, type McpImplementation, type ToolImplementation, type ToolRegistryData, ToolRegistryDataTag } from "./types.js";
 
 /**
  * Live implementation of the Tool Service.
@@ -209,4 +209,4 @@ export class ToolServiceLive extends Effect.Service<ToolServiceApi>() {
             return new ToolServiceLive(registryData, httpClient);
         })
     );
-} 
+}

@@ -1,11 +1,11 @@
 // File: src/services/model/modelConfigurationService.ts (Removed RA Alias Usage)
 
+import { ModelConfigLoadError, ModelNotFoundError } from "@/services/ai/model/errors.js";
+import type { ModelCapability, ModelConfig, ModelConfigFile } from "@/services/ai/model/schema.js";
+import { ModelConfigFileSchema } from "@/services/ai/model/schema.js";
+import { ModelConfigurationService } from "@/services/ai/model/types.js";
 // REMOVED ReadonlyArray alias from import
 import { Context, Effect, HashMap, Layer } from "effect";
-import { ModelConfigLoadError, ModelNotFoundError } from './errors.js';
-import { ModelConfigFileSchema } from "./schema.js";
-import type { ModelCapability, ModelConfig, ModelConfigFile } from './schema.js';
-import { ModelConfigurationService } from './types.js';
 
 // --- Service Tag for Config Data Dependency ---
 export interface ModelConfigFileTag extends ModelConfigFile { }

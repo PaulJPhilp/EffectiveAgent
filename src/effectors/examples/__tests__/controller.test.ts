@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest"
 import { EffectorService } from "../../effector/service.js"
 import { AgentRecordType, makeEffectorId } from "../../effector/types.js"
 import { ControllerCommand, createControllerEffector } from "../controller.js"
-import { CounterCommand } from "../counter.js"
+import { CounterCommand } from "../counter/counter.js"
 
 const harness = createServiceTestHarness(EffectorService)
 
@@ -139,7 +139,7 @@ describe("ControllerEffector", () => {
                 yield* pipe(
                     controller.subscribe(),
                     Stream.take(1),
-                    Stream.runForEach(() => Effect.unit)
+                    Stream.runForEach(() => Effect.succeed(void 0))
                 )
             }
 
@@ -170,4 +170,4 @@ describe("ControllerEffector", () => {
 
         await harness.runTest(effect)
     })
-}) 
+})

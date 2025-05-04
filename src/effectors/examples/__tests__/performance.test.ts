@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest"
 import { EffectorService } from "../../effector/service.js"
 import { AgentRecordType, makeEffectorId } from "../../effector/types.js"
 import { ControllerCommand, createControllerEffector } from "../controller.js"
-import { CounterCommand, createCounterEffector } from "../counter.js"
+import { CounterCommand, createCounterEffector } from "../counter/counter.js"
 
 const harness = createServiceTestHarness(EffectorService)
 

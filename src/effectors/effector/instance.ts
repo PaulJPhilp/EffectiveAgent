@@ -1,9 +1,8 @@
 import { Effect, Fiber, Queue, Ref, Stream, pipe } from "effect"
-import type { AgentRecord, EffectorId, EffectorState, ProcessingLogic } from "./types.js"
-import { EffectorStatus } from "./types.js"
-import { PrioritizedMailbox } from "./mailbox.js"
-import type { EffectorConfig } from "./types.js"
 import { EffectorProcessingError } from "./errors.js"
+import { PrioritizedMailbox } from "./mailbox.js"
+import type { AgentRecord, EffectorConfig, EffectorId, EffectorState, ProcessingLogic } from "./types.js"
+import { AgentRecordType, EffectorStatus } from "./types.js"
 
 /**
  * Internal representation of an Effector instance.
@@ -85,82 +84,118 @@ export class EffectorInstance<S, E = never, R = never> {
     /**
      * Starts the processing loop for this instance
      */
-    startProcessing = (): Effect.Effect<Fiber.RuntimeFiber<never, E | EffectorProcessingError>, never, R> =>
-        pipe(
-            Effect.gen(function* (this: EffectorInstance<S, E, R>) {
+    startProcessing = (): Effect.Effect<Fiber.RuntimeFiber<never, E | EffectorProcessingError>, never, R> => {
+        const self = this
+        return pipe(
+            Effect.gen(function* () {
+                // Set initial status
+                yield* self.updateStatus(EffectorStatus.IDLE)
+
                 while (true) {
-                    // Update status to PROCESSING
-                    yield* this.updateStatus(EffectorStatus.IDLE)
+                    try {
+                        // Take next message from mailbox with error handling
+                        const record = yield* pipe(
+                            self.mailbox.take(),
+                            Effect.tap(() => self.updateStatus(EffectorStatus.PROCESSING)),
+                            Effect.mapError(error => new EffectorProcessingError({
+                                effectorId: self.id,
+                                recordId: "unknown",
+                                cause: error,
+                                message: `Failed to take message from mailbox: ${error.message}`
+                            }))
+                        )
 
-                    // Take next message from mailbox with error handling
-                    const record = yield* pipe(
-                        this.mailbox.take(),
-                        Effect.tap(() => this.updateStatus(EffectorStatus.PROCESSING)),
-                        Effect.mapError(error => new EffectorProcessingError({
-                            effectorId: this.id,
-                            recordId: "unknown",
-                            cause: error,
-                            message: `Failed to take message from mailbox: ${error.message}`
-                        }))
-                    )
+                        // Get current state
+                        const currentState = yield* pipe(
+                            Ref.get(self.state),
+                            Effect.map(state => state as EffectorState<S>)
+                        )
 
-                    // Get current state
-                    const currentState = yield* pipe(
-                        Ref.get(this.state),
-                        Effect.map(state => state as EffectorState<S>)
-                    )
+                        const startTime = Date.now()
 
-                    const startTime = Date.now()
+                        // Execute processing logic with proper error handling
+                        yield* pipe(
+                            self.processingLogic(record, currentState.state),
+                            Effect.matchCauseEffect({
+                                onFailure: cause => pipe(
+                                    Ref.update(self.state, (state: EffectorState<S>) => ({
+                                        ...state,
+                                        status: EffectorStatus.ERROR,
+                                        error: cause,
+                                        processing: {
+                                            processed: state.processing?.processed ?? 0,
+                                            failures: (state.processing?.failures ?? 0) + 1,
+                                            avgProcessingTime: state.processing?.avgProcessingTime ?? 0,
+                                            lastError: cause
+                                        }
+                                    })),
+                                    Effect.zipRight(
+                                        Effect.fail(new EffectorProcessingError({
+                                            effectorId: self.id,
+                                            recordId: record.id,
+                                            cause,
+                                            message: `Error processing record ${record.id} in Effector ${self.id}`
+                                        }))
+                                    )
+                                ),
+                                onSuccess: newState => {
+                                    return pipe(
+                                        Effect.gen(function* () {
+                                            // Update state
+                                            yield* Ref.update(self.state, (state: EffectorState<S>) => ({
+                                                ...state,
+                                                state: newState,
+                                                status: EffectorStatus.IDLE,
+                                                lastUpdated: Date.now(),
+                                                processing: {
+                                                    processed: (state.processing?.processed ?? 0) + 1,
+                                                    failures: state.processing?.failures ?? 0,
+                                                    avgProcessingTime: self.calculateAvgTime(
+                                                        state.processing?.avgProcessingTime ?? 0,
+                                                        state.processing?.processed ?? 0,
+                                                        Date.now() - startTime
+                                                    )
+                                                }
+                                            }))
 
-                    // Execute processing logic with proper error handling
-                    yield* pipe(
-                        this.processingLogic(record, currentState.state),
-                        Effect.matchCauseEffect({
-                            onFailure: cause => pipe(
-                                Ref.update(this.state, (state: EffectorState<S>) => ({
-                                    ...state,
-                                    status: EffectorStatus.ERROR,
-                                    error: cause,
-                                    processing: {
-                                        processed: state.processing?.processed ?? 0,
-                                        failures: (state.processing?.failures ?? 0) + 1,
-                                        avgProcessingTime: state.processing?.avgProcessingTime ?? 0,
-                                        lastError: cause
-                                    }
-                                })),
-                                Effect.zipRight(
-                                    Effect.fail(new EffectorProcessingError({
-                                        effectorId: this.id,
-                                        recordId: record.id,
-                                        cause,
-                                        message: `Error processing record ${record.id} in Effector ${this.id}`
-                                    }))
-                                )
-                            ),
-                            onSuccess: newState => pipe(
-                                Ref.update(this.state, (state: EffectorState<S>) => ({
-                                    ...state,
-                                    state: newState,
-                                    status: EffectorStatus.IDLE,
-                                    lastUpdated: Date.now(),
-                                    processing: {
-                                        processed: (state.processing?.processed ?? 0) + 1,
-                                        failures: state.processing?.failures ?? 0,
-                                        avgProcessingTime: this.calculateAvgTime(
-                                            state.processing?.avgProcessingTime ?? 0,
-                                            state.processing?.processed ?? 0,
-                                            Date.now() - startTime
-                                        )
-                                    }
-                                })),
-                                Effect.map(() => void 0)
-                            )
-                        })
-                    )
+                                            // Notify subscribers of state changes
+                                            const stateChangeRecord: AgentRecord = {
+                                                id: crypto.randomUUID(),
+                                                effectorId: self.id,
+                                                timestamp: Date.now(),
+                                                type: AgentRecordType.STATE_CHANGE,
+                                                payload: newState,
+                                                metadata: {
+                                                    operation: record.type === AgentRecordType.COMMAND
+                                                        ? (record.payload as { type: string }).type
+                                                        : undefined
+                                                }
+                                            }
+
+                                            // Send state change to subscribers
+                                            const subscribers = yield* Ref.get(self.subscribers)
+                                            yield* Effect.forEach(
+                                                Array.from(subscribers.values()),
+                                                queue => Queue.offer(queue, stateChangeRecord)
+                                            )
+                                        }),
+                                        Effect.map(() => void 0)
+                                    )
+                                }
+                            })
+                        )
+
+                        // Update status back to IDLE
+                        yield* self.updateStatus(EffectorStatus.IDLE)
+                    } catch (error) {
+                        // Log error and continue processing
+                        yield* Effect.logError("Error in processing loop", { error })
+                    }
                 }
-            }.bind(this)),
+            }),
             Effect.fork
-        )
+        ) as Effect.Effect<Fiber.RuntimeFiber<never, E | EffectorProcessingError>, never, R>
+    }
 
     /**
      * Updates the status of this instance
@@ -184,22 +219,35 @@ export class EffectorInstance<S, E = never, R = never> {
      * Gets the current state
      */
     getState = (): Effect.Effect<EffectorState<S>> =>
-        pipe(
-            Ref.get(this.state),
-            Effect.map(state => state as EffectorState<S>)
-        )
+        Ref.get(this.state)
 
     /**
-     * Sends a message to this instance's mailbox
+     * Sends a record to this instance
      */
     send = (record: AgentRecord): Effect.Effect<void, Error> =>
         this.mailbox.offer(record)
 
     /**
-     * Creates a subscription to this instance's mailbox
+     * Subscribes to records from this instance
      */
-    subscribe = (): Stream.Stream<AgentRecord, Error> =>
-        this.mailbox.stream()
+    subscribe = (): Stream.Stream<AgentRecord, Error> => {
+        const self = this
+        return Stream.unwrap(
+            Effect.gen(function* () {
+                // Create queue for this subscriber
+                const queue = yield* Queue.bounded<AgentRecord>(100)
+
+                // Add to subscribers
+                yield* self.addSubscriber(queue)
+
+                // Create stream from queue
+                return pipe(
+                    Stream.fromQueue(queue),
+                    Stream.ensuring(self.removeSubscriber(queue))
+                )
+            })
+        )
+    }
 
     /**
      * Terminates this instance
@@ -207,13 +255,23 @@ export class EffectorInstance<S, E = never, R = never> {
     terminate = (): Effect.Effect<void> => {
         const self = this
         return Effect.gen(function* () {
-            // Update status to TERMINATED
-            yield* self.updateStatus(EffectorStatus.TERMINATED)
+            // Clear subscribers
+            yield* pipe(
+                self.subscribers,
+                Ref.set(new Set())
+            )
 
             // Shutdown mailbox
+            yield* self.mailbox.shutdown()
+
+            // Update status
             yield* pipe(
-                self.mailbox.shutdown(),
-                Effect.map(() => void 0)
+                self.state,
+                Ref.update(state => ({
+                    ...state,
+                    status: EffectorStatus.TERMINATED,
+                    lastUpdated: Date.now()
+                }))
             )
         })
     }

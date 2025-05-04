@@ -3,68 +3,40 @@
  * @module services/capabilities/skill/types
  */
 
-import type { CapabilityService } from "@/services/capabilities/types.js"; // Generic service interface
-import { Context, Data, Effect, HashMap, Layer, Schema } from "effect"; // Added Data
-// Import all specific skill errors
 import type {
 	SkillConfigError,
 	SkillExecutionError,
 	SkillInputValidationError,
 	SkillNotFoundError,
 	SkillOutputValidationError
-} from "./errors.js";
-import type {
-	SkillDefinitionInputSchema,
-	SkillDefinitionSchema,
-	SkillExecutionParamsSchema,
-	SkillsConfigFileSchema,
-} from "./schema.js"; // Import schemas
-
-import type { PromptApi, PromptApiTag } from "@/services/ai/prompt/types"; // Adjust path
-import type { ToolExecutorService, ToolExecutorServiceTag } from "@/services/ai/tools/types"; // Adjust path
-import type { IntelligenceData, IntelligenceDataTag } from "@/services/capabilities/intelligence/types"; // Adjust path
-// Import types needed for SkillApi requirements (R channel)
-import type { PersonaData, PersonaDataTag } from "@/services/capabilities/persona/types"; // Adjust path
-import type { LoggingApi, LoggingApiTag } from "@/services/core/logging/types"; // Adjust path
-// Import Config if needed for API keys etc.
-// import type { Config } from "effect";
-// Import specific @effect/ai provider layers/tags if needed directly
-// import type { OpenAiCompletions } from "@effect/ai-openai"; // Example
+} from "@/services/capabilities/skill/errors.js";
+import {
+	Skill,
+	SkillExecutionParams,
+	SkillFile
+} from "@/services/capabilities/skill/schema.js";
+import type { CapabilityService } from "@/services/capabilities/types.js";
+import { Context, Data, Effect, HashMap, Schema } from "effect";
 
 // --- Inferred Types from Schema ---
-
-/** Type inferred from {@link SkillExecutionParamsSchema}. */
-export type SkillExecutionParams = Schema.Schema.Type<typeof SkillExecutionParamsSchema>;
-
-/** Type inferred from {@link SkillDefinitionSchema}. */
-export type SkillDefinition = Schema.Schema.Type<typeof SkillDefinitionSchema>;
-
-/** Type inferred from {@link SkillDefinitionInputSchema}. */
-export type SkillDefinitionInput = Schema.Schema.Type<typeof SkillDefinitionInputSchema>;
-
-/** Type inferred from {@link SkillsConfigFileSchema}. */
-export type SkillsConfigFile = Schema.Schema.Type<typeof SkillsConfigFileSchema>;
+export type SkillExecutionParamsType = Schema.Schema.Type<typeof SkillExecutionParams>;
+export type SkillDefinition = Schema.Schema.Type<typeof Skill>;
+export type SkillsFile = Schema.Schema.Type<typeof SkillFile>;
 
 // --- Runtime Skill Representation ---
+export type SkillName = SkillDefinition["name"];
 
-/** Unique name/identifier for a Skill (potentially namespaced). */
-export type SkillName = SkillDefinition["name"]; // Extract name type
-
-/**
- * Represents a fully processed Skill, combining its definition metadata
- * with resolved references to its actual input/output schemas.
- * This is the structure likely used internally by SkillApi.
- * The actual Schema objects are associated during loading/registration.
+/** 
+ * Represents a fully processed Skill definition with resolved schemas.
+ * Used as the runtime representation of a Skill.
  */
 export interface RegisteredSkill<Input = any, Output = any> {
 	readonly definition: SkillDefinition;
-	// Actual Effect Schema objects linked during registration/loading
 	readonly inputSchema: Schema.Schema<Input>;
 	readonly outputSchema: Schema.Schema<Output>;
-	// Optional: Could link the resolved PromptTemplate function here too
 }
 
-// --- Capability Service Definition (for make/update) ---
+// --- Capability Service Definition ---
 
 /**
  * Interface for the Skill capability service, providing
@@ -73,8 +45,8 @@ export interface RegisteredSkill<Input = any, Output = any> {
 export interface SkillService
 	extends CapabilityService<
 		SkillDefinition,
-		SkillDefinitionInput,
-		SkillConfigError // Specific validation/config error type
+		SkillDefinition, // Use the same type since we don't have a separate input type
+		SkillConfigError
 	> {
 	// Add any Skill-specific methods here if needed (e.g., validateReferences?)
 }
@@ -141,16 +113,6 @@ export interface SkillApi {
 		InvokeSkillError, // Union of possible skill-related errors
 		// --- Requirements (R) ---
 		| typeof SkillDataTag // To get the RegisteredSkill (including schemas)
-		| typeof PersonaDataTag // To get PersonaDefinition
-		| typeof IntelligenceDataTag // To get IntelligenceDefinition
-		| typeof PromptApiTag // To render prompts
-		| typeof ToolExecutorServiceTag // If skills can use tools
-		| typeof LoggingApiTag // For logging
-		// Required by specific implementations (e.g., @effect/ai, tool implementations)
-		// These might be provided by a base platform layer or specific provider layers
-		| HttpClient // Example: Needed by @effect/ai and potentially tools
-	// | OpenAiCompletions.OpenAiCompletions // Example: Specific AI provider service
-	// | GoogleAuthTag // Example: Needed by specific tools
 	>;
 }
 

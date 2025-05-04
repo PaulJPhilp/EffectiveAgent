@@ -1,11 +1,11 @@
 import { type EffectiveRole } from "@/schema.js";
+import { NoAudioFileError } from "@/services/pipeline/input/errors.js";
+import { EffectivePartType, FilePart, ReasoningPart, RedactedReasoningPart, ToolPart, ToolResultPart } from "@/services/pipeline/input/schema.js";
 import { Message, type Part, PartTypeId, TextPart } from "@effect/ai/AiInput";
 import { Model, User } from "@effect/ai/AiRole";
-import { Effect } from "effect";
+import { Effect, Ref } from "effect";
 import * as Chunk from "effect/Chunk";
 import { type InputServiceApi } from "./api.js";
-import { NoAudioFileError } from "./errors.js";
-import { EffectivePartType, FilePart, ReasoningPart, RedactedReasoningPart, ToolPart, ToolResultPart } from "./schema.js";
 
 /**
  * Input Service implementation
@@ -13,22 +13,85 @@ import { EffectivePartType, FilePart, ReasoningPart, RedactedReasoningPart, Tool
 export class InputService extends Effect.Service<InputServiceApi>()(
   "InputService",
   {
-    effect: Effect.succeed({
-      getMessages: () => Effect.succeed(Chunk.empty<Message>()),
+    effect: Effect.gen(function* () {
+      // Internal state
+      const messages = yield* Ref.make(Chunk.empty<Message>());
 
-      addMessage: (message: Message) => Effect.succeed(undefined),
+      // Service method interfaces
+      interface Messages {
+        getMessages: () => Effect.Effect<Chunk.Chunk<Message>>;
+        addMessage: (message: Message) => Effect.Effect<Chunk.Chunk<Message>>;
+        addMessages: (newMessages: ReadonlyArray<Message>) => Effect.Effect<Chunk.Chunk<Message>>;
+        addTextPart: (text: string, role?: EffectiveRole) => Effect.Effect<Chunk.Chunk<Message>>;
+        addPartOrMessage: (input: EffectivePartType | Message) => Effect.Effect<Chunk.Chunk<Message>>;
+        extractTextsForEmbeddings: () => Effect.Effect<string[]>;
+        extractTextForSpeech: () => Effect.Effect<string>;
+        extractAudioForTranscription: () => Effect.Effect<never, NoAudioFileError, never>;
+      }
 
-      addMessages: (messages: ReadonlyArray<Message>) => Effect.succeed(undefined),
+      return {
+        getMessages: (): Effect.Effect<Chunk.Chunk<Message>> => messages.get,
 
-      addTextPart: (text: string, role: EffectiveRole = "assistant") => Effect.succeed(undefined),
+        addMessage: (message: Message): Effect.Effect<Chunk.Chunk<Message>> =>
+          Effect.flatMap(messages.get, (msgs) =>
+            Effect.succeed(Chunk.append(msgs, message))
+          ),
 
-      addPartOrMessage: (input: EffectivePartType | Message) => Effect.succeed(undefined),
+        addMessages: (newMessages: ReadonlyArray<Message>): Effect.Effect<Chunk.Chunk<Message>> =>
+          Effect.flatMap(messages.get, (msgs) =>
+            Effect.succeed(Chunk.appendAll(msgs, Chunk.fromIterable(newMessages)))
+          ),
 
-      extractTextsForEmbeddings: () => Effect.succeed([]),
+        addTextPart: (text: string, role: EffectiveRole = "assistant"): Effect.Effect<Chunk.Chunk<Message>> => {
+          const textPart = new TextPart({ content: text });
+          const message = addPartAsMessage(textPart, role);
+          return Effect.flatMap(messages.get, (msgs) =>
+            Effect.succeed(Chunk.append(msgs, message))
+          );
+        },
 
-      extractTextForSpeech: () => Effect.succeed(""),
+        addPartOrMessage: (input: EffectivePartType | Message): Effect.Effect<Chunk.Chunk<Message>> => {
+          if (input instanceof Message) {
+            return Effect.flatMap(messages.get, (msgs) =>
+              Effect.succeed(Chunk.append(msgs, input))
+            );
+          }
+          const message = fromEffectivePart(input);
+          return Effect.flatMap(messages.get, (msgs) =>
+            Effect.succeed(Chunk.append(msgs, message))
+          );
+        },
 
-      extractAudioForTranscription: () => Effect.fail(new NoAudioFileError())
+        extractTextsForEmbeddings: (): Effect.Effect<string[]> =>
+          Effect.map(messages.get, (msgs) => {
+            const texts: string[] = [];
+            for (const message of Chunk.toReadonlyArray(msgs)) {
+              const parts = Chunk.toReadonlyArray(message.parts);
+              for (const part of parts) {
+                if (part._tag === "Text" && "content" in part) {
+                  texts.push(part.content);
+                }
+              }
+            }
+            return texts;
+          }),
+
+        extractTextForSpeech: (): Effect.Effect<string> =>
+          Effect.map(messages.get, (msgs) => {
+            const texts: string[] = [];
+            for (const message of Chunk.toReadonlyArray(msgs)) {
+              const parts = Chunk.toReadonlyArray(message.parts);
+              for (const part of parts) {
+                if (part._tag === "Text" && "content" in part) {
+                  texts.push(part.content);
+                }
+              }
+            }
+            return texts.join(" ");
+          }),
+
+        extractAudioForTranscription: (): Effect.Effect<never, NoAudioFileError, never> => Effect.fail(new NoAudioFileError())
+      } satisfies Messages;
     })
   }
 ) { }

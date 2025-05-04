@@ -1,7 +1,6 @@
 import { Effect, Queue, Ref, Schedule, Stream, pipe } from "effect"
-import type { EffectorConfig, MessagePriority } from "./types.js"
+import type { AgentRecord, EffectorConfig, MessagePriority } from "./types.js"
 import { MessagePriority as Priority } from "./types.js"
-import type { AgentRecord } from "./types.js"
 
 /**
  * Statistics for a mailbox
@@ -91,14 +90,14 @@ export class PrioritizedMailbox {
                     Schedule.upTo(timeout)
                 ),
                 Effect.map(() => void 0),
-                Effect.tapError(() => 
+                Effect.tapError(() =>
                     Ref.update(this.stats, state => ({
                         ...state,
                         timeouts: state.timeouts + 1
                     }))
                 )
             ),
-            Effect.mapError(() => 
+            Effect.mapError(() =>
                 new Error(`Mailbox offer timed out after ${timeout}ms`)
             )
         )
@@ -174,7 +173,12 @@ export class PrioritizedMailbox {
      * Creates a stream of messages from the mailbox
      */
     stream = (): Stream.Stream<AgentRecord, Error> =>
-        Stream.repeatEffect(this.take())
+        pipe(
+            Stream.repeatEffect(this.take()),
+            Stream.catchAll(error =>
+                Stream.fail(error)
+            )
+        )
 
     /**
      * Shuts down the mailbox

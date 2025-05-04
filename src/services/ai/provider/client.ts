@@ -3,16 +3,15 @@
  * @module services/ai/provider/client
  */
 
-import { Effect, Option, Ref } from "effect";
+import { Effect, Ref } from "effect";
 import { validateCapabilities, validateModelId } from "./helpers.js";
 
 import { ProviderClientApi } from "./api.js";
 import { EffectiveProviderApi } from "./types.js";
 
 import { ModelCapability } from "@/schema.js";
-import { EffectiveInput } from "../input/service.js";
+import { EffectiveInput } from "@/services/pipeline/types/base.js";
 import type { ModelServiceApi } from "../model/api.js";
-import { ModelService } from "../model/service.js";
 
 import {
     ProviderConfigError,
@@ -20,11 +19,9 @@ import {
     ProviderOperationError
 } from "./errors.js";
 import type {
-    ChatResult,
     EffectiveResponse,
     GenerateTextResult,
-    ProviderChatOptions,
-    ProviderGenerateTextOptions
+    ProviderChatOptions
 } from "./types.js";
 
 

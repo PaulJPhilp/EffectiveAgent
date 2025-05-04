@@ -2,19 +2,17 @@
 
 import { FileSystem } from "@effect/platform/FileSystem";
 import { Effect, Layer } from "effect";
-import { ZodError, z } from "zod";
-
-// Import types, errors, and Tag
 import path from "path";
+import { ZodError, z } from "zod";
 import {
 	ConfigParseError,
 	ConfigReadError,
 	ConfigSchemaMissingError,
 	ConfigValidationError
-} from './errors.js';
+} from "./errors.js";
 import { BaseConfigSchema } from "./schema.js";
-import type { BaseConfig, ConfigLoaderOptions, LoadOptions } from './types.js';
-import { ConfigLoader, ConfigLoaderOptionsTag } from './types.js';
+import type { BaseConfig, ConfigLoaderOptions, LoadOptions } from "./types.js";
+import { ConfigLoader, ConfigLoaderOptionsTag } from "./types.js";
 
 // --- Service Implementation Object Factory ---
 const makeConfigLoader = (
@@ -86,7 +84,7 @@ const makeConfigLoader = (
 			});
 
 			// Validate against base schema first
-			let validated
+			let validated: BaseConfig
 			try {
 				validated = BaseConfigSchema.parse(parsed)
 			} catch (error) {

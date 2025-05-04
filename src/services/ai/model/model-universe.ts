@@ -1,4 +1,5 @@
-import { ModelCapabilityDetail } from "@/models/schema.js";
+import {  ModelCapabilityDetail, Provider } from "./schema.js";
+import { ModelCapability } from "@/schema.js"
 /**
  * Canonical list of all models supported by the ModelService.
  *
@@ -7,8 +8,6 @@ import { ModelCapabilityDetail } from "@/models/schema.js";
  * To add a new model, add a new entry to this array and update ModelMetadata if needed.
  * This file is used by the ModelService to look up model information.
  */
-import { ModelCapability } from "@/schema.js";
-import type { Provider } from "./schema.js";
 
 export interface ModelMetadata {
   readonly id: string;

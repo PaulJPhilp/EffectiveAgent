@@ -9,7 +9,7 @@ import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
 import type { LanguageModelV1 } from "@ai-sdk/provider";
 import { AiResponse, TextPart as ResponseTextPart } from "@effect/ai/AiResponse";
 import { User } from "@effect/ai/AiRole";
-import { Chunk, Effect, Option } from "effect";
+import { Chunk, Effect } from "effect";
 import { MockAccessorApi } from "./api.js";
 
 /**
@@ -83,7 +83,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
           getModels: () => Effect.succeed([])
         })
       } as unknown as ProviderServiceApi,
-      
+
       /**
        * Standardized mock implementations for all producer services.
        */
@@ -102,7 +102,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
                 input
               }));
             }
-            
+
             // Fail for array of only whitespace/empty strings
             if (Array.isArray(input) && input.every(str => typeof str === "string" && str.trim() === "")) {
               return Effect.fail(new EmbeddingInputError({
@@ -112,7 +112,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
                 input
               }));
             }
-            
+
             // Default success case
             return Effect.succeed({
               embeddings: Array.isArray(input) ? input.map(() => [0.1, 0.2, 0.3, 0.4, 0.5]) : [[0.1, 0.2, 0.3, 0.4, 0.5]],
@@ -123,7 +123,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             });
           }
         } as unknown as EmbeddingServiceApi,
-        
+
         /**
          * Mock implementation of the TextService.
          */
@@ -132,7 +132,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             if (!modelId) {
               return Effect.fail(new Error("TextModelError: Model ID must be provided"));
             }
-            
+
             return Effect.succeed({
               text: "This is a mock text generation response",
               model: modelId,
@@ -147,7 +147,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             });
           }
         } as unknown as TextServiceApi,
-        
+
         /**
          * Mock implementation of the ImageService.
          */
@@ -166,18 +166,18 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             if (!modelId) {
               return Effect.fail(new Error("ImageModelError: Model ID required"));
             }
-            
+
             if (size && !['256x256', '512x512', '1024x1024', '1792x1024', '1024x1792'].includes(size)) {
               return Effect.fail(new Error("ImageSizeError: Invalid image size"));
             }
-            
+
             // Compose prompt for testing assertions
             const composedPrompt = [
               system ? `${system}` : "",
               prompt,
               negativePrompt ? `DO NOT INCLUDE: ${negativePrompt}` : ""
             ].filter(Boolean).join("\n");
-            
+
             const result = {
               imageUrl: "https://example.com/test-image.jpg",
               model: modelId,
@@ -188,18 +188,18 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
                 quality: quality || "standard",
                 style: style || "natural"
               },
-              additionalImages: n && n > 1 ? Array(n-1).fill(0).map((_, i) => ({
-                imageUrl: `https://example.com/test-image-${i+2}.jpg`,
-                id: `img-${i+2}`
+              additionalImages: n && n > 1 ? Array(n - 1).fill(0).map((_, i) => ({
+                imageUrl: `https://example.com/test-image-${i + 2}.jpg`,
+                id: `img-${i + 2}`
               })) : [],
               // For testing assertions
               composedPrompt
             };
-            
+
             return Effect.succeed(result);
           }
         },
-        
+
         /**
          * Mock implementation of the ObjectService.
          */
@@ -220,7 +220,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
                 })
               );
             }
-            
+
             // Test case for provider error
             if (modelId === "provider-error") {
               return Effect.fail(
@@ -233,7 +233,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
                 })
               );
             }
-            
+
             // Test case for generation error
             if (modelId === "generation-error") {
               return Effect.fail(
@@ -244,7 +244,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
                 })
               );
             }
-            
+
             // Test case for schema validation error
             if (modelId === "schema-error") {
               return Effect.fail(
@@ -256,7 +256,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
                 })
               );
             }
-            
+
             // Default success case
             return Effect.succeed({
               data: {
@@ -275,7 +275,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             });
           }
         } as unknown as ObjectServiceApi,
-        
+
         /**
          * Mock implementation of the TranscriptionService.
          */
@@ -290,11 +290,11 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             if (!modelId) {
               return Effect.fail(new Error("TranscriptionModelError: modelId is required"));
             }
-            
+
             if (modelId === "non-existent-provider") {
               return Effect.fail(new Error("TranscriptionProviderError: provider not found"));
             }
-            
+
             return Effect.succeed({
               text: "This is a test transcription",
               model: modelId,
@@ -310,7 +310,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             });
           }
         },
-        
+
         /**
          * Mock implementation of the ChatService.
          */
@@ -319,7 +319,7 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
             if (!options.modelId) {
               return Effect.fail(new Error("ChatModelError: Model ID must be provided"));
             }
-            
+
             return Effect.succeed(
               new AiResponse({
                 role: new User(),
@@ -332,6 +332,6 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
     }),
     dependencies: [],
   }
-) {}
+) { }
 
 export default MockAccessorService;

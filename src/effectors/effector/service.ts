@@ -1,9 +1,8 @@
-import { Chunk, Effect, Fiber, Queue, Ref, Stream, pipe } from "effect"
-import type { Effector, EffectorServiceApi } from "./api.js"
-import { EffectorError, EffectorNotFoundError, EffectorTerminatedError } from "./errors.js"
-import { PrioritizedMailbox } from "./mailbox.js"
-import type { AgentRecord, EffectorId, EffectorState, ProcessingLogic } from "./types.js"
+import { Effect, Fiber, Ref, Stream, pipe } from "effect"
+import type { EffectorServiceApi } from "./api.js"
+import { EffectorError, EffectorNotFoundError } from "./errors.js"
 import { EffectorInstance } from "./instance.js"
+import { type AgentRecord, AgentRecordType, type EffectorId } from "./types.js"
 
 /**
  * Implementation of the EffectorService
@@ -53,7 +52,15 @@ export class EffectorService extends Effect.Service<EffectorServiceApi>()(
                         const instance = yield* EffectorInstance.create(
                             id,
                             initialState,
-                            (record: AgentRecord, state: S) => Effect.succeed(state),
+                            (record: AgentRecord, state: S) => {
+                                if (record.type === AgentRecordType.STATE_CHANGE) {
+                                    return Effect.succeed({
+                                        ...state,
+                                        ...(record.payload as S)
+                                    })
+                                }
+                                return Effect.succeed(state)
+                            },
                             {
                                 size: 1000,
                                 enablePrioritization: true,
@@ -67,8 +74,8 @@ export class EffectorService extends Effect.Service<EffectorServiceApi>()(
 
                         // Store instance and fiber
                         yield* Ref.update(instances, map =>
-                            map.set(id, { 
-                                instance, 
+                            map.set(id, {
+                                instance,
                                 fiber: fiber as Fiber.RuntimeFiber<never, any>
                             })
                         )

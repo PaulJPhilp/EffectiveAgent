@@ -3,32 +3,29 @@
  * @module services/tools/registry
  */
 
-import { Context, Effect, HashMap, Layer, Option, Schema } from "effect";
+import {
+    SimpleToolName,
+    ToolDefinition
+} from "@/services/ai/tools/schema.js";
+import type {
+    EffectiveTool,
+    EffectiveToolbox,
+    FullToolName
+} from "@/services/ai/tools/types.js";
 import {
     InternalToolboxTag,
     ProjectWorkspaceTag,
-    // OrgWorkspaceTag,
     ToolRegistryData,
     ToolRegistryDataTag,
-} from "./types.js";
-import type {
-    EffectiveTool, 
-    EffectiveToolbox, EffectiveWorkspace, FullToolName,NamespaceName, OrgWorkspaceMap
-} from "./types.js";
+} from "@/services/ai/tools/types.js";
+import { Effect, HashMap, Layer, Option } from "effect";
 
-import {
-    SimpleToolName,  
-    ToolDefinition
-} from "./schema.js";   
-
-// --- Import Standard Library Tool Implementations ---
-
-// ONLY import the calculator implementation
+// Import calculator implementation
 import {
     calculatorImpl,
     calculatorInputSchema,
     calculatorOutputSchema,
-} from "./implementations/calculator.js";
+} from "@/services/ai/tools/implementations/calculator.js";
 
 // --- Helper Function to Build Internal Toolbox ---
 // This function encapsulates the creation of the standard library tools map.

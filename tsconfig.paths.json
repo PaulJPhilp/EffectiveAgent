@@ -17,7 +17,8 @@
       "@core/logging/*": ["src/services/core/logging/*"],
       "@core/repository/*": ["src/services/core/repository/*"],
       "@core/tag/*": ["src/services/core/tag/*"],
-      "@core/test-utils/*": ["src/services/core/test-utils/*"]
+      "@core/test-utils/*": ["src/services/core/test-utils/*"],
+      "@effectors/*": ["src/effectors/*"]
     }
   }
 }

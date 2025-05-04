@@ -1,18 +1,19 @@
+import { ModelConfigurationService } from "@/services/ai/model/modelConfigurationService.js";
+import { ModelConfigFileSchema } from "@/services/ai/model/schema.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import type { ModelConfigFile, ModelConfigurationOptions } from "@/services/ai/model/types.js";
+import { PromptService } from "@/services/ai/prompt/promptService.js";
+import type { ProvidersFile } from "@/services/ai/provider/schema.js";
+import { ProvidersFileSchema } from "@/services/ai/provider/schema.js";
+import { ProviderConfigurationService, ProviderService } from "@/services/ai/provider/service.js";
+import type { IProviderService } from "@/services/ai/provider/types.js";
+import { ConfigurationLoader } from "@/services/core/configuration/index.js";
+import type { TaskConfigFile } from "@/services/core/task/schema.js";
+import { TaskConfigFileSchema } from "@/services/core/task/schema.js";
+import { TaskService } from "@/services/core/task/service.js";
+import type { JSONObject } from "@/types.js";
 import fs from "fs";
 import { join } from "path";
-import { ModelConfigurationService } from "@/shared/services/model/modelConfigurationService.ts";
-import { PromptService } from "@/shared/services/prompt/promptService.ts";
-import type { JSONObject } from "@/types.ts";
-import { ConfigurationLoader, PromptConfigFileSchema } from "@services/configuration/index.js";
-import { ModelService } from "@services/model/modelService.js";
-import { ModelConfigFileSchema } from "@services/model/schemas/modelConfig.js";
-import { type ModelConfigFile, type ModelConfigurationOptions } from "@services/model/types.js";
-import { ProviderConfigurationService } from "@services/provider/providerConfigurationService.js";
-import { ProviderService } from "@services/provider/providerService.js";
-import { type ProvidersFile, ProvidersFileSchema } from "@services/provider/schemas/providerConfig.js";
-import type { IProviderService } from "@services/provider/types.js";
-import { type TaskConfigFile, TaskConfigFileSchema } from "@services/task/schemas/taskConfig.js";
-import { TaskService } from "@services/task/taskService.js";
 import { z } from "zod";
 import type { AgentGraphConfig, AgentGraphImplementation } from "./AgentGraph.ts";
 import type { AgentConfig, AgentErrors, AgentLogs, AgentRun, AgentState } from "./types.js";
@@ -261,8 +262,8 @@ export class Agent<I, O, A> {
         if (!taskConfig) {
             throw new Error('Task configuration not found')
         }
-       
-        for (const model of  modelConfig.models) {
+
+        for (const model of modelConfig.models) {
             if (model.provider === undefined) {
                 throw new Error(`Model ${model.name} is missing provider configuration`)
             }

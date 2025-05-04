@@ -64,3 +64,60 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
     dependencies: [],
   },
 ) { }
+
+/**
+ * @file Service implementation for Pipeline.
+ */
+
+import { pipe } from "effect";
+import type { PipelineApi, PipelineConfig } from "./api.js";
+import { PipelineConfigError, PipelineExecutionError, PipelineValidationError } from "./errors.js";
+
+const DEFAULT_CONFIG: Required<PipelineConfig> = {
+  maxRetries: 3,
+  retryDelay: Duration.seconds(1),
+  timeout: Duration.seconds(30)
+};
+
+// validateConfig function moved to the top
+const validateConfig = (
+  config: PipelineConfig
+): Effect.Effect<void, PipelineValidationError, never> =>
+  Effect.gen(function* () {
+    const errors: string[] = [];
+
+    if (config.maxRetries !== undefined && (config.maxRetries < 0 || !Number.isInteger(config.maxRetries))) {
+      errors.push("maxRetries must be a non-negative integer");
+    }
+
+    if (config.retryDelay !== undefined && Duration.toMillis(config.retryDelay) <= 0) {
+      errors.push("retryDelay must be a positive duration");
+    }
+
+    if (config.timeout !== undefined && Duration.toMillis(config.timeout) <= 0) {
+      errors.push("timeout must be a positive duration");
+    }
+
+    if (errors.length > 0) {
+      return yield* Effect.fail(new PipelineValidationError({
+        description: "Invalid pipeline configuration",
+        module: "services/pipeline",
+        method: "validateConfig",
+        validationErrors: errors
+      }));
+    }
+  });
+
+/**
+ * Implementation of the Pipeline service using Effect.Service pattern.
+ */
+export class Pipeline extends Effect.Service<PipelineApi>()(
+  "Pipeline",
+  {
+    effect: Effect.succeed({
+      _tag: "Pipeline" as const,
+      execute: () => Effect.succeed({}),
+    }),
+    dependencies: []
+  }
+) { }
