@@ -1,5 +1,5 @@
 import { Effect, pipe } from "effect"
-import type { Effector } from "../../effector/api.js"
+import type { Effector, EffectorServiceApi } from "../../effector/api.js"
 import { EffectorError } from "../../effector/errors.js"
 import { EffectorService } from "../../effector/service.js"
 import { AgentRecord, AgentRecordType } from "../../effector/types.js"
@@ -22,7 +22,7 @@ const defaultConfig: Required<MultiStepConfig> = {
 /**
  * Creates a new MultiStepEffector instance.
  */
-export const createMultiStepEffector = (id: MultiStepId): Effect.Effect<Effector<MultiStepState>, EffectorError> =>
+export const createMultiStepEffector = (id: MultiStepId): Effect.Effect<Effector<MultiStepState>, EffectorError, EffectorServiceApi> =>
     Effect.gen(function* () {
         const service = yield* EffectorService;
 

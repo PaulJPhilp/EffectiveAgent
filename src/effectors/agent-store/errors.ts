@@ -1,4 +1,4 @@
-import { EffectiveError } from "../errors.js"
+import { EffectiveError } from "../../errors.js"
 
 /**
  * Base error class for AgentStore operations
@@ -48,4 +48,4 @@ export class ValidationError extends StoreError {
     constructor(message: string, options?: ErrorOptions) {
         super(`Validation error: ${message}`, options)
     }
-} 
+}

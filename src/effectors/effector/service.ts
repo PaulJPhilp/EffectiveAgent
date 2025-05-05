@@ -15,7 +15,8 @@ export class EffectorService extends Effect.Service<EffectorServiceApi>()(
             const instances = yield* Ref.make(
                 new Map<EffectorId, {
                     instance: EffectorInstance<any, any, any>,
-                    fiber: Fiber.RuntimeFiber<never, any>
+                    fiber: Fiber.RuntimeFiber<never, any>,
+                    terminating?: boolean
                 }>()
             )
 
@@ -25,7 +26,7 @@ export class EffectorService extends Effect.Service<EffectorServiceApi>()(
                     Ref.get(instances),
                     Effect.map(map => map.get(id)),
                     Effect.flatMap(entry =>
-                        entry
+                        entry && !entry.terminating
                             ? Effect.succeed(entry.instance as EffectorInstance<S, E, R>)
                             : Effect.fail(new EffectorNotFoundError({ effectorId: id, message: `Effector ${id} not found` }))
                     )
@@ -90,29 +91,43 @@ export class EffectorService extends Effect.Service<EffectorServiceApi>()(
                     }),
 
                 terminate: (id: EffectorId) =>
-                    Effect.gen(function* () {
-                        const entry = yield* pipe(
-                            Ref.get(instances),
-                            Effect.map(map => map.get(id)),
-                            Effect.flatMap(entry =>
-                                entry
-                                    ? Effect.succeed(entry)
-                                    : Effect.fail(new EffectorNotFoundError({ effectorId: id, message: `Effector ${id} not found` }))
+                    pipe(
+                        Effect.gen(function* () {
+                            // Try to atomically get and mark the instance for termination
+                            const entry = yield* Ref.modify(instances, map => {
+                                const entry = map.get(id)
+                                if (!entry || entry.terminating) {
+                                    return [null, map] as const
+                                }
+                                const newMap = new Map(map)
+                                newMap.set(id, { ...entry, terminating: true })
+                                return [entry, newMap] as const
+                            })
+
+                            if (!entry) {
+                                return yield* Effect.fail(new EffectorNotFoundError({
+                                    effectorId: id,
+                                    message: `Effector ${id} not found or already terminating`
+                                }))
+                            }
+
+                            return entry
+                        }),
+                        Effect.flatMap(entry =>
+                            pipe(
+                                Effect.all([
+                                    Fiber.interrupt(entry.fiber),
+                                    entry.instance.terminate()
+                                ]),
+                                Effect.tap(() =>
+                                    Ref.update(instances, map => {
+                                        map.delete(id)
+                                        return map
+                                    })
+                                )
                             )
                         )
-
-                        // Interrupt fiber first to stop processing
-                        yield* Fiber.interrupt(entry.fiber)
-
-                        // Then terminate instance to clean up resources
-                        yield* entry.instance.terminate()
-
-                        // Remove from instances
-                        yield* Ref.update(instances, newMap => {
-                            newMap.delete(id)
-                            return newMap
-                        })
-                    }),
+                    ),
 
                 send: <S, E = never, R = never>(id: EffectorId, record: AgentRecord) =>
                     Effect.gen(function* () {

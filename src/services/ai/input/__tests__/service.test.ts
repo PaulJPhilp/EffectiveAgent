@@ -19,7 +19,7 @@ const mockMessageService = {
     extractAudioForTranscription: () => Effect.fail(new NoAudioFileError())
 };
 
-describe("InputService", () => {
+describe("Input", () => {
     describe("message creation", () => {
         it("should create a user message", () =>
             Effect.gen(function* () {
