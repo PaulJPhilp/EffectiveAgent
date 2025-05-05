@@ -1,26 +1,23 @@
-// File: src/services/configuration/configurationLoader.ts (Simplified - No Cache)
+// File: src/services/configuration/configurationLoader.ts
 
 import { FileSystem } from "@effect/platform/FileSystem";
-import { Effect, Layer } from "effect";
+import { Effect, Schema } from "effect";
 import path from "path";
-import { ZodError, z } from "zod";
 import {
     ConfigParseError,
     ConfigReadError,
     ConfigSchemaMissingError,
     ConfigValidationError
 } from "./errors.js";
-import { BaseConfigSchema } from "./schema.js";
-import type { BaseConfig, ConfigLoaderOptions, LoadOptions } from "./types.js";
-import { ConfigLoader, ConfigLoaderOptionsTag } from "./types.js";
+import type { BaseConfig } from "./schema.js";
+import type { ConfigLoaderOptions, LoadOptions } from "./types.js";
 
 // --- Service Implementation Object Factory ---
 const makeConfigLoader = (
     options: ConfigLoaderOptions,
     fs: FileSystem
-): ConfigLoader => {
-
-    // Helper to read file as string
+) => {
+    // Helper to read file as string 
     const readFile = (filePath: string): Effect.Effect<string, ConfigReadError, FileSystem> =>
         fs.readFileString(filePath).pipe(
             Effect.mapError(error => new ConfigReadError({ filePath, cause: error }))
@@ -36,29 +33,16 @@ const makeConfigLoader = (
     };
 
     // Helper to validate with schema
-    const validateWithSchema = <T>(data: unknown, schema: z.ZodType<T>, filePath: string): T => {
-        try {
-            return schema.parse(data);
-        } catch (error) {
-            if (error instanceof ZodError) {
-                throw new ConfigValidationError({ filePath, zodError: error });
-            }
-            throw new ConfigValidationError({
-                filePath,
-                zodError: new ZodError([{
-                    code: 'custom',
-                    message: `Unexpected validation error: ${error}`,
-                    path: []
-                }])
-            });
-        }
+    const validateWithSchema = <T>(data: unknown, schema: Schema.Schema<T>, filePath: string): T => {
+        const result = Schema.decode(schema)(data);
+        return Effect.runSync(result);
     };
 
     // Main loader function wrapped in Effect
     const loadAndValidateFile = <T extends BaseConfig>(
         filename: string,
         loadOpts: LoadOptions<T> = {}
-    ): Effect.Effect<BaseConfig, ConfigReadError | ConfigParseError | ConfigValidationError | ConfigSchemaMissingError, FileSystem> => {
+    ): Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError | ConfigSchemaMissingError, FileSystem> => {
         return Effect.gen(function* () {
             // Get full path
             const filePath = path.join(options.basePath, filename);
@@ -83,46 +67,24 @@ const makeConfigLoader = (
                 catch: error => new ConfigParseError({ filePath, cause: error })
             });
 
-            // Validate against base schema first
-            let validated: BaseConfig;
-            try {
-                validated = BaseConfigSchema.parse(parsed);
-            } catch (error) {
-                return yield* Effect.fail(
-                    new ConfigValidationError({
+            // Validate against provided schema
+            if (loadOpts.schema) {
+                return yield* Effect.try({
+                    try: () => validateWithSchema(parsed, loadOpts.schema, filePath),
+                    catch: error => new ConfigValidationError({
                         filePath,
-                        zodError: error instanceof ZodError ? error : new ZodError([{
-                            code: 'custom',
-                            message: `Base schema validation failed: ${error}`,
-                            path: []
+                        validationError: error instanceof Schema.ParseError ? error : new Schema.ParseError([{
+                            path: [],
+                            message: `Schema validation failed: ${error}`,
+                            value: parsed
                         }])
                     })
-                );
-            }
-
-            // Validate against provided schema if any
-            if (loadOpts.schema) {
-                try {
-                    validated = validateWithSchema(validated, loadOpts.schema, filePath);
-                } catch (error) {
-                    return yield* Effect.fail(
-                        new ConfigValidationError({
-                            filePath,
-                            zodError: error instanceof ZodError ? error : new ZodError([{
-                                code: 'custom',
-                                message: `Schema validation failed: ${error}`,
-                                path: []
-                            }])
-                        })
-                    );
-                }
+                });
             } else {
                 return yield* Effect.fail(
                     new ConfigSchemaMissingError({ filePath })
                 );
             }
-
-            return validated as BaseConfig;
         });
     };
 
@@ -135,15 +97,10 @@ const makeConfigLoader = (
     };
 };
 
-// --- Service Layer Definition ---
-/**
- * Live Layer for the ConfigLoader service.
- * Requires ConfigLoaderOptionsTag and FileSystem from context.
- */
-export const ConfigLoaderLive = Layer.effect(
-    ConfigLoader,
-    Effect.map(
-        Effect.all([ConfigLoaderOptionsTag, FileSystem]),
-        ([options, fs]) => makeConfigLoader(options, fs)
-    )
-);
+// --- Service Tag & Layer ---
+export interface ConfigLoader {
+    readonly loadConfig: <T extends BaseConfig>(
+        filename: string,
+        options?: LoadOptions<T>
+    ) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError | ConfigSchemaMissingError, FileSystem>;
+}

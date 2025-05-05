@@ -11,11 +11,9 @@
     "downlevelIteration": true, // Keep if needed for older JS features compatibility
     "jsx": "react-jsx", // Keep if using React/JSX
     "allowJs": true,
-
     // Bundler mode / Module settings
     "esModuleInterop": true, // Good for compatibility
     "resolveJsonModule": true, // Allows importing JSON
-
     // Strictness & Best Practices
     "strict": true,
     "forceConsistentCasingInFileNames": true,
@@ -24,23 +22,21 @@
     "noUnusedLocals": false, // Keep as false unless you want strict checks now
     "noUnusedParameters": false, // Keep as false unless you want strict checks now
     // "verbatimModuleSyntax": true, // Consider enabling for stricter import/export checks
-
     // Output
     "declaration": true, // Generate .d.ts files
     "outDir": "dist", // Output directory for JS files
-    "rootDir": "src", // Specify root directory of source files
+    "rootDir": "src", // Reverted to rootDir
     "sourceMap": true, // Generate source maps
     "skipLibCheck": true, // Skip checking libs for faster builds
     "noEmit": false, // <--- Changed to false (assuming this is for building JS)
-
     // --- Path Aliases ---
     "baseUrl": ".", // Ensure baseUrl is defined here
     /* paths are inherited from tsconfig.paths.json */
   },
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx" // Include TSX if using JSX
-, "ServiceMaster.ts"    // Consider adding test files here if you want them checked by this config:
+    "src/**/*.tsx", // Include TSX if using JSX
+    "ServiceMaster.ts" // Consider adding test files here if you want them checked by this config:
     // "test/**/*.ts"
   ],
   "exclude": [

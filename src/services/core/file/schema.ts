@@ -3,8 +3,12 @@
  */
 
 import { BaseEntitySchema } from "@/schema.js"; // Use path alias
-import { EntityId } from "@/types.js"; // Use path alias
 import { Schema } from "@effect/schema";
+
+// Helper for EntityId schema
+function EntityIdSchema() {
+    return Schema.String.pipe(Schema.annotations({ identifier: "EntityId" }));
+}
 
 // Define the schema for the 'data' part of the FileEntity
 const FileEntityDataSchema = Schema.Struct({
@@ -34,10 +38,6 @@ export const FileEntitySchema = Schema.extend(
         data: FileEntityDataSchema,
     }),
 );
-
-function EntityIdSchema() {
-    return Schema.String.pipe(Schema.annotations({ identifier: "EntityId" }));
-}
 
 /**
  * Inferred TypeScript type for the File entity data payload.

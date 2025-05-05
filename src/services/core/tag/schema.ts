@@ -3,7 +3,6 @@
  */
 
 import { BaseEntitySchema } from "@/schema.js";
-import { EntityId } from "@/types.js";
 import { Schema } from "@effect/schema";
 
 // Helper for EntityId schema
@@ -55,10 +54,6 @@ export const EntityTagLinkEntitySchema = Schema.extend(
 );
 
 // Inferred types for EntityTagLinkEntity
-export type EntityTagLinkEntityData = Schema.Schema.Type<
-    typeof EntityTagLinkEntityDataSchema
->;
-export type EntityTagLinkEntity = Schema.Schema.Type<
-    typeof EntityTagLinkEntitySchema
->;
+export type EntityTagLinkEntityData = Schema.Schema.Type<typeof EntityTagLinkEntityDataSchema>;
+export type EntityTagLinkEntity = Schema.Schema.Type<typeof EntityTagLinkEntitySchema>;
 

@@ -1,134 +1,97 @@
 import { assign, createMachine } from "xstate"
-import type { EffectorId } from "../effector/types.js"
+import type { SupervisorState } from "./types.js"
+import { SupervisorEventType, SupervisorProcessState } from "./types.js"
 
 /**
- * Context maintained by the state machine
+ * Context maintained by the supervisor state machine
  */
-export interface SupervisorContext {
-    taskAId?: EffectorId
-    taskBId?: EffectorId
+export interface SupervisorContext extends SupervisorState {
+    /** Correlation ID for tracking related events */
     correlationId?: string
-    error?: unknown
+    /** Current state of the state machine */
+    machineState: any
 }
 
 /**
- * Events that can trigger state transitions
+ * State machine definition for the supervisor agent runtime
  */
-export type SupervisorEvent =
-    | { type: "START_PROCESS"; taskAId: EffectorId; taskBId: EffectorId; correlationId?: string }
-    | { type: "TASK_A_COMPLETED" }
-    | { type: "TASK_A_FAILED"; error?: unknown }
-    | { type: "TASK_B_COMPLETED" }
-    | { type: "TASK_B_FAILED"; error?: unknown }
-    | { type: "ABORT_PROCESS" }
-
-/**
- * Actions that can be performed during transitions
- */
-export type SupervisorAction =
-    | { type: "assignInitialContext" }
-    | { type: "sendStartA" }
-    | { type: "logStartA" }
-    | { type: "sendStartB" }
-    | { type: "logStartB" }
-    | { type: "logSuccess" }
-    | { type: "logFailureA" }
-    | { type: "logFailureB" }
-    | { type: "assignErrorA" }
-    | { type: "assignErrorB" }
-
-/**
- * The state machine definition
- */
-export const supervisorMachine = createMachine({
+export const supervisorMachine = createMachine<SupervisorContext>({
     id: "supervisor",
-    types: {} as {
-        context: SupervisorContext
-        events: SupervisorEvent
-        actions: SupervisorAction
-    },
     initial: "idle",
     context: {
-        taskAId: undefined,
-        taskBId: undefined,
-        correlationId: undefined,
-        error: undefined
+        processState: SupervisorProcessState.IDLE
     },
     states: {
         idle: {
             on: {
                 START_PROCESS: {
-                    target: "startingTaskA",
-                    actions: assign({
-                        taskAId: ({ event }) => event.taskAId,
-                        taskBId: ({ event }) => event.taskBId,
-                        correlationId: ({ event }) => event.correlationId,
-                        error: (_) => undefined // Clear any previous errors
-                    })
+                    target: "taskA",
+                    actions: [
+                        assign({
+                            processState: SupervisorProcessState.TASK_A_RUNNING,
+                            startedAt: () => Date.now()
+                        }),
+                        "sendStartA",
+                        "logStartA"
+                    ]
                 }
             }
         },
-        startingTaskA: {
-            entry: ["sendStartA", "logStartA"],
-            always: { target: "waitingForTaskA" }
-        },
-        waitingForTaskA: {
+        taskA: {
             on: {
-                TASK_A_COMPLETED: {
-                    target: "startingTaskB"
+                [SupervisorEventType.TASK_A_COMPLETED]: {
+                    target: "taskB",
+                    actions: [
+                        assign({
+                            processState: SupervisorProcessState.TASK_B_RUNNING
+                        }),
+                        "sendStartB",
+                        "logStartB"
+                    ]
                 },
-                TASK_A_FAILED: {
+                [SupervisorEventType.TASK_A_FAILED]: {
                     target: "failed",
-                    actions: assign({
-                        error: ({ event }) => event.error
-                    })
-                },
-                ABORT_PROCESS: {
-                    target: "failed",
-                    actions: assign({
-                        error: (_) => new Error("Process aborted while waiting for Task A")
-                    })
+                    actions: [
+                        assign({
+                            processState: SupervisorProcessState.FAILED,
+                            completedAt: () => Date.now(),
+                            error: (_, event) => event.error
+                        }),
+                        "logFailureA"
+                    ]
                 }
             }
         },
-        startingTaskB: {
-            entry: ["sendStartB", "logStartB"],
-            always: { target: "waitingForTaskB" }
-        },
-        waitingForTaskB: {
+        taskB: {
             on: {
-                TASK_B_COMPLETED: {
-                    target: "completed"
+                [SupervisorEventType.TASK_B_COMPLETED]: {
+                    target: "completed",
+                    actions: [
+                        assign({
+                            processState: SupervisorProcessState.COMPLETED,
+                            completedAt: () => Date.now()
+                        }),
+                        "logSuccess"
+                    ]
                 },
-                TASK_B_FAILED: {
+                [SupervisorEventType.TASK_B_FAILED]: {
                     target: "failed",
-                    actions: assign({
-                        error: ({ event }) => event.error
-                    })
-                },
-                ABORT_PROCESS: {
-                    target: "failed",
-                    actions: assign({
-                        error: (_) => new Error("Process aborted while waiting for Task B")
-                    })
+                    actions: [
+                        assign({
+                            processState: SupervisorProcessState.FAILED,
+                            completedAt: () => Date.now(),
+                            error: (_, event) => event.error
+                        }),
+                        "logFailureB"
+                    ]
                 }
             }
         },
         completed: {
-            type: "final",
-            entry: ["logSuccess"]
+            type: "final"
         },
         failed: {
-            type: "final",
-            entry: ["logFailureA", "logFailureB"]
-        }
-    },
-    on: {
-        ABORT_PROCESS: {
-            target: "failed",
-            actions: assign({
-                error: (_) => new Error("Process aborted")
-            })
+            type: "final"
         }
     }
 })

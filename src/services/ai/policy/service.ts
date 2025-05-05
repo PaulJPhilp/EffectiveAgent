@@ -2,14 +2,10 @@
  * @file Implements the PolicyService.
  */
 
-import { RepositoryError } from "@core/repository/errors.js";
-import RepositoryService from "@core/repository/service.js";
 import { Effect, HashMap, Option, Ref } from "effect";
 import { v4 as uuidv4 } from "uuid";
 import {
-  PolicyCheckError,
-  PolicyError,
-  PolicyRecordError
+  PolicyError
 } from "./errors.js";
 import {
   PolicyRuleData,
@@ -24,8 +20,7 @@ import {
 } from "./types.js";
 
 import { PolicyServiceApi } from "./api.js";
-export class PolicyService extends Effect.Service<PolicyServiceApi>()(
-  "PolicyService", {
+export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicyService", {
   effect: Effect.gen(function* () {
     const ruleRepo = yield* Ref.make(HashMap.empty<string, PolicyRuleEntity>());
     const usageRepo = yield* Ref.make(HashMap.empty<string, PolicyUsageEntity>());
@@ -54,7 +49,7 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
           for (const rule of matchingRules) {
             if (rule.data.rateLimit) {
               const { maxRequests, windowSeconds, scope } = rule.data.rateLimit;
-              const key = scope === 'user' 
+              const key = scope === 'user'
                 ? `${context.auth.userId}:${rule.id}`
                 : `global:${rule.id}`;
 

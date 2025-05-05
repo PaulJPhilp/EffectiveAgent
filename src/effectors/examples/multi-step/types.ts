@@ -1,6 +1,6 @@
-import { EffectorId } from "../../effector/types.js"
+import { AgentRuntimeId } from "@/agent-runtime/index.js"
 
-export type MultiStepId = EffectorId
+export type MultiStepId = AgentRuntimeId
 
 /**
  * Available commands for controlling the multi-step task
@@ -17,12 +17,12 @@ export type MultiStepCommand = typeof MultiStepCommand[keyof typeof MultiStepCom
  * Configuration for a multi-step task
  */
 export interface MultiStepConfig {
-    /** Number of steps to process (default: 3) */
-    totalSteps?: number
-    /** Delay between steps in milliseconds (default: 1000) */
-    stepDelayMs?: number
-    /** Probability of step failure (0-1, default: 0) */
-    failureProbability?: number
+    /** Total number of steps to process */
+    readonly totalSteps?: number
+    /** Delay between steps in milliseconds */
+    readonly stepDelayMs?: number
+    /** Probability of step failure (0-1) */
+    readonly failureProbability?: number
 }
 
 /**
@@ -34,35 +34,45 @@ export type StepStatus = "pending" | "processing" | "completed" | "failed"
  * State for tracking an individual step
  */
 export interface StepState {
-    status: StepStatus
-    startedAt?: number
-    completedAt?: number
-    error?: unknown
+    /** Current status of the step */
+    readonly status: StepStatus
+    /** When the step started */
+    readonly startedAt?: number
+    /** When the step completed */
+    readonly completedAt?: number
+    /** Any error that occurred */
+    readonly error?: Error
+    /** Result data if successful */
+    readonly result?: unknown
 }
 
 /**
- * State managed by the Multi-Step Task Effector
+ * State managed by the Multi-Step Task Runtime
  */
 export interface MultiStepState {
-    /** The effector's ID */
-    id: EffectorId
-    /** Current configuration */
-    config: Required<MultiStepConfig>
-    /** Current step number (1-based) */
-    currentStep: number
-    /** Status of each step */
-    steps: Record<number, StepState>
-    /** Last operation performed */
-    lastOperation?: MultiStepCommand
-    /** Error information if task failed */
-    error?: unknown
+    /** The unique identifier for this task */
+    readonly id: MultiStepId
+    /** The current step number (0-based) */
+    readonly currentStep: number
+    /** State for each step */
+    readonly steps: Record<number, StepState>
+    /** Configuration for this task */
+    readonly config: Required<MultiStepConfig>
+    /** When the task started */
+    readonly startedAt?: number
+    /** When the task completed */
+    readonly completedAt?: number
+    /** Whether the task is currently paused */
+    readonly paused?: boolean
+    /** Any error that caused the task to fail */
+    readonly error?: Error
 }
 
 /**
- * Creates a new Multi-Step Task Effector ID
+ * Creates a new Multi-Step Task Runtime ID
  */
-export const makeMultiStepId = (id: string): EffectorId =>
-    `multi-step-${id}` as EffectorId
+export const makeMultiStepId = (id: string): AgentRuntimeId =>
+    `multi-step-${id}` as AgentRuntimeId
 
 /**
  * Default configuration values

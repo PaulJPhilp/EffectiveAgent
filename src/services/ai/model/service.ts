@@ -35,8 +35,7 @@ const toPublicModelInfo = (model: ModelDefinition): PublicModelInfoDefinition =>
     };
 };
 
-export class ModelService extends Effect.Service<ModelServiceApi>()(
-    "ModelService", {
+export class ModelService extends Effect.Service<ModelServiceApi>()("ModelService", {
     effect: Effect.gen(function* () {
         // Internal representation remains ModelDefinition
         const models: ReadonlyArray<ModelDefinition> = MODEL_UNIVERSE as ReadonlyArray<ModelDefinition>;

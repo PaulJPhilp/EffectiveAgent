@@ -1,12 +1,12 @@
 import { type EffectiveRole } from "@/schema.js";
+import { type InputServiceApi } from "@/services/pipeline/input/api.js";
 import { InvalidInputError, InvalidMessageError, NoAudioFileError } from "@/services/pipeline/input/errors.js";
+import { isFilePart } from "@/services/pipeline/input/helpers.js";
 import { EffectivePartType, FilePart } from "@/services/pipeline/input/schema.js";
 import { ImagePart, ImageUrlPart, Message, type Part, PartTypeId, TextPart, ToolCallPart, ToolCallResolvedPart } from "@effect/ai/AiInput";
 import { Model, User } from "@effect/ai/AiRole";
 import { Effect, Ref } from "effect";
 import * as Chunk from "effect/Chunk";
-import { type InputServiceApi } from "./api.js";
-import { isFilePart } from "./helpers.js";
 
 // Helper functions
 const createTextPart = (text: string): TextPart =>

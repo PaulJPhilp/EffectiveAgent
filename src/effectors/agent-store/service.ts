@@ -1,238 +1,111 @@
-import { EffectorId } from "@/effectors/effector/types.js"
-import { Dexie, liveQuery } from "dexie"
-import { Effect } from "effect"
-import * as Option from "effect/Option"
-import * as Stream from "effect/Stream"
-import { Observable, from } from "rxjs"
-import type { AgentStoreApi, RecordQueryOptions } from "./api.js"
-import { DatabaseError, RecordNotFoundError, ValidationError } from "./errors.js"
-import type { AgentRecord, SyncState } from "./types.js"
+import { AgentRecord, AgentRuntimeId } from "@/agent-runtime/index.js"
+import { Effect, Stream, pipe } from "effect"
+import { ValidationError } from "./errors.js"
+import type { DatabaseError } from "./types.js"
 
-class AgentStoreDb extends Dexie {
-    agentRecords!: Dexie.Table<AgentRecord, string>
-
-    constructor() {
-        super("AgentStore")
-        this.version(1).stores({
-            agentRecords: "id, effectorId, metadata.timestamp, metadata.syncState"
-        })
-    }
+export interface RecordQueryOptions {
+    /** Only return records after this timestamp */
+    afterTimestamp?: number
+    /** Filter by sync state */
+    syncState?: string
+    /** Maximum number of records to return */
+    limit?: number
 }
 
 /**
- * Service for managing agent records in IndexedDB storage
+ * Creates database schema
  */
-export class AgentStore extends Effect.Service<AgentStoreApi>()("AgentStore", {
-    effect: Effect.gen(function* () {
-        const db = new AgentStoreDb()
+const createSchema = (db: AgentStoreDb) => {
+    db.version(1).stores({
+        agentRecords: "id, agentRuntimeId, metadata.timestamp, metadata.syncState"
+    })
+}
 
-        const addRecord = (record: AgentRecord): Effect.Effect<void, DatabaseError | ValidationError> =>
-            Effect.gen(function* () {
-                if (!record.id || !record.effectorId) {
-                    return yield* Effect.fail(new ValidationError("Record must have id and effectorId"))
-                }
-                yield* Effect.tryPromise({
-                    try: () => db.agentRecords.put(record),
-                    catch: (e) => new DatabaseError("Failed to add record", { cause: e })
-                })
-            })
+/**
+ * Creates a new instance of the store service
+ */
+export const AgentStoreService = Effect.async<StoreService>(resume => {
+    // Create database instance
+    const db = new Dexie("agent-store") as AgentStoreDb
 
-        const addRecords = (records: ReadonlyArray<AgentRecord>): Effect.Effect<void, DatabaseError | ValidationError> =>
-            Effect.gen(function* () {
-                for (const record of records) {
-                    if (!record.id || !record.effectorId) {
-                        return yield* Effect.fail(new ValidationError("All records must have id and effectorId"))
-                    }
-                }
-                yield* Effect.tryPromise({
-                    try: () => db.agentRecords.bulkPut(records),
-                    catch: (e) => new DatabaseError("Failed to add records", { cause: e })
-                })
-            })
+    // Set up schema
+    createSchema(db)
 
-        const getRecords = (effectorId: EffectorId, options?: RecordQueryOptions): Effect.Effect<readonly AgentRecord[], DatabaseError> =>
-            Effect.tryPromise({
+    // Create service instance
+    const service: StoreService = {
+        storeRecord: (record: AgentRecord): Effect.Effect<void, ValidationError | DatabaseError> =>
+            Effect.try({
                 try: () => {
-                    let query = db.agentRecords.where("effectorId").equals(effectorId)
+                    if (!record.id || !record.agentRuntimeId) {
+                        return Effect.fail(new ValidationError("Record must have id and agentRuntimeId"))
+                    }
+                    return db.agentRecords.add(record)
+                },
+                catch: error => new DatabaseError("Failed to store record", { cause: error })
+            }),
 
-                    if (options?.fromTimestamp) {
-                        query = query.filter(r => r.metadata.timestamp >= options.fromTimestamp!)
+        storeRecords: (records: AgentRecord[]): Effect.Effect<void, ValidationError | DatabaseError> =>
+            Effect.try({
+                try: () => {
+                    // Validate all records first
+                    for (const record of records) {
+                        if (!record.id || !record.agentRuntimeId) {
+                            return Effect.fail(new ValidationError("All records must have id and agentRuntimeId"))
+                        }
                     }
-                    if (options?.toTimestamp) {
-                        query = query.filter(r => r.metadata.timestamp <= options.toTimestamp!)
+                    return db.agentRecords.bulkAdd(records)
+                },
+                catch: error => new DatabaseError("Failed to store records", { cause: error })
+            }),
+
+        getRecords: (agentRuntimeId: AgentRuntimeId, options?: RecordQueryOptions): Effect.Effect<readonly AgentRecord[], DatabaseError> =>
+            Effect.try({
+                try: () => {
+                    let query = db.agentRecords.where("agentRuntimeId").equals(agentRuntimeId)
+
+                    // Apply filters
+                    if (options?.afterTimestamp) {
+                        query = query
+                            .filter(record =>
+                                record.timestamp > options.afterTimestamp!
+                            )
                     }
+
                     if (options?.syncState) {
-                        const states = Array.isArray(options.syncState) ? options.syncState : [options.syncState]
-                        query = query.filter(r => states.includes(r.metadata.syncState))
+                        query = query
+                            .filter(record =>
+                                record.metadata.syncState === options.syncState
+                            )
                     }
-                    if (options?.reverse) {
-                        query = query.reverse()
-                    }
+
+                    // Apply limit
                     if (options?.limit) {
                         query = query.limit(options.limit)
                     }
 
                     return query.toArray()
                 },
-                catch: (e) => new DatabaseError("Failed to get records", { cause: e })
+                catch: error => new DatabaseError("Failed to get records", { cause: error })
+            }),
+
+        streamRecords: (agentRuntimeId: AgentRuntimeId): Stream.Stream<AgentRecord, DatabaseError> =>
+            pipe(
+                Effect.try({
+                    try: () =>
+                        db.agentRecords.where("agentRuntimeId").equals(agentRuntimeId).toArray(),
+                    catch: error => new DatabaseError("Failed to stream records", { cause: error })
+                }),
+                Stream.fromEffect,
+                Stream.flatMap(Stream.fromIterable)
+            ),
+
+        clearRecords: (agentRuntimeId: AgentRuntimeId): Effect.Effect<void, DatabaseError> =>
+            Effect.try({
+                try: () => db.agentRecords.where("agentRuntimeId").equals(agentRuntimeId).delete(),
+                catch: error => new DatabaseError("Failed to clear records", { cause: error })
             })
+    }
 
-        const getRecordById = (recordId: string): Effect.Effect<Option.Option<AgentRecord>, DatabaseError> =>
-            Effect.tryPromise({
-                try: async () => {
-                    const record = await db.agentRecords.get(recordId)
-                    return record ? Option.some(record) : Option.none()
-                },
-                catch: (e) => new DatabaseError("Failed to get record by id", { cause: e })
-            })
-
-        const updateRecordSyncState = (
-            recordId: string,
-            syncState: SyncState,
-            updatedMetadata?: Partial<AgentRecord["metadata"]>
-        ): Effect.Effect<void, DatabaseError | RecordNotFoundError> =>
-            Effect.gen(function* () {
-                const record = yield* Effect.tryPromise({
-                    try: () => db.agentRecords.get(recordId),
-                    catch: (e) => new DatabaseError("Failed to get record for update", { cause: e })
-                })
-
-                if (!record) {
-                    return yield* Effect.fail(new RecordNotFoundError(recordId))
-                }
-
-                const newMetadata = {
-                    ...record.metadata,
-                    ...updatedMetadata,
-                    syncState
-                }
-
-                yield* Effect.tryPromise({
-                    try: () => db.agentRecords.update(recordId, { metadata: newMetadata }),
-                    catch: (e) => new DatabaseError("Failed to update record sync state", { cause: e })
-                })
-            })
-
-        const getRecordsBySyncState = (syncState: SyncState, limit?: number): Effect.Effect<readonly AgentRecord[], DatabaseError> =>
-            Effect.tryPromise({
-                try: () => {
-                    let query = db.agentRecords.where("metadata.syncState").equals(syncState)
-                    if (limit) {
-                        query = query.limit(limit)
-                    }
-                    return query.toArray()
-                },
-                catch: (e) => new DatabaseError("Failed to get records by sync state", { cause: e })
-            })
-
-        const streamRecords = (effectorId: EffectorId): Stream.Stream<AgentRecord, DatabaseError> =>
-            Stream.async<AgentRecord[], DatabaseError>(emit => {
-                const subscription = liveQuery(() =>
-                    db.agentRecords.where("effectorId").equals(effectorId).toArray()
-                ).subscribe({
-                    next: records => emit.single(records),
-                    error: error => emit.fail(new DatabaseError("Failed to stream records", { cause: error }))
-                })
-                return Effect.sync(() => subscription.unsubscribe())
-            }).pipe(Stream.flatMap(Stream.fromIterable))
-
-        const clearRecords = (effectorId: EffectorId): Effect.Effect<void, DatabaseError> =>
-            Effect.tryPromise({
-                try: () => db.agentRecords.where("effectorId").equals(effectorId).delete(),
-                catch: (e) => new DatabaseError("Failed to clear records", { cause: e })
-            })
-
-        const countRecords = (effectorId: EffectorId, options?: RecordQueryOptions): Effect.Effect<number, DatabaseError> =>
-            Effect.tryPromise({
-                try: () => {
-                    let query = db.agentRecords.where("effectorId").equals(effectorId)
-
-                    if (options?.fromTimestamp) {
-                        query = query.filter(r => r.metadata.timestamp >= options.fromTimestamp!)
-                    }
-                    if (options?.toTimestamp) {
-                        query = query.filter(r => r.metadata.timestamp <= options.toTimestamp!)
-                    }
-                    if (options?.syncState) {
-                        const states = Array.isArray(options.syncState) ? options.syncState : [options.syncState]
-                        query = query.filter(r => states.includes(r.metadata.syncState))
-                    }
-
-                    return query.count()
-                },
-                catch: (e) => new DatabaseError("Failed to count records", { cause: e })
-            })
-
-        const getEffectorIds = (): Effect.Effect<readonly EffectorId[], DatabaseError> =>
-            Effect.tryPromise({
-                try: async () => {
-                    const keys = await db.agentRecords.orderBy("effectorId").uniqueKeys()
-                    if (!Array.isArray(keys) || !keys.every(key => typeof key === "string")) {
-                        throw new Error("Invalid effector IDs returned from database")
-                    }
-                    return keys as EffectorId[]
-                },
-                catch: (e) => new DatabaseError("Failed to get effector IDs", { cause: e })
-            })
-
-        const getRecord = (id: string): Effect.Effect<AgentRecord, RecordNotFoundError | DatabaseError> =>
-            Effect.gen(function* () {
-                const record = yield* Effect.tryPromise({
-                    try: () => db.agentRecords.get(id),
-                    catch: (e) => new DatabaseError("Failed to get record", { cause: e })
-                })
-                if (!record) {
-                    return yield* Effect.fail(new RecordNotFoundError(id))
-                }
-                return record
-            })
-
-        const listRecords = (effectorId?: string): Effect.Effect<AgentRecord[], DatabaseError> =>
-            Effect.tryPromise({
-                try: () => {
-                    const query = effectorId
-                        ? db.agentRecords.where("effectorId").equals(effectorId)
-                        : db.agentRecords.toCollection()
-                    return query.toArray()
-                },
-                catch: (e) => new DatabaseError("Failed to list records", { cause: e })
-            })
-
-        const saveRecord = (record: AgentRecord): Effect.Effect<void, ValidationError | DatabaseError> =>
-            addRecord(record)
-
-        const deleteRecord = (id: string): Effect.Effect<void, DatabaseError> =>
-            Effect.tryPromise({
-                try: () => db.agentRecords.delete(id),
-                catch: (e) => new DatabaseError("Failed to delete record", { cause: e })
-            })
-
-        const observeRecord = (id: string): Effect.Effect<Observable<AgentRecord>, DatabaseError> =>
-            Effect.gen(function* () {
-                return from(liveQuery(async () => {
-                    const record = await db.agentRecords.get(id)
-                    if (!record) throw new RecordNotFoundError(id)
-                    return record
-                }))
-            })
-
-        return {
-            getRecord,
-            listRecords,
-            saveRecord,
-            deleteRecord,
-            observeRecord,
-            addRecord,
-            addRecords,
-            getRecords,
-            getRecordById,
-            updateRecordSyncState,
-            getRecordsBySyncState,
-            streamRecords,
-            clearRecords,
-            countRecords,
-            getEffectorIds
-        } satisfies AgentStoreApi
-    }),
-    dependencies: []
-}) { }
+    // Return service instance
+    resume(Effect.succeed(service))
+})

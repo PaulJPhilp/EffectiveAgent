@@ -1,40 +1,56 @@
-import { EffectorError, EffectorNotFoundError } from "@/effectors/effector/errors.js";
-import type { AgentRecord, EffectorId, EffectorState } from "@/effectors/effector/types.js";
-import { Effect, Stream } from "effect";
+import {
+    AgentRecord,
+    AgentRuntimeError,
+    AgentRuntimeId,
+    AgentRuntimeState
+} from "@/agent-runtime/index.js"
+import { Effect, Stream } from "effect"
 
 /**
- * Simple bridge API for connecting external apps to Effectors
+ * API for the Bridge Service.
+ * Provides capabilities for message passing between different components.
  */
 export interface BridgeServiceApi {
     /**
-     * Creates a new Effector instance for handling conversations
-     * @returns Effect containing the effector ID
+     * Creates a new agent runtime instance
+     * 
+     * @returns Effect<AgentRuntimeId> with the ID of the new instance
      */
-    createEffector(): Effect.Effect<EffectorId, EffectorError>;
+    readonly createAgentRuntime: () =>
+        Effect.Effect<AgentRuntimeId, AgentRuntimeError>
 
     /**
-     * Sends a message to an Effector
-     * @param id The Effector ID
-     * @param message The message to send
+     * Sends a message to an existing agent runtime instance
+     * 
+     * @param id - The ID of the target instance
+     * @param message - The message to send
      */
-    sendMessage(id: EffectorId, message: string): Effect.Effect<void, EffectorNotFoundError | EffectorError>;
+    readonly sendMessage: (id: AgentRuntimeId, message: string) =>
+        Effect.Effect<void, AgentRuntimeError>
 
     /**
-     * Gets the current state of an Effector
-     * @param id The Effector ID
+     * Gets the current state of an agent runtime instance
+     * 
+     * @param id - The ID of the instance
+     * @returns Effect<AgentRuntimeState<S>> containing the current state
      */
-    getState<S>(id: EffectorId): Effect.Effect<EffectorState<S>, EffectorNotFoundError>;
+    readonly getState: <S>(id: AgentRuntimeId) =>
+        Effect.Effect<AgentRuntimeState<S>, AgentRuntimeError>
 
     /**
-     * Subscribes to messages from an Effector
-     * @param id The Effector ID
-     * @returns A Stream of AgentRecords
+     * Subscribes to records from an agent runtime instance
+     * 
+     * @param id - The ID of the instance to subscribe to
+     * @returns Stream of AgentRecords from the instance
      */
-    subscribe(id: EffectorId): Stream.Stream<AgentRecord, Error>;
+    readonly subscribe: (id: AgentRuntimeId) =>
+        Stream.Stream<AgentRecord, Error>
 
     /**
-     * Terminates an Effector instance
-     * @param id The Effector ID
+     * Terminates an agent runtime instance
+     * 
+     * @param id - The ID of the instance to terminate
      */
-    terminate(id: EffectorId): Effect.Effect<void, EffectorNotFoundError>;
+    readonly terminate: (id: AgentRuntimeId) =>
+        Effect.Effect<void, AgentRuntimeError>
 }

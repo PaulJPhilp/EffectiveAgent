@@ -1,0 +1,34 @@
+import { Effect } from "effect"
+
+/**
+ * Configuration for the AgentRuntimeService
+ */
+export interface AgentRuntimeServiceConfig {
+    readonly mailbox: {
+        readonly size: number
+        readonly priorityQueueSize: number
+        readonly backpressureTimeout: number
+        readonly enablePrioritization: boolean
+    }
+    readonly enableMetrics: boolean
+    readonly logLevel: string
+}
+
+/**
+ * Default configuration for the AgentRuntimeService
+ */
+export const defaultConfig: AgentRuntimeServiceConfig = {
+    mailbox: {
+        size: 1000,
+        priorityQueueSize: 100,
+        backpressureTimeout: 5000,
+        enablePrioritization: true
+    },
+    enableMetrics: true,
+    logLevel: "info"
+}
+
+/**
+ * Configuration provider for the AgentRuntimeService
+ */
+export const AgentRuntimeServiceConfig = Effect.succeed(defaultConfig)

@@ -4,7 +4,6 @@
  */
 
 import { Schema as S } from "effect";
-import { object } from "zod"
 
 /**
  * Creates a schema for a list of items
@@ -45,7 +44,10 @@ export function createPersonSchema() {
  * @returns A schema for metadata
  */
 export function createMetadataSchema() {
-    return S.Record({ key: S.String, value: S.Union(S.String, S.Number, S.Boolean, S.Null) });
+    return S.Record({
+        key: S.String,
+        value: S.Union(S.String, S.Number, S.Boolean, S.Null)
+    });
 }
 
 /**
@@ -53,16 +55,16 @@ export function createMetadataSchema() {
  * @returns A schema for task data
  */
 export function createTaskSchema() {
-    const TaskStatusSchema = S.Literal("todo", "in-progress", "done");
-    const TaskPrioritySchema = S.Literal("low", "medium", "high");
+    const TaskStatus = S.Literal("todo", "in-progress", "done");
+    const TaskPriority = S.Literal("low", "medium", "high");
 
     return S.Struct({
         title: S.String,
         description: S.String,
-        status: TaskStatusSchema,
-        priority: TaskPrioritySchema,
-        dueDate: S.optional(S.String),
-        assignee: S.optional(S.String),
+        status: TaskStatus,
+        priority: TaskPriority,
+        dueDate: S.String.pipe(S.optional),
+        assignee: S.String.pipe(S.optional),
         tags: S.Array(S.String)
     });
 }
@@ -72,13 +74,13 @@ export function createTaskSchema() {
  * @returns A schema for a chat message
  */
 export function createChatMessageSchema() {
-    const RoleSchema = S.Literal("user", "assistant", "system");
+    const Role = S.Literal("user", "assistant", "system");
 
     return S.Struct({
-        role: RoleSchema,
+        role: Role,
         content: S.String,
-        timestamp: S.optional(S.String),
-        id: S.optional(S.String)
+        timestamp: S.String.pipe(S.optional),
+        id: S.String.pipe(S.optional)
     });
 }
 

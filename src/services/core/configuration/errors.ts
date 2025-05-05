@@ -1,22 +1,16 @@
 // File: src/services/core/configuration/errors.ts
 
-import { Data } from "effect";
-import type { ZodError } from "zod";
+import { Data, ParseResult } from "effect";
 
 // Base Error (Optional but good practice)
 export class ConfigurationError extends Data.TaggedError("ConfigurationError")<{
     readonly message: string;
     readonly key?: string;
-    readonly filePath?: string; // Add filePath context
+    readonly filePath?: string;
     readonly cause?: unknown;
 }> {
     constructor(options: { message: string; key?: string; filePath?: string; cause?: unknown }) {
-        super({
-            message: options.message,
-            key: options.key,
-            filePath: options.filePath,
-            cause: options.cause
-        });
+        super(options);
     }
 }
 
@@ -26,7 +20,7 @@ export class ConfigReadError extends Data.TaggedError("ConfigReadError")<{
     readonly filePath: string;
     readonly cause?: unknown;
 }> {
-    constructor(options: { filePath: string, cause?: unknown }) {
+    constructor(options: { filePath: string; cause?: unknown }) {
         super({
             message: `Failed to read configuration file: ${options.filePath}`,
             filePath: options.filePath,
@@ -40,9 +34,9 @@ export class ConfigParseError extends Data.TaggedError("ConfigParseError")<{
     readonly filePath: string;
     readonly cause?: unknown;
 }> {
-    constructor(options: { filePath: string, cause?: unknown }) {
+    constructor(options: { filePath: string; cause?: unknown }) {
         super({
-            message: `Failed to parse configuration file: ${options.filePath}`,
+            message: `Failed to parse JSON in configuration file: ${options.filePath}`,
             filePath: options.filePath,
             cause: options.cause
         });
@@ -52,13 +46,13 @@ export class ConfigParseError extends Data.TaggedError("ConfigParseError")<{
 export class ConfigValidationError extends Data.TaggedError("ConfigValidationError")<{
     readonly message: string;
     readonly filePath: string;
-    readonly zodError: ZodError;
+    readonly validationError: ParseResult.ParseError;
 }> {
-    constructor(options: { filePath: string, zodError: ZodError }) {
+    constructor(options: { filePath: string; validationError: ParseResult.ParseError }) {
         super({
-            message: `Configuration validation failed for ${options.filePath}`,
+            message: `Configuration validation failed for ${options.filePath}: ${options.validationError.message}`,
             filePath: options.filePath,
-            zodError: options.zodError
+            validationError: options.validationError
         });
     }
 }

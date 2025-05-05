@@ -1,33 +1,45 @@
+import {
+    AgentRuntime,
+    AgentRuntimeId,
+    AgentRuntimeService,
+    makeAgentRuntimeId
+} from "@/agent-runtime/index.js"
 import { Effect } from "effect"
 import { createActor } from "xstate"
-import { EffectorService } from "../../effector/service.js"
-import type { Effector } from "../../effector/types.js"
-import { makeEffectorId } from "../../effector/types.js"
 import { supervisorMachine } from "./machine.js"
-import type { SupervisorState } from "./types.js"
+import type { SupervisorContext, SupervisorState } from "./types.js"
+import { SupervisorProcessState } from "./types.js"
 import { supervisorWorkflow } from "./workflow.js"
 
 export * from "./types.js"
 
 /**
- * Creates an ID for a supervisor effector
+ * Creates an ID for a supervisor agent runtime
  */
-export const makeSupervisorId = (id: string) => makeEffectorId(`supervisor-${id}`)
+export const makeSupervisorId = (id: string): AgentRuntimeId => makeAgentRuntimeId(`supervisor-${id}`)
 
 /**
- * Creates a new supervisor effector instance
+ * Creates a new supervisor agent runtime instance
  */
-export const createSupervisorEffector = (id: string): Effect.Effect<Effector<SupervisorState>> =>
+export const createSupervisorRuntime = (id: string): Effect.Effect<AgentRuntime<SupervisorState>> =>
     Effect.gen(function* (_) {
-        const effectorService = yield* EffectorService
+        const agentRuntimeService = yield* AgentRuntimeService
 
         // Create initial state with a fresh XState actor
-        const initialMachineState = createActor(supervisorMachine).getSnapshot()
-        const initialState: SupervisorState = {
-            machineState: initialMachineState,
-            processState: initialMachineState.value
+        const initialActor = createActor(supervisorMachine)
+        const initialMachineState = initialActor.getSnapshot()
+
+        // Create initial context with machine state
+        const initialContext: SupervisorContext = {
+            processState: SupervisorProcessState.IDLE,
+            machineState: initialMachineState
         }
 
-        // Create the supervisor effector
-        return yield* effectorService.create(makeSupervisorId(id), initialState, supervisorWorkflow)
+        // Create the supervisor agent runtime with the workflow
+        const supervisorId = makeSupervisorId(id)
+        return yield* agentRuntimeService.create(
+            supervisorId,
+            initialContext,
+            supervisorWorkflow(supervisorId)
+        )
     })

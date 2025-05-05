@@ -1,4 +1,5 @@
 import { Effect, Fiber, Queue, Ref, Stream, pipe } from "effect"
+import { v4 as uuid4 } from "uuid"
 import { EffectorProcessingError } from "./errors.js"
 import { PrioritizedMailbox } from "./mailbox.js"
 import type { AgentRecord, EffectorConfig, EffectorId, EffectorState, ProcessingLogic } from "./types.js"
@@ -123,7 +124,7 @@ export class EffectorInstance<S, E = never, R = never> {
                                         status: EffectorStatus.ERROR,
                                         error: cause,
                                         processing: {
-                                            processed: state.processing?.processed ?? 0,
+                                            processed: 0,
                                             failures: (state.processing?.failures ?? 0) + 1,
                                             avgProcessingTime: state.processing?.avgProcessingTime ?? 0,
                                             lastError: cause
@@ -160,7 +161,7 @@ export class EffectorInstance<S, E = never, R = never> {
 
                                             // Notify subscribers of state changes
                                             const stateChangeRecord: AgentRecord = {
-                                                id: crypto.randomUUID(),
+                                                id: uuid4(),
                                                 effectorId: self.id,
                                                 timestamp: Date.now(),
                                                 type: AgentRecordType.STATE_CHANGE,

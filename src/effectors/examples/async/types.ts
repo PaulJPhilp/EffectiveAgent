@@ -1,9 +1,9 @@
-
 /**
  * Commands that can be sent to the AsyncOperationTaskEffector
  */
 export const AsyncOperationCommand = {
-    START_FETCH: "START_FETCH"
+    START_FETCH: "START_FETCH",
+    CANCEL_FETCH: "CANCEL_FETCH"
 } as const;
 
 export type AsyncOperationCommand = typeof AsyncOperationCommand[keyof typeof AsyncOperationCommand];

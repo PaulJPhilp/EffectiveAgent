@@ -1,11 +1,14 @@
+import {
+    AgentRecord,
+    AgentRecordType,
+    AgentRuntime,
+    AgentRuntimeId,
+    AgentRuntimeService
+} from "@/agent-runtime/index.js"
 import { Effect, pipe } from "effect"
-import type { Effector } from "../../effector/api.js"
-import { EffectorService } from "../../effector/service.js"
-import type { AgentRecord, EffectorId } from "../../effector/types.js"
-import { AgentRecordType } from "../../effector/types.js"
 
 /**
- * Commands that can be sent to TaskEffectorA
+ * Commands that can be sent to TaskRuntimeA
  */
 export const TaskACommand = {
     START_TASK: "START_TASK"
@@ -14,7 +17,7 @@ export const TaskACommand = {
 export type TaskACommand = typeof TaskACommand[keyof typeof TaskACommand]
 
 /**
- * Events emitted by TaskEffectorA
+ * Events emitted by TaskRuntimeA
  */
 export const TaskAEventType = {
     TASK_STARTED: "TASK_STARTED",
@@ -37,7 +40,7 @@ export const TaskAStatus = {
 export type TaskAStatus = typeof TaskAStatus[keyof typeof TaskAStatus]
 
 /**
- * State maintained by TaskEffectorA
+ * State maintained by TaskRuntimeA
  */
 export interface TaskAState {
     status: TaskAStatus
@@ -48,20 +51,20 @@ export interface TaskAState {
 }
 
 /**
- * Creates a new TaskEffectorA instance
+ * Creates a new TaskRuntimeA instance
  */
-export const createTaskEffectorA = (
-    id: EffectorId,
+export const createTaskRuntimeA = (
+    id: AgentRuntimeId,
     simulatedDelay: number = 1000,
     simulatedSuccessRate: number = 0.8
-): Effect.Effect<Effector<TaskAState>> => {
+): Effect.Effect<AgentRuntime<TaskAState>> => {
     // Initial state
     const initialState: TaskAState = {
         status: TaskAStatus.IDLE
     }
 
     // Processing logic
-    const processingLogic = (record: AgentRecord, state: TaskAState) => {
+    const workflow = (record: AgentRecord, state: TaskAState) => {
         if (record.type !== AgentRecordType.COMMAND ||
             (state.status !== TaskAStatus.IDLE && record.payload.type === TaskACommand.START_TASK)) {
             return Effect.succeed(state)
@@ -71,46 +74,39 @@ export const createTaskEffectorA = (
 
         switch (command.type) {
             case TaskACommand.START_TASK: {
-                // Emit TASK_STARTED event
-                const startEvent: AgentRecord = {
-                    id: crypto.randomUUID(),
-                    effectorId: id,
-                    timestamp: Date.now(),
-                    type: AgentRecordType.EVENT,
-                    payload: {
-                        type: TaskAEventType.TASK_STARTED
-                    },
-                    metadata: {}
-                }
-
-                // Simulate task processing
                 return pipe(
-                    // First emit start event
-                    Effect.sync(() => startEvent),
-                    Effect.tap(event => EffectorService.send(id, event)),
-
-                    // Update state to PROCESSING
-                    Effect.map(() => ({
+                    Effect.succeed({
                         ...state,
                         status: TaskAStatus.PROCESSING,
                         startedAt: Date.now()
+                    }),
+                    Effect.tap(newState => Effect.gen(function* () {
+                        // Emit started event
+                        const startedEvent: AgentRecord = {
+                            id: crypto.randomUUID(),
+                            agentRuntimeId: id,
+                            timestamp: Date.now(),
+                            type: AgentRecordType.EVENT,
+                            payload: {
+                                type: TaskAEventType.TASK_STARTED
+                            },
+                            metadata: {}
+                        }
+
+                        const agentRuntimeService = yield* AgentRuntimeService
+                        yield* agentRuntimeService.send(id, startedEvent)
                     })),
-
-                    // Simulate processing delay
                     Effect.tap(() => Effect.sleep(simulatedDelay)),
-
-                    // Simulate success/failure
                     Effect.flatMap(() =>
                         Effect.sync(() => Math.random() < simulatedSuccessRate)
                     ),
-
-                    // Handle success/failure
                     Effect.flatMap(success => {
                         if (success) {
-                            const result = { data: "Simulated data preparation result" }
+                            // Simulate successful completion
+                            const result = { data: `Task A completed at ${new Date().toISOString()}` }
                             const successEvent: AgentRecord = {
                                 id: crypto.randomUUID(),
-                                effectorId: id,
+                                agentRuntimeId: id,
                                 timestamp: Date.now(),
                                 type: AgentRecordType.EVENT,
                                 payload: {
@@ -122,7 +118,7 @@ export const createTaskEffectorA = (
 
                             return pipe(
                                 Effect.sync(() => successEvent),
-                                Effect.tap(event => EffectorService.send(id, event)),
+                                Effect.tap(event => AgentRuntimeService.send(id, event)),
                                 Effect.map(() => ({
                                     ...state,
                                     status: TaskAStatus.COMPLETED,
@@ -132,10 +128,11 @@ export const createTaskEffectorA = (
                                 }))
                             )
                         } else {
+                            // Simulate failure
                             const error = new Error("Task A simulated failure")
                             const failureEvent: AgentRecord = {
                                 id: crypto.randomUUID(),
-                                effectorId: id,
+                                agentRuntimeId: id,
                                 timestamp: Date.now(),
                                 type: AgentRecordType.EVENT,
                                 payload: {
@@ -147,7 +144,7 @@ export const createTaskEffectorA = (
 
                             return pipe(
                                 Effect.sync(() => failureEvent),
-                                Effect.tap(event => EffectorService.send(id, event)),
+                                Effect.tap(event => AgentRuntimeService.send(id, event)),
                                 Effect.map(() => ({
                                     ...state,
                                     status: TaskAStatus.FAILED,
@@ -165,9 +162,9 @@ export const createTaskEffectorA = (
         }
     }
 
-    // Create and return the effector instance
+    // Create and return the agent runtime instance
     return pipe(
-        EffectorService,
+        AgentRuntimeService,
         Effect.flatMap(service => service.create(id, initialState))
     )
 }

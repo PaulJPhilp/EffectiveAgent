@@ -1,10 +1,15 @@
+import {
+    AgentRecord,
+    AgentRecordType,
+    AgentRuntime,
+    AgentRuntimeId,
+    AgentRuntimeService,
+    makeAgentRuntimeId
+} from "@/agent-runtime/index.js"
 import { Effect } from "effect"
-import { ulid } from "ulid"
-import { EffectorService } from "../../../effector/service.js"
-import type { AgentRecord, Effector, EffectorId } from "../../../effector/types.js"
-import { AgentRecordType, makeEffectorId } from "../../../effector/types.js"
+import { v4 as uuid4 } from "uuid"
 
-// Task effector types
+// Task agent runtime types
 export const TaskCommand = {
     START_TASK: "START_TASK",
 } as const
@@ -13,55 +18,68 @@ export type TaskCommand = typeof TaskCommand[keyof typeof TaskCommand]
 
 export interface TaskState {
     isRunning: boolean
+    error?: Error
     startedAt?: number
     completedAt?: number
-    error?: unknown
 }
 
 /**
- * Creates a test task effector that can simulate success or failure
+ * Creates a test task agent runtime that can simulate success or failure
  */
-export const createTaskEffector = (
+export const createTaskRuntime = (
     name: string,
     shouldFail = false,
     delayMs = 100
-): Effect.Effect<Effector<TaskState>> =>
+): Effect.Effect<AgentRuntime<TaskState>> =>
     Effect.gen(function* (_) {
-        const effectorService = yield* EffectorService
+        const agentRuntimeService = yield* AgentRuntimeService
 
-        // Create task effector with processing logic
-        const effector = yield* effectorService.create<TaskState>(
-            makeEffectorId(`task-${name}`),
-            { isRunning: false },
-            (record: AgentRecord, state: TaskState): Effect.Effect<TaskState> =>
-                Effect.gen(function* (_) {
-                    // Only handle START_TASK commands
-                    if (
-                        record.type !== AgentRecordType.COMMAND ||
-                        (record.payload as { type: string }).type !== TaskCommand.START_TASK
-                    ) {
-                        return state
+        // Create task agent runtime with processing logic
+        const runtime = yield* agentRuntimeService.create<TaskState>(
+            makeAgentRuntimeId(`task-${name}`),
+            {
+                isRunning: false
+            }
+        )
+
+        // Set up command processing
+        yield* pipe(
+            runtime.subscribe(),
+            Stream.tap(record =>
+                Effect.gen(function* () {
+                    // Only process command records
+                    if (record.type !== AgentRecordType.COMMAND ||
+                        record.payload.type !== TaskCommand.START_TASK) {
+                        return
                     }
 
-                    // Extract correlation ID if present
-                    const correlationId = record.metadata?.correlationId
-                    const supervisorId = record.metadata?.sourceEffectorId as EffectorId
-
-                    if (!supervisorId) {
-                        return {
-                            ...state,
-                            error: new Error("Missing sourceEffectorId in command metadata")
-                        }
+                    // Update state to running
+                    const state = {
+                        isRunning: true,
+                        startedAt: Date.now()
                     }
 
-                    // Simulate task execution with delay
+                    yield* agentRuntimeService.send(runtime.id, {
+                        id: uuid4(),
+                        agentRuntimeId: runtime.id,
+                        timestamp: Date.now(),
+                        type: AgentRecordType.STATE_CHANGE,
+                        payload: state,
+                        metadata: {}
+                    })
+
+                    // Simulate processing
                     yield* Effect.sleep(delayMs)
+
+                    // Simulate success/failure
+                    const supervisorId = record.metadata.sourceAgentRuntimeId as AgentRuntimeId
+                    const correlationId = record.metadata.correlationId as string
 
                     if (shouldFail) {
                         // Send failure event
                         const failureEvent: AgentRecord = {
-                            id: ulid(),
-                            effectorId: supervisorId,
+                            id: uuid4(),
+                            agentRuntimeId: supervisorId,
                             timestamp: Date.now(),
                             type: AgentRecordType.EVENT,
                             payload: {
@@ -70,7 +88,7 @@ export const createTaskEffector = (
                             },
                             metadata: { correlationId }
                         }
-                        yield* effectorService.send(supervisorId, failureEvent)
+                        yield* agentRuntimeService.send(supervisorId, failureEvent)
 
                         return {
                             isRunning: false,
@@ -81,8 +99,8 @@ export const createTaskEffector = (
                     } else {
                         // Send success event
                         const successEvent: AgentRecord = {
-                            id: ulid(),
-                            effectorId: supervisorId,
+                            id: uuid4(),
+                            agentRuntimeId: supervisorId,
                             timestamp: Date.now(),
                             type: AgentRecordType.EVENT,
                             payload: {
@@ -90,7 +108,7 @@ export const createTaskEffector = (
                             },
                             metadata: { correlationId }
                         }
-                        yield* effectorService.send(supervisorId, successEvent)
+                        yield* agentRuntimeService.send(supervisorId, successEvent)
 
                         return {
                             isRunning: false,
@@ -99,7 +117,10 @@ export const createTaskEffector = (
                         }
                     }
                 })
+            ),
+            Stream.runDrain,
+            Effect.fork
         )
 
-        return effector
+        return runtime
     })

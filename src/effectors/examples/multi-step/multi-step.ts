@@ -1,40 +1,42 @@
+import {
+    AgentRecord,
+    AgentRecordType,
+    AgentRuntime,
+    AgentRuntimeService,
+    makeAgentRuntimeId
+} from "@/agent-runtime/index.js"
 import { Effect, pipe } from "effect"
-import type { Effector, EffectorServiceApi } from "../../effector/api.js"
-import { EffectorError } from "../../effector/errors.js"
-import { EffectorService } from "../../effector/service.js"
-import { AgentRecord, AgentRecordType } from "../../effector/types.js"
-import type { MultiStepConfig, MultiStepId, MultiStepState } from "./types.js"
-import { MultiStepCommand } from "./types.js"
-
-interface TaskCommandPayload {
-    type: MultiStepCommand;
-    config?: MultiStepConfig;
-    newState?: MultiStepState;
-}
-
-// Default configuration for multi-step tasks
-const defaultConfig: Required<MultiStepConfig> = {
-    totalSteps: 3,
-    stepDelayMs: 1000,
-    failureProbability: 0
-}
+import type {
+    MultiStepConfig,
+    MultiStepId,
+    MultiStepState,
+    StepState
+} from "./types.js"
+import {
+    DEFAULT_CONFIG,
+    MultiStepCommand
+} from "./types.js"
 
 /**
- * Creates a new MultiStepEffector instance.
+ * Creates a new Multi-Step Task Runtime
  */
-export const createMultiStepEffector = (id: MultiStepId): Effect.Effect<Effector<MultiStepState>, EffectorError, EffectorServiceApi> =>
+export const createMultiStepRuntime = (
+    id: MultiStepId,
+    config: MultiStepConfig = {}
+): Effect.Effect<AgentRuntime<MultiStepState>> =>
     Effect.gen(function* () {
-        const service = yield* EffectorService;
+        const agentRuntimeService = yield* AgentRuntimeService
 
-        // Initial state for the effector
+        // Initial state for the runtime
         const initialState: MultiStepState = {
             id,
             currentStep: 0,
             steps: {},
-            config: defaultConfig,
-        };
+            config: { ...DEFAULT_CONFIG, ...config }
+        }
 
-        const baseEffector = yield* service.create(id, initialState);
+        // Convert string ID to AgentRuntimeId
+        const runtimeId = makeAgentRuntimeId(id)
 
         // Helper to process a single step
         const processStep = (state: MultiStepState): Effect.Effect<MultiStepState, Error> =>
@@ -47,95 +49,141 @@ export const createMultiStepEffector = (id: MultiStepId): Effect.Effect<Effector
                 // Simulate step processing
                 yield* Effect.sleep(state.config.stepDelayMs)
 
-                // Update step status
+                // Update step state
+                const stepState: StepState = {
+                    status: "completed",
+                    startedAt: Date.now(),
+                    completedAt: Date.now(),
+                    result: `Step ${state.currentStep + 1} completed successfully`
+                }
+
                 return {
                     ...state,
                     currentStep: state.currentStep + 1,
                     steps: {
                         ...state.steps,
-                        [state.currentStep]: {
-                            status: "completed",
-                            startedAt: Date.now(),
-                            completedAt: Date.now()
-                        }
+                        [state.currentStep]: stepState
                     }
                 }
             })
 
-        // Process agent records
-        const processRecord = (record: AgentRecord, state: MultiStepState): Effect.Effect<MultiStepState, Error> => {
-            if (record.type !== AgentRecordType.COMMAND) {
-                return Effect.succeed(state)
-            }
+        // Create the agent runtime
+        const runtime = yield* agentRuntimeService.create<MultiStepState>(runtimeId, initialState)
 
-            const payload = record.payload as TaskCommandPayload;
-
-            switch (payload.type) {
-                case MultiStepCommand.START_TASK: {
-                    // Update config if provided, using block scope
-                    const config = payload.config
-                        ? { ...defaultConfig, ...payload.config }
-                        : defaultConfig
-
-                    // Start new task with fresh state
-                    return Effect.succeed({
-                        ...state,
-                        currentStep: 1,
-                        steps: {
-                            0: { status: "completed", startedAt: Date.now(), completedAt: Date.now() }
-                        },
-                        config,
-                        lastOperation: MultiStepCommand.START_TASK
-                    })
+        // Set up message processing
+        yield* pipe(
+            runtime.subscribe(),
+            Stream.tap(record => {
+                if (record.type !== AgentRecordType.COMMAND) {
+                    return Effect.succeed(void 0)
                 }
 
-                case MultiStepCommand.PAUSE_TASK:
-                    return Effect.succeed({
-                        ...state,
-                        lastOperation: MultiStepCommand.PAUSE_TASK
-                    })
+                const command = record.payload as { type: MultiStepCommand }
+                const state = yield * runtime.getState()
 
-                case MultiStepCommand.RESUME_TASK:
-                    return pipe(
-                        processStep(state),
-                        Effect.map(newState => ({
-                            ...newState,
-                            lastOperation: MultiStepCommand.RESUME_TASK
-                        }))
-                    )
+                switch (command.type) {
+                    case MultiStepCommand.START_TASK: {
+                        if (state.state.currentStep > 0 || state.state.paused) {
+                            return Effect.succeed(void 0)
+                        }
 
-                default:
-                    return Effect.succeed(state)
-            }
-        }
+                        // Initialize task state
+                        const startState: MultiStepState = {
+                            ...state.state,
+                            startedAt: Date.now(),
+                            paused: false
+                        }
 
-        // Create enhanced effector with processing logic
-        const enhancedEffector: Effector<MultiStepState> = {
-            ...baseEffector,
-            send: (record: AgentRecord) =>
-                pipe(
-                    baseEffector.getState(),
-                    Effect.flatMap(state => processRecord(record, state.state)),
-                    Effect.flatMap(newState =>
-                        baseEffector.send({
-                            ...record,
-                            type: AgentRecordType.STATE_CHANGE,
-                            payload: {
-                                type: AgentRecordType.STATE_CHANGE,
-                                state: newState
-                            }
-                        })
-                    ),
-                    Effect.mapError(error =>
-                        error instanceof EffectorError
-                            ? error
-                            : new EffectorError({
-                                effectorId: id,
-                                message: error instanceof Error ? error.message : String(error)
+                        // Process all steps
+                        return pipe(
+                            processStep(startState),
+                            Effect.match({
+                                onSuccess: newState => {
+                                    const stateChangeRecord: AgentRecord = {
+                                        id: crypto.randomUUID(),
+                                        agentRuntimeId: runtimeId,
+                                        timestamp: Date.now(),
+                                        type: AgentRecordType.STATE_CHANGE,
+                                        payload: newState,
+                                        metadata: {
+                                            operation: command.type
+                                        }
+                                    }
+                                    return agentRuntimeService.send(runtimeId, stateChangeRecord)
+                                },
+                                onFailure: error => {
+                                    const errorState: MultiStepState = {
+                                        ...state.state,
+                                        error,
+                                        completedAt: Date.now()
+                                    }
+                                    const errorRecord: AgentRecord = {
+                                        id: crypto.randomUUID(),
+                                        agentRuntimeId: runtimeId,
+                                        timestamp: Date.now(),
+                                        type: AgentRecordType.STATE_CHANGE,
+                                        payload: errorState,
+                                        metadata: {
+                                            operation: command.type,
+                                            error: error.message
+                                        }
+                                    }
+                                    return agentRuntimeService.send(runtimeId, errorRecord)
+                                }
                             })
-                    )
-                )
-        };
+                        )
+                    }
+                    case MultiStepCommand.PAUSE_TASK: {
+                        if (state.state.paused || state.state.completedAt) {
+                            return Effect.succeed(void 0)
+                        }
 
-        return enhancedEffector;
-    });
+                        const pausedState: MultiStepState = {
+                            ...state.state,
+                            paused: true
+                        }
+
+                        const pauseRecord: AgentRecord = {
+                            id: crypto.randomUUID(),
+                            agentRuntimeId: runtimeId,
+                            timestamp: Date.now(),
+                            type: AgentRecordType.STATE_CHANGE,
+                            payload: pausedState,
+                            metadata: {
+                                operation: command.type
+                            }
+                        }
+                        return agentRuntimeService.send(runtimeId, pauseRecord)
+                    }
+                    case MultiStepCommand.RESUME_TASK: {
+                        if (!state.state.paused || state.state.completedAt) {
+                            return Effect.succeed(void 0)
+                        }
+
+                        const resumeState: MultiStepState = {
+                            ...state.state,
+                            paused: false
+                        }
+
+                        const resumeRecord: AgentRecord = {
+                            id: crypto.randomUUID(),
+                            agentRuntimeId: runtimeId,
+                            timestamp: Date.now(),
+                            type: AgentRecordType.STATE_CHANGE,
+                            payload: resumeState,
+                            metadata: {
+                                operation: command.type
+                            }
+                        }
+                        return agentRuntimeService.send(runtimeId, resumeRecord)
+                    }
+                    default:
+                        return Effect.succeed(void 0)
+                }
+            }),
+            Stream.runDrain,
+            Effect.fork
+        )
+
+        return runtime
+    })

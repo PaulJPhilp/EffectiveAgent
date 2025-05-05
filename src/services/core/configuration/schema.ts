@@ -1,19 +1,34 @@
-// File: src/services/core/configuration/schema.ts
+/**
+ * @file Core configuration schemas used across services
+ */
 
-import { z } from "zod";
+import { Schema as S } from "effect";
 
-// --- Environment Config Schema ---
-export const EnvironmentConfigSchema = z.object({
-    nodeEnv: z.enum(["development", "test", "production"]).optional(),
-    logLevel: z.enum(["debug", "info", "warn", "error"]).optional(),
-    isDebug: z.boolean().optional()
-});
+/**
+ * Schema for environment configuration
+ */
+export class EnvironmentConfig extends S.Class<EnvironmentConfig>("EnvironmentConfig")({
+    nodeEnv: S.Union(
+        S.Literal("development"),
+        S.Literal("test"),
+        S.Literal("production")
+    ).pipe(S.optional),
+    logLevel: S.Union(
+        S.Literal("debug"),
+        S.Literal("info"),
+        S.Literal("warn"),
+        S.Literal("error")
+    ).pipe(S.optional),
+    isDebug: S.Boolean.pipe(S.optional)
+}) { }
 
-// --- Base Config Schema ---
-// All config files must extend this base schema
-export const BaseConfigSchema = z.object({
-    name: z.string().min(1),
-    description: z.string().optional(),
-    version: z.string().min(1),
-    tags: z.array(z.string()).default([])
-}).strict();
+/**
+ * Base configuration schema.
+ * All config files must extend this base schema.
+ */
+export class BaseConfig extends S.Class<BaseConfig>("BaseConfig")({
+    name: S.String.pipe(S.minLength(1)),
+    description: S.String.pipe(S.optional),
+    version: S.String.pipe(S.minLength(1)),
+    tags: S.Array(S.String).pipe(S.withDefault([]))
+}) { }

@@ -3,7 +3,6 @@
  * @module services/pipeline/producers/text/schema
  */
 
-import { Schema } from "effect";
 
 // Input types for text completion
 export class TextCompletionInput extends Schema.Class<TextCompletionInput>("TextCompletionInput")({
@@ -22,7 +21,7 @@ export class TextCompletionInput extends Schema.Class<TextCompletionInput>("Text
   frequencyPenalty: Schema.optional(Schema.Number),
   seed: Schema.optional(Schema.Number),
   stop: Schema.optional(Schema.Array(Schema.String)),
-}) {}
+}) { }
 
 // Output types for text completion
 export class TextCompletionOutput extends Schema.Class<TextCompletionOutput>("TextCompletionOutput")({
@@ -32,4 +31,4 @@ export class TextCompletionOutput extends Schema.Class<TextCompletionOutput>("Te
     completionTokens: Schema.Number,
     totalTokens: Schema.Number,
   }),
-}) {}
+}) { }
