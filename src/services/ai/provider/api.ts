@@ -2,7 +2,9 @@ import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { Effect } from "effect";
 
 import { ModelCapability } from "@/schema.js";
-import { EffectiveInput } from "@/services/ai/input/service.js";
+import type { InputServiceApi } from "@/services/pipeline/input/api.js";
+import type { EffectiveInput } from "@/types.js";
+import type { ProviderToolError } from "./errors.js";
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import {
     ProviderConfigError,
@@ -10,6 +12,7 @@ import {
     ProviderNotFoundError,
     ProviderOperationError
 } from "./errors.js";
+import type { MissingModelIdError } from "@/services/ai/model/errors.js";
 import { ProviderFile, ProvidersType } from "./schema.js";
 import {
     EffectiveProviderApi,
@@ -58,6 +61,40 @@ export interface ProviderServiceApi {
  * Methods are specifically typed to match capabilities and return types.
  */
 export interface ProviderClientApi {
+    /**
+     * Validates tool inputs against their schemas and prepares them for execution.
+     * @param toolName - Name of the tool to validate input for
+     * @param input - Raw input to validate
+     * @returns Effect that resolves with validated input or fails with validation error
+     */
+    readonly validateToolInput: (
+        toolName: string,
+        input: unknown
+    ) => Effect.Effect<unknown, ProviderToolError>;
+
+    /**
+     * Executes a tool with validated input.
+     * @param toolName - Name of the tool to execute
+     * @param input - Validated input for the tool
+     * @returns Effect that resolves with tool output or fails with execution error
+     */
+    readonly executeTool: (
+        toolName: string,
+        input: unknown
+    ) => Effect.Effect<unknown, ProviderToolError>;
+
+    /**
+     * Processes tool execution results and formats them for the model.
+     * @param toolName - Name of the tool that was executed
+     * @param result - Raw result from tool execution
+     * @returns Effect that resolves with formatted result or fails with processing error
+     */
+    readonly processToolResult: (
+        toolName: string,
+        result: unknown
+    ) => Effect.Effect<unknown, ProviderToolError>;
+
+
     chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderConfigError>;
     /**
      * Set a Vercel AI SDK provider for this client.
@@ -133,4 +170,9 @@ export interface ProviderClientApi {
     >;
 
     readonly getModels: () => Effect.Effect<LanguageModelV1[], ProviderConfigError, ModelServiceApi>;
+
+    readonly getDefaultModelIdForProvider: (
+        providerName: ProvidersType,
+        capability: ModelCapability
+    ) => Effect.Effect<string, ProviderConfigError | MissingModelIdError>;
 }

@@ -1,13 +1,34 @@
 /**
- * @file Contract definition for the WeatherPipeline
+ * @file Contract definition for Weather Pipelines
  * @module ea/pipelines/weather/contract
  */
 
-import { Effect } from "effect";
-import { AnyPipelineError } from "../common/errors.js";
+import { Context, Data, Effect } from "effect";
 
 /**
- * Input parameters for the WeatherPipeline
+ * Configuration for Weather Pipelines
+ */
+export interface WeatherPipelineConfig {
+    /** API key for the weather service */
+    apiKey: string;
+    /** Base URL for the weather service API */
+    baseUrl: string;
+    /** Default units for temperature measurements */
+    defaultUnits: "celsius" | "fahrenheit";
+    /** Timeout in milliseconds for API requests */
+    timeoutMs: number;
+}
+
+/**
+ * Configuration context for Weather Pipelines
+ */
+export class WeatherPipelineConfigContext extends Context.Tag("WeatherPipelineConfig")<
+    WeatherPipelineConfigContext,
+    WeatherPipelineConfig
+>() { }
+
+/**
+ * Input parameters for Weather Pipelines
  */
 export interface WeatherPipelineInput {
     /** Location to retrieve weather data for (city name, coordinates, etc.) */
@@ -75,44 +96,43 @@ export interface WeatherData {
 }
 
 /**
- * Error specific to the WeatherPipeline
+ * Error specific to Weather Pipelines
  */
-export class WeatherPipelineError extends AnyPipelineError {
-    constructor(params: { message: string; cause?: unknown }) {
-        super({
-            message: params.message,
-            pipelineName: "WeatherPipeline",
-            cause: params.cause,
-        });
-    }
-}
+export class WeatherPipelineError extends Data.TaggedError("WeatherPipelineError")<{
+    readonly message: string;
+    readonly cause?: unknown;
+}> { }
 
 /**
- * API contract for the WeatherPipeline service
+ * The WeatherService API interface
+ * Defines methods for retrieving weather data and summaries
  */
-export interface WeatherPipelineApi {
+export interface WeatherServiceApi {
     /**
-     * Retrieves current weather data for a specific location
+     * Gets detailed weather data for a specific location
      * 
      * @param input - Weather request parameters
      * @returns Effect that resolves to weather data or fails with pipeline error
      */
     getWeather: (
         input: WeatherPipelineInput
-    ) => Effect.Effect<WeatherData, WeatherPipelineError>;
+    ) => Effect.Effect<WeatherData, WeatherPipelineError, never>;
 
     /**
-     * Retrieves a natural language summary of weather conditions
+     * Gets a natural language summary of weather conditions for a location
      * 
-     * @param input - Weather request parameters
+     * @param input - Weather request parameters 
      * @returns Effect that resolves to a formatted weather summary string
      */
     getWeatherSummary: (
         input: WeatherPipelineInput
-    ) => Effect.Effect<string, WeatherPipelineError>;
+    ) => Effect.Effect<string, WeatherPipelineError, never>;
 }
 
 /**
- * Service tag for the WeatherPipeline
+ * Weather Service class for dependency injection
  */
-export const WeatherPipeline = Effect.GenericTag<WeatherPipelineApi>("WeatherPipeline"); 
+export class WeatherService extends Context.Tag("WeatherService")<
+    WeatherService,
+    WeatherServiceApi
+>() { }

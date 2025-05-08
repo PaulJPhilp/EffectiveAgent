@@ -1,116 +1,94 @@
+import { EffectiveError } from "@/errors.js"
 import type { AgentRuntimeId } from "./types.js"
 
 /**
- * Base error class for agent runtime related errors
+ * Common interface for agent runtime error properties.
  */
-export class AgentRuntimeError extends Error {
-    readonly _tag = "AgentRuntimeError"
+export interface AgentRuntimeErrorProps {
+    readonly agentRuntimeId: AgentRuntimeId
+    readonly message: string
+    readonly cause?: unknown
+}
 
-    constructor(readonly props: {
-        agentRuntimeId: AgentRuntimeId
-        message: string
-        cause?: unknown
-    }) {
-        super(props.message)
-        this.name = "AgentRuntimeError"
-        if (props.cause) {
-            this.cause = props.cause
-        }
+/**
+ * Base error class for agent runtime related errors.
+ */
+export class AgentRuntimeError extends EffectiveError {
+    readonly agentRuntimeId: AgentRuntimeId
+    constructor(props: AgentRuntimeErrorProps) {
+        super({
+            description: props.message,
+            module: "agent-runtime",
+            method: "AgentRuntimeError",
+            cause: props.cause
+        })
+        this.agentRuntimeId = props.agentRuntimeId
     }
 }
 
 /**
- * Error thrown when an agent runtime instance is not found
+ * Error thrown when an agent runtime instance is not found.
  */
 export class AgentRuntimeNotFoundError extends AgentRuntimeError {
-    readonly _tag = "AgentRuntimeNotFoundError"
-
-    constructor(props: {
-        agentRuntimeId: AgentRuntimeId
-        message: string
-        cause?: unknown
-    }) {
-        super(props)
-        this.name = "AgentRuntimeNotFoundError"
+    constructor(props: AgentRuntimeErrorProps) {
+        super({ ...props, message: props.message })
     }
 }
 
 /**
- * Error thrown when trying to interact with a terminated agent runtime
+ * Error thrown when trying to interact with a terminated agent runtime.
  */
 export class AgentRuntimeTerminatedError extends AgentRuntimeError {
-    readonly _tag = "AgentRuntimeTerminatedError"
-
-    constructor(props: {
-        agentRuntimeId: AgentRuntimeId
-        message: string
-        cause?: unknown
-    }) {
-        super(props)
-        this.name = "AgentRuntimeTerminatedError"
+    constructor(props: AgentRuntimeErrorProps) {
+        super({ ...props, message: props.message })
     }
 }
 
 /**
- * Error thrown when a mailbox operation fails
+ * Error thrown when a mailbox operation fails.
  */
 export class MailboxError extends AgentRuntimeError {
-    readonly _tag = "MailboxError"
-
-    constructor(props: {
-        agentRuntimeId: AgentRuntimeId
-        message: string
-        cause?: unknown
-    }) {
-        super(props)
-        this.name = "MailboxError"
+    constructor(props: AgentRuntimeErrorProps) {
+        super({ ...props, message: props.message })
     }
 }
 
 /**
- * Error thrown when the agent runtime is in an invalid state
+ * Error thrown when the agent runtime is in an invalid state.
  */
 export class InvalidStateError extends AgentRuntimeError {
-    readonly _tag = "InvalidStateError"
-
-    constructor(props: {
-        agentRuntimeId: AgentRuntimeId
-        message: string
-        cause?: unknown
-    }) {
-        super(props)
-        this.name = "InvalidStateError"
+    constructor(props: AgentRuntimeErrorProps) {
+        super({ ...props, message: props.message })
     }
 }
 
 /**
- * Error thrown when there is a configuration issue with the agent runtime
+ * Error thrown when there is a configuration issue with the agent runtime.
  */
 export class ConfigurationError extends AgentRuntimeError {
-    readonly _tag = "ConfigurationError"
-
-    constructor(props: {
-        agentRuntimeId: AgentRuntimeId
-        message: string
-        cause?: unknown
-    }) {
-        super(props)
-        this.name = "ConfigurationError"
+    constructor(props: AgentRuntimeErrorProps) {
+        super({ ...props, message: props.message })
     }
 }
 
 /**
- * Error thrown when there is an issue with the agent workflow processing
+ * Error thrown when there is an issue with the agent workflow processing.
  */
 export class ProcessingError extends AgentRuntimeError {
-    readonly _tag = "ProcessingError"
+    constructor(props: AgentRuntimeErrorProps) {
+        super({ ...props, message: props.message })
+    }
+}
 
-    constructor(props: {
-        agentRuntimeId: AgentRuntimeId
-        message: string
-        cause?: unknown
-    }) {
+/**
+ * Error thrown when message processing fails for a specific activity.
+ */
+export class AgentRuntimeProcessingError extends AgentRuntimeError {
+    readonly activityId: string
+    readonly cause?: unknown
+    constructor(props: AgentRuntimeErrorProps & { activityId: string }) {
         super(props)
-        this.name = "ProcessingError"
+        this.activityId = props.activityId
+        this.cause = props.cause
     }
 }

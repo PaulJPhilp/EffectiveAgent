@@ -23,12 +23,19 @@ export class EnvironmentConfig extends S.Class<EnvironmentConfig>("EnvironmentCo
 }) { }
 
 /**
- * Base configuration schema.
- * All config files must extend this base schema.
+ * Base interface that all configuration types must extend.
+ * Ensures consistent properties across all configurations.
  */
-export class BaseConfig extends S.Class<BaseConfig>("BaseConfig")({
-    name: S.String.pipe(S.minLength(1)),
-    description: S.String.pipe(S.optional),
-    version: S.String.pipe(S.minLength(1)),
-    tags: S.Array(S.String).pipe(S.withDefault([]))
+export interface BaseConfig {
+    readonly name: string;
+    readonly version: string;
+}
+
+/**
+ * Base schema that all configuration schemas must extend.
+ * Provides validation for the base configuration properties.
+ */
+export class BaseConfigSchema extends S.Class<BaseConfigSchema>("BaseConfigSchema")({
+    name: S.String,
+    version: S.String
 }) { }

@@ -2,7 +2,7 @@
  * @file Tests for TagService implementation
  */
 
-import { Effect, Exit, Layer, Option } from "effect";
+import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
 import type { TagServiceApi } from "@core/tag/api.js";

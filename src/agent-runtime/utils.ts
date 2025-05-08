@@ -6,7 +6,7 @@ import type { AgentRecord, AgentRuntimeId, AgentRuntimeState } from "./types.js"
  */
 export const makeAgentRuntimeId = (namespace?: string): AgentRuntimeId => {
     const uuid = crypto.randomUUID()
-    return namespace ? `${namespace}:${uuid}` : uuid
+    return (namespace ? `${namespace}:${uuid}` : uuid) as AgentRuntimeId
 }
 
 /**

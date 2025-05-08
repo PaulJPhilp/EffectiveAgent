@@ -1,4 +1,4 @@
-import { Effect, Ref } from "effect"
+import { Effect, Either, Ref } from "effect"
 import { describe, expect, it } from "vitest"
 import {
     AgentRecord,
@@ -21,6 +21,12 @@ const didFail = async (effect: Effect.Effect<unknown>): Promise<boolean> => {
     } catch {
         return false
     }
+}
+
+// Helper to check if an effect will fail
+const willFail = async <E, A>(effect: Effect.Effect<A, E>): Promise<boolean> => {
+    const result = await Effect.runPromise(Effect.either(effect))
+    return Either.isLeft(result as Either.Either<unknown, unknown>) as unknown as boolean
 }
 
 describe("AgentRuntimeService", () => {

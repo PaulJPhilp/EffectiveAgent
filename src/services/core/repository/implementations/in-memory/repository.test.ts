@@ -1,6 +1,5 @@
-import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
 import { createServiceTestHarness } from "@core/test-utils/effect-test-harness.js";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
 import { InMemoryRepository } from "./repository.js";
 
@@ -17,9 +16,10 @@ interface TestEntity {
 describe("InMemoryRepository", () => {
   const repository = InMemoryRepository<TestEntity>();
   const harness = createServiceTestHarness(
-    repository.Tag,
-    () => repository.make("test"),
-    undefined,
+    Layer.effect(
+      repository.Tag,
+      repository.make("test")
+    )
   );
 
   describe("create", () => {
@@ -35,7 +35,7 @@ describe("InMemoryRepository", () => {
         return entity;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
   });
 
@@ -53,7 +53,7 @@ describe("InMemoryRepository", () => {
         return found;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
 
     it("should return None for non-existent id", async () => {
@@ -64,7 +64,7 @@ describe("InMemoryRepository", () => {
         return found;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
   });
 
@@ -77,7 +77,7 @@ describe("InMemoryRepository", () => {
         yield* service.create({ name: "other", value: 24 });
 
         const found = yield* service.findMany({
-          filter: { value: 42 },
+          filter: { value: 42 }
         });
 
         expect(found.length).toBe(2);
@@ -85,7 +85,7 @@ describe("InMemoryRepository", () => {
         return found;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
 
     it("should support pagination", async () => {
@@ -97,12 +97,12 @@ describe("InMemoryRepository", () => {
 
         const page1 = yield* service.findMany({
           offset: 0,
-          limit: 2,
+          limit: 2
         });
 
         const page2 = yield* service.findMany({
           offset: 2,
-          limit: 2,
+          limit: 2
         });
 
         expect(page1.length).toBe(2);
@@ -110,7 +110,7 @@ describe("InMemoryRepository", () => {
         return { page1, page2 };
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
   });
 
@@ -126,7 +126,7 @@ describe("InMemoryRepository", () => {
         return updated;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
 
     it("should fail when updating non-existent entity", async () => {
@@ -135,7 +135,7 @@ describe("InMemoryRepository", () => {
         yield* service.update("non-existent", { value: 24 });
       });
 
-      await harness.expectError(effect, EntityNotFoundError);
+      await harness.expectError(effect, "EntityNotFoundError");
     });
   });
 
@@ -149,7 +149,7 @@ describe("InMemoryRepository", () => {
         expect(found._tag).toBe("None");
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
 
     it("should fail when deleting non-existent entity", async () => {
@@ -158,7 +158,7 @@ describe("InMemoryRepository", () => {
         yield* service.delete("non-existent");
       });
 
-      await harness.expectError(effect, EntityNotFoundError);
+      await harness.expectError(effect, "EntityNotFoundError");
     });
   });
 
@@ -171,14 +171,14 @@ describe("InMemoryRepository", () => {
         yield* service.create({ name: "other", value: 24 });
 
         const count = yield* service.count({
-          filter: { value: 42 },
+          filter: { value: 42 }
         });
 
         expect(count).toBe(2);
         return count;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
   });
 });

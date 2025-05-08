@@ -9,8 +9,8 @@
       "recommended": true,
       "suspicious": {
         "noConsole": "off",
-         "noImplicitAnyLet": "error",
-         "noExplicitAny": "off"
+        "noImplicitAnyLet": "error",
+        "noExplicitAny": "off"
       },
       "style": {
         "all": false
@@ -18,6 +18,11 @@
       "complexity": {
         "all": false
       }
-    }
+    },
+    "ignore": [
+      "**/data/**",
+      "**/dist/**",
+      "**/node_modules/**"
+    ]
   }
 }

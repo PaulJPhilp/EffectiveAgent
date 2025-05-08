@@ -1,8 +1,7 @@
-import { EntityNotFoundError } from "@core/repository/errors.js";
 import type { BaseEntity } from "@core/repository/types.js";
 import { createServiceTestHarness } from "@core/test-utils/effect-test-harness.js";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import postgres from "postgres";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import { DrizzleRepository } from "./repository.js";
@@ -28,8 +27,10 @@ describe("DrizzleRepository", () => {
   // Create test harness
   const repository = DrizzleRepository<TestEntity>();
   const harness = createServiceTestHarness(
-    repository.Tag,
-    () => repository.make({ db, table: testTable }),
+    Layer.effect(
+      repository.Tag,
+      repository.make({ db, table: testTable })
+    )
   );
 
   // Clean up test data before each test
@@ -51,13 +52,13 @@ describe("DrizzleRepository", () => {
         return entity;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
   });
 
   describe("findById", () => {
     it("should find an entity by id", async () => {
-      const effect = Effect.gen(function* (_) {
+      const effect = Effect.gen(function* () {
         const service = yield* repository.Tag;
         const created = yield* service.create({ name: "test", value: 42 });
         const found = yield* service.findById(created.id);
@@ -69,24 +70,24 @@ describe("DrizzleRepository", () => {
         return found;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
 
     it("should return None for non-existent id", async () => {
-      const effect = Effect.gen(function* (_) {
+      const effect = Effect.gen(function* () {
         const service = yield* repository.Tag;
         const found = yield* service.findById("non-existent");
         expect(found._tag).toBe("None");
         return found;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
   });
 
   describe("findMany", () => {
     it("should find entities matching filter", async () => {
-      const effect = Effect.gen(function* (_) {
+      const effect = Effect.gen(function* () {
         const service = yield* repository.Tag;
         yield* service.create({ name: "test1", value: 42 });
         yield* service.create({ name: "test2", value: 42 });
@@ -98,11 +99,11 @@ describe("DrizzleRepository", () => {
         return found;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
 
     it("should support pagination", async () => {
-      const effect = Effect.gen(function* (_) {
+      const effect = Effect.gen(function* () {
         const service = yield* repository.Tag;
         yield* service.create({ name: "test1", value: 42 });
         yield* service.create({ name: "test2", value: 42 });
@@ -116,13 +117,13 @@ describe("DrizzleRepository", () => {
         return { page1, page2 };
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
   });
 
   describe("update", () => {
     it("should update an existing entity", async () => {
-      const effect = Effect.gen(function* (_) {
+      const effect = Effect.gen(function* () {
         const service = yield* repository.Tag;
         const created = yield* service.create({ name: "test", value: 42 });
         const updated = yield* service.update(created.id, { value: 24 });
@@ -132,22 +133,22 @@ describe("DrizzleRepository", () => {
         return updated;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
 
     it("should fail when updating non-existent entity", async () => {
-      const effect = Effect.gen(function* (_) {
+      const effect = Effect.gen(function* () {
         const service = yield* repository.Tag;
         yield* service.update("non-existent", { value: 24 });
       });
 
-      await harness.expectError(effect, EntityNotFoundError, { layer: harness.layer });
+      await harness.expectError(effect, "EntityNotFoundError");
     });
   });
 
   describe("delete", () => {
     it("should delete an existing entity", async () => {
-      const effect = Effect.gen(function* (_) {
+      const effect = Effect.gen(function* () {
         const service = yield* repository.Tag;
         const created = yield* service.create({ name: "test", value: 42 });
         yield* service.delete(created.id);
@@ -156,16 +157,16 @@ describe("DrizzleRepository", () => {
         expect(found._tag).toBe("None");
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
 
     it("should fail when deleting non-existent entity", async () => {
-      const effect = Effect.gen(function* (_) {
+      const effect = Effect.gen(function* () {
         const service = yield* repository.Tag;
         yield* service.delete("non-existent");
       });
 
-      await harness.expectError(effect, EntityNotFoundError, { layer: harness.layer });
+      await harness.expectError(effect, "EntityNotFoundError");
     });
   });
 
@@ -182,7 +183,7 @@ describe("DrizzleRepository", () => {
         return count;
       });
 
-      await harness.runTest(effect, { layer: harness.layer });
+      await harness.runTest(effect);
     });
   });
 

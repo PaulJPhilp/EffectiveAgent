@@ -26,7 +26,7 @@ export class TextCompletionInput extends Schema.Class<TextCompletionInput>("Text
 // Output types for text completion
 export class TextCompletionOutput extends Schema.Class<TextCompletionOutput>("TextCompletionOutput")({
   text: Schema.String,
-  usage: Schema.Struct({
+  usage: Schema.Class<Usage>("Usage")({
     promptTokens: Schema.Number,
     completionTokens: Schema.Number,
     totalTokens: Schema.Number,

@@ -3,7 +3,7 @@
  * @module services/core/test-harness/utils/service-test
  */
 
-import { Context, Effect, Layer } from "effect";
+import { Cause, Context, Effect, Exit, Layer, Option, pipe } from "effect";
 
 /**
  * Creates a test harness for testing Effect services.
@@ -12,13 +12,13 @@ import { Context, Effect, Layer } from "effect";
  * @param createTestImpl - Function that creates a test implementation of the service
  * @returns A test harness object with utilities for running tests
  */
-export function createServiceTestHarness<S, R>(
+export function createServiceTestHarness<S>(
     ServiceTag: Context.Tag<S, S>,
-    createTestImpl: () => Effect.Effect<S, never, R>
+    createTestImpl: () => Effect.Effect<S>
 ) {
-    const TestLayer = Layer.effect(
+    const TestLayer = Layer.succeed(
         ServiceTag,
-        createTestImpl()
+        Effect.runSync(createTestImpl())
     );
 
     return {
@@ -27,34 +27,39 @@ export function createServiceTestHarness<S, R>(
         /**
          * Runs a test effect that expects success
          */
-        runTest: <A, E>(effect: Effect.Effect<A, E>) =>
-            Effect.runPromise(
-                effect.pipe(
-                    Effect.provide(TestLayer)
-                )
+        runTest: <A, E>(effect: Effect.Effect<A, E, S>) =>
+            pipe(
+                effect,
+                Effect.provide(TestLayer),
+                Effect.runPromise
             ),
 
         /**
          * Runs a test effect and expects a specific error
          */
-        expectError: (effect: Effect.Effect<any, any>, errorTag: string) =>
+        expectError: (effect: Effect.Effect<any, any, S>, errorTag: string) =>
             Effect.gen(function* () {
-                const result = yield* Effect.runPromiseExit(
-                    effect.pipe(
-                        Effect.provide(TestLayer)
-                    )
+                const exit = yield* pipe(
+                    effect,
+                    Effect.provide(TestLayer),
+                    Effect.exit
                 );
 
-                if (!Effect.isFailure(result)) {
+                if (!Exit.isFailure(exit)) {
                     throw new Error(`Expected error with tag ${errorTag} but got success`);
                 }
 
-                const error = result.cause.failures[0];
-                if (error.name !== errorTag) {
+                const error = Cause.failureOption(exit.cause);
+                if (Option.isNone(error)) {
+                    throw new Error(`Expected error but got none`);
+                }
+
+                const failure = error.value as { name: string };
+                if (failure.name !== errorTag) {
                     throw new Error(
-                        `Expected error with tag ${errorTag} but got ${error.name}`
+                        `Expected error with tag ${errorTag} but got ${failure.name}`
                     );
                 }
             })
     };
-} 
+}

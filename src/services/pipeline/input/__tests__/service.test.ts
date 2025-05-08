@@ -2,15 +2,20 @@
  * @file Test suite for InputService
  */
 
-import { type EffectiveRole } from "@/schema.js";
 import { Message, TextPart } from "@effect/ai/AiInput";
 import { Model, User } from "@effect/ai/AiRole";
-import { Chunk, Effect } from "effect";
+import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
-import { NoAudioFileError } from "../errors.js";
-import { InvalidInputError, InvalidMessageError } from "../errors.js";
+import { InvalidInputError, InvalidMessageError, NoAudioFileError } from "../errors.js";
 import { FilePart, ReasoningPart, RedactedReasoningPart, ToolPart, ToolResultPart } from "../schema.js";
 import { InputService } from "../service.js";
+
+// Test schema for Person object
+class Person extends Schema.Class<Person>("Person")({
+    name: Schema.String,
+    age: Schema.Number,
+    email: Schema.String.pipe(Schema.optional)
+}) { }
 
 describe("InputService", () => {
     // --- Message Creation ---

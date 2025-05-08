@@ -1,5 +1,5 @@
 /**
- * @file Defines the Pipeline service API for executing effects with configurable retry and timeout.
+ * @file Defines the Pipeline service API for executing effects with configurable timeout.
  */
 
 import { Effect } from "effect";
@@ -10,16 +10,14 @@ import type { PipelineError, PipelineValidationError } from "./errors.js";
  * Represents the configuration for a pipeline execution.
  */
 export interface PipelineConfig {
-    readonly maxRetries?: number;
-    readonly retryDelay?: Duration;
     readonly timeout?: Duration;
 }
 
 /**
- * Service for executing Effects with configurable retry and timeout behavior.
+ * Service for executing Effects with configurable timeout behavior.
  * 
  * @remarks
- * This service provides a way to wrap Effects with standardized retry and timeout
+ * This service provides a way to wrap Effects with standardized timeout
  * policies. It ensures consistent error handling and resource cleanup across
  * pipeline executions.
  * 
@@ -27,17 +25,16 @@ export interface PipelineConfig {
  * ```typescript
  * const effect = Effect.succeed("result");
  * const result = yield* Pipeline.execute(effect, {
- *   maxRetries: 3,
  *   timeout: Duration.seconds(30)
  * });
  * ```
  */
 export interface PipelineApi {
     /**
-     * Executes an Effect with configured retry and timeout behavior.
+     * Executes an Effect with configured timeout behavior.
      * 
      * @param effect - The Effect to execute
-     * @param config - Optional configuration for retry and timeout behavior
+     * @param config - Optional configuration for timeout behavior
      * @returns An Effect that will run with the specified configuration
      * @template A - The success type of the Effect
      * @template E - The error type of the Effect
@@ -45,8 +42,6 @@ export interface PipelineApi {
      * 
      * @remarks
      * The execution will:
-     * - Retry failed attempts up to maxRetries times
-     * - Wait retryDelay between attempts
      * - Timeout after the specified duration
      * - Transform errors into PipelineError types
      */

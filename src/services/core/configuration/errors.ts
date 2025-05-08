@@ -1,6 +1,38 @@
-// File: src/services/core/configuration/errors.ts
+/**
+ * @file Defines error types for the Configuration Service.
+ * @module services/core/configuration/errors
+ */
 
 import { Data, ParseResult } from "effect";
+
+/**
+ * Error thrown when reading a configuration file fails.
+ */
+export class ConfigReadError extends Data.TaggedError("ConfigReadError")<{
+    readonly filePath: string;
+    readonly cause?: unknown;
+}> { }
+
+/**
+ * Error thrown when parsing JSON content fails.
+ */
+export class ConfigParseError extends Data.TaggedError("ConfigParseError")<{
+    readonly filePath: string;
+    readonly cause?: unknown;
+}> { }
+
+/**
+ * Error thrown when validating configuration against a schema fails.
+ */
+export class ConfigValidationError extends Data.TaggedError("ConfigValidationError")<{
+    readonly filePath: string;
+    readonly validationError: ParseResult.ParseError;
+}> { }
+
+/**
+ * Union type of all possible configuration service errors.
+ */
+export type ConfigError = ConfigReadError | ConfigParseError | ConfigValidationError;
 
 // Base Error (Optional but good practice)
 export class ConfigurationError extends Data.TaggedError("ConfigurationError")<{
@@ -11,49 +43,6 @@ export class ConfigurationError extends Data.TaggedError("ConfigurationError")<{
 }> {
     constructor(options: { message: string; key?: string; filePath?: string; cause?: unknown }) {
         super(options);
-    }
-}
-
-// Specific Errors
-export class ConfigReadError extends Data.TaggedError("ConfigReadError")<{
-    readonly message: string;
-    readonly filePath: string;
-    readonly cause?: unknown;
-}> {
-    constructor(options: { filePath: string; cause?: unknown }) {
-        super({
-            message: `Failed to read configuration file: ${options.filePath}`,
-            filePath: options.filePath,
-            cause: options.cause
-        });
-    }
-}
-
-export class ConfigParseError extends Data.TaggedError("ConfigParseError")<{
-    readonly message: string;
-    readonly filePath: string;
-    readonly cause?: unknown;
-}> {
-    constructor(options: { filePath: string; cause?: unknown }) {
-        super({
-            message: `Failed to parse JSON in configuration file: ${options.filePath}`,
-            filePath: options.filePath,
-            cause: options.cause
-        });
-    }
-}
-
-export class ConfigValidationError extends Data.TaggedError("ConfigValidationError")<{
-    readonly message: string;
-    readonly filePath: string;
-    readonly validationError: ParseResult.ParseError;
-}> {
-    constructor(options: { filePath: string; validationError: ParseResult.ParseError }) {
-        super({
-            message: `Configuration validation failed for ${options.filePath}: ${options.validationError.message}`,
-            filePath: options.filePath,
-            validationError: options.validationError
-        });
     }
 }
 

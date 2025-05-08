@@ -8,6 +8,10 @@ import { ModelService } from "../service.js";
 // Create a test layer that provides ModelService
 const TestModelServiceLayer = ModelService.Default;
 
+/**
+ * Tests for the ModelService implementation
+ * This suite verifies model validation, capability checking, and model discovery
+ */
 describe("ModelService", () => {
     describe("validation", () => {
         it("should validate model with capabilities", () => Effect.gen(function* () {
@@ -16,14 +20,37 @@ describe("ModelService", () => {
             expect(result).toBe(true);
         }).pipe(Effect.provide(TestModelServiceLayer)));
 
-        it("should fail validation for invalid model", () => Effect.gen(function* () {
-            const service = yield* ModelService;
-            const result = yield* Effect.either(service.validateModel("invalid-model", ModelCapability));
-            expect(Either.isLeft(result)).toBe(true);
-            if (Either.isLeft(result)) {
-                expect(result.left).toBeInstanceOf(ModelValidationError);
-            }
-        }).pipe(Effect.provide(TestModelServiceLayer)));
+        /**
+         * Test different model validation scenarios
+         */
+        describe("parameterized validation tests", () => {
+            // Define test cases for model validation
+            const testCases = [
+                { modelId: "gpt-4o", expectedValid: true, description: "valid model with all capabilities" },
+                { modelId: "invalid-model", expectedValid: false, errorType: ModelNotFoundError, description: "non-existent model" },
+                { modelId: "dalle-3", expectedValid: false, errorType: ModelValidationError, description: "model missing required capabilities" },
+                { modelId: "gpt-4o-audio-preview", expectedValid: false, errorType: ModelValidationError, description: "model with partial capabilities" }
+            ];
+
+            // Run each test case using the testEach helper
+            it.each(testCases)('should handle $description correctly', async ({ modelId, expectedValid, errorType }) => {
+                const effect = Effect.gen(function* () {
+                    const service = yield* ModelService;
+                    const result = yield* Effect.either(service.validateModel(modelId, ModelCapability));
+
+                    if (expectedValid) {
+                        expect(Either.isRight(result)).toBe(true);
+                    } else {
+                        expect(Either.isLeft(result)).toBe(true);
+                        if (Either.isLeft(result) && errorType) {
+                            expect(result.left).toBeInstanceOf(errorType);
+                        }
+                    }
+                });
+
+                await Effect.runPromise(Effect.provide(effect, TestModelServiceLayer));
+            });
+        });
 
         it("should validate model with specific capabilities", () => Effect.gen(function* () {
             const service = yield* ModelService;
@@ -37,38 +64,12 @@ describe("ModelService", () => {
             expect(model?.vendorCapabilities).toContain("text-generation");
             expect(model?.vendorCapabilities).toContain("chat");
         }).pipe(Effect.provide(TestModelServiceLayer)));
-
-        it("should fail validation for model missing capabilities", () => Effect.gen(function* () {
-            const service = yield* ModelService;
-            const result = yield* Effect.either(service.validateModel("dalle-3", ModelCapability));
-            expect(Either.isLeft(result)).toBe(true);
-            if (Either.isLeft(result)) {
-                expect(result.left).toBeInstanceOf(ModelValidationError);
-            }
-        }).pipe(Effect.provide(TestModelServiceLayer)));
-
-        it("should fail validation if model lacks required capabilities", () => Effect.gen(function* () {
-            const service = yield* ModelService;
-            const modelId = "gpt-4o-audio-preview"; // This model only has audio and chat
-            const result = yield* Effect.either(service.validateModel(modelId, ModelCapability));
-            expect(Either.isLeft(result)).toBe(true);
-            if (Either.isLeft(result)) {
-                expect(result.left).toBeInstanceOf(ModelValidationError);
-            }
-        }).pipe(Effect.provide(TestModelServiceLayer)));
-
-        it("should fail for non-existent model", () => Effect.gen(function* () {
-            const service = yield* ModelService;
-            const modelId = "non-existent-model-id";
-            const result = yield* Effect.either(service.validateModel(modelId, ModelCapability));
-            expect(Either.isLeft(result)).toBe(true);
-            if (Either.isLeft(result)) {
-                expect(result.left).toBeInstanceOf(ModelNotFoundError);
-            }
-        }).pipe(Effect.provide(TestModelServiceLayer)));
     });
 
     describe("findModelsByCapability", () => {
+        /**
+         * Test discovering models by their capabilities
+         */
         it("should find models with chat capability", () => Effect.gen(function* () {
             const service = yield* ModelService;
             const models = yield* service.findModelsByCapability(ModelCapability);
@@ -88,7 +89,11 @@ describe("ModelService", () => {
         }).pipe(Effect.provide(TestModelServiceLayer)));
     });
 
+    // Test specific capabilities and model properties
     describe("advanced capabilities", () => {
+        /**
+         * Tests for vision-capable models
+         */
         it("should identify models with vision capabilities", () => Effect.gen(function* () {
             const service = yield* ModelService;
             const models = yield* service.findModelsByCapability(ModelCapability);
@@ -96,6 +101,9 @@ describe("ModelService", () => {
             expect(visionModels.length).toBeGreaterThan(0);
         }).pipe(Effect.provide(TestModelServiceLayer)));
 
+        /**
+         * Tests for large context window models
+         */
         it("should prefer models with larger context windows", () => Effect.gen(function* () {
             const service = yield* ModelService;
             const models = yield* service.findModelsByCapability(ModelCapability);
@@ -104,6 +112,9 @@ describe("ModelService", () => {
             expect(Math.max(...contextSizes)).toBeGreaterThan(0);
         }).pipe(Effect.provide(TestModelServiceLayer)));
 
+        /**
+         * Tests for handling models with missing cost information
+         */
         it("should handle models with missing cost information", () => Effect.gen(function* () {
             const service = yield* ModelService;
             const models = yield* service.findModelsByCapability(ModelCapability);
@@ -115,6 +126,9 @@ describe("ModelService", () => {
     });
 
     describe("findModelsByCapabilities", () => {
+        /**
+         * Tests for finding models with multiple specific capabilities
+         */
         it("should find models with all specified capabilities", () => Effect.gen(function* () {
             const service = yield* ModelService;
             const models = yield* service.findModelsByCapabilities(ModelCapability);

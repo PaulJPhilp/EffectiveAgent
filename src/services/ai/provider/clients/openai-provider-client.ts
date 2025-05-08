@@ -1,30 +1,32 @@
-
-
 import type { LanguageModelV1 } from "ai";
 /**
  * Returns a ProviderClientApi instance pre-configured for OpenAI.
  * @param baseClient - The base ProviderClientApi implementation
  * @returns ProviderClientApi configured for OpenAI
  */
+import { ModelCapability } from "@/schema.js";
+import type { EffectiveInput } from "@/types.js";
 import { Effect, Layer } from "effect";
-import type { EffectiveInput } from "../../input/service.js";
 import type { ModelServiceApi } from "../../model/service.js";
 import { ProviderClient } from "../client.js";
+import type { ProviderToolError } from "../errors.js";
 import { ProviderConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "../errors.js";
 import type {
   EffectiveProviderApi,
   EffectiveResponse,
   GenerateEmbeddingsResult,
+  GenerateImageResult,
   GenerateObjectResult,
   GenerateSpeechResult,
   GenerateTextResult,
-  ModelCapability,
+  ProviderChatOptions,
   ProviderGenerateEmbeddingsOptions,
+  ProviderGenerateImageOptions,
   ProviderGenerateObjectOptions,
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
   ProviderTranscribeOptions,
-  TranscribeResult,
+  TranscribeResult
 } from "../types.js";
 
 /**
@@ -89,6 +91,35 @@ export const makeOpenAIProviderClient = Effect.gen(function* () {
       ProviderConfigError,
       ModelServiceApi
     > => provider.getModels(),
+    chat: (
+      input: EffectiveInput,
+      options: ProviderChatOptions
+    ): Effect.Effect<
+      EffectiveResponse<GenerateTextResult>,
+      ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError
+    > => provider.chat(input, options),
+    generateImage: (
+      input: EffectiveInput,
+      options: ProviderGenerateImageOptions
+    ): Effect.Effect<
+      EffectiveResponse<GenerateImageResult>,
+      ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError
+    > => provider.generateImage(input, options),
+    validateToolInput: (
+      toolName: string,
+      input: unknown
+    ): Effect.Effect<unknown, ProviderToolError> =>
+      provider.validateToolInput(toolName, input),
+    executeTool: (
+      toolName: string,
+      input: unknown
+    ): Effect.Effect<unknown, ProviderToolError> =>
+      provider.executeTool(toolName, input),
+    processToolResult: (
+      toolName: string,
+      result: unknown
+    ): Effect.Effect<unknown, ProviderToolError> =>
+      provider.processToolResult(toolName, result)
   };
 });
 
@@ -151,6 +182,35 @@ export const OpenAIProviderClientLayer = Layer.effect(
         ProviderConfigError,
         ModelServiceApi
       > => provider.getModels(),
+      chat: (
+        input: EffectiveInput,
+        options: ProviderChatOptions
+      ): Effect.Effect<
+        EffectiveResponse<GenerateTextResult>,
+        ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError
+      > => provider.chat(input, options),
+      generateImage: (
+        input: EffectiveInput,
+        options: ProviderGenerateImageOptions
+      ): Effect.Effect<
+        EffectiveResponse<GenerateImageResult>,
+        ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError
+      > => provider.generateImage(input, options),
+      validateToolInput: (
+        toolName: string,
+        input: unknown
+      ): Effect.Effect<unknown, ProviderToolError> =>
+        provider.validateToolInput(toolName, input),
+      executeTool: (
+        toolName: string,
+        input: unknown
+      ): Effect.Effect<unknown, ProviderToolError> =>
+        provider.executeTool(toolName, input),
+      processToolResult: (
+        toolName: string,
+        result: unknown
+      ): Effect.Effect<unknown, ProviderToolError> =>
+        provider.processToolResult(toolName, result)
     };
   })
 );

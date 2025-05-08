@@ -1,5 +1,5 @@
 /**
- * @file Types for EffectiveTool, EffectiveToolbox, EffectiveWorkspace, Registry and Execution services.
+ * @file Types for EffectiveTool, Registry and Execution services.
  * @module services/tools/types
  */
 
@@ -12,35 +12,57 @@ import type {
     ToolOutputValidationError,
 } from "./errors.js"; // Adjust path if errors are defined elsewhere
 // Import the schema definition type
-import type { SimpleToolName, ToolDefinition } from "./schema.js";
+import type { SimpleToolName } from "./schema.js";
 
 // --- Naming and Implementation Types ---
 export type NamespaceName = string;
 export type OrgName = string;
 export type FullToolName = string; // e.g., "calculator", "science/calculator", "3M/science/calculator"
+export type ToolkitName = string;
+
+/**
+ * Definition of a tool's metadata.
+ */
+export interface ToolDefinition {
+    readonly name: string;
+    readonly description: string;
+    readonly version?: string;
+    readonly tags?: string[];
+    readonly author?: string;
+}
+
+// --- Toolkit Types ---
+
+/** 
+ * Represents a collection of related tools that can be registered and used together.
+ * Toolkits provide a way to group tools that are commonly used together or share
+ * common dependencies or configuration.
+ */
+export interface EffectiveToolkit {
+    readonly name: ToolkitName;
+    readonly description: string;
+    readonly version: string;
+    readonly tools: HashMap.HashMap<SimpleToolName, EffectiveTool>;
+    readonly dependencies?: Record<string, string>; // Optional package.json style dependencies
+    readonly config?: Record<string, unknown>; // Optional shared configuration
+}
 
 const Metadata = Schema.Record({ key: Schema.String, value: Schema.Any });
 type Metadata = typeof Metadata.Type;
 
-const EffectiveTool = Schema.Struct({
-    definition: Schema.String,
-    implementation: Schema.Literal("Effect", "Http", "Mcp"),
-    inputSchema: Schema.Any,
-    outputSchema: Schema.Any,
-    toolMetadata: Metadata,
-})
+
 
 export interface EffectiveToolApi {
     readonly execute: (input: unknown, toolMetadata: Metadata) => Effect.Effect<
-        typeof EffectiveTool.Type,
+        EffectiveTool,
         ParseResult.ParseError
     >;
     readonly succeed: (input: unknown, toolMetadata: Metadata) => Effect.Effect<
-        typeof EffectiveTool.Type,
+        EffectiveTool,
         ParseResult.ParseError
     >;
     readonly fail: (input: unknown, toolMetadata: Metadata) => Effect.Effect<
-        typeof EffectiveTool.Type,
+        EffectiveTool,
         ParseResult.ParseError
     >;
 }
@@ -48,11 +70,11 @@ export interface EffectiveToolApi {
 export class EffectiveToolService extends Effect.Service<EffectiveToolApi>()("app/EffectiveToolService", {
     effect: Effect.succeed({
         execute: (input: unknown, toolMetadata: Metadata) =>
-            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as typeof EffectiveTool.Type),
+            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as unknown as EffectiveTool),
         succeed: (input: unknown, toolMetadata: Metadata) =>
-            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as typeof EffectiveTool.Type),
+            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as unknown as EffectiveTool),
         fail: (input: unknown, toolMetadata: Metadata) =>
-            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as typeof EffectiveTool.Type),
+            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as unknown as EffectiveTool),
     })
 }) { }
 
@@ -86,7 +108,8 @@ export type McpImplementation<InputA = any, InputE = any, OutputA = any, OutputE
     readonly _tag: "McpImplementation";
     readonly inputSchema: Schema.Schema<InputA, InputE, never>;
     readonly outputSchema: Schema.Schema<OutputA, OutputE, never>;
-    // Additional MCP-specific properties would go here
+    readonly slug: string;
+    readonly version?: string;
 };
 
 // ToolImplementation union uses the refined types
@@ -102,18 +125,17 @@ export interface EffectiveTool {
 }
 
 /** Represents a collection of tools for a specific namespace (e.g., "stdlib", "project/science"). */
-export type EffectiveToolbox = HashMap.HashMap<SimpleToolName, EffectiveTool>;
+
 
 /** Represents the collection of toolboxes within a project scope. */
-export type EffectiveWorkspace = Map<NamespaceName, EffectiveToolbox>;
+export type EffectiveWorkspace = Map<NamespaceName, HashMap.HashMap<SimpleToolName, EffectiveTool>>;
 
 /** Represents the collection of toolboxes within an organization scope (optional). */
-export type OrgWorkspaceMap = Map<OrgName, Map<NamespaceName, EffectiveToolbox>>;
+export type OrgWorkspaceMap = Map<OrgName, Map<NamespaceName, HashMap.HashMap<SimpleToolName, EffectiveTool>>>;
 
 // --- Tags for Source Collections ---
 
-/** Tag identifying the EffectiveToolbox containing standard library tools. */
-export const InternalToolboxTag = Context.GenericTag<EffectiveToolbox>("@services/tools/InternalToolbox");
+
 
 /** Tag identifying the EffectiveWorkspace containing the user's project-specific tools. */
 export const ProjectWorkspaceTag = Context.GenericTag<EffectiveWorkspace>("@services/tools/ProjectWorkspace");
@@ -130,7 +152,7 @@ export const ProjectWorkspaceTag = Context.GenericTag<EffectiveWorkspace>("@serv
  */
 export class ToolRegistryData extends Data.TaggedClass("ToolRegistryData")<{
     readonly tools: HashMap.HashMap<FullToolName, EffectiveTool>;
-    // readonly toolkits: HashMap.HashMap<ToolkitName, RegisteredToolkit>; // Add if/when toolkits are implemented
+    readonly toolkits: HashMap.HashMap<ToolkitName, EffectiveToolkit>;
 }> { }
 
 /** Context Tag for the final, merged ToolRegistryData. */
@@ -174,4 +196,67 @@ export const ToolExecutorServiceTag = Context.GenericTag<ToolExecutorService>(
 );
 
 // --- Optional: Toolkit Definitions ---
-// Define ToolkitName, ToolkitDefinition, RegisteredToolkit types here if implementing toolkits
+// Define ToolkitName, ToolkitDefinition, EffectiveToolkit types here if implementing toolkits
+
+/**
+ * Service for tool registry
+ */
+export interface ToolRegistryApi {
+    readonly _tag: "ToolRegistry"
+    readonly getData: () => Effect.Effect<ToolRegistryData, never>
+    readonly updateData: (data: ToolRegistryData) => Effect.Effect<void, never>
+}
+
+/**
+ * Implementation of the ToolRegistry service using Effect.Service pattern
+ */
+export class ToolRegistry extends Effect.Service<ToolRegistryApi>()(
+    "ToolRegistry",
+    {
+        effect: Effect.succeed({
+            _tag: "ToolRegistry" as const,
+            getData: (): Effect.Effect<ToolRegistryData, never> => {
+                // Implementation will be provided in the service file
+                throw new Error("Not implemented");
+            },
+            updateData: (data: ToolRegistryData): Effect.Effect<void, never> => {
+                // Implementation will be provided in the service file
+                throw new Error("Not implemented");
+            }
+        })
+    }
+) { }
+
+/**
+ * Service for tool execution
+ */
+export interface ToolExecutorApi {
+    readonly run: <Output = unknown>(
+        toolName: FullToolName,
+        rawInput: unknown
+    ) => Effect.Effect<
+        Output,
+        ToolNotFoundError | ToolInputValidationError | ToolOutputValidationError | ToolExecutionError
+    >;
+}
+
+/**
+ * Implementation of the Tool Executor service using Effect.Service pattern
+ */
+export class ToolExecutor extends Effect.Service<ToolExecutorApi>()(
+    "ToolExecutor",
+    {
+        effect: Effect.succeed({
+            run: <Output = unknown>(
+                toolName: FullToolName,
+                rawInput: unknown
+            ): Effect.Effect<
+                Output,
+                ToolNotFoundError | ToolInputValidationError | ToolOutputValidationError | ToolExecutionError
+            > => {
+                // Implementation will be provided in the service file
+                throw new Error("Not implemented");
+            }
+        })
+    }
+) { }

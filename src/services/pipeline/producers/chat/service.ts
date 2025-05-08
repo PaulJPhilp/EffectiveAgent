@@ -47,8 +47,6 @@ export interface ChatCompletionOptions {
     readonly parameters?: {
         /** Maximum tokens to generate */
         maxTokens?: number;
-        /** Maximum retries on failure */
-        maxRetries?: number;
         /** Temperature (0-2) */
         temperature?: number;
         /** Top-p sampling */
@@ -157,8 +155,8 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                             }
 
                             // Validate tool parameters schema
-                            const schema = tool.parameters as { 
-                                type: string; 
+                            const schema = tool.parameters as {
+                                type: string;
                                 properties: Record<string, { type?: string }>
                                 required?: string[]
                             };
@@ -284,7 +282,6 @@ export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService",
                             signal: options.signal,
                             parameters: {
                                 maxTokens: options.parameters?.maxTokens,
-                                maxRetries: options.parameters?.maxRetries,
                                 temperature: options.parameters?.temperature,
                                 topP: options.parameters?.topP,
                                 topK: options.parameters?.topK,

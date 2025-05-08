@@ -58,12 +58,11 @@ describe("PromptService", () => {
             it("should handle missing prompt", () => Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
-            
-                try {
-                    yield* service.getPrompt("non-existent");
-                    expect(true).toBe(false); // Should not reach here
-                } catch (e: any) {
-                    expect(e.name).toBe("TemplateNotFoundError");
+
+                const result = yield* Effect.either(service.getPrompt("non-existent"));
+                expect(result._tag).toBe("Left");
+                if (result._tag === "Left") {
+                    expect((result.left as any).name).toBe("TemplateNotFoundError");
                 }
             }));
         });
@@ -92,30 +91,28 @@ describe("PromptService", () => {
             it("should handle missing variables", () => Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
-            
-                try {
-                    yield* service.renderString({
-                        templateString: "Hello {{ name }}!",
-                        context: {}
-                    });
-                    expect(true).toBe(false); // Should not reach here
-                } catch (e: any) {
-                    expect(e.name).toBe("RenderingError");
+
+                const result = yield* Effect.either(service.renderString({
+                    templateString: "Hello {{ name }}!",
+                    context: {}
+                }));
+                expect(result._tag).toBe("Left");
+                if (result._tag === "Left") {
+                    expect((result.left as any).name).toBe("RenderingError");
                 }
             }));
 
             it("should handle invalid template syntax", () => Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
-            
-                try {
-                    yield* service.renderString({
-                        templateString: "Hello {{ name !",
-                        context: { name: "World" }
-                    });
-                    expect(true).toBe(false); // Should not reach here
-                } catch (e: any) {
-                    expect(e.name).toBe("RenderingError");
+
+                const result = yield* Effect.either(service.renderString({
+                    templateString: "Hello {{ name !",
+                    context: { name: "World" }
+                }));
+                expect(result._tag).toBe("Left");
+                if (result._tag === "Left") {
+                    expect((result.left as any).name).toBe("RenderingError");
                 }
             }));
         });
@@ -190,29 +187,27 @@ describe("PromptService", () => {
             it("should handle missing template", () => Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
-            
-                try {
-                    yield* service.renderTemplate({
-                        templateName: "non-existent",
-                        context: { name: "World" }
-                    });
-                    expect(true).toBe(false); // Should not reach here
-                } catch (e: any) {
-                    expect(e.name).toBe("TemplateNotFoundError");
+
+                const result = yield* Effect.either(service.renderTemplate({
+                    templateName: "non-existent",
+                    context: { name: "World" }
+                }));
+                expect(result._tag).toBe("Left");
+                if (result._tag === "Left") {
+                    expect((result.left as any).name).toBe("TemplateNotFoundError");
                 }
             }));
 
             it("should fail with RenderingError for invalid context", () => Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
-                try {
-                    yield* service.renderTemplate({
-                        templateName: "test-prompt",
-                        context: {} // Missing required 'name' variable
-                    });
-                    expect(true).toBe(false); // Should not reach here
-                } catch (e: any) {
-                    expect(e.name).toBe("RenderingError");
+                const result = yield* Effect.either(service.renderTemplate({
+                    templateName: "test-prompt",
+                    context: {} // Missing required 'name' variable
+                }));
+                expect(result._tag).toBe("Left");
+                if (result._tag === "Left") {
+                    expect((result.left as any).name).toBe("RenderingError");
                 }
             }));
         });

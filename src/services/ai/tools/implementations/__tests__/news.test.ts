@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Either } from "effect";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { NewsCategory, NewsOperation, NewsSortBy, newsImpl } from "../news.js";
 
@@ -18,12 +18,12 @@ describe("News Tool", () => {
     };
 
     beforeEach(() => {
-        process.env.NEWS_API_KEY = mockApiKey;
-        global.fetch = vi.fn();
+        process.env['NEWS_API_KEY'] = mockApiKey;
+        global.fetch = vi.fn() as unknown as typeof fetch;
     });
 
     afterEach(() => {
-        delete process.env.NEWS_API_KEY;
+        process.env['NEWS_API_KEY'] = undefined;
         vi.restoreAllMocks();
     });
 
@@ -140,17 +140,17 @@ describe("News Tool", () => {
 
     describe("Error handling", () => {
         it("should handle missing API key", () => Effect.gen(function* () {
-            delete process.env.NEWS_API_KEY;
+            process.env['NEWS_API_KEY'] = undefined;
 
             const result = yield* Effect.either(newsImpl({
                 operation: NewsOperation.SEARCH,
                 query: "test"
             }));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("NEWS_API_KEY environment variable is not set");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("NEWS_API_KEY environment variable is not set");
             }
         }));
 
@@ -165,10 +165,10 @@ describe("News Tool", () => {
                 query: "test"
             }));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("News API error");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("News API error");
             }
         }));
 
@@ -178,10 +178,10 @@ describe("News Tool", () => {
                 query: "test"
             }));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("Invalid input");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("Invalid input");
             }
         }));
 
@@ -190,11 +190,11 @@ describe("News Tool", () => {
                 operation: NewsOperation.SEARCH
             } as any));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("Invalid input");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("Invalid input");
             }
         }));
     });
-}); 
+});

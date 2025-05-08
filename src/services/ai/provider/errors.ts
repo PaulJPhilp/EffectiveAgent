@@ -287,3 +287,39 @@ export class GenerateEmbeddingsError extends EffectiveError {
         super(params);
     }
 }
+
+/**
+ * Error thrown when tool execution or validation fails.
+ * @extends ProviderOperationError
+ */
+export class ProviderToolError extends ProviderOperationError {
+    public readonly toolName: string;
+
+    /**
+     * @param params - Error details
+     * @param params.toolName - Name of the tool that failed
+     * @param params.message - Error message
+     * @param params.providerName - Provider name
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { 
+        toolName: string;
+        message: string;
+        providerName: string;
+        module: string;
+        method: string;
+        cause?: unknown;
+    }) {
+        super({
+            operation: 'tool',
+            message: `Tool '${params.toolName}' failed: ${params.message}`,
+            providerName: params.providerName,
+            module: params.module,
+            method: params.method,
+            cause: params.cause
+        });
+        this.toolName = params.toolName;
+    }
+}

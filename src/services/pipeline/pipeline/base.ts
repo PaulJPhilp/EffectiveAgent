@@ -1,6 +1,6 @@
 import { EffectiveError } from "@/errors.js";
 import { ExecutiveService } from "@/services/pipeline/service.js";
-import { Effect, Schema } from "effect";
+import { Duration, Effect, Schema } from "effect";
 import { PipelineExecutionError } from "./errors.js";
 import type { ExecutiveCallConfig } from "./types.js";
 
@@ -39,9 +39,8 @@ export abstract class AiPipeline<
     return Effect.succeed({
       effect: this.executeProducer(input),
       parameters: {
-        maxRetries: 3,
-        timeoutMs: 30000
-      }
+        timeout: Duration.millis(30000)
+      } as const
     });
   }
 
@@ -65,7 +64,10 @@ export abstract class AiPipeline<
 
       // Configure and execute
       const config = yield* self.configureExecutiveCall(input);
-      const result = yield* executiveService.execute(config.effect, config.parameters);
+      const result = yield* executiveService.execute(
+        config.effect,
+        config.parameters
+      );
 
       return result as Out;
     }).pipe(

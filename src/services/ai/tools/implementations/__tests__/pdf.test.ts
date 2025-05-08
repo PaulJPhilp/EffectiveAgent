@@ -1,6 +1,6 @@
-import { Effect } from "effect";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
+import { Effect, Either } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PdfOperation, pdfImpl } from "../pdf.js";
 
@@ -62,10 +62,10 @@ startxref
                 filePath: "nonexistent.pdf"
             }));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("Failed to read PDF file");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("Failed to read PDF file");
             }
         }));
     });
@@ -87,20 +87,20 @@ startxref
 
         it("should handle invalid PDF", () => Effect.gen(function* () {
             const invalidPdfPath = path.join(process.cwd(), "test-files", "invalid.pdf");
-            await fs.writeFile(invalidPdfPath, "Not a PDF file");
+            yield* Effect.promise(() => fs.writeFile(invalidPdfPath, "Not a PDF file"));
 
             const result = yield* Effect.either(pdfImpl({
                 operation: PdfOperation.GET_METADATA,
                 filePath: invalidPdfPath
             }));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("Failed to parse PDF");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("Failed to parse PDF");
             }
 
-            await fs.unlink(invalidPdfPath);
+            yield* Effect.promise(() => fs.unlink(invalidPdfPath));
         }));
     });
 
@@ -141,10 +141,10 @@ startxref
                 filePath: testPdfPath
             }));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("Invalid input");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("Invalid input");
             }
         }));
 
@@ -153,11 +153,11 @@ startxref
                 operation: PdfOperation.EXTRACT_TEXT
             } as any));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("Invalid input");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("Invalid input");
             }
         }));
     });
-}); 
+});

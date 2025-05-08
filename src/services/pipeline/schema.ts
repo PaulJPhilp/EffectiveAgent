@@ -11,7 +11,7 @@ export class ProducerResponse<T> extends S.Class<ProducerResponse<T>>("ProducerR
     data: S.any as S.Schema<T>,  // The actual response data
     model: S.String,             // ID of the model used
     id: S.String,               // Response ID
-    usage: S.Struct({           // Optional usage statistics
+    usage: S.Class<Usage>("Usage")({   // Optional usage statistics
         promptTokens: S.Number,
         completionTokens: S.Number,
         totalTokens: S.Number

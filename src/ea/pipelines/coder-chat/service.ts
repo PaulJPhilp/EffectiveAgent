@@ -3,7 +3,7 @@
  * @module ea/pipelines/coder-chat/service
  */
 
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 import {
     CoderChatPipeline,
     type CoderChatPipelineApi,
@@ -11,11 +11,57 @@ import {
     type CoderChatPipelineInput,
     type CoderChatResponse
 } from "./contract.js";
+import { type LanguageAnalysis } from "./types.js";
 
-// Dependencies
-class EaLlmProvider extends Context.Tag("EaLlmProvider")<EaLlmProvider, any>() { }
-class LanguageToolProvider extends Context.Tag("LanguageToolProvider")<LanguageToolProvider, any>() { }
-class DocumentationService extends Context.Tag("DocumentationService")<DocumentationService, any>() { }
+/**
+ * Service for documentation operations
+ */
+export interface DocumentationServiceApi {
+    readonly _tag: "DocumentationService"
+    readonly getDocumentation: (language: string, topic: string) => Effect.Effect<string, never>
+}
+
+/**
+ * Implementation of the DocumentationService using Effect.Service pattern
+ */
+export class DocumentationService extends Effect.Service<DocumentationServiceApi>()("DocumentationService", {
+    effect: Effect.succeed({
+        _tag: "DocumentationService" as const,
+        getDocumentation: (language: string, topic: string): Effect.Effect<string, never> => {
+            // Mock implementation - replace with real documentation lookup
+            return Effect.succeed(`Documentation for ${topic} in ${language}`);
+        }
+    }),
+    dependencies: []
+}) { }
+
+/**
+ * Service for language analysis tools
+ */
+export interface LanguageToolProviderApi {
+    readonly _tag: "LanguageToolProvider"
+    readonly analyzeCode: (code: string, language: string) => Effect.Effect<LanguageAnalysis, never>
+}
+
+/**
+ * Implementation of the LanguageToolProvider service using Effect.Service pattern
+ */
+export class LanguageToolProvider extends Effect.Service<LanguageToolProviderApi>()("LanguageToolProvider", {
+    effect: Effect.succeed({
+        _tag: "LanguageToolProvider" as const,
+        analyzeCode: (code: string, language: string): Effect.Effect<LanguageAnalysis, never> => {
+            // Mock implementation - replace with real code analysis
+            return Effect.succeed({
+                language,
+                complexity: "medium",
+                suggestions: ["consider using more descriptive variable names"],
+                bestPractices: ["follow SOLID principles"],
+                potentialIssues: []
+            });
+        }
+    }),
+    dependencies: []
+}) { }
 
 /**
  * Implementation of the CoderChatPipeline service
@@ -23,15 +69,14 @@ class DocumentationService extends Context.Tag("DocumentationService")<Documenta
 export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineApi>()(
     CoderChatPipeline,
     {
-        effect: Effect.gen(function* (_) {
+        effect: Effect.gen(function* () {
             // Yield dependencies
-            const llm = yield* _(EaLlmProvider);
-            const languageTool = yield* _(LanguageToolProvider);
-            const documentation = yield* _(DocumentationService);
+            const languageTool = yield* LanguageToolProvider;
+            const documentation = yield* DocumentationService;
 
             // Helper to get language-specific examples
             const getCodeExample = (language: string, prompt: string): { code: string; explanation: string } => {
-                // In a real implementation, this would use the language tool or LLM
+                // TODO: Replace with actual Phoenix MCP server call
                 // For now, we'll return predefined examples based on language
                 const examples: Record<string, { code: string; explanation: string }> = {
                     typescript: {
@@ -60,7 +105,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
 
             // Helper to get documentation references
             const getDocumentationReferences = (language: string): Array<{ title: string; url: string }> => {
-                // In a real implementation, this would use the documentation service
+                // TODO: Replace with actual Phoenix MCP server call
                 // For now, we'll return predefined references based on language
                 const refs: Record<string, Array<{ title: string; url: string }>> = {
                     typescript: [
@@ -88,16 +133,12 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
 
             // Method implementations
             const chat = (input: CoderChatPipelineInput): Effect.Effect<CoderChatResponse, CoderChatPipelineError> =>
-                Effect.gen(function* (_) {
-                    yield* _(Effect.logInfo(`Generating coding response for language: ${input.language || "general"}`));
+                Effect.gen(function* () {
+                    yield* Effect.logInfo(`Generating coding response for language: ${input.language || "general"}`);
 
                     try {
-                        // In a real implementation, this would:
-                        // 1. Process the user's message
-                        // 2. Use the LLM to generate a response
-                        // 3. Use language tools to validate or enhance code examples
-                        // 4. Fetch relevant documentation
-
+                        // TODO: Replace with actual Phoenix MCP server call
+                        // For now, using mock responses
                         const language = input.language || "javascript";
 
                         // Generate mock message based on user input
@@ -124,19 +165,17 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                         const references = getDocumentationReferences(language);
 
                         // Create the response
-                        return yield* _(Effect.succeed({
+                        return yield* Effect.succeed({
                             message: responseMessage,
                             codeExamples,
                             references
-                        }));
+                        });
                     } catch (error) {
-                        return yield* _(
-                            Effect.fail(
-                                new CoderChatPipelineError({
-                                    message: `Failed to generate coding response: ${error instanceof Error ? error.message : String(error)}`,
-                                    cause: error
-                                })
-                            )
+                        return yield* Effect.fail(
+                            new CoderChatPipelineError({
+                                message: `Failed to generate coding response: ${error instanceof Error ? error.message : String(error)}`,
+                                cause: error
+                            })
                         );
                     }
                 });
@@ -146,16 +185,12 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                 language: string,
                 options?: Partial<Omit<CoderChatPipelineInput, "message">>
             ): Effect.Effect<CoderChatResponse, CoderChatPipelineError> =>
-                Effect.gen(function* (_) {
-                    yield* _(Effect.logInfo(`Reviewing code in language: ${language}`));
+                Effect.gen(function* () {
+                    yield* Effect.logInfo(`Reviewing code in language: ${language}`);
 
                     try {
-                        // In a real implementation, this would:
-                        // 1. Analyze the code using language-specific tools
-                        // 2. Use the LLM to generate insights
-                        // 3. Provide specific recommendations
-
-                        // Generate mock review based on language and code length
+                        // TODO: Replace with actual Phoenix MCP server call
+                        // For now, using mock responses
                         const codeLines = code.split('\n').length;
                         const hasComments = code.includes('//') || code.includes('/*') || code.includes('#');
                         const hasErrorHandling = code.includes('try') || code.includes('catch') || code.includes('throw');
@@ -204,19 +239,17 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                         };
 
                         // Create the response
-                        return yield* _(Effect.succeed({
+                        return yield* Effect.succeed({
                             message: reviewMessage,
                             codeExamples: [improvement],
                             references: getDocumentationReferences(language)
-                        }));
+                        });
                     } catch (error) {
-                        return yield* _(
-                            Effect.fail(
-                                new CoderChatPipelineError({
-                                    message: `Failed to review code: ${error instanceof Error ? error.message : String(error)}`,
-                                    cause: error
-                                })
-                            )
+                        return yield* Effect.fail(
+                            new CoderChatPipelineError({
+                                message: `Failed to review code: ${error instanceof Error ? error.message : String(error)}`,
+                                cause: error
+                            })
                         );
                     }
                 });
@@ -229,7 +262,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
         }),
 
         // List dependencies required by the 'effect' factory
-        dependencies: [EaLlmProvider, LanguageToolProvider, DocumentationService]
+        dependencies: [LanguageToolProvider, DocumentationService]
     }
 ) { }
 

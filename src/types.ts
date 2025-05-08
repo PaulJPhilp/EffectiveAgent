@@ -148,3 +148,14 @@ export interface ResponseMessage {
 export interface Warning {
   message: string
 }
+
+export interface Mailbox {
+  /** Maximum size of the mailbox */
+  readonly size: number
+  /** Whether to enable message prioritization */
+  readonly enablePrioritization: boolean
+  /** Size of each priority queue when prioritization is enabled */
+  readonly priorityQueueSize: number
+  /** Timeout for backpressure in milliseconds */
+  readonly backpressureTimeout: number
+}

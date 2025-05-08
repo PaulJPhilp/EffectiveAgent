@@ -1,9 +1,8 @@
 /**
  * @file Defines the Tool Service API interface and tag.
- * @module services/ai/tools/api
  */
 
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 import type {
     ToolExecutionError,
     ToolInputValidationError,
@@ -64,15 +63,7 @@ export interface ToolServiceApi {
         | ToolNotFoundError
         | ToolInputValidationError
         | ToolOutputValidationError
-        | ToolExecutionError
+        | ToolExecutionError,
+        any // Allow any dependencies required by tool implementations
     >;
-}
-
-/**
- * The Effect Context Tag for the ToolService.
- * Used for dependency injection within the Effect ecosystem.
- */
-export class ToolService extends Context.Tag("ToolService")<
-    ToolServiceApi,
-    ToolServiceApi
->() { } 
+} 

@@ -3,7 +3,7 @@
  * @module services/tools/schema
  */
 
-import { Schema as S } from "effect";
+import { Effect, Schema as S } from "effect";
 
 // --- Tool Names ---
 
@@ -56,36 +56,53 @@ export const ToolMetadata = S.Struct({
         }
     ).pipe(S.optional)
 });
-export type ToolMetadata = S.Schema.Type<typeof ToolMetadata>;
+
+export const SEffectiveTool = S.Struct({
+    definition: S.String,
+    implementation: S.Literal("Effect", "Http", "Mcp"),
+    inputSchema: S.Unknown,
+    outputSchema: S.Unknown,
+    toolMetadata: ToolMetadata,
+});
 
 // --- Tool Implementations ---
 
 /**
  * Base schema for all tool implementations
  */
-export const BaseImplementation = S.Struct({
+export interface EffectImplementation<I, O, R, E> {
+    _tag: "EffectImplementation";
+    inputSchema: S.Schema<I>;
+    outputSchema: S.Schema<O>;
+    execute: (input: I) => Effect.Effect<O, E, R>;
+}
+
+export const SBaseImplementation = S.Struct({
     inputSchema: S.Any,
     outputSchema: S.Any
 });
+export type SBaseImplementation = S.Schema.Type<typeof SBaseImplementation>;
+
+type SBaseImplementationType = S.Schema.Type<typeof SBaseImplementation>;
 
 /**
  * Effect-based tool implementation
  */
-export const EffectImplementation = S.Struct({
+export const SEffectImplementation = S.Struct({
+    ...SBaseImplementation.fields,
     _tag: S.Literal("EffectImplementation"),
-    inputSchema: S.Any,
-    outputSchema: S.Any,
-    execute: S.Any // Will be typed properly in runtime
-}).pipe(S.extend(BaseImplementation));
-export type EffectImplementation = S.Schema.Type<typeof EffectImplementation>;
+    execute: S.Any // Will be typed properly in runtime via EffectImplementation interface
+});
+export type SEffectImplementation = S.Schema.Type<typeof SEffectImplementation>;
+
+type SEffectImplementationType = S.Schema.Type<typeof SEffectImplementation>;
 
 /**
  * HTTP-based tool implementation
  */
-export const HttpImplementation = S.Struct({
+export const SHttpImplementation = S.Struct({
+    ...SBaseImplementation.fields,
     _tag: S.Literal("HttpImplementation"),
-    inputSchema: S.Any,
-    outputSchema: S.Any,
     url: S.transform(
         S.String,
         S.String,
@@ -95,46 +112,45 @@ export const HttpImplementation = S.Struct({
         }
     ),
     method: S.Literal("GET", "POST", "PUT", "DELETE", "PATCH"),
-    headers: S.Record({ key: S.String, value: S.String }).pipe(S.optional),
+    headers: S.optional(S.Record({ key: S.String, value: S.String })),
     timeout: S.Number.pipe(S.between(0, Number.MAX_SAFE_INTEGER), S.optional)
-}).pipe(S.extend(BaseImplementation));
-export type HttpImplementation = S.Schema.Type<typeof HttpImplementation>;
+});
+export type SHttpImplementation = S.Schema.Type<typeof SHttpImplementation>;
+
+type SHttpImplementationType = S.Schema.Type<typeof SHttpImplementation>;
 
 /**
  * MCP-based tool implementation
  */
-export const McpImplementation = S.Struct({
+export const SMcpImplementation = S.Struct({
+    ...SBaseImplementation.fields,
     _tag: S.Literal("McpImplementation"),
-    inputSchema: S.Any,
-    outputSchema: S.Any,
     slug: S.String,
     version: S.String.pipe(S.optional)
-}).pipe(S.extend(BaseImplementation));
-export type McpImplementation = S.Schema.Type<typeof McpImplementation>;
+});
+export type McpImplementation = S.Schema.Type<typeof SMcpImplementation>;
 
 /**
  * Union of all possible tool implementations
  */
-export const ToolImplementation = S.Union(
-    EffectImplementation,
-    HttpImplementation,
-    McpImplementation
+export const SToolImplementation = S.Union(
+    SEffectImplementation,
+    SHttpImplementation,
+    SMcpImplementation
 );
-export type ToolImplementation = S.Schema.Type<typeof ToolImplementation>;
+export type ToolImplementation = S.Schema.Type<typeof SToolImplementation>;
 
 /**
  * Complete tool definition including metadata and implementation
  */
 export const Tool = S.Struct({
     metadata: ToolMetadata,
-    implementation: ToolImplementation
+    implementation: SToolImplementation
 });
-export type Tool = S.Schema.Type<typeof Tool>;
 
 /**
  * Registry data containing all available tools
  */
 export const ToolRegistryData = S.Struct({
-    tools: S.instanceOf(Map<FullToolName, Tool>)
+    tools: S.Record({ key: S.String, value: Tool })
 });
-export type ToolRegistryData = S.Schema.Type<typeof ToolRegistryData>;

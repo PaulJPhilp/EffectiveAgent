@@ -1,164 +1,217 @@
 /**
- * @file Service implementation for the WeatherPipeline
+ * @file Service implementation for Weather Service
  * @module ea/pipelines/weather/service
  */
 
-import { Context, Effect } from "effect";
-import { type WeatherData, WeatherPipeline, type WeatherPipelineApi, WeatherPipelineError, type WeatherPipelineInput } from "./contract.js";
+import { Effect, Layer } from "effect";
+import {
+    WeatherCondition,
+    WeatherData,
+    WeatherPipelineConfig,
+    WeatherPipelineError,
+    WeatherPipelineInput,
+    WeatherService,
+    WeatherServiceApi
+} from "./contract.js";
 
-// Dependencies
-class EaLlmProvider extends Context.Tag("EaLlmProvider")<EaLlmProvider, any>() { }
-class WeatherTool extends Context.Tag("WeatherTool")<WeatherTool, any>() { }
+// Helper function to convert temperature units
+const convertTemperature = (temp: number, toUnit: "celsius" | "fahrenheit"): number => {
+    if (toUnit === "celsius") {
+        return Math.round((temp - 32) * 5 / 9);
+    } else {
+        return Math.round((temp * 9 / 5) + 32);
+    }
+};
 
 /**
- * Implementation of the WeatherPipeline service
+ * Implementation of the WeatherService
  */
-export class WeatherPipelineService extends Effect.Service<WeatherPipelineApi>()(
-    WeatherPipeline,
-    {
-        effect: Effect.gen(function* (_) {
-            // Yield dependencies
-            const llm = yield* _(EaLlmProvider);
-            const weatherTool = yield* _(WeatherTool);
+export const makeWeatherService = (config: WeatherPipelineConfig): WeatherServiceApi => {
+    /**
+     * Implementation of getWeather method
+     */
+    const getWeather = (input: WeatherPipelineInput): Effect.Effect<WeatherData, WeatherPipelineError, never> =>
+        Effect.try({
+            try: () => {
+                const units = input.units || config.defaultUnits;
+                const baseUrl = config.baseUrl;
+                const apiKey = config.apiKey;
 
-            // Helper function to convert temperature units
-            const convertTemperature = (temp: number, toUnit: "celsius" | "fahrenheit"): number => {
-                if (toUnit === "celsius") {
-                    return Math.round((temp - 32) * 5 / 9);
-                } else {
-                    return Math.round((temp * 9 / 5) + 32);
-                }
-            };
+                // Configure the API request
+                const params = {
+                    q: input.location,
+                    appid: apiKey,
+                    units: units === "celsius" ? "metric" : "imperial",
+                    ...(input.includeForecast ? { forecast: "daily" } : {})
+                };
 
-            // Method implementations
-            const getWeather = (input: WeatherPipelineInput): Effect.Effect<WeatherData, WeatherPipelineError> =>
-                Effect.gen(function* (_) {
-                    yield* _(Effect.logInfo(`Fetching weather data for location: ${input.location}`));
+                // This would normally be an async call, but for now we'll mock it
+                // In a real implementation we'd use Effect.tryPromise with axios
 
-                    try {
-                        // In a real implementation, we would call the weather service API
-                        // For now, we'll use mock data that mimics the structure
-
-                        // Mock data generation
-                        const temperature = 15 + Math.floor(Math.random() * 15); // Between 15-30
-                        const feelsLike = temperature - 2 + Math.floor(Math.random() * 5);
-                        const humidity = 40 + Math.floor(Math.random() * 40);
-                        const windSpeed = 5 + Math.floor(Math.random() * 20);
-                        const windDirection = Math.floor(Math.random() * 360);
-
-                        // Basic condition determination based on random data
-                        const conditions = [
-                            { condition: "Clear", description: "Clear sky" },
-                            { condition: "Partly cloudy", description: "Few clouds" },
-                            { condition: "Cloudy", description: "Overcast" },
-                            { condition: "Rain", description: "Light rain" }
-                        ];
-
-                        const conditionIndex = Math.floor(Math.random() * conditions.length);
-
-                        // Determine units
-                        const units = input.units || "celsius";
-
-                        // Generate forecast if requested
-                        const forecast = input.includeForecast ? Array.from({ length: 5 }, (_, i) => {
-                            const forecastDate = new Date();
-                            forecastDate.setDate(forecastDate.getDate() + i + 1);
-
-                            const highTemp = temperature + Math.floor(Math.random() * 5) - 2;
-                            const lowTemp = temperature - 5 - Math.floor(Math.random() * 3);
-
-                            return {
-                                date: forecastDate.toISOString().split('T')[0],
-                                highTemperature: units === "celsius" ? highTemp : convertTemperature(highTemp, "fahrenheit"),
-                                lowTemperature: units === "celsius" ? lowTemp : convertTemperature(lowTemp, "fahrenheit"),
-                                conditions: conditions[Math.floor(Math.random() * conditions.length)]
-                            };
-                        }) : undefined;
-
-                        // Create the weather data object
-                        const weatherData: WeatherData = {
-                            location: {
-                                name: input.location,
-                                country: "Placeholder Country",
-                                coordinates: {
-                                    latitude: 40.7128, // Example coordinates (NYC)
-                                    longitude: -74.0060
-                                }
-                            },
-                            temperature: units === "celsius" ? temperature : convertTemperature(temperature, "fahrenheit"),
-                            temperatureFeelsLike: units === "celsius" ? feelsLike : convertTemperature(feelsLike, "fahrenheit"),
-                            humidity,
-                            windSpeed,
-                            windDirection,
-                            conditions: [conditions[conditionIndex]],
-                            forecast,
-                            timestamp: new Date().toISOString(),
-                            units
-                        };
-
-                        return yield* _(Effect.succeed(weatherData));
-                    } catch (error) {
-                        return yield* _(
-                            Effect.fail(
-                                new WeatherPipelineError({
-                                    message: `Failed to retrieve weather data: ${error instanceof Error ? error.message : String(error)}`,
-                                    cause: error
-                                })
-                            )
-                        );
-                    }
-                });
-
-            const getWeatherSummary = (input: WeatherPipelineInput): Effect.Effect<string, WeatherPipelineError> =>
-                Effect.gen(function* (_) {
-                    yield* _(Effect.logInfo(`Generating weather summary for location: ${input.location}`));
-
-                    try {
-                        // First get the weather data
-                        const weatherData = yield* _(getWeather(input));
-
-                        // In a real implementation, we would use the LLM to generate a natural language summary
-                        // For now, we'll create a template-based summary
-
-                        const unitSymbol = weatherData.units === "celsius" ? "°C" : "°F";
-                        const windSpeedUnit = "km/h";
-                        const currentCondition = weatherData.conditions[0];
-
-                        let summary = `The current weather in ${weatherData.location.name} is ${currentCondition.description.toLowerCase()} with a temperature of ${weatherData.temperature}${unitSymbol}. `;
-                        summary += `It feels like ${weatherData.temperatureFeelsLike}${unitSymbol}. `;
-                        summary += `Humidity is at ${weatherData.humidity}% with winds at ${weatherData.windSpeed} ${windSpeedUnit}.`;
-
-                        if (weatherData.forecast && weatherData.forecast.length > 0) {
-                            const tomorrow = weatherData.forecast[0];
-                            summary += ` Tomorrow will be ${tomorrow.conditions.description.toLowerCase()} with highs of ${tomorrow.highTemperature}${unitSymbol} and lows of ${tomorrow.lowTemperature}${unitSymbol}.`;
+                // Mock response data
+                const mockData = {
+                    name: input.location,
+                    sys: { country: "US" },
+                    coord: { lat: 40.7128, lon: -74.0060 },
+                    main: {
+                        temp: 22.5,
+                        feels_like: 23.0,
+                        humidity: 65
+                    },
+                    wind: {
+                        speed: 5.5,
+                        deg: 180
+                    },
+                    weather: [
+                        {
+                            main: "Clear",
+                            description: "clear sky",
+                            icon: "01d"
                         }
+                    ],
+                    forecast: input.includeForecast ? {
+                        list: [
+                            {
+                                dt: Date.now() / 1000 + 86400,
+                                temp: { max: 24.5, min: 18.2 },
+                                weather: [{ main: "Clear", description: "clear sky", icon: "01d" }]
+                            }
+                        ]
+                    } : undefined
+                };
 
-                        return yield* _(Effect.succeed(summary));
-                    } catch (error) {
-                        return yield* _(
-                            Effect.fail(
-                                new WeatherPipelineError({
-                                    message: `Failed to generate weather summary: ${error instanceof Error ? error.message : String(error)}`,
-                                    cause: error
-                                })
-                            )
-                        );
+                // Transform API response to our data model
+                const weatherData: WeatherData = {
+                    location: {
+                        name: mockData.name,
+                        country: mockData.sys.country,
+                        coordinates: {
+                            latitude: mockData.coord.lat,
+                            longitude: mockData.coord.lon
+                        }
+                    },
+                    temperature: mockData.main.temp,
+                    temperatureFeelsLike: mockData.main.feels_like,
+                    humidity: mockData.main.humidity,
+                    windSpeed: mockData.wind.speed,
+                    windDirection: mockData.wind.deg,
+                    conditions: mockData.weather.map((w: any): WeatherCondition => ({
+                        condition: w.main,
+                        description: w.description,
+                        icon: w.icon
+                    })),
+                    timestamp: new Date().toISOString(),
+                    units
+                };
+
+                // Add forecast data if requested and available
+                if (input.includeForecast && mockData.forecast) {
+                    weatherData.forecast = mockData.forecast.list.map((item: any) => ({
+                        date: new Date(item.dt * 1000).toISOString().split('T')[0],
+                        highTemperature: item.temp.max,
+                        lowTemperature: item.temp.min,
+                        conditions: {
+                            condition: item.weather[0].main,
+                            description: item.weather[0].description,
+                            icon: item.weather[0].icon
+                        }
+                    }));
+                }
+
+                return weatherData;
+            },
+            catch: (error) => new WeatherPipelineError({
+                message: "Error processing weather data",
+                cause: error
+            })
+        });
+
+    /**
+     * Implementation of getWeatherSummary method
+     */
+    const getWeatherSummary = (input: WeatherPipelineInput): Effect.Effect<string, WeatherPipelineError, never> =>
+        Effect.flatMap(
+            getWeather(input),
+            (weatherData) => Effect.try({
+                try: () => {
+                    // Generate a natural language summary
+                    const conditions = weatherData.conditions[0]?.description || "unknown conditions";
+                    const tempUnit = weatherData.units === "celsius" ? "°C" : "°F";
+
+                    let summary = `The current weather in ${weatherData.location.name}, ${weatherData.location.country} is ${conditions} with a temperature of ${weatherData.temperature}${tempUnit} (feels like ${weatherData.temperatureFeelsLike}${tempUnit}). `;
+                    summary += `Wind is blowing at ${weatherData.windSpeed} ${weatherData.units === "celsius" ? "m/s" : "mph"} with humidity at ${weatherData.humidity}%.`;
+
+                    // Add forecast summary if available
+                    if (weatherData.forecast && weatherData.forecast.length > 0) {
+                        const tomorrow = weatherData.forecast[0];
+                        summary += ` Tomorrow will be ${tomorrow.conditions.description} with highs of ${tomorrow.highTemperature}${tempUnit} and lows of ${tomorrow.lowTemperature}${tempUnit}.`;
                     }
-                });
 
-            // Return implementation of the API
-            return {
-                getWeather,
-                getWeatherSummary
-            };
+                    return summary;
+                },
+                catch: (error) => new WeatherPipelineError({
+                    message: "Error generating weather summary",
+                    cause: error
+                })
+            })
+        );
+
+    // Return service implementation
+    return {
+        getWeather,
+        getWeatherSummary
+    };
+};
+
+/**
+ * Mock implementation of the Weather Service
+ */
+export const makeMockWeatherService = (): WeatherServiceApi => ({
+    getWeather: (input: WeatherPipelineInput): Effect.Effect<WeatherData, WeatherPipelineError, never> =>
+        Effect.succeed({
+            location: {
+                name: input.location || "Test City",
+                country: "Test Country",
+                coordinates: { latitude: 40.7128, longitude: -74.0060 }
+            },
+            temperature: 22.5,
+            temperatureFeelsLike: 23.0,
+            humidity: 65,
+            windSpeed: 5.5,
+            windDirection: 180,
+            conditions: [{
+                condition: "Clear",
+                description: "clear sky",
+                icon: "01d"
+            }],
+            timestamp: new Date().toISOString(),
+            units: input.units || "celsius",
+            forecast: input.includeForecast ? [{
+                date: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                highTemperature: 24.5,
+                lowTemperature: 18.2,
+                conditions: {
+                    condition: "Clear",
+                    description: "clear sky",
+                    icon: "01d"
+                }
+            }] : undefined
         }),
 
-        // List dependencies required by the 'effect' factory
-        dependencies: [EaLlmProvider, WeatherTool]
-    }
-) { }
+    getWeatherSummary: (input: WeatherPipelineInput): Effect.Effect<string, WeatherPipelineError, never> =>
+        Effect.succeed(`The current weather in ${input.location || "Test City"}, Test Country is clear sky with a temperature of 22.5°C (feels like 23.0°C). Wind is blowing at 5.5 m/s with humidity at 65%.`)
+});
 
 /**
- * Layer for the WeatherPipeline service
+ * Live Layer for the Weather Service
  */
-export const WeatherPipelineLayer = WeatherPipelineService; 
+export const WeatherServiceLive = (config: WeatherPipelineConfig): Layer.Layer<WeatherService> =>
+    Layer.succeed(WeatherService, makeWeatherService(config));
+
+/**
+ * Test Layer for the Weather Service with mock implementation
+ */
+export const WeatherServiceTest = Layer.succeed(
+    WeatherService,
+    makeMockWeatherService()
+);

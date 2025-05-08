@@ -7,7 +7,7 @@ import { Schema as S } from "effect";
 /**
  * Schema for a policy rule
  */
-export const PolicyRuleDataSchema = S.Struct({
+export class PolicyRuleData extends S.Class<PolicyRuleData>("PolicyRuleData")({
   /**
    * Unique identifier for the rule
    */
@@ -51,7 +51,7 @@ export const PolicyRuleDataSchema = S.Struct({
   /**
    * Rate limit configuration
    */
-  rateLimit: S.optional(S.Struct({
+  rateLimit: S.optional(S.Class<RateLimit>("RateLimit")({
     /**
      * Maximum number of requests allowed
      */
@@ -67,12 +67,12 @@ export const PolicyRuleDataSchema = S.Struct({
      */
     scope: S.Literal("user", "global")
   }))
-});
+}) { }
 
 /**
  * Schema for policy usage records
  */
-export const PolicyUsageDataSchema = S.Struct({
+export class PolicyUsageData extends S.Class<PolicyUsageData>("PolicyUsageData")({
   /**
    * User or entity the usage is attributed to
    */
@@ -107,30 +107,30 @@ export const PolicyUsageDataSchema = S.Struct({
    * Optional tokens consumed (if applicable)
    */
   tokensConsumed: S.optional(S.Number)
-});
+}) { }
 
 /**
  * Schema for the policy rule entity
  */
-export class PolicyRuleEntity extends BaseEntitySchema.extend<PolicyRuleEntity>("PolicyRuleEntity")({  
-  data: PolicyRuleDataSchema
-}) {}
+export class PolicyRuleEntity extends BaseEntitySchema.extend<PolicyRuleEntity>("PolicyRuleEntity")({
+  data: PolicyRuleData
+}) { }
 
 /**
  * Schema for the policy usage entity
  */
-export class PolicyUsageEntity extends BaseEntitySchema.extend<PolicyUsageEntity>("PolicyUsageEntity")({  
-  data: PolicyUsageDataSchema
-}) {}
+export class PolicyUsageEntity extends BaseEntitySchema.extend<PolicyUsageEntity>("PolicyUsageEntity")({
+  data: PolicyUsageData
+}) { }
 
 /**
  * PolicyRuleData type
  */
-export type PolicyRuleData = S.Schema.Type<typeof PolicyRuleDataSchema>;
+export type PolicyRuleData = S.Schema.Type<typeof PolicyRuleData>;
 
 /**
  * PolicyUsageData type
  */
-export type PolicyUsageData = S.Schema.Type<typeof PolicyUsageDataSchema>;
+export type PolicyUsageData = S.Schema.Type<typeof PolicyUsageData>;
 
 

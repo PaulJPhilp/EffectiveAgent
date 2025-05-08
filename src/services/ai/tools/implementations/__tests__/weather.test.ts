@@ -119,4 +119,4 @@ describe("Weather Tool", () => {
             expect(Either.isLeft(result)).toBe(true);
         }));
     });
-}); 
+});

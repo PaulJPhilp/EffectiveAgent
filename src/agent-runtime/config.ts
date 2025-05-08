@@ -19,18 +19,6 @@ export const defaultAgentRuntimeConfig: AgentRuntimeConfig = {
 }
 
 /**
- * Default configuration for all AgentRuntime instances.
- */
-export const defaultAgentRuntimeConfig: AgentRuntimeConfig = {
-    mailbox: {
-        size: 1000,
-        enablePrioritization: true,
-        priorityQueueSize: 100,
-        backpressureTimeout: 5000
-    }
-}
-
-/**
  * Configuration for the AgentRuntimeService
  */
 export interface AgentRuntimeServiceConfig {

@@ -20,46 +20,32 @@ export class FileSystemService extends Effect.Service<FileSystemServiceApi>()(
       const fs = yield* FileSystem;
 
       return {
-        readFile: (path: string) => Effect.gen(function* () {
-          try {
-            const content = yield* fs.readFileString(path);
-            return content;
-          } catch (error) {
-            return yield* Effect.fail(new FileSystemError({
-              description: "Failed to read file",
-              module: "FileSystemService",
-              method: "readFile",
-              cause: error
-            }));
-          }
-        }),
+        readFile: (path: string) => fs.readFileString(path).pipe(
+          Effect.mapError(error => new FileSystemError({
+            description: "Failed to read file",
+            module: "FileSystemService",
+            method: "readFile",
+            cause: error
+          }))
+        ),
 
-        writeFile: (path: string, content: string) => Effect.gen(function* () {
-          try {
-            yield* fs.writeFileString(path, content);
-          } catch (error) {
-            return yield* Effect.fail(new FileSystemError({
-              description: "Failed to write file",
-              module: "FileSystemService",
-              method: "writeFile",
-              cause: error
-            }));
-          }
-        }),
+        writeFile: (path: string, content: string) => fs.writeFileString(path, content).pipe(
+          Effect.mapError(error => new FileSystemError({
+            description: "Failed to write file",
+            module: "FileSystemService",
+            method: "writeFile",
+            cause: error
+          }))
+        ),
 
-        exists: (path: string) => Effect.gen(function* () {
-          try {
-            const exists = yield* fs.exists(path);
-            return exists;
-          } catch (error) {
-            return yield* Effect.fail(new FileSystemError({
-              description: "Failed to check file existence",
-              module: "FileSystemService",
-              method: "exists",
-              cause: error
-            }));
-          }
-        })
+        exists: (path: string) => fs.exists(path).pipe(
+          Effect.mapError(error => new FileSystemError({
+            description: "Failed to check file existence",
+            module: "FileSystemService",
+            method: "exists",
+            cause: error
+          }))
+        )
       };
     })
   }

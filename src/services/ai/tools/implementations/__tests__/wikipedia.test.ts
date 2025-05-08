@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
 import { WikiOperation, wikiImpl } from "../wikipedia.js";
 
@@ -91,10 +91,10 @@ describe("Wikipedia Tool", () => {
                 query: "test"
             }));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("Invalid input");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("Invalid input");
             }
         }));
 
@@ -103,11 +103,11 @@ describe("Wikipedia Tool", () => {
                 operation: WikiOperation.SEARCH
             } as any));
 
-            expect(Effect.isFailure(result)).toBe(true);
-            if (Effect.isFailure(result)) {
-                expect(result.cause).toBeInstanceOf(Error);
-                expect(result.cause.message).toContain("Invalid input");
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(Error);
+                expect(result.left.message).toContain("Invalid input");
             }
         }));
     });
-}); 
+});

@@ -1,5 +1,5 @@
-import {  ModelCapabilityDetail, Provider } from "./schema.js";
-import { ModelCapability } from "@/schema.js"
+import { ModelCapability } from "@/schema.js";
+import { ModelCapabilityDetail, Provider } from "./schema.js";
 /**
  * Canonical list of all models supported by the ModelService.
  *

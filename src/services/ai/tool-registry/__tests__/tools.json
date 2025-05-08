@@ -1,0 +1,89 @@
+{
+  "tools": {
+    "calculator/add": {
+      "metadata": {
+        "name": "calculator/add",
+        "description": "Adds two numbers together",
+        "version": "1.0.0",
+        "tags": ["math", "calculator"],
+        "author": "EffectiveAgent Team"
+      },
+      "implementation": {
+        "_tag": "EffectImplementation",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "a": { "type": "number" },
+            "b": { "type": "number" }
+          },
+          "required": ["a", "b"]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "result": { "type": "number" }
+          },
+          "required": ["result"]
+        },
+        "execute": "async (input) => ({ result: input.a + input.b })"
+      }
+    },
+    "http/get": {
+      "metadata": {
+        "name": "http/get",
+        "description": "Makes an HTTP GET request",
+        "version": "1.0.0",
+        "tags": ["http", "web"],
+        "author": "EffectiveAgent Team"
+      },
+      "implementation": {
+        "_tag": "HttpImplementation",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "url": { "type": "string" }
+          },
+          "required": ["url"]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "body": { "type": "string" },
+            "status": { "type": "number" }
+          },
+          "required": ["body", "status"]
+        },
+        "url": "${input.url}",
+        "method": "GET"
+      }
+    },
+    "mcp/chat": {
+      "metadata": {
+        "name": "mcp/chat",
+        "description": "Chat with an AI model",
+        "version": "1.0.0",
+        "tags": ["ai", "chat"],
+        "author": "EffectiveAgent Team"
+      },
+      "implementation": {
+        "_tag": "McpImplementation",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "message": { "type": "string" }
+          },
+          "required": ["message"]
+        },
+        "outputSchema": {
+          "type": "object",
+          "properties": {
+            "response": { "type": "string" }
+          },
+          "required": ["response"]
+        },
+        "slug": "chat",
+        "version": "1.0.0"
+      }
+    }
+  }
+}

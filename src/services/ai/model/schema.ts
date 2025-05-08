@@ -37,20 +37,19 @@ export class ModelCapabilityDetail extends S.Class<ModelCapabilityDetail>("Model
 export const Provider = S.Literal(...PROVIDER_NAMES);
 export type Provider = typeof PROVIDER_NAMES[number];
 
-const RateLimitSchema = S.Struct({
+export class RateLimitSchema extends S.Class<RateLimitSchema>("RateLimitSchema")({
     requestsPerMinute: PositiveNumber.pipe(S.optional),
     tokensPerMinute: PositiveNumber.pipe(S.optional)
-});
+}) { }
 
-export const MetadataSchema = S.Struct({
+export class ModelMetadata extends S.Class<ModelMetadata>("ModelMetadata")({
     description: S.String.pipe(S.optional)
-});
+}) { }
 
-// Response format schema
-export const ResponseFormatSchema = S.Struct({
+export class ResponseFormat extends S.Class<ResponseFormat>("ResponseFormat")({
     type: S.Literal("text", "image", "audio", "embedding"),
     supportedFormats: S.Array(S.String)
-});
+}) { }
 
 /**
  * Local representation matching the CoreModelDefinition structure,
@@ -77,9 +76,11 @@ export class Model extends S.Class<Model>("Model")({
     contextWindowSize: ContextWindowSize.pipe(S.optional),
     costPer1kInputTokens: PositiveNumber.pipe(S.optional),
     costPer1kOutputTokens: PositiveNumber.pipe(S.optional),
-    metadata: S.Struct({ description: S.String.pipe(S.optional) }).pipe(S.optional),
+    metadata: S.Class<ModelMetadata>("ModelMetadata")({
+        description: S.String.pipe(S.optional)
+    }).pipe(S.optional),
     supportedLanguages: S.Array(S.String).pipe(S.optional),
-    responseFormat: S.Struct({
+    responseFormat: S.Class<ResponseFormat>("ResponseFormat")({
         type: S.Literal("text", "image", "audio", "embedding"),
         supportedFormats: S.Array(S.String)
     }).pipe(S.optional)
@@ -110,9 +111,11 @@ export class PublicModelInfo extends S.Class<PublicModelInfo>("PublicModelInfo")
     contextWindowSize: ContextWindowSize.pipe(S.optional),
     costPer1kInputTokens: PositiveNumber.pipe(S.optional),
     costPer1kOutputTokens: PositiveNumber.pipe(S.optional),
-    metadata: S.Struct({ description: S.String.pipe(S.optional) }).pipe(S.optional),
+    metadata: S.Class<ModelMetadata>("ModelMetadata")({
+        description: S.String.pipe(S.optional)
+    }).pipe(S.optional),
     supportedLanguages: S.Array(S.String).pipe(S.optional),
-    responseFormat: S.Struct({
+    responseFormat: S.Class<ResponseFormat>("ResponseFormat")({
         type: S.Literal("text", "image", "audio", "embedding"),
         supportedFormats: S.Array(S.String)
     }).pipe(S.optional)

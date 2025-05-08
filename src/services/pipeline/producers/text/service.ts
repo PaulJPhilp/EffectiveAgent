@@ -3,56 +3,52 @@
  * @module services/ai/producers/text/service
  */
 
-import { EffectiveInput } from "@/services/ai/input/service.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderServiceApi } from '@/services/ai/provider/api.js';
 import { ProviderService } from "@/services/ai/provider/service.js";
 import type { EffectiveResponse, GenerateTextResult } from "@/services/ai/provider/types.js";
-import { AiRole } from '@effect/ai';
 import { Message } from "@effect/ai/AiInput";
 import { ConfigProvider, Effect, Option } from "effect";
 import * as Chunk from "effect/Chunk";
-import type { Span } from "effect/Tracer";
 import type { TextGenerationOptions, TextServiceApi } from "./api.js";
-import type { TextServiceError } from "./errors.js";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "./errors.js";
 
 /**
  * Parameters for text generation
  */
 export interface TextGenerationParameters {
-    [key: string]: unknown;
-    maxSteps?: number;
-    maxRetries?: number;
-    temperature?: number;
-    topP?: number;
-    topK?: number;
-    presencePenalty?: number;
-    frequencyPenalty?: number;
-    seed?: number;
-    stop?: string[];
+  [key: string]: unknown;
+  maxSteps?: number;
+  maxRetries?: number;
+  temperature?: number;
+  topP?: number;
+  topK?: number;
+  presencePenalty?: number;
+  frequencyPenalty?: number;
+  seed?: number;
+  stop?: string[];
 }
 
 /**
  * Result shape expected from the underlying provider client's generateText method
  */
 export interface ProviderTextGenerationResult {
-    readonly data: {
-        readonly text: string;
-        readonly reasoning?: string;
-        readonly reasoningDetails?: unknown;
-        readonly sources?: unknown[];
-        readonly messages?: unknown[];
-        readonly warnings?: unknown[];
-    };
-    readonly metadata: {
-        readonly usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
-        readonly finishReason: string;
-        readonly model: string;
-        readonly timestamp: Date;
-        readonly id: string;
-    };
+  readonly data: {
+    readonly text: string;
+    readonly reasoning?: string;
+    readonly reasoningDetails?: unknown;
+    readonly sources?: unknown[];
+    readonly messages?: unknown[];
+    readonly warnings?: unknown[];
+  };
+  readonly metadata: {
+    readonly usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+    readonly finishReason: string;
+    readonly model: string;
+    readonly timestamp: Date;
+    readonly id: string;
+  };
 }
 
 /**
@@ -61,9 +57,9 @@ export interface ProviderTextGenerationResult {
 import type { TestHarnessApi } from "@/services/core/test-harness/api.js";
 
 export interface TextServiceDeps {
-    readonly modelService: ModelServiceApi;
-    readonly providerService: ProviderServiceApi;
-    readonly testHarness: TestHarnessApi;
+  readonly modelService: ModelServiceApi;
+  readonly providerService: ProviderServiceApi;
+  readonly testHarness: TestHarnessApi;
 }
 
 /**
@@ -176,6 +172,6 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
     };
   }),
   dependencies: [] as const
-}) {}
+}) { }
 
 export default TextService;

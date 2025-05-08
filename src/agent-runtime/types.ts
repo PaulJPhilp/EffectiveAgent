@@ -48,6 +48,22 @@ export const AgentActivityType = {
 export type AgentActivityType = typeof AgentActivityType[keyof typeof AgentActivityType]
 
 /**
+ * The type of record being processed by the agent runtime.
+ * This helps determine how to handle the record's payload.
+ */
+export const AgentRecordType = {
+    COMMAND: "COMMAND",
+    EVENT: "EVENT",
+    QUERY: "QUERY",
+    RESPONSE: "RESPONSE",
+    ERROR: "ERROR",
+    STATE_CHANGE: "STATE_CHANGE",
+    SYSTEM: "SYSTEM"
+} as const
+
+export type AgentRecordType = typeof AgentRecordType[keyof typeof AgentRecordType]
+
+/**
  * Represents a message that can be sent to or from an AgentRuntime.
  * This is the primary unit of communication in the system.
  */
@@ -62,6 +78,8 @@ export interface AgentActivity {
     readonly type: AgentActivityType
     /** The actual data being conveyed */
     readonly payload: unknown
+    /** Sequence number for ordering activities */
+    readonly sequence: number
     /** Additional context about this activity */
     readonly metadata: {
         /** The AgentRuntime that created this activity (if different from agentRuntimeId) */
@@ -71,6 +89,42 @@ export interface AgentActivity {
         /** Whether this activity has been processed */
         readonly processed?: boolean
         /** Whether this activity has been persisted */
+        readonly persisted?: boolean
+        /** Message priority for processing order */
+        readonly priority?: MessagePriority
+        /** When the message should be processed (timestamp) */
+        readonly scheduledFor?: number
+        /** Maximum time to wait for processing before failing */
+        readonly timeout?: number
+        /** Custom metadata fields */
+        readonly [key: string]: unknown
+    }
+}
+
+/**
+ * Represents a message that can be sent to or from an AgentRuntime.
+ * This is the primary unit of communication in the system (record variant).
+ */
+export interface AgentRecord {
+    /** Unique identifier for this record */
+    readonly id: string
+    /** The AgentRuntime this record is associated with */
+    readonly agentRuntimeId: AgentRuntimeId
+    /** When this record was created */
+    readonly timestamp: number
+    /** The type of record */
+    readonly type: AgentRecordType
+    /** The actual data being conveyed */
+    readonly payload: unknown
+    /** Additional context about this record */
+    readonly metadata: {
+        /** The AgentRuntime that created this record (if different from agentRuntimeId) */
+        readonly sourceAgentRuntimeId?: AgentRuntimeId
+        /** The correlation ID for tracking related records */
+        readonly correlationId?: string
+        /** Whether this record has been processed */
+        readonly processed?: boolean
+        /** Whether this record has been persisted */
         readonly persisted?: boolean
         /** Message priority for processing order */
         readonly priority?: MessagePriority

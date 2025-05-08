@@ -3,53 +3,58 @@
  * @module services/ai/errors
  */
 
+import { EffectiveError } from "@/errors.js"
 import { Effect } from "effect"
 
 /**
  * Base error class for all AI service errors
  */
-export class AIError extends Error {
-    constructor(message: string, options?: ErrorOptions & {
+export class AIError extends EffectiveError {
+    readonly code: string
+
+    constructor(params: {
+        message: string
         code?: string
-        name?: string
         module?: string
         method?: string
+        cause?: unknown
     }) {
-        super(message, options)
-        this.name = options?.name || "AIError"
-        this.code = options?.code || "ai_error"
-        this.module = options?.module || "ai"
-        this.method = options?.method || "unknown"
+        super({
+            description: params.message,
+            module: params.module || "ai",
+            method: params.method || "unknown",
+            cause: params.cause
+        })
+        this.code = params.code || "ai_error"
     }
-
-    readonly code: string
-    readonly module: string
-    readonly method: string
 }
 
 export class ChatCompletionError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "chat_completion_error",
+            ...options
         })
     }
 }
 
 export class ChatModelError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "chat_model_error",
+            ...options
         })
     }
 }
 
 export class ChatProviderError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "chat_provider_error",
+            ...options
         })
     }
 }
@@ -59,10 +64,10 @@ export class ChatProviderError extends AIError {
  */
 export class AuthenticationError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "authentication_error",
-            name: "AuthenticationError"
+            ...options
         })
     }
 }
@@ -72,10 +77,10 @@ export class AuthenticationError extends AIError {
  */
 export class RateLimitError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "rate_limit_error",
-            name: "RateLimitError"
+            ...options
         })
     }
 }
@@ -85,10 +90,10 @@ export class RateLimitError extends AIError {
  */
 export class InvalidRequestError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "invalid_request_error",
-            name: "InvalidRequestError"
+            ...options
         })
     }
 }
@@ -98,10 +103,10 @@ export class InvalidRequestError extends AIError {
  */
 export class ModelError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "model_error",
-            name: "ModelError"
+            ...options
         })
     }
 }
@@ -111,10 +116,10 @@ export class ModelError extends AIError {
  */
 export class ContextLengthError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "context_length_exceeded",
-            name: "ContextLengthError"
+            ...options
         })
     }
 }
@@ -124,10 +129,10 @@ export class ContextLengthError extends AIError {
  */
 export class ContentFilterError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "content_filter_error",
-            name: "ContentFilterError"
+            ...options
         })
     }
 }
@@ -137,10 +142,10 @@ export class ContentFilterError extends AIError {
  */
 export class ProviderConfigError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "provider_config_error",
-            name: "ProviderConfigError"
+            ...options
         })
     }
 }
@@ -149,21 +154,21 @@ export class ProviderConfigError extends AIError {
  * Error thrown when the provider API returns an error
  */
 export class ProviderAPIError extends AIError {
+    readonly status?: number
+    readonly response?: unknown
+
     constructor(message: string, options?: ErrorOptions & {
         status?: number
         response?: unknown
     }) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "provider_api_error",
-            name: "ProviderAPIError"
+            ...options
         })
         this.status = options?.status
         this.response = options?.response
     }
-
-    readonly status?: number
-    readonly response?: unknown
 }
 
 /**
@@ -171,10 +176,10 @@ export class ProviderAPIError extends AIError {
  */
 export class TimeoutError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "timeout_error",
-            name: "TimeoutError"
+            ...options
         })
     }
 }
@@ -184,10 +189,10 @@ export class TimeoutError extends AIError {
  */
 export class StreamingError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "streaming_error",
-            name: "StreamingError"
+            ...options
         })
     }
 }
@@ -197,10 +202,10 @@ export class StreamingError extends AIError {
  */
 export class ValidationError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "validation_error",
-            name: "ValidationError"
+            ...options
         })
     }
 }
@@ -210,10 +215,10 @@ export class ValidationError extends AIError {
  */
 export class ParsingError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "parsing_error",
-            name: "ParsingError"
+            ...options
         })
     }
 }
@@ -222,23 +227,23 @@ export class ParsingError extends AIError {
  * Error thrown when there are rendering issues
  */
 export class RenderingError extends AIError {
+    readonly templateSnippet?: string
+    readonly templateName?: string
+
     constructor(options: {
-        message: string;
-        cause?: Error;
-        templateSnippet?: string;
-        templateName?: string;
+        message: string
+        cause?: Error
+        templateSnippet?: string
+        templateName?: string
     }) {
-        super(options.message, {
-            cause: options.cause,
+        super({
+            message: options.message,
             code: "rendering_error",
-            name: "RenderingError"
+            cause: options.cause
         })
         this.templateSnippet = options.templateSnippet
         this.templateName = options.templateName
     }
-
-    readonly templateSnippet?: string
-    readonly templateName?: string
 }
 
 /**
@@ -246,20 +251,20 @@ export class RenderingError extends AIError {
  */
 export class TemplateNotFoundError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "template_not_found_error",
-            name: "TemplateNotFoundError"
+            ...options
         })
     }
 }
 
 export class PromptConfigError extends AIError {
     constructor(message: string, options?: ErrorOptions) {
-        super(message, {
-            ...options,
+        super({
+            message,
             code: "prompt_config_error",
-            name: "PromptConfigError"
+            ...options
         })
     }
 }
@@ -269,18 +274,18 @@ export class PromptConfigError extends AIError {
  */
 export class EmptyInputError extends AIError {
     constructor(options: {
-        module: string;
-        method: string;
-        description?: string;
-        cause?: unknown;
+        module: string
+        method: string
+        description?: string
+        cause?: unknown
     }) {
-        super(options.description ?? "Input messages or content cannot be empty", {
-            cause: options.cause,
+        super({
+            message: options.description ?? "Input messages or content cannot be empty",
             code: "empty_input_error",
-            name: "EmptyInputError",
             module: options.module,
-            method: options.method
-        });
+            method: options.method,
+            cause: options.cause
+        })
     }
 }
 
@@ -289,18 +294,18 @@ export class EmptyInputError extends AIError {
  */
 export class MissingModelIdError extends AIError {
     constructor(options: {
-        module: string;
-        method: string;
-        description?: string;
-        cause?: unknown;
+        module: string
+        method: string
+        description?: string
+        cause?: unknown
     }) {
-        super(options.description ?? "Model ID is required", {
-            cause: options.cause,
+        super({
+            message: options.description ?? "Model ID is required",
             code: "missing_model_id_error",
-            name: "MissingModelIdError",
             module: options.module,
-            method: options.method
-        });
+            method: options.method,
+            cause: options.cause
+        })
     }
 }
 
@@ -333,6 +338,10 @@ export function mapProviderError(error: Error): AIError {
  * Effect middleware to map provider errors
  */
 export const withErrorMapping = <R, E, A>(effect: Effect.Effect<R, E, A>): Effect.Effect<R, AIError, A> =>
-    Effect.mapError(effect, error => 
-        error instanceof Error ? mapProviderError(error) : new AIError(String(error))
+    Effect.mapError(effect, error =>
+        error instanceof Error ? mapProviderError(error) : new AIError({
+            message: String(error),
+            module: "ai",
+            method: "unknown"
+        })
     )

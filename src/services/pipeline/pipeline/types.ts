@@ -1,12 +1,12 @@
 import type { EffectiveError } from "@/errors.js";
+import type { ExecutiveServiceError } from "@/services/pipeline/service.js";
+import type { Effect } from "effect";
+import { Duration } from "effect";
 import type {
   InputValidationError,
   OutputValidationError,
   PipelineConfigurationError,
-} from "@/framework/pipeline/errors.js";
-import type { ExecutiveServiceError } from "@/services/pipeline/service.js";
-import type { Effect } from "effect";
-import { Duration } from "effect";
+} from "./errors.js";
 import { } from "./errors.js";
 
 /** Union of all possible errors the base AiPipeline run method can produce. */
@@ -26,6 +26,5 @@ export interface ExecutiveCallConfig<A, E, R> {
 }
 
 export interface ExecutiveParameters {
-  maxRetries?: number;
   timeout?: Duration.Duration;
 }

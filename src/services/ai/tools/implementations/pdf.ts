@@ -3,8 +3,8 @@
  * @module services/tools/implementations/pdf
  */
 
-import { Effect, Schema as S } from "effect";
 import * as fs from "node:fs/promises";
+import { Effect, Schema as S } from "effect";
 import * as pdfParse from "pdf-parse";
 
 // --- Input Schema ---
@@ -31,7 +31,7 @@ export const PdfInputSchema = S.Union(
         operation: S.Literal(PdfOperation.GET_PAGES),
         filePath: S.String,
         pages: S.Array(S.Number),
-        includeMetadata: S.optional(S.Boolean, { default: false })
+        includeMetadata: S.optional(S.Boolean)
     })
 );
 
@@ -73,25 +73,25 @@ function readPdfFile(filePath: string): Effect.Effect<Buffer, Error> {
     });
 }
 
-function parsePdf(buffer: Buffer, options?: pdfParse.PDFOptions): Effect.Effect<pdfParse.PDFData, Error> {
+function parsePdf(buffer: Buffer, options?: pdfParse.Options): Effect.Effect<pdfParse.Result, Error> {
     return Effect.tryPromise({
         try: () => pdfParse.default(buffer, options),
         catch: error => new Error("Failed to parse PDF", { cause: error })
     });
 }
 
-function extractPageText(data: pdfParse.PDFData, pageNum: number): string {
+function extractPageText(data: pdfParse.Result, pageNum: number): string {
     // pdf-parse doesn't provide direct page access, so we use a custom render function
     const pageTexts: string[] = [];
     let currentPage = 1;
 
-    const renderOptions: pdfParse.PDFOptions = {
+    const renderOptions: pdfParse.Options = {
         pagerender: (pageData: any) => {
             if (currentPage === pageNum) {
                 pageTexts.push(pageData.getTextContent());
             }
             currentPage++;
-            return null;
+            return "";
         }
     };
 
@@ -104,7 +104,8 @@ export const pdfImpl = (input: unknown): Effect.Effect<PdfOutput, Error> =>
     Effect.gen(function* () {
         const data = yield* Effect.succeed(input).pipe(
             Effect.flatMap(i => S.decodeUnknown(PdfInputSchema)(i)),
-            Effect.mapError((e): Error => new Error(`Invalid input: ${String(e)}`))
+            Effect.mapError((e): Error => new Error(`Invalid input: ${String(e)}`)),
+            Effect.map(d => d as PdfInput)
         );
 
         const buffer = yield* readPdfFile(data.filePath);
@@ -146,9 +147,9 @@ export const pdfImpl = (input: unknown): Effect.Effect<PdfOutput, Error> =>
                     })
                 );
 
-                const result: PdfOutput = { pages };
+                let result: PdfOutput = { pages };
                 if (data.includeMetadata) {
-                    result.metadata = {
+                    const metadata = {
                         title: pdf.info?.Title,
                         author: pdf.info?.Author,
                         subject: pdf.info?.Subject,
@@ -159,14 +160,15 @@ export const pdfImpl = (input: unknown): Effect.Effect<PdfOutput, Error> =>
                         modificationDate: pdf.info?.ModDate,
                         pageCount: pdf.numpages
                     };
+                    result = { ...result, metadata };
                 }
 
                 return yield* Effect.succeed(result);
             }
 
             default: {
-                const operation = (data as { operation: string }).operation;
-                return yield* Effect.fail(new Error(`Unsupported operation: ${operation}`));
+                // This should never happen due to the schema validation
+                return yield* Effect.fail(new Error(`Unsupported operation`));
             }
         }
     }); 

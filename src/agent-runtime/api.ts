@@ -1,6 +1,6 @@
 import { Effect, Stream } from "effect"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
-import type { AgentRecord, AgentRuntimeId, AgentRuntimeState } from "./types.js"
+import type { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
 
 /**
  * Core interface for an individual AgentRuntime instance.
@@ -13,12 +13,12 @@ export interface AgentRuntime<S = unknown> {
     readonly id: AgentRuntimeId
 
     /**
-     * Sends an AgentRecord to this AgentRuntime's mailbox for processing.
+     * Sends an AgentActivity to this AgentRuntime's mailbox for processing.
      * 
-     * @param record - The record to send
-     * @returns Effect<void> that succeeds when the record is queued, or fails with Queue.EnqueueError
+     * @param activity - The activity to send
+     * @returns Effect<void> that succeeds when the activity is queued, or fails with Queue.EnqueueError
      */
-    readonly send: (record: AgentRecord) => Effect.Effect<void, Error>
+    readonly send: (activity: AgentActivity) => Effect.Effect<void, Error>
 
     /**
      * Gets the current state of this AgentRuntime.
@@ -28,11 +28,11 @@ export interface AgentRuntime<S = unknown> {
     readonly getState: () => Effect.Effect<AgentRuntimeState<S>, Error>
 
     /**
-     * Subscribes to all records processed by this AgentRuntime.
+     * Subscribes to all activities processed by this AgentRuntime.
      * 
-     * @returns A Stream of AgentRecords
+     * @returns A Stream of AgentActivities
      */
-    readonly subscribe: () => Stream.Stream<AgentRecord, Error>
+    readonly subscribe: () => Stream.Stream<AgentActivity, Error>
 }
 
 /**
@@ -66,15 +66,15 @@ export interface AgentRuntimeServiceApi {
     ) => Effect.Effect<void, AgentRuntimeNotFoundError | Error>
 
     /**
-     * Sends an AgentRecord to the specified AgentRuntime.
+     * Sends an AgentActivity to the specified AgentRuntime.
      * 
      * @param id - The ID of the target AgentRuntime
-     * @param record - The record to send
-     * @returns Effect<void> that succeeds when the record is queued
+     * @param activity - The activity to send
+     * @returns Effect<void> that succeeds when the activity is queued
      */
     readonly send: (
         id: AgentRuntimeId,
-        record: AgentRecord
+        activity: AgentActivity
     ) => Effect.Effect<void, AgentRuntimeNotFoundError | AgentRuntimeTerminatedError | Error>
 
     /**
@@ -89,12 +89,12 @@ export interface AgentRuntimeServiceApi {
     ) => Effect.Effect<AgentRuntimeState<S>, AgentRuntimeNotFoundError>
 
     /**
-     * Gets a Stream of all records processed by the specified AgentRuntime.
+     * Gets a Stream of all activities processed by the specified AgentRuntime.
      * 
      * @param id - The ID of the AgentRuntime to subscribe to
-     * @returns A Stream of AgentRecords from the specified AgentRuntime
+     * @returns A Stream of AgentActivities from the specified AgentRuntime
      */
     readonly subscribe: (
         id: AgentRuntimeId
-    ) => Stream.Stream<AgentRecord, Error>
+    ) => Stream.Stream<AgentActivity, Error>
 }

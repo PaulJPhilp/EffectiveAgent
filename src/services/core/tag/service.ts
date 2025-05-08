@@ -3,7 +3,7 @@
  */
 
 import type { EntityId } from "@/types.js";
-import { EntityNotFoundError } from "@core/repository/errors.js";
+import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
 import { RepositoryService } from "@core/repository/service.js";
 import type { TagServiceApi } from "@core/tag/api.js";
 import {
@@ -36,7 +36,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
       // Get repository instances
       const tagRepo = yield* RepositoryService<TagEntity>().Tag;
       const linkRepo = yield* RepositoryService<EntityTagLinkEntity>().Tag;
-      
+
       return {
         /**
          * Creates a new tag with the given name.
@@ -45,13 +45,13 @@ export class TagService extends Effect.Service<TagServiceApi>()(
          */
         createTag: (name: string): Effect.Effect<TagEntity, TagDbError | DuplicateTagNameError> => {
           const normalizedName = normalizeTagName(name);
-          
+
           return Effect.gen(function* () {
             // Check if tag with same name already exists
             const existingTag = yield* tagRepo.findOne({
               filter: { name: normalizedName }
             }).pipe(Effect.option);
-            
+
             if (Option.isSome(existingTag)) {
               return yield* Effect.fail(
                 new DuplicateTagNameError({
@@ -60,30 +60,19 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                 })
               );
             }
-            
-            // Create new tag
-            try {
-              const newTag = yield* tagRepo.create({
-                name: normalizedName,
-              });
 
-              return newTag;
-            } catch (error) {
-              return yield* Effect.fail(
-                new TagDbError({
-                  operation: "createTag",
-                  message: `Failed to create tag '${name}'`,
-                  cause: error,
-                })
-              );
-            }
+            // Create new tag
+            const newTag = yield* Effect.try(() => tagRepo.create({ name: normalizedName })).pipe(
+              Effect.catchAll(error =>
+                Effect.fail(new TagDbError({ operation: "createTag", message: `Failed to create tag '${name}'`, cause: error }))
+              )
+            );
+            return newTag;
           }).pipe(
-            Effect.catchTag("RepositoryError", (error) => 
-              Effect.fail(new TagDbError({
-                operation: "createTag",
-                message: `Repository error: ${error.message}`,
-                cause: error
-              }))
+            Effect.catchAll((error) =>
+              error instanceof RepositoryError
+                ? Effect.fail(new TagDbError({ operation: "createTag", message: `Repository error: ${error.message}`, cause: error }))
+                : Effect.fail(error)
             )
           );
         },
@@ -95,29 +84,21 @@ export class TagService extends Effect.Service<TagServiceApi>()(
          */
         getTagById: (id: EntityId): Effect.Effect<Option.Option<TagEntity>, TagDbError> => {
           return Effect.gen(function* () {
-            try {
-              const tag = yield* tagRepo.findById(id);
-              return tag;
-            } catch (error) {
-              return yield* Effect.fail(
-                new TagDbError({
-                  operation: "getTagById",
-                  message: `Failed to get tag with ID ${id}`,
-                  cause: error,
-                })
-              );
-            }
+            const tag = yield* Effect.try(() => tagRepo.findById(id)).pipe(
+              Effect.catchAll(error =>
+                Effect.fail(new TagDbError({ operation: "getTagById", message: `Failed to get tag with ID ${id}`, cause: error }))
+              )
+            );
+            return tag;
           }).pipe(
-            Effect.catchTag("RepositoryError", (error) => 
-              Effect.fail(new TagDbError({
-                operation: "getTagById",
-                message: `Repository error: ${error.message}`,
-                cause: error
-              }))
+            Effect.catchAll((error) =>
+              error instanceof RepositoryError
+                ? Effect.fail(new TagDbError({ operation: "getTagById", message: `Repository error: ${error.message}`, cause: error }))
+                : Effect.fail(error)
             )
           );
         },
-        
+
         /**
          * Gets a tag by its name.
          * @param name The name of the tag to get.
@@ -125,34 +106,24 @@ export class TagService extends Effect.Service<TagServiceApi>()(
          */
         getTagByName: (name: string): Effect.Effect<Option.Option<TagEntity>, TagDbError> => {
           return Effect.gen(function* () {
-            try {
+            const tag = yield* Effect.try(() => {
               const normalizedName = normalizeTagName(name);
-              
-              const tag = yield* tagRepo.findOne({
-                filter: { name: normalizedName }
-              });
-              
-              return tag;
-            } catch (error) {
-              return yield* Effect.fail(
-                new TagDbError({
-                  operation: "getTagByName",
-                  message: `Failed to get tag with name '${name}'`,
-                  cause: error,
-                })
-              );
-            }
+              return tagRepo.findOne({ filter: { name: normalizedName } });
+            }).pipe(
+              Effect.catchAll(error =>
+                Effect.fail(new TagDbError({ operation: "getTagByName", message: `Failed to get tag with name '${name}'`, cause: error }))
+              )
+            );
+            return tag;
           }).pipe(
-            Effect.catchTag("RepositoryError", (error) => 
-              Effect.fail(new TagDbError({
-                operation: "getTagByName",
-                message: `Repository error: ${error.message}`,
-                cause: error
-              }))
+            Effect.catchAll((error) =>
+              error instanceof RepositoryError
+                ? Effect.fail(new TagDbError({ operation: "getTagByName", message: `Repository error: ${error.message}`, cause: error }))
+                : Effect.fail(error)
             )
           );
         },
-        
+
         /**
          * Finds tags matching the given query.
          * @param prefix Optional prefix to filter tags by.
@@ -160,9 +131,8 @@ export class TagService extends Effect.Service<TagServiceApi>()(
          */
         findTags: (prefix?: string): Effect.Effect<ReadonlyArray<TagEntity>, TagDbError> => {
           return Effect.gen(function* () {
-            try {
+            const tags = yield* Effect.try(() => {
               let filter = {};
-              
               if (prefix) {
                 const normalizedPrefix = normalizeTagName(prefix);
                 // Add prefix condition if provided (using 'like' or similar operator)
@@ -173,33 +143,28 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                   }
                 };
               }
-              
-              // Find all tags matching the filter
-              const tags = yield* tagRepo.findMany({
+              return tagRepo.findMany({
                 filter
               });
-              
-              return tags;
-            } catch (error) {
-              return yield* Effect.fail(
-                new TagDbError({
+            }).pipe(
+              Effect.catchAll(error =>
+                Effect.fail(new TagDbError({
                   operation: "findTags",
                   message: `Failed to find tags${prefix ? ` with prefix '${prefix}'` : ''}`,
-                  cause: error,
-                })
-              );
-            }
+                  cause: error
+                }))
+              )
+            );
+            return tags;
           }).pipe(
-            Effect.catchTag("RepositoryError", (error) => 
-              Effect.fail(new TagDbError({
-                operation: "findTags",
-                message: `Repository error: ${error.message}`,
-                cause: error
-              }))
+            Effect.catchAll((error) =>
+              error instanceof RepositoryError
+                ? Effect.fail(new TagDbError({ operation: "findTags", message: `Repository error: ${error.message}`, cause: error }))
+                : Effect.fail(error)
             )
           );
         },
-        
+
         /**
          * Tags an entity with the given tag.
          * @param tagId The ID of the tag to use.
@@ -208,14 +173,14 @@ export class TagService extends Effect.Service<TagServiceApi>()(
          * @returns An Effect resolving to void.
          */
         tagEntity: (
-          tagId: EntityId, 
-          entityId: EntityId, 
+          tagId: EntityId,
+          entityId: EntityId,
           entityType: string
         ): Effect.Effect<void, TagDbError | TagNotFoundError | LinkAlreadyExistsError> => {
           return Effect.gen(function* () {
             // Verify tag exists
             const tagOption = yield* tagRepo.findById(tagId);
-            
+
             if (Option.isNone(tagOption)) {
               return yield* Effect.fail(
                 new TagNotFoundError({
@@ -224,12 +189,12 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                 })
               );
             }
-            
+
             // Check if link already exists
             const existingLink = yield* linkRepo.findOne({
               filter: { tagId, entityId, entityType }
             }).pipe(Effect.option);
-            
+
             if (Option.isSome(existingLink)) {
               return yield* Effect.fail(
                 new LinkAlreadyExistsError({
@@ -240,34 +205,22 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                 })
               );
             }
-            
+
             // Create link between tag and entity
-            try {
-              yield* linkRepo.create({
-                tagId,
-                entityId,
-                entityType
-              });
-            } catch (error) {
-              return yield* Effect.fail(
-                new TagDbError({
-                  operation: "tagEntity",
-                  message: `Failed to tag entity: ${error instanceof Error ? error.message : String(error)}`,
-                  cause: error,
-                })
-              );
-            }
+            yield* Effect.try(() => linkRepo.create({ tagId, entityId, entityType })).pipe(
+              Effect.catchAll(error =>
+                Effect.fail(new TagDbError({ operation: "tagEntity", message: `Failed to tag entity: ${error instanceof Error ? error.message : String(error)}`, cause: error }))
+              )
+            );
           }).pipe(
-            Effect.catchTag("RepositoryError", (error) => 
-              Effect.fail(new TagDbError({
-                operation: "tagEntity",
-                message: `Repository error: ${error.message}`,
-                cause: error
-              }))
+            Effect.catchAll((error) =>
+              error instanceof RepositoryError
+                ? Effect.fail(new TagDbError({ operation: "tagEntity", message: `Repository error: ${error.message}`, cause: error }))
+                : Effect.fail(error)
             )
           );
         },
-        
+
         /**
          * Removes a tag from an entity.
          * @param tagId The ID of the tag to remove.
@@ -276,8 +229,8 @@ export class TagService extends Effect.Service<TagServiceApi>()(
          * @returns An Effect resolving to void.
          */
         untagEntity: (
-          tagId: EntityId, 
-          entityId: EntityId, 
+          tagId: EntityId,
+          entityId: EntityId,
           entityType: string
         ): Effect.Effect<void, TagDbError | LinkNotFoundError> => {
           return Effect.gen(function* (_) {
@@ -292,7 +245,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                 cause: error
               }))
             );
-            
+
             // If link doesn't exist, throw error
             if (Option.isNone(linkOption)) {
               return yield* Effect.fail(
@@ -304,10 +257,10 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                 })
               );
             }
-            
+
             // If link exists, delete it by its ID
             const linkToDelete = linkOption.value;
-            
+
             yield* linkRepo.delete(linkToDelete.data.id).pipe(
               Effect.mapError((error) => {
                 // Check if repo error was EntityNotFoundError (shouldn't happen if findOne succeeded)
@@ -327,13 +280,13 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                 });
               })
             );
-            
+
             // Explicitly return void
             return undefined;
           });
           // No need for catchTag here since we're already mapping repository errors to our domain errors
         },
-        
+
         /**
          * Gets all tags for an entity.
          * @param entityId The ID of the entity to get tags for.
@@ -358,15 +311,15 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                   }),
               ),
             );
-            
+
             // If no links found, return empty array
             if (links.length === 0) {
               return [] as ReadonlyArray<TagEntity>;
             }
-            
+
             // Extract tagIds and fetch corresponding tags
             const tagIds = links.map((link) => link.data.tagId);
-            
+
             // Fetch all tags matching the found IDs
             return yield* tagRepo.findMany({
               filter: { id: { in: tagIds } },
@@ -383,7 +336,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             );
           });
         },
-        
+
         /**
          * Gets all entities for a tag.
          * @param tagId The ID of the tag to get entities for.
@@ -406,7 +359,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
                   }),
               ),
             );
-            
+
             // Map results to the desired { entityId, entityType } shape
             return links.map((link) => ({
               entityId: link.data.entityId,
@@ -418,7 +371,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
     }),
     dependencies: [],
   }
-) {}
+) { }
 
 /**
  * Live layer for the TagService.

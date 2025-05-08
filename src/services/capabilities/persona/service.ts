@@ -4,20 +4,22 @@
  */
 
 import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
+import type { PersonaServiceApi } from "./api.js";
 import { PersonaConfigError } from "./errors.js";
-import { PersonasFile } from "./schema.js";
+import { Persona, PersonasFile } from "./schema.js";
+import type { PersonaDefinition, PersonaDefinitionInput } from "./types.js";
 
-export class PersonaService extends Effect.Service<PersonaService>()("PersonaService", {
+/**
+ * Default implementation of the PersonaService.
+ */
+export class PersonaService extends Effect.Service<PersonaServiceApi>()("PersonaService", {
   effect: Effect.gen(function* () {
     // Configuration provider for loading persona config
     const personaRef = yield* Ref.make<PersonasFile | undefined>(undefined);
 
     return {
       load: () => Effect.gen(function* () {
-        // Configuration provider for loading persona config
         const config = yield* ConfigProvider.ConfigProvider;
-        // Ref to store loaded configuration
-        let personaRef: Ref.Ref<PersonasFile> | null = null;
 
         // 1. Load raw config string
         const rawConfig = yield* config.load(Config.string("personas")).pipe(
@@ -52,9 +54,26 @@ export class PersonaService extends Effect.Service<PersonaService>()("PersonaSer
         );
 
         // 4. Store in ref and return
-        personaRef = yield* Ref.make<PersonasFile>(validConfig);
-        return yield* Ref.get(personaRef);
-      })
+        yield* Ref.set(personaRef, validConfig);
+        return validConfig;
+      }),
+
+      make: (definition: unknown) => Effect.mapError(
+        S.decode(Persona)(definition),
+        (error) => new PersonaConfigError({
+          description: "Failed to validate persona definition",
+          module: "PersonaService",
+          method: "make",
+          cause: error
+        })
+      ),
+
+      update: (currentData: PersonaDefinition, updates: Partial<PersonaDefinitionInput>) =>
+        Effect.gen(function* () {
+          const merged = { ...currentData, ...updates };
+          return yield* PersonaService.prototype.make(merged);
+        })
     };
-  })
+  }),
+  dependencies: []
 }) { }

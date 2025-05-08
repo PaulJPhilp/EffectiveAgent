@@ -3,107 +3,146 @@
  * @module services/ai/provider/client
  */
 
-import { Effect, Ref } from "effect";
+import { Effect, Ref, Option, Context } from "effect"; 
 import { validateCapabilities, validateModelId } from "./helpers.js";
 
 import { ProviderClientApi } from "./api.js";
-import { EffectiveProviderApi } from "./types.js";
-
+import { ModelService } from "@/services/ai/model/service.js";
 import { ModelCapability } from "@/schema.js";
-import { EffectiveInput } from "@/services/pipeline/types/base.js";
-import type { ModelServiceApi } from "../model/api.js";
+import { EffectiveInput } from "@/types.js";
 
 import {
-    ProviderConfigError,
-    ProviderMissingCapabilityError,
-    ProviderOperationError
+  ProviderConfigError,
+  ProviderMissingCapabilityError,
+  ProviderOperationError,
+  ProviderToolError
 } from "./errors.js";
 import type {
-    EffectiveResponse,
-    GenerateTextResult,
-    ProviderChatOptions
+  EffectiveProviderApi,
+  EffectiveResponse,
+  GenerateTextResult,
+  GenerateObjectResult,
+  GenerateSpeechResult,
+  TranscribeResult,
+  GenerateEmbeddingsResult,
+  ProviderGenerateTextOptions,
+  ProviderGenerateObjectOptions,
+  ProviderGenerateSpeechOptions,
+  ProviderTranscribeOptions,
+  ProviderGenerateEmbeddingsOptions,
+  ProviderChatOptions,
+  ProvidersType,
+  ToolDefinition
 } from "./types.js";
 
-
-
-/**
- * ProviderClient service implementation using Effect.Service pattern
- */
 export class ProviderClient extends Effect.Service<ProviderClientApi>()(
-    "ProviderClient",
-    {
-        effect: Effect.gen(function* () {
+  "ProviderClient",
+  {
+    effect: Effect.gen(function*() {
+      const modelService = yield* ModelService; 
+      const providerRef = yield* Ref.make(Option.none<EffectiveProviderApi>());
 
-            // Provider state ref
-            const providerRef = yield* Ref.make<{
-                provider: EffectiveProviderApi;
-                capabilities: Set<ModelCapability>;
-                name: string;
-            } | null>(null);
+      const getProviderHelper = () => Effect.gen(function*() {
+        const option = yield* Ref.get(providerRef);
+        if (Option.isNone(option)) {
+          return yield* Effect.fail(new ProviderConfigError({
+            description: "Provider not set. Call setVercelProvider first.",
+            module: "ProviderClient",
+            method: "getProvider"
+          }));
+        }
+        return option.value;
+      });
 
-            // Helper function to get provider
-            const getProvider = (): Effect.Effect<{
-                provider: EffectiveProviderApi;
-                capabilities: Set<ModelCapability>;
-                name: string;
-            }, ProviderConfigError> =>
-                Effect.gen(function* () {
-                    const state = yield* Ref.get(providerRef);
-                    if (!state) {
-                        return yield* Effect.fail(
-                            new ProviderConfigError({
-                                description: "No provider configured",
-                                module: "ProviderClient",
-                                method: "getProvider"
-                            })
-                        );
-                    }
-                    return state;
-                });
+      return {
+        setVercelProvider: (vercelProvider?: EffectiveProviderApi) =>
+          Effect.gen(function*() {
+            if (!vercelProvider) {
+              return yield* Effect.fail(new ProviderConfigError({
+                description: "Invalid provider config: provider is undefined",
+                module: "ProviderClient",
+                method: "setVercelProvider"
+              }));
+            }
+            yield* Ref.set(providerRef, Option.some(vercelProvider));
+          }),
 
-            // Helper function to set provider
-            const setProvider = (provider: EffectiveProviderApi, capabilities: Set<ModelCapability>, name: string): Effect.Effect<void, never> =>
-                Ref.set(
-                    providerRef,
-                    { provider, capabilities, name }
-                );
+        getProvider: getProviderHelper,
 
-            return {
-                // Return implementation of ProviderClientApi
-                setVercelProvider: (provider: EffectiveProviderApi) =>
-                    Effect.gen(function* () {
-                        yield* setProvider(provider, new Set(["text-generation", "chat"]), "vercel");
-                    }),
+        getDefaultModelIdForProvider: (providerName: ProvidersType, capability: ModelCapability) =>
+          Effect.gen(function*() {
+            const defaultModelId = yield* modelService.getDefaultModelId(providerName, capability);
+            return defaultModelId;
+          }),
 
-                getProvider: () =>
-                    Effect.gen(function* () {
-                        const { provider } = yield* getProvider();
-                        return provider;
-                    }),
-
-                getCapabilities: () =>
-                    Effect.gen(function* () {
-                        const { capabilities } = yield* getProvider();
-                        return capabilities;
-                    }),
-
-                chat: (input: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError, ModelServiceApi> =>
-                    Effect.gen(function* () {
-                        const { provider, name } = yield* getProvider();
-                        const modelId = yield* validateModelId({
-                            options,
-                            method: "chat"
-                        });
-                        yield* validateCapabilities({
-                            providerName: name,
-                            required: "chat",
-                            actual: provider.capabilities,
-                            method: "chat"
-                        });
-                        return yield* provider.provider.chat(input, { ...options, modelId });
-                    })
-            };
+        getCapabilities: () => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          return currentProvider.capabilities;
         }),
-        dependencies: []
-    }
+
+        chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          const modelId = yield* validateModelId({ options, method: "chat" });
+          yield* validateCapabilities({ providerName: currentProvider.name, required: "chat", actual: currentProvider.capabilities, method: "chat" });
+          return yield* currentProvider.provider.chat(input, { ...options, modelId, toolService: options.toolService, tools: options.tools });
+        }),
+
+        generateText: (input: EffectiveInput, options: ProviderGenerateTextOptions) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          const modelId = yield* validateModelId({ options, method: "generateText" });
+          yield* validateCapabilities({ providerName: currentProvider.name, required: "text-generation", actual: currentProvider.capabilities, method: "generateText" });
+          return yield* currentProvider.provider.generateText(input, { ...options, modelId });
+        }),
+
+        generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          const modelId = yield* validateModelId({ options, method: "generateObject" });
+          yield* validateCapabilities({ providerName: currentProvider.name, required: "generate-object" as ModelCapability, actual: currentProvider.capabilities, method: "generateObject" });
+          return yield* currentProvider.provider.generateObject(input, { ...options, modelId });
+        }),
+
+        generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          const modelId = yield* validateModelId({ options, method: "generateSpeech" });
+          yield* validateCapabilities({ providerName: currentProvider.name, required: "audio", actual: currentProvider.capabilities, method: "generateSpeech" });
+          return yield* currentProvider.provider.generateSpeech(input, { ...options, modelId });
+        }),
+
+        transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          const modelId = yield* validateModelId({ options, method: "transcribe" });
+          yield* validateCapabilities({ providerName: currentProvider.name, required: "audio", actual: currentProvider.capabilities, method: "transcribe" });
+          return yield* currentProvider.provider.transcribe(input, { ...options, modelId });
+        }),
+
+        generateEmbeddings: (input: string[], options: ProviderGenerateEmbeddingsOptions) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          const modelId = yield* validateModelId({ options, method: "generateEmbeddings" });
+          yield* validateCapabilities({ providerName: currentProvider.name, required: "embeddings" as ModelCapability, actual: currentProvider.capabilities, method: "generateEmbeddings" });
+          return yield* currentProvider.provider.generateEmbeddings(input, { ...options, modelId });
+        }),
+
+        getModels: () => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          return yield* currentProvider.provider.getModels();
+        }),
+        
+        validateToolInput: (toolName: string, toolInput: unknown) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          return yield* currentProvider.provider.validateToolInput(toolName, toolInput);
+        }),
+
+        executeTool: (toolName: string, toolInput: unknown) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          return yield* currentProvider.provider.executeTool(toolName, toolInput);
+        }),
+
+        processToolResult: (toolName: string, toolResult: unknown) => Effect.gen(function*() {
+          const currentProvider = yield* getProviderHelper();
+          return yield* currentProvider.provider.processToolResult(toolName, toolResult);
+        }),
+      };
+    }),
+    dependencies: [ModelService.Default] 
+  }
 ) { }

@@ -1,8 +1,8 @@
+import { NoAudioFileError } from "@/services/ai/provider/errors.js";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
-import { NoAudioFileError } from "../provider/errors.js";
+import type { EffectiveInput } from "../types/base.js";
 import { FilePart } from "./schema.js";
-import { EffectiveInput } from "./service.js";
 
 /**
  * Type guard to check if a part is a FilePart.

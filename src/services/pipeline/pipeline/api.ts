@@ -1,28 +1,48 @@
-import type { EffectiveError } from "@/errors.js"
-import { Context, Effect, Schema } from "effect"
-import type { ExecutiveParameters } from "./types.js"
+import { Duration, Effect, Schedule } from "effect";
+import type { ExecutiveParameters } from "./types.js";
 
 /**
- * Core pipeline service interface for executing AI operations
+ * Interface for the Pipeline Service
  */
 export interface PipelineServiceInterface {
-    /**
-     * Executes an AI pipeline with the given input
-     */
-    readonly execute: <In, Out>(
-        input: In,
-        schema: {
-            input: Schema.Schema<In>,
-            output: Schema.Schema<Out>
-        },
+    readonly _tag: "PipelineService"
+    readonly execute: <A, E, R>(
+        effect: Effect.Effect<A, E, R>,
         parameters?: ExecutiveParameters
-    ) => Effect.Effect<Out, EffectiveError>
+    ) => Effect.Effect<A, E | ExecutiveServiceError, R>
 }
 
 /**
- * Context Tag for the Pipeline Service
+ * Implementation of the Pipeline Service using Effect.Service pattern
  */
-export class PipelineService extends Context.Tag("PipelineService")<
-    PipelineService,
-    PipelineServiceInterface
->() { } 
+export class PipelineService extends Effect.Service<PipelineServiceInterface>()("PipelineService", {
+    effect: Effect.succeed({
+        _tag: "PipelineService" as const,
+        execute: <A, E, R>(
+            effect: Effect.Effect<A, E, R>,
+            parameters?: ExecutiveParameters
+        ): Effect.Effect<A, E | ExecutiveServiceError, R> => {
+            // Apply retries and timeout if configured
+            const effectWithRetries = parameters?.maxRetries
+                ? Effect.retry(
+                    effect,
+                    {
+                        times: parameters.maxRetries,
+                        schedule: Schedule.exponential(Duration.seconds(1)),
+                    }
+                )
+                : effect;
+
+            const effectWithTimeout = parameters?.timeoutMs
+                ? Effect.timeout(
+                    effectWithRetries,
+                    Duration.millis(parameters.timeoutMs)
+                )
+                : effectWithRetries;
+
+            // Execute the effect
+            return effectWithTimeout;
+        }
+    }),
+    dependencies: []
+}) { } 

@@ -3,15 +3,15 @@
  * @module services/ai/producers/object/schema-utils
  */
 
-import { Schema as S } from "effect";
+import { Schema } from "effect";
 
 /**
  * Creates a schema for a list of items
  * @param itemSchema The schema for each item in the list
  * @returns A schema for a list of items
  */
-export function createListSchema<T>(itemSchema: S.Schema<T>): S.Schema<ReadonlyArray<T>> {
-    return S.Array(itemSchema);
+export function createListSchema<T>(itemSchema: Schema<T>): Schema<ReadonlyArray<T>> {
+    return Schema.Array(itemSchema);
 }
 
 /**
@@ -19,11 +19,11 @@ export function createListSchema<T>(itemSchema: S.Schema<T>): S.Schema<ReadonlyA
  * @returns A schema for a product
  */
 export function createProductSchema() {
-    return S.Struct({
-        name: S.String,
-        description: S.String,
-        price: S.Number,
-        inStock: S.Boolean
+    return Schema.Class<Product>("Product")({
+        name: Schema.String,
+        description: Schema.String,
+        price: Schema.Number,
+        inStock: Schema.Boolean
     });
 }
 
@@ -32,10 +32,10 @@ export function createProductSchema() {
  * @returns A schema for a person
  */
 export function createPersonSchema() {
-    return S.Struct({
-        name: S.String,
-        age: S.Number,
-        email: S.String.pipe(S.optional)
+    return Schema.Class<Person>("Person")({
+        name: Schema.String,
+        age: Schema.Number,
+        email: Schema.String.pipe(Schema.optional)
     });
 }
 
@@ -44,9 +44,9 @@ export function createPersonSchema() {
  * @returns A schema for metadata
  */
 export function createMetadataSchema() {
-    return S.Record({
-        key: S.String,
-        value: S.Union(S.String, S.Number, S.Boolean, S.Null)
+    return Schema.Class<Metadata>("Metadata")({
+        key: Schema.String,
+        value: Schema.Union(Schema.String, Schema.Number, Schema.Boolean, Schema.Null)
     });
 }
 
@@ -55,17 +55,17 @@ export function createMetadataSchema() {
  * @returns A schema for task data
  */
 export function createTaskSchema() {
-    const TaskStatus = S.Literal("todo", "in-progress", "done");
-    const TaskPriority = S.Literal("low", "medium", "high");
+    const TaskStatus = Schema.Literal("todo", "in-progress", "done");
+    const TaskPriority = Schema.Literal("low", "medium", "high");
 
-    return S.Struct({
-        title: S.String,
-        description: S.String,
+    return Schema.Class<Task>("Task")({
+        title: Schema.String,
+        description: Schema.String,
         status: TaskStatus,
         priority: TaskPriority,
-        dueDate: S.String.pipe(S.optional),
-        assignee: S.String.pipe(S.optional),
-        tags: S.Array(S.String)
+        dueDate: Schema.String.pipe(Schema.optional),
+        assignee: Schema.String.pipe(Schema.optional),
+        tags: Schema.Array(Schema.String)
     });
 }
 
@@ -74,13 +74,13 @@ export function createTaskSchema() {
  * @returns A schema for a chat message
  */
 export function createChatMessageSchema() {
-    const Role = S.Literal("user", "assistant", "system");
+    const Role = Schema.Literal("user", "assistant", "system");
 
-    return S.Struct({
+    return Schema.Class<ChatMessage>("ChatMessage")({
         role: Role,
-        content: S.String,
-        timestamp: S.String.pipe(S.optional),
-        id: S.String.pipe(S.optional)
+        content: Schema.String,
+        timestamp: Schema.String.pipe(Schema.optional),
+        id: Schema.String.pipe(Schema.optional)
     });
 }
 
@@ -89,11 +89,11 @@ export function createChatMessageSchema() {
  * @returns A schema for an address
  */
 export function createAddressSchema() {
-    return S.Struct({
-        street: S.String,
-        city: S.String,
-        state: S.String,
-        zipCode: S.String,
-        country: S.String
+    return Schema.Class<Address>("Address")({
+        street: Schema.String,
+        city: Schema.String,
+        state: Schema.String,
+        zipCode: Schema.String,
+        country: Schema.String
     });
 }

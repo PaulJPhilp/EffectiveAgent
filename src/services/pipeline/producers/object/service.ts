@@ -3,19 +3,16 @@
  * @module services/ai/producers/object/service
  */
 
-import { EffectiveInput } from '@/services/ai/input/service.js';
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { AiError } from "@effect/ai/AiError";
 import { Message } from "@effect/ai/AiInput";
 import { JSONSchema, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
-import type { Span } from "effect/Tracer";
-import type { ObjectGenerationOptions, ObjectGenerationResult, ObjectServiceApi } from "./api.js";
+import type { ObjectGenerationOptions, ObjectServiceApi } from "./api.js";
 import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "./errors.js";
 
 /**

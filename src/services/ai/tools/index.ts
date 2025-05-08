@@ -6,15 +6,24 @@
 // Export the service API and Tag
 export * from "./api.js";
 
-// Export the service implementation
-export * from "./service.js";
-
 // Export error types
 export * from "./errors.js";
 
-// Export schemas and types
-export * from "./schema.js";
+// Export schemas
+export {
+    SimpleToolName,
+    FullToolName,
+    ToolMetadata,
+    SEffectiveTool,
+    SEffectImplementation,
+    SHttpImplementation,
+    SMcpImplementation,
+    SToolImplementation
+} from "./schema.js";
+
+// Export schema types
+export type { ToolImplementation } from "./schema.js";
+
+// Export runtime types
 export * from "./types.js";
 
-// Re-export the main Layer
-export { ToolingLiveLayer } from "./layers.js";

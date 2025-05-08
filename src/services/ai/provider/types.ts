@@ -1,14 +1,8 @@
 import type { FinishReason, ReasoningDetail, ResponseMessage, Source, Usage, Warning } from '@/types.js'
-import { AnthropicProvider, AnthropicProviderSettings } from '@ai-sdk/anthropic'
-import { DeepSeekProvider, DeepSeekProviderSettings } from '@ai-sdk/deepseek'
-import { GoogleGenerativeAIProvider, GoogleGenerativeAIProviderSettings } from '@ai-sdk/google'
-import { GroqProvider, GroqProviderSettings } from '@ai-sdk/groq'
-import { OpenAIProvider, OpenAIProviderSettings } from '@ai-sdk/openai'
-import { PerplexityProvider, PerplexityProviderSettings } from '@ai-sdk/perplexity'
-import { XaiProvider, XaiProviderSettings } from '@ai-sdk/xai'
 import { ProviderClientApi } from './api.js'
 import { PROVIDER_NAMES } from "./provider-universe.js";
-
+import { ToolRegistryData } from "../tools/types.js"
+import type { ToolServiceApi } from "../tools/api.js"; // Added import
 
 /**
  * Base result type containing common fields for all AI generation results
@@ -48,6 +42,8 @@ export interface GenerateTextResult extends GenerateBaseResult {
     messages?: ResponseMessage[]
     /** Warnings from the provider */
     warnings?: Warning[]
+    /** Optional array of tool calls requested by the model */
+    toolCalls?: ToolCallRequest[];
 }
 
 /**
@@ -260,16 +256,16 @@ export interface EffectiveResponse<TData> {
  * Model capability: What a model or provider can do (as a string literal union).
  */
 export type ModelCapability =
-  | "text-generation"
-  | "chat"
-  | "function-calling"
-  | "vision"
-  | "reasoning"
-  | "code-generation"
-  | "audio"
-  | "image-generation"
-  | "embeddings"
-  | "tool-use";
+    | "text-generation"
+    | "chat"
+    | "function-calling"
+    | "vision"
+    | "reasoning"
+    | "code-generation"
+    | "audio"
+    | "image-generation"
+    | "embeddings"
+    | "tool-use";
 
 /**
  * Canonical provider metadata type for ProviderService.
@@ -282,15 +278,15 @@ export type ModelCapability =
  * - configSchema: required API key and base URL
  */
 export interface ProviderMetadata {
-  name: string;
-  displayName: string;
-  logoUrl: string;
-  docsUrl: string;
-  capabilities: readonly ModelCapability[];
-  configSchema: {
-    apiKeyEnvVar: string;
-    baseUrl: string;
-  };
+    name: string;
+    displayName: string;
+    logoUrl: string;
+    docsUrl: string;
+    capabilities: readonly ModelCapability[];
+    configSchema: {
+        apiKeyEnvVar: string;
+        baseUrl: string;
+    };
 }
 
 /**
@@ -300,47 +296,48 @@ export interface ProviderMetadata {
  * - Used for routing, validation, and fine-grained selection.
  */
 export interface ModelMetadata {
-  id: string;
-  name: string;
-  /**
-   * The set of capabilities this specific model supports.
-   * This is the model capability.
-   */
-  capabilities: readonly ModelCapability[];
-  // Add any additional fields as needed
+    id: string;
+    name: string;
+    /**
+     * The set of capabilities this specific model supports.
+     * This is the model capability.
+     */
+    capabilities: readonly ModelCapability[];
+    // Add any additional fields as needed
 }
 
 /**
  * Base options common to many provider API calls.
  */
+export interface BaseProviderParameters {
+    /** Maximum tokens to generate */
+    maxTokens?: number;
+    /** Temperature for sampling */
+    temperature?: number;
+    /** Top-p sampling */
+    topP?: number;
+    /** Top-k sampling */
+    topK?: number;
+    /** Presence penalty */
+    presencePenalty?: number;
+    /** Frequency penalty */
+    frequencyPenalty?: number;
+    /** Random seed */
+    seed?: number;
+    /** Stop sequences */
+    stop?: string[];
+}
+
+/**
+ * Base options shared by all provider operations
+ */
 export interface BaseProviderOptions {
-    /** The specific model ID to use for the operation */
+    /** The model ID to use for the operation */
     readonly modelId: string;
-    /** Optional tracing span */
-    // readonly span?: Span; // TODO: Decide if span is passed explicitly or via Effect context
-    /** Optional common generation parameters */
-    readonly parameters?: {
-        /** Maximum retries on failure */
-        maxRetries?: number;
-        /** Temperature (0-2) */
-        temperature?: number;
-        /** Top-p sampling */
-        topP?: number;
-        /** Top-k sampling */
-        topK?: number;
-        /** Presence penalty */
-        presencePenalty?: number;
-        /** Frequency penalty */
-        frequencyPenalty?: number;
-        /** Random seed */
-        seed?: number;
-        /** Stop sequences */
-        stop?: string[];
-        /** Maximum generation steps/tokens (provider specific interpretation) */
-        maxTokens?: number; // Renamed from maxSteps for clarity
-    };
-    /** Optional signal to abort the operation */
+    /** Optional signal for cancellation */
     readonly signal?: AbortSignal;
+    /** Optional parameters for model behavior */
+    readonly parameters?: BaseProviderParameters;
 }
 
 /**
@@ -367,6 +364,42 @@ export interface ProviderGenerateObjectOptions<T> extends BaseProviderOptions {
 export interface ProviderChatOptions extends BaseProviderOptions {
     /** Optional system prompt or instructions */
     readonly system?: string;
+    /** Optional tool service API */
+    readonly toolService?: ToolServiceApi;
+    /** Optional list of tool definitions to make available to the model */
+    readonly tools?: ToolDefinition[];
+}
+
+/**
+ * Represents the schema or definition of a tool that can be provided to an LLM.
+ */
+export interface ToolDefinition {
+    /** The name of the function/tool. */
+    name: string;
+    /** A description of what the function does. */
+    description: string;
+    /**
+     * The parameters the function accepts, described as a JSON Schema object.
+     * See https://json-schema.org/understanding-json-schema/
+     */
+    parameters: Record<string, unknown>; // JSON Schema object
+}
+
+/**
+ * Represents a request from the LLM to call a specific tool.
+ */
+export interface ToolCallRequest {
+    /** A unique identifier for this tool call. */
+    id: string;
+    /** The type of request, e.g., "tool_call". */
+    type: "tool_call"; 
+    /** The function/tool to be called. */
+    function: {
+        /** The name of the function. */
+        name: string;
+        /** The arguments to call the function with, as a JSON string. */
+        arguments: string;
+    };
 }
 
 /**
@@ -428,6 +461,7 @@ export type EffectiveProviderApi = {
     name: typeof PROVIDER_NAMES[number];
     provider: ProviderClientApi;
     capabilities: Set<ModelCapability>;
+    tools?: ToolRegistryData;
 };
 
 /**

@@ -1,0 +1,81 @@
+{
+    "name": "test",
+    "description": "Test toolkit",
+    "version": "1.0.0",
+    "tools": {
+        "basic:tool": {
+            "metadata": {
+                "name": "test:basic:tool",
+                "description": "Basic test tool",
+                "version": "1.0.0",
+                "tags": [],
+                "author": "Test"
+            },
+            "implementation": {
+                "_tag": "EffectImplementation",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        }
+                    },
+                    "required": ["value"]
+                },
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "result": {
+                            "type": "number"
+                        }
+                    },
+                    "required": ["result"]
+                },
+                "execute": "function(input) { return { result: input.value + 1 }; }"
+            }
+        },
+        "complex:tool": {
+            "metadata": {
+                "name": "test:complex:tool",
+                "description": "Complex test tool",
+                "version": "1.0.0",
+                "tags": [],
+                "author": "Test"
+            },
+            "implementation": {
+                "_tag": "EffectImplementation",
+                "inputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "value": {
+                            "type": "number"
+                        }
+                    },
+                    "required": ["value"]
+                },
+                "outputSchema": {
+                    "type": "object",
+                    "properties": {
+                        "result": {
+                            "type": "number"
+                        },
+                        "metadata": {
+                            "type": "object",
+                            "properties": {
+                                "operation": {
+                                    "type": "string"
+                                },
+                                "timestamp": {
+                                    "type": "number"
+                                }
+                            },
+                            "required": ["operation", "timestamp"]
+                        }
+                    },
+                    "required": ["result", "metadata"]
+                },
+                "execute": "function(_) { return { result: 15, metadata: { operation: 'multiply', timestamp: Date.now() } }; }"
+            }
+        }
+    }
+}

@@ -3,148 +3,176 @@
  * @module ea/pipelines/query-analysis/service
  */
 
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 import {
     type Entity,
     type Intent,
     type QueryAnalysisOutput,
-    QueryAnalysisPipeline,
     type QueryAnalysisPipelineApi,
     QueryAnalysisPipelineError,
     type QueryAnalysisPipelineInput
 } from "./contract.js";
 
-// Placeholder for dependencies
-class EaLlmProvider extends Context.Tag("EaLlmProvider")<EaLlmProvider, any>() { }
-class EntityRecognitionTool extends Context.Tag("EntityRecognitionTool")<EntityRecognitionTool, any>() { }
-class IntentClassifierTool extends Context.Tag("IntentClassifierTool")<IntentClassifierTool, any>() { }
+/**
+ * Service for entity recognition
+ */
+export interface EntityRecognitionToolApi {
+    readonly _tag: "EntityRecognitionTool"
+    readonly extractEntities: (text: string) => Effect.Effect<Entity[], never>
+}
+
+/**
+ * Service for intent classification
+ */
+export interface IntentClassifierToolApi {
+    readonly _tag: "IntentClassifierTool"
+    readonly classifyIntent: (text: string) => Effect.Effect<Intent[], never>
+}
+
+/**
+ * Implementation of the EntityRecognitionTool service using Effect.Service pattern
+ */
+export class EntityRecognitionTool extends Effect.Service<EntityRecognitionToolApi>()("EntityRecognitionTool", {
+    effect: Effect.succeed({
+        _tag: "EntityRecognitionTool" as const,
+        extractEntities: (text: string): Effect.Effect<Entity[], never> => {
+            // Mock implementation - replace with real entity recognition
+            return Effect.succeed([
+                {
+                    id: "entity-1",
+                    type: "PERSON",
+                    text: "John Doe",
+                    startPosition: 0,
+                    endPosition: 8,
+                    confidence: 0.95,
+                    metadata: {
+                        title: "Mr.",
+                        gender: "male"
+                    }
+                },
+                {
+                    id: "entity-2",
+                    type: "ORGANIZATION",
+                    text: "Acme Corp",
+                    startPosition: 12,
+                    endPosition: 21,
+                    confidence: 0.88,
+                    metadata: {
+                        industry: "technology",
+                        size: "large"
+                    }
+                }
+            ]);
+        }
+    }),
+    dependencies: []
+}) { }
+
+/**
+ * Implementation of the IntentClassifierTool service using Effect.Service pattern
+ */
+export class IntentClassifierTool extends Effect.Service<IntentClassifierToolApi>()("IntentClassifierTool", {
+    effect: Effect.succeed({
+        _tag: "IntentClassifierTool" as const,
+        classifyIntent: (text: string): Effect.Effect<Intent[], never> => {
+            // Mock implementation - replace with real intent classification
+            return Effect.succeed([
+                {
+                    id: "intent-1",
+                    name: "search",
+                    confidence: 0.82,
+                    relatedEntities: ["entity-1"]
+                },
+                {
+                    id: "intent-2",
+                    name: "schedule",
+                    confidence: 0.64,
+                    relatedEntities: ["entity-2"]
+                }
+            ]);
+        }
+    }),
+    dependencies: []
+}) { }
 
 /**
  * Implementation of the QueryAnalysisPipeline service
  */
-export class QueryAnalysisPipelineService extends Effect.Service<QueryAnalysisPipelineApi>()(
-    QueryAnalysisPipeline,
-    {
-        effect: Effect.gen(function* (_) {
-            // Yield dependencies
-            const llm = yield* _(EaLlmProvider);
-            const entityRecognizer = yield* _(EntityRecognitionTool);
-            const intentClassifier = yield* _(IntentClassifierTool);
+export class QueryAnalysisPipelineService extends Effect.Service<QueryAnalysisPipelineApi>()("QueryAnalysisPipeline", {
+    effect: Effect.gen(function* () {
+        // Yield dependencies
+        const entityRecognizer = yield* EntityRecognitionTool;
+        const intentClassifier = yield* IntentClassifierTool;
 
-            // Helper to generate a unique ID
-            const generateId = (prefix: string, index: number): string =>
-                `${prefix}-${index + 1}`;
+        // Helper to generate a unique ID
+        const generateId = (prefix: string, index: number): string =>
+            `${prefix}-${index + 1}`;
 
-            // Method implementations
-            const analyzeQuery = (input: QueryAnalysisPipelineInput): Effect.Effect<QueryAnalysisOutput, QueryAnalysisPipelineError> =>
-                Effect.gen(function* (_) {
-                    yield* _(Effect.logInfo(`Analyzing query: ${input.query}`));
+        // Method implementations
+        const analyzeQuery = (input: QueryAnalysisPipelineInput): Effect.Effect<QueryAnalysisOutput, QueryAnalysisPipelineError> =>
+            Effect.gen(function* () {
+                yield* Effect.logInfo(`Analyzing query: ${input.query}`);
 
-                    try {
-                        // TODO: Implement actual pipeline logic
+                try {
+                    // Extract entities using the EntityRecognitionTool
+                    const entities = yield* entityRecognizer.extractEntities(input.query);
 
-                        // Mock entities
-                        const mockEntities: Entity[] = [
-                            {
-                                id: generateId("entity", 0),
-                                type: "location",
-                                text: "New York",
-                                startPosition: input.query.indexOf("New York") >= 0 ? input.query.indexOf("New York") : 0,
-                                endPosition: input.query.indexOf("New York") >= 0 ? input.query.indexOf("New York") + 8 : 8,
-                                confidence: 0.95,
-                                metadata: {
-                                    country: "USA",
-                                    isCity: true
+                    // Classify intents using the IntentClassifierTool
+                    const intents = yield* intentClassifier.classifyIntent(input.query);
+
+                    return yield* Effect.succeed({
+                        query: input.query,
+                        entities,
+                        intents,
+                        sentiment: input.analyzeSentiment ? {
+                            value: "positive" as const,
+                            confidence: 0.72,
+                            details: [
+                                {
+                                    text: input.query,
+                                    sentiment: "positive" as const,
+                                    score: 0.72
                                 }
-                            },
-                            {
-                                id: generateId("entity", 1),
-                                type: "datetime",
-                                text: "tomorrow",
-                                startPosition: input.query.indexOf("tomorrow") >= 0 ? input.query.indexOf("tomorrow") : 10,
-                                endPosition: input.query.indexOf("tomorrow") >= 0 ? input.query.indexOf("tomorrow") + 8 : 18,
-                                confidence: 0.88,
-                                metadata: {
-                                    isRelative: true,
-                                    timeZone: "UTC"
-                                }
-                            }
-                        ];
+                            ]
+                        } : undefined,
+                        queryType: input.query.endsWith("?") ? "question" as const : "command" as const
+                    });
+                } catch (error) {
+                    return yield* Effect.fail(
+                        new QueryAnalysisPipelineError({
+                            message: `Failed to analyze query: ${error instanceof Error ? error.message : String(error)}`,
+                            cause: error
+                        })
+                    );
+                }
+            });
 
-                        // Mock intents
-                        const mockIntents: Intent[] = [
-                            {
-                                id: generateId("intent", 0),
-                                name: "search",
-                                confidence: 0.82,
-                                relatedEntities: [mockEntities[0].id]
-                            },
-                            {
-                                id: generateId("intent", 1),
-                                name: "schedule",
-                                confidence: 0.64,
-                                relatedEntities: [mockEntities[1].id]
-                            }
-                        ];
+        const extractEntities = (
+            query: string,
+            options?: Partial<Omit<QueryAnalysisPipelineInput, "query">>
+        ): Effect.Effect<Entity[], QueryAnalysisPipelineError> =>
+            Effect.gen(function* () {
+                yield* Effect.logInfo(`Extracting entities from query: ${query}`);
 
-                        return yield* _(Effect.succeed({
-                            query: input.query,
-                            entities: mockEntities,
-                            intents: mockIntents,
-                            sentiment: input.analyzeSentiment ? {
-                                value: "positive",
-                                confidence: 0.72,
-                                details: [
-                                    {
-                                        text: input.query,
-                                        sentiment: "positive",
-                                        score: 0.72
-                                    }
-                                ]
-                            } : undefined,
-                            queryType: input.query.endsWith("?") ? "question" : "command"
-                        }));
-                    } catch (error) {
-                        return yield* _(
-                            Effect.fail(
-                                new QueryAnalysisPipelineError({
-                                    message: `Failed to analyze query: ${error instanceof Error ? error.message : String(error)}`,
-                                    cause: error
-                                })
-                            )
-                        );
-                    }
-                });
+                // Create full input for analyzeQuery
+                const fullInput: QueryAnalysisPipelineInput = {
+                    query,
+                    ...options
+                };
 
-            const extractEntities = (
-                query: string,
-                options?: Partial<Omit<QueryAnalysisPipelineInput, "query">>
-            ): Effect.Effect<Entity[], QueryAnalysisPipelineError> =>
-                Effect.gen(function* (_) {
-                    yield* _(Effect.logInfo(`Extracting entities from query: ${query}`));
+                // Reuse analyzeQuery and extract only the entities
+                const result = yield* analyzeQuery(fullInput);
+                return yield* Effect.succeed(result.entities);
+            });
 
-                    // Create full input for analyzeQuery
-                    const fullInput: QueryAnalysisPipelineInput = {
-                        query,
-                        ...options
-                    };
-
-                    // Reuse analyzeQuery and extract only the entities
-                    const result = yield* _(analyzeQuery(fullInput));
-                    return yield* _(Effect.succeed(result.entities));
-                });
-
-            // Return implementation of the API
-            return {
-                analyzeQuery,
-                extractEntities
-            };
-        }),
-
-        // List dependencies required by the 'effect' factory
-        dependencies: [EaLlmProvider, EntityRecognitionTool, IntentClassifierTool]
-    }
-) { }
+        // Return implementation of the API
+        return {
+            analyzeQuery,
+            extractEntities
+        };
+    }),
+    dependencies: []
+}) { }
 
 /**
  * Layer for the QueryAnalysisPipeline service

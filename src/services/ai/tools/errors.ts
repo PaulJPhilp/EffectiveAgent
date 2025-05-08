@@ -136,3 +136,73 @@ export class ToolExecutionError extends EffectiveError {
         this.input = params.input;
     }
 }
+
+/**
+ * Error when a requested toolkit cannot be found in the registry.
+ * @extends EffectiveError
+ */
+export class ToolkitNotFoundError extends EffectiveError {
+    public readonly toolkitName: string;
+
+    constructor(params: {
+        toolkitName: string;
+        module: string;
+        method: string;
+    }) {
+        super({
+            description: `Toolkit not found in registry: ${params.toolkitName}`,
+            module: params.module,
+            method: params.method,
+        });
+        this.toolkitName = params.toolkitName;
+    }
+}
+
+/**
+ * Error when toolkit dependencies cannot be resolved or installed.
+ * @extends EffectiveError
+ */
+export class ToolkitDependencyError extends EffectiveError {
+    public readonly toolkitName: string;
+    public readonly dependency: string;
+
+    constructor(params: {
+        toolkitName: string;
+        dependency: string;
+        module: string;
+        method: string;
+        cause?: unknown;
+    }) {
+        super({
+            description: `Failed to resolve dependency '${params.dependency}' for toolkit '${params.toolkitName}'`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause,
+        });
+        this.toolkitName = params.toolkitName;
+        this.dependency = params.dependency;
+    }
+}
+
+/**
+ * Error when toolkit configuration is invalid or missing required values.
+ * @extends EffectiveError
+ */
+export class ToolkitConfigError extends EffectiveError {
+    public readonly toolkitName: string;
+
+    constructor(params: {
+        toolkitName: string;
+        module: string;
+        method: string;
+        cause?: unknown;
+    }) {
+        super({
+            description: `Invalid configuration for toolkit '${params.toolkitName}'`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause,
+        });
+        this.toolkitName = params.toolkitName;
+    }
+}

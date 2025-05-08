@@ -3,7 +3,7 @@
  * @module ea/pipelines/categorization/service
  */
 
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 import {
     CategorizationPipeline,
     type CategorizationPipelineApi,
@@ -13,11 +13,69 @@ import {
     type CategorizationResult,
     type Category
 } from "./contract.js";
+import { type ClusteringResult, type EmbeddingResult } from "./types.js";
 
-// Placeholder for dependencies
-class EaLlmProvider extends Context.Tag("EaLlmProvider")<EaLlmProvider, any>() { }
-class EmbeddingProvider extends Context.Tag("EmbeddingProvider")<EmbeddingProvider, any>() { }
-class ClusteringService extends Context.Tag("ClusteringService")<ClusteringService, any>() { }
+/**
+ * Service for generating embeddings
+ */
+export interface EmbeddingProviderApi {
+    readonly _tag: "EmbeddingProvider"
+    readonly generateEmbedding: (text: string) => Effect.Effect<EmbeddingResult, never>
+}
+
+/**
+ * Implementation of the EmbeddingProvider service using Effect.Service pattern
+ */
+export class EmbeddingProvider extends Effect.Service<EmbeddingProviderApi>()("EmbeddingProvider", {
+    effect: Effect.succeed({
+        _tag: "EmbeddingProvider" as const,
+        generateEmbedding: (text: string): Effect.Effect<EmbeddingResult, never> => {
+            // Mock implementation - replace with real embedding generation
+            return Effect.succeed({
+                vector: Array.from({ length: 10 }, () => Math.random()),
+                dimensions: 10,
+                model: "mock-embedding-model"
+            });
+        }
+    }),
+    dependencies: []
+}) { }
+
+/**
+ * Service for clustering data
+ */
+export interface ClusteringServiceApi {
+    readonly _tag: "ClusteringService"
+    readonly clusterData: (embeddings: EmbeddingResult[]) => Effect.Effect<ClusteringResult, never>
+}
+
+/**
+ * Implementation of the ClusteringService using Effect.Service pattern
+ */
+export class ClusteringService extends Effect.Service<ClusteringServiceApi>()("ClusteringService", {
+    effect: Effect.succeed({
+        _tag: "ClusteringService" as const,
+        clusterData: (embeddings: EmbeddingResult[]): Effect.Effect<ClusteringResult, never> => {
+            // Mock implementation - replace with real clustering logic
+            return Effect.succeed({
+                clusters: [
+                    {
+                        id: "cluster-1",
+                        label: "Group 1",
+                        members: embeddings.slice(0, Math.floor(embeddings.length / 2))
+                    },
+                    {
+                        id: "cluster-2",
+                        label: "Group 2",
+                        members: embeddings.slice(Math.floor(embeddings.length / 2))
+                    }
+                ],
+                method: "mock-clustering"
+            });
+        }
+    }),
+    dependencies: []
+}) { }
 
 /**
  * Implementation of the CategorizationPipeline service
@@ -27,7 +85,6 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
     {
         effect: Effect.gen(function* (_) {
             // Yield dependencies
-            const llm = yield* _(EaLlmProvider);
             const embeddings = yield* _(EmbeddingProvider);
             const clustering = yield* _(ClusteringService);
 
@@ -41,18 +98,24 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                     yield* _(Effect.logInfo(`Categorizing ${input.items.length} items into ${input.categories?.length || 'auto-discovered'} categories`));
 
                     try {
-                        // In a real implementation, we would:
-                        // 1. Generate embeddings for each item
-                        // 2. Compare with category exemplars or use LLM to categorize
-                        // 3. Compute confidence scores
-                        // 4. Return categorized results
+                        // Generate embeddings for each item
+                        const itemEmbeddings = yield* _(Effect.forEach(
+                            input.items,
+                            item => embeddings.generateEmbedding(
+                                typeof item.content === 'string' ?
+                                    item.content :
+                                    JSON.stringify(item.content)
+                            )
+                        ));
+
+                        // Use clustering to group similar items
+                        const clusterResult = yield* _(clustering.clusterData(itemEmbeddings));
 
                         // Mock categories if none provided
-                        const categories = input.categories || [
-                            { id: "cat-1", name: "Technology" },
-                            { id: "cat-2", name: "Business" },
-                            { id: "cat-3", name: "Health" }
-                        ];
+                        const categories = input.categories || clusterResult.clusters.map((cluster, i) => ({
+                            id: `cat-${i + 1}`,
+                            name: cluster.label
+                        }));
 
                         // Mock categorization results
                         const results: CategorizationResult[] = input.items.map((item, index) => {
@@ -68,7 +131,7 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                                     categoryId: category.id,
                                     confidence: 0.6 + Math.random() * 0.4, // Random confidence between 0.6 and 1.0
                                     explanation: input.includeExplanations ?
-                                        `Item "${item.id}" contains keywords related to ${category.name}` :
+                                        `Item "${item.id}" was assigned to ${category.name} based on content similarity` :
                                         undefined
                                 }));
 
@@ -127,19 +190,23 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                     yield* _(Effect.logInfo(`Discovering categories from ${items.length} items`));
 
                     try {
-                        // In a real implementation, we would:
-                        // 1. Generate embeddings for items
-                        // 2. Perform clustering to discover categories
-                        // 3. Extract category labels from clusters
-                        // 4. Categorize items into these discovered categories
+                        // Generate embeddings for items
+                        const itemEmbeddings = yield* _(Effect.forEach(
+                            items,
+                            item => embeddings.generateEmbedding(
+                                typeof item.content === 'string' ?
+                                    item.content :
+                                    JSON.stringify(item.content)
+                            )
+                        ));
 
-                        // Number of categories to discover (default: 3-5)
-                        const maxCategories = options?.maxCategories || (3 + Math.floor(Math.random() * 3));
+                        // Use clustering to discover categories
+                        const clusterResult = yield* _(clustering.clusterData(itemEmbeddings));
 
-                        // Mock discovered categories
-                        const discoveredCategories: Category[] = Array.from({ length: maxCategories }, (_, i) => ({
+                        // Create categories from clusters
+                        const discoveredCategories: Category[] = clusterResult.clusters.map((cluster, i) => ({
                             id: generateId("discovered-cat", i),
-                            name: `Auto-Discovered Category ${i + 1}`,
+                            name: cluster.label,
                             description: `This category was automatically discovered from content patterns.`,
                             metadata: {
                                 keyTerms: ["term1", "term2", "term3"],
@@ -184,7 +251,7 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
         }),
 
         // List dependencies required by the 'effect' factory
-        dependencies: [EaLlmProvider, EmbeddingProvider, ClusteringService]
+        dependencies: [EmbeddingProvider, ClusteringService]
     }
 ) { }
 
