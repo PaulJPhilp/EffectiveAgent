@@ -147,6 +147,7 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                 send,
                 receive
             }
-        })
+        }),
+        dependencies: [Scope.Scope]
     }
 ) { }

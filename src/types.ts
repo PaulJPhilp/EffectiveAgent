@@ -334,3 +334,16 @@ export interface BaseConfig {
   readonly version: string
   readonly [key: string]: unknown
 }
+
+/**
+ * Represents a user in the system
+ */
+export interface User {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+  readonly roles?: readonly string[];
+  readonly metadata?: Record<string, unknown>;
+  readonly createdAt: Date;
+  readonly updatedAt: Date;
+}

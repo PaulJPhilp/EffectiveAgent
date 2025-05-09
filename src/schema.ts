@@ -101,22 +101,22 @@ export type BaseEntity = S.Schema.Type<typeof BaseEntitySchema>;
 /**
  * Schema for model capabilities.
  */
-export const ModelCapability = S.Literal(
-  "text-generation",
-  "chat",
-  "function-calling",
-  "vision",
-  "reasoning",
-  "code-generation",
-  "audio",
-  "image-generation",
-  "embeddings",
-  "tool-use",
-  "search",
-  "research"
+export const ModelCapability = S.Union(
+  S.Literal("text-generation"),
+  S.Literal("chat"),
+  S.Literal("function-calling"),
+  S.Literal("vision"),
+  S.Literal("reasoning"),
+  S.Literal("code-generation"),
+  S.Literal("audio"),
+  S.Literal("image-generation"),
+  S.Literal("embeddings"),
+  S.Literal("tool-use"),
+  S.Literal("search"),
+  S.Literal("research")
 );
 
-export type ModelCapability = S.Schema.Type<typeof ModelCapability>
+export type ModelCapability = S.Schema.Type<typeof ModelCapability>;
 
 /**
  * Schema for model context window size.
@@ -156,4 +156,25 @@ export class SubDimensionProficiency extends S.Class<SubDimensionProficiency>("S
   // ... fields ...
 }) { }
 
-// --- End Capability Proficiency Schemas ---
+// --- Core Schema Types ---
+
+/**
+ * Schema for a name field.
+ * Must be a non-empty string.
+ */
+export const NameField = S.String.pipe(S.minLength(1));
+
+/**
+ * Schema for a description field.
+ * Must be a non-empty string.
+ */
+export const DescriptionField = S.String.pipe(S.minLength(1));
+
+/**
+ * Schema for metadata records.
+ * Allows any JSON-serializable value.
+ */
+export class Metadata extends S.Class<Metadata>("Metadata")({
+  [S.KeyType]: S.String,
+  [S.ValueType]: S.Unknown
+}) { }

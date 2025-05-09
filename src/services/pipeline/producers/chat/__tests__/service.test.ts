@@ -4,10 +4,10 @@
  */
 
 import { EffectiveError } from "@/errors.js";
+import { TextPart as InputTextPart, Message, User } from "@/services/ai/input/schema.js";
 import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
 import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
-import { Message, User } from "@/types.js";
-import { TextPart as ResponseTextPart } from "@effect/ai/AiResponse.js";
+import { TextPart as ResponseTextPart } from "@/services/ai/output/schema.js";
 import { Chunk, Effect, Either, Option } from "effect";
 import type * as JsonSchema from "effect/JSONSchema";
 import type { Span } from "effect/Tracer";

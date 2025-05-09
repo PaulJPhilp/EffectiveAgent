@@ -3,7 +3,6 @@
  * @module services/ai/producers/object/schema-utils
  */
 
-import type { Message } from "@/types.js"
 import { Schema as S } from "effect"
 
 // Define base schemas first
@@ -50,8 +49,13 @@ export class Address extends S.Class<Address>("Address")({
     country: S.String
 }) { }
 
-// Use the global Message type instead of redefining ChatMessage
-export const MessageSchema = S.Schema<Message>()
+// Define the Message schema using S.Class
+export class MessageSchema extends S.Class<MessageSchema>("MessageSchema")({
+    role: S.Literal("user", "assistant", "system"),
+    content: S.String,
+    timestamp: S.optional(S.String),
+    id: S.optional(S.String)
+}) { }
 
 /**
  * Creates a schema for a list of items

@@ -3,7 +3,7 @@
  * @module services/tools/implementations/datetime
  */
 
-import { Temporal } from "@js-temporal/polyfill.js";
+import { Temporal } from "@js-temporal/polyfill";
 import { Effect, Schema as S } from "effect";
 
 // --- Input Schema ---

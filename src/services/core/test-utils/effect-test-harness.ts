@@ -1,4 +1,4 @@
-import { Cause, Effect, Exit, Layer, Option, Runtime } from "effect";
+import { Cause, Effect, Exit, Layer, Option, Runtime, Scope } from "effect";
 
 /**
  * Service test harness interface
@@ -16,7 +16,16 @@ export interface ServiceTestHarness {
 export function createServiceTestHarness<R, E = never>(
     layer: Layer.Layer<R, E, never>
 ): ServiceTestHarness {
-    const runtimeEffect = Effect.scoped(Layer.toRuntime(layer))
+    const runtimeEffect = Effect.gen(function* () {
+        const scope = yield* Effect.acquireRelease(
+            Scope.make(),
+            scope => Scope.close(scope, Exit.unit)
+        )
+        const runtime = yield* Layer.toRuntime(layer).pipe(
+            Effect.provideService(Scope.Scope, scope)
+        )
+        return runtime
+    })
     const runtimePromise = Effect.runPromise(runtimeEffect)
 
     return {

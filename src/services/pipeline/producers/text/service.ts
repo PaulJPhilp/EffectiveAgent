@@ -7,10 +7,9 @@ import { Message, TextPart, User } from "@/services/ai/input/schema.js";
 import { ModelService, ModelServiceApi } from "@/services/ai/model/service.js";
 import { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { GenerateTextResult } from "@/services/ai/provider/types.js";
 import { TestHarnessApi } from "@/services/core/test-harness/api.js";
-import { EffectiveInput, EffectiveResponse } from "@/types.js";
-import { ConfigProvider, Effect } from "effect";
+import { EffectiveInput } from "@/types.js";
+import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Option from "effect/Option";
 import type { TextServiceApi } from "./api.js";
@@ -178,3 +177,6 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
   }),
   dependencies: [] as const
 }) { }
+
+// Export the TextService as default
+export default TextService;

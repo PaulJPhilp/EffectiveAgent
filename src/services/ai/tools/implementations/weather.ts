@@ -18,45 +18,50 @@ export const UnitSystem = {
     IMPERIAL: "imperial"
 } as const;
 
-export const WeatherInputSchema = S.struct({
-    operation: S.enums(WeatherOperation),
-    location: S.string,
-    units: S.optional(S.enums(UnitSystem), { default: UnitSystem.METRIC }),
-    days: S.optional(S.number, { default: 1 }) // For forecast operation
+export const WeatherInputSchema = S.Struct({
+    operation: S.Union(
+        ...Object.values(WeatherOperation).map(op => S.Literal(op))
+    ),
+    location: S.String,
+    units: S.optional(
+        S.Union(...Object.values(UnitSystem).map(unit => S.Literal(unit))),
+        { default: UnitSystem.METRIC }
+    ),
+    days: S.optional(S.Number, { default: 1 }) // For forecast operation
 });
 
-export type WeatherInput = S.Schema.To<typeof WeatherInputSchema>;
+export type WeatherInput = S.Schema.Type<typeof WeatherInputSchema>;
 
 // --- Output Schema ---
 
-export const WeatherConditionSchema = S.struct({
-    temperature: S.number,
-    feelsLike: S.number,
-    humidity: S.number,
-    windSpeed: S.number,
-    description: S.string
+export const WeatherConditionSchema = S.Struct({
+    temperature: S.Number,
+    feelsLike: S.Number,
+    humidity: S.Number,
+    windSpeed: S.Number,
+    description: S.String
 });
 
-export const WeatherAlertSchema = S.struct({
-    type: S.string,
-    severity: S.string,
-    description: S.string,
-    start: S.string,
-    end: S.string
+export const WeatherAlertSchema = S.Struct({
+    type: S.String,
+    severity: S.String,
+    description: S.String,
+    start: S.String,
+    end: S.String
 });
 
-export const WeatherOutputSchema = S.struct({
-    location: S.string,
-    units: S.enums(UnitSystem),
+export const WeatherOutputSchema = S.Struct({
+    location: S.String,
+    units: S.Union(...Object.values(UnitSystem).map(unit => S.Literal(unit))),
     current: S.optional(WeatherConditionSchema),
-    forecast: S.optional(S.array(S.struct({
-        date: S.string,
+    forecast: S.optional(S.Array(S.Struct({
+        date: S.String,
         conditions: WeatherConditionSchema
     }))),
-    alerts: S.optional(S.array(WeatherAlertSchema))
+    alerts: S.optional(S.Array(WeatherAlertSchema))
 });
 
-export type WeatherOutput = S.Schema.To<typeof WeatherOutputSchema>;
+export type WeatherOutput = S.Schema.Type<typeof WeatherOutputSchema>;
 
 // --- Mock Data ---
 
