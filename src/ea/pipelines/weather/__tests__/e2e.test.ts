@@ -3,7 +3,7 @@
  */
 
 import { Effect, Layer } from "effect";
-import { afterAll, beforeAll, describe, expect, it } from "@effect/vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { WeatherPipelineConfig, WeatherPipelineConfigContext, WeatherService } from "../contract.js";
 import { WeatherServiceLive } from "../service.js";
 

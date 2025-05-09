@@ -6,54 +6,178 @@
 import { PipelineError } from "../common/errors.js";
 
 /**
- * Error specific to the StructuredOutputPipeline when schema validation fails
+ * Base error class for StructuredOutputPipeline errors
  */
-export class SchemaValidationError extends PipelineError {
-    readonly validationIssues: string[];
-
-    constructor(params: { message: string; validationIssues: string[]; cause?: unknown }) {
-        super({
-            message: params.message,
-            pipelineName: "StructuredOutputPipeline",
-            cause: params.cause
-        });
-        this.validationIssues = params.validationIssues;
-    }
-}
-
-/**
- * Error specific to the StructuredOutputPipeline when schema parsing fails
- */
-export class SchemaParsingError extends PipelineError {
+export class StructuredOutputPipelineError extends PipelineError {
     constructor(params: { message: string; cause?: unknown }) {
         super({
             message: params.message,
             pipelineName: "StructuredOutputPipeline",
-            cause: params.cause
+            cause: params.cause,
         });
     }
 }
 
 /**
- * Error specific to the StructuredOutputPipeline when maximum retries are exceeded
+ * Error thrown when schema validation fails
  */
-export class MaxRetriesExceededError extends PipelineError {
-    readonly attempts: number;
+export class SchemaValidationError extends StructuredOutputPipelineError {
+    readonly validationIssues: string[];
+    readonly invalidValue: unknown;
+    readonly schemaPath?: string;
 
-    constructor(params: { message: string; attempts: number; cause?: unknown }) {
+    constructor(params: {
+        message: string;
+        validationIssues: string[];
+        invalidValue: unknown;
+        schemaPath?: string;
+        cause?: unknown;
+    }) {
         super({
-            message: params.message,
-            pipelineName: "StructuredOutputPipeline",
-            cause: params.cause
+            message: `Schema validation failed: ${params.message}`,
+            cause: params.cause,
         });
-        this.attempts = params.attempts;
+        this.validationIssues = params.validationIssues;
+        this.invalidValue = params.invalidValue;
+        this.schemaPath = params.schemaPath;
+    }
+
+    /**
+     * Get a formatted string of validation issues
+     */
+    getFormattedIssues(): string {
+        return this.validationIssues
+            .map((issue, index) => `${index + 1}. ${issue}`)
+            .join("\n");
     }
 }
+
+/**
+ * Error thrown when schema parsing fails
+ */
+export class SchemaParsingError extends StructuredOutputPipelineError {
+    readonly schemaSource: unknown;
+
+    constructor(params: {
+        message: string;
+        schemaSource: unknown;
+        cause?: unknown;
+    }) {
+        super({
+            message: `Schema parsing failed: ${params.message}`,
+            cause: params.cause,
+        });
+        this.schemaSource = params.schemaSource;
+    }
+}
+
+/**
+ * Error thrown when maximum retries are exceeded
+ */
+export class MaxRetriesExceededError extends StructuredOutputPipelineError {
+    readonly attempts: number;
+    readonly lastAttemptError?: Error;
+    readonly validationHistory: Array<{
+        attempt: number;
+        error: string;
+        timestamp: Date;
+    }>;
+
+    constructor(params: {
+        message: string;
+        attempts: number;
+        lastAttemptError?: Error;
+        validationHistory: Array<{
+            attempt: number;
+            error: string;
+            timestamp: Date;
+        }>;
+        cause?: unknown;
+    }) {
+        super({
+            message: `Max retries exceeded after ${params.attempts} attempts: ${params.message}`,
+            cause: params.cause,
+        });
+        this.attempts = params.attempts;
+        this.lastAttemptError = params.lastAttemptError;
+        this.validationHistory = params.validationHistory;
+    }
+
+    /**
+     * Get a formatted history of validation attempts
+     */
+    getValidationHistory(): string {
+        return this.validationHistory
+            .map(({ attempt, error, timestamp }) =>
+                `Attempt ${attempt} at ${timestamp.toISOString()}: ${error}`
+            )
+            .join("\n");
+    }
+}
+
+/**
+ * Error thrown when the LLM fails to generate valid output
+ */
+export class GenerationError extends StructuredOutputPipelineError {
+    readonly modelId: string;
+    readonly prompt: string;
+    readonly usage?: {
+        promptTokens: number;
+        completionTokens: number;
+        totalTokens: number;
+    };
+
+    constructor(params: {
+        message: string;
+        modelId: string;
+        prompt: string;
+        usage?: {
+            promptTokens: number;
+            completionTokens: number;
+            totalTokens: number;
+        };
+        cause?: unknown;
+    }) {
+        super({
+            message: `Generation failed with model ${params.modelId}: ${params.message}`,
+            cause: params.cause,
+        });
+        this.modelId = params.modelId;
+        this.prompt = params.prompt;
+        this.usage = params.usage;
+    }
+}
+
+/**
+ * Error thrown when extraction fails
+ */
+export class ExtractionError extends StructuredOutputPipelineError {
+    readonly sourceText: string;
+    readonly extractionPattern?: string;
+
+    constructor(params: {
+        message: string;
+        sourceText: string;
+        extractionPattern?: string;
+        cause?: unknown;
+    }) {
+        super({
+            message: `Extraction failed: ${params.message}`,
+            cause: params.cause,
+        });
+        this.sourceText = params.sourceText;
+        this.extractionPattern = params.extractionPattern;
+    }
+}
+
+
 
 /**
  * Union type of all StructuredOutputPipeline error types
  */
-export type StructuredOutputPipelineError =
+export type StructuredOutputPipelineErrorType =
     | SchemaValidationError
     | SchemaParsingError
-    | MaxRetriesExceededError; 
+    | MaxRetriesExceededError
+    | GenerationError
+    | ExtractionError; 

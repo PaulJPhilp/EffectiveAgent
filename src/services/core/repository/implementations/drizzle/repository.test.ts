@@ -1,4 +1,4 @@
-import type { BaseEntity } from "@core/repository/types.js";
+import type { ImportedType } from "@core/repository/types.js";
 import { createServiceTestHarness } from "@core/test-utils/effect-test-harness.js";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { Effect, Layer } from "effect";

@@ -3,8 +3,8 @@
  */
 
 import { Effect } from "effect";
-import type { Duration } from "effect/Duration";
-import type { PipelineError, PipelineValidationError } from "./errors.js";
+import type { Duration } from "effect";
+import type { ImportedType } from "./errors.js";
 
 /**
  * Represents the configuration for a pipeline execution.

@@ -1,6 +1,5 @@
 import { Effect, Stream } from "effect"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
-import type { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
 
 /**
  * Core interface for an individual AgentRuntime instance.

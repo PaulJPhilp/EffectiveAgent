@@ -4,7 +4,7 @@
  */
 
 import { Effect } from "effect";
-import type { FileSystemError } from "./errors.js";
+import type { ImportedType } from "./errors.js";
 
 /**
  * API interface for the FileSystem service.

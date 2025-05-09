@@ -1,21 +1,29 @@
-import type { EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "@/services/ai/producers/embedding/errors.js";
-import type { EmbeddingGenerationOptions, EmbeddingGenerationResult } from "@/services/ai/producers/embedding/service.js";
-import type { Effect } from "effect";
+import type { GenerateEmbeddingsResult } from "@/services/ai/provider/types.js";
+import { Effect } from "effect";
+import type { EmbeddingGenerationError, EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
+
+export interface EmbeddingGenerationOptions {
+    /** Text to generate embeddings for */
+    text: string;
+    /** Model ID to use */
+    modelId: string;
+    /** Optional generation parameters */
+    parameters?: Record<string, unknown>;
+}
 
 /**
  * EmbeddingService interface for generating vector embeddings.
  */
 export interface EmbeddingServiceApi {
     /**
-     * Generates vector embeddings for the given input using the configured AI provider and model.
-     *
-     * @param options - The generation options, including input (string or string[]), modelId, and span.
-     * @returns Effect that resolves to an EmbeddingGenerationResult on success, or fails with an AiError on error.
-     * @throws {EmbeddingInputError} If the input is empty or invalid.
-     * @throws {EmbeddingModelError} If the model service fails.
-     * @throws {EmbeddingProviderError} If the provider service fails.
+     * Generates embeddings from the given text using the specified model.
+     * @param options - Options for embedding generation (text, modelId, parameters)
+     * @returns Effect that resolves to embeddings or fails with an error
      */
-    readonly generate: (
+    generate: (
         options: EmbeddingGenerationOptions
-    ) => Effect.Effect<EmbeddingGenerationResult, EmbeddingInputError | EmbeddingModelError | EmbeddingProviderError>;
+    ) => Effect.Effect<
+        GenerateEmbeddingsResult,
+        EmbeddingModelError | EmbeddingProviderError | EmbeddingGenerationError | EmbeddingInputError
+    >;
 }

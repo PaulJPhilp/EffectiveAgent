@@ -1,6 +1,6 @@
 // src/services/pipeline/chat/service.ts
 import { Effect, Ref, pipe } from "effect";
-import type { ChatHistory, ChatHistoryServiceApi, ChatMessage } from "./api.js";
+import type { ImportedType } from "./api.js";
 import { ChatHistoryError } from "./api.js";
 
 // Validation functions

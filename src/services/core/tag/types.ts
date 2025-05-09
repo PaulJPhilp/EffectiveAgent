@@ -1,5 +1,5 @@
 /**
- * @file Defines additional types for the Tag service.
+ * @file Defines the types for the Tag service.
  */
 
 import type { EntityId } from "../../../types.js";

@@ -4,9 +4,9 @@
  */
 
 import { Context, Effect, Schema, Secret } from "effect";
-import type { OAuth2Client } from 'google-auth-library';
+import type { OAuth2Client } from "google-auth-library.js";
 import { google } from 'googleapis';
-import type { gmail_v1 } from 'googleapis';
+import type { googleapis } from "googleapis.js";
 import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
@@ -16,18 +16,18 @@ export const gmailReplyMessageInputSchema = Schema.Struct({
 	threadId: Schema.String, // Thread ID is usually required for replies
 	body: Schema.String,
 	// Use Schema.Array
-	to: Schema.Array(Schema.String).pipe(Schema.optional),
-	cc: Schema.Array(Schema.String).pipe(Schema.optional),
-	bcc: Schema.Array(Schema.String).pipe(Schema.optional),
-	subject: Schema.String.pipe(Schema.optional),
+	to: Schema.Array(Schema.String).pipe(S.optional),
+	cc: Schema.Array(Schema.String).pipe(S.optional),
+	bcc: Schema.Array(Schema.String).pipe(S.optional),
+	subject: Schema.String.pipe(S.optional),
 });
 export type GmailReplyMessageInput = Schema.Schema.Type<typeof gmailReplyMessageInputSchema>;
 
 // Output schema is the same as send
 export const gmailReplyMessageOutputSchema = Schema.Struct({
 	success: Schema.Boolean,
-	messageId: Schema.String.pipe(Schema.optional),
-	threadId: Schema.String.pipe(Schema.optional),
+	messageId: Schema.String.pipe(S.optional),
+	threadId: Schema.String.pipe(S.optional),
 });
 export type GmailReplyMessageOutput = Schema.Schema.Type<typeof gmailReplyMessageOutputSchema>;
 

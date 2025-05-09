@@ -8,7 +8,7 @@ import {
 // Pipeline components
 import { TextCompletionPipeline } from "./text-completion.js";
 
-import type { ChatHistory } from "@/services/pipeline/chat/api.js";
+import type { ImportedType } from "@/services/pipeline/chat/api.js";
 import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
 // Service interfaces
 import { ExecutiveService } from "@/services/pipeline/service.js";

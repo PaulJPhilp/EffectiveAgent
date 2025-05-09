@@ -2,7 +2,7 @@
  * @file Type definitions for the Skill capability service.
  */
 
-import type { Schema } from "effect";
+import type { effect } from "effect";
 import { Skill, SkillExecutionParams } from "./schema.js";
 
 // Inferred Types from Schema

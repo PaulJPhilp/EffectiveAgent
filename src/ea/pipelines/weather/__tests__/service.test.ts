@@ -3,7 +3,7 @@
  */
 
 import { Effect } from "effect";
-import { describe, expect, it } from "@effect/vitest";
+import { describe, expect, it } from "vitest";
 import { WeatherPipelineInput } from "../contract.js";
 import { makeMockWeatherService, makeWeatherService } from "../service.js";
 

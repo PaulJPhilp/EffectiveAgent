@@ -3,7 +3,7 @@
  */
 
 import { Effect, HashMap, Ref, Schema as S } from "effect";
-import type { SkillServiceApi } from "./api.js";
+import type { ImportedType } from "./api.js";
 import {
   SkillConfigError,
   SkillExecutionError,

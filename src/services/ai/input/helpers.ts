@@ -1,4 +1,4 @@
-import type { EffectiveInput } from "@/services/pipeline/types/base.js";
+import type { ImportedType } from "@/services/pipeline/types/base.js";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
 import { NoAudioFileError } from "../provider/errors.js";

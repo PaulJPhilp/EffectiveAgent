@@ -3,7 +3,6 @@
  */
 
 import type { AttachmentServiceApi } from "./api.js";
-import type { AttachmentLinkEntityData } from "./schema.js";
 
 /**
  * Input type for creating a link (omitting system fields)

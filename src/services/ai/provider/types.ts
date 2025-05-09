@@ -1,8 +1,42 @@
-import type { FinishReason, ReasoningDetail, ResponseMessage, Source, Usage, Warning } from '@/types.js'
-import { ProviderClientApi } from './api.js'
+import type { Message, ResponseMessage, Usage } from "@/types.js";
+import { Effect } from "effect";
+import { ToolDefinition } from "../tool-registry/types.js";
+import type { ToolServiceApi } from "../tools/api.js";
+import type { ToolRegistryData } from "../tools/types.js";
+import type { ProviderOperationError } from "./errors.js";
 import { PROVIDER_NAMES } from "./provider-universe.js";
-import { ToolRegistryData } from "../tools/types.js"
-import type { ToolServiceApi } from "../tools/api.js"; // Added import
+
+/**
+ * Reason why the generation finished
+ */
+export type FinishReason = "stop" | "length" | "content_filter" | "tool_calls" | "error";
+
+/**
+ * Detailed reasoning step
+ */
+export interface ReasoningDetail {
+    step: number;
+    thought: string;
+    action?: string;
+    observation?: string;
+}
+
+/**
+ * Source reference
+ */
+export interface Source {
+    title: string;
+    url?: string;
+    content: string;
+}
+
+/**
+ * Warning message
+ */
+export interface Warning {
+    code: string;
+    message: string;
+}
 
 /**
  * Base result type containing common fields for all AI generation results
@@ -24,6 +58,70 @@ export interface GenerateBaseResult {
     headers?: Record<string, string>
     /** Optional raw response body */
     body?: unknown
+}
+
+/**
+ * Provider client interface defining all supported operations.
+ * Methods are specifically typed to match capabilities and return types.
+ */
+export interface ProviderClientApi {
+    getModels(): unknown;
+    /**
+     * Validates tool inputs against their schemas and prepares them for execution.
+     * This should delegate to the ToolService for actual validation.
+     */
+    validateToolInputs: (tools: ToolDefinition[]) => Effect.Effect<void, ProviderOperationError>;
+
+    /**
+     * Executes tool calls requested by the model.
+     * This should delegate to the ToolService for actual execution.
+     */
+    executeToolCalls: (toolCalls: ToolCallRequest[], tools: ToolDefinition[]) => Effect.Effect<string[], ProviderOperationError>;
+
+    /**
+     * Generates text based on input prompt.
+     */
+    generateText: (input: string, options: ProviderGenerateTextOptions) => Effect.Effect<GenerateTextResult, ProviderOperationError>;
+
+    /**
+     * Generates structured object based on schema.
+     */
+    generateObject: <T>(input: string, options: ProviderGenerateObjectOptions<T>) => Effect.Effect<GenerateObjectResult<T>, ProviderOperationError>;
+
+    /**
+     * Generates chat response.
+     */
+    chat: (messages: Message[], options: ProviderChatOptions) => Effect.Effect<ChatResult, ProviderOperationError>;
+
+    /**
+     * Generates image based on text prompt.
+     */
+    generateImage: (prompt: string, options: ProviderGenerateImageOptions) => Effect.Effect<GenerateImageResult, ProviderOperationError>;
+
+    /**
+     * Generates speech from text.
+     */
+    generateSpeech: (text: string, options: ProviderGenerateSpeechOptions) => Effect.Effect<GenerateSpeechResult, ProviderOperationError>;
+
+    /**
+     * Transcribes audio to text.
+     */
+    transcribe: (audio: Buffer, options: ProviderTranscribeOptions) => Effect.Effect<TranscribeResult, ProviderOperationError>;
+
+    /**
+     * Generates embeddings for text.
+     */
+    generateEmbeddings: (texts: string[], options: ProviderGenerateEmbeddingsOptions) => Effect.Effect<GenerateEmbeddingsResult, ProviderOperationError>;
+
+    /**
+     * Streams text generation.
+     */
+    streamText: (input: string, options: ProviderGenerateTextOptions) => Effect.Effect<StreamingTextResult, ProviderOperationError>;
+
+    /**
+     * Streams object generation.
+     */
+    streamObject: <T>(input: string, options: ProviderGenerateObjectOptions<T>) => Effect.Effect<StreamingObjectResult<T>, ProviderOperationError>;
 }
 
 /**
@@ -225,26 +323,6 @@ export interface GenerateEmbeddingsResult extends GenerateBaseResult {
 }
 
 /**
- * Standardized response wrapper for AI provider operations.
- */
-export interface EffectiveResponse<TData> {
-    /** The core data payload (e.g., GenerateTextResult, GenerateObjectResult) */
-    readonly data: TData;
-    /** Common metadata (can be extended if needed) */
-    readonly metadata: {
-        readonly model?: string;
-        readonly id: string;
-        readonly timestamp: Date;
-        readonly usage?: Usage;
-        readonly finishReason?: FinishReason;
-        readonly providerMetadata?: ProviderMetadata;
-    };
-}
-
-/**
- * Base options common to many provider API calls.
- */
-/**
  * Metadata and configuration for a single provider.
  *
  * - Provider capability: The union of all capabilities supported by any model
@@ -371,28 +449,13 @@ export interface ProviderChatOptions extends BaseProviderOptions {
 }
 
 /**
- * Represents the schema or definition of a tool that can be provided to an LLM.
- */
-export interface ToolDefinition {
-    /** The name of the function/tool. */
-    name: string;
-    /** A description of what the function does. */
-    description: string;
-    /**
-     * The parameters the function accepts, described as a JSON Schema object.
-     * See https://json-schema.org/understanding-json-schema/
-     */
-    parameters: Record<string, unknown>; // JSON Schema object
-}
-
-/**
  * Represents a request from the LLM to call a specific tool.
  */
 export interface ToolCallRequest {
     /** A unique identifier for this tool call. */
     id: string;
     /** The type of request, e.g., "tool_call". */
-    type: "tool_call"; 
+    type: "tool_call";
     /** The function/tool to be called. */
     function: {
         /** The name of the function. */

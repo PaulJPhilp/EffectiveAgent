@@ -1,10 +1,8 @@
 import { eq, sql } from "drizzle-orm";
-import type { PgTableWithColumns } from "drizzle-orm/pg-core";
 import { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { Effect, Layer, Option } from "effect";
 import { v4 as uuidv4 } from "uuid";
 import { EntityNotFoundError, RepositoryError } from "../../errors.js";
-import type { BaseEntity, FindOptions } from "../../types.js";
 
 /**
  * Creates a Drizzle/Postgres implementation of the RepositoryService.

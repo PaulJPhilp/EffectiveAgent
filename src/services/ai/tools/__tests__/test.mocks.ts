@@ -3,13 +3,13 @@
  * @module services/tools/__tests__/test.mocks
  */
 
-import { PlatformError } from "@effect/platform/Error";
-import * as HttpHeaders from "@effect/platform/Headers";
-import * as HttpBody from "@effect/platform/HttpBody";
-import { HttpClient } from "@effect/platform/HttpClient";
-import * as HttpClientError from "@effect/platform/HttpClientError"; // Import namespace for error types
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
-import type * as HttpClientResponse from "@effect/platform/HttpClientResponse"; // Import type only
+import { PlatformError } from "@effect/platform/Error.js";
+import * as HttpHeaders from "@effect/platform/Headers.js";
+import * as HttpBody from "@effect/platform/HttpBody.js";
+import { HttpClient } from "@effect/platform/HttpClient.js";
+import * as HttpClientError from "@effect/platform/HttpClientError.js"; // Import namespace for error types
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest.js";
+import type * as HttpClientResponse from "@effect/platform/HttpClientResponse.js"; // Import type only
 import { Context, Effect, HashMap, Layer, Schema } from "effect";
 import {
 	type EffectiveTool,

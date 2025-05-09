@@ -3,7 +3,7 @@
  */
 
 import { BaseEntitySchema } from "@/schema.js"; // Use path alias
-import { Schema } from "@effect/schema";
+import { Schema as S } from "@effect/schema.js";
 
 // Helper for EntityId schema
 function EntityIdSchema() {

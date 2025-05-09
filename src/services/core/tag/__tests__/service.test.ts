@@ -5,15 +5,10 @@
 import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
-import type { TagServiceApi } from "@core/tag/api.js";
-import { DuplicateTagNameError } from "@core/tag/errors.js";
-import type { EntityTagLinkEntity, TagEntity } from "@core/tag/schema.js";
-import { TagService, TagServiceLive } from "../service.js";
+import type { TagServiceApi } from "../api.js";
+import { DuplicateTagNameError } from "../errors.js";
+import type { TagEntity } from "../schema.js";
 
-import type { RepositoryServiceApi } from "@core/repository/api.js";
-import { EntityNotFoundError } from "@core/repository/errors.js";
-import { RepositoryService } from "@core/repository/service.js";
-import type { FindOptions } from "@core/repository/types.js";
 
 // --- Test Setup ---
 
@@ -40,7 +35,7 @@ describe("TagService", () => {
 
     findTags: (prefix?: string) => Effect.succeed([]),
 
-    tagEntity: (tagId: string, entityId: string, entityType: string) => 
+    tagEntity: (tagId: string, entityId: string, entityType: string) =>
       Effect.succeed({
         id: crypto.randomUUID(),
         createdAt: Date.now(),
@@ -48,13 +43,13 @@ describe("TagService", () => {
         data: { tagId, entityId, entityType }
       } as EntityTagLinkEntity),
 
-    untagEntity: (tagId: string, entityId: string, entityType: string) => 
+    untagEntity: (tagId: string, entityId: string, entityType: string) =>
       Effect.succeed(undefined),
 
-    getTagsForEntity: (entityId: string, entityType: string) => 
+    getTagsForEntity: (entityId: string, entityType: string) =>
       Effect.succeed([]),
 
-    getEntitiesForTag: (tagId: string) => 
+    getEntitiesForTag: (tagId: string) =>
       Effect.succeed([{ entityId: "entity-123", entityType: "Document" }])
   } as TagServiceApi);
 
@@ -73,7 +68,7 @@ describe("TagService", () => {
 
   // --- Test Cases ---
 
-  it("should create a new tag", () => 
+  it("should create a new tag", () =>
     Effect.gen(function* () {
       const service = yield* TestTagService;
       const result = yield* service.createTag(testTag1.name);
@@ -81,7 +76,7 @@ describe("TagService", () => {
     })
   );
 
-  it("should prevent duplicate tag names", () => 
+  it("should prevent duplicate tag names", () =>
     Effect.gen(function* () {
       const service = yield* TestTagService;
       yield* service.createTag("duplicate-tag");
@@ -99,7 +94,7 @@ describe("TagService", () => {
       const service = yield* TestTagService;
       yield* service.createTag(testTag1.name);
       yield* service.createTag(testTag2.name);
-      
+
       const result = yield* service.findTags("test");
       expect(result.length).toBeGreaterThan(0);
       expect(result.every(tag => tag.data.name.startsWith("test"))).toBe(true);
@@ -110,7 +105,7 @@ describe("TagService", () => {
     Effect.gen(function* () {
       const service = yield* TestTagService;
       const tag = yield* service.createTag(testTag1.name);
-      
+
       // Tag an entity
       yield* service.tagEntity(tag.id, testEntityId, testEntityType);
 

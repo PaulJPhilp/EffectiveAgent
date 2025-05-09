@@ -6,12 +6,12 @@
 import { Context, Effect, Layer, pipe } from "effect";
 import { describe, expect, it } from "vitest";
 
-import * as HttpBody from "@effect/platform/HttpBody";
+import * as HttpBody from "@effect/platform/HttpBody.js";
 // Import HttpClient and related types
-import { HttpClient } from "@effect/platform/HttpClient";
-import { HttpClientError } from "@effect/platform/HttpClientError";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
-import * as HttpClientResponse from "@effect/platform/HttpClientResponse";
+import { HttpClient } from "@effect/platform/HttpClient.js";
+import { HttpClientError } from "@effect/platform/HttpClientError.js";
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest.js";
+import * as HttpClientResponse from "@effect/platform/HttpClientResponse.js";
 
 // Define the TypeId symbol for our implementation
 const HttpClientTypeId = Symbol.for("@effect/platform/HttpClient");

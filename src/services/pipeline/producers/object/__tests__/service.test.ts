@@ -7,7 +7,7 @@ import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
-import type { ObjectServiceApi } from "../api.js";
+import type { ImportedType } from "../api.js";
 import {
   ObjectGenerationError,
   ObjectModelError,

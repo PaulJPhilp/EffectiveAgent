@@ -1,6 +1,6 @@
-import { FileSystem } from "@effect/platform/FileSystem";
-import { Effect, ParseResult, Schema } from "effect";
 import path from "path";
+import { FileSystem } from "@effect/platform/FileSystem.js";
+import { Effect, ParseResult, Schema } from "effect";
 import {
     ConfigParseError,
     ConfigReadError,
@@ -8,7 +8,6 @@ import {
     ConfigValidationError
 } from "./errors.js";
 import type { BaseConfig } from "./schema.js";
-import type { ConfigLoaderOptionsApi } from "./types.js";
 
 export interface LoadConfigOptions<T extends BaseConfig> {
     filePath: string;

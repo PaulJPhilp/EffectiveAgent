@@ -1,9 +1,8 @@
 import { Effect, Fiber, Ref, Stream, pipe } from "effect"
 import { PrioritizedMailbox } from "../services/mailbox/prioritized-mailbox.js"
-import type { AgentRuntimeServiceApi } from "./api.js"
+import { AgentRuntimeServiceApi } from "./api.js"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeProcessingError } from "./errors.js"
-import type { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
-import { AgentActivityType, AgentRuntimeStatus } from "./types.js"
+import { AgentActivity, AgentActivityType, AgentRuntimeId, AgentRuntimeState, AgentRuntimeStatus } from "./types.js"
 
 interface RuntimeEntry<S> {
     state: Ref.Ref<AgentRuntimeState<S>>
@@ -40,7 +39,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                         activity.type === AgentActivityType.STATE_CHANGE
                             ? Effect.succeed({ ...state, ...(activity.payload as S) })
                             : Effect.succeed(state)
-                    const fiber = yield* startProcessing(id, stateRef, mailbox, workflow)
+                    const fiber = yield* startProcessing(id, stateRef, mailbox, workflow) as Fiber.RuntimeFiber<never, never>
                     yield* Ref.update(runtimes, map => {
                         map.set(id, { state: stateRef, mailbox, fiber, workflow })
                         return map
@@ -78,7 +77,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                     return yield* entry.mailbox.offer(activity)
                 })
 
-            const getState = <S>(id: AgentRuntimeId) =>
+            const getState = (id: AgentRuntimeId) =>
                 Effect.gen(function* () {
                     const map = yield* Ref.get(runtimes)
                     const entry = map.get(id)
@@ -96,7 +95,11 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                         if (!entry) {
                             return Stream.fail(new AgentRuntimeNotFoundError({ agentRuntimeId: id, message: `AgentRuntime ${id} not found` }))
                         }
-                        return entry.mailbox.subscribe()
+                        return entry.mailbox.subscribe().pipe(
+                            Stream.mapError(error =>
+                                new AgentRuntimeNotFoundError({ agentRuntimeId: id, message: String(error) })
+                            )
+                        )
                     })
                 )
 
@@ -104,8 +107,8 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                 id: AgentRuntimeId,
                 stateRef: Ref.Ref<AgentRuntimeState<S>>,
                 mailbox: PrioritizedMailbox,
-                workflow: (activity: AgentActivity, state: S) => Effect.Effect<S, unknown, unknown>
-            ): Effect.Effect<Fiber.RuntimeFiber<never, never>> {
+                workflow: (activity: AgentActivity, state: S) => Effect.Effect<S, unknown, never>
+            ): Effect.Effect<Fiber.RuntimeFiber<void, never>> {
                 return Effect.fork(
                     Effect.gen(function* () {
                         yield* updateStatus(stateRef, AgentRuntimeStatus.IDLE)
@@ -191,7 +194,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                             )
                         }
                     }).pipe(
-                        Effect.catchAll(() => Effect.succeed(undefined))
+                        Effect.catchAll(() => Effect.succeed<void>(void 0))
                     )
                 )
             }

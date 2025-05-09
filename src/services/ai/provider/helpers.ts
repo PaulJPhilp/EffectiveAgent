@@ -1,16 +1,10 @@
-import { randomUUID } from "node:crypto";
 import { ModelCapability } from "@/schema.js";
 import { LoggingServiceApi } from "@/services/core/logging/api.js";
-import type { JsonObject } from "@/types.js";
-import { Effect } from "effect";
-import { Config, ConfigProvider } from "effect";
-import { EntityParseError } from "../../core/errors.js";
+import { Config, ConfigProvider, Effect } from "effect";
 import { ModelServiceApi } from "../model/api.js";
 import { ModelService } from "../model/service.js";
 import { ProviderConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "./errors.js";
 import { ProvidersType } from "./schema.js";
-import { Provider } from "./schema.js";
-import type { EffectiveResponse, GenerateBaseResult } from "./types.js";
 
 /**
  * Loads the provider configuration string from the provided ConfigProvider
@@ -73,17 +67,17 @@ export const parseConfigJson = (
  * @returns Effect<EffectiveResponse<T>, never>
  */
 export const createResponse = <T extends GenerateBaseResult>(result: T): Effect.Effect<EffectiveResponse<T>, never> =>
-    Effect.succeed({
-        data: result,
-        metadata: {
-            id: result.id,
-            model: result.model,
-            timestamp: result.timestamp,
-            usage: result.usage,
-            finishReason: result.finishReason,
-            providerMetadata: result.providerMetadata
-        }
-    });
+  Effect.succeed({
+    data: result,
+    metadata: {
+      id: result.id,
+      model: result.model,
+      timestamp: result.timestamp,
+      usage: result.usage,
+      finishReason: result.finishReason,
+      providerMetadata: result.providerMetadata
+    }
+  });
 
 
 /**
@@ -130,47 +124,47 @@ export function getProviderName(params: {
  * @returns Effect<string, ProviderConfigError>
  */
 export const validateModelId = ({ options, method }: {
-    options: { modelId?: string },
-    method: string,
+  options: { modelId?: string },
+  method: string,
 }): Effect.Effect<string, ProviderConfigError, ModelServiceApi> => Effect.gen(function* () {
-    if (!options.modelId) {
-        yield* Effect.logDebug(`[ProviderClient:${method}] No modelId provided, using default model`);
-        const defaultId = yield* Effect.mapError(
-            Effect.gen(function* () {
-                const modelService = yield* ModelService;
-                return yield* modelService.getDefaultModelId("openai" as const, ModelCapability.literals[1]);
-            }),
-            err => new ProviderConfigError({
-                description: `Failed to get default model ID: ${err instanceof Error ? err.message : String(err)}`,
-                module: "ProviderClient",
-                method
-            })
-        );
-        return defaultId;
-    }
-
-    const modelId = options.modelId;
-    const exists = yield* Effect.mapError(
-        Effect.gen(function* () {
-            const modelService = yield* ModelService;
-            return yield* modelService.exists(modelId);
-        }),
-        err => new ProviderConfigError({
-            description: `Failed to check if model ${modelId} exists: ${err instanceof Error ? err.message : String(err)}`,
-            module: "ProviderClient",
-            method
-        })
+  if (!options.modelId) {
+    yield* Effect.logDebug(`[ProviderClient:${method}] No modelId provided, using default model`);
+    const defaultId = yield* Effect.mapError(
+      Effect.gen(function* () {
+        const modelService = yield* ModelService;
+        return yield* modelService.getDefaultModelId("openai" as const, ModelCapability.literals[1]);
+      }),
+      err => new ProviderConfigError({
+        description: `Failed to get default model ID: ${err instanceof Error ? err.message : String(err)}`,
+        module: "ProviderClient",
+        method
+      })
     );
+    return defaultId;
+  }
 
-    if (!exists) {
-        throw new ProviderConfigError({
-            description: `Model ${modelId} not found`,
-            module: "ProviderClient",
-            method
-        });
-    }
+  const modelId = options.modelId;
+  const exists = yield* Effect.mapError(
+    Effect.gen(function* () {
+      const modelService = yield* ModelService;
+      return yield* modelService.exists(modelId);
+    }),
+    err => new ProviderConfigError({
+      description: `Failed to check if model ${modelId} exists: ${err instanceof Error ? err.message : String(err)}`,
+      module: "ProviderClient",
+      method
+    })
+  );
 
-    return modelId;
+  if (!exists) {
+    throw new ProviderConfigError({
+      description: `Model ${modelId} not found`,
+      module: "ProviderClient",
+      method
+    });
+  }
+
+  return modelId;
 });
 
 /**
@@ -214,11 +208,11 @@ export function handleProviderError(params: {
   });
 }
 
-  /**
-   * Validates that the provider supports the required capabilities.
-   * @param params - Object with providerName, required, actual, logger, and method
-   * @returns Effect<void, ProviderMissingCapabilityError>
-   */
+/**
+ * Validates that the provider supports the required capabilities.
+ * @param params - Object with providerName, required, actual, logger, and method
+ * @returns Effect<void, ProviderMissingCapabilityError>
+ */
 // logger is now expected to be available from closure or module scope
 /**
  * Validates that the provider supports the required capabilities. Returns an error if missing.
@@ -230,21 +224,21 @@ export function validateCapabilities(params: {
   actual: Set<ModelCapability>;
   method: string;
 }): Effect.Effect<void, ProviderMissingCapabilityError> {
-    const { providerName, required, actual, method } = params;
-    const requiredArr = Array.isArray(required) ? required : [required];
-    for (const capability of requiredArr) {
-      if (!actual.has(capability)) {
-        return Effect.fail(
-          new ProviderMissingCapabilityError({
-            providerName: providerName as any, // Use ProvidersType if available
-            capability,
-            module: "ProviderClient",
-            method
-          })
-        );
-      }
+  const { providerName, required, actual, method } = params;
+  const requiredArr = Array.isArray(required) ? required : [required];
+  for (const capability of requiredArr) {
+    if (!actual.has(capability)) {
+      return Effect.fail(
+        new ProviderMissingCapabilityError({
+          providerName: providerName as any, // Use ProvidersType if available
+          capability,
+          module: "ProviderClient",
+          method
+        })
+      );
     }
-    return Effect.void;
   }
+  return Effect.void;
+}
 
 

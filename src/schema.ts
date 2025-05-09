@@ -67,10 +67,14 @@ export const PositiveNumber = S.Number.pipe(
 /**
  * Schema for metadata records.
  */
-export const Metadata = S.Record({
+export class MetadataRecord extends S.Class<MetadataRecord>("MetadataRecord")({
   key: S.String,
   value: S.Unknown
-});
+}) { }
+
+export class MetadataMap extends S.Class<MetadataMap>("MetadataMap")({
+  entries: S.Record({ key: S.String, value: MetadataRecord })
+}) { }
 
 // --- Core Entity Schemas ---
 

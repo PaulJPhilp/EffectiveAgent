@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import type { ModelServiceApi } from "../api.js";
-import type { ModelFile, PublicModelInfoDefinition } from "../schema.js";
+import { ModelFile, PublicModelInfoDefinition } from "../schema.js";
 
 /**
  * Mock implementation returning the PublicModelInfoDefinition structure.

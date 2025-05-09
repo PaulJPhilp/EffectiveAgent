@@ -3,6 +3,7 @@
  * @module ea/pipelines/structured-output
  */
 
-export * from "./contract.js";
+export * from "./api.js";
 export * from "./errors.js";
 export * from "./service.js";
+

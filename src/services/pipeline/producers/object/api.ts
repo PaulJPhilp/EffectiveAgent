@@ -3,62 +3,18 @@
  * Defines the contract for object generation using AI models/providers.
  */
 
-import type { AiError } from "@effect/ai/AiError";
+import { GenerateObjectResult } from "@/services/ai/provider/types.js";
 import type { Effect } from "effect";
-import type { Option } from "effect/Option";
-import type { Schema } from "effect/Schema";
-import type { Span } from "effect/Tracer";
+import type { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError } from "./errors.js";
+import type { ObjectGenerationOptions } from "./types.js";
 
 /**
- * Options for generating a structured object via AI.
+ * Service for generating structured objects using AI models.
  * @template T The type of the object to generate.
  */
-export interface ObjectGenerationOptions<T> {
-  /** Model ID to use for generation. */
-  readonly modelId?: string;
-  /** Prompt to guide object generation. */
-  readonly prompt: string;
-  /** Optional system instructions. */
-  readonly system: Option<string>;
-  /** Schema to validate and parse the result. */
-  readonly schema: Schema<T>;
-  /** Tracing span for observability. */
-  readonly span: Span;
-  /** Optional abort signal for cancellation. */
-  readonly signal?: AbortSignal;
-  /** Optional model parameters. */
-  readonly parameters?: {
-    maxSteps?: number;
-    maxRetries?: number;
-    temperature?: number;
-    topP?: number;
-    topK?: number;
-    presencePenalty?: number;
-    frequencyPenalty?: number;
-    seed?: number;
-    stop?: string[];
-  };
-}
-
-/**
- * Result of a structured object generation call.
- * @template T The type of the generated object.
- */
-export interface ObjectGenerationResult<T> {
-  /** The generated object. */
-  readonly data: T;
-  /** The model used. */
-  readonly model: string;
-  /** The timestamp of generation. */
-  readonly timestamp: Date;
-  /** The response ID. */
-  readonly id: string;
-  /** Optional usage statistics. */
-  readonly usage?: {
-    promptTokens: number;
-    completionTokens: number;
-    totalTokens: number;
-  };
+export interface ObjectGeneratorApi<T> {
+  /** Generate an object of type T using the specified options */
+  readonly generate: (options: ObjectGenerationOptions<T>) => Effect.Effect<T, ObjectGenerationError | ObjectInputError | ObjectModelError | ObjectProviderError>
 }
 
 /**
@@ -66,10 +22,17 @@ export interface ObjectGenerationResult<T> {
  */
 export interface ObjectServiceApi {
   /**
-   * Generate a structured object using an AI provider.
-   * @template T The type of object to generate.
-   * @param options Generation options (prompt, schema, etc.)
-   * @returns Effect producing ObjectGenerationResult<T> or AiError
+   * Generates a structured object from the given prompt and schema.
+   * @param options - Options for object generation (prompt, modelId, schema, etc.)
+   * @returns Effect that resolves to an AiResponse or fails with an ObjectServiceError.
+   * @throws {ObjectModelError} If the model is invalid or missing.
+   * @throws {ObjectProviderError} If the provider is misconfigured or unavailable.
+   * @throws {ObjectGenerationError} If the provider fails to generate the object.
    */
-  generate<T>(options: ObjectGenerationOptions<T>): Effect.Effect<ObjectGenerationResult<T>, AiError>;
+  generate: <T>(
+    options: ObjectGenerationOptions<T>
+  ) => Effect.Effect<
+    GenerateObjectResult<T>,
+    ObjectModelError | ObjectProviderError | ObjectGenerationError | ObjectInputError
+  >;
 }

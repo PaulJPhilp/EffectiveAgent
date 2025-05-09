@@ -2,7 +2,7 @@
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
-import type { ChatHistory, ChatMessage } from "./api.js";
+import type { ImportedType } from "./api.js";
 import { ChatHistoryError } from "./api.js";
 import { ChatHistoryService } from "./service.js";
 

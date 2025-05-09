@@ -1,13 +1,8 @@
-import type { ModelCapability } from "@/schema.js";
-import type { LanguageModelV1 } from "@ai-sdk/provider";
-import type { Effect } from "effect";
+import type { Effect, Schema } from "effect";
 import type {
-  MissingModelIdError,
-  ModelConfigError,
-  ModelNotFoundError,
-  ModelValidationError,
+  ModelNotFoundError
 } from "./errors.js";
-import type { ModelFile, Provider, PublicModelInfoDefinition } from "./schema.js";
+import type { PublicModelInfoDefinition } from "./schema.js";
 
 /**
  * Defines the public API for the ModelService.
@@ -18,45 +13,34 @@ export type ModelServiceApi = {
    * Loads the model configuration.
    * Returns a ModelFile containing PublicModelInfoDefinition objects.
    */
-  load: () => Effect.Effect<ModelFile, ModelConfigError>;
+  load: () => Effect.Effect<{ models: Schema.Schema.Type<PublicModelInfoDefinition>[], name: string, version: string }, never>;
 
   /**
    * Gets the provider name for a given model ID.
    */
-  getProviderName: (
-    modelId: string
-  ) => Effect.Effect<Provider, ModelConfigError | ModelNotFoundError>;
+  getProviderName: (modelId: string) => Effect.Effect<string, never>;
 
   /**
    * Finds all models that include the specified capability (based on vendorCapabilities).
    * Returns PublicModelInfoDefinition objects.
    */
-  findModelsByCapability: (
-    capability: typeof ModelCapability
-  ) => Effect.Effect<Array<PublicModelInfoDefinition>, ModelConfigError>;
+  findModelsByCapability: (capability: string) => Effect.Effect<Schema.Schema.Type<PublicModelInfoDefinition>[], never>;
 
   /**
    * Finds all models that include ALL of the specified capabilities (based on vendorCapabilities).
    * Returns PublicModelInfoDefinition objects.
    */
-  findModelsByCapabilities: (
-    capabilities: typeof ModelCapability
-  ) => Effect.Effect<Array<PublicModelInfoDefinition>, ModelConfigError>;
+  findModelsByCapabilities: (capabilities: string[]) => Effect.Effect<Schema.Schema.Type<PublicModelInfoDefinition>[], never>;
 
   /**
    * Gets the default model ID for a given provider and capability.
    */
-  getDefaultModelId: (
-    provider: Provider,
-    capability: ModelCapability
-  ) => Effect.Effect<string, ModelConfigError | MissingModelIdError>;
+  getDefaultModelId: () => Effect.Effect<string, never>;
 
   /**
    * Gets metadata for all models associated with a specific provider.
    */
-  getModelsForProvider: (
-    provider: Provider
-  ) => Effect.Effect<LanguageModelV1[], never>;
+  getModelsForProvider: (providerName: string) => Effect.Effect<Schema.Schema.Type<PublicModelInfoDefinition>[], never>;
 
   /**
    * Validates if a model has all the specified capabilities (based on vendorCapabilities).
@@ -66,8 +50,5 @@ export type ModelServiceApi = {
    * @error ModelNotFoundError If the model ID doesn't exist.
    * @error ModelValidationError If the model lacks required capabilities.
    */
-  validateModel: (
-    modelId: string,
-    capabilities: typeof ModelCapability
-  ) => Effect.Effect<boolean, ModelNotFoundError | ModelValidationError>;
+  validateModel: (modelId: string) => Effect.Effect<boolean, never>;
 };

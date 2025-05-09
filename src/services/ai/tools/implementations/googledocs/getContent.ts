@@ -4,7 +4,7 @@
  */
 
 import { Effect, Schema } from "effect";
-import { OAuth2Client } from 'google-auth-library';
+import { OAuth2Client } from "google-auth-library";
 // Import the Google APIs
 import { google } from 'googleapis';
 import { ToolExecutionError } from "../../errors.js";

@@ -4,7 +4,7 @@
  */
 
 import { EffectiveError } from "@/errors.js";
-import type { ParseError } from "effect/ParseResult";
+import type { ParseResult } from "effect";
 
 /**
  * Base error for all tool-related failures.

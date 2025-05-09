@@ -6,7 +6,7 @@
 import { Cause, Context, Effect, Exit, Layer, Option, Ref } from "effect"; // Added Ref
 import { beforeEach, describe, expect, it } from "vitest";
 
-import type { EntityId, JsonObject, Timestamp } from "@/types.js";
+import type { ImportedType } from "@/types.js";
 import {
     EntityNotFoundError,
     RepositoryError,

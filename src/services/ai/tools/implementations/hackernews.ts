@@ -3,15 +3,12 @@
  * @module services/tools/implementations/hackernews
  */
 
-import { PlatformError } from "@effect/platform/Error"; // Keep for potential broader errors
-import * as HttpBody from "@effect/platform/HttpBody";
+import { PlatformError } from "@effect/platform/Error.js"; // Keep for potential broader errors
+import * as HttpBody from "@effect/platform/HttpBody.js";
 // Import HttpClient related modules from @effect/platform
-import { HttpClient } from "@effect/platform/HttpClient";
-// Import specific HttpClientError types if needed for finer-grained handling
-import type { HttpClientError } from "@effect/platform/HttpClientError";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
+import { HttpClient } from "@effect/platform/HttpClient.js";
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest.js";
 import { Effect, Schema } from "effect";
-import type { ParseError } from "effect/ParseResult"; // Import ParseError
 // Import base ToolExecutionError
 import { ToolExecutionError } from "../errors.js";
 
@@ -28,7 +25,7 @@ export const hackerNewsInputSchema = Schema.Struct({
 		Schema.greaterThan(0), // Corrected from Schema.positive()
 		Schema.lessThanOrEqualTo(50),
 		Schema.optional,
-		Schema.withDefaults({	 constructor: () => 10, decoding: () => 10 }),
+		Schema.withDefaults({ constructor: () => 10, decoding: () => 10 }),
 	),
 	/** The type of stories to fetch ('top', 'new', 'best'). Defaults to 'top'. */
 	storyType: HNStoryTypeSchema.pipe(

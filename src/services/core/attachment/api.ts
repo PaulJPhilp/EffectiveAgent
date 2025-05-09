@@ -10,16 +10,14 @@
  * relationship type and any additional attributes specific to that relationship.
  */
 
-import type { EntityId } from "@/types.js";
+import { Effect, Option } from "effect";
 import type {
     AttachmentError,
-    AttachmentLinkNotFoundError,
-} from "@core/attachment/errors.js";
+    AttachmentLinkNotFoundError
+} from "./errors.js";
 import type {
-    AttachmentLinkEntity,
-} from "@core/attachment/schema.js";
-import type { CreateAttachmentLinkInput } from "@core/attachment/types.js";
-import { Effect, Option } from "effect";
+    AttachmentLinkEntity
+} from "./schema.js";
 
 /**
  * Interface defining operations for managing attachment links between entities.

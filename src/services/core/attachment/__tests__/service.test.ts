@@ -2,20 +2,18 @@
  * @file Tests for the AttachmentService implementation.
  */
 
-import { Cause, Effect, Exit, Layer, Option } from "effect";
+import { Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { AttachmentDbError, AttachmentLinkNotFoundError } from "@core/attachment/errors.js";
-import type { AttachmentLinkEntity } from "@core/attachment/schema.js";
-import { AttachmentService, AttachmentServiceLive } from "@core/attachment/service.js";
-import type { AttachmentServiceApi, CreateAttachmentLinkInput } from "@core/attachment/types.js";
+import type { RepositoryServiceApi } from "../../repository/api.js";
+import { EntityNotFoundError as RepoEntityNotFoundError, RepositoryError } from "../../repository/errors.js";
+import { RepositoryService } from "../../repository/service.js";
+import type { AttachmentServiceApi } from "../api.js";
+import { AttachmentLinkNotFoundError } from "../errors.js";
+import type { AttachmentLinkEntity } from "../schema.js";
+import { AttachmentService, AttachmentServiceLive } from "../service.js";
+import type { CreateAttachmentLinkInput } from "../types.js";
 
-import type { RepositoryServiceApi } from "@core/repository/api.js";
-import { EntityNotFoundError as RepoEntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
-import { RepositoryService } from "@core/repository/service.js";
-import type { BaseEntity } from "@core/repository/types.js";
-
-import type { EntityId } from "@/types.js";
 
 // --- Test Setup ---
 
@@ -33,29 +31,29 @@ describe("AttachmentService", () => {
     findById: (id: string) => {
       if (id === "non-existent-id") {
         // Convert RepoEntityNotFoundError to RepositoryError to match the interface
-        return Effect.fail(new RepoEntityNotFoundError({ 
-          entityId: id, 
-          entityType: "AttachmentLink" 
+        return Effect.fail(new RepoEntityNotFoundError({
+          entityId: id,
+          entityType: "AttachmentLink"
         }) as unknown as RepositoryError);
       }
       return Effect.succeed(Option.none<AttachmentLinkEntity>());
     },
-    
+
     delete: (id: string) => {
       if (id === "non-existent-id") {
-        return Effect.fail(new RepoEntityNotFoundError({ 
-          entityId: id, 
-          entityType: "AttachmentLink" 
+        return Effect.fail(new RepoEntityNotFoundError({
+          entityId: id,
+          entityType: "AttachmentLink"
         }) as unknown as RepositoryError);
       }
       return Effect.succeed(undefined);
     },
 
     findOne: () => Effect.succeed(Option.none()),
-    
+
     findMany: (options?: any) => {
       const filter = options?.filter || {};
-      
+
       // Handle link queries based on source entity
       if (filter.entityA_id === "chat-1" && filter.entityA_type === "ChatMessage") {
         return Effect.succeed([
@@ -84,7 +82,7 @@ describe("AttachmentService", () => {
           }
         ]);
       }
-      
+
       // Handle link queries based on target entity
       if (filter.entityB_id === "file-abc" && filter.entityB_type === "File") {
         return Effect.succeed([
@@ -113,7 +111,7 @@ describe("AttachmentService", () => {
           }
         ]);
       }
-      
+
       // For exec-5 source entity
       if (filter.entityA_id === "exec-5" && filter.entityA_type === "SkillExecution") {
         return Effect.succeed([
@@ -130,7 +128,7 @@ describe("AttachmentService", () => {
           }
         ]);
       }
-      
+
       // For file-def target entity
       if (filter.entityB_id === "file-def" && filter.entityB_type === "File") {
         return Effect.succeed([
@@ -147,7 +145,7 @@ describe("AttachmentService", () => {
           }
         ]);
       }
-      
+
       // Default case - empty results
       return Effect.succeed([]);
     },
@@ -156,14 +154,14 @@ describe("AttachmentService", () => {
       id: "test-id",
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      data: { 
+      data: {
         entityA_id: "source-id",
         entityA_type: "SourceType",
         entityB_id: "target-id",
         entityB_type: "TargetType"
       }
     } as AttachmentLinkEntity),
-    
+
     count: () => Effect.succeed(0)
   });
 
@@ -187,14 +185,14 @@ describe("AttachmentService", () => {
     entityB_type: "File",
     linkType: "GENERATED",
   };
-  
+
   const linkInput2: CreateAttachmentLinkInput = {
     entityA_id: "chat-1",
     entityA_type: "ChatMessage",
     entityB_id: "file-def",
     entityB_type: "File",
   };
-  
+
   const linkInput3: CreateAttachmentLinkInput = {
     entityA_id: "exec-5", // Different source
     entityA_type: "SkillExecution",
@@ -204,7 +202,7 @@ describe("AttachmentService", () => {
 
   // --- Test Suite ---
   describe("AttachmentApiLive", () => {
-    it("should create a link", () => 
+    it("should create a link", () =>
       Effect.gen(function* () {
         const service = yield* AttachmentService;
         const created = yield* service.createLink(linkInput1);
@@ -219,7 +217,7 @@ describe("AttachmentService", () => {
       }).pipe(Effect.provide(TestLayer))
     );
 
-    it("should get a link by its ID", () => 
+    it("should get a link by its ID", () =>
       Effect.gen(function* () {
         const service = yield* AttachmentService;
         const created = yield* service.createLink(linkInput1);
@@ -236,7 +234,7 @@ describe("AttachmentService", () => {
       }).pipe(Effect.provide(TestLayer))
     );
 
-    it("should find links from a specific entity", () => 
+    it("should find links from a specific entity", () =>
       Effect.gen(function* () {
         const service = yield* AttachmentService;
         // Our mock repository already has data for these queries
@@ -246,7 +244,7 @@ describe("AttachmentService", () => {
           "ChatMessage",
         );
         expect(linksFromChat1).toHaveLength(2);
-        expect(linksFromChat1.map((l) => l.data.entityB_id)).toEqual(
+        expect(linksFromChat1.map((l: AttachmentLinkEntity) => l.data.entityB_id)).toEqual(
           expect.arrayContaining(["file-abc", "file-def"]),
         );
 
@@ -265,7 +263,7 @@ describe("AttachmentService", () => {
       }).pipe(Effect.provide(TestLayer))
     );
 
-    it("should find links to a specific entity", () => 
+    it("should find links to a specific entity", () =>
       Effect.gen(function* () {
         const service = yield* AttachmentService;
         // Our mock repository already has data for these queries
@@ -275,7 +273,7 @@ describe("AttachmentService", () => {
           "File",
         );
         expect(linksToFileAbc).toHaveLength(2);
-        expect(linksToFileAbc.map((l) => l.data.entityA_id)).toEqual(
+        expect(linksToFileAbc.map((l: AttachmentLinkEntity) => l.data.entityA_id)).toEqual(
           expect.arrayContaining(["chat-1", "exec-5"]),
         );
 
@@ -294,7 +292,7 @@ describe("AttachmentService", () => {
       }).pipe(Effect.provide(TestLayer))
     );
 
-    it("should delete a link", () => 
+    it("should delete a link", () =>
       Effect.gen(function* () {
         const service = yield* AttachmentService;
         const created = yield* service.createLink(linkInput1);
@@ -302,17 +300,17 @@ describe("AttachmentService", () => {
 
         // Delete the link - will succeed for any ID except "non-existent-id"
         yield* service.deleteLink(createdId);
-        
+
         // Success is indicated by not throwing an error
         expect(true).toBe(true);
       }).pipe(Effect.provide(TestLayer))
     );
 
-    it("should fail deleteLink with AttachmentLinkNotFoundError for non-existent ID", () => 
+    it("should fail deleteLink with AttachmentLinkNotFoundError for non-existent ID", () =>
       Effect.gen(function* () {
         const service = yield* AttachmentService;
         const result = yield* Effect.either(service.deleteLink("non-existent-id"));
-        
+
         expect(result._tag).toBe("Left");
         if (result._tag === "Left") {
           expect(result.left).toBeInstanceOf(AttachmentLinkNotFoundError);

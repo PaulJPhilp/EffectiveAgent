@@ -2,20 +2,18 @@
  * @file Tests for FileService implementation
  */
 
-import { Cause, Effect, Exit, Layer, Option } from "effect";
+import { Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { FileDbError, FileNotFoundError } from "@core/file/errors.js";
-import type { FileEntity } from "@core/file/schema.js";
-import { FileService, FileServiceLive } from "@core/file/service.js";
-import type { FileInput, FileServiceApi } from "@core/file/types.js";
+import type { EntityId } from "../../../../types.js";
+import type { RepositoryServiceApi } from "../../repository/api.js";
+import { EntityNotFoundError, RepositoryError } from "../../repository/errors.js";
+import { RepositoryService } from "../../repository/service.js";
+import { FileNotFoundError } from "../errors.js";
+import type { FileEntity } from "../schema.js";
+import { FileService, FileServiceLive } from "../service.js";
+import type { FileInput } from "../types.js";
 
-import type { RepositoryServiceApi } from "@core/repository/api.js";
-import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
-import { RepositoryService } from "@core/repository/service.js";
-import type { BaseEntity } from "@core/repository/types.js";
-
-import type { EntityId } from "@/types.js";
 
 // --- Test Setup ---
 
@@ -28,20 +26,20 @@ describe("FileService", () => {
       updatedAt: Date.now(),
       data: data
     } as FileEntity),
-    
+
     findById: (id: string) => {
       if (id === "non-existent-id") {
         // Convert EntityNotFoundError to RepositoryError to match the interface
-        return Effect.fail(new EntityNotFoundError({ 
-          entityId: id, 
-          entityType: "FileEntity" 
+        return Effect.fail(new EntityNotFoundError({
+          entityId: id,
+          entityType: "FileEntity"
         }) as unknown as RepositoryError);
       }
       return Effect.succeed(Option.none<FileEntity>());
     },
-    
+
     findOne: () => Effect.succeed(Option.none()),
-    
+
     findMany: (options?: any) => {
       if (options?.filter?.ownerId === "agent-456") {
         return Effect.succeed([{
@@ -59,21 +57,21 @@ describe("FileService", () => {
       }
       return Effect.succeed([]);
     },
-    
+
     update: () => Effect.succeed({
       id: "test-id",
       createdAt: Date.now(),
       updatedAt: Date.now(),
       data: { contentBase64: "" }
     } as FileEntity),
-    
+
     delete: (id: string) => {
       if (id === "non-existent-id") {
         return Effect.fail(new EntityNotFoundError({ entityId: id, entityType: "FileEntity" }));
       }
       return Effect.succeed(undefined);
     },
-    
+
     count: () => Effect.succeed(0)
   });
 
@@ -115,7 +113,7 @@ describe("FileService", () => {
   };
 
   // --- Test 1: storeFile ---
-  it("should store a file and return the full entity", () => 
+  it("should store a file and return the full entity", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
       const storedEntity = yield* service.storeFile(testFileData1);
@@ -131,7 +129,7 @@ describe("FileService", () => {
   );
 
   // --- Test 2: retrieveFileContent (Success) ---
-  it("should retrieve file content correctly", () => 
+  it("should retrieve file content correctly", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
       const stored = yield* service.storeFile(testFileData1);
@@ -143,11 +141,11 @@ describe("FileService", () => {
   );
 
   // --- Test 3: retrieveFileContent (Failure) ---
-  it("should fail retrieveFileContent with FileNotFoundError for non-existent ID", () => 
+  it("should fail retrieveFileContent with FileNotFoundError for non-existent ID", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
       const result = yield* Effect.either(service.retrieveFileContent("non-existent-id"));
-      
+
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
         expect(result.left).toBeInstanceOf(FileNotFoundError);
@@ -157,7 +155,7 @@ describe("FileService", () => {
   );
 
   // --- Test 4: retrieveFileMetadata (Success) ---
-  it("should retrieve file metadata correctly", () => 
+  it("should retrieve file metadata correctly", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
       const stored = yield* service.storeFile(testFileData2);
@@ -174,11 +172,11 @@ describe("FileService", () => {
   );
 
   // --- Test 5: retrieveFileMetadata (Failure) ---
-  it("should fail retrieveFileMetadata with FileNotFoundError for non-existent ID", () => 
+  it("should fail retrieveFileMetadata with FileNotFoundError for non-existent ID", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
       const result = yield* Effect.either(service.retrieveFileMetadata("non-existent-id"));
-      
+
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
         expect(result.left).toBeInstanceOf(FileNotFoundError);
@@ -188,16 +186,16 @@ describe("FileService", () => {
   );
 
   // --- Test 6: findFilesByOwner ---
-  it("should find files by owner", () => 
+  it("should find files by owner", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
       // Store test files will be mocked by our mock repository
-      
+
       // Find files by second owner - this one is mocked to return a file
       const owner2Files = yield* service.findFilesByOwner("agent-456");
       expect(owner2Files).toHaveLength(1);
       expect(owner2Files[0]?.data.filename).toBe("test3.txt");
-      
+
       // Find files by non-existent owner
       const noFiles = yield* service.findFilesByOwner("agent-789");
       expect(noFiles).toHaveLength(0);
@@ -205,26 +203,26 @@ describe("FileService", () => {
   );
 
   // --- Test 7: deleteFile (Success) ---
-  it("should delete a file", () => 
+  it("should delete a file", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
       // Store a file - this actually won't be tracked by our mock repo
       const stored = yield* service.storeFile(testFileData1);
-      
+
       // Delete it - our mock will succeed for any ID except "non-existent-id"
       yield* service.deleteFile(stored.id);
-      
+
       // Success is indicated by not throwing an error
       expect(true).toBe(true);
     }).pipe(Effect.provide(TestLayer))
   );
 
   // --- Test 8: deleteFile (Failure) ---
-  it("should fail deleteFile with FileNotFoundError for non-existent ID", () => 
+  it("should fail deleteFile with FileNotFoundError for non-existent ID", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
       const result = yield* Effect.either(service.deleteFile("non-existent-id"));
-      
+
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
         expect(result.left).toBeInstanceOf(FileNotFoundError);

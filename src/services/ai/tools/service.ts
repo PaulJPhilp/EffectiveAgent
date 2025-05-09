@@ -3,6 +3,7 @@
  */
 
 import { Effect, Schema } from "effect";
+import { ToolRegistryService } from "../tool-registry/service.js";
 import type { ToolServiceApi } from "./api.js";
 import {
     ToolExecutionError,
@@ -10,9 +11,8 @@ import {
     ToolNotFoundError,
     ToolOutputValidationError
 } from "./errors.js";
-import type { FullToolName } from "./types.js";
-import { type ToolImplementation, type EffectImplementation } from "./schema.js";
-import { ToolRegistryService } from "../tool-registry/service.js";
+import { type ToolImplementation } from "./schema.js";
+import type { FullToolName, IEffectImplementation } from "./types.js";
 
 /**
  * Implementation of the Tool Service.
@@ -61,7 +61,7 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
                 }
 
                 // Cast to EffectImplementation to get proper typing
-                const effectImpl = impl as EffectImplementation<unknown, Output, any, any>;
+                const effectImpl = impl as IEffectImplementation<unknown, Output, any, any>;
 
                 // Validate input using the tool's schema
                 const validatedInput = yield* Effect.mapError(
@@ -101,4 +101,4 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
         };
     }),
     dependencies: [ToolRegistryService.Default]
-}) {}
+}) { }

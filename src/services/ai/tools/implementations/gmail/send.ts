@@ -4,9 +4,9 @@
  */
 
 import { Context, Effect, Schema, Secret } from "effect";
-import type { OAuth2Client } from 'google-auth-library';
+import type { OAuth2Client } from "google-auth-library.js";
 import { google } from 'googleapis';
-import type { gmail_v1 } from 'googleapis';
+import type { googleapis } from "googleapis.js";
 import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
@@ -16,15 +16,15 @@ export const gmailSendMessageInputSchema = Schema.Struct({
 	to: Schema.Array(Schema.String).pipe(Schema.minItems(1)),
 	subject: Schema.String,
 	body: Schema.String, // Assuming plain text body for simplicity
-	cc: Schema.Array(Schema.String).pipe(Schema.optional),
-	bcc: Schema.Array(Schema.String).pipe(Schema.optional),
+	cc: Schema.Array(Schema.String).pipe(S.optional),
+	bcc: Schema.Array(Schema.String).pipe(S.optional),
 });
 export type GmailSendMessageInput = Schema.Schema.Type<typeof gmailSendMessageInputSchema>;
 
 export const gmailSendMessageOutputSchema = Schema.Struct({
 	success: Schema.Boolean,
-	messageId: Schema.String.pipe(Schema.optional), // ID of the sent message
-	threadId: Schema.String.pipe(Schema.optional),
+	messageId: Schema.String.pipe(S.optional), // ID of the sent message
+	threadId: Schema.String.pipe(S.optional),
 });
 export type GmailSendMessageOutput = Schema.Schema.Type<typeof gmailSendMessageOutputSchema>;
 

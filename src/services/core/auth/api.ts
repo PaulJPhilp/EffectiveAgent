@@ -5,7 +5,7 @@
 
 import { Effect } from "effect";
 import type { AuthError, AuthenticationError, AuthorizationError } from "./errors.js";
-import type { AuthContext } from "./types.js";
+import { AuthContext } from "./types.js";
 
 /**
  * API interface for the Auth Service.

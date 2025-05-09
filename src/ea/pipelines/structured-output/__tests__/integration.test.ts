@@ -1,44 +1,67 @@
-import { describe, expect, it } from "@effect/vitest"
-import { Effect } from "effect"
-import {
-    StructuredOutputPipeline,
-    StructuredOutputPipelineInput
-} from "../contract.js"
-import { StructuredOutputPipelineLayer } from "../service.js"
+import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js"
+import { StructuredOutputPipeline } from "@/services/pipeline/implementations/structured-output.js"
+import { Context, Effect, Layer, Schema as S } from "effect"
+import { describe, expect, it } from "vitest"
 
-const testSchema = {
-    name: String,
-    age: Number,
-    email: String
-} as const
+// Define test schema using Schema
+class TestSchema extends S.Class<TestSchema>("TestSchema")({
+    name: S.String,
+    age: S.Number,
+    email: S.String
+}) { }
+
+// Create service tag
+class StructuredOutputTag extends Context.Tag("StructuredOutputPipeline")<
+    StructuredOutputPipeline<TestSchema>,
+    StructuredOutputPipeline<TestSchema>
+>() { }
 
 describe("StructuredOutputPipeline Integration", () => {
-    describe("Live Service Layer", () => {
-        const pipelineLayer = StructuredOutputPipelineLayer
+    const pipeline = new StructuredOutputPipeline(TestSchema)
+    const testHarness = createServiceTestHarness(
+        Layer.succeed(StructuredOutputTag, pipeline)
+    )
 
+    describe("Pipeline Integration", () => {
         it("should generate structured output matching schema", async () => {
-            const input: StructuredOutputPipelineInput<typeof testSchema> = {
-                prompt: "Generate a person object with name, age, and email",
-                schema: testSchema
+            const input = {
+                prompt: "Generate a person object with name, age, and email"
             }
-            const program = Effect.gen(function* () {
-                const pipeline = yield* StructuredOutputPipeline
-                const result = yield* pipeline.generateStructuredOutput<typeof testSchema, typeof testSchema>(input)
-                return result
+            const effect = Effect.gen(function* () {
+                const result = yield* pipeline.run(input)
+                expect(result.data).toBeDefined()
+                expect(typeof result.data.name).toBe("string")
+                expect(typeof result.data.age).toBe("number")
+                expect(typeof result.data.email).toBe("string")
+                expect(result.usage).toBeDefined()
+                expect(result.usage.totalTokens).toBeGreaterThan(0)
+                return result.data
             })
-            const result = await Effect.runPromise(
-                program.pipe(Effect.provide(pipelineLayer))
-            )
-            expect(result).toBeDefined()
-            expect(typeof result.name).toBe("string")
-            expect(typeof result.age).toBe("number")
-            expect(typeof result.email).toBe("string")
+
+            await testHarness.runTest(effect)
         })
 
-        it("should fail validation for missing required fields", async () => {
-            // Use a schema with a required field and simulate missing field by modifying the mock if possible
-            // Here, we expect the mock to always pass, so this is a placeholder for real validation
-            expect(true).toBe(true)
+        it("should fail validation for invalid input", async () => {
+            const input = {
+                prompt: "" // Invalid empty prompt
+            }
+            const effect = Effect.gen(function* () {
+                return yield* pipeline.run(input)
+            })
+
+            await expect(testHarness.runFailTest(effect)).resolves.toBeDefined()
+        })
+
+        it("should handle errors gracefully", async () => {
+            const input = {
+                prompt: "Generate a person object with name, age, and email",
+                modelId: "non-existent-model" // Invalid model ID
+            }
+            const effect = Effect.gen(function* () {
+                return yield* pipeline.run(input)
+            })
+
+            await expect(testHarness.runFailTest(effect)).resolves.toBeDefined()
         })
     })
 }) 

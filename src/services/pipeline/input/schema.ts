@@ -1,6 +1,8 @@
-import { Part as AiInputPart, ImagePart, ImageUrlPart, PartTypeId, TextPart, ToolCallPart } from "@effect/ai/AiInput";
-import {Schema as S } from "effect";
+import { EffectivePartType, FilePart, ImagePart, ImageUrlPart, PartTypeId, TextPart, ToolCallPart, ToolCallResolvedPart } from "@/services/ai/input/schema.js";
+import { Schema as S } from "effect";
 
+export { FilePart };
+export type { EffectivePartType, ImagePart, ImageUrlPart, PartTypeId, TextPart, ToolCallPart, ToolCallResolvedPart };
 
 export class TextStreamPart extends S.Class<TextStreamPart>(
     "TextStreamPart"
@@ -9,21 +11,7 @@ export class TextStreamPart extends S.Class<TextStreamPart>(
     content: S.String
 }) { }
 
-// === Main Model Definition Schema ===
-export class FilePart extends S.Class<FilePart>(
-    "FilePart"
-)({
-    _tag: S.Literal("FilePart"),
-    fileName: S.String,
-    fileContent: S.Uint8ArrayFromSelf,
-    fileType: S.String
-}) {
-    /**
-     * @since 1.0.0
-     */
-    readonly [PartTypeId]: PartTypeId = PartTypeId
 
-}
 
 // === Main Model Definition Schema ===
 export class ReasoningPart extends S.Class<ReasoningPart>(
@@ -84,7 +72,7 @@ export class ToolResultPart extends S.Class<ToolResultPart>(
 
 }
 
-export type Part = AiInputPart | FilePart | ReasoningPart | RedactedReasoningPart | ToolPart | ToolResultPart ;
+export type Part = FilePart | ReasoningPart | RedactedReasoningPart | ToolPart | ToolResultPart;
 
 
 export declare namespace EffectivePart {
@@ -103,6 +91,3 @@ export declare namespace EffectivePart {
 
 export const EffectivePart: EffectivePart.Schema = S.Union(TextPart, ImagePart, ImageUrlPart, ToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);
 
-export type EffectivePartType = S.Schema.Type<typeof EffectivePart>
-
-export { TextPart, ImagePart, ImageUrlPart, ToolCallPart}

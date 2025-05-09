@@ -2,9 +2,13 @@
  * @file Implementation of the LoggingService using Effect's built-in logger.
  */
 
-import type { JsonObject } from "@/types.js";
-import type { LoggingServiceApi } from "@core/logging/api.js";
 import { Cause, Effect, LogLevel, Option } from "effect";
+import type { LoggingServiceApi } from "./api.js";
+
+/** Type representing a JSON-serializable object */
+interface JsonObject {
+  [key: string]: string | number | boolean | null | JsonObject | JsonObject[];
+}
 
 /**
  * LoggingService implementation using Effect.Service pattern.

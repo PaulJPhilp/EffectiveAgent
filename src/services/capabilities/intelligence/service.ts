@@ -4,7 +4,7 @@
  */
 
 import { Config, ConfigProvider, Effect, Layer, Schema as S } from "effect";
-import type { IntelligenceServiceApi } from "./api.js";
+import type { ImportedType } from "./api.js";
 import { IntelligenceConfigError } from "./errors.js";
 import { IntelligenceFile, type IntelligenceType } from "./schema.js";
 

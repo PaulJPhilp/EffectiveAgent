@@ -1,4 +1,4 @@
-import type { EmbeddingGenerationOptions, EmbeddingGenerationResult } from "@/services/ai/producers/embedding/service.js";
+import type { ImportedType } from "@/services/ai/producers/embedding/service.js";
 import { Context, Effect, Layer } from "effect";
 import { type Span, Tracer } from "effect/Tracer";
 

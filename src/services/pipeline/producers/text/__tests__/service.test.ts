@@ -1,8 +1,8 @@
 import { TestHarnessService } from "@/services/test-harness/service.js";
-import { AiResponse } from "@effect/ai/AiResponse";
-import * as AiRole from "@effect/ai/AiRole";
+import { AiResponse } from "@effect/ai/AiResponse.js";
+import * as AiRole from "@effect/ai/AiRole.js";
 import { Effect, Either, Option } from "effect";
-import type { Span } from "effect/Tracer";
+import type { Tracer } from "effect";
 import { describe, expect, it } from "vitest";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "../errors.js";
 import TextService from "../service.js";

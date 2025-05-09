@@ -1,17 +1,11 @@
-import { ModelCapability } from "@/schema.js";
-import type { ModelServiceApi } from "@/services/ai/model/api.js"; 
-import { ModelService } from "@/services/ai/model/service.js"; 
-import type { EffectiveInput as GlobalEffectiveInput } from "@/types.js"; 
-import { LanguageModelV1 } from "ai";
-import { Cause, Effect, Layer, Option } from "effect"; 
-import { describe, expect, it } from "vitest";
-import type { ProviderClientApi } from "../../api.js"; 
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import { Cause, Effect, Layer, Option } from "effect";
+import { describe, expect, it, vi } from "vitest";
+import { ToolServiceApi } from "../../../tools/api.js";
 import { ProviderClient } from "../../client.js";
-import { ProviderConfigError, ProviderMissingCapabilityError, ProviderOperationError, ProviderToolError } from "../../errors.js";
-import type { EffectiveProviderApi, EffectiveResponse, GenerateEmbeddingsResult, GenerateObjectResult, GenerateSpeechResult, GenerateTextResult, ProviderChatOptions, ProviderGenerateEmbeddingsOptions, ProviderGenerateObjectOptions, ProviderGenerateSpeechOptions, ProviderGenerateTextOptions, ProviderTranscribeOptions, TranscribeResult } from "../../types.js";
-import { ToolCallRequest, ToolDefinition } from "../../types.js"; 
-import { ToolServiceApi } from "../../../tools/api.js"; 
-import { vi } from 'vitest'; 
+import { ProviderConfigError } from "../../errors.js";
+import { ToolCallRequest, ToolDefinition } from "../../types.js";
 
 import * as Anthropic from "../anthropic-provider-client.js";
 import * as Deepseek from "../deepseek-provider-client.js";
@@ -38,13 +32,13 @@ describe("ProviderClient Implementations", () => {
         setVercelProvider: vi.fn().mockReturnValue(Effect.succeed(undefined)),
         getProvider: vi.fn().mockReturnValue(Effect.succeed({
           name,
-          provider: {} as any, 
-          capabilities: new Set(["text-generation", "chat", "tool-use"] as const), 
+          provider: {} as any,
+          capabilities: new Set(["text-generation", "chat", "tool-use"] as const),
         })),
         validateToolInput: vi.fn().mockReturnValue(Effect.succeed({} as any)),
         executeTool: vi.fn().mockReturnValue(Effect.succeed({} as any)),
         processToolResult: vi.fn().mockReturnValue(Effect.succeed({} as any)),
-        chat: vi.fn().mockReturnValue(Effect.succeed({} as any)), 
+        chat: vi.fn().mockReturnValue(Effect.succeed({} as any)),
         generateText: vi.fn().mockReturnValue(Effect.succeed({} as any)),
         generateObject: vi.fn().mockReturnValue(Effect.succeed({} as any)),
         generateSpeech: vi.fn().mockReturnValue(Effect.succeed({} as any)),
@@ -68,8 +62,8 @@ describe("ProviderClient Implementations", () => {
 
         // Get the ProviderClient instance
         const client = await Effect.runPromise(
-          Effect.gen(function*() { 
-            return yield* ProviderClient; 
+          Effect.gen(function* () {
+            return yield* ProviderClient;
           }).pipe(Effect.provide(ProviderClient.Default))
         );
 
@@ -90,7 +84,7 @@ describe("ProviderClient Implementations", () => {
         const mockToolDefs: ToolDefinition[] = [
           { name: "get_weather", description: "Get current weather", parameters: { type: "object", properties: { location: { type: "string" } } } }
         ];
-        
+
         const stubModelService: ModelServiceApi = {
           exists: vi.fn().mockReturnValue(Effect.succeed(true)),
           getDefaultModelId: vi.fn().mockReturnValue(Effect.succeed("mock-default-model-id")),
@@ -103,7 +97,7 @@ describe("ProviderClient Implementations", () => {
         };
 
         const mockToolService: ToolServiceApi = {
-          run: vi.fn().mockReturnValue(Effect.succeed("mock tool output")) 
+          run: vi.fn().mockReturnValue(Effect.succeed("mock tool output"))
         };
 
         const mockToolCallRequest: ToolCallRequest = {
@@ -121,7 +115,7 @@ describe("ProviderClient Implementations", () => {
           timestamp: new Date(),
           finishReason: "tool-calls",
           usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
-          text: "", 
+          text: "",
           toolCalls: [mockToolCallRequest]
         };
 
@@ -129,10 +123,10 @@ describe("ProviderClient Implementations", () => {
           data: mockGenerateTextResultContent,
           metadata: {
             id: "eff_resp_id_abc",
-            model: "test-model-for-eff-resp", 
-            timestamp: new Date(), 
-            finishReason: "tool-calls", 
-            usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 } 
+            model: "test-model-for-eff-resp",
+            timestamp: new Date(),
+            finishReason: "tool-calls",
+            usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
           }
         };
 
@@ -141,23 +135,23 @@ describe("ProviderClient Implementations", () => {
         const localFakeProvider: EffectiveProviderApi = {
           name,
           provider: {
-            ...stubProviderClient, 
-            chat: mockUnderlyingProviderChat 
-          } as unknown as ProviderClientApi, 
-          capabilities: new Set(["chat", "text-generation", "tool-use"] as const), 
+            ...stubProviderClient,
+            chat: mockUnderlyingProviderChat
+          } as unknown as ProviderClientApi,
+          capabilities: new Set(["chat", "text-generation", "tool-use"] as const),
         };
 
         const client = await Effect.runPromise(
-          Effect.gen(function*() { 
-            return yield* ProviderClient; 
+          Effect.gen(function* () {
+            return yield* ProviderClient;
           }).pipe(Effect.provide(ProviderClient.Default))
         );
-        
+
         await Effect.runPromise(client.setVercelProvider(localFakeProvider));
 
         const chatInput: GlobalEffectiveInput = { text: "What's the weather in London?" };
         const chatOptions: ProviderChatOptions = {
-          modelId: "test-model", 
+          modelId: "test-model",
           toolService: mockToolService,
           tools: mockToolDefs
         };
@@ -176,8 +170,8 @@ describe("ProviderClient Implementations", () => {
 
       it("should delegate all methods to the base provider", async () => {
         const client: ProviderClientApi = await Effect.runPromise(
-          Effect.gen(function*() { 
-            return yield* ProviderClient; 
+          Effect.gen(function* () {
+            return yield* ProviderClient;
           }).pipe(Effect.provide(ProviderClient.Default))
         );
         expect(typeof client.generateText).toBe("function");
@@ -191,8 +185,8 @@ describe("ProviderClient Implementations", () => {
 
       it("returns ProviderConfigError for invalid setVercelProvider input", async () => {
         const client = await Effect.runPromise(
-          Effect.gen(function*() { 
-            return yield* ProviderClient; 
+          Effect.gen(function* () {
+            return yield* ProviderClient;
           }).pipe(Effect.provide(ProviderClient.Default))
         );
         // @ts-expect-error: purposely invalid input

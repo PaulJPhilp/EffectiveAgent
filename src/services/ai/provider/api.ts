@@ -1,19 +1,15 @@
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import { Effect } from "effect";
+import type { ImportedType } from "@/types.js";
+import type { Effect } from "effect";
+import type { ProviderMetadata } from "./types.js";
 
 import { ModelCapability } from "@/schema.js";
-import type { InputServiceApi } from "@/services/pipeline/input/api.js";
-import type { EffectiveInput } from "@/types.js";
-import type { ProviderToolError } from "./errors.js";
-import { LanguageModelV1 } from "@ai-sdk/provider";
+import { LanguageModelV1 } from "@ai-sdk/provider.js";
 import {
     ProviderConfigError,
     ProviderMissingCapabilityError,
-    ProviderNotFoundError,
     ProviderOperationError
 } from "./errors.js";
-import type { MissingModelIdError } from "@/services/ai/model/errors.js";
-import { ProviderFile, ProvidersType } from "./schema.js";
+import { ProvidersType } from "./schema.js";
 import {
     EffectiveProviderApi,
     EffectiveResponse,
@@ -32,29 +28,26 @@ import {
     TranscribeResult
 } from "./types.js";
 
+// Use the imported ProviderClientApi type instead of redeclaring it
+export type { ProviderClientApi } from "./types.js";
+
 /**
- * API contract for the ProviderService. Defines methods for loading provider configuration
- * and retrieving provider clients.
+ * Defines the public API for the ProviderService.
  */
-export interface ProviderServiceApi {
+export type ProviderServiceApi = {
     /**
-     * Loads provider configurations from the config provider.
-     * @returns An Effect containing the validated provider configuration or a ProviderConfigError
+     * Loads the provider configuration.
+     * Returns a ProviderFile containing ProviderMetadata objects.
      */
-    load: Effect.Effect<ProviderFile, ProviderConfigError>;
+    load: () => Effect.Effect<{ providers: ImportedType<ProviderMetadata>[], name: string, description: string }, never>;
 
     /**
-     * Retrieves and configures a provider client for the specified provider.
-     * @param providerName - The name of the provider to use
-     * @returns An Effect containing the configured provider client or an error
-     * @throws ProviderConfigError - If the provider configuration cannot be loaded or is invalid
-     * @throws ProviderNotFoundError - If the specified provider is not found in the configuration
-     * @throws ProviderOperationError - If there is an error configuring the provider
+     * Gets a provider client by name.
+     * @param providerName The name of the provider to get.
+     * @returns An Effect resolving to the provider client.
      */
-    getProviderClient(
-        providerName: ProvidersType
-    ): Effect.Effect<ProviderClientApi, ProviderConfigError | ProviderNotFoundError | ProviderOperationError>;
-}
+    getProviderClient: (providerName: string) => Effect.Effect<ImportedType<ProviderClientApi>, never>;
+};
 
 /**
  * Core provider client API interface that all providers must implement.

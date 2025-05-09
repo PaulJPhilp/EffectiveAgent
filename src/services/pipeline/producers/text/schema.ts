@@ -3,32 +3,35 @@
  * @module services/pipeline/producers/text/schema
  */
 
+import { Schema as S } from "effect";
+
+
 
 // Input types for text completion
-export class TextCompletionInput extends Schema.Class<TextCompletionInput>("TextCompletionInput")({
-  prompt: Schema.String,
-  maxTokens: Schema.optional(Schema.Number),
-  temperature: Schema.optional(Schema.Number),
-  modelId: Schema.optional(Schema.String),
-  historyId: Schema.optional(Schema.String),
-  userId: Schema.optional(Schema.String),
-  tenantId: Schema.optional(Schema.String),
-  systemPrompt: Schema.optional(Schema.String),
-  maxRetries: Schema.optional(Schema.Number),
-  topP: Schema.optional(Schema.Number),
-  topK: Schema.optional(Schema.Number),
-  presencePenalty: Schema.optional(Schema.Number),
-  frequencyPenalty: Schema.optional(Schema.Number),
-  seed: Schema.optional(Schema.Number),
-  stop: Schema.optional(Schema.Array(Schema.String)),
+export class TextCompletionInput extends S.Class<TextCompletionInput>("TextCompletionInput")({
+  prompt: S.String,
+  maxTokens: S.optional(S.Number),
+  temperature: S.optional(S.Number),
+  modelId: S.optional(S.String),
+  historyId: S.optional(S.String),
+  userId: S.optional(S.String),
+  tenantId: S.optional(S.String),
+  systemPrompt: S.optional(S.String),
+  maxRetries: S.optional(S.Number),
+  topP: S.optional(S.Number),
+  topK: S.optional(S.Number),
+  presencePenalty: S.optional(S.Number),
+  frequencyPenalty: S.optional(S.Number),
+  seed: S.optional(S.Number),
+  stop: S.optional(S.Array(S.String))
 }) { }
 
 // Output types for text completion
-export class TextCompletionOutput extends Schema.Class<TextCompletionOutput>("TextCompletionOutput")({
-  text: Schema.String,
-  usage: Schema.Class<Usage>("Usage")({
-    promptTokens: Schema.Number,
-    completionTokens: Schema.Number,
-    totalTokens: Schema.Number,
-  }),
+export class TextCompletionOutput extends S.Class<TextCompletionOutput>("TextCompletionOutput")({
+  text: S.String,
+  usage: S.optional(S.Struct({
+    promptTokens: S.Number,
+    completionTokens: S.Number,
+    totalTokens: S.Number
+  }))
 }) { }

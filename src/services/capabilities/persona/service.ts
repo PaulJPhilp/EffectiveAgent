@@ -4,10 +4,8 @@
  */
 
 import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
-import type { PersonaServiceApi } from "./api.js";
 import { PersonaConfigError } from "./errors.js";
 import { Persona, PersonasFile } from "./schema.js";
-import type { PersonaDefinition, PersonaDefinitionInput } from "./types.js";
 
 /**
  * Default implementation of the PersonaService.

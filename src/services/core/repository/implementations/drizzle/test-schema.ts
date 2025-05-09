@@ -4,7 +4,7 @@
  */
 
 import { BaseEntity } from "@/services/core/repository/types.js";
-import type { JsonObject } from "@/types.js";
+import type { ImportedType } from "@/types.js";
 import { jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export interface TestEntityData extends JsonObject {

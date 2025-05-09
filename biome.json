@@ -3,6 +3,12 @@
   "formatter": {
     "enabled": false
   },
+  "javascript": {
+    "globals": ["Buffer", "crypto"],
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -24,5 +30,10 @@
       "**/dist/**",
       "**/node_modules/**"
     ]
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
   }
 }

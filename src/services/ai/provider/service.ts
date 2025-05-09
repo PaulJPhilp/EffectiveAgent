@@ -1,10 +1,11 @@
+import { EntityParseError } from "@/errors.js";
 /**
  * @file Defines the ProviderService for loading, validating, and accessing AI provider configurations and clients.
  * @module services/ai/provider/service
  */
-
-import { EntityParseError } from "@core/errors.js";
+import { type ProviderClientApi } from "@/services/ai/provider/types.js";
 import { Config, ConfigProvider, Effect, Schema as S } from "effect";
+import { ProviderServiceApi } from "./api.js";
 import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "./errors.js";
 import { loadConfigString, parseConfigJson } from "./helpers.js";
 import { PROVIDER_NAMES } from "./provider-universe.js";
@@ -12,7 +13,7 @@ import { ProviderFile, ProvidersType } from "./schema.js";
 import { EffectiveProviderApi } from "./types.js";
 
 // --- Service Type Definition ---
-import type { ProviderServiceApi } from "./api.js";
+
 
 /**
  * Helper functions for common operations 
@@ -45,12 +46,11 @@ const validateProviderConfig = (parsedConfig: any, method: string) => {
  * Implementation of the ProviderService using the Effect.Service pattern
  * Manages AI provider configurations and client access with proper error handling
  */
-import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 
-class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderService", {
+export class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderService", {
     effect: Effect.gen(function* () {
         const configProvider = yield* ConfigProvider.ConfigProvider;
-        
+
         return {
             /**
              * Loads provider configurations from the config provider
@@ -76,7 +76,7 @@ class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderServ
                     const rawConfig = yield* loadConfigString(configProvider, "getProviderClient");
                     const parsedConfig = yield* parseConfigJson(rawConfig, "getProviderClient");
                     const validConfig = yield* validateProviderConfig(parsedConfig, "getProviderClient");
-                    
+
                     // Find the provider info
                     const providerInfo = validConfig.providers.find(p => p.name === providerName);
                     if (!providerInfo) {
@@ -86,7 +86,7 @@ class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderServ
                             method: "getProviderClient"
                         }));
                     }
-                    
+
                     // Check for API key env var
                     const apiKeyEnvVar = providerInfo.apiKeyEnvVar;
                     if (!apiKeyEnvVar) {
@@ -96,7 +96,7 @@ class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderServ
                             method: "getProviderClient"
                         }));
                     }
-                    
+
                     // Load the API key
                     const apiKey = yield* configProvider.load(Config.string(apiKeyEnvVar))
                         .pipe(
@@ -107,11 +107,11 @@ class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderServ
                                 cause: configError instanceof Error ? configError : new Error(String(configError))
                             }))
                         );
-                    
+
                     yield* Effect.log(`Using provider: ${providerName} with API key from env var: ${apiKeyEnvVar}`);
-                    
+
                     // In tests, provider client is injected through the mock layer
-                    const providerClient = {name: providerName} as EffectiveProviderApi;
+                    const providerClient = { name: providerName } as EffectiveProviderApi;
                     // Type guard for ProvidersType
                     function isProvidersType(name: string): name is ProvidersType {
                         return (PROVIDER_NAMES as readonly string[]).includes(name);
@@ -134,7 +134,4 @@ class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderServ
         };
     }),
     dependencies: []
-}) {}
-
-export { ProviderService };
-export default ProviderService;
+}) { }

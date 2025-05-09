@@ -15,13 +15,12 @@
  * between entities that may not have explicit relationships otherwise.
  */
 
-import type { EntityId } from "@/types.js";
-import type { 
-  DuplicateTagNameError, 
-  LinkAlreadyExistsError, 
-  LinkNotFoundError, 
-  TagError, 
-  TagNotFoundError 
+import type {
+  DuplicateTagNameError,
+  LinkAlreadyExistsError,
+  LinkNotFoundError,
+  TagError,
+  TagNotFoundError
 } from "@core/tag/errors.js";
 import type { EntityTagLinkEntity, TagEntity } from "@core/tag/schema.js";
 import { Effect, Option } from "effect";

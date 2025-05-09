@@ -3,91 +3,101 @@
  * @module services/tools/types
  */
 
-import { Context, Data, Effect, HashMap, ParseResult, Schema } from "effect";
-// Import error types that might be used in service signatures or implementation types
 import type {
+    EffectiveTool,
     ToolExecutionError,
     ToolInputValidationError,
-    ToolNotFoundError,
-    ToolOutputValidationError,
-} from "./errors.js"; // Adjust path if errors are defined elsewhere
+    ToolOutputValidationError
+} from "@/types.js";
+import { Effect, HashMap, Schema } from "effect";
+// Import error types that might be used in service signatures or implementation types
+import { ToolNotFoundError } from "./errors.js"; // Changed from type import to value import
 // Import the schema definition type
-import type { SimpleToolName } from "./schema.js";
+import type { EffectImplementation } from "./schema.js";
 
 // --- Naming and Implementation Types ---
 export type NamespaceName = string;
 export type OrgName = string;
-export type FullToolName = string; // e.g., "calculator", "science/calculator", "3M/science/calculator"
+export type ToolName = string;
+export type FullToolName = `${NamespaceName}:${ToolName}`;
+export type SimpleToolName = string; // Simple tool name without namespace
 export type ToolkitName = string;
 
 /**
  * Definition of a tool's metadata.
  */
-export interface ToolDefinition {
+export interface Metadata {
     readonly name: string;
     readonly description: string;
-    readonly version?: string;
-    readonly tags?: string[];
-    readonly author?: string;
-}
-
-// --- Toolkit Types ---
-
-/** 
- * Represents a collection of related tools that can be registered and used together.
- * Toolkits provide a way to group tools that are commonly used together or share
- * common dependencies or configuration.
- */
-export interface EffectiveToolkit {
-    readonly name: ToolkitName;
-    readonly description: string;
     readonly version: string;
-    readonly tools: HashMap.HashMap<SimpleToolName, EffectiveTool>;
-    readonly dependencies?: Record<string, string>; // Optional package.json style dependencies
-    readonly config?: Record<string, unknown>; // Optional shared configuration
+    readonly author: string;
+    readonly tags: readonly string[];
+    readonly category: string;
+    readonly examples: readonly {
+        readonly input: unknown;
+        readonly output: unknown;
+        readonly description: string;
+    }[];
 }
 
-const Metadata = Schema.Record({ key: Schema.String, value: Schema.Any });
-type Metadata = typeof Metadata.Type;
+// Use Schema.Record for metadata values
+export const MetadataRecord = Schema.Record({ key: Schema.String, value: Schema.Any })
+export type MetadataRecordType = typeof MetadataRecord.Type
 
-
-
-export interface EffectiveToolApi {
-    readonly execute: (input: unknown, toolMetadata: Metadata) => Effect.Effect<
-        EffectiveTool,
-        ParseResult.ParseError
+/**
+ * Service for tool execution operations
+ */
+export class ToolExecutorService extends Effect.Service<{
+    readonly run: <Output = unknown>(
+        toolName: FullToolName,
+        rawInput: unknown
+    ) => Effect.Effect<
+        Output,
+        | ToolNotFoundError
+        | ToolInputValidationError
+        | ToolOutputValidationError
+        | ToolExecutionError
     >;
-    readonly succeed: (input: unknown, toolMetadata: Metadata) => Effect.Effect<
-        EffectiveTool,
-        ParseResult.ParseError
-    >;
-    readonly fail: (input: unknown, toolMetadata: Metadata) => Effect.Effect<
-        EffectiveTool,
-        ParseResult.ParseError
-    >;
-}
+}>()(
+    "ToolExecutorService",
+    {
+        effect: Effect.succeed({
+            run: <Output = unknown>(
+                toolName: FullToolName,
+                rawInput: unknown
+            ): Effect.Effect<
+                Output,
+                | ToolNotFoundError
+                | ToolInputValidationError
+                | ToolOutputValidationError
+                | ToolExecutionError
+            > => Effect.fail(new ToolNotFoundError({ toolName, module: "ToolExecutorService", method: "run" }))
+        }),
+        dependencies: []
+    }
+) { }
 
-export class EffectiveToolService extends Effect.Service<EffectiveToolApi>()("app/EffectiveToolService", {
-    effect: Effect.succeed({
-        execute: (input: unknown, toolMetadata: Metadata) =>
-            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as unknown as EffectiveTool),
-        succeed: (input: unknown, toolMetadata: Metadata) =>
-            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as unknown as EffectiveTool),
-        fail: (input: unknown, toolMetadata: Metadata) =>
-            Effect.succeed({ definition: "", implementation: "Effect", inputSchema: {}, outputSchema: {} } as unknown as EffectiveTool),
-    })
-}) { }
+/**
+ * Service for effective tool operations
+ */
+export class EffectiveToolService extends Effect.Service<{
+    readonly execute: (input: unknown, toolMetadata: Metadata) => Effect.Effect<EffectiveTool, never>;
+    readonly succeed: (input: unknown, toolMetadata: Metadata) => Effect.Effect<EffectiveTool, never>;
+    readonly fail: (input: unknown, toolMetadata: Metadata) => Effect.Effect<EffectiveTool, never>;
+}>()(
+    "EffectiveToolService",
+    {
+        effect: Effect.succeed({
+            execute: (input: unknown, toolMetadata: Metadata) => Effect.succeed({ name: "", description: "", parameters: {}, execute: () => Effect.fail(new Error()) }),
+            succeed: (input: unknown, toolMetadata: Metadata) => Effect.succeed({ name: "", description: "", parameters: {}, execute: () => Effect.fail(new Error()) }),
+            fail: (input: unknown, toolMetadata: Metadata) => Effect.succeed({ name: "", description: "", parameters: {}, execute: () => Effect.fail(new Error()) })
+        }),
+        dependencies: []
+    }
+) { }
 
-
-export type EffectImplementation<InputA = any, InputE = any, OutputA = any, OutputE = any, R = any> = {
-    readonly _tag: "EffectImplementation";
-    // Schema types now include Encoded type parameter
-    readonly inputSchema: Schema.Schema<InputA, InputE, never>; // Use InputE for encoded input if needed
-    readonly outputSchema: Schema.Schema<OutputA, OutputE, never>; // Use OutputE for encoded output if needed
-    /** The Effect function implementing the tool's logic. Receives validated input (Type A). */
-    // Execute function receives the decoded type InputA
-    readonly execute: (input: InputA) => Effect.Effect<OutputA, ToolExecutionError, R>;
-};
+// Export the EffectImplementation type from schema
+export type { EffectImplementation, IEffectImplementation } from "./schema.js";
 
 /** Implementation using HTTP requests to external services. */
 export type HttpImplementation<InputA = any, InputE = any, OutputA = any, OutputE = any> = {
@@ -118,30 +128,39 @@ export type ToolImplementation =
     | HttpImplementation
     | McpImplementation;
 
-// EffectiveTool uses the refined ToolImplementation
-export interface EffectiveTool {
-    readonly definition: ToolDefinition;
-    readonly implementation: ToolImplementation;
+/**
+ * Represents a collection of tools for a specific namespace.
+ * Uses Effect's HashMap for consistent immutable map operations.
+ */
+export interface EffectiveWorkspace {
+    readonly tools: HashMap.HashMap<NamespaceName, HashMap.HashMap<SimpleToolName, EffectiveTool>>;
+    readonly metadata: HashMap.HashMap<NamespaceName, Metadata>;
 }
 
-/** Represents a collection of tools for a specific namespace (e.g., "stdlib", "project/science"). */
-
-
-/** Represents the collection of toolboxes within a project scope. */
-export type EffectiveWorkspace = Map<NamespaceName, HashMap.HashMap<SimpleToolName, EffectiveTool>>;
-
-/** Represents the collection of toolboxes within an organization scope (optional). */
-export type OrgWorkspaceMap = Map<OrgName, Map<NamespaceName, HashMap.HashMap<SimpleToolName, EffectiveTool>>>;
+/**
+ * Represents a collection of workspaces within an organization scope.
+ * Uses Effect's HashMap for consistent immutable map operations.
+ */
+export interface OrgWorkspaceMap {
+    readonly workspaces: HashMap.HashMap<OrgName, EffectiveWorkspace>;
+    readonly metadata: HashMap.HashMap<OrgName, Metadata>;
+}
 
 // --- Tags for Source Collections ---
 
-
-
 /** Tag identifying the EffectiveWorkspace containing the user's project-specific tools. */
-export const ProjectWorkspaceTag = Context.GenericTag<EffectiveWorkspace>("@services/tools/ProjectWorkspace");
+export interface ProjectWorkspaceShape {
+    readonly tools: HashMap.HashMap<NamespaceName, HashMap.HashMap<SimpleToolName, EffectiveTool>>;
+    readonly metadata: HashMap.HashMap<NamespaceName, Metadata>;
+}
 
-/** Tag identifying the optional organization-level workspace map. */
-// export const OrgWorkspaceTag = Context.Tag<OrgWorkspaceMap>();
+export class ProjectWorkspace extends Effect.Service<ProjectWorkspaceShape>()("ProjectWorkspace", {
+    effect: Effect.succeed({
+        tools: HashMap.empty(),
+        metadata: HashMap.empty()
+    }),
+    dependencies: []
+}) { }
 
 // --- Final Merged Tool Registry Data ---
 
@@ -150,113 +169,44 @@ export const ProjectWorkspaceTag = Context.GenericTag<EffectiveWorkspace>("@serv
  * keyed by their fully qualified name (e.g., "calculator", "science/calculator").
  * This is the data structure used directly by the ToolExecutorService.
  */
-export class ToolRegistryData extends Data.TaggedClass("ToolRegistryData")<{
-    readonly tools: HashMap.HashMap<FullToolName, EffectiveTool>;
-    readonly toolkits: HashMap.HashMap<ToolkitName, EffectiveToolkit>;
-}> { }
-
-/** Context Tag for the final, merged ToolRegistryData. */
-export const ToolRegistryDataTag = Context.GenericTag<ToolRegistryData>(
-    "@services/tools/ToolRegistryData"
-);
-
-// --- Tool Executor Service ---
-
-/**
- * Service responsible for looking up, validating, and executing tools
- * from the merged ToolRegistryData.
- */
-export interface ToolExecutorService {
-    /**
-     * Executes a registered tool by its fully qualified name with the given raw input.
-     * Handles permission checks (via context), input/output validation against the
-     * tool's registered Effect Schemas, dispatches to the correct implementation
-     * handler, and manages errors.
-     *
-     * @param toolName The fully qualified name of the tool (e.g., "calculator", "science/calculator").
-     * @param rawInput The raw input data for the tool.
-     * @returns An Effect that yields the validated tool output or fails with a specific ToolError.
-     */
-    readonly run: <Output = unknown>( // Output type can be inferred or specified by caller
-        toolName: FullToolName,
-        rawInput: unknown,
-    ) => Effect.Effect<
-        Output,
-        // Union of all possible errors during execution
-        | ToolNotFoundError
-        | ToolInputValidationError
-        | ToolOutputValidationError
-        | ToolExecutionError // Includes permission errors and implementation errors
-    >;
+export interface ToolRegistryDataShape {
+    readonly tools: HashMap.HashMap<FullToolName, ToolImplementation>;
+    readonly metadata: HashMap.HashMap<FullToolName, Metadata>;
 }
 
-/** Context Tag for the ToolExecutorService. */
-export const ToolExecutorServiceTag = Context.GenericTag<ToolExecutorService>(
-    "@services/tools/ToolExecutorService"
-);
-
-// --- Optional: Toolkit Definitions ---
-// Define ToolkitName, ToolkitDefinition, EffectiveToolkit types here if implementing toolkits
-
-/**
- * Service for tool registry
- */
-export interface ToolRegistryApi {
-    readonly _tag: "ToolRegistry"
-    readonly getData: () => Effect.Effect<ToolRegistryData, never>
-    readonly updateData: (data: ToolRegistryData) => Effect.Effect<void, never>
-}
-
-/**
- * Implementation of the ToolRegistry service using Effect.Service pattern
- */
-export class ToolRegistry extends Effect.Service<ToolRegistryApi>()(
-    "ToolRegistry",
+export class ToolRegistryData extends Effect.Service<ToolRegistryDataShape>()(
+    "ToolRegistryData",
     {
         effect: Effect.succeed({
-            _tag: "ToolRegistry" as const,
-            getData: (): Effect.Effect<ToolRegistryData, never> => {
-                // Implementation will be provided in the service file
-                throw new Error("Not implemented");
-            },
-            updateData: (data: ToolRegistryData): Effect.Effect<void, never> => {
-                // Implementation will be provided in the service file
-                throw new Error("Not implemented");
-            }
-        })
+            tools: HashMap.empty(),
+            metadata: HashMap.empty()
+        }),
+        dependencies: []
     }
 ) { }
 
 /**
- * Service for tool execution
+ * Service for tool registry operations
  */
-export interface ToolExecutorApi {
-    readonly run: <Output = unknown>(
-        toolName: FullToolName,
-        rawInput: unknown
-    ) => Effect.Effect<
-        Output,
-        ToolNotFoundError | ToolInputValidationError | ToolOutputValidationError | ToolExecutionError
-    >;
+export interface ToolRegistryApi {
+    readonly getTool: (toolName: FullToolName) => Effect.Effect<ToolImplementation, ToolNotFoundError>;
+    readonly getMetadata: (toolName: FullToolName) => Effect.Effect<Metadata, ToolNotFoundError>;
+    readonly listTools: () => Effect.Effect<FullToolName[]>;
+    readonly registerTool: (toolName: FullToolName, implementation: ToolImplementation, metadata: Metadata) => Effect.Effect<void>;
 }
 
-/**
- * Implementation of the Tool Executor service using Effect.Service pattern
- */
-export class ToolExecutor extends Effect.Service<ToolExecutorApi>()(
-    "ToolExecutor",
+export class ToolRegistry extends Effect.Service<ToolRegistryApi>()(
+    "ToolRegistry",
     {
         effect: Effect.succeed({
-            run: <Output = unknown>(
-                toolName: FullToolName,
-                rawInput: unknown
-            ): Effect.Effect<
-                Output,
-                ToolNotFoundError | ToolInputValidationError | ToolOutputValidationError | ToolExecutionError
-            > => {
-                // Implementation will be provided in the service file
-                throw new Error("Not implemented");
-            }
-        })
+            getTool: (toolName: FullToolName) =>
+                Effect.fail(new ToolNotFoundError({ toolName, module: "ToolRegistry", method: "getTool" })),
+            getMetadata: (toolName: FullToolName) =>
+                Effect.fail(new ToolNotFoundError({ toolName, module: "ToolRegistry", method: "getMetadata" })),
+            listTools: () => Effect.succeed([]),
+            registerTool: (toolName: FullToolName, implementation: ToolImplementation, metadata: Metadata) =>
+                Effect.succeed(void 0)
+        }),
+        dependencies: []
     }
 ) { }

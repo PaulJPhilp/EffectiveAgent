@@ -15,7 +15,7 @@
  * a more convenient and standardized interface for the application.
  */
 
-import type { JsonObject } from "@/types.js";
+import type { ImportedType } from "@/types.js";
 import { Cause, Effect, LogLevel } from "effect";
 
 /**

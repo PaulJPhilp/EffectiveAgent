@@ -3,17 +3,27 @@
  * @module errors
  */
 
-import { AiError } from "@effect/ai/AiError"
 import { Effect } from "effect"
+
+/**
+ * The base error class for all application-specific errors in EffectiveAgent.
+ */
+export class BaseError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = this.constructor.name
+  }
+}
 
 /**
  * The base error for all application-specific errors in EffectiveAgent.
  * Adds module, method, and any additional context needed for debugging.
  */
-export class EffectiveError extends AiError {
+export class EffectiveError extends BaseError {
   public readonly module: string
   public readonly method: string
   public readonly cause?: unknown
+  public readonly description: string
 
   constructor(params: {
     description: string
@@ -21,7 +31,8 @@ export class EffectiveError extends AiError {
     method: string
     cause?: unknown
   }) {
-    super({ description: params.description, cause: params.cause, module: params.module, method: params.method })
+    super(params.description)
+    this.description = params.description
     this.module = params.module
     this.method = params.method
     this.cause = params.cause

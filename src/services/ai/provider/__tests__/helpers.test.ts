@@ -1,5 +1,5 @@
-import { ProviderConfigError } from '@ai/provider/errors.js';
-import { loadConfigString, parseConfigJson } from '@ai/provider/helpers.js';
+import { ProviderConfigError } from "@ai/provider/errors.js";
+import { loadConfigString, parseConfigJson } from "@ai/provider/helpers.js";
 import { ConfigProvider, Effect } from 'effect';
 import { describe, expect, it } from 'vitest';
 

@@ -1,4 +1,4 @@
-import type { Effect } from "effect";
+import type { effect } from "effect";
 
 /**
  * Defines the API for assertion helper functions within the test harness.

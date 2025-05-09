@@ -2,7 +2,7 @@ import { ModelCapability } from "@/schema.js";
 import { Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
 import { ModelNotFoundError, ModelValidationError } from "../errors.js";
-import type { PublicModelInfoDefinition } from "../schema.js";
+import type { ImportedType } from "../schema.js";
 import { ModelService } from "../service.js";
 
 // Create a test layer that provides ModelService

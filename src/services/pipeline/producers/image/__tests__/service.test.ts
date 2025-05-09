@@ -5,10 +5,8 @@
 
 import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
 import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
-import { describe, it } from "@effect/vitest";
 import { Effect, Layer, Option } from "effect";
-import type { Span } from "effect/Tracer";
-import { expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { ImageModelError, ImageSizeError } from "../errors.js";
 import { ImageService } from "../service.js";
 
@@ -36,7 +34,7 @@ describe("ImageService", () => {
         )
     );
 
-    it("should generate image with valid options", () => 
+    it("should generate image with valid options", () =>
         Effect.gen(function* (_) {
             const fixtures = yield* FixtureService;
             const mocks = yield* MockAccessorService;
@@ -59,7 +57,7 @@ describe("ImageService", () => {
         )
     );
 
-    it("should fail with invalid size", () => 
+    it("should fail with invalid size", () =>
         Effect.gen(function* (_) {
             const fixtures = yield* FixtureService;
             const mocks = yield* MockAccessorService;
@@ -80,7 +78,7 @@ describe("ImageService", () => {
         )
     );
 
-    it("should fail with invalid model", () => 
+    it("should fail with invalid model", () =>
         Effect.gen(function* (_) {
             const fixtures = yield* FixtureService;
             const mocks = yield* MockAccessorService;
@@ -100,7 +98,7 @@ describe("ImageService", () => {
         )
     );
 
-    it("should include negative prompt when provided", () => 
+    it("should include negative prompt when provided", () =>
         Effect.gen(function* (_) {
             const fixtures = yield* FixtureService;
             const mocks = yield* MockAccessorService;
@@ -124,7 +122,7 @@ describe("ImageService", () => {
         )
     );
 
-    it("should include system prompt when provided", () => 
+    it("should include system prompt when provided", () =>
         Effect.gen(function* (_) {
             const fixtures = yield* FixtureService;
             const mocks = yield* MockAccessorService;

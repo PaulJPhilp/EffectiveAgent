@@ -14,11 +14,11 @@
  * along with metadata such as original filename, content type, and size.
  */
 
-import type { EntityId } from "@/types.js";
-import type { FileError, FileNotFoundError } from "@core/file/errors.js";
-import type { FileEntity } from "@core/file/schema.js";
-import type { FileInfo, FileInput } from "@core/file/types.js";
 import { Effect } from "effect";
+import type { EntityId } from "../../../types.js";
+import type { FileError, FileNotFoundError } from "./errors.js";
+import type { FileEntity } from "./schema.js";
+import type { FileInfo, FileInput } from "./types.js";
 
 /**
  * Interface defining operations for storing and retrieving file content

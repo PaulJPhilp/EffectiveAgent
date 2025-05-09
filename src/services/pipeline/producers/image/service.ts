@@ -2,25 +2,25 @@
  * @file Implements the ImageService for handling AI image generation.
  * @module services/ai/producers/image/service
  */
-
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import { EffectiveError } from "@/errors.js";
+import { ModelServiceApi } from "@/services/ai/index.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { AiError } from "@effect/ai/AiError";
-import { Message } from "@effect/ai/AiInput";
+import { GenerateImageResult } from "@/services/ai/provider/types.js";
+import { EffectiveResponse, Message } from "@/types.js";
 
+import { EffectiveInput } from "@/types.js";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
-import type { Span } from "effect/Tracer";
+import { Span } from "effect/Tracer";
 import { ImageGenerationError, ImageModelError, ImageProviderError, ImageSizeError } from "./errors.js";
+import { TextPart, User } from "@/services/ai/input/schema.js";
 
 /**
  * Result shape expected from the underlying provider client's generateImage method
  */
-// ProviderImageGenerationResult now matches EffectiveResponse<GenerateImageResult>
-export type ProviderImageGenerationResult = import("@/services/ai/provider/types.js").EffectiveResponse<import("@/services/ai/provider/types.js").GenerateImageResult>;
-
+export type ProviderImageGenerationResult = EffectiveResponse<GenerateImageResult>;
 
 /**
  * Supported image sizes
@@ -136,7 +136,7 @@ export interface ImageGenerationResult {
  * ImageService interface for handling AI image generation
  */
 export interface ImageServiceApi {
-    readonly generate: (options: ImageGenerationOptions) => Effect.Effect<ImageGenerationResult, AiError>;
+    readonly generate: (options: ImageGenerationOptions) => Effect.Effect<GenerateImageResult, EffectiveError>;
 }
 
 /**
@@ -226,9 +226,14 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                     if (options.style) {
                         yield* Effect.annotateCurrentSpan("ai.image.style", options.style);
                     }
-
                     // Create EffectiveInput from the final prompt
-                    const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
+                    const effectiveInput = new EffectiveInput(
+                        finalPrompt,
+                        Chunk.make(new Message({
+                            role: new User(),
+                            parts: Chunk.make(new TextPart({ content: finalPrompt }))
+                        }))
+                    );
 
                     // Generate the image using the provider's generateImage method
                     const result = yield* Effect.promise(
@@ -243,7 +248,6 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                                 signal: options.signal,
                                 parameters: {
                                     maxTokens: options.parameters?.maxTokens,
-                                    maxRetries: options.parameters?.maxRetries,
                                     temperature: options.parameters?.temperature,
                                     topP: options.parameters?.topP,
                                     topK: options.parameters?.topK,

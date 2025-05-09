@@ -40,21 +40,24 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
 
           const matchingRules = Array.from(HashMap.values(rules))
             .filter(rule => {
-              const resourceMatch = rule.data.resource === context.operationType;
-              const enabled = rule.data.enabled;
+              const entity = rule as PolicyRuleEntity
+              const resourceMatch = entity.data.resource === context.operationType;
+              const enabled = entity.data.enabled;
               return enabled && resourceMatch;
             });
 
           // Check rate limits
           for (const rule of matchingRules) {
-            if (rule.data.rateLimit) {
-              const { maxRequests, windowSeconds, scope } = rule.data.rateLimit;
+            const entity = rule as PolicyRuleEntity
+            if (entity.data.rateLimit) {
+              const { requestsPerMinute, tokensPerMinute, scope } = entity.data.rateLimit;
               const key = scope === 'user'
-                ? `${context.auth.userId}:${rule.id}`
-                : `global:${rule.id}`;
+                ? `${context.auth.userId}:${entity.id}`
+                : `global:${entity.id}`;
 
               const now = Date.now();
-              const windowMs = windowSeconds * 1000;
+              // There is no windowSeconds; the window is per minute (60,000 ms)
+              const windowMs = 60000;
               const rateLimits = yield* Ref.get(rateLimitRepo);
               const current = HashMap.get(rateLimits, key);
 
@@ -64,11 +67,11 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
                   count: 1,
                   windowStart: now
                 }));
-              } else if (current.value.count >= maxRequests) {
+              } else if (requestsPerMinute !== undefined && current.value.count >= requestsPerMinute) {
                 // Rate limit exceeded
                 return {
                   allowed: false,
-                  reason: `Rate limit exceeded: ${maxRequests} requests per ${windowSeconds} seconds`,
+                  reason: `Rate limit exceeded: ${requestsPerMinute} requests per minute`,
                   effectiveModel: context.requestedModel
                 };
               } else {
@@ -88,8 +91,12 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
             };
           }
 
-          matchingRules.sort((a, b) => a.data.priority - b.data.priority);
-          const highestPriorityRule = matchingRules[0];
+          matchingRules.sort((a, b) => {
+            const entityA = a as PolicyRuleEntity
+            const entityB = b as PolicyRuleEntity
+            return entityA.data.priority - entityB.data.priority
+          });
+          const highestPriorityRule = matchingRules[0] as PolicyRuleEntity;
 
           if (highestPriorityRule.data.type === "deny") {
             return {
@@ -184,12 +191,12 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
           }
 
           const updatedData = {
-            ...existingRule.value.data,
+            ...((existingRule.value as PolicyRuleEntity).data),
             ...updates
           };
 
           const updatedRule: PolicyRuleEntity = {
-            ...existingRule.value,
+            ...(existingRule.value as PolicyRuleEntity),
             data: updatedData,
             updatedAt: new Date().toISOString()
           };

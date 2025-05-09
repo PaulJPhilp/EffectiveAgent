@@ -5,7 +5,7 @@
 
 import { ModelCapability } from "@/schema.js";
 import { Effect } from "effect";
-import type { ModelServiceApi } from "./api.js";
+import type { ImportedType } from "./api.js";
 import {
     ModelNotFoundError,
     ModelValidationError

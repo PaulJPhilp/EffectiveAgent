@@ -4,7 +4,7 @@
 
 import { BaseEntitySchema } from "@/schema.js";
 import { EntityId } from "@/types.js";
-import { Schema } from "@effect/schema";
+import { Schema as S } from "@effect/schema.js";
 
 // Helper for EntityId schema
 function EntityIdSchema() {
@@ -18,7 +18,7 @@ const AttachmentLinkEntityDataSchema = Schema.Struct({
     entityB_id: EntityIdSchema(),
     entityB_type: Schema.String.pipe(Schema.minLength(1)),
     // linkType is optional for now based on PRD
-    linkType: Schema.optional(Schema.String.pipe(Schema.minLength(1))),
+    linkType: S.optional(Schema.String.pipe(Schema.minLength(1))),
 });
 
 // Full entity schema

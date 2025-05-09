@@ -3,7 +3,7 @@
  */
 
 import { Data } from "effect";
-import type { EntityId } from "../../../types.js";
+import type { ImportedType } from "../../../types.js";
 
 // --- Base Repository Error Context ---
 interface RepositoryErrorContext {

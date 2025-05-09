@@ -3,16 +3,15 @@
  * @module services/ai/producers/transcription/service
  */
 
+import { EffectiveError } from "@/errors.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
-import type { EffectiveResponse } from "@/services/ai/pipeline/types.js";
-import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { AiError } from "@effect/ai/AiError";
 import { Layer } from "effect";
 import * as Effect from "effect/Effect";
-import type { Span } from "effect/Tracer";
+import { Span } from "effect/Tracer";
 import { TranscriptionAudioError, TranscriptionError, TranscriptionModelError, TranscriptionProviderError } from "./errors.js";
+import { EffectiveResponse } from "@/types.js";
 
 /**
  * Supported audio formats for transcription
@@ -99,7 +98,7 @@ export interface TranscriptionResult {
  * TranscriptionService interface for handling AI audio transcription
  */
 export interface TranscriptionServiceApi {
-    readonly transcribe: (options: TranscriptionOptions) => Effect.Effect<TranscriptionResult, AiError>;
+    readonly transcribe: (options: TranscriptionOptions) => Effect.Effect<TranscriptionResult, EffectiveError>;
 }
 
 /**
@@ -141,11 +140,10 @@ export class TranscriptionService extends Effect.Service<TranscriptionServiceApi
                             cause: error
                         }))
                     );
-
                     // Get provider client
-                    const providerClient: ProviderClientApi = yield* providerService.getProviderClient(providerName).pipe(
+                    const providerClient = yield* providerService.getProviderClient(providerName).pipe(
                         Effect.mapError((error) => new TranscriptionProviderError({
-                            description: "Failed to get provider client",
+                            description: "Failed to get provider client", 
                             module: "TranscriptionService",
                             method: "transcribe",
                             cause: error

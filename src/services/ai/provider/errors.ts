@@ -4,8 +4,11 @@
  */
 
 import { EffectiveError } from "@/errors.js";
-import type { ModelCapability } from "@/schema.js";
-import type { ProvidersType } from "./schema.js";
+import { PROVIDER_NAMES } from "./provider-universe.js";
+import type { ModelCapability } from "./types.js";
+
+// Use the provider names array to create the type
+type ProvidersType = typeof PROVIDER_NAMES[number];
 
 /**
  * Base error type for provider-related errors
@@ -285,41 +288,5 @@ export class TranscribeError extends EffectiveError {
 export class GenerateEmbeddingsError extends EffectiveError {
     constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
         super(params);
-    }
-}
-
-/**
- * Error thrown when tool execution or validation fails.
- * @extends ProviderOperationError
- */
-export class ProviderToolError extends ProviderOperationError {
-    public readonly toolName: string;
-
-    /**
-     * @param params - Error details
-     * @param params.toolName - Name of the tool that failed
-     * @param params.message - Error message
-     * @param params.providerName - Provider name
-     * @param params.module - Module name
-     * @param params.method - Method name
-     * @param params.cause - Optional cause
-     */
-    constructor(params: { 
-        toolName: string;
-        message: string;
-        providerName: string;
-        module: string;
-        method: string;
-        cause?: unknown;
-    }) {
-        super({
-            operation: 'tool',
-            message: `Tool '${params.toolName}' failed: ${params.message}`,
-            providerName: params.providerName,
-            module: params.module,
-            method: params.method,
-            cause: params.cause
-        });
-        this.toolName = params.toolName;
     }
 }

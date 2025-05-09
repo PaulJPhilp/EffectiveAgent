@@ -1,7 +1,7 @@
 import { Effect } from "effect";
-import type { Either } from "effect/Either";
-import type { Exit } from "effect/Exit";
-import type { EffectRunnerApi } from "./api.js";
+import type { Either } from "effect";
+import type { Exit } from "effect";
+import type { ImportedType } from "./api.js";
 
 // Helper function to swap the generic parameters in Either
 const swapEither = <E, A>(either: Either<A, E>): Either<E, A> => {

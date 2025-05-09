@@ -1,8 +1,3 @@
-import type { AssertionHelperApi } from "./components/assertion-helpers/api.ts";
-import type { ContextApi } from "./components/context/api.ts";
-import type { EffectRunnerApi } from "./components/effect-runners/api.ts";
-import type { FixtureApi } from "./components/fixtures/api.ts";
-import type { MockAccessorApi } from "./components/mock-accessors/api.ts";
 
 /**
  * Defines the public API exposed by a test harness instance created

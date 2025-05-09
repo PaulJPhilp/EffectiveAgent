@@ -6,9 +6,8 @@ interface AiServiceDeps {
   providerService: unknown;
 }
 
-import { EffectiveError } from "@/errors.js";
-import { AiResponse } from "@effect/ai/AiResponse";
-import { User } from "@effect/ai/AiRole";
+import { User } from "@/services/ai/input/schema.js";
+import { AiResponse } from "@effect/ai";
 
 export class TestChatService extends Effect.Service<ChatServiceApi>()('TestChatService', {
   effect: Effect.succeed({
@@ -20,6 +19,6 @@ export class TestChatService extends Effect.Service<ChatServiceApi>()('TestChatS
         })
       )
   })
-}) {}
+}) { }
 
 export default TestChatService;

@@ -161,3 +161,95 @@ An `ExecutablePipeline` is a concrete, configured instance of a `Blueprint`, rea
 This version incorporates the `Blueprint.extend` mechanism with the specified merging rules and the requirement for a new executor factory. It also clarifies the role of `PipelineElement` and the overall flow.
 
 How does this V0.2 draft feel, Paul?
+
+
+import * as S from "@effect/schema/Schema";
+import { Effect, Either } from "effect";
+
+// --- Blueprint ---
+
+/**
+ * Defines the configuration parameters accepted by a Blueprint using S.Schema.
+ * Keys are parameter names, values are their Schema definitions.
+ * Example: { model: S.string, temp: S.optional(S.number).pipe(S.withDefault(() => 0.7)) }
+ */
+export type BlueprintSchema = Record<string, S.Schema<any>>;
+
+/**
+ * Represents a Blueprint definition. Holds the configuration schema.
+ * Contains no execution logic.
+ */
+export interface Blueprint<Schema extends BlueprintSchema> {
+  /**
+   * The definition of configuration parameters for this Blueprint.
+   */
+  readonly definition: Schema;
+}
+
+/**
+ * Functions for creating and extending Blueprints.
+ */
+export interface BlueprintStatic {
+  /**
+   * Creates a base Blueprint from a configuration schema definition.
+   */
+  make<Schema extends BlueprintSchema>(definition: Schema): Blueprint<Schema>;
+
+  /**
+   * Creates a specialized Blueprint by extending a base Blueprint.
+   * Merges schemas: 'toolNames' defaults accumulate, other duplicates fail.
+   */
+  extend<BaseSchema extends BlueprintSchema, ExtSchema extends BlueprintSchema>(
+    baseBlueprint: Blueprint<BaseSchema>,
+    extensionSchema: ExtSchema,
+  ): Blueprint<Omit<BaseSchema, keyof ExtSchema> & ExtSchema>; // Simplified merged type
+}
+
+// --- Pipeline ---
+
+/**
+ * Represents a runnable Pipeline instance.
+ * Holds execution logic and uses a resolved configuration.
+ */
+export interface Pipeline<
+  InputType = any,
+  OutputType = any,
+  ErrorType = any,
+  RequirementsType = any,
+> {
+  /**
+   * Executes the pipeline's logic.
+   * @returns An Effect representing the execution.
+   */
+  execute: (
+    input: InputType,
+  ) => Effect.Effect<OutputType, ErrorType, RequirementsType>;
+}
+
+/**
+ * Describes a function that creates a Pipeline instance.
+ * It validates user-provided values against a Blueprint definition.
+ */
+export interface PipelineFactory<
+  Schema extends BlueprintSchema, // The Blueprint schema this factory uses
+  InputType = unknown,
+  OutputType = unknown,
+  ErrorType = unknown,
+  RequirementsType = never,
+> {
+  /**
+   * Creates a Pipeline instance.
+   * @param blueprint The Blueprint defining the expected configuration.
+   * @param values The user-provided configuration values for this instance.
+   * @returns An Either containing the Pipeline instance or a configuration error.
+   */
+  (
+    blueprint: Blueprint<Schema>,
+    // User provides values matching the schema's input types (before defaults/optional)
+    // Using 'any' here simplifies the interface definition, implementation needs stricter types.
+    values: S.Schema.From<S.Struct<Schema>> | Record<string, any>, // Input values from user
+  ): Either.Either<
+    S.ParseError,
+    Pipeline<InputType, OutputType, ErrorType, RequirementsType>
+  >;
+}

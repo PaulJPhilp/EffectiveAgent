@@ -3,14 +3,12 @@
  * @module services/core/repository/implementations/drizzle/live
  */
 
-import type { EntityId, JsonObject } from "@/types.js";
 import { SQL, and, eq, sql } from "drizzle-orm";
 import { Context, Effect, Layer, Option } from "effect";
 import { v4 as uuidv4 } from "uuid";
 import { DuplicateEntryError, EntityNotFoundError, RepositoryError } from "../../errors.js";
-import type { BaseEntity, FindOptions, RepositoryApi } from "../../types.js";
+import type { BaseEntity, FindOptions } from "../../types.js";
 import { DrizzleClient } from "./config.js";
-import type { BaseModel, BaseTable } from "./schema.js";
 
 /**
  * Creates a drizzle-orm repository implementation

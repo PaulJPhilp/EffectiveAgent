@@ -2,8 +2,7 @@
  * @file Test suite for InputService
  */
 
-import { Message, TextPart } from "@effect/ai/AiInput";
-import { Model, User } from "@effect/ai/AiRole";
+import { Message, Model, TextPart, User } from "@/services/ai/input/schema.js";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 import { InvalidInputError, InvalidMessageError, NoAudioFileError } from "../errors.js";
@@ -43,11 +42,17 @@ describe("InputService", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
 
             expect(messageArray.length).toBe(1);
+            if (messageArray[0]?.role?.kind !== "user") {
+                throw new Error("Message role is not a user")
+            }
             expect(messageArray[0].role.kind).toBe("user");
             expect(messageArray[0].parts.length).toBe(1);
 
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
+            if (parts[0] === undefined) {
+                throw new Error("Part is undefined")
+            }
             expect((parts[0] as TextPart).content).toBe("Hello");
         }).pipe(
             Effect.provideService(InputService, mockMessageCreation)
@@ -67,7 +72,11 @@ describe("InputService", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
 
             expect(messageArray.length).toBe(1);
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
             expect(messageArray[0].role.kind).toBe("model");
+
             expect(messageArray[0].parts.length).toBe(1);
 
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
@@ -86,6 +95,9 @@ describe("InputService", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
 
             expect(messageArray.length).toBe(1);
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
             expect(messageArray[0].role.kind).toBe("model");
             expect(messageArray[0].parts.length).toBe(1);
 
@@ -132,6 +144,9 @@ describe("message parts", () => {
             const messages = yield* service.getMessages();
             const messageArray = Chunk.toReadonlyArray(messages);
             expect(messageArray.length).toBe(1);
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
 
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
             expect(parts.length).toBe(1);
@@ -176,6 +191,9 @@ describe("message parts", () => {
             const messages = yield* service.getMessages();
             const messageArray = Chunk.toReadonlyArray(messages);
             expect(messageArray.length).toBe(1);
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
 
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
             expect(parts.length).toBe(1);
@@ -234,6 +252,7 @@ describe("message parts", () => {
             new Message({
                 role: new Model(),
                 parts: Chunk.make(new TextPart({
+                    _tag: "TextPart",
                     content: "2"
                 }))
             })
@@ -277,15 +296,15 @@ describe("message management", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: new User(),
-                parts: Chunk.make(new TextPart({ content: "First" }))
+                parts: Chunk.make(new TextPart({ _tag: "TextPart", content: "First" }))
             }),
             new Message({
                 role: new Model(),
-                parts: Chunk.make(new TextPart({ content: "Second" }))
+                parts: Chunk.make(new TextPart({ _tag: "TextPart", content: "Second" }))
             }),
             new Message({
                 role: new Model(),
-                parts: Chunk.make(new TextPart({ content: "Third" }))
+                parts: Chunk.make(new TextPart({ _tag: "TextPart", content: "Third" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -392,11 +411,28 @@ describe("message management", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
             expect(messageArray.length).toBe(3);
 
-            // Each message should have a single text part that represents the original part
-            const parts1 = Chunk.toReadonlyArray(messageArray[0].parts);
-            const parts2 = Chunk.toReadonlyArray(messageArray[1].parts);
-            const parts3 = Chunk.toReadonlyArray(messageArray[2].parts);
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
 
+            if (messageArray[1] === undefined) {
+                throw new Error("Message is undefined")
+            }
+            const parts1 = Chunk.toReadonlyArray(messageArray[0].parts);
+            if (parts1[0] === undefined) {
+                throw new Error("Part is undefined")
+            }
+            const parts2 = Chunk.toReadonlyArray(messageArray[1].parts);
+            if (parts2[0] === undefined) {
+                throw new Error("Part is undefined")
+            }
+            if (messageArray[2] === undefined) {
+                throw new Error("Message is undefined")
+            }
+            const parts3 = Chunk.toReadonlyArray(messageArray[2].parts);
+            if (parts3[0] === undefined) {
+                throw new Error("Part is undefined")
+            }
             expect((parts1[0] as TextPart).content).toBe("Initial text");
             expect((parts2[0] as TextPart).content).toContain("File: test.txt");
             expect((parts3[0] as TextPart).content).toBe("Additional reasoning");
@@ -437,6 +473,9 @@ describe("role mapping", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
 
             // Verify role mapping
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
             expect(messageArray[0].role.kind).toBe("user");
         }).pipe(
             Effect.provideService(InputService, mockUserRole)
@@ -448,7 +487,7 @@ describe("role mapping", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: new Model(),
-                parts: Chunk.make(new TextPart({ content: "Test" }))
+                parts: Chunk.make(new TextPart({ _tag: "TextPart", content: "Test" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -473,6 +512,9 @@ describe("role mapping", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
 
             // Verify role mapping
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
             expect(messageArray[0].role.kind).toBe("model");
         }).pipe(
             Effect.provideService(InputService, mockAssistantRole)
@@ -504,6 +546,9 @@ describe("role mapping", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
 
             // Verify role mapping
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
             expect(messageArray[0].role.kind).toBe("model");
         }).pipe(
             Effect.provideService(InputService, mockSystemRole)
@@ -525,6 +570,9 @@ describe("message operations", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
 
             expect(messageArray.length).toBe(1);
+            if (messageArray[0] === undefined) {
+                throw new Error("Message is undefined")
+            }
             expect(messageArray[0].role.kind).toBe("user");
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
@@ -570,6 +618,9 @@ describe("text operations", () => {
 
             const messages = yield* service.getMessages();
             const message = Chunk.toReadonlyArray(messages)[0];
+            if (message === undefined) {
+                throw new Error("Message is undefined")
+            }
 
             expect(message.role.kind).toBe("user");
             const parts = Chunk.toReadonlyArray(message.parts);
@@ -605,6 +656,9 @@ describe("part operations", () => {
             const message = Chunk.toReadonlyArray(messages)[0];
 
             expect(message).toBeDefined();
+            if (message === undefined) {
+                throw new Error("Message is undefined")
+            }
             const parts = Chunk.toReadonlyArray(message.parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
             expect((parts[0] as TextPart).content).toContain("test.wav");
@@ -627,6 +681,9 @@ describe("part operations", () => {
             const message = Chunk.toReadonlyArray(messages)[0];
 
             expect(message).toBeDefined();
+            if (message === undefined) {
+                throw new Error("Message is undefined")
+            }
             const parts = Chunk.toReadonlyArray(message.parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
             expect((parts[0] as TextPart).content).toContain("calculator");

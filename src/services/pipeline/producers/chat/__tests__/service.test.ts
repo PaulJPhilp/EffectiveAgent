@@ -3,19 +3,18 @@
  * @module services/ai/producers/chat/__tests__/service
  */
 
+import { EffectiveError } from "@/errors.js";
 import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
 import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
-import { TextPart as InputTextPart, Message } from "@effect/ai/AiInput";
-import { TextPart as ResponseTextPart } from "@effect/ai/AiResponse";
-import { User } from "@effect/ai/AiRole";
-import { describe, it } from "@effect/vitest";
+import { Message, User } from "@/types.js";
+import { TextPart as ResponseTextPart } from "@effect/ai/AiResponse.js";
 import { Chunk, Effect, Either, Option } from "effect";
 import type * as JsonSchema from "effect/JSONSchema";
 import type { Span } from "effect/Tracer";
-import { expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import type { ChatCompletionOptions } from "../api.js";
 import { ChatParameterError, ChatToolError } from "../errors.js";
 import { ChatService } from "../service.js";
-import type { ChatCompletionOptions } from "../service.js";
 
 describe("ChatService", () => {
   it("should handle abort signal", () => {
@@ -472,5 +471,80 @@ describe("ChatService", () => {
         }
       })
     );
+  });
+
+  describe("generate", () => {
+    const mockSpan = {} as Span;
+
+    const createBaseRequest = (tools: ChatCompletionOptions["tools"] = []): ChatCompletionOptions => ({
+      modelId: "test-model",
+      input: "Hello, how are you?",
+      span: mockSpan,
+      tools
+    });
+
+    it("should generate a chat completion", async () => {
+      const service = new ChatService({
+        generate: () => Effect.succeed({
+          data: {
+            output: "I'm doing well, thank you!",
+            usage: {
+              promptTokens: 10,
+              completionTokens: 5,
+              totalTokens: 15
+            }
+          }
+        })
+      });
+
+      const result = await Effect.runPromise(
+        service.generate(createBaseRequest())
+      );
+
+      expect(result.data.output).toBe("I'm doing well, thank you!");
+      expect(result.data.usage?.totalTokens).toBe(15);
+    });
+
+    it("should handle empty input", async () => {
+      const service = new ChatService({
+        generate: () => Effect.succeed({
+          data: {
+            output: "Response",
+            usage: {
+              promptTokens: 10,
+              completionTokens: 5,
+              totalTokens: 15
+            }
+          }
+        })
+      });
+
+      const request = createBaseRequest();
+      request.input = "";
+
+      const result = await Effect.runPromise(
+        Effect.either(service.generate(request))
+      );
+
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        expect(result.left.message).toContain("Input text is required");
+      }
+    });
+
+    it("should handle model not found", async () => {
+      const service = new ChatService({
+        generate: () => Effect.fail(new EffectiveError("Model not found"))
+      });
+
+      const result = await Effect.runPromise(
+        Effect.either(service.generate(createBaseRequest()))
+      );
+
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        expect(result.left.message).toContain("Failed to generate chat completion");
+      }
+    });
   });
 });

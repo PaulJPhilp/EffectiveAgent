@@ -7,11 +7,10 @@ import { mockService, provideMockService, withResource } from "@/services/core/t
 import { createTypedMock, mockFailure, mockSuccess } from "@/services/core/test-harness/utils/typed-mocks.js";
 import { Effect } from "effect"
 import { describe, expect, it } from "vitest";
-import type { ProviderClientApi, ProviderServiceApi } from "../api.js"
 import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "../errors.js"
 import { ProviderFile } from "../schema.js"
 import { ProviderService } from "../service.js"
-import type { EffectiveProviderApi, EffectiveResponse, GenerateEmbeddingsResult, GenerateImageResult, GenerateObjectResult, GenerateSpeechResult, GenerateTextResult, TranscribeResult } from "../types.js";
+import type { ImportedType } from "../types.js";
 
 // Valid test config
 const validConfig: ProviderFile = {

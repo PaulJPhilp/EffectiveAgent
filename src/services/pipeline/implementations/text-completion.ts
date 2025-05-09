@@ -3,7 +3,7 @@
  * @module framework/pipeline/text-completion
  */
 
-import type { EffectiveError } from "@/errors.js";
+import type { ImportedType } from "@/errors.js";
 import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
 import TextService from "@/services/pipeline/producers/text/service.js";

@@ -6,7 +6,7 @@
 import { Cause, Effect, Exit, Option } from "effect";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { EntityNotFoundError } from "../../../errors.js";
-import type { BaseEntity } from "../../../types.js";
+import type { ImportedType } from "../../../types.js";
 import { DrizzleClient } from "../config.js";
 import { make } from "../live.js";
 import { TestEntityData, testTable } from "../test-schema.js";

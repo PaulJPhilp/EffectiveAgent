@@ -29,319 +29,389 @@ export class AIError extends EffectiveError {
     }
 }
 
-export class ChatCompletionError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+/**
+ * Base error class for AI-related errors
+ */
+export class ChatCompletionError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "chat_completion_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "ChatCompletion",
+            method: params.method ?? "execute",
+        });
     }
 }
 
-export class ChatModelError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class ChatModelError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "chat_model_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "ChatModel",
+            method: params.method ?? "execute",
+        });
     }
 }
 
-export class ChatProviderError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class ChatProviderError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "chat_provider_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "ChatProvider",
+            method: params.method ?? "execute",
+        });
     }
 }
 
 /**
  * Error thrown when authentication fails with the AI provider
  */
-export class AuthenticationError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class AuthenticationError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "authentication_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Authentication",
+            method: params.method ?? "authenticate",
+        });
     }
 }
 
 /**
  * Error thrown when rate limits are exceeded
  */
-export class RateLimitError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class RateLimitError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "rate_limit_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "RateLimit",
+            method: params.method ?? "check",
+        });
     }
 }
 
 /**
  * Error thrown when the request is invalid
  */
-export class InvalidRequestError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class InvalidRequestError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "invalid_request_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Request",
+            method: params.method ?? "validate",
+        });
     }
 }
 
 /**
  * Error thrown when the model is not found or invalid
  */
-export class ModelError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class ModelError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "model_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Model",
+            method: params.method ?? "execute",
+        });
     }
 }
 
 /**
  * Error thrown when the context length is exceeded
  */
-export class ContextLengthError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class ContextLengthError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "context_length_exceeded",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Context",
+            method: params.method ?? "validate",
+        });
     }
 }
 
 /**
  * Error thrown when there are content filtering/moderation issues
  */
-export class ContentFilterError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class ContentFilterError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "content_filter_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "ContentFilter",
+            method: params.method ?? "check",
+        });
     }
 }
 
 /**
  * Error thrown when there are issues with the provider configuration
  */
-export class ProviderConfigError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class ProviderConfigError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "provider_config_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "ProviderConfig",
+            method: params.method ?? "configure",
+        });
     }
 }
 
 /**
  * Error thrown when the provider API returns an error
  */
-export class ProviderAPIError extends AIError {
-    readonly status?: number
-    readonly response?: unknown
-
-    constructor(message: string, options?: ErrorOptions & {
-        status?: number
-        response?: unknown
+export class ProviderAPIError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+        status?: number;
     }) {
         super({
-            message,
-            code: "provider_api_error",
-            ...options
-        })
-        this.status = options?.status
-        this.response = options?.response
+            ...params,
+            module: params.module ?? "ProviderAPI",
+            method: params.method ?? "call",
+        });
     }
 }
 
 /**
  * Error thrown when a timeout occurs
  */
-export class TimeoutError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class TimeoutError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "timeout_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Timeout",
+            method: params.method ?? "check",
+        });
     }
 }
 
 /**
  * Error thrown when there are streaming issues
  */
-export class StreamingError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class StreamingError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "streaming_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Streaming",
+            method: params.method ?? "process",
+        });
     }
 }
 
 /**
  * Error thrown when there are validation issues
  */
-export class ValidationError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class ValidationError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "validation_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Validation",
+            method: params.method ?? "validate",
+        });
     }
 }
 
 /**
  * Error thrown when there are parsing issues
  */
-export class ParsingError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class ParsingError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "parsing_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Parsing",
+            method: params.method ?? "parse",
+        });
     }
 }
 
 /**
  * Error thrown when there are rendering issues
  */
-export class RenderingError extends AIError {
-    readonly templateSnippet?: string
-    readonly templateName?: string
-
-    constructor(options: {
-        message: string
-        cause?: Error
-        templateSnippet?: string
-        templateName?: string
+export class RenderingError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
     }) {
         super({
-            message: options.message,
-            code: "rendering_error",
-            cause: options.cause
-        })
-        this.templateSnippet = options.templateSnippet
-        this.templateName = options.templateName
+            ...params,
+            module: params.module ?? "Rendering",
+            method: params.method ?? "render",
+        });
     }
 }
 
 /**
  * Error thrown when there are parsing issues
  */
-export class TemplateNotFoundError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class TemplateNotFoundError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "template_not_found_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "Template",
+            method: params.method ?? "find",
+        });
     }
 }
 
-export class PromptConfigError extends AIError {
-    constructor(message: string, options?: ErrorOptions) {
+export class PromptConfigError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
+    }) {
         super({
-            message,
-            code: "prompt_config_error",
-            ...options
-        })
+            ...params,
+            module: params.module ?? "PromptConfig",
+            method: params.method ?? "configure",
+        });
     }
 }
 
 /**
  * Error thrown when input messages or content is empty when required
  */
-export class EmptyInputError extends AIError {
-    constructor(options: {
-        module: string
-        method: string
-        description?: string
-        cause?: unknown
+export class EmptyInputError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
     }) {
         super({
-            message: options.description ?? "Input messages or content cannot be empty",
-            code: "empty_input_error",
-            module: options.module,
-            method: options.method,
-            cause: options.cause
-        })
+            ...params,
+            module: params.module ?? "Input",
+            method: params.method ?? "validate",
+        });
     }
 }
 
 /**
  * Error thrown when a required model ID is missing
  */
-export class MissingModelIdError extends AIError {
-    constructor(options: {
-        module: string
-        method: string
-        description?: string
-        cause?: unknown
+export class MissingModelIdError extends EffectiveError {
+    constructor(params: {
+        description: string;
+        module?: string;
+        method?: string;
+        cause?: unknown;
     }) {
         super({
-            message: options.description ?? "Model ID is required",
-            code: "missing_model_id_error",
-            module: options.module,
-            method: options.method,
-            cause: options.cause
-        })
+            ...params,
+            module: params.module ?? "Model",
+            method: params.method ?? "validate",
+        });
     }
 }
 
 /**
  * Helper to map provider errors to our error types
  */
-export function mapProviderError(error: Error): AIError {
-    // Map common provider error patterns
-    if (error.name === "AuthenticationError" || error.message.includes("auth")) {
-        return new AuthenticationError(error.message, { cause: error })
+export function mapProviderError(error: Error): EffectiveError {
+    if (error.message.includes("rate limit")) {
+        return new RateLimitError({
+            description: "Rate limit exceeded",
+            cause: error,
+        });
     }
-    if (error.name === "RateLimitError" || error.message.includes("rate limit")) {
-        return new RateLimitError(error.message, { cause: error })
+    if (error.message.includes("authentication")) {
+        return new AuthenticationError({
+            description: "Authentication failed",
+            cause: error,
+        });
     }
-    if (error.message.includes("context length") || error.message.includes("token limit")) {
-        return new ContextLengthError(error.message, { cause: error })
-    }
-    if (error.message.includes("content filter") || error.message.includes("moderation")) {
-        return new ContentFilterError(error.message, { cause: error })
-    }
-    if (error.name === "TimeoutError" || error.message.toLowerCase().includes("timed out") || error.message.toLowerCase().includes("timeout")) {
-        return new TimeoutError(error.message, { cause: error })
-    }
-
-    // Default to provider API error
-    return new ProviderAPIError(error.message, { cause: error })
+    return new ProviderAPIError({
+        description: "Provider API error",
+        cause: error,
+    });
 }
 
 /**
  * Effect middleware to map provider errors
  */
-export const withErrorMapping = <R, E, A>(effect: Effect.Effect<R, E, A>): Effect.Effect<R, AIError, A> =>
-    Effect.mapError(effect, error =>
-        error instanceof Error ? mapProviderError(error) : new AIError({
-            message: String(error),
-            module: "ai",
-            method: "unknown"
+export const withErrorMapping = <R, E, A>(effect: Effect.Effect<R, E, A>): Effect.Effect<R, EffectiveError, A> =>
+    Effect.mapError(effect, (error) =>
+        error instanceof Error ? mapProviderError(error) : new EffectiveError({
+            description: "Unknown error",
+            module: "Unknown",
+            method: "unknown",
+            cause: error,
         })
     )

@@ -5,8 +5,7 @@
  * interfaces while allowing for flexible customization.
  */
 
-import type { AiResponse } from "@effect/ai/AiResponse";
-import { Model } from "@effect/ai/AiRole";
+import { Model } from "@/types.js";
 import { Chunk, Effect, Option } from "effect";
 
 /**
@@ -87,7 +86,7 @@ export const hasRequiredProperties = <T>(
   if (typeof value !== "object" || value === null) {
     return false;
   }
-  
+
   return properties.every(prop => prop in value);
 };
 

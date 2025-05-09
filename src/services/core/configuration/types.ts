@@ -3,15 +3,15 @@
  * @module services/core/configuration/types
  */
 
-import { FileSystem } from "@effect/platform/FileSystem";
+import { FileSystem } from "@effect/platform/FileSystem.js";
 import { Effect, Layer } from "effect";
 import type {
     ConfigParseError,
     ConfigReadError,
     ConfigSchemaMissingError,
     ConfigValidationError
-} from './errors.js';
-import type { BaseConfig } from './schema.js';
+} from "./errors.js";
+import type { ImportedType } from "./schema.js";
 
 /**
  * Configuration loader options interface

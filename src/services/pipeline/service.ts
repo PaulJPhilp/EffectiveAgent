@@ -70,7 +70,7 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
  */
 
 import { pipe } from "effect";
-import type { PipelineApi, PipelineConfig } from "./api.js";
+import type { ImportedType } from "./api.js";
 import { PipelineConfigError, PipelineExecutionError, PipelineValidationError } from "./errors.js";
 
 const DEFAULT_CONFIG: Required<PipelineConfig> = {

@@ -5,20 +5,19 @@ import { describe, expect, it } from "vitest"
 import { PipelineService } from "../api.js"
 import { InputValidationError, OutputValidationError } from "../errors.js"
 import { ExecutiveService } from "../service.js"
-import type { ExecutiveParameters } from "../types.js"
 
 describe("PipelineService", () => {
-    class TestInput extends Schema.Class<TestInput>("TestInput")({
+    class TestInput extends S.Class<TestInput>("TestInput")({
         prompt: Schema.String
     }) { }
 
-    class TestUsage extends Schema.Class<TestUsage>("TestUsage")({
+    class TestUsage extends S.Class<TestUsage>("TestUsage")({
         promptTokens: Schema.Number,
         completionTokens: Schema.Number,
         totalTokens: Schema.Number
     }) { }
 
-    class TestOutput extends Schema.Class<TestOutput>("TestOutput")({
+    class TestOutput extends S.Class<TestOutput>("TestOutput")({
         text: Schema.String,
         usage: TestUsage
     }) { }

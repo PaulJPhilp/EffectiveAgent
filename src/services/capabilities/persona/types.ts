@@ -2,7 +2,7 @@
  * @file Type definitions for the Persona capability service.
  */
 
-import type { Schema } from "effect";
+import type { effect } from "effect";
 import { Persona } from "./schema.js";
 
 // Define types from Schema first

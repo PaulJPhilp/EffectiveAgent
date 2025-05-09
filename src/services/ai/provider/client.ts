@@ -3,13 +3,13 @@
  * @module services/ai/provider/client
  */
 
-import { Effect, Ref, Option, Context } from "effect"; 
+import { Context, Effect, Option, Ref } from "effect"; 
 import { validateCapabilities, validateModelId } from "./helpers.js";
 
-import { ProviderClientApi } from "./api.js";
-import { ModelService } from "@/services/ai/model/service.js";
 import { ModelCapability } from "@/schema.js";
+import { ModelService } from "@/services/ai/model/service.js";
 import { EffectiveInput } from "@/types.js";
+import { ProviderClientApi } from "./api.js";
 
 import {
   ProviderConfigError,
@@ -20,19 +20,19 @@ import {
 import type {
   EffectiveProviderApi,
   EffectiveResponse,
-  GenerateTextResult,
+  GenerateEmbeddingsResult,
   GenerateObjectResult,
   GenerateSpeechResult,
-  TranscribeResult,
-  GenerateEmbeddingsResult,
-  ProviderGenerateTextOptions,
+  GenerateTextResult,
+  ProviderChatOptions,
+  ProviderGenerateEmbeddingsOptions,
   ProviderGenerateObjectOptions,
   ProviderGenerateSpeechOptions,
+  ProviderGenerateTextOptions,
   ProviderTranscribeOptions,
-  ProviderGenerateEmbeddingsOptions,
-  ProviderChatOptions,
   ProvidersType,
-  ToolDefinition
+  ToolDefinition,
+  TranscribeResult
 } from "./types.js";
 
 export class ProviderClient extends Effect.Service<ProviderClientApi>()(

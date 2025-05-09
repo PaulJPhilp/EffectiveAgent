@@ -1,7 +1,7 @@
 import { NoAudioFileError } from "@/services/ai/provider/errors.js";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
-import type { EffectiveInput } from "../types/base.js";
+import type { ImportedType } from "../types/base.js";
 import { FilePart } from "./schema.js";
 
 /**

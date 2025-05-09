@@ -2,7 +2,6 @@
  * @file Tests for the LoggingService implementation.
  */
 
-import type { JsonObject } from "@/types.js";
 import { Cause, Effect, LogLevel } from "effect";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { LoggingServiceApi } from "../api.js";
@@ -16,9 +15,9 @@ describe("LoggingService", () => {
   const testLogger: LoggingServiceApi = {
     log: (level: LogLevel.LogLevel, message: string, data?: JsonObject | Error) => {
       if (data instanceof Error) {
-        loggedMessages.push({ 
-          level, 
-          message, 
+        loggedMessages.push({
+          level,
+          message,
           data: {
             name: data.name,
             message: data.message,
@@ -33,9 +32,9 @@ describe("LoggingService", () => {
 
     debug: (message: string, data?: JsonObject | Error) => {
       if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({ 
-          level: LogLevel.Debug, 
-          message, 
+        return Effect.succeed(loggedMessages.push({
+          level: LogLevel.Debug,
+          message,
           data: {
             name: data.name,
             message: data.message,
@@ -48,9 +47,9 @@ describe("LoggingService", () => {
 
     info: (message: string, data?: JsonObject | Error) => {
       if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({ 
-          level: LogLevel.Info, 
-          message, 
+        return Effect.succeed(loggedMessages.push({
+          level: LogLevel.Info,
+          message,
           data: {
             name: data.name,
             message: data.message,
@@ -63,9 +62,9 @@ describe("LoggingService", () => {
 
     warn: (message: string, data?: JsonObject | Error) => {
       if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({ 
-          level: LogLevel.Warning, 
-          message, 
+        return Effect.succeed(loggedMessages.push({
+          level: LogLevel.Warning,
+          message,
           data: {
             name: data.name,
             message: data.message,
@@ -78,9 +77,9 @@ describe("LoggingService", () => {
 
     error: (message: string, data?: JsonObject | Error) => {
       if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({ 
-          level: LogLevel.Error, 
-          message, 
+        return Effect.succeed(loggedMessages.push({
+          level: LogLevel.Error,
+          message,
           data: {
             name: data.name,
             message: data.message,
@@ -93,9 +92,9 @@ describe("LoggingService", () => {
 
     trace: (message: string, data?: JsonObject | Error) => {
       if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({ 
-          level: LogLevel.Trace, 
-          message, 
+        return Effect.succeed(loggedMessages.push({
+          level: LogLevel.Trace,
+          message,
           data: {
             name: data.name,
             message: data.message,
@@ -111,9 +110,9 @@ describe("LoggingService", () => {
     },
 
     logErrorCause: (cause: Cause.Cause<unknown>) => {
-      return Effect.succeed(loggedMessages.push({ 
-        level: LogLevel.Error, 
-        message: Cause.pretty(cause) 
+      return Effect.succeed(loggedMessages.push({
+        level: LogLevel.Error,
+        message: Cause.pretty(cause)
       }));
     }
   };
@@ -170,10 +169,10 @@ describe("LoggingService", () => {
         const testCause = Cause.die("Test cause");
         yield* testLogger.logCause(LogLevel.Warning, testCause);
         yield* testLogger.logCause(LogLevel.Error, testCause);
-        
+
         // Test error cause convenience method
         yield* testLogger.logErrorCause(testCause);
-        
+
         // Test nested causes
         const nestedCause = Cause.sequential(
           Cause.fail(new Error("First error")),
@@ -207,7 +206,7 @@ describe("LoggingService", () => {
           LogLevel.Trace,
           LogLevel.All
         ];
-        
+
         // Test each log level
         for (const level of levels) {
           yield* testLogger.log(level, `Message at level ${level}`);
@@ -215,7 +214,7 @@ describe("LoggingService", () => {
       });
 
       await Effect.runPromise(program);
-      
+
       // Verify messages
       expect(loggedMessages).toHaveLength(7); // 7 log levels
       expect(loggedMessages.map(m => m.level)).toEqual([
@@ -228,7 +227,7 @@ describe("LoggingService", () => {
         LogLevel.All
       ]);
     });
-    
+
     it("should handle all convenience methods", async () => {
       const program = Effect.gen(function* () {
         yield* testLogger.debug("Debug message");
@@ -239,7 +238,7 @@ describe("LoggingService", () => {
       });
 
       await Effect.runPromise(program);
-      
+
       // Verify messages
       expect(loggedMessages).toHaveLength(5);
       expect(loggedMessages.map(m => m.level)).toEqual([
@@ -329,7 +328,7 @@ describe("LoggingService", () => {
       }
 
       const customError = new CustomError("Custom error occurred", "CUSTOM_001");
-      
+
       const program = Effect.gen(function* () {
         yield* testLogger.error("Custom error log", customError);
       });

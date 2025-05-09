@@ -1,15 +1,11 @@
-import type { LanguageModelV1 } from "ai";
 /**
  * Returns a ProviderClientApi instance pre-configured for OpenAI.
  * @param baseClient - The base ProviderClientApi implementation
  * @returns ProviderClientApi configured for OpenAI
  */
 import { ModelCapability } from "@/schema.js";
-import type { EffectiveInput } from "@/types.js";
 import { Effect, Layer } from "effect";
-import type { ModelServiceApi } from "../../model/service.js";
 import { ProviderClient } from "../client.js";
-import type { ProviderToolError } from "../errors.js";
 import { ProviderConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "../errors.js";
 import type {
   EffectiveProviderApi,

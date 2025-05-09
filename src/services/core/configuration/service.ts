@@ -3,9 +3,8 @@
  * @module services/core/configuration/service
  */
 
-import { FileSystem } from "@effect/platform/FileSystem";
+import { FileSystem } from "@effect/platform/FileSystem.js";
 import { Effect, Schema } from "effect";
-import type { ConfigurationServiceApi, LoadConfigOptions } from "./api.js";
 import {
     ConfigParseError,
     ConfigReadError,

@@ -4,9 +4,9 @@
  */
 
 import { Context, Effect, Schema } from "effect";
-import type { OAuth2Client } from 'google-auth-library';
+import type { OAuth2Client } from "google-auth-library.js";
 import { google } from 'googleapis';
-import type { gmail_v1 } from 'googleapis';
+import type { googleapis } from "googleapis.js";
 import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
@@ -17,7 +17,7 @@ export const gmailReadMessagesInputSchema = Schema.Struct({
 		Schema.int(),
 		Schema.greaterThan(0), // Assuming positive() was corrected
 		Schema.lessThanOrEqualTo(50),
-		Schema.optional,
+		S.optional,
 		Schema.withDefaults({ constructor: () => 5, decoding: () => 5 }),
 	),
 	// Add other filters like labels, query string etc. if needed

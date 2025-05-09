@@ -15,31 +15,22 @@ export const PdfOperation = {
     GET_PAGES: "GET_PAGES"
 } as const;
 
-export const PdfInputSchema = S.Union(
-    // EXTRACT_TEXT operation
-    S.Struct({
-        operation: S.Literal(PdfOperation.EXTRACT_TEXT),
-        filePath: S.String
-    }),
-    // GET_METADATA operation
-    S.Struct({
-        operation: S.Literal(PdfOperation.GET_METADATA),
-        filePath: S.String
-    }),
-    // GET_PAGES operation
-    S.Struct({
-        operation: S.Literal(PdfOperation.GET_PAGES),
-        filePath: S.String,
-        pages: S.Array(S.Number),
-        includeMetadata: S.optional(S.Boolean)
-    })
-);
-
-export type PdfInput = S.Schema.Type<typeof PdfInputSchema>;
+export class PdfInput extends S.Class<PdfInput>("PdfInput")({
+    operation: S.Union(
+        S.Literal(PdfOperation.EXTRACT_TEXT),
+        S.Literal(PdfOperation.GET_METADATA),
+        S.Literal(PdfOperation.GET_PAGES)
+    ),
+    filePath: S.String,
+    pages: S.optional(S.Array(S.Number)),
+    includeMetadata: S.optional(S.Boolean),
+    startPage: S.optional(S.Number),
+    endPage: S.optional(S.Number)
+}) { }
 
 // --- Output Schema ---
 
-export const PdfMetadataSchema = S.Struct({
+export class PdfMetadata extends S.Class<PdfMetadata>("PdfMetadata")({
     title: S.optional(S.String),
     author: S.optional(S.String),
     subject: S.optional(S.String),
@@ -49,20 +40,22 @@ export const PdfMetadataSchema = S.Struct({
     creationDate: S.optional(S.String),
     modificationDate: S.optional(S.String),
     pageCount: S.Number
-});
+}) { }
 
-export const PdfPageSchema = S.Struct({
+export class PdfPage extends S.Class<PdfPage>("PdfPage")({
     pageNumber: S.Number,
     content: S.String
-});
+}) { }
 
-export const PdfOutputSchema = S.Struct({
-    text: S.optional(S.String),
-    metadata: S.optional(PdfMetadataSchema),
-    pages: S.optional(S.Array(PdfPageSchema))
-});
+export class PdfContent extends S.Class<PdfContent>("PdfContent")({
+    metadata: PdfMetadata,
+    pages: S.Array(PdfPage)
+}) { }
 
-export type PdfOutput = S.Schema.Type<typeof PdfOutputSchema>;
+export class PdfOutput extends S.Class<PdfOutput>("PdfOutput")({
+    content: PdfContent,
+    summary: S.String
+}) { }
 
 // --- Helper Functions ---
 
@@ -80,22 +73,15 @@ function parsePdf(buffer: Buffer, options?: pdfParse.Options): Effect.Effect<pdf
     });
 }
 
-function extractPageText(data: pdfParse.Result, pageNum: number): string {
-    // pdf-parse doesn't provide direct page access, so we use a custom render function
-    const pageTexts: string[] = [];
-    let currentPage = 1;
-
-    const renderOptions: pdfParse.Options = {
-        pagerender: (pageData: any) => {
-            if (currentPage === pageNum) {
-                pageTexts.push(pageData.getTextContent());
-            }
-            currentPage++;
-            return "";
-        }
-    };
-
-    return pageTexts[0] || "";
+function extractPageText(data: pdfParse.Result, pageNum: number): Effect.Effect<string, Error> {
+    return Effect.try({
+        try: () => {
+            // pdf-parse provides text for all pages, we need to split and get specific page
+            const pages = data.text.split('\n\n');  // Basic page separation
+            return pages[pageNum - 1] || "";
+        },
+        catch: error => new Error(`Failed to extract page ${pageNum}`, { cause: error })
+    });
 }
 
 // --- Implementation ---
@@ -103,67 +89,71 @@ function extractPageText(data: pdfParse.Result, pageNum: number): string {
 export const pdfImpl = (input: unknown): Effect.Effect<PdfOutput, Error> =>
     Effect.gen(function* () {
         const data = yield* Effect.succeed(input).pipe(
-            Effect.flatMap(i => S.decodeUnknown(PdfInputSchema)(i)),
-            Effect.mapError((e): Error => new Error(`Invalid input: ${String(e)}`)),
-            Effect.map(d => d as PdfInput)
+            Effect.flatMap(i => S.decodeUnknown(PdfInput)(i)),
+            Effect.mapError((e): Error => new Error(`Invalid input: ${String(e)}`))
         );
 
         const buffer = yield* readPdfFile(data.filePath);
+        const pdf = yield* parsePdf(buffer);
+
+        const metadata: PdfMetadata = {
+            title: pdf.info?.Title,
+            author: pdf.info?.Author,
+            subject: pdf.info?.Subject,
+            keywords: pdf.info?.Keywords,
+            creator: pdf.info?.Creator,
+            producer: pdf.info?.Producer,
+            creationDate: pdf.info?.CreationDate,
+            modificationDate: pdf.info?.ModDate,
+            pageCount: pdf.numpages
+        };
 
         switch (data.operation) {
             case PdfOperation.EXTRACT_TEXT: {
-                const pdf = yield* parsePdf(buffer);
-                return yield* Effect.succeed({
-                    text: pdf.text
-                });
+                return {
+                    content: {
+                        metadata,
+                        pages: [{
+                            pageNumber: 1,
+                            content: pdf.text
+                        }]
+                    },
+                    summary: `Extracted ${pdf.numpages} pages of text from PDF`
+                };
             }
 
             case PdfOperation.GET_METADATA: {
-                const pdf = yield* parsePdf(buffer);
-                return yield* Effect.succeed({
-                    metadata: {
-                        title: pdf.info?.Title,
-                        author: pdf.info?.Author,
-                        subject: pdf.info?.Subject,
-                        keywords: pdf.info?.Keywords,
-                        creator: pdf.info?.Creator,
-                        producer: pdf.info?.Producer,
-                        creationDate: pdf.info?.CreationDate,
-                        modificationDate: pdf.info?.ModDate,
-                        pageCount: pdf.numpages
-                    }
-                });
+                return {
+                    content: {
+                        metadata,
+                        pages: []
+                    },
+                    summary: `Retrieved metadata from PDF with ${pdf.numpages} pages`
+                };
             }
 
             case PdfOperation.GET_PAGES: {
-                const pdf = yield* parsePdf(buffer);
+                if (!data.pages?.length) {
+                    return yield* Effect.fail(new Error("No pages specified for GET_PAGES operation"));
+                }
+
                 const pages = yield* Effect.forEach(data.pages, pageNum =>
-                    Effect.try({
-                        try: () => ({
+                    Effect.gen(function* () {
+                        const content = yield* extractPageText(pdf, pageNum);
+                        return {
                             pageNumber: pageNum,
-                            content: extractPageText(pdf, pageNum)
-                        }),
-                        catch: error => new Error(`Failed to extract page ${pageNum}`, { cause: error })
+                            content
+                        };
                     })
                 );
 
-                let result: PdfOutput = { pages };
-                if (data.includeMetadata) {
-                    const metadata = {
-                        title: pdf.info?.Title,
-                        author: pdf.info?.Author,
-                        subject: pdf.info?.Subject,
-                        keywords: pdf.info?.Keywords,
-                        creator: pdf.info?.Creator,
-                        producer: pdf.info?.Producer,
-                        creationDate: pdf.info?.CreationDate,
-                        modificationDate: pdf.info?.ModDate,
-                        pageCount: pdf.numpages
-                    };
-                    result = { ...result, metadata };
-                }
-
-                return yield* Effect.succeed(result);
+                return {
+                    content: {
+                        metadata,
+                        pages
+                    },
+                    summary: `Retrieved ${pages.length} pages from PDF`
+                };
             }
 
             default: {

@@ -1,5 +1,5 @@
 import { Duration, Effect, Schedule } from "effect";
-import type { ExecutiveParameters } from "./types.js";
+import type { ImportedType } from "./types.js";
 
 /**
  * Interface for the Pipeline Service

@@ -3,11 +3,10 @@
  * @module services/core/repository/implementations/drizzle/config
  */
 
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { drizzle } from "drizzle-orm/node-postgres";
+import type { NodePgDatabase } from "drizzle-orm/node-postgres.js";
 import { Effect, Layer } from "effect";
 import { Pool } from "pg";
-import type { DatabaseConfigSchema } from "./schema.js";
 
 /**
  * Service for database configuration

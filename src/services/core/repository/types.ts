@@ -2,7 +2,7 @@
  * @file Defines supporting types for the Repository service.
  */
 
-import type { EntityId, JsonObject, Timestamp } from "../../../types.js";
+import type { ImportedType } from "../../../types.js";
 
 /**
  * Base structure for entities managed by repositories.

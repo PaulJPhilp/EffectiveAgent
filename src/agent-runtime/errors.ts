@@ -1,5 +1,4 @@
 import { EffectiveError } from "@/errors.js"
-import type { AgentRuntimeId } from "./types.js"
 
 /**
  * Common interface for agent runtime error properties.

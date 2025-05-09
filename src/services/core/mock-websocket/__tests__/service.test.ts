@@ -2,12 +2,10 @@ import { AgentRuntimeError, AgentRuntimeNotFoundError } from "@/agent-runtime/ag
 /**
  * Tests for the MockWebSocketServer service
  */
-import type { AgentRuntime, AgentRuntimeServiceApi, AgentRuntimeState } from "@/agent-runtime/index.js"
 
 // Define AgentRecord type locally for testing purposes
 type AgentRecord = any;
 import { AgentRuntimeService, AgentRuntimeStatus, makeAgentRuntimeId } from "@/agent-runtime/index.js"
-import type { MockWebSocketServerApi } from "@/services/core/mock-websocket/api.js"
 import { createServiceTestHarness } from "@/services/core/test-harness/utils/service-test.js"
 import { createTypedMock } from "@/services/core/test-harness/utils/typed-mocks.js"
 import { Effect, Layer, Stream } from "effect"

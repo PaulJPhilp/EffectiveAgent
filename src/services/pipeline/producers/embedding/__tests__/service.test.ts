@@ -3,9 +3,8 @@
  * @module services/ai/producers/embedding/__tests__/service
  */
 
-import { describe, it } from "@effect/vitest";
 import { Context, Effect, Either, Layer, Option, Tracer } from "effect";
-import { expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import { EmbeddingInputError } from "../errors.js";
 import { EmbeddingService } from "../service.js";
 // --- Minimal mocks for dependencies ---

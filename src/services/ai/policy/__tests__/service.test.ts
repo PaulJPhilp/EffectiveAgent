@@ -41,11 +41,17 @@ describe("PolicyService", () => {
 
           matchingRules.sort((a, b) => a.data.priority - b.data.priority);
           const highestPriorityRule = matchingRules[0];
+          if (!highestPriorityRule) {
+            return {
+              allowed: true,
+              effectiveModel: context.requestedModel
+            }
+          }
 
           return {
             allowed: highestPriorityRule.data.type === "allow",
             effectiveModel: context.requestedModel
-          };
+          }
         }),
 
         recordOutcome: (outcome: PolicyRecordContext) => Effect.gen(function* () {

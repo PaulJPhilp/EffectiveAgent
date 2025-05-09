@@ -4,7 +4,7 @@
  */
 
 import { Effect } from "effect";
-import { AnyPipelineError } from "../common/errors.js";
+import { PipelineError } from "../common/errors.js";
 import { PipelineApi, PipelineInput, PipelineOutput } from "../common/pipeline.js";
 
 /**
@@ -58,7 +58,7 @@ export interface StructuredOutputPipelineExecuteOutput<ResultType = Record<strin
 /**
  * Error specific to the StructuredOutputPipeline
  */
-export class StructuredOutputPipelineError extends AnyPipelineError {
+export class StructuredOutputPipelineError extends PipelineError {
     constructor(params: { message: string; cause?: unknown }) {
         super({
             message: params.message,
@@ -105,10 +105,3 @@ export interface StructuredOutputPipelineApi<SchemaType = Record<string, unknown
         schema: SchemaType
     ) => Effect.Effect<T, StructuredOutputPipelineError>;
 }
-
-/**
- * Service tag for the StructuredOutputPipeline
- */
-export const StructuredOutputPipeline = Effect.GenericTag<StructuredOutputPipelineApi<unknown>>(
-    "StructuredOutputPipeline"
-); 

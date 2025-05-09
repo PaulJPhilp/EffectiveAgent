@@ -3,22 +3,26 @@
  * @module services/ai/producers/text/service
  */
 
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderServiceApi } from '@/services/ai/provider/api.js';
+import { Message, TextPart, User } from "@/services/ai/input/schema.js";
+import { ModelService, ModelServiceApi } from "@/services/ai/model/service.js";
+import { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import type { EffectiveResponse, GenerateTextResult } from "@/services/ai/provider/types.js";
-import { Message } from "@effect/ai/AiInput";
-import { ConfigProvider, Effect, Option } from "effect";
+import { GenerateTextResult } from "@/services/ai/provider/types.js";
+import { TestHarnessApi } from "@/services/core/test-harness/api.js";
+import { EffectiveInput, EffectiveResponse } from "@/types.js";
+import { ConfigProvider, Effect } from "effect";
 import * as Chunk from "effect/Chunk";
-import type { TextGenerationOptions, TextServiceApi } from "./api.js";
+import * as Option from "effect/Option";
+import type { TextServiceApi } from "./api.js";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "./errors.js";
+import type { TextGenerationOptions } from "./types.js";
 
 /**
  * Parameters for text generation
  */
 export interface TextGenerationParameters {
   [key: string]: unknown;
+  maxTokens?: number;
   maxSteps?: number;
   maxRetries?: number;
   temperature?: number;
@@ -54,7 +58,6 @@ export interface ProviderTextGenerationResult {
 /**
  * Dependencies for TextService.
  */
-import type { TestHarnessApi } from "@/services/core/test-harness/api.js";
 
 export interface TextServiceDeps {
   readonly modelService: ModelServiceApi;
@@ -75,13 +78,8 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
       /**
        * Generates a text completion from the given prompt and model.
        */
-      generate: (options: TextGenerationOptions): Effect.Effect<
-        EffectiveResponse<GenerateTextResult>,
-        TextModelError | TextProviderError | TextGenerationError | TextInputError,
-        ConfigProvider.ConfigProvider
-      > => {
-
-        return Effect.gen(function* (_) {
+      generate: (options: TextGenerationOptions) => {
+        return Effect.gen(function* () {
           // Validate prompt
           if (!options.prompt || options.prompt.trim() === "") {
             return yield* Effect.fail(new TextInputError({
@@ -131,7 +129,15 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
           yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
 
           // Create EffectiveInput from the final prompt
-          const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
+          const textPart = new TextPart({ content: finalPrompt });
+          const message = new Message({
+            role: new User(),
+            parts: Chunk.make(textPart)
+          });
+          const effectiveInput = new EffectiveInput(
+            finalPrompt,
+            Chunk.make(message)
+          );
 
           // Call the provider client and map the error
           const generationEffect = providerClient.generateText(
@@ -140,12 +146,11 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
               modelId,
               system: systemPrompt,
               parameters: {
-                maxTokens: options.parameters?.['maxSteps'],
-                maxRetries: options.parameters?.['maxRetries'],
-                temperature: options.parameters?.['temperature'],
-                topP: options.parameters?.['topP'],
-                topK: options.parameters?.['topK'],
-                presencePenalty: options.parameters?.['presencePenalty'],
+
+                temperature: options.parameters?.temperature,
+                topP: options.parameters?.topP,
+                topK: options.parameters?.topK,
+                presencePenalty: options.parameters?.presencePenalty,
                 frequencyPenalty: options.parameters?.['frequencyPenalty'],
                 seed: options.parameters?.['seed'],
                 stop: options.parameters?.['stop']
@@ -173,5 +178,3 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
   }),
   dependencies: [] as const
 }) { }
-
-export default TextService;

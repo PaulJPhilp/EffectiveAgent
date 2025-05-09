@@ -1,7 +1,5 @@
 import { Effect } from "effect";
-import type { ProviderServiceApi } from "../api.js";
 import type { ProviderClientApi } from "../api.js";
-import type { ProviderFile } from "../schema.js";
 
 /**
  * Minimal mock ProviderServiceApi implementation for testing.

@@ -3,15 +3,63 @@
  * @module services/ai/producers/object/schema-utils
  */
 
-import { Schema } from "effect";
+import type { Message } from "@/types.js"
+import { Schema as S } from "effect"
+
+// Define base schemas first
+export class Product extends S.Class<Product>("Product")({
+    name: S.String,
+    description: S.String,
+    price: S.Number,
+    inStock: S.Boolean
+}) { }
+
+export class Person extends S.Class<Person>("Person")({
+    name: S.String,
+    age: S.Number,
+    email: S.optional(S.String)
+}) { }
+
+export class Metadata extends S.Class<Metadata>("Metadata")({
+    key: S.String,
+    value: S.Union(S.String, S.Number, S.Boolean, S.Null)
+}) { }
+
+export class Task extends S.Class<Task>("Task")({
+    title: S.String,
+    description: S.String,
+    status: S.Literal("todo", "in-progress", "done"),
+    priority: S.Literal("low", "medium", "high"),
+    dueDate: S.optional(S.String),
+    assignee: S.optional(S.String),
+    tags: S.Array(S.String)
+}) { }
+
+export class ChatMessage extends S.Class<ChatMessage>("ChatMessage")({
+    role: S.Literal("user", "assistant", "system"),
+    content: S.String,
+    timestamp: S.optional(S.String),
+    id: S.optional(S.String)
+}) { }
+
+export class Address extends S.Class<Address>("Address")({
+    street: S.String,
+    city: S.String,
+    state: S.String,
+    zipCode: S.String,
+    country: S.String
+}) { }
+
+// Use the global Message type instead of redefining ChatMessage
+export const MessageSchema = S.Schema<Message>()
 
 /**
  * Creates a schema for a list of items
  * @param itemSchema The schema for each item in the list
  * @returns A schema for a list of items
  */
-export function createListSchema<T>(itemSchema: Schema<T>): Schema<ReadonlyArray<T>> {
-    return Schema.Array(itemSchema);
+export function createListSchema<T>(itemSchema: S.Schema<T>): S.Schema<ReadonlyArray<T>> {
+    return S.Array(itemSchema)
 }
 
 /**
@@ -19,12 +67,7 @@ export function createListSchema<T>(itemSchema: Schema<T>): Schema<ReadonlyArray
  * @returns A schema for a product
  */
 export function createProductSchema() {
-    return Schema.Class<Product>("Product")({
-        name: Schema.String,
-        description: Schema.String,
-        price: Schema.Number,
-        inStock: Schema.Boolean
-    });
+    return Product
 }
 
 /**
@@ -32,11 +75,7 @@ export function createProductSchema() {
  * @returns A schema for a person
  */
 export function createPersonSchema() {
-    return Schema.Class<Person>("Person")({
-        name: Schema.String,
-        age: Schema.Number,
-        email: Schema.String.pipe(Schema.optional)
-    });
+    return Person
 }
 
 /**
@@ -44,10 +83,7 @@ export function createPersonSchema() {
  * @returns A schema for metadata
  */
 export function createMetadataSchema() {
-    return Schema.Class<Metadata>("Metadata")({
-        key: Schema.String,
-        value: Schema.Union(Schema.String, Schema.Number, Schema.Boolean, Schema.Null)
-    });
+    return Metadata
 }
 
 /**
@@ -55,18 +91,7 @@ export function createMetadataSchema() {
  * @returns A schema for task data
  */
 export function createTaskSchema() {
-    const TaskStatus = Schema.Literal("todo", "in-progress", "done");
-    const TaskPriority = Schema.Literal("low", "medium", "high");
-
-    return Schema.Class<Task>("Task")({
-        title: Schema.String,
-        description: Schema.String,
-        status: TaskStatus,
-        priority: TaskPriority,
-        dueDate: Schema.String.pipe(Schema.optional),
-        assignee: Schema.String.pipe(Schema.optional),
-        tags: Schema.Array(Schema.String)
-    });
+    return Task
 }
 
 /**
@@ -74,14 +99,7 @@ export function createTaskSchema() {
  * @returns A schema for a chat message
  */
 export function createChatMessageSchema() {
-    const Role = Schema.Literal("user", "assistant", "system");
-
-    return Schema.Class<ChatMessage>("ChatMessage")({
-        role: Role,
-        content: Schema.String,
-        timestamp: Schema.String.pipe(Schema.optional),
-        id: Schema.String.pipe(Schema.optional)
-    });
+    return ChatMessage
 }
 
 /**
@@ -89,11 +107,5 @@ export function createChatMessageSchema() {
  * @returns A schema for an address
  */
 export function createAddressSchema() {
-    return Schema.Class<Address>("Address")({
-        street: Schema.String,
-        city: Schema.String,
-        state: Schema.String,
-        zipCode: Schema.String,
-        country: Schema.String
-    });
+    return Address
 }

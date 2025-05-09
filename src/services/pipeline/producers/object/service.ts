@@ -3,22 +3,24 @@
  * @module services/ai/producers/object/service
  */
 
+import { TextPart, User } from "@/services/ai/input/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { Message } from "@effect/ai/AiInput";
+import type { EffectiveResponse } from "@/types.js";
+import { EffectiveInput, Message } from "@/types.js";
 import { JSONSchema, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
-import type { ObjectGenerationOptions, ObjectServiceApi } from "./api.js";
+import type { ObjectServiceApi } from "./api.js";
 import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "./errors.js";
-
+import { ObjectGenerationOptions } from "./index.js";
 /**
  * Result shape expected from the underlying provider client's generateObject method
  */
-export type ProviderObjectGenerationResult<T> = import("@/services/ai/provider/types.js").EffectiveResponse<{
+export type ProviderObjectGenerationResult<T> = EffectiveResponse<{
     readonly object: T; // The generated object
     readonly model: string;
     readonly timestamp: Date;
@@ -106,7 +108,13 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                     yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
 
                     // Create EffectiveInput from the final prompt
-                    const effectiveInput = new EffectiveInput(Chunk.make(Message.fromInput(finalPrompt)));
+                    const effectiveInput = new EffectiveInput(
+                        finalPrompt,
+                        Chunk.make(new Message({
+                            role: new User(),
+                            parts: Chunk.make(new TextPart({ content: finalPrompt }))
+                        }))
+                    );
 
                     // Generate the object using the provider's generateObject method
                     const result = yield* Effect.promise(

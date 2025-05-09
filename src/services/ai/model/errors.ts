@@ -4,7 +4,7 @@
  */
 
 import { EffectiveError } from "@/errors.js";
-import type { EntityLoadError, EntityParseError } from "@/services/core/errors.js";
+import type { ImportedType } from "@/services/core/errors.js";
 
 /**
  * Base error type for model-related errors

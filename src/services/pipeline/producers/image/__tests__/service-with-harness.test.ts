@@ -1,4 +1,4 @@
-import { TestHarnessLayer } from "@/services/test-harness/layer.js";
+import { TestHarnessLayer } from "@/services/core/test-harness/layer.js";
 import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
 import { ImageModelError, ImageSizeError } from "../errors.js";

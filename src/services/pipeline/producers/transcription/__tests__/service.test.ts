@@ -4,7 +4,7 @@
  */
 
 import { Effect, Exit, Layer } from "effect";
-import type { Span } from "effect/Tracer";
+import type { Tracer } from "effect";
 import { describe, expect, it, vi } from "vitest";
 import { TranscriptionService } from "../service.js";
 

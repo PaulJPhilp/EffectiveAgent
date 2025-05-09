@@ -1,5 +1,5 @@
 import { type EffectiveRole } from "@/schema.js";
-import { Message } from "@effect/ai/AiInput";
+import { Message } from "@/types.js";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
 import { InvalidInputError, InvalidMessageError, NoAudioFileError } from "./errors.js";

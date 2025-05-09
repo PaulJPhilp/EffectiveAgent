@@ -1,11 +1,14 @@
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import type { EmbeddingServiceApi } from "@/services/ai/producers/embedding/api.js";
-import type { ObjectServiceApi } from "@/services/ai/producers/object/api.js";
-import type { TextServiceApi } from "@/services/ai/producers/text/api.js";
-import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
-import type { LanguageModelV1 } from "@ai-sdk/provider";
-import type { Effect } from "effect";
-import type { Span } from "effect/Tracer";
+import type { EffectiveError } from "@/errors.js"
+import type { ModelServiceApi } from "@/services/ai/model/api.js"
+import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
+import type { ChatCompletionOptions } from "@/services/pipeline/producers/chat/service.js"
+import type { EmbeddingServiceApi } from "@/services/pipeline/producers/embedding/api.js"
+import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js"
+import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js"
+import type { LanguageModelV1 } from "@ai-sdk/provider"
+import type { AiResponse } from "@effect/ai/AiResponse"
+import type { Effect } from "effect"
+import type { Span } from "effect/Tracer"
 
 // Define interfaces for services that don't have API files
 interface ImageServiceApi {
@@ -32,12 +35,9 @@ interface TranscriptionServiceApi {
   }) => Effect.Effect<any, any, any>;
 }
 
-import type { ChatCompletionOptions } from "@/services/ai/producers/chat/service.js";
-import type { AiError } from "@effect/ai/AiError";
-import type { AiResponse } from "@effect/ai/AiResponse";
 
 interface ChatServiceApi {
-  create: (options: ChatCompletionOptions) => Effect.Effect<AiResponse, AiError>;
+  create: (options: ChatCompletionOptions) => Effect.Effect<AiResponse, EffectiveError>;
 }
 
 /**
@@ -62,7 +62,7 @@ export interface MockAccessorApi {
    * Useful for asserting interactions or configuring the mock provider service behavior.
    */
   readonly mockProviderService: ProviderServiceApi;
-  
+
   /**
    * Provides access to standardized mock implementations of all producer services.
    * These mocks can be used for testing components that depend on producer services.
@@ -72,27 +72,27 @@ export interface MockAccessorApi {
      * Mock implementation of the EmbeddingService.
      */
     readonly mockEmbeddingService: EmbeddingServiceApi;
-    
+
     /**
      * Mock implementation of the TextService.
      */
     readonly mockTextService: TextServiceApi;
-    
+
     /**
      * Mock implementation of the ImageService.
      */
     readonly mockImageService: ImageServiceApi;
-    
+
     /**
      * Mock implementation of the ObjectService.
      */
     readonly mockObjectService: ObjectServiceApi;
-    
+
     /**
      * Mock implementation of the TranscriptionService.
      */
     readonly mockTranscriptionService: TranscriptionServiceApi;
-    
+
     /**
      * Mock implementation of the ChatService.
      */

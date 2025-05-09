@@ -1,13 +1,12 @@
 import {
-    makeAgentRuntimeId,
-    AgentRuntimeService
+    AgentRuntimeService,
+    makeAgentRuntimeId
 } from "@/agent-runtime/index.js";
-import type { AgentActivity, AgentRuntimeId } from "@/agent-runtime/types.js";
-import { AgentRecordType } from "@/agent-runtime/types.js";
-import type { BridgeState } from "./types.js";
+import { AgentActivity, AgentRecordType, AgentRuntimeId } from "@/agent-runtime/types.js";
+import type { BridgeServiceApi } from "./api.js";
 
 import { Effect } from "effect";
-import type { BridgeServiceApi } from "./api.js";
+import { BridgeState } from "./types.js";
 
 /**
  * Implementation of the Bridge Service

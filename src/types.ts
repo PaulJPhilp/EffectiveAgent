@@ -2,6 +2,178 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
+import { Message } from "@/services/ai/input/schema.js";
+import { Effect, Schema as S } from "effect";
+import * as Chunk from "effect/Chunk";
+
+// Export Message and Model from our local schema
+export { Message, Model } from "@/services/ai/input/schema.js";
+
+/**
+ * Core input type for AI operations.
+ * Used across pipeline and AI services.
+ */
+export class EffectiveInput extends S.Class<EffectiveInput>("EffectiveInput")({
+  /** The input text/prompt to process */
+  text: S.String,
+  /** Messages in the conversation */
+  messages: S.Chunk(Message),
+  /** Optional metadata for the request */
+  metadata: S.optional(S.Struct({
+    /** Operation name for tracing */
+    operationName: S.optional(S.String),
+    /** Model parameters */
+    parameters: S.optional(S.Struct({
+      temperature: S.optional(S.Number),
+      maxTokens: S.optional(S.Number),
+      topP: S.optional(S.Number),
+      frequencyPenalty: S.optional(S.Number),
+      presencePenalty: S.optional(S.Number),
+      stop: S.optional(S.Array(S.String))
+    })),
+    /** Provider-specific metadata */
+    providerMetadata: S.optional(S.Record({ key: S.String, value: S.Unknown }))
+  }))
+}) {
+  constructor(text: string, messages: Chunk.Chunk<Message>, metadata?: {
+    operationName?: string;
+    parameters?: {
+      temperature?: number;
+      maxTokens?: number;
+      topP?: number;
+      frequencyPenalty?: number;
+      presencePenalty?: number;
+      stop?: string[];
+    };
+    providerMetadata?: Record<string, unknown>;
+  }) {
+    super({ text, messages, metadata });
+  }
+}
+
+/**
+ * Base response type for all operations
+ */
+export interface EffectiveResponse<T> {
+  metadata: any;
+  /** The operation result */
+  data: T;
+  /** Usage statistics */
+  usage?: {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+  };
+  /** Reason for completion */
+  finishReason?: "stop" | "length" | "content_filter" | "tool_calls" | "function_call";
+  /** Provider-specific metadata */
+  providerMetadata?: Record<string, unknown>;
+  /** Messages in the conversation */
+  messages?: Chunk.Chunk<Message>;
+}
+
+/**
+ * Base error type for all operations
+ */
+export interface EffectiveError {
+  /** Error description */
+  description: string;
+  /** Module where the error occurred */
+  module: string;
+  /** Method where the error occurred */
+  method: string;
+  /** Optional cause of the error */
+  cause?: unknown;
+}
+
+/**
+ * Error thrown when tool execution fails
+ */
+export class ToolExecutionError extends Error implements EffectiveError {
+  readonly _tag = "ToolExecutionError";
+  constructor(
+    public readonly description: string,
+    public readonly module: string,
+    public readonly method: string,
+    public readonly cause?: unknown
+  ) {
+    super(description);
+    this.name = "ToolExecutionError";
+  }
+}
+
+/**
+ * Error thrown when tool input validation fails
+ */
+export class ToolInputValidationError extends Error implements EffectiveError {
+  readonly _tag = "ToolInputValidationError";
+  constructor(
+    public readonly description: string,
+    public readonly module: string,
+    public readonly method: string,
+    public readonly cause?: unknown
+  ) {
+    super(description);
+    this.name = "ToolInputValidationError";
+  }
+}
+
+/**
+ * Error thrown when tool output validation fails
+ */
+export class ToolOutputValidationError extends Error implements EffectiveError {
+  readonly _tag = "ToolOutputValidationError";
+  constructor(
+    public readonly description: string,
+    public readonly module: string,
+    public readonly method: string,
+    public readonly cause?: unknown
+  ) {
+    super(description);
+    this.name = "ToolOutputValidationError";
+  }
+}
+
+/**
+ * Base toolkit interface for all tools
+ */
+export interface EffectiveToolkit {
+  readonly name: string;
+  readonly description: string;
+  readonly tools: EffectiveTool[];
+}
+
+/**
+ * Base tool API interface with proper typing
+ */
+export interface EffectiveToolApi {
+  <Input extends Record<string, unknown>, Output = unknown>(
+    input: Input
+  ): Effect.Effect<
+    Output,
+    | ToolExecutionError
+    | ToolInputValidationError
+    | ToolOutputValidationError
+  >;
+}
+
+/**
+ * Base tool interface with improved typing
+ */
+export interface EffectiveTool {
+  readonly name: string;
+  readonly description: string;
+  readonly parameters: {
+    readonly [key: string]: {
+      readonly type: string;
+      readonly description: string;
+      readonly required?: boolean;
+      readonly default?: unknown;
+    };
+  };
+  readonly execute: EffectiveToolApi;
+}
+
 // --- Core JSON Types ---
 
 /**
@@ -18,12 +190,12 @@ export type JsonObject = { [key: string]: JsonValue };
  * Represents any valid JSON value (primitive, array, or object).
  */
 export type JsonValue =
-    | string
-    | number
-    | boolean
-    | null
-    | JsonObject
-    | JsonArray;
+  | string
+  | number
+  | boolean
+  | null
+  | JsonObject
+  | JsonArray;
 
 /**
  * Represents a JSON array structure.
@@ -82,39 +254,6 @@ export interface ProviderMetadata {
 }
 
 /**
- * Core input type for AI operations.
- * Used across pipeline and AI services.
- */
-export interface EffectiveInput {
-  readonly text: string;
-  readonly metadata?: Metadata;
-  readonly context?: unknown;
-}
-
-// --- AI Response Types ---
-
-/**
- * Reason for completion finish.
- */
-export type FinishReason = "stop" | "length" | "content-filter" | "tool-calls" | "error" | "other" | "unknown";
-
-/**
- * Detailed reasoning for generateText results
- */
-export interface TextReasoningDetail {
-  type: 'text'
-  text: string
-  signature?: string
-}
-
-export interface RedactedReasoningDetail {
-  type: 'redacted'
-  data: string
-}
-
-export type ReasoningDetail = TextReasoningDetail | RedactedReasoningDetail
-
-/**
  * Token usage information for AI operations.
  */
 export interface Usage {
@@ -158,4 +297,40 @@ export interface Mailbox {
   readonly priorityQueueSize: number
   /** Timeout for backpressure in milliseconds */
   readonly backpressureTimeout: number
+}
+
+/**
+ * Represents an imported type from an external module
+ * Used for type-safe dynamic imports across the application
+ */
+export type ImportedType<T> = T extends { default: unknown }
+  ? T["default"]
+  : T
+
+/**
+ * Base type for all entities in the system
+ */
+export interface BaseEntity {
+  readonly id: string
+  readonly createdAt: Date
+  readonly updatedAt: Date
+  readonly [key: string]: unknown
+}
+
+/**
+ * Base type for all service errors
+ */
+export interface ServiceError {
+  readonly _tag: string
+  readonly message: string
+  readonly cause?: unknown
+}
+
+/**
+ * Base type for all configuration files
+ */
+export interface BaseConfig {
+  readonly name: string
+  readonly version: string
+  readonly [key: string]: unknown
 }

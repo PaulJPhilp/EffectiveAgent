@@ -1,24 +1,20 @@
-import type { LanguageModelV1 } from "ai";
 import { Effect, Layer } from "effect";
-import type { EffectiveInput } from "../../input/service.js";
-import type { ModelServiceApi } from "../../model/service.js";
 import { ProviderClient } from "../client.js";
-import { ProviderConfigError } from "../errors.js";
+import { ProviderConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "../errors.js";
 import type {
   EffectiveProviderApi,
-  EffectiveResponse,
-  GenerateEmbeddingsResult,
-  GenerateObjectResult,
-  GenerateSpeechResult,
+  GenerateImageResult,
   GenerateTextResult,
-  ModelCapability,
+  ProviderChatOptions,
   ProviderGenerateEmbeddingsOptions,
+  ProviderGenerateImageOptions,
   ProviderGenerateObjectOptions,
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
-  ProviderTranscribeOptions,
-  TranscribeResult,
+  ProviderTranscribeOptions
 } from "../types.js";
+import type { EffectiveInput, EffectiveResponse } from "@/types.js";
+import { ProviderToolError } from "@/services/ai/provider/errors/tool.js";
 
 /**
  * Returns a ProviderClientApi instance pre-configured for Groq.
@@ -32,7 +28,7 @@ export const makeGroqProviderClient = Effect.gen(function* () {
       }
       return provider.setVercelProvider({
         name: "groq",
-        provider,
+        provider: vercelProvider.provider,
         capabilities: vercelProvider.capabilities
       });
     },
@@ -60,46 +56,42 @@ export const makeGroqProviderClient = Effect.gen(function* () {
     ) => provider.generateEmbeddings(input, options),
     getCapabilities: () => provider.getCapabilities(),
     getModels: () => provider.getModels(),
+    chat: (
+      input: EffectiveInput,
+      options: ProviderChatOptions
+    ): Effect.Effect<
+      EffectiveResponse<GenerateTextResult>,
+      ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError
+    > => provider.chat(input, options),
+    generateImage: (
+      input: EffectiveInput,
+      options: ProviderGenerateImageOptions
+    ): Effect.Effect<
+      EffectiveResponse<GenerateImageResult>,
+      ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError
+    > => provider.generateImage(input, options),
+    validateToolInput: (
+      toolName: string,
+      input: unknown
+    ): Effect.Effect<unknown, ProviderToolError> =>
+      provider.validateToolInput(toolName, input),
+    executeTool: (
+      toolName: string,
+      input: unknown
+    ): Effect.Effect<unknown, ProviderToolError> =>
+      provider.executeTool(toolName, input),
+    processToolResult: (
+      toolName: string,
+      result: unknown
+    ): Effect.Effect<unknown, ProviderToolError> =>
+      provider.processToolResult(toolName, result)
   };
 });
 
 export const GroqProviderClientLayer = Layer.effect(
   ProviderClient,
-  Effect.gen(function* () {
-    const provider = yield* ProviderClient;
-    return {
-      setVercelProvider: (
-        vercelProvider: EffectiveProviderApi
-      ): Effect.Effect<void, ProviderConfigError> =>
-        provider.setVercelProvider({
-          name: "groq",
-          provider,
-          capabilities: vercelProvider.capabilities
-        }),
-      getProvider: (): Effect.Effect<EffectiveProviderApi, ProviderConfigError> =>
-        provider.getProvider(),
-      generateText: (
-        input: EffectiveInput,
-        options: ProviderGenerateTextOptions
-      ) => provider.generateText(input, options),
-      generateObject: <T>(
-        input: EffectiveInput,
-        options: ProviderGenerateObjectOptions<T>
-      ) => provider.generateObject(input, options),
-      generateSpeech: (
-        input: string,
-        options: ProviderGenerateSpeechOptions
-      ) => provider.generateSpeech(input, options),
-      transcribe: (
-        input: ArrayBuffer,
-        options: ProviderTranscribeOptions
-      ) => provider.transcribe(input, options),
-      generateEmbeddings: (
-        input: string[],
-        options: ProviderGenerateEmbeddingsOptions
-      ) => provider.generateEmbeddings(input, options),
-      getCapabilities: () => provider.getCapabilities(),
-      getModels: () => provider.getModels(),
-    };
-  })
+  Effect.map(makeGroqProviderClient, (client) => ({
+    ...client,
+    getDefaultModelIdForProvider: () => Effect.succeed("llama3-8b-8192")
+  }))
 );

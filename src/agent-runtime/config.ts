@@ -1,5 +1,4 @@
 import { Effect } from "effect"
-import type { AgentRuntimeConfig } from "./types.js"
 
 /**
  * Default configuration for AgentRuntime instances

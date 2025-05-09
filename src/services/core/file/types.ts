@@ -2,15 +2,17 @@
  * @file Defines the types for the File service.
  */
 
-import type { EntityId, Timestamp } from "../../../types.js";
+import { Timestamp } from "@/types.js";
+import { EntityId } from "@/types.js";
 import type { FileServiceApi } from "./api.js";
-import type { FileEntityData } from "./schema.js";
+import { FileEntityData } from "./schema.js";
 
 // Define the input data for storing a file - uses Buffer for content
 // Renamed from StoreFileInputData
-export type FileInput = Omit<FileEntityData, "contentBase64"> & {
-    content: Buffer; // Accept raw Buffer as input
-};
+export interface FileInput {
+    content: Buffer
+    metadata?: Record<string, unknown>
+}
 
 // Define a specific type for File Info/Metadata (excluding content)
 // Renamed from FileMetadata
