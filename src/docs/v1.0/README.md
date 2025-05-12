@@ -84,6 +84,10 @@ EffectiveAgent leverages a modern, robust technology stack chosen for performanc
 *   **Templating:** **LiquidJS**
 *   **Schema/Validation:** **Zod** (via `@effect/schema`)
 *   **Testing:** **Vitest** (with `@effect/vitest` integration optional)
+    - **Mock WebSocket Server** for real-time agent interaction testing
+    - **Effect-based test tools** for simulating agent capabilities
+    - **Test harness utilities** for managing test resources and assertions
+    - **Integration test patterns** for WebSocket-based agent communication
 
 See [`TECHNOLOGY_STACK.md`](./src/services/TECHNOLOGY_STACK.md) for more details.
 

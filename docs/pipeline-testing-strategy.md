@@ -240,3 +240,58 @@ The weather pipeline in `ea/pipelines/weather` demonstrates this testing approac
 - `e2e.test.ts`: Tests complete flows from input to weather summary
 
 These examples serve as templates for testing other pipelines in the `ea/pipelines` folder.
+
+## Example: Chat App Integration Tests
+
+The chat app integration tests in `src/__tests__/integration/chat-app` demonstrate testing WebSocket-based agent interactions:
+
+### Mock WebSocket Testing
+
+The chat app tests use `MockWebSocketServer` to simulate real-time agent interactions:
+
+```typescript
+function createMockAgentRuntimeWithTools() {
+    // Set up mock tools (weather, time, etc.)
+    const testTools = HashMap.make(
+        ["weather:get", weatherTool] as const,
+        ["time:get", timeTool] as const
+    )
+
+    // Create tool registry with mock tools
+    const toolRegistryData = new ToolRegistryData({
+        tools: testTools,
+        toolkits: HashMap.empty()
+    })
+
+    // Create mock runtime implementation
+    const mockRuntime = {
+        send: (agentRuntimeId: string, activity: AgentActivity) => {
+            // Mock message handling logic
+        },
+        subscribe: (agentRuntimeId: string) => {
+            // Mock subscription logic
+        }
+    }
+
+    return {
+        service: mockRuntime,
+        layer: Layer.succeed(ToolRegistryDataTag, toolRegistryData)
+    }
+}
+```
+
+Key testing patterns demonstrated:
+- Using `MockWebSocketServer` for WebSocket communication testing
+- Creating mock tools with Effect-based implementations
+- Simulating agent runtime behavior with canned responses
+- Testing tool registry integration
+- Managing test scopes and cleanup
+
+The chat app tests show how to:
+1. Set up mock WebSocket servers
+2. Create test tools with Effect implementations
+3. Simulate agent runtime behavior
+4. Test real-time message handling
+5. Manage test resources and cleanup
+
+These patterns can be applied when testing other real-time agent interactions in the system.

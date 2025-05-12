@@ -46,106 +46,91 @@ export function make<TData extends JsonObject, TEntity extends BaseEntity<TData>
 
         const create = (data: TData): Effect.Effect<TEntity, RepositoryError> =>
             Effect.gen(function* () {
-                try {
-                    const [result] = yield* Effect.promise(() =>
-                        client
-                            .insert(table)
-                            .values({
-                                id: uuidv4(),
-                                createdAt: sql`now()`,
-                                updatedAt: sql`now()`,
-                                data: data as any
-                            })
-                            .returning()
-                    );
-                    return toEntity(result as unknown as BaseModel<TData>);
-                } catch (error: unknown) {
-                    if (error instanceof Error && error.message.includes("duplicate")) {
-                        throw new DuplicateEntryError({
-                            entityType,
-                            conflictingField: "id",
-                            conflictingValue: "unknown"
-                        });
-                    }
-                    throw new RepositoryError({
-                        message: `Failed to create ${entityType}`,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    });
-                }
-            }).pipe(
-                Effect.catchAll(error => Effect.fail(error))
-            );
+                const result = yield* Effect.promise(() =>
+                    client
+                        .insert(table)
+                        .values({
+                            id: uuidv4(),
+                            createdAt: sql`now()`,
+                            updatedAt: sql`now()`,
+                            data: data as any
+                        })
+                        .returning()
+                ).pipe(
+                    Effect.map(([result]) => toEntity(result as unknown as BaseModel<TData>)),
+                    Effect.catchAll((error) => {
+                        if (error instanceof Error && error.message.includes("duplicate")) {
+                            return Effect.fail(new DuplicateEntryError({
+                                entityType,
+                                conflictingField: "id",
+                                conflictingValue: "unknown"
+                            }));
+                        }
+                        return Effect.fail(new RepositoryError({
+                            message: `Failed to create ${entityType}`,
+                            cause: error instanceof Error ? error : new Error(String(error))
+                        }));
+                    })
+                );
+                return result;
+            });
 
         const findById = (id: EntityId): Effect.Effect<Option.Option<TEntity>, RepositoryError> =>
-            Effect.gen(function* () {
-                try {
-                    const [result] = yield* Effect.promise(() =>
-                        client.select().from(table).where(eq(table["id"], id)).limit(1)
-                    );
-                    return Option.fromNullable(result as unknown as BaseModel<TData>).pipe(
-                        Option.map(toEntity)
-                    );
-                } catch (error) {
-                    throw new RepositoryError({
-                        message: `Failed to find ${entityType} by ID ${id}`,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    });
-                }
-            }).pipe(
-                Effect.catchAll(error => Effect.fail(error))
+            Effect.promise(() =>
+                client.select().from(table).where(eq(table["id"], id)).limit(1)
+            ).pipe(
+                Effect.map(([result]) => Option.fromNullable(result as unknown as BaseModel<TData>).pipe(
+                    Option.map(toEntity)
+                )),
+                Effect.catchAll((error) => Effect.fail(new RepositoryError({
+                    message: `Failed to find ${entityType} by ID ${id}`,
+                    cause: error instanceof Error ? error : new Error(String(error))
+                })))
             );
 
         const findOne = (
             options?: FindOptions<TEntity>
         ): Effect.Effect<Option.Option<TEntity>, RepositoryError> =>
             Effect.gen(function* () {
-                try {
-                    const where = buildWhere(options);
-                    const [result] = yield* Effect.promise(() =>
-                        client
-                            .select()
-                            .from(table)
-                            .where(where)
-                            .limit(1)
-                            .offset(options?.offset ?? 0)
-                    );
-                    return Option.fromNullable(result as unknown as BaseModel<TData>).pipe(
+                const where = buildWhere(options);
+                return yield* Effect.promise(() =>
+                    client
+                        .select()
+                        .from(table)
+                        .where(where)
+                        .limit(1)
+                        .offset(options?.offset ?? 0)
+                ).pipe(
+                    Effect.map(([result]) => Option.fromNullable(result as unknown as BaseModel<TData>).pipe(
                         Option.map(toEntity)
-                    );
-                } catch (error) {
-                    throw new RepositoryError({
+                    )),
+                    Effect.catchAll((error) => Effect.fail(new RepositoryError({
                         message: `Failed to find ${entityType}`,
                         cause: error instanceof Error ? error : new Error(String(error))
-                    });
-                }
-            }).pipe(
-                Effect.catchAll(error => Effect.fail(error))
-            );
+                    })))
+                );
+            });
 
         const findMany = (
             options?: FindOptions<TEntity>
         ): Effect.Effect<ReadonlyArray<TEntity>, RepositoryError> =>
             Effect.gen(function* () {
-                try {
-                    const where = buildWhere(options);
-                    const results = yield* Effect.promise(() =>
-                        client
-                            .select()
-                            .from(table)
-                            .where(where)
-                            .limit(options?.limit ?? 100)
-                            .offset(options?.offset ?? 0)
-                    );
-                    return (results as unknown as BaseModel<TData>[]).map(toEntity);
-                } catch (error) {
-                    throw new RepositoryError({
+                const where = buildWhere(options);
+                return yield* Effect.promise(() =>
+                    client
+                        .select()
+                        .from(table)
+                        .where(where)
+                        .limit(options?.limit ?? 100)
+                        .offset(options?.offset ?? 0)
+                ).pipe(
+                    Effect.map((results) => (results as unknown as BaseModel<TData>[]).map(toEntity)),
+                    Effect.catchAll((error) => Effect.fail(new RepositoryError({
                         message: `Failed to find many ${entityType}`,
                         cause: error instanceof Error ? error : new Error(String(error))
-                    });
-                }
-            }).pipe(
-                Effect.catchAll(error => Effect.fail(error))
-            );
+                    })))
+                );
+            });
 
         const update = (
             id: EntityId,
@@ -194,43 +179,38 @@ export function make<TData extends JsonObject, TEntity extends BaseEntity<TData>
                 return toEntity(updated as unknown as BaseModel<TData>);
             });
 
-        const del = (id: EntityId): Effect.Effect<void, RepositoryError> =>
-            Effect.gen(function* () {
-                try {
-                    const [result] = yield* Effect.promise(() =>
-                        client.delete(table).where(eq(table["id"], id)).returning()
-                    );
+        const del = (id: EntityId): Effect.Effect<void, RepositoryError | EntityNotFoundError> =>
+            Effect.promise(() =>
+                client.delete(table).where(eq(table["id"], id)).returning()
+            ).pipe(
+                Effect.map(([result]) => {
                     if (!result) {
                         return Effect.fail(new EntityNotFoundError({
                             entityType,
                             entityId: id
                         }));
                     }
-                } catch (error) {
-                    return Effect.fail(new RepositoryError({
-                        message: `Failed to delete ${entityType} with ID ${id}`,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    }));
-                }
-            });
+                    return Effect.succeed(undefined);
+                }),
+                Effect.catchAll((error) => Effect.fail(new RepositoryError({
+                    message: `Failed to delete ${entityType} with ID ${id}`,
+                    cause: error instanceof Error ? error : new Error(String(error))
+                })))
+            );
 
         const count = (options?: FindOptions<TEntity>): Effect.Effect<number, RepositoryError> =>
             Effect.gen(function* () {
-                try {
-                    const where = buildWhere(options);
-                    const [result] = yield* Effect.promise(() =>
-                        client.select({ count: sql`count(${table["id"]})` }).from(table).where(where)
-                    );
-                    return Number(result.count);
-                } catch (error) {
-                    throw new RepositoryError({
+                const where = buildWhere(options);
+                return yield* Effect.promise(() =>
+                    client.select({ count: sql`count(${table["id"]})` }).from(table).where(where)
+                ).pipe(
+                    Effect.map(([result]) => Number(result.count)),
+                    Effect.catchAll((error) => Effect.fail(new RepositoryError({
                         message: `Failed to count ${entityType}`,
                         cause: error instanceof Error ? error : new Error(String(error))
-                    });
-                }
-            }).pipe(
-                Effect.catchAll(error => Effect.fail(error))
-            );
+                    })))
+                );
+            });
 
         return {
             create,

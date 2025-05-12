@@ -1,38 +1,48 @@
-import { Effect, Either, Ref } from "effect"
+import { createServiceTestHarness } from "@/services/core/test-harness/utils/service-test.js"
+import { Effect, Ref, Stream, pipe } from "effect"
 import { describe, expect, it } from "vitest"
 import {
-    AgentRecord,
-    AgentRecordType,
+    AgentActivity,
+    AgentActivityType,
     AgentRuntimeError,
+    AgentRuntimeId,
     AgentRuntimeService,
     AgentRuntimeStatus,
     makeAgentRuntimeId
 } from "../index.js"
 
-// Helper to run test Effects
-const runTest = <E, A>(effect: Effect.Effect<A, E>): Promise<A> =>
-    Effect.runPromise(effect)
-
-// Helper to check if an Effect failed
-const didFail = async (effect: Effect.Effect<unknown>): Promise<boolean> => {
-    try {
-        const result = await Effect.runPromise(effect)
-        return Effect.isFailure(result as Effect.Effect<unknown, unknown>) as unknown as boolean
-    } catch {
-        return false
-    }
-}
-
-// Helper to check if an effect will fail
-const willFail = async <E, A>(effect: Effect.Effect<A, E>): Promise<boolean> => {
-    const result = await Effect.runPromise(Effect.either(effect))
-    return Either.isLeft(result as Either.Either<unknown, unknown>) as unknown as boolean
-}
+const serviceHarness = createServiceTestHarness(
+    AgentRuntimeService,
+    () => Effect.succeed({
+        create: <S>(id: AgentRuntimeId, initialState: S) => Effect.succeed({
+            id,
+            send: (_activity: AgentActivity) => Effect.succeed(void 0),
+            getState: () => Effect.succeed({
+                id,
+                state: initialState,
+                status: AgentRuntimeStatus.IDLE,
+                lastUpdated: Date.now(),
+                processing: { processed: 0, failures: 0, avgProcessingTime: 0 }
+            }),
+            subscribe: () => Stream.empty
+        }),
+        terminate: (id: AgentRuntimeId) => Effect.succeed(void 0),
+        send: (id: AgentRuntimeId, _activity: AgentActivity) => Effect.succeed(void 0),
+        getState: <S>(id: AgentRuntimeId) => Effect.succeed({
+            id,
+            state: { count: 0 } as S,
+            status: AgentRuntimeStatus.IDLE,
+            lastUpdated: Date.now(),
+            processing: { processed: 0, failures: 0, avgProcessingTime: 0 }
+        }),
+        subscribe: (id: AgentRuntimeId) => Stream.empty
+    })
+)
 
 describe("AgentRuntimeService", () => {
     describe("create", () => {
         it("should create a new AgentRuntime with initial state", () =>
-            runTest(Effect.gen(function* () {
+            serviceHarness.runTest(Effect.gen(function* () {
                 const service = yield* AgentRuntimeService
                 const id = makeAgentRuntimeId("test")
                 const initialState = { count: 0 }
@@ -50,7 +60,7 @@ describe("AgentRuntimeService", () => {
         )
 
         it("should fail when creating an AgentRuntime with existing ID", () =>
-            runTest(Effect.gen(function* () {
+            serviceHarness.runTest(Effect.gen(function* () {
                 const service = yield* AgentRuntimeService
                 const id = makeAgentRuntimeId("test")
                 const initialState = { count: 0 }
@@ -58,123 +68,252 @@ describe("AgentRuntimeService", () => {
                 yield* service.create(id, initialState)
                 const result = yield* Effect.flip(service.create(id, initialState))
                 expect(result).toBeInstanceOf(AgentRuntimeError)
-                expect(result.agentRuntimeId).toBe(id)
+                if (result instanceof AgentRuntimeError) {
+                    expect(result.agentRuntimeId).toBe(id)
+                }
             }))
         )
     })
 
     describe("send", () => {
-        it("should send records to a running AgentRuntime", () =>
-            runTest(Effect.gen(function* () {
+        it("should handle state change activities", () =>
+            serviceHarness.runTest(Effect.gen(function* () {
                 const service = yield* AgentRuntimeService
                 const id = makeAgentRuntimeId("test")
                 const initialState = { count: 0 }
 
                 const runtime = yield* service.create(id, initialState)
 
-                const record: AgentRecord = {
-                    id: "test-record",
+                const activity: AgentActivity = {
+                    id: "test-activity",
                     agentRuntimeId: id,
                     timestamp: Date.now(),
-                    type: AgentRecordType.STATE_CHANGE,
+                    type: AgentActivityType.STATE_CHANGE,
                     payload: { count: 1 },
-                    metadata: {}
+                    metadata: {},
+                    sequence: 0
                 }
 
-                yield* service.send(id, record)
+                yield* service.send(id, activity)
                 const state = yield* runtime.getState()
                 expect(state.state.count).toBe(1)
+                expect(state.processing?.processed).toBe(1)
+                expect(state.processing?.failures).toBe(0)
             }))
         )
 
-        it("should handle errors when sending to non-existent AgentRuntime", () =>
-            runTest(Effect.gen(function* () {
+        it("should handle command activities", () =>
+            serviceHarness.runTest(Effect.gen(function* () {
                 const service = yield* AgentRuntimeService
                 const id = makeAgentRuntimeId("test")
+                const initialState = { count: 0 }
 
-                const record: AgentRecord = {
-                    id: "test-record",
+                const runtime = yield* service.create(id, initialState)
+
+                const activity: AgentActivity = {
+                    id: "test-activity",
                     agentRuntimeId: id,
                     timestamp: Date.now(),
-                    type: AgentRecordType.COMMAND,
+                    type: AgentActivityType.COMMAND,
                     payload: { type: "TEST" },
-                    metadata: {}
+                    metadata: {},
+                    sequence: 0
                 }
 
-                const result = yield* Effect.flip(service.send(id, record))
-                expect(result).toBeDefined()
-                expect(result.message).toContain("not found")
+                yield* service.send(id, activity)
+                const state = yield* runtime.getState()
+                expect(state.status).toBe(AgentRuntimeStatus.ERROR)
+                expect(state.processing?.failures).toBe(1)
+                expect(state.error).toBeDefined()
+            }))
+        )
+
+        it("should handle concurrent state changes", () =>
+            serviceHarness.runTest(Effect.gen(function* () {
+                const service = yield* AgentRuntimeService
+                const id = makeAgentRuntimeId("test")
+                const initialState = { count: 0 }
+
+                const runtime = yield* service.create(id, initialState)
+
+                // Send multiple concurrent state changes
+                const activities = Array.from({ length: 10 }, (_, i) => ({
+                    id: `test-activity-${i}`,
+                    agentRuntimeId: id,
+                    timestamp: Date.now(),
+                    type: AgentActivityType.STATE_CHANGE,
+                    payload: { count: i + 1 },
+                    metadata: {},
+                    sequence: i
+                }))
+
+                yield* Effect.forEach(
+                    activities,
+                    activity => service.send(id, activity),
+                    { concurrency: "unbounded" }
+                )
+
+                // Wait for processing to complete
+                yield* Effect.sleep(100)
+
+                const state = yield* runtime.getState()
+                expect(state.processing?.processed).toBe(10)
+                expect(state.processing?.failures).toBe(0)
+                expect(state.state.count).toBeGreaterThan(0)
+            }))
+        )
+
+        it("should handle invalid state changes", () =>
+            serviceHarness.runTest(Effect.gen(function* () {
+                const service = yield* AgentRuntimeService
+                const id = makeAgentRuntimeId("test")
+                const initialState = { count: 0 }
+
+                const runtime = yield* service.create(id, initialState)
+
+                const activity: AgentActivity = {
+                    id: "test-activity",
+                    agentRuntimeId: id,
+                    timestamp: Date.now(),
+                    type: AgentActivityType.STATE_CHANGE,
+                    payload: undefined,
+                    metadata: {},
+                    sequence: 0
+                }
+
+                yield* service.send(id, activity)
+                const state = yield* runtime.getState()
+                expect(state.status).toBe(AgentRuntimeStatus.ERROR)
+                expect(state.processing?.failures).toBe(1)
+                expect(state.error).toBeDefined()
             }))
         )
     })
 
     describe("subscribe", () => {
-        it("should receive state change records from a running AgentRuntime", () =>
-            runTest(Effect.gen(function* () {
+        it("should receive activities in priority order", () =>
+            serviceHarness.runTest(Effect.gen(function* () {
                 const service = yield* AgentRuntimeService
                 const id = makeAgentRuntimeId("test")
                 const initialState = { count: 0 }
 
                 const runtime = yield* service.create(id, initialState)
 
-                // Create a ref to store received records
-                const records = yield* Ref.make<AgentRecord[]>([])
+                // Create a ref to store received activities
+                const activities = yield* Ref.make<AgentActivity[]>([])
 
-                // Subscribe to records
+                // Subscribe to activities
                 yield* pipe(
                     runtime.subscribe(),
-                    Stream.tap(record =>
-                        Ref.update(records, list => [...list, record])
+                    Stream.tap(activity =>
+                        Ref.update(activities, list => [...list, activity])
                     ),
-                    Stream.take(1),
+                    Stream.take(3),
                     Stream.runDrain,
                     Effect.fork
                 )
 
-                // Send a state change
-                const record: AgentRecord = {
-                    id: "test-record",
-                    agentRuntimeId: id,
-                    timestamp: Date.now(),
-                    type: AgentRecordType.STATE_CHANGE,
-                    payload: { count: 1 },
-                    metadata: {}
-                }
+                // Send activities with different priorities
+                const toSend: AgentActivity[] = [
+                    {
+                        id: "test-1",
+                        agentRuntimeId: id,
+                        timestamp: Date.now(),
+                        type: AgentActivityType.STATE_CHANGE,
+                        payload: { count: 1 },
+                        metadata: { priority: 2 as any },
+                        sequence: 0
+                    },
+                    {
+                        id: "test-2",
+                        agentRuntimeId: id,
+                        timestamp: Date.now(),
+                        type: AgentActivityType.STATE_CHANGE,
+                        payload: { count: 2 },
+                        metadata: { priority: 0 as any },
+                        sequence: 1
+                    },
+                    {
+                        id: "test-3",
+                        agentRuntimeId: id,
+                        timestamp: Date.now(),
+                        type: AgentActivityType.STATE_CHANGE,
+                        payload: { count: 3 },
+                        metadata: { priority: 1 as any },
+                        sequence: 2
+                    }
+                ]
 
-                yield* service.send(id, record)
+                yield* Effect.forEach(
+                    toSend,
+                    activity => service.send(id, activity),
+                    { concurrency: "unbounded" }
+                )
 
-                // Wait a bit for record to be processed
+                // Wait for processing
                 yield* Effect.sleep(100)
 
-                // Check received records
-                const received = yield* Ref.get(records)
-                expect(received).toHaveLength(1)
-                expect(received[0].type).toBe(AgentRecordType.STATE_CHANGE)
-                expect(received[0].payload).toEqual({ count: 1 })
+                // Check received activities
+                const received = yield* Ref.get(activities)
+                expect(received).toHaveLength(3)
+                expect(received[0]!.metadata.priority).toBe(0) // High priority first
+                expect(received[1]!.metadata.priority).toBe(1)
+                expect(received[2]!.metadata.priority).toBe(2)
             }))
         )
     })
 
     describe("terminate", () => {
         it("should clean up resources when terminating an AgentRuntime", () =>
-            runTest(Effect.gen(function* () {
+            serviceHarness.runTest(Effect.gen(function* () {
                 const service = yield* AgentRuntimeService
                 const id = makeAgentRuntimeId("test")
                 const initialState = { count: 0 }
 
                 const runtime = yield* service.create(id, initialState)
-                yield* service.terminate(id)
 
-                const record: AgentRecord = {
-                    id: "test-record",
+                // Send an activity before termination
+                const activity: AgentActivity = {
+                    id: "test-activity",
                     agentRuntimeId: id,
                     timestamp: Date.now(),
-                    type: AgentRecordType.COMMAND,
-                    payload: { type: "INCREMENT" },
-                    metadata: {}
+                    type: AgentActivityType.STATE_CHANGE,
+                    payload: { count: 1 },
+                    metadata: {},
+                    sequence: 0
                 }
 
-                const result = yield* Effect.flip(service.send(id, record))
+                yield* service.send(id, activity)
+                yield* Effect.sleep(50) // Wait for processing
+
+                // Terminate
+                yield* service.terminate(id)
+
+                // Verify cleanup
+                const sendResult = yield* Effect.flip(service.send(id, activity))
+                expect(sendResult).toBeDefined()
+                expect(sendResult.message).toContain("not found")
+
+                const stateResult = yield* Effect.flip(runtime.getState())
+                expect(stateResult).toBeDefined()
+                expect(stateResult.message).toContain("not found")
+
+                const subscribeResult = yield* Effect.flip(Effect.promise(() =>
+                    Stream.runCollect(runtime.subscribe()).pipe(
+                        Effect.runPromise
+                    )
+                ))
+                expect(subscribeResult).toBeInstanceOf(Error)
+                expect((subscribeResult as Error).message).toContain("not found")
+            }))
+        )
+
+        it("should handle termination of non-existent runtime", () =>
+            serviceHarness.runTest(Effect.gen(function* () {
+                const service = yield* AgentRuntimeService
+                const id = makeAgentRuntimeId("test")
+
+                const result = yield* Effect.flip(service.terminate(id))
                 expect(result).toBeDefined()
                 expect(result.message).toContain("not found")
             }))

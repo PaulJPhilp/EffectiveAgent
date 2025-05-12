@@ -6,7 +6,6 @@
 import { Context, Effect, Schema } from "effect";
 import type { OAuth2Client } from "google-auth-library.js";
 import { google } from 'googleapis';
-import type { googleapis } from "googleapis.js";
 import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
@@ -63,60 +62,46 @@ const extractSummary = (message: gmail_v1.Schema$Message): GmailMessageSummary =
  */
 export const gmailReadMessagesImpl = (
 	input: GmailReadMessagesInput,
-): Effect.Effect<GmailReadMessagesOutput, ToolExecutionError, OAuth2Client> =>// Depends on placeholder Tag
+): Effect.Effect<GmailReadMessagesOutput, ToolExecutionError, OAuth2Client> =>
 	Effect.gen(function* () {
-		const auth = yield* GoogleAuthTag; // Use placeholder Tag
+		const auth = yield* GoogleAuthTag;
 		const gmail = google.gmail({ version: 'v1', auth });
 
-		try {
-			// 1. List messages
-			const listResponse = yield* Effect.tryPromise({
-				try: () => gmail.users.messages.list({
-					userId: 'me', // Use 'me' for the authenticated user
-					maxResults: input.limit,
-					// Add labelIds: ['INBOX'] or q: '...' for filtering if needed
+		// 1. List messages
+		const listResponse = yield* Effect.tryPromise({
+			try: () => gmail.users.messages.list({
+				userId: 'me',
+				maxResults: input.limit,
+			}),
+			catch: (error) => new ToolExecutionError({
+				toolName: "gmailReadMessages", input, cause: error
+			})
+		});
+
+		const messageIds = listResponse.data.messages?.map(m => m.id ?? '')?.filter(id => id) ?? [];
+		if (messageIds.length === 0) {
+			return { messages: [] };
+		}
+
+		// 2. Fetch summary for each message (minimal format)
+		const limitedIds = messageIds.slice(0, input.limit);
+
+		const messageSummaries = yield* Effect.forEach(limitedIds, (id) =>
+			Effect.tryPromise({
+				try: () => gmail.users.messages.get({
+					userId: 'me',
+					id: id,
+					format: 'metadata',
+					metadataHeaders: ["Subject", "From", "To", "Date"]
 				}),
 				catch: (error) => new ToolExecutionError({
-					toolName: "gmailReadMessages", input, cause: error
+					toolName: "gmailReadMessages", input: { messageId: id }, cause: error
 				})
-			});
+			}).pipe(
+				Effect.map(res => extractSummary(res.data))
+			),
+			{ concurrency: 5 }
+		);
 
-			const messageIds = listResponse.data.messages?.map(m => m.id ?? '')?.filter(id => id) ?? [];
-			if (messageIds.length === 0) {
-				return { messages: [] }; // Return empty mutable array
-			}
-
-			// 2. Fetch summary for each message (minimal format)
-			// Use standard Array slice
-			const limitedIds = messageIds.slice(0, input.limit);
-
-			// Note: Fetching full message content is much heavier.
-			// Using batch requests would be more efficient for many messages.
-			const messageSummaries = yield* Effect.forEach(limitedIds, (id) =>
-				Effect.tryPromise({
-					try: () => gmail.users.messages.get({
-						userId: 'me',
-						id: id,
-						format: 'metadata', // Fetch minimal data (headers/snippet)
-						metadataHeaders: ["Subject", "From", "To", "Date"] // Specify needed headers
-					}),
-					catch: (error) => new ToolExecutionError({
-						toolName: "gmailReadMessages", input: { messageId: id }, cause: error
-					})
-				}).pipe(
-					// Extract summary from the response data
-					Effect.map(res => extractSummary(res.data))
-				),
-				{ concurrency: 5 } // Limit concurrency
-			);
-
-			// Effect.forEach returns ReadonlyArray, convert to mutable array for output schema
-			return { messages: Array.from(messageSummaries) };
-
-		} catch (error) {
-			// Catch any unexpected errors during the process
-			return yield* Effect.fail(new ToolExecutionError({
-				toolName: "gmailReadMessages", input, cause: error
-			}));
-		}
+		return { messages: Array.from(messageSummaries) };
 	});

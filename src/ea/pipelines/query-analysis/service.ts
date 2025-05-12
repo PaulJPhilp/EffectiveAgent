@@ -113,39 +113,37 @@ export class QueryAnalysisPipelineService extends Effect.Service<QueryAnalysisPi
             Effect.gen(function* () {
                 yield* Effect.logInfo(`Analyzing query: ${input.query}`);
 
-                try {
-                    // Extract entities using the EntityRecognitionTool
-                    const entities = yield* entityRecognizer.extractEntities(input.query);
+                // Extract entities using the EntityRecognitionTool
+                const entities = yield* entityRecognizer.extractEntities(input.query);
 
-                    // Classify intents using the IntentClassifierTool
-                    const intents = yield* intentClassifier.classifyIntent(input.query);
+                // Classify intents using the IntentClassifierTool
+                const intents = yield* intentClassifier.classifyIntent(input.query);
 
-                    return yield* Effect.succeed({
-                        query: input.query,
-                        entities,
-                        intents,
-                        sentiment: input.analyzeSentiment ? {
-                            value: "positive" as const,
-                            confidence: 0.72,
-                            details: [
-                                {
-                                    text: input.query,
-                                    sentiment: "positive" as const,
-                                    score: 0.72
-                                }
-                            ]
-                        } : undefined,
-                        queryType: input.query.endsWith("?") ? "question" as const : "command" as const
-                    });
-                } catch (error) {
-                    return yield* Effect.fail(
-                        new QueryAnalysisPipelineError({
-                            message: `Failed to analyze query: ${error instanceof Error ? error.message : String(error)}`,
-                            cause: error
-                        })
-                    );
-                }
-            });
+                return {
+                    query: input.query,
+                    entities,
+                    intents,
+                    sentiment: input.analyzeSentiment ? {
+                        value: "positive" as const,
+                        confidence: 0.72,
+                        details: [
+                            {
+                                text: input.query,
+                                sentiment: "positive" as const,
+                                score: 0.72
+                            }
+                        ]
+                    } : undefined,
+                    queryType: input.query.endsWith("?") ? "question" as const : "command" as const
+                };
+            }).pipe(
+                Effect.catchAll((error) => Effect.fail(
+                    new QueryAnalysisPipelineError({
+                        message: `Failed to analyze query: ${error instanceof Error ? error.message : String(error)}`,
+                        cause: error
+                    })
+                ))
+            );
 
         const extractEntities = (
             query: string,

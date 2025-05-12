@@ -91,6 +91,34 @@ export class EntityParseError extends EffectiveError {
 }
 
 /**
+ * Generic error for tool input/output parsing failures (distinct from Effect Schema ParseError).
+ * Use this for tool input/output validation errors to avoid confusion with Effect Schema errors.
+ * @extends EffectiveError
+ */
+export class AppToolParseError extends EffectiveError {
+  public readonly context?: unknown;
+  public readonly parseError?: unknown;
+
+  constructor(params: {
+    description: string;
+    module: string;
+    method: string;
+    context?: unknown;
+    parseError?: unknown;
+    cause?: unknown;
+  }) {
+    super({
+      description: params.description,
+      module: params.module,
+      method: params.method,
+      cause: params.cause
+    });
+    this.context = params.context;
+    this.parseError = params.parseError;
+  }
+}
+
+/**
  * Effect integration for error mapping
  * Maps unknown errors to typed ServiceError instances
  * @param effect - The effect to map errors for

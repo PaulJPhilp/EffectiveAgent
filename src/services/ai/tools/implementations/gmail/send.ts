@@ -3,10 +3,9 @@
  * @module services/tools/implementations/gmail/send
  */
 
-import { Context, Effect, Schema, Secret } from "effect";
+import { Context, Effect, Schema } from "effect";
 import type { OAuth2Client } from "google-auth-library.js";
 import { google } from 'googleapis';
-import type { googleapis } from "googleapis.js";
 import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
@@ -65,43 +64,37 @@ const createMail = (input: GmailSendMessageInput): string => {
  */
 export const gmailSendMessageImpl = (
 	input: GmailSendMessageInput,
-): Effect.Effect<GmailSendMessageOutput, ToolExecutionError, OAuth2Client> => // Depends on placeholder Tag
+): Effect.Effect<GmailSendMessageOutput, ToolExecutionError, OAuth2Client> =>
 	Effect.gen(function* () {
-		const auth = yield* GoogleAuthTag; // Use placeholder Tag
+		const auth = yield* GoogleAuthTag;
 		const gmail = google.gmail({ version: 'v1', auth });
 		const rawMessage = createMail(input);
 
-		try {
-			const response = yield* Effect.tryPromise({
-				try: () => gmail.users.messages.send({
-					userId: 'me',
-					requestBody: {
-						raw: rawMessage
-					}
-				}),
-				catch: (error) => new ToolExecutionError({
-					toolName: "gmailSendMessage", input, cause: error
-				})
-			});
+		const response = yield* Effect.tryPromise({
+			try: () => gmail.users.messages.send({
+				userId: 'me',
+				requestBody: {
+					raw: rawMessage
+				}
+			}),
+			catch: (error) => new ToolExecutionError({
+				toolName: "gmailSendMessage", input, cause: error
+			})
+		});
 
-			// Check response status and extract IDs
-			if (response.status === 200 && response.data.id) {
-				return {
+		return Effect.if(
+			response.status === 200 && response.data.id !== undefined,
+			{
+				onTrue: Effect.succeed({
 					success: true,
-					messageId: response.data.id ?? undefined,
+					messageId: response.data.id,
 					threadId: response.data.threadId ?? undefined,
-				};
-			} else {
-				// Treat non-200 or missing ID as failure for simplicity
-				return yield* Effect.fail(new ToolExecutionError({
+				}),
+				onFalse: Effect.fail(new ToolExecutionError({
 					toolName: "gmailSendMessage",
 					input,
 					cause: `Gmail API send failed with status ${response.status}: ${JSON.stringify(response.data)}`
-				}));
+				}))
 			}
-		} catch (error) {
-			return yield* Effect.fail(new ToolExecutionError({
-				toolName: "gmailSendMessage", input, cause: error
-			}));
-		}
+		);
 	});

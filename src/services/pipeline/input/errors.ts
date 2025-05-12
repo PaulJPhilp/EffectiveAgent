@@ -1,4 +1,8 @@
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+
 import { EffectiveError } from "@/errors.js";
+
 
 export class InputServiceError extends EffectiveError {
   constructor(params: { description: string; method: string; cause?: unknown }) {

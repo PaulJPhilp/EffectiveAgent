@@ -1,8 +1,11 @@
-import { NoAudioFileError } from "@/services/ai/provider/errors.js";
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
-import type { ImportedType } from "../types/base.js";
 import { FilePart } from "./schema.js";
+import { EffectiveInput } from "@/types.js";
+import { NoAudioFileError } from "./service.js";
 
 /**
  * Type guard to check if a part is a FilePart.
@@ -13,7 +16,7 @@ export function isFilePart(part: unknown): part is FilePart {
   return (
     typeof part === "object" &&
     part !== null &&
-    (part as FilePart)._tag === "FilePart" &&
+    (part as FilePart)._tag === "File" &&
     "fileName" in part &&
     "fileContent" in part &&
     "fileType" in part
@@ -26,7 +29,7 @@ export function isFilePart(part: unknown): part is FilePart {
  * @returns string[] Array of text contents
  */
 export function extractTextsForEmbeddings(input: EffectiveInput): string[] {
-  const messages = Chunk.toReadonlyArray(input.getMessages());
+  const messages = Chunk.toReadonlyArray(input.messages);
   const texts: string[] = [];
   for (const message of messages) {
     const parts = Chunk.toReadonlyArray(message.parts);
@@ -45,7 +48,7 @@ export function extractTextsForEmbeddings(input: EffectiveInput): string[] {
  * @returns string Concatenated text for TTS
  */
 export function extractTextForSpeech(input: EffectiveInput): string {
-  const messages = Chunk.toReadonlyArray(input.getMessages());
+  const messages = Chunk.toReadonlyArray(input.messages);
   const texts: string[] = [];
   for (const message of messages) {
     const parts = Chunk.toReadonlyArray(message.parts);
@@ -68,7 +71,7 @@ export function extractTextForSpeech(input: EffectiveInput): string {
 export function extractAudioForTranscriptionEffect(
   input: EffectiveInput
 ): Effect.Effect<ArrayBuffer, NoAudioFileError> {
-  const messages = Chunk.toReadonlyArray(input.getMessages());
+  const messages = Chunk.toReadonlyArray(input.messages);
   for (const message of messages) {
     const parts = Chunk.toReadonlyArray(message.parts);
     for (const part of parts) {

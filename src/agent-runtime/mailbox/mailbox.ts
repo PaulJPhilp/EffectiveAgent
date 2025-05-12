@@ -1,6 +1,10 @@
-import { MailboxError } from "@/agent-runtime/errors.js"
-import { AgentActivity, MessagePriority } from "@/agent-runtime/types.js"
+/**
+ * @file Base mailbox implementation for agent runtime message handling.
+ */
+
 import { Effect, Queue, Stream } from "effect"
+import { MailboxError } from "../errors.js"
+import { AgentActivity, MessagePriority } from "../types.js"
 
 /**
  * Mailbox class for priority-aware mailbox operations.
@@ -93,4 +97,4 @@ export class Mailbox {
     shutdown(): Effect.Effect<void> {
         return Queue.shutdown(this.defaultQueue)
     }
-}
+} 

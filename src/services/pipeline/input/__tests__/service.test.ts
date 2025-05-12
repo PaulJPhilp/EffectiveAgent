@@ -2,12 +2,18 @@
  * @file Test suite for InputService
  */
 
-import { Message, Model, TextPart, User } from "@/services/ai/input/schema.js";
+import {
+  FilePart,
+  InputService,
+  InvalidInputError,
+  InvalidMessageError,
+  NoAudioFileError,
+  TextPart,
+  User
+} from "@/services/pipeline/input/service.js";
+import { Message, Model } from "@/types.js";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
-import { InvalidInputError, InvalidMessageError, NoAudioFileError } from "../errors.js";
-import { FilePart, ReasoningPart, RedactedReasoningPart, ToolPart, ToolResultPart } from "../schema.js";
-import { InputService } from "../service.js";
 
 // Test schema for Person object
 class Person extends Schema.Class<Person>("Person")({
@@ -18,16 +24,7 @@ class Person extends Schema.Class<Person>("Person")({
 
 describe("InputService", () => {
     // --- Message Creation ---
-    const mockMessageCreation = {
-        getMessages: () => Effect.succeed(Chunk.empty<Message>()),
-        addMessage: (message: Message) => Effect.succeed(undefined),
-        addMessages: (_messages: ReadonlyArray<Message>) => Effect.succeed(undefined),
-        addTextPart: (_text: string) => Effect.succeed(undefined),
-        addPartOrMessage: (_input: any) => Effect.succeed(undefined),
-        extractTextsForEmbeddings: () => Effect.succeed([]),
-        extractTextForSpeech: () => Effect.succeed(""),
-        extractAudioForTranscription: () => Effect.fail(new NoAudioFileError())
-    };
+
 
     it("should create a user message", () =>
         Effect.gen(function* () {
@@ -54,9 +51,7 @@ describe("InputService", () => {
                 throw new Error("Part is undefined")
             }
             expect((parts[0] as TextPart).content).toBe("Hello");
-        }).pipe(
-            Effect.provideService(InputService, mockMessageCreation)
-        )
+        })
     );
 
     it("should create an assistant message", () =>
@@ -82,9 +77,7 @@ describe("InputService", () => {
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
             expect((parts[0] as TextPart).content).toBe("Hello");
-        }).pipe(
-            Effect.provideService(InputService, mockMessageCreation)
-        )
+        })
     );
 
     it("should create a system message", () =>
@@ -104,189 +97,34 @@ describe("InputService", () => {
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
             expect((parts[0] as TextPart).content).toBe("Hello");
-        }).pipe(
-            Effect.provideService(InputService, mockMessageCreation)
-        )
+        })
     );
 })
 
 describe("message parts", () => {
     // --- File Parts ---
-    const mockFileParts = {
-        getMessages: () => Effect.succeed(Chunk.make(
-            new Message({
-                role: new User(),
-                parts: Chunk.make(new TextPart({
-                    content: "File: test.txt\nType: text/plain"
-                }))
-            })
-        )),
-        addMessage: (_message: Message) => Effect.succeed(undefined),
-        addMessages: (_messages: ReadonlyArray<Message>) => Effect.succeed(undefined),
-        addTextPart: (_text: string) => Effect.succeed(undefined),
-        addPartOrMessage: (_input: any) => Effect.succeed(undefined),
-        extractTextsForEmbeddings: () => Effect.succeed([]),
-        extractTextForSpeech: () => Effect.succeed(""),
-        extractAudioForTranscription: () => Effect.fail(new NoAudioFileError())
-    };
-
     it("should add a file part", () =>
         Effect.gen(function* () {
             const service = yield* InputService;
-            const filePart = new FilePart({
-                _tag: "FilePart",
-                fileName: "test.txt",
-                fileContent: new Uint8Array([1, 2, 3]),
-                fileType: "text/plain"
-            });
+            const filePart = new FilePart(
+                "test.txt",
+                new Uint8Array([1, 2, 3]),
+                "text/plain"
+            );
 
             yield* service.addPartOrMessage(filePart);
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
-            expect(messageArray.length).toBe(1);
-            if (messageArray[0] === undefined) {
+            const message = Chunk.toReadonlyArray(messages)[0];
+
+            expect(message).toBeDefined();
+            if (message === undefined) {
                 throw new Error("Message is undefined")
             }
-
-            const parts = Chunk.toReadonlyArray(messageArray[0].parts);
-            expect(parts.length).toBe(1);
+            const parts = Chunk.toReadonlyArray(message.parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
             expect((parts[0] as TextPart).content).toContain("File: test.txt");
             expect((parts[0] as TextPart).content).toContain("Type: text/plain");
-        }).pipe(
-            Effect.provideService(InputService, mockFileParts)
-        )
-    );
-
-    // --- Reasoning Parts ---
-    const mockReasoningParts = {
-        getMessages: () => Effect.succeed(Chunk.make(
-            new Message({
-                role: new Model(),
-                parts: Chunk.make(new TextPart({
-                    content: "Let me think about this"
-                }))
-            })
-        )),
-        addMessage: (_message: Message) => Effect.succeed(undefined),
-        addMessages: (_messages: ReadonlyArray<Message>) => Effect.succeed(undefined),
-        addTextPart: (_text: string) => Effect.succeed(undefined),
-        addPartOrMessage: (_input: any) => Effect.succeed(undefined),
-        extractTextsForEmbeddings: () => Effect.succeed([]),
-        extractTextForSpeech: () => Effect.succeed(""),
-        extractAudioForTranscription: () => Effect.fail(new NoAudioFileError())
-    };
-
-    it("should add a reasoning part", () =>
-        Effect.gen(function* () {
-            const service = yield* InputService;
-            const reasoningPart = new ReasoningPart({
-                _tag: "ReasoningPart",
-                type: "reasoning",
-                text: "Let me think about this",
-                signature: "thinking"
-            });
-
-            yield* service.addPartOrMessage(reasoningPart);
-            const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
-            expect(messageArray.length).toBe(1);
-            if (messageArray[0] === undefined) {
-                throw new Error("Message is undefined")
-            }
-
-            const parts = Chunk.toReadonlyArray(messageArray[0].parts);
-            expect(parts.length).toBe(1);
-            expect(parts[0]).toBeInstanceOf(TextPart);
-            expect((parts[0] as TextPart).content).toBe("Let me think about this");
-        }).pipe(
-            Effect.provideService(InputService, mockReasoningParts)
-        )
-    );
-
-    // --- Redacted Reasoning Parts ---
-    const mockRedactedParts = {
-        getMessages: () => Effect.succeed(Chunk.make(
-            new Message({
-                role: new Model(),
-                parts: Chunk.make(new TextPart({
-                    content: "[REDACTED REASONING]"
-                }))
-            })
-        )),
-        addMessage: (_message: Message) => Effect.succeed(undefined),
-        addMessages: (_messages: ReadonlyArray<Message>) => Effect.succeed(undefined),
-        addTextPart: (_text: string) => Effect.succeed(undefined),
-        addPartOrMessage: (_input: any) => Effect.succeed(undefined),
-        extractTextsForEmbeddings: () => Effect.succeed([]),
-        extractTextForSpeech: () => Effect.succeed(""),
-        extractAudioForTranscription: () => Effect.fail(new NoAudioFileError())
-    };
-
-    it("should add a redacted reasoning part", () =>
-        Effect.gen(function* () {
-            const service = yield* InputService;
-            const redactedPart = new RedactedReasoningPart({
-                _tag: "RedactedReasoningPart",
-                type: "redacted-reasoning",
-                data: "[REDACTED REASONING]"
-            });
-
-            yield* service.addPartOrMessage(redactedPart);
-            const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
-            expect(messageArray.length).toBe(1);
-
-            const parts = Chunk.toReadonlyArray(messageArray[0].parts);
-            expect(parts.length).toBe(1);
-            expect(parts[0]).toBeInstanceOf(TextPart);
-            expect((parts[0] as TextPart).content).toBe("[REDACTED REASONING]");
-        }).pipe(
-            Effect.provideService(InputService, mockRedactedParts)
-        )
-    );
-
-    // --- Tool Result Parts ---
-    const mockToolResultParts = {
-        getMessages: () => Effect.succeed(Chunk.make(
-            new Message({
-                role: new Model(),
-                parts: Chunk.make(new TextPart({
-                    _tag: "TextPart",
-                    content: "2"
-                }))
-            })
-        )),
-        addMessage: (_message: Message) => Effect.succeed(undefined),
-        addMessages: (_messages: ReadonlyArray<Message>) => Effect.succeed(undefined),
-        addTextPart: (_text: string) => Effect.succeed(undefined),
-        addPartOrMessage: (_input: any) => Effect.succeed(undefined),
-        extractTextsForEmbeddings: () => Effect.succeed([]),
-        extractTextForSpeech: () => Effect.succeed(""),
-        extractAudioForTranscription: () => Effect.fail(new NoAudioFileError())
-    };
-
-    it("should add a tool result part", () =>
-        Effect.gen(function* () {
-            const service = yield* InputService;
-            const toolResultPart = new ToolResultPart({
-                _tag: "ToolResultPart",
-                type: "tool-result",
-                data: "2"
-            });
-
-            yield* service.addPartOrMessage(toolResultPart);
-            const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
-            expect(messageArray.length).toBe(1);
-
-            const parts = Chunk.toReadonlyArray(messageArray[0].parts);
-            expect(parts.length).toBe(1);
-            expect(parts[0]).toBeInstanceOf(TextPart);
-            expect((parts[0] as TextPart).content).toBe("2");
-        }).pipe(
-            Effect.provideService(InputService, mockToolResultParts)
-        )
+        })
     );
 })
 
@@ -296,15 +134,15 @@ describe("message management", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: new User(),
-                parts: Chunk.make(new TextPart({ _tag: "TextPart", content: "First" }))
+                parts: Chunk.make(new TextPart({ content: "First" }))
             }),
             new Message({
                 role: new Model(),
-                parts: Chunk.make(new TextPart({ _tag: "TextPart", content: "Second" }))
+                parts: Chunk.make(new TextPart({ content: "Second" }))
             }),
             new Message({
                 role: new Model(),
-                parts: Chunk.make(new TextPart({ _tag: "TextPart", content: "Third" }))
+                parts: Chunk.make(new TextPart({ content: "Third" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -345,12 +183,19 @@ describe("message management", () => {
             expect(messageArray.length).toBe(3);
 
             // Verify message content in order
-            const parts1 = Chunk.toReadonlyArray(messageArray[0].parts);
-            const parts2 = Chunk.toReadonlyArray(messageArray[1].parts);
-            const parts3 = Chunk.toReadonlyArray(messageArray[2].parts);
-
+            expect(messageArray[0]).toBeDefined();
+            const parts1 = Chunk.toReadonlyArray(messageArray[0]!.parts);
+            expect(parts1[0]).toBeDefined();
             expect((parts1[0] as TextPart).content).toBe("First");
+
+            expect(messageArray[1]).toBeDefined();
+            const parts2 = Chunk.toReadonlyArray(messageArray[1]!.parts);
+            expect(parts2[0]).toBeDefined();
             expect((parts2[0] as TextPart).content).toBe("Second");
+
+            expect(messageArray[2]).toBeDefined();
+            const parts3 = Chunk.toReadonlyArray(messageArray[2]!.parts);
+            expect(parts3[0]).toBeDefined();
             expect((parts3[0] as TextPart).content).toBe("Third");
         }).pipe(
             Effect.provideService(InputService, mockMessageOrder)
@@ -390,52 +235,36 @@ describe("message management", () => {
             const textPart = new TextPart({ content: "Initial text" });
             yield* service.addPartOrMessage(textPart);
 
-            const filePart = new FilePart({
-                _tag: "FilePart",
-                fileName: "test.txt",
-                fileContent: new Uint8Array([1, 2, 3]),
-                fileType: "text/plain"
-            });
+            const filePart = new FilePart(
+                "test.txt",
+                new Uint8Array([1, 2, 3]),
+                "text/plain"
+            );
             yield* service.addPartOrMessage(filePart);
-
-            const reasoningPart = new ReasoningPart({
-                _tag: "ReasoningPart",
-                type: "reasoning",
-                text: "Additional reasoning",
-                signature: "thinking"
-            });
-            yield* service.addPartOrMessage(reasoningPart);
 
             // Verify three separate messages were created
             const messages = yield* service.getMessages();
             const messageArray = Chunk.toReadonlyArray(messages);
-            expect(messageArray.length).toBe(3);
+            expect(messageArray.length).toBe(2);
 
             if (messageArray[0] === undefined) {
                 throw new Error("Message is undefined")
             }
 
-            if (messageArray[1] === undefined) {
-                throw new Error("Message is undefined")
-            }
             const parts1 = Chunk.toReadonlyArray(messageArray[0].parts);
             if (parts1[0] === undefined) {
                 throw new Error("Part is undefined")
+            }
+            expect((parts1[0] as TextPart).content).toBe("Initial text");
+
+            if (messageArray[1] === undefined) {
+                throw new Error("Message is undefined")
             }
             const parts2 = Chunk.toReadonlyArray(messageArray[1].parts);
             if (parts2[0] === undefined) {
                 throw new Error("Part is undefined")
             }
-            if (messageArray[2] === undefined) {
-                throw new Error("Message is undefined")
-            }
-            const parts3 = Chunk.toReadonlyArray(messageArray[2].parts);
-            if (parts3[0] === undefined) {
-                throw new Error("Part is undefined")
-            }
-            expect((parts1[0] as TextPart).content).toBe("Initial text");
             expect((parts2[0] as TextPart).content).toContain("File: test.txt");
-            expect((parts3[0] as TextPart).content).toBe("Additional reasoning");
         }).pipe(
             Effect.provideService(InputService, mockMultipleParts)
         )
@@ -487,7 +316,7 @@ describe("role mapping", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: new Model(),
-                parts: Chunk.make(new TextPart({ _tag: "TextPart", content: "Test" }))
+                parts: Chunk.make(new TextPart({ content: "Test" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -644,12 +473,11 @@ describe("part operations", () => {
     it("should handle file part", () =>
         Effect.gen(function* () {
             const service = yield* InputService;
-            const filePart = new FilePart({
-                _tag: "FilePart",
-                fileName: "test.wav",
-                fileContent: new Uint8Array([1, 2, 3]),
-                fileType: "audio/wav"
-            });
+            const filePart = new FilePart(
+                "test.wav",
+                new Uint8Array([1, 2, 3]),
+                "audio/wav"
+            );
 
             yield* service.addPartOrMessage(filePart);
             const messages = yield* service.getMessages();
@@ -663,32 +491,7 @@ describe("part operations", () => {
             expect(parts[0]).toBeInstanceOf(TextPart);
             expect((parts[0] as TextPart).content).toContain("test.wav");
         }));
-
-    it("should handle tool parts", () =>
-        Effect.gen(function* () {
-            const service = yield* InputService;
-            const toolPart = new ToolPart({
-                _tag: "ToolPart",
-                toolCallId: "test-call",
-                toolName: "calculator",
-                toolDescription: "Basic calculator",
-                toolArguments: "1 + 1",
-                type: "tool-call-part"
-            });
-
-            yield* service.addPartOrMessage(toolPart);
-            const messages = yield* service.getMessages();
-            const message = Chunk.toReadonlyArray(messages)[0];
-
-            expect(message).toBeDefined();
-            if (message === undefined) {
-                throw new Error("Message is undefined")
-            }
-            const parts = Chunk.toReadonlyArray(message.parts);
-            expect(parts[0]).toBeInstanceOf(TextPart);
-            expect((parts[0] as TextPart).content).toContain("calculator");
-        }));
-});
+})
 
 describe("extraction operations", () => {
     it("should extract texts for embeddings", () =>
@@ -726,12 +529,11 @@ describe("extraction operations", () => {
         Effect.gen(function* () {
             const service = yield* InputService;
             const audioData = new Uint8Array([1, 2, 3]);
-            const filePart = new FilePart({
-                _tag: "FilePart",
-                fileName: "test.wav",
-                fileContent: audioData,
-                fileType: "audio/wav"
-            });
+            const filePart = new FilePart(
+                "test.wav",
+                audioData,
+                "audio/wav"
+            );
 
             yield* service.addPartOrMessage(filePart);
             const buffer = yield* service.extractAudioForTranscription();

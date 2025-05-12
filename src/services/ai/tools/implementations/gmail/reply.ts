@@ -3,10 +3,9 @@
  * @module services/tools/implementations/gmail/reply
  */
 
-import { Context, Effect, Schema, Secret } from "effect";
+import { Context, Effect, Schema } from "effect";
 import type { OAuth2Client } from "google-auth-library.js";
 import { google } from 'googleapis';
-import type { googleapis } from "googleapis.js";
 import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
@@ -82,64 +81,66 @@ const createReplyMail = (
  */
 export const gmailReplyMessageImpl = (
 	input: GmailReplyMessageInput,
-): Effect.Effect<GmailReplyMessageOutput, ToolExecutionError, OAuth2Client> => // Depends on placeholder Tag
+): Effect.Effect<GmailReplyMessageOutput, ToolExecutionError, OAuth2Client> =>
 	Effect.gen(function* () {
-		const auth = yield* GoogleAuthTag; // Use placeholder Tag
+		const auth = yield* GoogleAuthTag;
 		const gmail = google.gmail({ version: 'v1', auth });
 
-		try {
-			// 1. Fetch original message headers to construct reply
-			const originalMsg = yield* Effect.tryPromise({
-				try: () => gmail.users.messages.get({
-					userId: 'me',
-					id: input.messageId,
-					format: 'metadata', // Fetch only headers
-					metadataHeaders: ["Subject", "From", "To", "Cc", "Reply-To", "Message-ID", "References"]
-				}),
-				catch: (error) => new ToolExecutionError({
-					toolName: "gmailReplyMessage", input, cause: `Failed to fetch original message: ${error}`
-				})
-			});
+		// 1. Fetch original message headers to construct reply
+		const originalMsg = yield* Effect.tryPromise({
+			try: () => gmail.users.messages.get({
+				userId: 'me',
+				id: input.messageId,
+				format: 'metadata',
+				metadataHeaders: ["Subject", "From", "To", "Cc", "Reply-To", "Message-ID", "References"]
+			}),
+			catch: (error) => new ToolExecutionError({
+				toolName: "gmailReplyMessage", input, cause: `Failed to fetch original message: ${error}`
+			})
+		});
 
-			const headers: { [key: string]: string } = {};
-			originalMsg.data.payload?.headers?.forEach(h => {
-				if (h.name && h.value) headers[h.name] = h.value;
-			});
+		const headers: { [key: string]: string } = {};
+		originalMsg.data.payload?.headers?.forEach(h => {
+			if (h.name && h.value) headers[h.name] = h.value;
+		});
 
-			// 2. Create the raw reply message
-			const rawMessage = createReplyMail(headers, input);
+		// 2. Create the raw reply message
+		const rawMessage = createReplyMail(headers, input);
 
-			// 3. Send the reply
-			const response = yield* Effect.tryPromise({
-				try: () => gmail.users.messages.send({
-					userId: 'me',
-					requestBody: {
-						raw: rawMessage,
-						threadId: input.threadId // Ensure reply is in the correct thread
-					}
-				}),
-				catch: (error) => new ToolExecutionError({
-					toolName: "gmailReplyMessage", input, cause: error
-				})
-			});
-
-			// 4. Check response
-			if (response.status === 200 && response.data.id) {
-				return {
-					success: true,
-					messageId: response.data.id ?? undefined,
-					threadId: response.data.threadId ?? undefined,
-				};
-			} else {
-				return yield* Effect.fail(new ToolExecutionError({
-					toolName: "gmailReplyMessage",
-					input,
-					cause: `Gmail API reply failed with status ${response.status}: ${JSON.stringify(response.data)}`
-				}));
-			}
-		} catch (error) {
-			return yield* Effect.fail(new ToolExecutionError({
+		// 3. Send the reply
+		const response = yield* Effect.tryPromise({
+			try: () => gmail.users.messages.send({
+				userId: 'me',
+				requestBody: {
+					raw: rawMessage,
+					threadId: input.threadId
+				}
+			}),
+			catch: (error) => new ToolExecutionError({
 				toolName: "gmailReplyMessage", input, cause: error
-			}));
+			})
+		});
+
+		// 4. Check response
+		if (response.status === 200 && response.data.id) {
+			return {
+				success: true,
+				messageId: response.data.id ?? undefined,
+				threadId: response.data.threadId ?? undefined,
+			};
 		}
-	});
+
+		return yield* Effect.fail(new ToolExecutionError({
+			toolName: "gmailReplyMessage",
+			input,
+			cause: `Gmail API reply failed with status ${response.status}: ${JSON.stringify(response.data)}`
+		}));
+	}).pipe(
+		Effect.catchAll((error) => Effect.fail(
+			error instanceof ToolExecutionError ? error : new ToolExecutionError({
+				toolName: "gmailReplyMessage",
+				input,
+				cause: error
+			})
+		))
+	);

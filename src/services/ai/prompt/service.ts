@@ -69,7 +69,11 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
                 promptRef.get.pipe(
                     Effect.flatMap((map) =>
                         HashMap.get(map, name).pipe(
-                            Effect.mapError(() => new TemplateNotFoundError(name))
+                            Effect.mapError(() => new TemplateNotFoundError({
+                                description: `Template '${name}' not found`,
+                                module: "PromptService",
+                                method: "getPrompt"
+                            }))
                         )
                     )
                 ),
@@ -96,7 +100,11 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
                 promptRef.get.pipe(
                     Effect.flatMap((map) =>
                         HashMap.get(map, params.templateName).pipe(
-                            Effect.mapError(() => new TemplateNotFoundError(params.templateName)),
+                            Effect.mapError(() => new TemplateNotFoundError({
+                                description: `Template '${params.templateName}' not found`,
+                                module: "PromptService",
+                                method: "renderTemplate"
+                            })),
                             Effect.flatMap((promptDefinition) =>
                                 Effect.try(() => {
                                     if (!promptDefinition.template?.trim()) {

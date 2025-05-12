@@ -1,5 +1,5 @@
 import { Schema as S } from "effect";
-import { SToolImplementation } from "../tools/schema.js";
+import { ToolImplementation } from "../tools/schema.js";
 
 /**
  * Schema for a tool's metadata in the registry
@@ -18,7 +18,7 @@ export class ToolMetadataSchema extends S.Class<ToolMetadataSchema>("ToolMetadat
  */
 export class RegistryToolSchema extends S.Class<RegistryToolSchema>("RegistryToolSchema")({
     metadata: ToolMetadataSchema,
-    implementation: SToolImplementation
+    implementation: ToolImplementation
 }) { }
 
 /**

@@ -107,15 +107,11 @@ function isZonedDateTime(value: unknown): value is Temporal.ZonedDateTime {
 
 function parseDateTime(value: string): Effect.Effect<Temporal.ZonedDateTime | Temporal.PlainDateTime, Error> {
     return Effect.try({
-        try: () => {
-            try {
-                return Temporal.ZonedDateTime.from(value);
-            } catch {
-                return Temporal.PlainDateTime.from(value);
-            }
-        },
-        catch: (error) => new Error(`Failed to parse date/time value: ${value}`, { cause: error })
-    });
+        try: () => Temporal.ZonedDateTime.from(value),
+        catch: () => Temporal.PlainDateTime.from(value)
+    }).pipe(
+        Effect.catchAll((error) => Effect.fail(new Error(`Failed to parse date/time value: ${value}`, { cause: error })))
+    );
 }
 
 function formatDateTime(

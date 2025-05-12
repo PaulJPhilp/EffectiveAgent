@@ -3,7 +3,7 @@
  * @module services/tools/errors
  */
 
-import { EffectiveError } from "@/errors.js";
+import { EffectiveError, AppToolParseError } from "../../../errors.js";
 import type { ParseResult } from "effect";
 
 /**
@@ -62,7 +62,8 @@ export class ToolInputValidationError extends EffectiveError {
         toolName: string;
         module: string;
         method: string;
-        cause: ParseError;
+        context?: unknown;
+        cause: AppToolParseError;
     }) {
         super({
             description: `Invalid input provided for tool: ${params.toolName}`,
@@ -85,7 +86,8 @@ export class ToolOutputValidationError extends EffectiveError {
         toolName: string;
         module: string;
         method: string;
-        cause: ParseError;
+        context?: unknown;
+        cause: AppToolParseError;
     }) {
         super({
             description: `Invalid output received from tool implementation: ${params.toolName}`,
@@ -206,3 +208,5 @@ export class ToolkitConfigError extends EffectiveError {
         this.toolkitName = params.toolkitName;
     }
 }
+
+export { AppToolParseError };

@@ -1,6 +1,9 @@
-import { AgentActivity, MessagePriority as Priority } from "@/agent-runtime/types.js"
-// filepath: /Users/paul/Projects/EffectiveAgent/src/agent-runtime/prioritized-mailbox.ts
+/**
+ * @file Prioritized mailbox implementation for agent runtime message handling.
+ */
+
 import { Effect, Queue, Ref, Schedule, Stream, pipe } from "effect"
+import { AgentActivity, MessagePriority as Priority } from "../types.js"
 import { Mailbox } from "./mailbox.js"
 
 /**
@@ -30,7 +33,7 @@ export class PrioritizedMailbox extends Mailbox {
 
     private constructor(
         defaultQueue: Queue.Queue<AgentActivity>,
-        queues: Map<MessagePriority, Queue.Queue<AgentActivity>>,
+        queues: Map<Priority, Queue.Queue<AgentActivity>>,
         config: { size: number; priorityQueueSize: number; enablePrioritization: boolean },
         stats: Ref.Ref<MailboxState>
     ) {
@@ -43,7 +46,7 @@ export class PrioritizedMailbox extends Mailbox {
      */
     static override create(config: { size: number; priorityQueueSize: number; enablePrioritization: boolean }): Effect.Effect<PrioritizedMailbox> {
         return Effect.gen(function* () {
-            const queues = new Map<MessagePriority, Queue.Queue<AgentActivity>>()
+            const queues = new Map<Priority, Queue.Queue<AgentActivity>>()
             let defaultQueue: Queue.Queue<AgentActivity>
 
             if (config.enablePrioritization) {
@@ -168,4 +171,4 @@ export class PrioritizedMailbox extends Mailbox {
             { concurrency: "unbounded" }
         )
     }
-}
+} 

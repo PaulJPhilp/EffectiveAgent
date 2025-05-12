@@ -1,10 +1,49 @@
-import { EffectivePartType, FilePart, ImagePart, ImageUrlPart, PartTypeId, TextPart, ToolCallPart, ToolCallResolvedPart } from "@/services/ai/input/schema.js";
+
+import { ImagePart } from "@effect/ai/AiInput";
+import { PartTypeId, ImageUrlPart, TextPart, ToolCallPart } from "@effect/ai/AiResponse";
 import { Schema as S } from "effect";
+    
 
-export { FilePart };
-export type { EffectivePartType, ImagePart, ImageUrlPart, PartTypeId, TextPart, ToolCallPart, ToolCallResolvedPart };
 
-export class TextStreamPart extends S.Class<TextStreamPart>(
+/**
+ * Represents a file part in a message.
+ * This is a custom part type that works with @effect/ai/AiResponse Part
+ */
+export class FilePart extends S.Class<FilePart>(
+    "FilePart"
+)({
+    _tag: S.Literal("File"),
+    fileName: S.String,
+    fileContent: S.Uint8Array,
+    fileType: S.String,
+    url: S.String
+}) {
+    /**
+     * Required by the Part interface for identification
+     * @since 1.0.0
+     */
+    readonly [PartTypeId]: PartTypeId = PartTypeId;
+
+    constructor(
+        fileName: string,
+        fileContent: Uint8Array,
+        fileType: string
+    ) {
+        super({
+            _tag: "File",
+            fileName,
+            fileContent,
+            fileType,
+            url: ""
+        });
+    }
+
+    toString(): string {
+        return `File: ${this.fileName} (${this.fileType})`;
+    }
+}
+
+class TextStreamPart extends S.Class<TextStreamPart>(
     "TextStreamPart"
 )({
     _tag: S.Literal("TextStreamPart"),
@@ -14,7 +53,9 @@ export class TextStreamPart extends S.Class<TextStreamPart>(
 
 
 // === Main Model Definition Schema ===
-export class ReasoningPart extends S.Class<ReasoningPart>(
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+class ReasoningPart extends S.Class<ReasoningPart>(
     "ReasoningPart"
 )({
     _tag: S.Literal("ReasoningPart"),
@@ -29,7 +70,9 @@ export class ReasoningPart extends S.Class<ReasoningPart>(
 
 }
 
-export class RedactedReasoningPart extends S.Class<RedactedReasoningPart>(
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+class RedactedReasoningPart extends S.Class<RedactedReasoningPart>(
     "RedactedReasoningPart"
 )({
     _tag: S.Literal("RedactedReasoningPart"),
@@ -41,7 +84,9 @@ export class RedactedReasoningPart extends S.Class<RedactedReasoningPart>(
 
 }
 
-export class ToolPart extends S.Class<ToolPart>(
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+class ToolPart extends S.Class<ToolPart>(
     "ToolPart"
 )({
     _tag: S.Literal("ToolPart"),
@@ -58,7 +103,9 @@ export class ToolPart extends S.Class<ToolPart>(
 
 }
 
-export class ToolResultPart extends S.Class<ToolResultPart>(
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+class ToolResultPart extends S.Class<ToolResultPart>(
     "ToolResultPart"
 )({
     _tag: S.Literal("ToolResultPart"),
@@ -72,11 +119,17 @@ export class ToolResultPart extends S.Class<ToolResultPart>(
 
 }
 
-export type Part = FilePart | ReasoningPart | RedactedReasoningPart | ToolPart | ToolResultPart;
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+type Part = FilePart | ReasoningPart | RedactedReasoningPart | ToolPart | ToolResultPart;
 
 
-export declare namespace EffectivePart {
-    export type Schema = S.Union<[
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+declare namespace EffectivePart {
+    // [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+type Schema = S.Union<[
         typeof TextPart,
         typeof ImagePart,
         typeof ImageUrlPart,
@@ -89,5 +142,9 @@ export declare namespace EffectivePart {
     ]>;
 }
 
-export const EffectivePart: EffectivePart.Schema = S.Union(TextPart, ImagePart, ImageUrlPart, ToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);
+// [DEPRECATED] All exports have been moved to input.service.ts
+// This file will be deleted after migration.
+const EffectivePart: EffectivePart.Schema = S.Union(TextPart, ImagePart, ImageUrlPart, ToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);
+
+// FilePart is already exported by class declaration
 

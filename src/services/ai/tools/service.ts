@@ -6,6 +6,7 @@ import { Effect, Schema } from "effect";
 import { ToolRegistryService } from "../tool-registry/service.js";
 import type { ToolServiceApi } from "./api.js";
 import {
+    AppToolParseError,
     ToolExecutionError,
     ToolInputValidationError,
     ToolNotFoundError,
@@ -70,7 +71,13 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
                         toolName,
                         module: "ToolService",
                         method: "run",
-                        cause: error
+                        cause: new AppToolParseError({
+                            module: "ToolService",
+                            method: "validateInput",
+                            description: `Failed to validate input for tool ${toolName}`,
+                            parseError: error,
+                            context: rawInput
+                        })
                     })
                 );
 
@@ -92,7 +99,13 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
                         toolName,
                         module: "ToolService",
                         method: "run",
-                        cause: error
+                        cause: new AppToolParseError({
+                            module: "ToolService",
+                            method: "validateOutput",
+                            description: `Failed to validate output for tool ${toolName}`,
+                            parseError: error,
+                            context: rawOutput
+                        })
                     })
                 );
 

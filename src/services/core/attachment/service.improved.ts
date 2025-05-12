@@ -182,107 +182,98 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
             > => {
                 if (inputs.length === 0) return Effect.succeed([]);
 
-                // Generate a transaction ID for tracing purposes
                 const transactionId = crypto.randomUUID();
                 const batchSize = inputs.length;
 
                 return Effect.gen(function* () {
-                    // First validate all inputs before starting the transaction
                     yield* validateCreateLinkInputs(inputs);
-
-                    // Log transaction initiation
                     yield* Effect.logInfo(`Creating ${batchSize} attachment links [tx:${transactionId}]`);
 
-                    // Track created links for potential rollback
                     const createdLinks: AttachmentLinkEntity[] = [];
-                    let failedIndex = -1;
-                    let failedInput: CreateAttachmentLinkInput | undefined;
-                    let originalError: unknown;
 
-                    try {
-                        // Create links sequentially to handle potential rollbacks
-                        for (let i = 0; i < inputs.length; i++) {
-                            const input = inputs[i];
-                            if (!input) continue; // Skip undefined inputs
+                    const createLinksEffect = Effect.forEach(inputs, (input, index) => {
+                        if (!input) return Effect.succeed(undefined);
 
-                            // Periodically log progress for large batches
-                            if (i > 0 && i % 100 === 0) {
-                                yield* Effect.logInfo(`Progress: Created ${i}/${inputs.length} links [tx:${transactionId}]`);
-                            }
-
-                            try {
+                        if (index > 0 && index % 100 === 0) {
+                            return Effect.gen(function* () {
+                                yield* Effect.logInfo(`Progress: Created ${index}/${inputs.length} links [tx:${transactionId}]`);
                                 const link = yield* createLink(input);
                                 createdLinks.push(link);
-                            } catch (error) {
-                                failedIndex = i;
-                                failedInput = input;
-                                originalError = error;
-                                throw error;
-                            }
+                                return link;
+                            });
                         }
 
-                        yield* Effect.logInfo(`Successfully created ${createdLinks.length} attachment links [tx:${transactionId}]`);
-                        return createdLinks as ReadonlyArray<AttachmentLinkEntity>;
-                    } catch (error) {
-                        // If any creation fails, roll back by deleting all created links
-                        if (createdLinks.length > 0) {
-                            yield* Effect.logWarning(
-                                `Rolling back ${createdLinks.length} links due to failure at index ${failedIndex} [tx:${transactionId}]`
-                            );
-
-                            // Track rollback success/failure
-                            let rollbackSuccessCount = 0;
-                            let rollbackFailCount = 0;
-
-                            // Delete created links in reverse order for better consistency
-                            for (let i = createdLinks.length - 1; i >= 0; i--) {
-                                const link = createdLinks[i];
-                                if (!link) continue; // Skip undefined links
-                                try {
-                                    // Handle the potential AttachmentLinkNotFoundError explicitly
-                                    yield* deleteLink(link.id).pipe(
-                                        Effect.catchTag("AttachmentLinkNotFoundError", (error) => {
-                                            // If the link is already gone, consider it successful rollback
-                                            rollbackSuccessCount++;
-                                            return Effect.succeed(undefined);
-                                        })
-                                    );
-                                    rollbackSuccessCount++;
-                                } catch (rollbackError) {
-                                    rollbackFailCount++;
-                                    yield* Effect.logError(`Failed to roll back link ${link.id} [tx:${transactionId}]`);
-                                }
-                            }
-
-                            if (rollbackFailCount > 0) {
-                                yield* Effect.logError(
-                                    `CRITICAL: ${rollbackFailCount}/${createdLinks.length} rollbacks failed [tx:${transactionId}]`
+                        return Effect.gen(function* () {
+                            const link = yield* createLink(input);
+                            createdLinks.push(link);
+                            return link;
+                        });
+                    }).pipe(
+                        Effect.tap(() => Effect.logInfo(`Successfully created ${createdLinks.length} attachment links [tx:${transactionId}]`)),
+                        Effect.catchAll((error) => Effect.gen(function* () {
+                            if (createdLinks.length > 0) {
+                                yield* Effect.logWarning(
+                                    `Rolling back ${createdLinks.length} links due to failure [tx:${transactionId}]`
                                 );
 
-                                throw new AttachmentTransactionError({
-                                    operation: "createLinks",
-                                    transactionId,
-                                    completedCount: createdLinks.length,
-                                    totalCount: inputs.length,
-                                    entityIds: createdLinks.map(link => link.id),
-                                    message: `Transaction rollback partially failed: ${rollbackFailCount} links could not be rolled back`,
-                                    cause: error
-                                });
+                                let rollbackSuccessCount = 0;
+                                let rollbackFailCount = 0;
+
+                                yield* Effect.forEach(
+                                    [...createdLinks].reverse(),
+                                    (link) => {
+                                        if (!link) return Effect.succeed(undefined);
+
+                                        return deleteLink(link.id).pipe(
+                                            Effect.catchTag("AttachmentLinkNotFoundError", () => {
+                                                rollbackSuccessCount++;
+                                                return Effect.succeed(undefined);
+                                            }),
+                                            Effect.tap(() => {
+                                                rollbackSuccessCount++;
+                                                return Effect.succeed(undefined);
+                                            }),
+                                            Effect.catchAll((rollbackError) => Effect.gen(function* () {
+                                                rollbackFailCount++;
+                                                yield* Effect.logError(`Failed to roll back link ${link.id} [tx:${transactionId}]`);
+                                                return Effect.succeed(undefined);
+                                            }))
+                                        );
+                                    }
+                                );
+
+                                if (rollbackFailCount > 0) {
+                                    yield* Effect.logError(
+                                        `CRITICAL: ${rollbackFailCount}/${createdLinks.length} rollbacks failed [tx:${transactionId}]`
+                                    );
+
+                                    return Effect.fail(new AttachmentTransactionError({
+                                        operation: "createLinks",
+                                        transactionId,
+                                        completedCount: createdLinks.length,
+                                        totalCount: inputs.length,
+                                        entityIds: createdLinks.map(link => link.id),
+                                        message: `Transaction rollback partially failed: ${rollbackFailCount} links could not be rolled back`,
+                                        cause: error
+                                    }));
+                                }
+
+                                yield* Effect.logInfo(`Successfully rolled back all ${createdLinks.length} links [tx:${transactionId}]`);
                             }
 
-                            yield* Effect.logInfo(`Successfully rolled back all ${createdLinks.length} links [tx:${transactionId}]`);
-                        }
+                            return Effect.fail(new AttachmentTransactionError({
+                                operation: "createLinks",
+                                transactionId,
+                                completedCount: createdLinks.length,
+                                totalCount: inputs.length,
+                                message: `Failed creating links`,
+                                cause: error
+                            }));
+                        }))
+                    );
 
-                        // Convert to a transaction error with detailed context
-                        throw new AttachmentTransactionError({
-                            operation: "createLinks",
-                            transactionId,
-                            completedCount: createdLinks.length,
-                            totalCount: inputs.length,
-                            message: `Failed creating link at position ${failedIndex} of ${inputs.length}`,
-                            cause: error
-                        });
-                    }
+                    const results = yield* createLinksEffect;
+                    return results as ReadonlyArray<AttachmentLinkEntity>;
                 });
             };
 
@@ -294,11 +285,9 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                 entityA_id: EntityId,
                 entityA_type: string,
             ): Effect.Effect<number, AttachmentTransactionError | AttachmentDbError | AttachmentLinkNotFoundError> => {
-                // Generate a transaction ID for tracing purposes
                 const transactionId = crypto.randomUUID();
 
                 return Effect.gen(function* () {
-                    // First, find all links from this entity
                     const links = yield* findLinksFrom(entityA_id, entityA_type);
 
                     if (links.length === 0) {
@@ -308,47 +297,34 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
 
                     yield* Effect.logInfo(`Deleting ${links.length} links from ${entityA_type}:${entityA_id} [tx:${transactionId}]`);
 
-                    // Make a copy of links for potential rollback
                     const linksBackup = [...links];
                     const deletedLinks: string[] = [];
-                    let failedLinkId: string | undefined;
-                    let originalError: unknown;
 
-                    try {
-                        // Attempt to delete all links in one "transaction"
-                        for (const link of links) {
-                            if (!link) continue; // Skip undefined links
-                            try {
-                                yield* deleteLink(link.id);
+                    const deleteLinksEffect = Effect.forEach(links, (link) => {
+                        if (!link) return Effect.succeed(undefined);
+
+                        return deleteLink(link.id).pipe(
+                            Effect.tap(() => Effect.gen(function* () {
                                 deletedLinks.push(link.id);
-                            } catch (error) {
-                                failedLinkId = link.id;
-                                originalError = error;
-                                throw error;
-                            }
-                        }
+                            }))
+                        );
+                    }).pipe(
+                        Effect.tap(() => Effect.logInfo(`Successfully deleted ${deletedLinks.length} links [tx:${transactionId}]`)),
+                        Effect.map(() => deletedLinks.length),
+                        Effect.catchAll((error) => Effect.gen(function* () {
+                            if (deletedLinks.length > 0) {
+                                yield* Effect.logWarning(
+                                    `Rolling back ${deletedLinks.length} deleted links [tx:${transactionId}]`
+                                );
 
-                        yield* Effect.logInfo(`Successfully deleted ${deletedLinks.length} links [tx:${transactionId}]`);
-                        return deletedLinks.length;
-                    } catch (error) {
-                        // If any deletion fails, attempt to restore deleted links
-                        if (deletedLinks.length > 0) {
-                            yield* Effect.logWarning(
-                                `Rolling back ${deletedLinks.length} deleted links due to failure at ${failedLinkId} [tx:${transactionId}]`
-                            );
+                                let restoreSuccessCount = 0;
+                                let restoreFailCount = 0;
 
-                            // Track rollback success/failure
-                            let restoreSuccessCount = 0;
-                            let restoreFailCount = 0;
+                                yield* Effect.forEach(deletedLinks, (deletedLinkId) => {
+                                    const originalLink = linksBackup.find(l => l.id === deletedLinkId);
+                                    if (!originalLink) return Effect.succeed(undefined);
 
-                            // Find the links that were successfully deleted
-                            for (let i = 0; i < deletedLinks.length; i++) {
-                                // Find the corresponding original link data
-                                const originalLink = linksBackup.find(l => l.id === deletedLinks[i]);
-                                if (!originalLink) continue;
-
-                                try {
-                                    yield* createLink({
+                                    return createLink({
                                         entityA_id: originalLink.data.entityA_id,
                                         entityA_type: originalLink.data.entityA_type,
                                         entityB_id: originalLink.data.entityB_id,
@@ -357,42 +333,49 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                                         metadata: originalLink.data.metadata,
                                         createdBy: originalLink.data.createdBy,
                                         expiresAt: originalLink.data.expiresAt
-                                    });
-                                    restoreSuccessCount++;
-                                } catch (restoreError) {
-                                    restoreFailCount++;
-                                    yield* Effect.logError(`Failed to restore link ${originalLink.id} [tx:${transactionId}]`);
+                                    }).pipe(
+                                        Effect.tap(() => {
+                                            restoreSuccessCount++;
+                                            return Effect.succeed(undefined);
+                                        }),
+                                        Effect.catchAll((restoreError) => Effect.gen(function* () {
+                                            restoreFailCount++;
+                                            yield* Effect.logError(`Failed to restore link ${originalLink.id} [tx:${transactionId}]`);
+                                            return Effect.succeed(undefined);
+                                        }))
+                                    );
+                                });
+
+                                if (restoreFailCount > 0) {
+                                    yield* Effect.logError(
+                                        `CRITICAL: ${restoreFailCount}/${deletedLinks.length} restores failed [tx:${transactionId}]`
+                                    );
+
+                                    return Effect.fail(new AttachmentTransactionError({
+                                        operation: "deleteLinksFrom",
+                                        transactionId,
+                                        completedCount: deletedLinks.length,
+                                        totalCount: links.length,
+                                        entityIds: [...deletedLinks],
+                                        message: `Transaction rollback partially failed: ${restoreFailCount} links could not be restored`,
+                                        cause: error
+                                    }));
                                 }
+
+                                yield* Effect.logInfo(`Successfully restored all ${restoreSuccessCount} links [tx:${transactionId}]`);
                             }
 
-                            if (restoreFailCount > 0) {
-                                yield* Effect.logError(
-                                    `CRITICAL: ${restoreFailCount}/${deletedLinks.length} restores failed [tx:${transactionId}]`
-                                );
+                            return Effect.fail(new AttachmentTransactionError({
+                                operation: "deleteLinksFrom",
+                                transactionId,
+                                entityIds: [entityA_id],
+                                message: `Transaction failed: could not delete links from ${entityA_type}:${entityA_id} atomically`,
+                                cause: error
+                            }));
+                        }))
+                    );
 
-                                return yield* Effect.fail(new AttachmentTransactionError({
-                                    operation: "deleteLinksFrom",
-                                    transactionId,
-                                    completedCount: deletedLinks.length,
-                                    totalCount: links.length,
-                                    entityIds: [...deletedLinks],
-                                    message: `Transaction rollback partially failed: ${restoreFailCount} links could not be restored`,
-                                    cause: error
-                                }));
-                            }
-
-                            yield* Effect.logInfo(`Successfully restored all ${restoreSuccessCount} links [tx:${transactionId}]`);
-                        }
-
-                        // Convert to a transaction error with detailed context
-                        return yield* Effect.fail(new AttachmentTransactionError({
-                            operation: "deleteLinksFrom",
-                            transactionId,
-                            entityIds: [entityA_id],
-                            message: `Transaction failed: could not delete links from ${entityA_type}:${entityA_id} atomically`,
-                            cause: error
-                        }));
-                    }
+                    return yield* deleteLinksEffect;
                 });
             };
 
@@ -404,11 +387,9 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                 entityB_id: EntityId,
                 entityB_type: string,
             ): Effect.Effect<number, AttachmentTransactionError | AttachmentDbError | AttachmentLinkNotFoundError> => {
-                // Generate a transaction ID for tracing purposes
                 const transactionId = crypto.randomUUID();
 
                 return Effect.gen(function* () {
-                    // First, find all links to this entity
                     const links = yield* findLinksTo(entityB_id, entityB_type);
 
                     if (links.length === 0) {
@@ -418,46 +399,34 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
 
                     yield* Effect.logInfo(`Deleting ${links.length} links to ${entityB_type}:${entityB_id} [tx:${transactionId}]`);
 
-                    // Make a copy of links for potential rollback
                     const linksBackup = [...links];
                     const deletedLinks: string[] = [];
-                    let failedLinkId: string | undefined;
-                    let originalError: unknown;
 
-                    try {
-                        // Attempt to delete all links in one "transaction"
-                        for (const link of links) {
-                            try {
-                                yield* deleteLink(link.id);
+                    const deleteLinksEffect = Effect.forEach(links, (link) => {
+                        if (!link) return Effect.succeed(undefined);
+
+                        return deleteLink(link.id).pipe(
+                            Effect.tap(() => Effect.gen(function* () {
                                 deletedLinks.push(link.id);
-                            } catch (error) {
-                                failedLinkId = link.id;
-                                originalError = error;
-                                throw error;
-                            }
-                        }
+                            }))
+                        );
+                    }).pipe(
+                        Effect.tap(() => Effect.logInfo(`Successfully deleted ${deletedLinks.length} links [tx:${transactionId}]`)),
+                        Effect.map(() => deletedLinks.length),
+                        Effect.catchAll((error) => Effect.gen(function* () {
+                            if (deletedLinks.length > 0) {
+                                yield* Effect.logWarning(
+                                    `Rolling back ${deletedLinks.length} deleted links [tx:${transactionId}]`
+                                );
 
-                        yield* Effect.logInfo(`Successfully deleted ${deletedLinks.length} links [tx:${transactionId}]`);
-                        return deletedLinks.length;
-                    } catch (error) {
-                        // If any deletion fails, attempt to restore deleted links
-                        if (deletedLinks.length > 0) {
-                            yield* Effect.logWarning(
-                                `Rolling back ${deletedLinks.length} deleted links due to failure at ${failedLinkId} [tx:${transactionId}]`
-                            );
+                                let restoreSuccessCount = 0;
+                                let restoreFailCount = 0;
 
-                            // Track rollback success/failure
-                            let restoreSuccessCount = 0;
-                            let restoreFailCount = 0;
+                                yield* Effect.forEach(deletedLinks, (deletedLinkId) => {
+                                    const originalLink = linksBackup.find(l => l.id === deletedLinkId);
+                                    if (!originalLink) return Effect.succeed(undefined);
 
-                            // Find the links that were successfully deleted
-                            for (let i = 0; i < deletedLinks.length; i++) {
-                                // Find the corresponding original link data
-                                const originalLink = linksBackup.find(l => l.id === deletedLinks[i]);
-                                if (!originalLink) continue;
-
-                                try {
-                                    yield* createLink({
+                                    return createLink({
                                         entityA_id: originalLink.data.entityA_id,
                                         entityA_type: originalLink.data.entityA_type,
                                         entityB_id: originalLink.data.entityB_id,
@@ -466,42 +435,49 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                                         metadata: originalLink.data.metadata,
                                         createdBy: originalLink.data.createdBy,
                                         expiresAt: originalLink.data.expiresAt
-                                    });
-                                    restoreSuccessCount++;
-                                } catch (restoreError) {
-                                    restoreFailCount++;
-                                    yield* Effect.logError(`Failed to restore link ${originalLink.id} [tx:${transactionId}]`);
+                                    }).pipe(
+                                        Effect.tap(() => {
+                                            restoreSuccessCount++;
+                                            return Effect.succeed(undefined);
+                                        }),
+                                        Effect.catchAll((restoreError) => Effect.gen(function* () {
+                                            restoreFailCount++;
+                                            yield* Effect.logError(`Failed to restore link ${originalLink.id} [tx:${transactionId}]`);
+                                            return Effect.succeed(undefined);
+                                        }))
+                                    );
+                                });
+
+                                if (restoreFailCount > 0) {
+                                    yield* Effect.logError(
+                                        `CRITICAL: ${restoreFailCount}/${deletedLinks.length} restores failed [tx:${transactionId}]`
+                                    );
+
+                                    return Effect.fail(new AttachmentTransactionError({
+                                        operation: "deleteLinksTo",
+                                        transactionId,
+                                        completedCount: deletedLinks.length,
+                                        totalCount: links.length,
+                                        entityIds: [...deletedLinks],
+                                        message: `Transaction rollback partially failed: ${restoreFailCount} links could not be restored`,
+                                        cause: error
+                                    }));
                                 }
+
+                                yield* Effect.logInfo(`Successfully restored all ${restoreSuccessCount} links [tx:${transactionId}]`);
                             }
 
-                            if (restoreFailCount > 0) {
-                                yield* Effect.logError(
-                                    `CRITICAL: ${restoreFailCount}/${deletedLinks.length} restores failed [tx:${transactionId}]`
-                                );
+                            return Effect.fail(new AttachmentTransactionError({
+                                operation: "deleteLinksTo",
+                                transactionId,
+                                entityIds: [entityB_id],
+                                message: `Transaction failed: could not delete links to ${entityB_type}:${entityB_id} atomically`,
+                                cause: error
+                            }));
+                        }))
+                    );
 
-                                return yield* Effect.fail(new AttachmentTransactionError({
-                                    operation: "deleteLinksTo",
-                                    transactionId,
-                                    completedCount: deletedLinks.length,
-                                    totalCount: links.length,
-                                    entityIds: [...deletedLinks],
-                                    message: `Transaction rollback partially failed: ${restoreFailCount} links could not be restored`,
-                                    cause: error
-                                }));
-                            }
-
-                            yield* Effect.logInfo(`Successfully restored all ${restoreSuccessCount} links [tx:${transactionId}]`);
-                        }
-
-                        // Convert to a transaction error with detailed context
-                        return yield* Effect.fail(new AttachmentTransactionError({
-                            operation: "deleteLinksTo",
-                            transactionId,
-                            entityIds: [entityB_id],
-                            message: `Transaction failed: could not delete links to ${entityB_type}:${entityB_id} atomically`,
-                            cause: error
-                        }));
-                    }
+                    return yield* deleteLinksEffect;
                 });
             };
 

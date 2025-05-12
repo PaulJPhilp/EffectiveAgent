@@ -16,10 +16,26 @@ import {
 import {
   PolicyCheckContext,
   PolicyCheckResult,
-  PolicyRecordContext
+  PolicyRecordContext,
+  PolicyScope,
+  PolicyRuleType,
+  POLICY_SCOPE_USER,
+  POLICY_SCOPE_GLOBAL,
+  POLICY_RULE_ALLOW,
+  POLICY_RULE_DENY
 } from "./types.js";
 
 import { PolicyServiceApi } from "./api.js";
+
+/**
+ * PolicyService provides in-memory policy rule management, rate limiting, and
+ * policy outcome recording for AI operations. All state is stored in-memory for
+ * testability and fast access. Not suitable for production persistence.
+ *
+ * @remarks
+ * - All methods return Effect-TS Effects with proper error typing.
+ * - Use resetAll() for test harnesses to clear state.
+ */
 export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicyService", {
   effect: Effect.gen(function* () {
     const ruleRepo = yield* Ref.make(HashMap.empty<string, PolicyRuleEntity>());
@@ -27,6 +43,12 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
     const rateLimitRepo = yield* Ref.make(HashMap.empty<string, { count: number, windowStart: number }>());
 
     return {
+      /**
+ * Checks if the given operation is allowed under current policy rules and rate limits.
+ *
+ * @param context - The policy check context (user, operation, model, etc.)
+ * @returns Effect yielding PolicyCheckResult or PolicyError
+ */
       checkPolicy: (context: PolicyCheckContext): Effect.Effect<PolicyCheckResult, PolicyError> =>
         Effect.gen(function* () {
           const rules = yield* Ref.get(ruleRepo);
@@ -51,9 +73,9 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
             const entity = rule as PolicyRuleEntity
             if (entity.data.rateLimit) {
               const { requestsPerMinute, tokensPerMinute, scope } = entity.data.rateLimit;
-              const key = scope === 'user'
+              const key = scope === POLICY_SCOPE_USER
                 ? `${context.auth.userId}:${entity.id}`
-                : `global:${entity.id}`;
+                : `${POLICY_SCOPE_GLOBAL}:${entity.id}`;
 
               const now = Date.now();
               // There is no windowSeconds; the window is per minute (60,000 ms)
@@ -98,7 +120,7 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
           });
           const highestPriorityRule = matchingRules[0] as PolicyRuleEntity;
 
-          if (highestPriorityRule.data.type === "deny") {
+          if (highestPriorityRule.data.type === POLICY_RULE_DENY) {
             return {
               allowed: false,
               reason: highestPriorityRule.data.description || "Operation denied by policy",
@@ -112,6 +134,12 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
           };
         }),
 
+      /**
+ * Records the outcome of a policy-checked operation for auditing and analytics.
+ *
+ * @param outcome - The operation outcome context
+ * @returns Effect yielding void or PolicyError
+ */
       recordOutcome: (outcome: PolicyRecordContext): Effect.Effect<void, PolicyError> =>
         Effect.gen(function* () {
           const usageData: PolicyUsageData = {
@@ -143,6 +171,12 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
           });
         }),
 
+      /**
+ * Creates a new policy rule.
+ *
+ * @param rule - Rule data (without id)
+ * @returns Effect yielding the created PolicyRuleEntity or PolicyError
+ */
       createRule: (rule: Omit<PolicyRuleData, "id">): Effect.Effect<PolicyRuleEntity, PolicyError> =>
         Effect.gen(function* () {
           const ruleData: PolicyRuleData = {
@@ -172,12 +206,25 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
           return ruleEntity;
         }),
 
+      /**
+ * Retrieves a policy rule by its id.
+ *
+ * @param ruleId - The rule id
+ * @returns Effect yielding Option<PolicyRuleEntity> or PolicyError
+ */
       getRule: (ruleId: string): Effect.Effect<Option.Option<PolicyRuleEntity>, PolicyError> =>
         Effect.gen(function* () {
           const rules = yield* Ref.get(ruleRepo);
           return HashMap.get(rules, ruleId);
         }),
 
+      /**
+ * Updates an existing policy rule.
+ *
+ * @param ruleId - The rule id
+ * @param updates - Partial rule data (no id)
+ * @returns Effect yielding updated PolicyRuleEntity or PolicyError
+ */
       updateRule: (ruleId: string, updates: Partial<Omit<PolicyRuleData, "id">>): Effect.Effect<PolicyRuleEntity, PolicyError> =>
         Effect.gen(function* () {
           const rules = yield* Ref.get(ruleRepo);
@@ -215,11 +262,17 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
           return updatedRule;
         }),
 
-      deleteRule: (ruleId: string): Effect.Effect<void, PolicyError> =>
+      /**
+ * Deletes a policy rule by id.
+ *
+ * @param ruleId - The rule id
+ * @returns Effect yielding Option<PolicyRuleEntity> (Some if deleted, None if not found) or PolicyError
+ */
+      deleteRule: (ruleId: string): Effect.Effect<Option.Option<PolicyRuleEntity>, PolicyError> =>
         Effect.gen(function* () {
           const rules = yield* Ref.get(ruleRepo);
-
-          if (HashMap.has(rules, ruleId)) {
+          const maybeRule = HashMap.get(rules, ruleId);
+          if (Option.isSome(maybeRule)) {
             yield* Effect.try({
               try: () => Effect.gen(function* () {
                 yield* Ref.set(ruleRepo, HashMap.remove(rules, ruleId));
@@ -230,7 +283,21 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
                 cause: error instanceof Error ? error : undefined
               })
             });
+            return maybeRule;
           }
+          return Option.none();
+        }),
+    /**
+     * Resets all in-memory state (rules, usage, rate limits). For test harness use only.
+     *
+     * @remarks
+     * This method is not part of the public API. Use only in tests.
+     */
+    resetAll: (): Effect.Effect<void, never> =>
+        Effect.gen(function* () {
+          yield* Ref.set(ruleRepo, HashMap.empty());
+          yield* Ref.set(usageRepo, HashMap.empty());
+          yield* Ref.set(rateLimitRepo, HashMap.empty());
         })
     };
   })
