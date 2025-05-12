@@ -19,8 +19,11 @@ import type {
   GenerateImageResult,
   GenerateEmbeddingsResult,
   TranscribeResult,
+  StreamingTextResult,
+  StreamingObjectResult,
 } from "../types.js";
-import { ProviderOperationError, ProviderToolError } from "../errors.js";
+import { ProviderOperationError } from "../errors.js";
+import { ProviderToolError } from "../errors/tool.js";
 
 export const makeProvider = (name: string, initialCapabilities: ModelCapability[]) => {
   // Convert array to Set for O(1) lookups
@@ -30,16 +33,8 @@ export const makeProvider = (name: string, initialCapabilities: ModelCapability[
     const provider = yield* ProviderClient;
 
     return {
-      getProvider: () => provider,
-
-      validateToolInput: (toolName: string, input: unknown): Effect.Effect<unknown, ProviderToolError> =>
-        Effect.succeed(input),
-
-      validateToolInputs: (tools: ToolDefinition[]): Effect.Effect<void, ProviderToolError> =>
+      validateToolInputs: (tools: ToolDefinition[]): Effect.Effect<void, ProviderOperationError> =>
         Effect.succeed(void 0),
-
-      executeTool: (toolName: string, input: unknown): Effect.Effect<unknown, ProviderToolError> =>
-        Effect.succeed(input),
 
       executeToolCalls: (toolCalls: ToolCallRequest[], tools: ToolDefinition[]): Effect.Effect<string[], ProviderOperationError> =>
         Effect.succeed([]),
@@ -107,11 +102,25 @@ export const makeProvider = (name: string, initialCapabilities: ModelCapability[
           method: "generateImage"
         })),
 
-      getCapabilities: () => capabilities,
       getModels: () => Effect.succeed([]),
-      hasCapability: (capability: ModelCapability) => capabilities.has(capability),
-      hasCapabilities: (requiredCapabilities: ModelCapability[]) =>
-        requiredCapabilities.every((capability) => capabilities.has(capability))
-    } satisfies ProviderClientApi;
-  });
 
+      streamText: (input: string, options: ProviderGenerateTextOptions): Effect.Effect<StreamingTextResult, ProviderOperationError> =>
+        Effect.fail(new ProviderOperationError({
+          providerName: "default",
+          operation: "streamText",
+          message: "Not implemented",
+          module: "make-provider",
+          method: "streamText"
+        })),
+
+      streamObject: <T>(input: string, options: ProviderGenerateObjectOptions<T>): Effect.Effect<StreamingObjectResult<T>, ProviderOperationError> =>
+        Effect.fail(new ProviderOperationError({
+          providerName: "default",
+          operation: "streamObject",
+          message: "Not implemented",
+          module: "make-provider",
+          method: "streamObject"
+        }))
+    } satisfies ProviderClientApi;
+  })
+}

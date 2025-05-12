@@ -3,7 +3,8 @@
  * @module services/core/auth/service
  */
 
-import { Effect, Ref } from "effect";
+import { Effect, Ref, pipe } from "effect";
+import { LoggingService } from "../logging/service.js";
 import type { AuthServiceApi } from "./api.js";
 import { AuthenticationError, AuthorizationError, InvalidAuthContextError } from "./errors.js";
 import type { AuthContext } from "./types.js";
@@ -13,6 +14,9 @@ import type { AuthContext } from "./types.js";
  */
 export class AuthService extends Effect.Service<AuthServiceApi>()("AuthService", {
     effect: Effect.gen(function* () {
+        // Get dependencies
+        const logger = yield* LoggingService;
+
         // Create a Ref to store the current auth context
         const contextRef = yield* Ref.make<AuthContext>({
             isAuthenticated: false,
@@ -21,7 +25,9 @@ export class AuthService extends Effect.Service<AuthServiceApi>()("AuthService",
 
         // Helper to get current context
         const getCurrentContext = (): Effect.Effect<AuthContext, AuthenticationError> =>
-            Ref.get(contextRef).pipe(
+            pipe(
+                Ref.get(contextRef),
+                Effect.tap(() => logger.debug("Getting current auth context")),
                 Effect.flatMap(context => {
                     if (!context.isAuthenticated) {
                         return Effect.fail(new AuthenticationError({
@@ -29,18 +35,24 @@ export class AuthService extends Effect.Service<AuthServiceApi>()("AuthService",
                         }));
                     }
                     return Effect.succeed(context);
-                })
+                }),
+                Effect.tap(context => logger.debug("Retrieved auth context", { isAuthenticated: context.isAuthenticated }))
             );
 
         // Helper to check authentication
         const isAuthenticated = (): Effect.Effect<boolean, never> =>
-            Ref.get(contextRef).pipe(
-                Effect.map(context => context.isAuthenticated)
+            pipe(
+                Ref.get(contextRef),
+                Effect.tap(() => logger.debug("Checking authentication status")),
+                Effect.map(context => context.isAuthenticated),
+                Effect.tap(isAuth => logger.debug("Authentication status checked", { isAuthenticated: isAuth }))
             );
 
         // Helper to validate roles
         const validateRoles = (requiredRoles: readonly string[]): Effect.Effect<void, AuthorizationError> =>
-            getCurrentContext().pipe(
+            pipe(
+                getCurrentContext(),
+                Effect.tap(() => logger.debug("Validating roles", { requiredRoles })),
                 Effect.flatMap(context => {
                     const userRoles = context.record?.roles ?? [];
                     const hasAllRoles = requiredRoles.every(role => userRoles.includes(role));
@@ -52,19 +64,24 @@ export class AuthService extends Effect.Service<AuthServiceApi>()("AuthService",
                         }));
                     }
 
-                    return Effect.unit;
+                    return Effect.succeed(void 0);
                 }),
-                Effect.catchTag("AuthenticationError", error =>
-                    Effect.fail(new AuthorizationError({
-                        message: "Authentication required",
-                        cause: error
-                    }))
+                Effect.tap(() => logger.debug("Roles validated successfully", { requiredRoles })),
+                Effect.mapError(error =>
+                    error instanceof AuthenticationError
+                        ? new AuthorizationError({
+                            message: "Authentication required",
+                            cause: error
+                        })
+                        : error
                 )
             );
 
         // Helper to validate tenant access
         const validateTenantAccess = (tenantId: string): Effect.Effect<void, AuthorizationError> =>
-            getCurrentContext().pipe(
+            pipe(
+                getCurrentContext(),
+                Effect.tap(() => logger.debug("Validating tenant access", { tenantId })),
                 Effect.flatMap(context => {
                     if (context.record?.tenantId !== tenantId) {
                         return Effect.fail(new AuthorizationError({
@@ -73,27 +90,34 @@ export class AuthService extends Effect.Service<AuthServiceApi>()("AuthService",
                         }));
                     }
 
-                    return Effect.unit;
+                    return Effect.succeed(void 0);
                 }),
-                Effect.catchTag("AuthenticationError", error =>
-                    Effect.fail(new AuthorizationError({
-                        message: "Authentication required",
-                        cause: error
-                    }))
+                Effect.tap(() => logger.debug("Tenant access validated successfully", { tenantId })),
+                Effect.mapError(error =>
+                    error instanceof AuthenticationError
+                        ? new AuthorizationError({
+                            message: "Authentication required",
+                            cause: error
+                        })
+                        : error
                 )
             );
 
         // Helper to update context
         const updateContext = (context: AuthContext): Effect.Effect<void, InvalidAuthContextError> =>
-            Effect.gen(function* () {
-                if (!context.timestamp) {
-                    return yield* Effect.fail(new InvalidAuthContextError({
-                        message: "Auth context must have a timestamp"
-                    }));
-                }
-
-                yield* Ref.set(contextRef, context);
-            });
+            pipe(
+                Effect.succeed(context),
+                Effect.tap(() => logger.debug("Updating auth context")),
+                Effect.flatMap(ctx => {
+                    if (!ctx.timestamp) {
+                        return Effect.fail(new InvalidAuthContextError({
+                            message: "Auth context must have a timestamp"
+                        }));
+                    }
+                    return Ref.set(contextRef, ctx);
+                }),
+                Effect.tap(() => logger.debug("Auth context updated successfully"))
+            );
 
         // Return service implementation
         return {
