@@ -19,7 +19,7 @@ import {
   createPersonSchema,
   createProductSchema,
   createTaskSchema,
-} from "../schema-utils.js";
+} from "../helpers.js";
 import { ObjectService } from "../service.js";
 
 interface Person {

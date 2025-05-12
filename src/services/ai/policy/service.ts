@@ -14,15 +14,15 @@ import {
   PolicyUsageEntity
 } from "./schema.js";
 import {
+  POLICY_RULE_ALLOW,
+  POLICY_RULE_DENY,
+  POLICY_SCOPE_GLOBAL,
+  POLICY_SCOPE_USER,
   PolicyCheckContext,
   PolicyCheckResult,
   PolicyRecordContext,
-  PolicyScope,
   PolicyRuleType,
-  POLICY_SCOPE_USER,
-  POLICY_SCOPE_GLOBAL,
-  POLICY_RULE_ALLOW,
-  POLICY_RULE_DENY
+  PolicyScope
 } from "./types.js";
 
 import { PolicyServiceApi } from "./api.js";

@@ -2,19 +2,19 @@
  * @file Test suite for InputService
  */
 
+import { Message } from "@/schema.js";
 import {
   FilePart,
   InputService,
   InvalidInputError,
   InvalidMessageError,
   NoAudioFileError,
-  ROLE_USER,
   ROLE_MODEL,
-  ROLE_SYSTEM
+  ROLE_SYSTEM,
+  ROLE_USER
 } from "@/services/pipeline/input/service.js";
-import { Message } from "@/schema.js";
-import { User, Model } from "@effect/ai/AiRole";
 import { TextPart } from "@effect/ai/AiResponse";
+import { Model, User } from "@effect/ai/AiRole";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 

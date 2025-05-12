@@ -5,13 +5,13 @@
 
 import { FileSystem } from "@effect/platform";
 import { Effect, Schema } from "effect";
+import { ConfigurationServiceApi, LoadConfigOptions } from "./api.js";
 import {
     ConfigParseError,
     ConfigReadError,
     ConfigValidationError
 } from "./errors.js";
 import type { BaseConfig } from "./schema.js";
-import { ConfigurationServiceApi, LoadConfigOptions } from "./api.js";
 
 /**
  * Implementation of the Configuration Service using Effect.Service pattern.

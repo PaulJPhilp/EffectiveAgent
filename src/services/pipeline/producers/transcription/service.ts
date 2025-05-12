@@ -7,11 +7,14 @@ import { EffectiveError } from "@/errors.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import { EffectiveResponse } from "@/types.js";
 import { Layer } from "effect";
 import * as Effect from "effect/Effect";
 import { Span } from "effect/Tracer";
+import type { TranscriptionServiceApi } from "./api.js";
 import { TranscriptionAudioError, TranscriptionError, TranscriptionModelError, TranscriptionProviderError } from "./errors.js";
-import { EffectiveResponse } from "@/types.js";
+import { isValidAudioBuffer } from "./helpers.js";
+import type { TranscriptionResult } from "./types.js";
 
 /**
  * Supported audio formats for transcription
@@ -97,7 +100,7 @@ export interface TranscriptionResult {
 /**
  * TranscriptionService interface for handling AI audio transcription
  */
-export interface TranscriptionServiceApi {
+// TranscriptionServiceApi is now imported from './api.js'
     readonly transcribe: (options: TranscriptionOptions) => Effect.Effect<TranscriptionResult, EffectiveError>;
 }
 

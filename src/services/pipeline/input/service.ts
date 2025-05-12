@@ -24,10 +24,10 @@ export const METHOD_EXTRACT_TEXTS_FOR_EMBEDDINGS = "extractTextsForEmbeddings" a
 export const METHOD_EXTRACT_TEXT_FOR_SPEECH = "extractTextForSpeech" as const;
 
 import { EffectiveInput, Message } from "@/types.js";
-import { ToolCallResolvedPart, ImagePart } from "@effect/ai/AiInput";
-import { User, Model } from "@effect/ai/AiRole";
+import { ImagePart, ToolCallResolvedPart } from "@effect/ai/AiInput";
+import { Model, User } from "@effect/ai/AiRole";
 export { User } from "@effect/ai/AiRole";
-import { Part, TextPart, ToolCallPart, ImageUrlPart, PartTypeId } from "@effect/ai/AiResponse";
+import { ImageUrlPart, Part, PartTypeId, TextPart, ToolCallPart } from "@effect/ai/AiResponse";
 import { Chunk, Context, Effect, Layer, Schema, pipe } from "effect";
 import * as Ref from "effect/Ref";
 

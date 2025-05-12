@@ -1,5 +1,5 @@
-import { EffectiveError } from "@/errors.js";
 import { AgentRuntimeId } from "@/agent-runtime/types.js";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Base error class for BridgeService errors

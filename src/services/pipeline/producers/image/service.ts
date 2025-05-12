@@ -9,13 +9,13 @@ import { ProviderService } from "@/services/ai/provider/service.js";
 import { GenerateImageResult } from "@/services/ai/provider/types.js";
 import { EffectiveResponse, Message } from "@/types.js";
 
+import { TextPart, User } from "@/services/ai/input/schema.js";
 import { EffectiveInput } from "@/types.js";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 import { Span } from "effect/Tracer";
 import { ImageGenerationError, ImageModelError, ImageProviderError, ImageSizeError } from "./errors.js";
-import { TextPart, User } from "@/services/ai/input/schema.js";
 
 /**
  * Result shape expected from the underlying provider client's generateImage method

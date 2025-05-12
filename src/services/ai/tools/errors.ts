@@ -3,8 +3,8 @@
  * @module services/tools/errors
  */
 
-import { EffectiveError, AppToolParseError } from "../../../errors.js";
 import type { ParseResult } from "effect";
+import { AppToolParseError, EffectiveError } from "../../../errors.js";
 
 /**
  * Base error for all tool-related failures.

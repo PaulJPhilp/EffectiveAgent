@@ -2,8 +2,8 @@
  * @file Defines core Effect schemas used across the application.
  */
 
-import { Schema as S } from "effect";
 import { Part } from "@effect/ai/AiResponse";
+import { Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 
 // --- Core String Schemas ---

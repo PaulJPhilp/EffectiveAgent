@@ -1,29 +1,29 @@
 import type { Message } from "@/types.js";
 import { Effect } from "effect";
 import { ProviderClient } from "../client.js";
-import type {
-  ProviderClientApi,
-  ProviderGenerateTextOptions,
-  ProviderGenerateObjectOptions,
-  ProviderGenerateSpeechOptions,
-  ProviderTranscribeOptions,
-  ProviderGenerateEmbeddingsOptions,
-  ProviderChatOptions,
-  ProviderGenerateImageOptions,
-  ToolDefinition,
-  ToolCallRequest,
-  ModelCapability,
-  GenerateTextResult,
-  GenerateObjectResult,
-  GenerateSpeechResult,
-  GenerateImageResult,
-  GenerateEmbeddingsResult,
-  TranscribeResult,
-  StreamingTextResult,
-  StreamingObjectResult,
-} from "../types.js";
 import { ProviderOperationError } from "../errors.js";
 import { ProviderToolError } from "../errors/tool.js";
+import type {
+  GenerateEmbeddingsResult,
+  GenerateImageResult,
+  GenerateObjectResult,
+  GenerateSpeechResult,
+  GenerateTextResult,
+  ModelCapability,
+  ProviderChatOptions,
+  ProviderClientApi,
+  ProviderGenerateEmbeddingsOptions,
+  ProviderGenerateImageOptions,
+  ProviderGenerateObjectOptions,
+  ProviderGenerateSpeechOptions,
+  ProviderGenerateTextOptions,
+  ProviderTranscribeOptions,
+  StreamingObjectResult,
+  StreamingTextResult,
+  ToolCallRequest,
+  ToolDefinition,
+  TranscribeResult,
+} from "../types.js";
 
 export const makeProvider = (name: string, initialCapabilities: ModelCapability[]) => {
   // Convert array to Set for O(1) lookups

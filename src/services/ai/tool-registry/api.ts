@@ -3,6 +3,7 @@
  * @module services/ai/tool-registry/api
  */
 
+import { EffectiveTool, EffectiveToolkit } from "@/types.js";
 import { Effect } from "effect";
 import type {
     FullToolName,
@@ -14,7 +15,6 @@ import type {
     ToolRegistryError,
     ToolkitNotFoundErrorInRegistry,
 } from "./errors.js";
-import { EffectiveTool, EffectiveToolkit } from "@/types.js";
 
 /**
  * Service contract for managing and accessing the tool registry.

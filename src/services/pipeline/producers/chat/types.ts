@@ -4,7 +4,7 @@
 
 import { Effect } from "effect";
 import { Span } from "effect/Tracer";
-import { CoreMessage } from "./utils.js";
+import { CoreMessage } from "./helpers.js";
 
 export interface ChatCompletionOptions {
     readonly input: string;

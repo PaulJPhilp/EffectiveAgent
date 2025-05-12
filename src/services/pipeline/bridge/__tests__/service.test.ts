@@ -2,24 +2,24 @@
  * @file Test suite for BridgeService
  */
 
-import { describe, it, expect } from "vitest";
-import { Effect, Stream, Chunk } from "effect";
-import { BridgeService, UuidGeneratorService } from "../service.js";
+import {
+  AgentActivity,
+  AgentRecordType,
+  AgentRuntimeId,
+  AgentRuntimeService,
+  AgentRuntimeState
+} from "@/agent-runtime/index.js";
+import { Chunk, Effect, Stream } from "effect";
+import { describe, expect, it } from "vitest";
 import type { BridgeServiceApi } from "../api.js";
 import {
-  AgentRuntimeId,
-  AgentRecordType,
-  AgentActivity,
-  AgentRuntimeState,
-  AgentRuntimeService
-} from "@/agent-runtime/index.js";
-import {
-  BridgeRuntimeCreationError,
   BridgeMessageSendError,
+  BridgeRuntimeCreationError,
+  BridgeServiceError,
   BridgeStateError,
-  BridgeTerminationError,
-  BridgeServiceError
+  BridgeTerminationError
 } from "../errors.js";
+import { BridgeService, UuidGeneratorService } from "../service.js";
 
 describe("BridgeService", () => {
   // Test for agent runtime creation success case

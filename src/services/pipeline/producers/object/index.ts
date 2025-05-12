@@ -21,4 +21,4 @@ export {
 } from "./errors.js";
 
 // Export schema utilities
-export * from "./schema-utils.js";
+export * from "./helpers.js";

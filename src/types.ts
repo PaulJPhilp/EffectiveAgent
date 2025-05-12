@@ -2,9 +2,9 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
+import { Message } from "@/schema.js";
 import { Effect, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
-import { Message } from "@/schema.js";
 
 // Re-export Message
 export { Message } from "@/schema.js";

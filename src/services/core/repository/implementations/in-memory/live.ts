@@ -5,6 +5,7 @@
  * the layer should be constructed where needed.
  */
 
+import { EntityId } from "@/types.js";
 import { Context, Effect, Layer, Option, Ref } from "effect"; // Removed Clock
 import * as Arr from "effect/Array";
 import { v4 as uuidv4 } from "uuid";
@@ -17,7 +18,6 @@ import type {
     BaseEntity,
     FindOptions,
 } from "../../types.js";
-import { EntityId } from "@/types.js";
 
 // --- In-Memory Repository Implementation Factory Function ---
 // This function is NOT an Effect itself. It takes the Ref store
