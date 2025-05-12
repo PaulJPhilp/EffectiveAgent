@@ -149,7 +149,7 @@ export function extractAudioForTranscriptionEffect(
 }
 
 // Already imported above
-import { InputServiceApi } from "./input.api.js";
+import { InputServiceApi } from "./api.js";
 
 // Helper functions
 const createTextPart = (text: string): TextPart =>
