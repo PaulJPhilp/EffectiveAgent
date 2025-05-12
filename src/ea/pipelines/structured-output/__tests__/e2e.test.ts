@@ -1,4 +1,4 @@
-import { createServiceTestHarness } from "@/services/core/test-utils/effect-test-harness.js"
+import { createServiceTestHarness } from "@/services/core/test-harness/utils/effect-test-harness.js"
 import { StructuredOutputPipeline } from "@/services/pipeline/implementations/structured-output.js"
 import { Context, Effect, Layer, Schema as S } from "effect"
 import { describe, expect, it } from "vitest"

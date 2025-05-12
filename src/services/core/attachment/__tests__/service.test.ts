@@ -23,8 +23,8 @@ describe("AttachmentService", () => {
 
     create: (data: AttachmentLinkEntity["data"]) => Effect.succeed({
       id: crypto.randomUUID(),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       data: data,
     } as AttachmentLinkEntity),
 
@@ -59,8 +59,8 @@ describe("AttachmentService", () => {
         return Effect.succeed([
           {
             id: "link-1",
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             data: {
               entityA_id: "chat-1",
               entityA_type: "ChatMessage",
@@ -71,8 +71,8 @@ describe("AttachmentService", () => {
           },
           {
             id: "link-2",
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             data: {
               entityA_id: "chat-1",
               entityA_type: "ChatMessage",
@@ -88,8 +88,8 @@ describe("AttachmentService", () => {
         return Effect.succeed([
           {
             id: "link-1",
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             data: {
               entityA_id: "chat-1",
               entityA_type: "ChatMessage",
@@ -100,8 +100,8 @@ describe("AttachmentService", () => {
           },
           {
             id: "link-3",
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             data: {
               entityA_id: "exec-5",
               entityA_type: "SkillExecution",
@@ -117,8 +117,8 @@ describe("AttachmentService", () => {
         return Effect.succeed([
           {
             id: "link-3",
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             data: {
               entityA_id: "exec-5",
               entityA_type: "SkillExecution",
@@ -134,8 +134,8 @@ describe("AttachmentService", () => {
         return Effect.succeed([
           {
             id: "link-2",
-            createdAt: Date.now(),
-            updatedAt: Date.now(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             data: {
               entityA_id: "chat-1",
               entityA_type: "ChatMessage",
@@ -152,8 +152,8 @@ describe("AttachmentService", () => {
 
     update: () => Effect.succeed({
       id: "test-id",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
       data: {
         entityA_id: "source-id",
         entityA_type: "SourceType",
@@ -200,6 +200,18 @@ describe("AttachmentService", () => {
     entityB_type: "File",
   };
 
+  // Input with the new fields (metadata, createdBy, expiresAt)
+  const linkInput4: CreateAttachmentLinkInput = {
+    entityA_id: "note-1",
+    entityA_type: "Note",
+    entityB_id: "doc-xyz",
+    entityB_type: "Document",
+    linkType: "REFERENCE",
+    metadata: { page: 42, section: "Introduction", important: true },
+    createdBy: "user-123",
+    expiresAt: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days from now
+  };
+
   // --- Test Suite ---
   describe("AttachmentApiLive", () => {
     it("should create a link", () =>
@@ -214,6 +226,27 @@ describe("AttachmentService", () => {
         expect(created.data.entityB_id).toBe(linkInput1.entityB_id);
         expect(created.data.entityB_type).toBe(linkInput1.entityB_type);
         expect(created.data.linkType).toBe(linkInput1.linkType);
+      }).pipe(Effect.provide(TestLayer))
+    );
+
+    it("should create a link with extended fields (metadata, createdBy, expiresAt)", () =>
+      Effect.gen(function* () {
+        const service = yield* AttachmentService;
+        const created = yield* service.createLink(linkInput4);
+
+        expect(created).toBeDefined();
+        expect(created.id).toBeTypeOf("string");
+        expect(created.data.entityA_id).toBe(linkInput4.entityA_id);
+        expect(created.data.entityA_type).toBe(linkInput4.entityA_type);
+        expect(created.data.entityB_id).toBe(linkInput4.entityB_id);
+        expect(created.data.entityB_type).toBe(linkInput4.entityB_type);
+        expect(created.data.linkType).toBe(linkInput4.linkType);
+
+        // Verify the new fields
+        expect(created.data.metadata).toBeDefined();
+        expect(created.data.metadata).toEqual(linkInput4.metadata);
+        expect(created.data.createdBy).toBe(linkInput4.createdBy);
+        expect(created.data.expiresAt).toBe(linkInput4.expiresAt);
       }).pipe(Effect.provide(TestLayer))
     );
 
@@ -318,5 +351,180 @@ describe("AttachmentService", () => {
         }
       }).pipe(Effect.provide(TestLayer))
     );
+
+    // Bulk operation tests
+    it("should create multiple links with createLinks", () =>
+      Effect.gen(function* () {
+        const service = yield* AttachmentService;
+        const links = yield* service.createLinks([linkInput1, linkInput2, linkInput3]);
+
+        expect(links).toBeDefined();
+        expect(links).toBeInstanceOf(Array);
+        expect(links.length).toBe(3);
+
+        // Verify each link has the expected properties
+        expect(links[0]?.data.entityA_id).toBe(linkInput1.entityA_id);
+        expect(links[0]?.data.entityB_id).toBe(linkInput1.entityB_id);
+        expect(links[1]?.data.entityA_id).toBe(linkInput2.entityA_id);
+        expect(links[1]?.data.entityB_id).toBe(linkInput2.entityB_id);
+        expect(links[2]?.data.entityA_id).toBe(linkInput3.entityA_id);
+        expect(links[2]?.data.entityB_id).toBe(linkInput3.entityB_id);
+      }).pipe(Effect.provide(TestLayer))
+    );
+
+    it("should handle empty array in createLinks", () =>
+      Effect.gen(function* () {
+        const service = yield* AttachmentService;
+        const links = yield* service.createLinks([]);
+
+        expect(links).toBeDefined();
+        expect(links).toBeInstanceOf(Array);
+        expect(links.length).toBe(0);
+      }).pipe(Effect.provide(TestLayer))
+    );
+
+    it("should delete all links from a source entity", () =>
+      Effect.gen(function* () {
+        const service = yield* AttachmentService;
+
+        // The mock data has 2 links from "chat-1"
+        const deletedCount = yield* service.deleteLinksFrom(
+          "chat-1",
+          "ChatMessage"
+        );
+
+        // Verify both links were deleted
+        expect(deletedCount).toBe(2);
+
+        // Finding links now should return empty array
+        const remainingLinks = yield* service.findLinksFrom(
+          "chat-1",
+          "ChatMessage"
+        );
+        expect(remainingLinks).toHaveLength(0);
+      }).pipe(Effect.provide(TestLayer))
+    );
+
+    it("should delete all links to a target entity", () =>
+      Effect.gen(function* () {
+        const service = yield* AttachmentService;
+
+        // The mock data has 2 links to "file-abc"
+        const deletedCount = yield* service.deleteLinksTo(
+          "file-abc",
+          "File"
+        );
+
+        // Verify both links were deleted
+        expect(deletedCount).toBe(2);
+
+        // Finding links now should return empty array
+        const remainingLinks = yield* service.findLinksTo(
+          "file-abc",
+          "File"
+        );
+        expect(remainingLinks).toHaveLength(0);
+      }).pipe(Effect.provide(TestLayer))
+    );
+
+    it("should handle no links found in bulk delete operations", () =>
+      Effect.gen(function* () {
+        const service = yield* AttachmentService;
+
+        const fromCount = yield* service.deleteLinksFrom(
+          "non-existent",
+          "Entity"
+        );
+        expect(fromCount).toBe(0);
+
+        const toCount = yield* service.deleteLinksTo(
+          "non-existent",
+          "Entity"
+        );
+        expect(toCount).toBe(0);
+      }).pipe(Effect.provide(TestLayer))
+    );
+
+    // Transaction tests
+    describe("Transaction Support", () => {
+      it("should ensure atomicity in createLinks (all succeed or none)", () =>
+        Effect.gen(function* () {
+          // We'll create a special test repo with a failure trigger
+          const FailingRepo: RepositoryServiceApi<AttachmentLinkEntity> = {
+            ...makeAttachmentRepo(),
+            create: (data) => {
+              // Fail on specific entity to simulate partial failure
+              if (data.entityB_id === 'will-fail') {
+                return Effect.fail(new RepositoryError({
+                  message: "Simulated transaction failure",
+                  entityType: "AttachmentLink"
+                }));
+              }
+              return Effect.succeed({
+                id: crypto.randomUUID(),
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                data
+              } as AttachmentLinkEntity);
+            }
+          };
+
+          // Create a layer with our failing repo
+          const FailingRepoLayer = Layer.succeed(
+            RepositoryService<AttachmentLinkEntity>().Tag,
+            FailingRepo
+          );
+
+          // Layer with the failing repo
+          const FailingTestLayer = Layer.provide(
+            AttachmentServiceLive as unknown as Layer.Layer<unknown>,
+            FailingRepoLayer
+          ) as Layer.Layer<AttachmentServiceApi>;
+
+          // Create service with failing repo
+          const service: AttachmentServiceApi = yield* Effect.provide(
+           AttachmentService,
+            FailingTestLayer
+          );
+
+          // Create an array of links where the middle one will fail
+          const inputs = [
+            {
+              entityA_id: "source-1",
+              entityA_type: "Source",
+              entityB_id: "target-1",
+              entityB_type: "Target"
+            },
+            {
+              entityA_id: "source-2",
+              entityA_type: "Source",
+              entityB_id: "will-fail", // This one will trigger the failure
+              entityB_type: "Target"
+            },
+            {
+              entityA_id: "source-3",
+              entityA_type: "Source",
+              entityB_id: "target-3",
+              entityB_type: "Target"
+            }
+          ];
+
+          // Attempt to create the links with transaction support
+          const result = yield* Effect.either(service.createLinks(inputs));
+
+          // The operation should fail
+          expect(result._tag).toBe("Left");
+
+          // Now verify no links were created (rollback worked)
+          // We'll check for the first link which would have been created before the failure
+          const firstLinkQuery = yield* service.findLinksFrom("source-1", "Source");
+
+          // There should be no links since the transaction rolled back
+          expect(firstLinkQuery.length).toBe(0);
+        })
+      );
+
+      // Similar tests could be added for deleteLinksFrom and deleteLinksTo
+    });
   });
 });

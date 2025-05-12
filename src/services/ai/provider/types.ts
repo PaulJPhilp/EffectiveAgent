@@ -539,3 +539,5 @@ export type EffectiveProviderSettings = {
     name: typeof PROVIDER_NAMES[number];
     settings: unknown;
 };
+
+export { ToolDefinition };

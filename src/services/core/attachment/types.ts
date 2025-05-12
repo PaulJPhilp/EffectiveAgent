@@ -7,11 +7,16 @@ import type { AttachmentServiceApi } from "./api.js";
 /**
  * Input type for creating a link (omitting system fields)
  */
-
-export type CreateAttachmentLinkInput = Omit<
-    AttachmentLinkEntityData,
-    "linkType" // Make linkType optional here too if schema allows
-> & { linkType?: string }; // Explicitly allow optional linkType
+export type CreateAttachmentLinkInput = {
+    entityA_id: string;
+    entityA_type: string;
+    entityB_id: string;
+    entityB_type: string;
+    linkType?: string;
+    metadata?: Record<string, unknown>;
+    createdBy?: string;
+    expiresAt?: number;
+};
 
 // Export the API for backwards compatibility
 export type { AttachmentServiceApi };

@@ -1,6 +1,7 @@
 ---
 description: Guidelines for creating and testing effect-based services
 globs: src/services/**/*.ts
+alwaysApply: false
 ---
 
 # Effect Service Pattern for v3.14+
@@ -17,16 +18,17 @@ export interface MyServiceInterface {
 }
 ```
 
-## Context.Tag Definition
+## Effect.Service Class Pattern (Canonical)
 
-Use the class-based approach to define your service tag:
+**Always use the Effect.Service class pattern for service definitions and dependency injection. Do NOT use Context.Tag directly or via class-based tag pattern.**
 
 ```typescript
-// In types.ts
-export class MyService extends Context.Tag("MyService")<
-  MyService,
-  MyServiceInterface
->() {}
+// In service.ts
+export class MyService extends Effect.Service<MyServiceInterface>()("MyService", {
+  effect: Effect.gen(function* () {
+    // Implementation
+  })
+})
 ```
 
 ## Service Implementation
@@ -37,7 +39,7 @@ Implement your service with `Effect.gen`:
 // In live.ts
 export const make = Effect.gen(function* () {
   // Access dependencies directly with yield*
-  const dependency = yield* DependencyTag;
+  const dependency = yield* DependencyService
   
   const operation1 = (input: Input): Effect.Effect<Output, MyError> => {
     return dependency.someMethod(input).pipe(
@@ -125,7 +127,7 @@ const createTestImpl = () => {
 
 // Create the test harness for the service
 const serviceHarness = createServiceTestHarness(
-  MyService,  // Pass the service tag
+  MyService,  // Pass the service class
   createTestImpl // Pass the implementation factory
 );
 
@@ -163,8 +165,8 @@ The test harness provides these utilities:
 
 ## Common Mistakes to Avoid
 
-1. **DO NOT** use `Effect.service(Tag)` - direct yielding with `yield* Tag` is preferred
-2. **DO NOT** use `Context.GenericTag` - use class-based approach instead
-3. **DO NOT** use function parameter in `Effect.gen` like `function* (_)` - use direct yielding
-4. **DO NOT** forget to handle errors explicitly in your service implementation
-5. **DO NOT** mix different versions of the Effect pattern in the same codebase 
+1. **DO NOT** use `Context.Tag` or any explicit tag property—use only the Effect.Service class pattern for all service definitions and dependency injection.
+2. **DO NOT** use `Context.GenericTag`.
+3. **DO NOT** use function parameter in `Effect.gen` like `function* (_)`—use direct yielding.
+4. **DO NOT** forget to handle errors explicitly in your service implementation.
+5. **DO NOT** mix different versions of the Effect pattern in the same codebase. 

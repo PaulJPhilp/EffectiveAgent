@@ -3,36 +3,28 @@
  */
 
 import { BaseEntitySchema } from "@/schema.js";
-import { EntityId } from "@/types.js";
-import { Schema as S } from "@effect/schema.js";
+import { Schema as S } from "@effect/schema";
 
 // Helper for EntityId schema
 function EntityIdSchema() {
-    return Schema.String.pipe(Schema.annotations({ identifier: "EntityId" }));
+    return S.String.pipe(S.annotations({ identifier: "EntityId" }));
 }
 
-// Schema for the 'data' payload
-const AttachmentLinkEntityDataSchema = Schema.Struct({
+// Define the data class schema
+export class AttachmentLinkEntityData extends S.Class<AttachmentLinkEntityData>("AttachmentLinkEntityData")({
     entityA_id: EntityIdSchema(),
-    entityA_type: Schema.String.pipe(Schema.minLength(1)),
+    entityA_type: S.String.pipe(S.minLength(1)),
     entityB_id: EntityIdSchema(),
-    entityB_type: Schema.String.pipe(Schema.minLength(1)),
+    entityB_type: S.String.pipe(S.minLength(1)),
     // linkType is optional for now based on PRD
-    linkType: S.optional(Schema.String.pipe(Schema.minLength(1))),
-});
+    linkType: S.optional(S.String.pipe(S.minLength(1))),
+    // Additional fields for enhanced link functionality
+    metadata: S.optional(S.Record({ key: S.String, value: S.Unknown })),
+    createdBy: S.optional(S.String),
+    expiresAt: S.optional(S.Number),
+}) { }
 
-// Full entity schema
-export const AttachmentLinkEntitySchema = Schema.extend(
-    BaseEntitySchema,
-    Schema.Struct({
-        data: AttachmentLinkEntityDataSchema,
-    }),
-);
-
-// Inferred types
-export type AttachmentLinkEntityData = Schema.Schema.Type<
-    typeof AttachmentLinkEntityDataSchema
->;
-export type AttachmentLinkEntity = Schema.Schema.Type<
-    typeof AttachmentLinkEntitySchema
->;
+// Define the entity class schema
+export class AttachmentLinkEntity extends BaseEntitySchema.extend<AttachmentLinkEntity>("AttachmentLinkEntity")({
+    data: S.instanceOf(AttachmentLinkEntityData),
+}) { }

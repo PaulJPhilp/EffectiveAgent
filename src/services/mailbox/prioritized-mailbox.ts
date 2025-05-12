@@ -1,6 +1,6 @@
+import { AgentActivity, MessagePriority as Priority } from "@/agent-runtime/types.js"
 // filepath: /Users/paul/Projects/EffectiveAgent/src/agent-runtime/prioritized-mailbox.ts
 import { Effect, Queue, Ref, Schedule, Stream, pipe } from "effect"
-import { MessagePriority as Priority } from "../agent-runtime/types.js"
 import { Mailbox } from "./mailbox.js"
 
 /**

@@ -18,7 +18,7 @@ export interface ServiceMasterApi {
      * @param effect The Effect to run.
      * @returns An Effect that will produce an Either<E, A>.
      */
-    runEither: <E, A>(effect: Effect.Effect<A, E>) => Effect.Effect<Either<E, A>>;
+    runEither: <E, A>(effect: Effect.Effect<A, E>) => Effect.Effect<Either.Either<E, A>>;
 
     /**
      * Runs an Effect and returns its result wrapped in an Exit.
@@ -29,7 +29,7 @@ export interface ServiceMasterApi {
      * @param effect The Effect to run.
      * @returns An Effect that will produce an Exit<E, A>.
      */
-    runExit: <E, A>(effect: Effect.Effect<A, E>) => Effect.Effect<Exit<E, A>>;
+    runExit: <E, A>(effect: Effect.Effect<A, E>) => Effect.Effect<Exit.Exit<E, A>>;
 
     /**
      * Runs an Effect synchronously, returning the success value A.
@@ -45,17 +45,17 @@ export interface ServiceMasterApi {
 }
 
 // Helper function to swap the generic parameters in Either
-const swapEither = <E, A>(either: Either<A, E>): Either<E, A> => {
+const swapEither = <E, A>(either: Either.Either<A, E>): Either.Either<E, A> => {
     if (either._tag === "Left") {
-        return { _tag: "Right", right: either.left } as Either<E, A>;
+        return { _tag: "Right", right: either.left } as Either.Either<E, A>;
     } else {
-        return { _tag: "Left", left: either.right } as Either<E, A>;
+        return { _tag: "Left", left: either.right } as Either.Either<E, A>;
     }
 };
 
 // Helper function to swap the generic parameters in Exit
-const swapExit = <E, A>(exit: Exit<A, E>): Exit<E, A> => {
-    return exit as unknown as Exit<E, A>; // Type assertion for simplicity in scaffold
+const swapExit = <E, A>(exit: Exit.Exit<A, E>): Exit.Exit<E, A> => {
+    return exit as unknown as Exit.Exit<E, A>; // Type assertion for simplicity in scaffold
 };
 
 /**
@@ -66,10 +66,10 @@ export class ServiceMaster extends Effect.Service<ServiceMasterApi>()(
     "ServiceMaster",
     {
         effect: Effect.succeed({
-            runEither: <E, A>(effect: Effect.Effect<A, E>): Effect.Effect<Either<E, A>> =>
+            runEither: <E, A>(effect: Effect.Effect<A, E>): Effect.Effect<Either.Either<E, A>> =>
                 Effect.map(Effect.either(effect), swapEither),
 
-            runExit: <E, A>(effect: Effect.Effect<A, E>): Effect.Effect<Exit<E, A>> =>
+            runExit: <E, A>(effect: Effect.Effect<A, E>): Effect.Effect<Exit.Exit<E, A>> =>
                 Effect.map(Effect.exit(effect), swapExit),
 
             unsafeRunSync: <E, A>(effect: Effect.Effect<A, E>): A =>

@@ -5,7 +5,7 @@
  * in tests to isolate the service under test from its dependencies.
  */
 
-import { createMockLayer } from "@/test-utils.js";
+import { createMockLayer } from "@/services/core/test-harness/utils/effect-test-harness.js";
 import { Context, Layer, Ref } from "effect";
 
 /**

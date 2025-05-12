@@ -9,7 +9,10 @@ import { AgentRuntimeService } from "@/agent-runtime/agent-runtime.service.js"
 import { MockWebSocketServer } from "@/services/core/mock-websocket/service.js"
 import { TestHarnessLayer, TestHarnessService } from "@/services/core/test-harness/service.js"
 import { Brand, Effect, Layer, Scope, Stream } from "effect"
-import { WebSocket } from "mock-socket"
+import { Server, WebSocket } from 'mock-websocket'
+
+globalThis.WebSocket = WebSocket
+globalThis.MockWebSocketServer = Server
 
 /**
  * Type definition for AgentRuntimeId for type safety

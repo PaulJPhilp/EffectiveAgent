@@ -1,5 +1,6 @@
+import { MailboxError } from "@/agent-runtime/errors.js"
+import { AgentActivity, MessagePriority } from "@/agent-runtime/types.js"
 import { Effect, Queue, Stream } from "effect"
-import { MailboxError } from "../agent-runtime/errors.js"
 
 /**
  * Mailbox class for priority-aware mailbox operations.

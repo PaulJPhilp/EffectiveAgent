@@ -1113,30 +1113,29 @@ The older pattern using the class-based `Context.Tag("ServiceName")<Tag, Interfa
 
 Effect Platform (`@effect/platform`, `@effect/platform-node`, `@effect/platform-bun`) provides Effect-native abstractions for interacting with the underlying runtime environment (Node.js, Bun). Here are common idioms used in this project:
 
-### 1. Using Abstracted Platform Services (e.g., FileSystem)
+### 1. Using Platform Services (e.g., FileSystem)
 
-*   **Idiom:** Instead of directly injecting and using services from `@effect/platform` (like `FileSystem`) in most business-logic services, interact with them via **application-specific wrapper services** (e.g., the service defined in `@core/filesystem/service.ts`).
+*   **Idiom:** Use Effect's platform services directly from `@effect/platform` (like `FileSystem`) in your services.
 *   **Why:**
-    *   **Encapsulation:** Hides the raw platform details from higher-level services.
-    *   **Testability:** Allows easier mocking of file operations via the wrapper service layer during tests.
-    *   **Consistency:** Ensures file operations adhere to application-specific standards or error handling defined in the wrapper.
-    *   **Flexibility:** The wrapper can potentially add features (like validation, specific encoding) or switch underlying implementations later without affecting consumers.
-*   **Example (Conceptual Consumption):**
+    *   **Direct Access:** Leverage Effect's built-in platform capabilities without unnecessary abstraction.
+    *   **Consistency:** Use Effect's standard error handling and resource management.
+    *   **Simplicity:** Avoid redundant wrapper services.
+    *   **Type Safety:** Benefit from Effect's type system directly.
+*   **Example (Using FileSystem):**
     ```typescript
-    // Instead of: import { FileSystem } from "@effect/platform/FileSystem";
-    import { CoreFileSystemService } from "@core/filesystem/service.js"; // Assuming this is the wrapper
+    import { FileSystem } from "@effect/platform/FileSystem";
     import { Effect } from "effect";
 
     const readFileContent = (path: string) => 
       Effect.gen(function*() {
-        // Use the application's wrapper service
-        const fileSystem = yield* CoreFileSystemService; 
-        const content = yield* fileSystem.readFileString(path); // Use methods defined by the wrapper
+        // Use Effect's FileSystem directly
+        const fs = yield* FileSystem.FileSystem;
+        const content = yield* fs.readFileString(path);
         // ... process content ...
         return content;
       });
     ```
-*   **Note:** The wrapper service itself (`@core/filesystem/service.ts`) would internally use `yield* FileSystem.FileSystem` and require the appropriate platform context layer (see Idiom 4).
+*   **Note:** Remember to provide the appropriate platform context layer (`NodeContext.layer` or `BunContext.layer`) at your application's entry point.
 
 ### 2. Using `HttpClientRequest` Builders
 

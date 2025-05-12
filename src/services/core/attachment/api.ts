@@ -10,6 +10,7 @@
  * relationship type and any additional attributes specific to that relationship.
  */
 
+import type { EntityId } from "@/types.js";
 import { Effect, Option } from "effect";
 import type {
     AttachmentError,
@@ -18,6 +19,7 @@ import type {
 import type {
     AttachmentLinkEntity
 } from "./schema.js";
+import type { CreateAttachmentLinkInput } from "./types.js";
 
 /**
  * Interface defining operations for managing attachment links between entities.
@@ -114,5 +116,82 @@ export interface AttachmentServiceApi {
     ) => Effect.Effect<
         Option.Option<AttachmentLinkEntity>,
         AttachmentError // R is implicitly never
+    >;
+
+    /**
+     * Creates multiple directional links in a single operation.
+     * 
+     * @param inputs - Array of link configuration objects.
+     * @returns Effect resolving to an array of created link entities.
+     * @throws AttachmentError if the bulk creation fails.
+     * 
+     * @example
+     * ```typescript
+     * const links = yield* AttachmentService.createLinks([
+     *   {
+     *     entityA_id: "doc123",
+     *     entityA_type: "Document",
+     *     entityB_id: "ref456",
+     *     entityB_type: "Reference"
+     *   },
+     *   {
+     *     entityA_id: "doc123",
+     *     entityA_type: "Document",
+     *     entityB_id: "img789",
+     *     entityB_type: "Image",
+     *     metadata: { position: "cover" }
+     *   }
+     * ]);
+     * ```
+     */
+    readonly createLinks: (
+        inputs: ReadonlyArray<CreateAttachmentLinkInput>,
+    ) => Effect.Effect<
+        ReadonlyArray<AttachmentLinkEntity>,
+        AttachmentError
+    >;
+
+    /**
+     * Deletes all links originating from a specific entity.
+     * 
+     * @param entityA_id - ID of the source entity.
+     * @param entityA_type - Type of the source entity.
+     * @returns Effect resolving to the number of links deleted.
+     * @throws AttachmentError if the operation fails.
+     * 
+     * @example
+     * ```typescript
+     * const deletedCount = yield* AttachmentService.deleteLinksFrom("doc123", "Document");
+     * console.log(`Deleted ${deletedCount} links from the document`);
+     * ```
+     */
+    readonly deleteLinksFrom: (
+        entityA_id: EntityId,
+        entityA_type: string,
+    ) => Effect.Effect<
+        number,
+        AttachmentError
+    >;
+
+    /**
+     * Deletes all links pointing to a specific entity.
+     * 
+     * @param entityB_id - ID of the target entity.
+     * @param entityB_type - Type of the target entity.
+     * @returns Effect resolving to the number of links deleted.
+     * @throws AttachmentError if the operation fails.
+     * 
+     * @example
+     * ```typescript
+     * const deletedCount = yield* AttachmentService.deleteLinksTo("file789", "File");
+     * console.log(`Removed ${deletedCount} references to the file`);
+     * ```
+     */
+    readonly deleteLinksTo: (
+        entityB_id: EntityId,
+        entityB_type: string,
+    ) => Effect.Effect<
+        number,
+        AttachmentError
     >;
 }

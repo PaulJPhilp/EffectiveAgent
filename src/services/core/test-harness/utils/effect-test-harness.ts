@@ -1,4 +1,9 @@
-import { Cause, Effect, Exit, Layer, Option, Runtime, Scope } from "effect";
+import { Cause, Effect, Exit, Layer, Option, Runtime, Scope } from "effect"
+import { TestHarnessApi } from "../api.js"
+import { AssertionHelperService } from "../components/assertion-helpers/service.js"
+import { EffectRunnerService } from "../components/effect-runners/service.js"
+import { FixtureService } from "../components/fixtures/service.js"
+import { MockAccessorService } from "../components/mock-accessors/service.js"
 
 /**
  * Service test harness interface
@@ -7,6 +12,7 @@ export interface ServiceTestHarness {
     readonly runTest: <A, E, R_Test>(effect: Effect.Effect<A, E, R_Test>) => Promise<A>
     readonly runFailTest: <A, E, R_Test>(effect: Effect.Effect<A, E, R_Test>) => Promise<Exit.Exit<A, E>>
     readonly expectError: <A, E, R_Test>(effect: Effect.Effect<A, E, R_Test>, errorTag: string) => Promise<void>
+    readonly harness: TestHarnessApi
 }
 
 /**
@@ -28,7 +34,26 @@ export function createServiceTestHarness<R, E = never>(
     })
     const runtimePromise = Effect.runPromise(runtimeEffect)
 
+    // Create test harness components
+    const harness: TestHarnessApi = {
+        runners: new EffectRunnerService(),
+        assertions: new AssertionHelperService(),
+        mocks: new MockAccessorService(),
+        fixtures: new FixtureService(),
+        context: {
+            // Context management functions
+            provide: <A, E, R>(effect: Effect.Effect<A, E, R>, layer: Layer.Layer<R>) =>
+                Effect.provide(effect, layer),
+            provideService: <A, E, R, T>(effect: Effect.Effect<A, E, R>, tag: any, implementation: T) =>
+                Effect.provideService(effect, tag, implementation),
+            provideMock: <A, E, R, T>(effect: Effect.Effect<A, E, R>, tag: any, mock: T) =>
+                Effect.provideService(effect, tag, mock)
+        }
+    }
+
     return {
+        harness,
+
         runTest: async <A, E, R_Test>(effect: Effect.Effect<A, E, R_Test>) => {
             const rt = await runtimePromise
             return Runtime.runPromise(rt)(effect as unknown as Effect.Effect<A, E, R>)

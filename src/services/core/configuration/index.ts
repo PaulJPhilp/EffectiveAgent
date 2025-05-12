@@ -1,18 +1,18 @@
-// File: src/services/core/configuration/index.ts
+/**
+ * Configuration service barrel file
+ * @module services/core/configuration
+ */
 
 // Export schemas
 export * from "./schema.js";
 
 // Export types excluding those already exported from schema
-export {
-    ConfigLoader,
-    ConfigLoaderOptions,
-    ConfigLoaderOptionsTag,
-    LoadOptions
+export type {
+    BaseConfig, ConfigLoaderApi, ConfigLoaderOptionsApi, LoadOptions
 } from "./types.js";
 
 // Export errors
 export * from "./errors.js";
 
-// Export the loader implementation
-export * from "./configuration-loader.js";
+// Export the properly implemented ConfigLoader service
+export * from "./config-loader-new-impl.js";

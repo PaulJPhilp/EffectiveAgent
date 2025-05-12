@@ -3,7 +3,7 @@
  * @module services/core/configuration/service
  */
 
-import { FileSystem } from "@effect/platform/FileSystem.js";
+import { FileSystem } from "@effect/platform";
 import { Effect, Schema } from "effect";
 import {
     ConfigParseError,
@@ -11,6 +11,7 @@ import {
     ConfigValidationError
 } from "./errors.js";
 import type { BaseConfig } from "./schema.js";
+import { ConfigurationServiceApi, LoadConfigOptions } from "./api.js";
 
 /**
  * Implementation of the Configuration Service using Effect.Service pattern.
@@ -21,7 +22,7 @@ export class ConfigurationService extends Effect.Service<ConfigurationServiceApi
     {
         effect: Effect.gen(function* () {
             // Get dependencies
-            const fs = yield* FileSystem;
+            const fs = yield* FileSystem.FileSystem;
 
             // Helper to read file content
             const readFile = (filePath: string): Effect.Effect<string, ConfigReadError> =>

@@ -1,4 +1,4 @@
-import { createServiceTestHarness } from "@core/test-utils/effect-test-harness.js";
+import { createServiceTestHarness } from "@/services/core/test-harness/utils/effect-test-harness.js";
 import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
 import { InMemoryRepository } from "./repository.js";

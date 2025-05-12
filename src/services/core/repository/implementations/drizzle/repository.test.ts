@@ -1,5 +1,4 @@
-import type { ImportedType } from "@core/repository/types.js";
-import { createServiceTestHarness } from "@core/test-utils/effect-test-harness.js";
+import { createServiceTestHarness } from "@/services/core/test-harness/utils/effect-test-harness.js";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { Effect, Layer } from "effect";
 import postgres from "postgres";

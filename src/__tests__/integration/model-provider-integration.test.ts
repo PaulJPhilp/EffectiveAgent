@@ -9,7 +9,7 @@ import { createMockService } from "@/__tests__/mocks/service-mocks.js"
 import { ModelCapability } from "@/schema.js"
 import { ModelService } from "@/services/ai/model/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
-import { runWithTimeout } from "@/test-utils.js"
+import { runWithTimeout } from "@/services/core/test-harness/utils/effect-test-harness.js"
 import { Effect, Layer } from "effect"
 import { describe, expect, it } from "vitest"
 

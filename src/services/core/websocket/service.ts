@@ -4,8 +4,8 @@ import { WebSocketServiceApi } from "./api.js"
 import { WebSocketConnectionError, WebSocketError, WebSocketSendError, WebSocketSerializationError } from "./errors.js"
 
 /**
- * Implementation of the WebSocket service using Effect.Service pattern.
- * Provides utilities for WebSocket communication.
+ * Canonical Effect.Service implementation for WebSocketService.
+ * No Tag, no static Live, no Layer. All logic is in the effect property.
  */
 export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
     "WebSocketService",
@@ -128,13 +128,18 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                     }
                 })
 
+            function isWebSocketErrorType(e: unknown): e is WebSocketError | WebSocketSerializationError {
+                return typeof e === "object" && e !== null &&
+                    "_tag" in e &&
+                    ((e as { _tag: string })._tag === "WebSocketError" ||
+                        (e as { _tag: string })._tag === "WebSocketSerializationError")
+            }
+
             const receive = <R = unknown>(): Stream.Stream<R, WebSocketError | WebSocketSerializationError> =>
                 Stream.merge(
                     Stream.fromQueue(receiveQueue) as Stream.Stream<R, never, never>,
                     Stream.fromQueue(errorQueue).pipe(
-                        Stream.filter((e): e is WebSocketError | WebSocketSerializationError =>
-                            (e._tag as string) === "WebSocketError" || (e._tag as string) === "WebSocketSerializationError"
-                        ),
+                        Stream.filter(isWebSocketErrorType),
                         Stream.flatMap(Effect.fail)
                     )
                 )
@@ -147,7 +152,6 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                 send,
                 receive
             }
-        }),
-        dependencies: [Scope.Scope]
+        })
     }
 ) { }
