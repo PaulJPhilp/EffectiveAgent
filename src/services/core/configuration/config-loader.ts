@@ -4,11 +4,10 @@
  */
 
 import * as FileSystem from "@effect/platform/FileSystem"
-import { Effect, Layer, Schema } from "effect"
+import { Effect, Schema } from "effect"
 import {
     ConfigParseError,
     ConfigReadError,
-    ConfigSchemaMissingError,
     ConfigValidationError
 } from "./errors.js"
 import { BaseConfig, ConfigLoaderApi, ConfigLoaderOptionsApi, LoadOptions } from "./types.js"
@@ -69,15 +68,13 @@ export class ConfigLoader extends Effect.Service<ConfigLoaderApi>()(
 
                         // If schema is provided, validate the parsed data
                         if (loadOptions?.schema) {
-                            const validationResult = yield* Effect.try({
-                                try: () => Schema.parse(loadOptions.schema)(parsed),
-                                catch: error => new ConfigValidationError({
+                            const validationResult = yield* Schema.decode(loadOptions.schema)(parsed).pipe(
+                                Effect.mapError(error => new ConfigValidationError({
                                     filePath,
-                                    cause: error instanceof Error ? error : new Error(String(error))
-                                })
-                            })
-
-                            return validationResult.value
+                                    validationError: error
+                                }))
+                            )
+                            return validationResult
                         }
 
                         return parsed
@@ -86,9 +83,4 @@ export class ConfigLoader extends Effect.Service<ConfigLoaderApi>()(
             }
         })
     }
-)
-
-/**
- * Default Layer for the ConfigLoader service
- */
-export const ConfigLoaderLayer = Layer.succeed(ConfigLoader) 
+) { }
