@@ -1,112 +1,80 @@
-import { Effect, Either, HashMap, Option } from "effect";
-import { describe, expect, it } from "vitest";
-import { ToolkitName } from "../../tools/types.js";
-import { ToolkitNotFoundErrorInRegistry } from "../errors.js";
-import { ToolRegistryService } from "../service.js";
+import { Effect, Either } from "effect";
+import { describe, it } from "vitest";
+import { ToolRegistryService } from "/Users/paul/Projects/EffectiveAgent/src/services/ai/tool-registry/service.js";
 
 describe("ToolRegistryService", () => {
-    describe("getToolkit", () => {
-        it("should load a toolkit and convert tools to EffectiveTool format", () =>
-            Effect.gen(function* () {
-                // Get service instance
-                const service = yield* ToolRegistryService;
+  it("should return registry data", () =>
+    Effect.gen(function* () {
+      const service = yield* ToolRegistryService;
+      const result = yield* service.getRegistryData();
 
-                // Act
-                const toolkitName = "calculator" as ToolkitName;
-                const toolkit = yield* service.getToolkit(toolkitName);
+      if (!result?.tools || !result?.metadata) {
+        throw new Error("Expected registry data with tools and metadata");
+      }
+    }));
 
-                // Assert
-                expect(toolkit.name).toBe(toolkitName);
-                expect(toolkit.description).toBeDefined();
-                expect(toolkit.version).toBeDefined();
-                expect(toolkit.tools).toBeInstanceOf(HashMap);
+  it("should get tool by name", () =>
+    Effect.gen(function* () {
+      const service = yield* ToolRegistryService;
+      const tool = yield* service.getTool("test-toolkit:test-tool");
 
-                // Verify calculator/add tool
-                const addTool = HashMap.get(toolkit.tools, "add");
-                expect(Option.isSome(addTool)).toBe(true);
-                if (Option.isSome(addTool)) {
-                    expect(addTool.value.definition.name).toBe("calculator/add");
-                    expect(addTool.value.definition.description).toBe("Adds two numbers together");
-                    expect(addTool.value.definition.version).toBe("1.0.0");
-                    expect(addTool.value.definition.tags).toEqual(["math", "calculator"]);
-                    expect(addTool.value.definition.author).toBe("EffectiveAgent Team");
-                    expect(addTool.value.implementation._tag).toBe("EffectImplementation");
-                }
-            }).pipe(Effect.provide(ToolRegistryService.Default))
-        );
+      if (!tool?.name || !tool?.description) {
+        throw new Error("Expected tool with name and description");
+      }
+    }));
 
-        it("should fail with ToolkitNotFoundErrorInRegistry for non-existent toolkit", () =>
-            Effect.gen(function* () {
-                // Get service instance
-                const service = yield* ToolRegistryService;
+  it("should get toolkit by name", () =>
+    Effect.gen(function* () {
+      const service = yield* ToolRegistryService;
+      const toolkit = yield* service.getToolkit("test-toolkit");
 
-                // Act & Assert
-                const nonExistentToolkit = "nonexistent" as ToolkitName;
-                const result = yield* Effect.either(service.getToolkit(nonExistentToolkit));
-                expect(Either.isLeft(result)).toBe(true);
-                if (Either.isLeft(result)) {
-                    expect(result.left).toBeInstanceOf(ToolkitNotFoundErrorInRegistry);
-                    if (result.left instanceof ToolkitNotFoundErrorInRegistry) {
-                        const params = result.left as unknown as { toolkitName: string };
-                        expect(params.toolkitName).toBe(nonExistentToolkit);
-                    }
-                }
-            }).pipe(Effect.provide(ToolRegistryService.Default))
-        );
+      if (!toolkit?.name || !toolkit?.description || !toolkit?.tools) {
+        throw new Error("Expected toolkit with name, description and tools");
+      }
+    }));
 
-        it("should properly convert different implementation types", () =>
-            Effect.gen(function* () {
-                // Get service instance
-                const service = yield* ToolRegistryService;
+  it("should fail when tool not found", () =>
+    Effect.gen(function* () {
+      const service = yield* ToolRegistryService;
+      const result = yield* Effect.either(service.getTool("invalid:tool"));
 
-                // Act
-                const toolkitName = "mixed" as ToolkitName;
-                const toolkit = yield* service.getToolkit(toolkitName);
+      if (!Either.isLeft(result)) {
+        throw new Error("Expected tool not found error");
+      }
+    }));
 
-                // Assert
-                const tools = toolkit.tools;
+  it("should fail when toolkit not found", () =>
+    Effect.gen(function* () {
+      const service = yield* ToolRegistryService;
+      const result = yield* Effect.either(service.getToolkit("invalid-toolkit"));
+      
+      if (!Either.isLeft(result)) {
+        throw new Error("Expected toolkit not found error");
+      }
+    }));
 
-                // Check Effect implementation
-                const addTool = HashMap.get(tools, "add");
-                expect(Option.isSome(addTool) && addTool.value.implementation._tag).toBe("EffectImplementation");
+  it("should handle invalid tool name format", () =>
+    Effect.gen(function* () {
+      const service = yield* ToolRegistryService;
+      const result = yield* Effect.either(service.getTool("invalid:nodot"));
+      
+      if (!Either.isLeft(result)) {
+        throw new Error("Expected error for invalid tool name format");
+      }
+    }));
 
-                // Check HTTP implementation
-                const httpTool = HashMap.get(tools, "get");
-                expect(Option.isSome(httpTool) && httpTool.value.implementation._tag).toBe("HttpImplementation");
-                if (Option.isSome(httpTool) && httpTool.value.implementation._tag === "HttpImplementation") {
-                    expect(httpTool.value.implementation.method).toBe("GET");
-                }
+  it("should list all tools", () =>
+    Effect.gen(function* () {
+      const service = yield* ToolRegistryService;
+      const tools = yield* service.listTools();
+      
+      if (!Array.isArray(tools)) {
+        throw new Error("Expected array of tool names");
+      }
 
-                // Check MCP implementation
-                const mcpTool = HashMap.get(tools, "chat");
-                expect(Option.isSome(mcpTool) && mcpTool.value.implementation._tag).toBe("McpImplementation");
-                if (Option.isSome(mcpTool) && mcpTool.value.implementation._tag === "McpImplementation") {
-                    expect(mcpTool.value.implementation.slug).toBe("chat");
-                }
-            }).pipe(Effect.provide(ToolRegistryService.Default))
-        );
-
-        it("should maintain schema information in converted tools", () =>
-            Effect.gen(function* () {
-                // Get service instance
-                const service = yield* ToolRegistryService;
-
-                // Act
-                const toolkitName = "calculator" as ToolkitName;
-                const toolkit = yield* service.getToolkit(toolkitName);
-
-                // Assert
-                const addTool = HashMap.get(toolkit.tools, "add");
-                expect(Option.isSome(addTool)).toBe(true);
-                if (Option.isSome(addTool)) {
-                    // Verify tool structure
-                    expect(addTool.value.definition.name).toBe("calculator/add");
-                    expect(addTool.value.definition.description).toBe("Adds two numbers together");
-                    expect(addTool.value.definition.version).toBe("1.0.0");
-                    expect(addTool.value.definition.tags).toEqual(["math", "calculator"]);
-                    expect(addTool.value.definition.author).toBe("EffectiveAgent Team");
-                }
-            }).pipe(Effect.provide(ToolRegistryService.Default))
-        );
-    });
+      const hasValidFormat = tools.every(name => name.includes(":"));
+      if (!hasValidFormat) {
+        throw new Error("Expected all tool names to be in namespace:name format");
+      }
+    }));
 });

@@ -5,8 +5,6 @@
 
 import { Effect } from "effect";
 import type {
-    EffectiveTool,
-    EffectiveToolkit,
     FullToolName,
     ToolRegistryData,
     ToolkitName,
@@ -16,6 +14,7 @@ import type {
     ToolRegistryError,
     ToolkitNotFoundErrorInRegistry,
 } from "./errors.js";
+import { EffectiveTool, EffectiveToolkit } from "@/types.js";
 
 /**
  * Service contract for managing and accessing the tool registry.
@@ -50,5 +49,14 @@ export interface ToolRegistry {
     ) => Effect.Effect<
         EffectiveToolkit,
         ToolkitNotFoundErrorInRegistry | ToolRegistryError
+    >;
+
+    /**
+     * Lists all available tools in the registry.
+     * Returns an array of fully qualified tool names.
+     */
+    readonly listTools: () => Effect.Effect<
+        FullToolName[],
+        ToolRegistryError
     >;
 }

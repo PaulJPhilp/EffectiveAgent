@@ -2,12 +2,12 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
-import { Message } from "@/services/ai/input/schema.js";
 import { Effect, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
+import { Message } from "@/schema.js";
 
-// Export Message and Model from our local schema
-export { Message, Model } from "@/services/ai/input/schema.js";
+// Re-export Message
+export { Message } from "@/schema.js";
 
 /**
  * Core input type for AI operations.

@@ -3,6 +3,8 @@
  */
 
 import { Schema as S } from "effect";
+import { Part } from "@effect/ai/AiResponse";
+import * as Chunk from "effect/Chunk";
 
 // --- Core String Schemas ---
 
@@ -128,8 +130,9 @@ export const ContextWindowSize = PositiveInt;
  */
 export const EffectiveRole = S.Union(
   S.Literal("user"),
-  S.Literal("assistant"),
+  S.Literal("model"),
   S.Literal("system"),
+  S.Literal("assistant"),
   S.Literal("tool")
 );
 
@@ -174,7 +177,19 @@ export const DescriptionField = S.String.pipe(S.minLength(1));
  * Schema for metadata records.
  * Allows any JSON-serializable value.
  */
-export class Metadata extends S.Class<Metadata>("Metadata")({
-  [S.KeyType]: S.String,
-  [S.ValueType]: S.Unknown
+export const Metadata = S.Record({
+  key: S.String,
+  value: S.Unknown
+})
+
+/**
+ * Schema for a message in a conversation.
+ */
+export class Message extends S.Class<Message>("Message")({
+  /** Role of the message sender */
+  role: EffectiveRole,
+  /** Parts that make up the message content */
+  parts: S.Chunk(Part),
+  /** Optional metadata */
+  metadata: S.optional(Metadata)
 }) { }

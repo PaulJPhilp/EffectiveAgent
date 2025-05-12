@@ -1,3 +1,11 @@
+---
+status: LOCKED_REFERENCE
+version: 1.0
+last_modified: 2024-03-20
+protection: reference_implementation
+do_not_modify: true
+---
+
 # Standard Service Pattern (Effect-TS)
 
 This document outlines the standard pattern for creating services within this project using Effect-TS (version 3.14+). Adhering to this pattern ensures consistency, maintainability, and leverages the power of Effect for dependency management, error handling, and composition.

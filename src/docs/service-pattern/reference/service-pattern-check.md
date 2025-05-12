@@ -1,3 +1,11 @@
+---
+status: LOCKED_REFERENCE
+version: 1.0
+last_modified: 2024-03-20
+protection: reference_implementation
+do_not_modify: true
+---
+
 # Service Pattern Check Rule
 
 **IMPORTANT**: Before making ANY changes to services or starting ANY commands related to services:

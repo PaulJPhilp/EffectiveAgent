@@ -23,29 +23,64 @@ export const METHOD_ADD_PART_OR_MESSAGE = "addPartOrMessage" as const;
 export const METHOD_EXTRACT_TEXTS_FOR_EMBEDDINGS = "extractTextsForEmbeddings" as const;
 export const METHOD_EXTRACT_TEXT_FOR_SPEECH = "extractTextForSpeech" as const;
 
-import { EffectiveInput, Message, Model } from "@/types.js";
+import { EffectiveInput, Message } from "@/types.js";
 import { ToolCallResolvedPart, ImagePart } from "@effect/ai/AiInput";
-import { User } from "@effect/ai/AiRole";
+import { User, Model } from "@effect/ai/AiRole";
 export { User } from "@effect/ai/AiRole";
-import { Part, PartTypeId, TextPart, ToolCallPart, ImageUrlPart } from "@effect/ai/AiResponse";
-export { TextPart } from "@effect/ai/AiResponse";
+import { Part, TextPart, ToolCallPart, ImageUrlPart, PartTypeId } from "@effect/ai/AiResponse";
 import { Chunk, Context, Effect, Layer, Schema, pipe } from "effect";
 import * as Ref from "effect/Ref";
 
 // Re-export error types
 export { InputServiceError, InvalidInputError, InvalidMessageError, NoAudioFileError } from "./errors.js";
 
-// Import and re-export FilePart from schema.ts
 import { FilePart } from "./schema.js";
 export { FilePart };
+
+
 
 /**
  * Type guard to check if a part is a FilePart.
  * @param part The part to check
- * @returns boolean indicating if the part is a FilePart
+ * @returns true if part is a FilePart
  */
-export function isFilePart(part: unknown): part is FilePart {
-  return part instanceof FilePart;
+// Define a strongly-typed FilePart interface for type guard usage
+interface FilePartLike {
+  _tag: "File";
+  fileName: string;
+  fileContent: Uint8Array;
+  fileType: string;
+  url: string;
+  [PartTypeId]: typeof PartTypeId;
+}
+
+/**
+ * Type guard to check if a part is a FilePart.
+ * @param part The part to check
+ * @returns true if part is a FilePart
+ */
+export function isFilePart(part: unknown): part is FilePartLike {
+  return (
+    part !== null &&
+    typeof part === 'object' &&
+    '_tag' in part &&
+    (part as { _tag: string })._tag === 'File' &&
+    'fileName' in part &&
+    'fileContent' in part &&
+    'fileType' in part &&
+    'url' in part &&
+    PartTypeId in part
+  );
+}
+
+export function isTextPart(part: unknown): part is TextPart {
+  return (
+    part !== null &&
+    typeof part === 'object' &&
+    '_tag' in part &&
+    (part as { _tag: string })._tag === 'Text' &&
+    'content' in part
+  );
 }
 
 /**
@@ -54,15 +89,11 @@ export function isFilePart(part: unknown): part is FilePart {
  * @returns string[] Array of text contents
  */
 export function extractTextsForEmbeddings(input: EffectiveInput): string[] {
-  const texts: string[] = [];
-  for (const message of input.messages) {
-    for (const part of message.parts) {
-      if (part instanceof TextPart) {
-        texts.push(part.content);
-      }
-    }
-  }
-  return texts;
+  return Chunk.toReadonlyArray(input.messages).flatMap(message => {
+    const parts = Chunk.toReadonlyArray(message.parts);
+    return parts.filter((part): part is TextPart => part instanceof TextPart)
+      .map(part => part.content);
+  });
 }
 
 /**
@@ -92,18 +123,29 @@ export function extractTextForSpeech(input: EffectiveInput): string {
 export function extractAudioForTranscriptionEffect(
   input: EffectiveInput
 ): Effect.Effect<ArrayBuffer, NoAudioFileError> {
-  const audioFiles = Chunk.toReadonlyArray(input.messages).flatMap(message =>
-    Chunk.toReadonlyArray(message.parts)
-      .filter(isFilePart)
-      .filter((part: { fileType: string; }) => part.fileType.startsWith("audio/"))
-  );
+  const audioFiles = Chunk.toReadonlyArray(input.messages).flatMap(message => {
+    const parts = Chunk.toReadonlyArray(message.parts);
+    
+    // First filter for instances of FilePart
+    const fileParts = parts.filter(part => part instanceof FilePart) as FilePart[];
+    
+    // Then filter for audio files
+    return fileParts.filter(part => 
+      part.fileType && 
+      typeof part.fileType === 'string' && 
+      part.fileType.startsWith('audio/')
+    );
+  });
 
   if (audioFiles.length === 0) {
     return Effect.fail(new NoAudioFileError());
   }
 
   const audioFile = audioFiles[0];
-  return Effect.succeed(audioFile.fileContent.buffer);
+  if (!audioFile?.fileContent?.buffer) {
+    return Effect.fail(new NoAudioFileError());
+  }
+  return Effect.succeed(audioFile.fileContent.buffer as ArrayBuffer);
 }
 
 // Already imported above
@@ -113,11 +155,11 @@ import { InputServiceApi } from "./input.api.js";
 const createTextPart = (text: string): TextPart =>
   new TextPart({ content: text });
 
-const mapToAiRole = (role: EffectiveRole): User | Model => {
+const mapToAiRole = (role: EffectiveRole): "user" | "model" | "system" | "assistant" | "tool" => {
   switch (role) {
-    case ROLE_USER: return new User();
-    case ROLE_SYSTEM: return new Model();
-    default: return new Model();
+    case ROLE_MODEL: return "model";
+    case ROLE_SYSTEM: return "system";
+    default: return "model";
   }
 };
 
@@ -144,22 +186,58 @@ const validateText = (text: string | undefined | null, method: string): Effect.E
   return Effect.succeed(text);
 };
 
-const convertToMessagePart = (part: Part): TextPart | ToolCallPart | ToolCallResolvedPart | ImagePart | ImageUrlPart => {
-  if (part instanceof TextPart || part instanceof ToolCallPart ||
-    part instanceof ToolCallResolvedPart || part instanceof ImagePart ||
-    part instanceof ImageUrlPart) {
+const convertToMessagePart = (part: Part): TextPart | ToolCallPart | ImageUrlPart => {
+  // If it's already a valid message part type, return as is
+  if (part instanceof TextPart || part instanceof ToolCallPart || part instanceof ImageUrlPart) {
     return part;
   }
-  // Convert other part types to TextPart
-  return new TextPart({ content: partToString(part) });
+
+  // Convert FilePart to TextPart using our isFilePart type guard
+  if (isFilePart(part)) {
+    // Ensure type safety with additional assertion
+    const filePart: FilePartLike = part;
+    return new TextPart({ content: `File: ${filePart.fileName} (${filePart.fileType})` });
+  }
+
+  // Type assertions for type safety
+  interface TypedTextPart { _tag: "Text"; text: string }
+  interface TypedToolCallPart { _tag: "ToolCall"; toolCall: string }
+  interface TypedImageUrlPart { _tag: "ImageUrl"; url: string }
+
+  // Convert other known part types to TextPart using type assertion
+  // for type safety
+  const typedPart = part as unknown;
+  
+  if (typeof typedPart === 'object' && typedPart !== null) {
+    if ('_tag' in typedPart) {
+      const taggedPart = typedPart as { _tag: string };
+      
+      if (taggedPart._tag === "Text" && 'text' in typedPart) {
+        const textPart = typedPart as TypedTextPart;
+        return new TextPart({ content: textPart.text });
+      } 
+      
+      if (taggedPart._tag === "ToolCall" && 'toolCall' in typedPart) {
+        const toolCallPart = typedPart as TypedToolCallPart;
+        return new TextPart({ content: `Tool Call: ${toolCallPart.toolCall}` });
+      } 
+      
+      if (taggedPart._tag === "ImageUrl" && 'url' in typedPart) {
+        const imageUrlPart = typedPart as TypedImageUrlPart;
+        return new TextPart({ content: `Image URL: ${imageUrlPart.url}` });
+      }
+    }
+  }
+
+  // Fallback for any other part type
+  return new TextPart({ content: `Unknown part type` });
 };
 
 const addPartAsMessage = (part: Part, role: EffectiveRole = ROLE_USER): Message => {
   const aiRole = mapToAiRole(role);
-  const messagePart = convertToMessagePart(part);
   return new Message({
     role: aiRole,
-    parts: Chunk.make(messagePart)
+    parts: Chunk.make(convertToMessagePart(part))
   });
 };
 
@@ -168,10 +246,18 @@ const partToString = (part: Part): string => {
     return part.content;
   }
 
-  if (PartTypeId in part) {
-    return String(part);
+  // Use our type guard instead of instanceof
+  if (isFilePart(part)) {
+    // Use explicit cast to avoid type errors
+    const filePart: FilePartLike = part;
+    return `File: ${filePart.fileName} (${filePart.fileType})`;
   }
 
+  // For any other part type, safely convert to string
+  if (part && typeof part === 'object' && '_tag' in part) {
+    return `Part: ${part._tag}`;
+  }
+  
   return String(part);
 };
 
@@ -194,10 +280,18 @@ export class InputService extends Effect.Service<InputServiceApi>()("InputServic
       const allParts = Chunk.toReadonlyArray(msgs)
         .flatMap((msg: Message) => Chunk.toReadonlyArray(msg.parts));
 
-      // Use type narrowing with the isFilePart guard
-      return allParts
-        .filter(isFilePart)
-        .filter(part => part.fileType.startsWith('audio/'));
+      // First: filter for parts that pass our isFilePart check
+      const possibleFileParts = allParts.filter(part => isFilePart(part));
+      
+      // Cast to FilePart[] since we know all elements pass isFilePart
+      const fileParts = possibleFileParts as FilePart[];
+      
+      // Now filter for audio files
+      return fileParts.filter(part => 
+        part.fileType && 
+        typeof part.fileType === 'string' && 
+        part.fileType.startsWith('audio/')
+      );
     };
 
     return {

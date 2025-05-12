@@ -1,10 +1,12 @@
 import { Effect, HashMap } from "effect";
 import { ConfigurationService } from "../../core/configuration/service.js";
-import { FullToolName, SimpleToolName, type ToolImplementation } from "../tools/schema.js";
-import { EffectiveTool, ToolDefinition, ToolkitName } from "../tools/types.js";
+import { FullToolName, SimpleToolName } from "../tools/schema.js";
+import { ToolImplementation, ToolkitName } from "../tools/types.js";
 import { ToolRegistry } from "./api.js";
 import { ToolNotFoundErrorInRegistry, ToolkitNotFoundErrorInRegistry } from "./errors.js";
 import { ToolRegistrySchema, ToolkitSchema } from "./schema.js";
+import { EffectiveTool, Message } from "@/types.js";
+import { ToolExecutionError, ToolInputValidationError, ToolOutputValidationError } from "@/types.js";
 
 /**
  * Service implementation for managing and providing access to the tool registry.
@@ -94,20 +96,35 @@ export class ToolRegistryService extends Effect.Service<ToolRegistry>()(
                     let toolsHashMap = HashMap.empty<SimpleToolName, EffectiveTool>();
                     Object.entries(toolkit.tools).forEach(([name, tool]) => {
                         // Convert Tool to EffectiveTool format
-                        // Convert tool metadata
-                        const toolDefinition: ToolDefinition = {
+                        const effectiveTool: EffectiveTool = {
                             name: tool.metadata.name,
                             description: tool.metadata.description,
-                            version: tool.metadata.version,
-                            tags: tool.metadata.tags ? [...tool.metadata.tags] : undefined,
-                            author: tool.metadata.author
-                        };
-
-                        // Convert implementation based on _tag
-                        const implementation = tool.implementation as ToolImplementation;
-                        const effectiveTool: EffectiveTool = {
-                            definition: toolDefinition,
-                            implementation
+                            parameters: {
+                                input: {
+                                    type: "object",
+                                    description: "Input parameters for the tool",
+                                    required: true
+                                }
+                            },
+                            execute: <Output>(input: Record<string, unknown>) => Effect.gen(function* () {
+                                const impl = tool.implementation as ToolImplementation;
+                                if (impl._tag !== "EffectImplementation") {
+                                    return yield* Effect.fail(new ToolExecutionError(
+                                        `Unsupported implementation type: ${impl._tag}`,
+                                        "ToolRegistryService",
+                                        "execute"
+                                    ));
+                                }
+                                return yield* Effect.mapError(
+                                    impl.execute(input) as Effect.Effect<Output>,
+                                    (error) => new ToolExecutionError(
+                                        `Tool execution failed: ${tool.metadata.name}`,
+                                        "ToolRegistryService",
+                                        "execute",
+                                        error
+                                    )
+                                );
+                            })
                         };
                         toolsHashMap = HashMap.set(toolsHashMap, name, effectiveTool);
                     });
@@ -131,6 +148,21 @@ export class ToolRegistryService extends Effect.Service<ToolRegistry>()(
                         dependencies: {}, // Optional package.json style dependencies
                         config: {}      // Optional shared configuration
                     };
+                }),
+
+                listTools: () => Effect.gen(function* () {
+                    // Read all registered toolkits
+                    const registryData = yield* readToolRegistry("standard");
+                    const tools: FullToolName[] = [];
+
+                    // Iterate through each toolkit and its tools
+                    Object.entries(registryData.toolkits).forEach(([toolkitName, toolkit]) => {
+                        Object.keys(toolkit.tools).forEach(toolName => {
+                            tools.push(`${toolkitName}:${toolName}` as FullToolName);
+                        });
+                    });
+
+                    return tools;
                 })
             };
         }),

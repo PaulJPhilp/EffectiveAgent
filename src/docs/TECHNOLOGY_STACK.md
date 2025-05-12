@@ -1,7 +1,7 @@
 # Architecture: EffectiveAgent Framework
 
-**Version:** 1.1
-**Date:** 2024-07-29 *(Updated)*
+**Version:** 1.2
+**Date:** 2024-07-30 *(Updated)*
 **Status:** Draft
 
 ## 1. Overview
@@ -21,6 +21,10 @@ EffectiveAgent is a backend framework built with Effect-TS designed to accelerat
 
 ## 3. High-Level Structure
 
+The framework is organized around three main components:
+- Core Services: Foundational services for data management and system operations
+- AI Services: LLM integration and prompt management
+- Agent Services: Graph-based workflow execution and agent orchestration
 
 ## 4. Core Primitives (Declarative Configuration)
 
@@ -41,7 +45,7 @@ These represent the primary way developers configure agent behavior:
     *   Facade for Effect's logging system.
 *   **`core/repository` (`RepositoryApi<TEntity>`):**
     *   Generic CRUD interface.
-    *   In-memory implementation provided (`implementations/in-memory`). (Clock dependency deferred).
+    *   In-memory implementation provided (`implementations/in-memory`).
 *   **`core/file` (`FileApi`):**
     *   API for storing/retrieving file blobs/metadata (DB-backed).
     *   Handles Base64 conversion.
@@ -51,7 +55,7 @@ These represent the primary way developers configure agent behavior:
     *   Depends on `RepositoryApi<AttachmentLinkEntity>`.
 *   **`core/tag` (`TagApi`):**
     *   API for managing tags and links between tags and entities.
-    *   Depends on `RepositoryApi<TagEntity>` and `RepositoryApi<EntityTagLinkEntity>`. (Implementation/Testing parked).
+    *   Depends on `RepositoryApi<TagEntity>` and `RepositoryApi<EntityTagLinkEntity>`.
 *   **`ai/prompt` (`PromptConfigData`, `PromptApi`):**
     *   `PromptConfigLiveLayer`: Loads `prompts.json` via `EntityLoaderApi`, provides `HashMap` via `PromptConfig` Tag.
     *   `PromptApiLiveLayer`: Uses `PromptConfigData` and `LiquidJS` to render templates.
@@ -63,35 +67,49 @@ These represent the primary way developers configure agent behavior:
 *   **Core Framework:** Effect-TS (v3.14+)
 *   **Schema/Validation:** `@effect/schema` (for config files, entities)
 *   **Templating:** LiquidJS (`ai/prompt`)
-*   **Persistence (Prod):** PostgreSQL (Neon) - *(Deferred)*
+*   **Persistence (Prod):** PostgreSQL (Neon)
 *   **Persistence (Dev/Test):** SQLite / In-Memory (`core/repository`)
-*   **ORM:** Drizzle ORM - *(Deferred)*
-*   **AI Interaction:** `@effect/ai` (using provider packages like `@effect/ai-openai`) - *(Integration pending in `SkillApi`)*
-*   **Agent Framework:** LangGraph - *(Integration planned but deferred)*
-*   **Testing:** Vitest (standard runner), `Effect.runPromise`/`Effect.runPromiseExit`, `Layer.build` or helpers w/ type assertions. Prioritize testing live implementations with appropriate test doubles (e.g., in-memory repo, `TestClock` via `TestContext` - *Clock integration deferred*).
-*   **Platform Services:** `@effect/platform-bun` (`BunContext.layer`) preferred for providing `FileSystem`, `Clock`, etc.
-*   **Service Definition:** `make` (sync or effectful) + `ReturnType`/`Effect.Success` for type inference + `Layer.effect`/`Layer.succeed`.
-*   **Dependency Injection:** `Layer.provide` for direct dependencies, `Layer.merge` for parallel services, `Layer.build` for robust test setup. Service implementations hide internal dependencies (`R=never` on API methods).
-*   **Error Handling:** `Data.TaggedError` for all custom errors.
+*   **ORM:** Drizzle ORM
+*   **AI Interaction:** `@effect/ai` (using provider packages like `@effect/ai-openai`)
+*   **Agent Framework:** LangGraph
+    *   Graph-based workflow execution
+    *   Built-in support for:
+      - Thread-level persistence
+      - Human-in-the-loop interactions
+      - Multi-agent systems
+      - Tool calling with review capabilities
+      - Streaming responses
+*   **Testing:** 
+    *   Vitest (standard runner)
+    *   `Effect.runPromise`/`Effect.runPromiseExit`
+    *   `Layer.build` or helpers w/ type assertions
+    *   Custom mocks instead of Vitest mocking
+*   **Platform Services:** `@effect/platform-bun` (`BunContext.layer`) for `FileSystem`, etc.
+*   **Service Definition:** `make` (sync or effectful) + `ReturnType`/`Effect.Success` for type inference + `Layer.effect`/`Layer.succeed`
+*   **Dependency Injection:** `Layer.provide` for direct dependencies, `Layer.merge` for parallel services, `Layer.build` for test setup
+*   **Error Handling:** `Data.TaggedError` for all custom errors
 
 ## 7. Current Status & Next Steps
 
-*   **Phase 1 (Core Services):** Complete (Logging, Loader, Repository (generic + in-mem), File, Attachment implemented and tested. Tag implemented, testing parked. Clock integration deferred).
+*   **Phase 1 (Core Services):** Complete
+    - Logging, Loader, Repository (generic + in-mem)
+    - File, Attachment implemented and tested
+    - Tag implemented and tested
 *   **Phase 2 (AI/Capability Primitives Config):**
-    *   `ai/prompt`: Config loading and API implemented and tested.
-    *   `capabilities/intelligence`: Config service defined (pending testing).
-    *   `capabilities/persona`: Config service defined (pending testing).
-    *   `capabilities/skill`: Config service defined (pending testing).
-*   **Next:**
-    1.  Test remaining config services (`IntelligenceConfig`, `PersonaConfig`, `SkillConfig`).
-    2.  Implement `SkillApi` (Phase 3), integrating `PromptApi`, config services, and `@effect/ai`.
-    3.  Revisit `Clock` integration in `Repository`.
-    4.  Revisit `TagApi` testing.
+    *   `ai/prompt`: Config loading and API implemented and tested
+    *   `capabilities/intelligence`: Config service implemented and tested
+    *   `capabilities/persona`: Config service implemented and tested
+    *   `capabilities/skill`: Config service implemented and tested
+*   **Phase 3 (Agent Integration):**
+    1. Implement `SkillApi` with `@effect/ai` integration
+    2. Add LangGraph workflow execution
+    3. Implement agent orchestration layer
+    4. Add human-in-the-loop capabilities
 
 ## 8. Open Issues / Design Considerations
 
-*   Revisit `Clock` integration for accurate timestamps in `Repository`.
-*   Consider abstracting `core/file` under a generic `core/storage` API if other backends (S3) are needed.
-*   Refine error handling and mapping between service layers.
-*   Finalize testing strategy for services requiring platform context (confirm `Layer.build` or helper pattern stability).
-*   *(Vision)* Potential for visual workflow editor based on framework primitives.
+*   Consider abstracting `core/file` under a generic `core/storage` API if other backends (S3) are needed
+*   Refine error handling and mapping between service layers
+*   Finalize testing strategy for services requiring platform context
+*   Design patterns for agent state persistence and recovery
+*   Integration patterns for multi-agent orchestration

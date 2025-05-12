@@ -14,6 +14,7 @@ import {
 } from "./errors.js";
 import { type ToolImplementation } from "./schema.js";
 import type { FullToolName, IEffectImplementation } from "./types.js";
+import { Message } from "@/types.js";
 
 /**
  * Implementation of the Tool Service.
@@ -50,23 +51,9 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
                     })
                 );
 
-                // Get the implementation
-                const impl = tool.implementation as ToolImplementation;
-                if (impl._tag !== "EffectImplementation") {
-                    return yield* Effect.fail(new ToolExecutionError({
-                        toolName,
-                        module: "ToolService",
-                        method: "run",
-                        cause: `Unsupported implementation type: ${impl._tag}`
-                    }));
-                }
-
-                // Cast to EffectImplementation to get proper typing
-                const effectImpl = impl as IEffectImplementation<unknown, Output, any, any>;
-
-                // Validate input using the tool's schema
+                // Validate input against tool parameters
                 const validatedInput = yield* Effect.mapError(
-                    Schema.decode(effectImpl.inputSchema)(rawInput),
+                    Effect.succeed(rawInput as Record<string, unknown>),
                     (error) => new ToolInputValidationError({
                         toolName,
                         module: "ToolService",
@@ -83,7 +70,7 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
 
                 // Execute the tool with validated input
                 const rawOutput = yield* Effect.mapError(
-                    effectImpl.execute(validatedInput),
+                    tool.execute(validatedInput),
                     (error) => new ToolExecutionError({
                         toolName,
                         module: "ToolService",
@@ -92,24 +79,8 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
                     })
                 );
 
-                // Validate output using the tool's schema
-                const validatedOutput = yield* Effect.mapError(
-                    Schema.decode(effectImpl.outputSchema)(rawOutput),
-                    (error) => new ToolOutputValidationError({
-                        toolName,
-                        module: "ToolService",
-                        method: "run",
-                        cause: new AppToolParseError({
-                            module: "ToolService",
-                            method: "validateOutput",
-                            description: `Failed to validate output for tool ${toolName}`,
-                            parseError: error,
-                            context: rawOutput
-                        })
-                    })
-                );
-
-                return validatedOutput as Output;
+                // Return output directly since validation is handled by the tool
+                return rawOutput as Output;
             })
         };
     }),

@@ -8,10 +8,13 @@ import {
   InvalidInputError,
   InvalidMessageError,
   NoAudioFileError,
-  TextPart,
-  User
+  ROLE_USER,
+  ROLE_MODEL,
+  ROLE_SYSTEM
 } from "@/services/pipeline/input/service.js";
-import { Message, Model } from "@/types.js";
+import { Message } from "@/schema.js";
+import { User, Model } from "@effect/ai/AiRole";
+import { TextPart } from "@effect/ai/AiResponse";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
@@ -30,7 +33,7 @@ describe("InputService", () => {
         Effect.gen(function* () {
             const service = yield* InputService;
             const message = new Message({
-                role: new User(),
+                role: "user",
                 parts: Chunk.make(new TextPart({ content: "Hello" }))
             });
 
@@ -39,10 +42,10 @@ describe("InputService", () => {
             const messageArray = Chunk.toReadonlyArray(messages);
 
             expect(messageArray.length).toBe(1);
-            if (messageArray[0]?.role?.kind !== "user") {
+            if (messageArray[0]?.role !== "user") {
                 throw new Error("Message role is not a user")
             }
-            expect(messageArray[0].role.kind).toBe("user");
+            expect(messageArray[0].role).toBe("user");
             expect(messageArray[0].parts.length).toBe(1);
 
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
@@ -58,7 +61,7 @@ describe("InputService", () => {
         Effect.gen(function* () {
             const service = yield* InputService;
             const message = new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Hello" }))
             });
 
@@ -70,7 +73,7 @@ describe("InputService", () => {
             if (messageArray[0] === undefined) {
                 throw new Error("Message is undefined")
             }
-            expect(messageArray[0].role.kind).toBe("model");
+            expect(messageArray[0].role).toBe("model");
 
             expect(messageArray[0].parts.length).toBe(1);
 
@@ -83,7 +86,7 @@ describe("InputService", () => {
     it("should create a system message", () =>
         Effect.gen(function* () {
             const service = yield* InputService;
-            yield* service.addTextPart("Hello", "system");
+            yield* service.addTextPart("Hello", ROLE_SYSTEM);
             const messages = yield* service.getMessages();
             const messageArray = Chunk.toReadonlyArray(messages);
 
@@ -91,7 +94,7 @@ describe("InputService", () => {
             if (messageArray[0] === undefined) {
                 throw new Error("Message is undefined")
             }
-            expect(messageArray[0].role.kind).toBe("model");
+            expect(messageArray[0].role).toBe("model");
             expect(messageArray[0].parts.length).toBe(1);
 
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
@@ -133,15 +136,15 @@ describe("message management", () => {
     const mockMessageOrder = {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
-                role: new User(),
+                role: "user",
                 parts: Chunk.make(new TextPart({ content: "First" }))
             }),
             new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Second" }))
             }),
             new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Third" }))
             })
         )),
@@ -160,19 +163,19 @@ describe("message management", () => {
 
             // Add messages in sequence
             const msg1 = new Message({
-                role: new User(),
+                role: "user",
                 parts: Chunk.make(new TextPart({ content: "First" }))
             });
             yield* service.addMessage(msg1);
 
             const msg2 = new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Second" }))
             });
             yield* service.addMessage(msg2);
 
             const msg3 = new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Third" }))
             });
             yield* service.addMessage(msg3);
@@ -206,15 +209,15 @@ describe("message management", () => {
     const mockMultipleParts = {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Initial text" }))
             }),
             new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "File: test.txt\nType: text/plain" }))
             }),
             new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Additional reasoning" }))
             })
         )),
@@ -276,7 +279,7 @@ describe("role mapping", () => {
     const mockUserRole = {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
-                role: new User(),
+                role: "user",
                 parts: Chunk.make(new TextPart({ content: "Test" }))
             })
         )),
@@ -293,7 +296,7 @@ describe("role mapping", () => {
         Effect.gen(function* () {
             const service = yield* InputService;
             const message = new Message({
-                role: new User(),
+                role: "user",
                 parts: Chunk.make(new TextPart({ content: "Test" }))
             });
 
@@ -305,7 +308,7 @@ describe("role mapping", () => {
             if (messageArray[0] === undefined) {
                 throw new Error("Message is undefined")
             }
-            expect(messageArray[0].role.kind).toBe("user");
+            expect(messageArray[0].role).toBe("user");
         }).pipe(
             Effect.provideService(InputService, mockUserRole)
         )
@@ -315,7 +318,7 @@ describe("role mapping", () => {
     const mockAssistantRole = {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Test" }))
             })
         )),
@@ -332,7 +335,7 @@ describe("role mapping", () => {
         Effect.gen(function* () {
             const service = yield* InputService;
             const message = new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Test" }))
             });
 
@@ -344,7 +347,7 @@ describe("role mapping", () => {
             if (messageArray[0] === undefined) {
                 throw new Error("Message is undefined")
             }
-            expect(messageArray[0].role.kind).toBe("model");
+            expect(messageArray[0].role).toBe("model");
         }).pipe(
             Effect.provideService(InputService, mockAssistantRole)
         )
@@ -354,7 +357,7 @@ describe("role mapping", () => {
     const mockSystemRole = {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
-                role: new Model(),
+                role: "model",
                 parts: Chunk.make(new TextPart({ content: "Test" }))
             })
         )),
@@ -378,7 +381,7 @@ describe("role mapping", () => {
             if (messageArray[0] === undefined) {
                 throw new Error("Message is undefined")
             }
-            expect(messageArray[0].role.kind).toBe("model");
+            expect(messageArray[0].role).toBe("model");
         }).pipe(
             Effect.provideService(InputService, mockSystemRole)
         )
@@ -390,7 +393,7 @@ describe("message operations", () => {
         Effect.gen(function* () {
             const service = yield* InputService;
             const message = new Message({
-                role: new User(),
+                role: "user",
                 parts: Chunk.make(new TextPart({ content: "Hello" }))
             });
 
@@ -402,7 +405,7 @@ describe("message operations", () => {
             if (messageArray[0] === undefined) {
                 throw new Error("Message is undefined")
             }
-            expect(messageArray[0].role.kind).toBe("user");
+            expect(messageArray[0].role).toBe("user");
             const parts = Chunk.toReadonlyArray(messageArray[0].parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
             expect((parts[0] as TextPart).content).toBe("Hello");
@@ -424,11 +427,11 @@ describe("message operations", () => {
             const service = yield* InputService;
             const messages = [
                 new Message({
-                    role: new User(),
+                    role: ROLE_USER,
                     parts: Chunk.make(new TextPart({ content: "Hello" }))
                 }),
                 new Message({
-                    role: new Model(),
+                    role: ROLE_MODEL,
                     parts: Chunk.make(new TextPart({ content: "Hi" }))
                 })
             ];
@@ -451,7 +454,7 @@ describe("text operations", () => {
                 throw new Error("Message is undefined")
             }
 
-            expect(message.role.kind).toBe("user");
+            expect(message.role).toBe(ROLE_USER);
             const parts = Chunk.toReadonlyArray(message.parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
             expect((parts[0] as TextPart).content).toBe("Hello");

@@ -1,8 +1,8 @@
 
 import { ImagePart } from "@effect/ai/AiInput";
-import { PartTypeId, ImageUrlPart, TextPart, ToolCallPart } from "@effect/ai/AiResponse";
+import { ImageUrlPart, PartTypeId, TextPart, ToolCallPart } from "@effect/ai/AiResponse";
 import { Schema as S } from "effect";
-    
+
 
 
 /**
@@ -128,8 +128,8 @@ type Part = FilePart | ReasoningPart | RedactedReasoningPart | ToolPart | ToolRe
 // This file will be deleted after migration.
 declare namespace EffectivePart {
     // [DEPRECATED] All exports have been moved to input.service.ts
-// This file will be deleted after migration.
-type Schema = S.Union<[
+    // This file will be deleted after migration.
+    type Schema = S.Union<[
         typeof TextPart,
         typeof ImagePart,
         typeof ImageUrlPart,

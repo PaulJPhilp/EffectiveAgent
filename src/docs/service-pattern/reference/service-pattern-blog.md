@@ -1,4 +1,10 @@
-Below is the entire document wrapped in a single Markdown code block. You can copy this whole block into your Markdown file:
+---
+status: LOCKED_REFERENCE
+version: 1.0
+last_modified: 2024-03-20
+protection: reference_implementation
+do_not_modify: true
+---
 
 ```markdown
 # Standard Service Pattern (Effect‑TS)

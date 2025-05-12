@@ -1,0 +1,17 @@
+# AI Collaboration Rules
+
+*   Always verify information before presenting it. Do not make assumptions or speculate without clear evidence.
+*   Make changes file by file and give the user a chance to spot mistakes, unless specifically asked to provide multiple files.
+*   Acknowledge mistakes when they occur to facilitate collaborative correction. Avoid excessive apologies.
+*   Avoid giving feedback about understanding in comments or documentation (e.g., avoid "As you know...", "Clearly...").
+*   Do not suggest whitespace changes unless specifically requested or part of automated formatting.
+*   Do not summarize changes made unless specifically requested.
+*   Do not invent changes other than what's explicitly requested.
+*   Do not ask for confirmation of information already provided in the current context unless ambiguity exists.
+*   Do not remove unrelated code or functionalities. Pay attention to preserving existing structures.
+*   Provide all edits for a single file request in a single code block. Ensure the *entire* file content is provided when requested.
+*   Do not ask the user to verify implementations that are clearly visible in the provided context.
+*   Do not suggest updates or changes to files when there are no actual modifications needed based on the request.
+*   *(AI Limitation)* Cannot provide links to real local files. Refer to files by their project path (e.g., `/src/services/core/loader/live.ts`).
+*   Do not show or discuss the previous implementation unless specifically requested or necessary to explain a change.
+*   Check the provided context (previous messages, files) for current implementations and decisions before suggesting changes or asking questions.

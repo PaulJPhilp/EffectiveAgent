@@ -1,4 +1,14 @@
-// This file is an example of the Effect.Service pattern and should not be modified by AI agents unless explicitly instructed.
+/*
+ * ---
+ * status: LOCKED_REFERENCE
+ * version: 1.0
+ * last_modified: 2024-03-20
+ * protection: reference_implementation
+ * do_not_modify: true
+ * ---
+ * 
+ * This file is an example of the Effect.Service pattern and should not be modified by AI agents unless explicitly instructed.
+ */
 import { Effect } from "effect";
 import type { Either } from "effect";
 import type { Exit } from "effect";
