@@ -6,5 +6,3 @@ import { makeProvider } from "./make-provider.js";
 export const makeXaiProviderClient = makeProvider("xai", [
   "chat", "text-generation", "function-calling"
 ]);
-
-export default makeXaiProviderClient;

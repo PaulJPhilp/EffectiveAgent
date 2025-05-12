@@ -21,34 +21,50 @@ import {
 
 export class PromptService extends Effect.Service<PromptService>()("PromptService", {
     effect: Effect.gen(function* () {
-        let promptRef: Ref.Ref<HashMap.HashMap<string, Prompt>>;
+        // Static instance for all service instances
         const liquid = new Liquid();
+
+        // Initialize in constructor
+        const promptRef = yield* Ref.make(HashMap.empty<string, Prompt>());
+
         return {
             load: () => Effect.gen(function* () {
                 const configProvider = yield* ConfigProvider.ConfigProvider;
                 const rawConfig = yield* configProvider.load(Config.string("prompts")).pipe(
-                    Effect.mapError(cause => new PromptConfigError("Failed to load prompt config", {
+                    Effect.mapError(cause => new PromptConfigError({
+                        description: "Failed to read prompts.json",
+                        module: "PromptService",
+                        method: "load",
                         cause: cause instanceof Error ? cause : new Error(String(cause))
                     }))
                 );
-                const parsedConfig = Effect.try({
-                    try: () => JSON.parse(rawConfig),
-                    catch: (error) => new PromptConfigError("Failed to parse prompt config", {
+
+                const parsedConfig = yield* Effect.try(() => JSON.parse(rawConfig)).pipe(
+                    Effect.mapError(error => new PromptConfigError({
+                        description: "Invalid JSON in prompts.json",
+                        module: "PromptService",
+                        method: "load",
                         cause: error instanceof Error ? error : new Error(String(error))
-                    })
-                });
-                const data = yield* parsedConfig;
-                const validConfig = yield* S.decode(PromptFile)(data).pipe(
-                    Effect.mapError(cause => new PromptConfigError("Failed to validate prompt config", {
+                    }))
+                );
+
+                const validConfig = yield* S.decode(PromptFile)(parsedConfig).pipe(
+                    Effect.mapError(cause => new PromptConfigError({
+                        description: "Schema validation failed",
+                        module: "PromptService",
+                        method: "load",
                         cause
                     }))
                 );
+
                 const promptEntries = validConfig.prompts.map(
                     (def): [string, Prompt] => [def.name, def]
                 );
-                promptRef = yield* Ref.make(HashMap.fromIterable(promptEntries));
+
+                yield* Ref.set(promptRef, HashMap.fromIterable(promptEntries));
                 return validConfig;
             }),
+
             getPrompt: (name: string): Effect.Effect<Prompt, TemplateNotFoundError> =>
                 promptRef.get.pipe(
                     Effect.flatMap((map) =>
@@ -57,40 +73,47 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
                         )
                     )
                 ),
+
             renderString: (params: RenderStringParams): Effect.Effect<string, RenderingError> =>
-                Effect.try({
-                    try: () =>
-                        liquid.parseAndRenderSync(
-                            params.templateString,
-                            params.context as Record<string, any>,
-                        ),
-                    catch: (error) =>
-                        new RenderingError({
-                            message: "Failed to render Liquid template string",
-                            cause: error instanceof Error ? error : new Error(String(error)),
-                            templateSnippet: params.templateString.slice(0, 100)
-                        })
-                }),
+                Effect.try(() => {
+                    if (!params.templateString?.trim()) {
+                        throw new Error("Empty template string");
+                    }
+                    return liquid.parseAndRenderSync(
+                        params.templateString,
+                        params.context as Record<string, any>,
+                    );
+                }).pipe(
+                    Effect.mapError(error => new RenderingError({
+                        description: `Template rendering failed. Template snippet: ${params.templateString?.slice(0, 100)}`,
+                        module: "PromptService",
+                        method: "renderString",
+                        cause: error instanceof Error ? error : new Error(String(error))
+                    }))
+                ),
+
             renderTemplate: (params: RenderTemplateParams): Effect.Effect<string, RenderingError | TemplateNotFoundError> =>
                 promptRef.get.pipe(
                     Effect.flatMap((map) =>
                         HashMap.get(map, params.templateName).pipe(
                             Effect.mapError(() => new TemplateNotFoundError(params.templateName)),
                             Effect.flatMap((promptDefinition) =>
-                                Effect.try({
-                                    try: () =>
-                                        liquid.parseAndRenderSync(
-                                            promptDefinition.template,
-                                            params.context as Record<string, any>,
-                                        ),
-                                    catch: (error) =>
-                                        new RenderingError({
-                                            message: "Failed to render Liquid template",
-                                            cause: error instanceof Error ? error : new Error(String(error)),
-                                            templateName: params.templateName,
-                                            templateSnippet: promptDefinition.template.slice(0, 100)
-                                        })
-                                })
+                                Effect.try(() => {
+                                    if (!promptDefinition.template?.trim()) {
+                                        throw new Error("Empty template");
+                                    }
+                                    return liquid.parseAndRenderSync(
+                                        promptDefinition.template,
+                                        params.context as Record<string, any>,
+                                    );
+                                }).pipe(
+                                    Effect.mapError(error => new RenderingError({
+                                        description: `Template '${params.templateName}' rendering failed. Template snippet: ${promptDefinition.template?.slice(0, 100)}`,
+                                        module: "PromptService",
+                                        method: "renderTemplate",
+                                        cause: error instanceof Error ? error : new Error(String(error))
+                                    }))
+                                )
                             )
                         )
                     )
