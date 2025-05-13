@@ -4,17 +4,18 @@
 
 import { Message } from "@/schema.js";
 import {
-  FilePart,
-  InputService,
-  InvalidInputError,
-  InvalidMessageError,
-  NoAudioFileError,
-  ROLE_MODEL,
-  ROLE_SYSTEM,
-  ROLE_USER
+    InvalidInputError,
+    InvalidMessageError,
+    NoAudioFileError
+} from "@/services/pipeline/input/errors.js";
+import {
+    FilePart,
+    InputService,
+    ROLE_MODEL,
+    ROLE_SYSTEM,
+    ROLE_USER
 } from "@/services/pipeline/input/service.js";
 import { TextPart } from "@effect/ai/AiResponse";
-import { Model, User } from "@effect/ai/AiRole";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
@@ -39,7 +40,7 @@ describe("InputService", () => {
 
             yield* service.addMessage(message);
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
 
             expect(messageArray.length).toBe(1);
             if (messageArray[0]?.role !== "user") {
@@ -67,7 +68,7 @@ describe("InputService", () => {
 
             yield* service.addMessage(message);
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
 
             expect(messageArray.length).toBe(1);
             if (messageArray[0] === undefined) {
@@ -88,7 +89,7 @@ describe("InputService", () => {
             const service = yield* InputService;
             yield* service.addTextPart("Hello", ROLE_SYSTEM);
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
 
             expect(messageArray.length).toBe(1);
             if (messageArray[0] === undefined) {
@@ -117,11 +118,11 @@ describe("message parts", () => {
 
             yield* service.addPartOrMessage(filePart);
             const messages = yield* service.getMessages();
-            const message = Chunk.toReadonlyArray(messages)[0];
+            const message = Chunk.toReadonlyArray(messages)[0] as Message;
 
             expect(message).toBeDefined();
-            if (message === undefined) {
-                throw new Error("Message is undefined")
+            if (!(message instanceof Message)) {
+                throw new Error("Not a Message instance")
             }
             const parts = Chunk.toReadonlyArray(message.parts);
             expect(parts[0]).toBeInstanceOf(TextPart);
@@ -182,7 +183,7 @@ describe("message management", () => {
 
             // Get all messages
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
             expect(messageArray.length).toBe(3);
 
             // Verify message content in order
@@ -247,7 +248,7 @@ describe("message management", () => {
 
             // Verify three separate messages were created
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
             expect(messageArray.length).toBe(2);
 
             if (messageArray[0] === undefined) {
@@ -302,7 +303,7 @@ describe("role mapping", () => {
 
             yield* service.addMessage(message);
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
 
             // Verify role mapping
             if (messageArray[0] === undefined) {
@@ -341,7 +342,7 @@ describe("role mapping", () => {
 
             yield* service.addMessage(message);
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
 
             // Verify role mapping
             if (messageArray[0] === undefined) {
@@ -375,7 +376,7 @@ describe("role mapping", () => {
             const service = yield* InputService;
             yield* service.addTextPart("Test", "system");
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
 
             // Verify role mapping
             if (messageArray[0] === undefined) {
@@ -399,7 +400,7 @@ describe("message operations", () => {
 
             yield* service.addMessage(message);
             const messages = yield* service.getMessages();
-            const messageArray = Chunk.toReadonlyArray(messages);
+            const messageArray = Chunk.toReadonlyArray(messages) as Message[];
 
             expect(messageArray.length).toBe(1);
             if (messageArray[0] === undefined) {
@@ -449,9 +450,9 @@ describe("text operations", () => {
             yield* service.addTextPart("Hello");
 
             const messages = yield* service.getMessages();
-            const message = Chunk.toReadonlyArray(messages)[0];
-            if (message === undefined) {
-                throw new Error("Message is undefined")
+            const message = Chunk.toReadonlyArray(messages)[0] as Message;
+            if (!(message instanceof Message)) {
+                throw new Error("Not a Message instance")
             }
 
             expect(message.role).toBe(ROLE_USER);
@@ -484,11 +485,11 @@ describe("part operations", () => {
 
             yield* service.addPartOrMessage(filePart);
             const messages = yield* service.getMessages();
-            const message = Chunk.toReadonlyArray(messages)[0];
+            const message = Chunk.toReadonlyArray(messages)[0] as Message;
 
             expect(message).toBeDefined();
-            if (message === undefined) {
-                throw new Error("Message is undefined")
+            if (!(message instanceof Message)) {
+                throw new Error("Not a Message instance")
             }
             const parts = Chunk.toReadonlyArray(message.parts);
             expect(parts[0]).toBeInstanceOf(TextPart);

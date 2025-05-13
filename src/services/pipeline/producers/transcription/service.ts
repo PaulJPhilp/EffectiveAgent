@@ -3,17 +3,15 @@
  * @module services/ai/producers/transcription/service
  */
 
-import { EffectiveError } from "@/errors.js";
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
+import type { ModelServiceApi } from "@/services/ai/model/api";
+import { ModelService } from "@/services/ai/model/service";
+import { ProviderService } from "@/services/ai/provider/service";
 import { EffectiveResponse } from "@/types.js";
 import { Layer } from "effect";
 import * as Effect from "effect/Effect";
 import { Span } from "effect/Tracer";
 import type { TranscriptionServiceApi } from "./api.js";
 import { TranscriptionAudioError, TranscriptionError, TranscriptionModelError, TranscriptionProviderError } from "./errors.js";
-import { isValidAudioBuffer } from "./helpers.js";
 import type { TranscriptionResult } from "./types.js";
 
 /**
@@ -59,50 +57,12 @@ export interface TranscriptionOptions {
 /**
  * Result of the transcription process
  */
-export interface TranscriptionResult {
-    /** The transcribed text */
-    readonly text: string;
-    /** The model used */
-    readonly model: string;
-    /** The timestamp of the transcription */
-    readonly timestamp: Date;
-    /** The ID of the response */
-    readonly id: string;
-    /** Detailed transcription segments with timing (if available) */
-    readonly segments?: Array<{
-        /** Segment ID */
-        readonly id: number;
-        /** Start time in seconds */
-        readonly start: number;
-        /** End time in seconds */
-        readonly end: number;
-        /** Transcribed text for this segment */
-        readonly text: string;
-        /** Confidence score (0-1) */
-        readonly confidence?: number;
-        /** Speaker label if speaker diarization is enabled */
-        readonly speaker?: string;
-        /** Language detected for this segment */
-        readonly language?: string;
-    }>;
-    /** Language detected in the audio */
-    readonly detectedLanguage?: string;
-    /** Duration of the audio in seconds */
-    readonly duration?: number;
-    /** Optional usage statistics */
-    readonly usage?: {
-        promptTokens: number;
-        completionTokens: number;
-        totalTokens: number;
-    };
-}
 
 /**
  * TranscriptionService interface for handling AI audio transcription
  */
 // TranscriptionServiceApi is now imported from './api.js'
-    readonly transcribe: (options: TranscriptionOptions) => Effect.Effect<TranscriptionResult, EffectiveError>;
-}
+
 
 /**
  * TranscriptionService provides methods for transcribing audio using AI providers.
@@ -146,7 +106,7 @@ export class TranscriptionService extends Effect.Service<TranscriptionServiceApi
                     // Get provider client
                     const providerClient = yield* providerService.getProviderClient(providerName).pipe(
                         Effect.mapError((error) => new TranscriptionProviderError({
-                            description: "Failed to get provider client", 
+                            description: "Failed to get provider client",
                             module: "TranscriptionService",
                             method: "transcribe",
                             cause: error
@@ -157,27 +117,18 @@ export class TranscriptionService extends Effect.Service<TranscriptionServiceApi
                     yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
 
                     // Get model from the provider
-                    const model = yield* Effect.tryPromise({
-                        try: async () => {
-                            // Use the provider to get the language model
-                            const models = await Effect.runPromise(
-                                providerClient.getModels().pipe(
-                                    Effect.provideService(ModelService, modelService)
-                                )
-                            );
-                            const matchingModel = models.find((m: any) => m.modelId === modelId);
-                            if (!matchingModel) {
-                                throw new Error(`Model ${modelId} not found`);
-                            }
-                            return matchingModel;
-                        },
-                        catch: (error) => new TranscriptionModelError({
-                            description: `Failed to get model ${modelId}`,
+                    const models = yield* providerClient.getModels().pipe(
+                        Effect.provide(ModelService.Default)
+                    );
+                    const matchingModel = models.find((m) => m.modelId === modelId);
+                    if (!matchingModel) {
+                        return yield* Effect.fail(new TranscriptionModelError({
+                            description: `Model ${modelId} not found`,
                             module: "TranscriptionService",
-                            method: "transcribe",
-                            cause: error
-                        })
-                    });
+                            method: "transcribe"
+                        }));
+                    }
+                    const model = matchingModel;
 
                     // Transcribe the audio using the provider's transcribe method
                     let inputBuffer: ArrayBuffer;

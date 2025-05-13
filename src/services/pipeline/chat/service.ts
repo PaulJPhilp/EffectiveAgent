@@ -1,7 +1,6 @@
+import { ChatHistory, ChatHistoryError, ChatHistoryServiceApi, ChatMessage } from "@/services/pipeline/chat/api.js";
 // src/services/pipeline/chat/service.ts
 import { Effect, Ref, pipe } from "effect";
-import type { ImportedType } from "./api.js";
-import { ChatHistoryError } from "./api.js";
 
 // Validation functions
 const validateHistoryId = (historyId: string): Effect.Effect<string, ChatHistoryError> => {
@@ -35,7 +34,7 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
   {
     effect: Effect.gen(function* () {
       // Create a strongly typed Ref for the Map
-      const historyStore: Ref.Ref<Map<string, ChatHistory>> = 
+      const historyStore: Ref.Ref<Map<string, ChatHistory>> =
         yield* Ref.make(new Map<string, ChatHistory>());
 
       return {
@@ -46,9 +45,9 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
             validateHistoryId(historyId),
             Effect.flatMap(() => Ref.get(historyStore)),
             Effect.map((store: Map<string, ChatHistory>) => store.get(historyId) ?? null),
-            Effect.mapError(error => 
-              error instanceof ChatHistoryError ? error : 
-              ChatHistoryError.loadFailed(historyId, error)
+            Effect.mapError(error =>
+              error instanceof ChatHistoryError ? error :
+                ChatHistoryError.loadFailed(historyId, error)
             )
           );
         },
@@ -68,9 +67,9 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
               updatedStore.set(historyId, history);
               return Ref.set(historyStore, updatedStore);
             }),
-            Effect.mapError(error => 
+            Effect.mapError(error =>
               error instanceof ChatHistoryError ? error :
-              ChatHistoryError.saveFailed(historyId, error)
+                ChatHistoryError.saveFailed(historyId, error)
             )
           );
         },
@@ -89,9 +88,9 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
                 validateHistoryId(historyId),
                 Effect.flatMap(() => Ref.get(historyStore)),
                 Effect.map((store: Map<string, ChatHistory>) => store.get(historyId) ?? null),
-                Effect.mapError(error => 
-                  error instanceof ChatHistoryError ? error : 
-                  ChatHistoryError.loadFailed(historyId, error)
+                Effect.mapError(error =>
+                  error instanceof ChatHistoryError ? error :
+                    ChatHistoryError.loadFailed(historyId, error)
                 )
               );
               if (history) {
@@ -132,13 +131,13 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
               updatedStore.set(historyId, { messages: updatedMessages });
               return Ref.set(historyStore, updatedStore);
             }),
-            Effect.mapError(error => 
+            Effect.mapError(error =>
               error instanceof ChatHistoryError ? error :
-              ChatHistoryError.saveFailed(historyId, error)
+                ChatHistoryError.saveFailed(historyId, error)
             )
           );
         },
       };
     }),
   },
-) {}
+) { }

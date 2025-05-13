@@ -1,5 +1,5 @@
 import { Context, Effect, Either } from "effect";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import {
   InputValidationError,
@@ -8,10 +8,9 @@ import {
 // Pipeline components
 import { TextCompletionPipeline } from "./text-completion.js";
 
-import type { ImportedType } from "@/services/pipeline/chat/api.js";
 import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
 // Service interfaces
-import { ExecutiveService } from "@/services/pipeline/service.js";
+import { ExecutiveService } from "../shared/service.js";
 
 // Test harness utilities
 import { createTypedMock } from "@/services/core/test-harness/utils/typed-mocks.js";
@@ -23,7 +22,8 @@ import {
 } from "@/services/pipeline/producers/text/schema.js";
 
 // Auth context
-import { AuthContext } from "@/services/core/auth/context.js";
+import { Auth } from "@/services/core/auth/context.js";
+import { ChatHistory } from "../chat/api.js";
 
 describe("TextCompletionPipeline", () => {
   it("should run successfully with valid input and mock responses", () =>
@@ -35,13 +35,13 @@ describe("TextCompletionPipeline", () => {
 
       // Mock dependencies
       const mockExecService = createTypedMock<ExecutiveService>({
-        execute: () => Effect.succeed(mockOutput),
+        execute: () => Effect.succeed(mockOutput as any)
       });
       const mockHistoryService = createTypedMock<ChatHistoryService>({
-        loadHistory: () => Effect.succeed(mockHistory),
-        saveHistory: () => Effect.succeed(void 0),
+        loadHistory: vi.fn().mockImplementation(() => Effect.succeed(mockHistory)),
+        saveHistory: vi.fn().mockImplementation(() => Effect.succeed(void 0)),
       });
-      const mockAuthContext = createTypedMock<AuthContext>({
+      const mockAuthContext = createTypedMock<Auth>({
         userId: "test-user",
         tenantId: "test-tenant",
       });
@@ -53,14 +53,23 @@ describe("TextCompletionPipeline", () => {
       const testContext = Context.empty()
         .pipe(Context.add(ExecutiveService, mockExecService))
         .pipe(Context.add(ChatHistoryService, mockHistoryService))
-        .pipe(Context.add(AuthContext, mockAuthContext));
+        .pipe(Context.add(Auth, mockAuthContext));
 
       // --- Act ---
-      // Provide context to the run effect
       const result = yield* pipeline.run(mockInput).pipe(Effect.provide(testContext));
 
       // --- Assert ---
       expect(result).toEqual(mockOutput);
+      expect(mockHistoryService.loadHistory).toHaveBeenCalledWith(mockInput.historyId);
+      expect(mockHistoryService.saveHistory).toHaveBeenCalledWith(
+        mockInput.historyId,
+        expect.objectContaining({
+          messages: expect.arrayContaining([
+            { role: "user", content: mockInput.prompt },
+            { role: "assistant", content: mockOutput.text }
+          ])
+        })
+      );
     }));
 
   it("should fail with InputValidationError for invalid input", () =>
@@ -71,7 +80,7 @@ describe("TextCompletionPipeline", () => {
       // Mocks (can be simple if not used directly in this path)
       const mockExecService = createTypedMock<ExecutiveService>({});
       const mockHistoryService = createTypedMock<ChatHistoryService>({});
-      const mockAuthContext = createTypedMock<AuthContext>({
+      const mockAuthContext = createTypedMock<Auth>({
         userId: "test-user",
         tenantId: "test-tenant",
       });
@@ -83,7 +92,7 @@ describe("TextCompletionPipeline", () => {
       const testContext = Context.empty()
         .pipe(Context.add(ExecutiveService, mockExecService))
         .pipe(Context.add(ChatHistoryService, mockHistoryService))
-        .pipe(Context.add(AuthContext, mockAuthContext));
+        .pipe(Context.add(Auth, mockAuthContext));
 
       // --- Act ---
       // Run within the provided context
@@ -114,7 +123,7 @@ describe("TextCompletionPipeline", () => {
         loadHistory: () => Effect.succeed(mockHistory),
         saveHistory: () => Effect.succeed(void 0),
       });
-      const mockAuthContext = createTypedMock<AuthContext>({
+      const mockAuthContext = createTypedMock<Auth>({
         userId: "test-user",
         tenantId: "test-tenant",
       });
@@ -126,7 +135,7 @@ describe("TextCompletionPipeline", () => {
       const testContext = Context.empty()
         .pipe(Context.add(ExecutiveService, mockExecService))
         .pipe(Context.add(ChatHistoryService, mockHistoryService))
-        .pipe(Context.add(AuthContext, mockAuthContext));
+        .pipe(Context.add(Auth, mockAuthContext));
 
       // --- Act ---
       const result = yield* pipeline.run(mockInput).pipe(
@@ -161,13 +170,13 @@ describe("TextCompletionPipeline", () => {
 
       // Mock dependencies
       const mockExecService = createTypedMock<ExecutiveService>({
-        execute: () => Effect.succeed(mockOutput),
+        execute: () => Effect.succeed(mockOutput as any),
       });
       const mockHistoryService = createTypedMock<ChatHistoryService>({
         loadHistory: () => Effect.succeed(mockHistory),
         saveHistory: () => Effect.succeed(void 0),
       });
-      const mockAuthContext = createTypedMock<AuthContext>({
+      const mockAuthContext = createTypedMock<Auth>({
         userId: "test-user",
         tenantId: "test-tenant",
       });
@@ -179,7 +188,7 @@ describe("TextCompletionPipeline", () => {
       const testContext = Context.empty()
         .pipe(Context.add(ExecutiveService, mockExecService))
         .pipe(Context.add(ChatHistoryService, mockHistoryService))
-        .pipe(Context.add(AuthContext, mockAuthContext));
+        .pipe(Context.add(Auth, mockAuthContext));
 
       // --- Act ---
       const result = yield* pipeline.run(mockInput).pipe(Effect.provide(testContext));
@@ -188,18 +197,20 @@ describe("TextCompletionPipeline", () => {
       expect(result).toEqual(mockOutput);
 
       // Verify chat history was loaded
-      const loadHistoryCalls = mockHistoryService.loadHistory.mock.calls;
-      expect(loadHistoryCalls.length).toBe(1);
-      expect(loadHistoryCalls[0][0]).toBe("test-history-id");
+      expect(mockHistoryService.loadHistory).toHaveBeenCalledTimes(1);
+      expect(mockHistoryService.loadHistory).toHaveBeenCalledWith("test-history-id");
 
       // Verify chat history was saved with new message
-      const saveHistoryCalls = mockHistoryService.saveHistory.mock.calls;
-      expect(saveHistoryCalls.length).toBe(1);
-      expect(saveHistoryCalls[0][0]).toBe("test-history-id");
-      expect(saveHistoryCalls[0][1].messages).toEqual([
-        ...mockHistory.messages,
-        { role: "user", content: mockInput.prompt },
-        { role: "assistant", content: mockOutput.text }
-      ]);
+      expect(mockHistoryService.saveHistory).toHaveBeenCalledTimes(1);
+      expect(mockHistoryService.saveHistory).toHaveBeenCalledWith(
+        "test-history-id",
+        expect.objectContaining({
+          messages: expect.arrayContaining([
+            ...mockHistory.messages,
+            { role: "user", content: mockInput.prompt },
+            { role: "assistant", content: mockOutput.text }
+          ])
+        })
+      );
     }));
 });

@@ -3,11 +3,8 @@
  */
 
 
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
 import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
-import type { ImportedType } from "../api.js";
 import {
   ObjectGenerationError,
   ObjectModelError,
@@ -91,7 +88,7 @@ describe("ObjectService", () => {
       expect(result.usage?.totalTokens).toBe(150);
       return result;
     }).pipe(
-      Effect.provideService(ObjectService, mockImplementation )
+      Effect.provideService(ObjectService, mockImplementation)
     )
   );
 
@@ -228,125 +225,125 @@ describe("ObjectService", () => {
       }
     })
   );
-  });
+});
 
-  // --- Schema Validation Error ---
-  const createSchemaErrorService = () =>
-    Effect.succeed({
-      generate: <T>(_options: any) =>
-        Effect.fail(
-          new ObjectSchemaError({
-            description: "Generated object does not match schema",
-            module: "ObjectService",
-            method: "generate",
-            schema: createPersonSchema(),
-            result: { name: 123, age: "thirty" },
-            validationErrors: [
-              { message: "name must be string" },
-              { message: "age must be number" },
-            ],
-          }),
-        ),
-    });
-  const mockSchemaErrorImpl = {
+// --- Schema Validation Error ---
+const createSchemaErrorService = () =>
+  Effect.succeed({
     generate: <T>(_options: any) =>
       Effect.fail(
         new ObjectSchemaError({
           description: "Generated object does not match schema",
           module: "ObjectService",
           method: "generate",
-          validationErrors: [],
+          schema: createPersonSchema(),
+          result: { name: 123, age: "thirty" },
+          validationErrors: [
+            { message: "name must be string" },
+            { message: "age must be number" },
+          ],
         }),
       ),
-  };
-  it("should handle schema validation errors", () =>
-    Effect.gen(function* () {
-      const service = yield* ObjectService;
-      const result = yield* Effect.either(
-        service.generate<Person>({
-          modelId: "test-model",
-          prompt: "Generate a person with invalid data",
-          system: Option.none(),
-          schema: createPersonSchema(),
-          span: {} as any,
-        })
-      );
-
-      expect(result._tag).toBe("Left");
-      if (result._tag === "Left") {
-        expect(result.left).toBeInstanceOf(ObjectSchemaError);
-        expect(result.left.description).toContain(
-          "Generated object does not match schema",
-        );
-        if (result.left instanceof ObjectSchemaError) {
-          expect(Array.isArray(result.left.validationErrors)).toBe(true);
-        }
-      }
-      return result;
-    })
-  );
-
-  // --- Optional Fields ---
-  it("should handle optional fields correctly", () =>
-    Effect.gen(function* () {
-      const objectService = yield* ObjectService;
-      const result = yield* objectService.generate<Person>({
+  });
+const mockSchemaErrorImpl = {
+  generate: <T>(_options: any) =>
+    Effect.fail(
+      new ObjectSchemaError({
+        description: "Generated object does not match schema",
+        module: "ObjectService",
+        method: "generate",
+        validationErrors: [],
+      }),
+    ),
+};
+it("should handle schema validation errors", () =>
+  Effect.gen(function* () {
+    const service = yield* ObjectService;
+    const result = yield* Effect.either(
+      service.generate<Person>({
         modelId: "test-model",
-        prompt: "Generate a person without email",
+        prompt: "Generate a person with invalid data",
         system: Option.none(),
         schema: createPersonSchema(),
         span: {} as any,
-      });
-      expect(result.data.name).toBe("Jane Doe");
-      expect(result.data.age).toBe(25);
-      expect(result.data.email).toBeUndefined();
-      expect(result.model).toBe("test-model");
-      expect(result.id).toBe("test-response-id-2");
-      expect(result.usage?.totalTokens).toBe(120);
-      return result;
-    })
-  );
-
-  // --- List Schema ---
-  it("should generate a list of objects", () =>
-    Effect.gen(function* () {
-      const objectService = yield* ObjectService;
-      const result = yield* objectService.generate<ReadonlyArray<Person>>({
-        modelId: "test-model",
-        prompt: "Generate a list of people",
-        system: Option.none(),
-        schema: createListSchema(createPersonSchema()),
-        span: {} as any,
-      });
-
-      expect(Array.isArray(result.data)).toBe(true);
-      expect(result.data.length).toBe(2);
-      expect(result.data[0].name).toBe("Alice");
-      expect(result.data[0].age).toBe(25);
-      expect(result.data[1].name).toBe("Bob");
-      expect(result.data[1].age).toBe(30);
-      expect(result.model).toBe("test-model");
-      expect(result.id).toBe("test-response-id");
-      expect(result.usage?.totalTokens).toBe(150);
-      
-      return result;
-    }).pipe(
-      Effect.provideService(ObjectService, {
-        generate: <T>(_options: any) =>
-          Effect.succeed({
-            data: [
-              { name: "Alice", age: 25 },
-              { name: "Bob", age: 30 }
-            ],
-            model: "test-model",
-            timestamp: new Date(),
-            id: "test-response-id",
-            usage: {
-              promptTokens: 100,
-              completionTokens: 50,
-              totalTokens: 150,
-            },
-          } as any)
       })
-    )
-  );
+    );
+
+    expect(result._tag).toBe("Left");
+    if (result._tag === "Left") {
+      expect(result.left).toBeInstanceOf(ObjectSchemaError);
+      expect(result.left.description).toContain(
+        "Generated object does not match schema",
+      );
+      if (result.left instanceof ObjectSchemaError) {
+        expect(Array.isArray(result.left.validationErrors)).toBe(true);
+      }
+    }
+    return result;
+  })
+);
+
+// --- Optional Fields ---
+it("should handle optional fields correctly", () =>
+  Effect.gen(function* () {
+    const objectService = yield* ObjectService;
+    const result = yield* objectService.generate<Person>({
+      modelId: "test-model",
+      prompt: "Generate a person without email",
+      system: Option.none(),
+      schema: createPersonSchema(),
+      span: {} as any,
+    });
+    expect(result.data.name).toBe("Jane Doe");
+    expect(result.data.age).toBe(25);
+    expect(result.data.email).toBeUndefined();
+    expect(result.model).toBe("test-model");
+    expect(result.id).toBe("test-response-id-2");
+    expect(result.usage?.totalTokens).toBe(120);
+    return result;
+  })
+);
+
+// --- List Schema ---
+it("should generate a list of objects", () =>
+  Effect.gen(function* () {
+    const objectService = yield* ObjectService;
+    const result = yield* objectService.generate<ReadonlyArray<Person>>({
+      modelId: "test-model",
+      prompt: "Generate a list of people",
+      system: Option.none(),
+      schema: createListSchema(createPersonSchema()),
+      span: {} as any,
+    });
+
+    expect(Array.isArray(result.data)).toBe(true);
+    expect(result.data.length).toBe(2);
+    expect(result.data[0].name).toBe("Alice");
+    expect(result.data[0].age).toBe(25);
+    expect(result.data[1].name).toBe("Bob");
+    expect(result.data[1].age).toBe(30);
+    expect(result.model).toBe("test-model");
+    expect(result.id).toBe("test-response-id");
+    expect(result.usage?.totalTokens).toBe(150);
+
+    return result;
+  }).pipe(
+    Effect.provideService(ObjectService, {
+      generate: <T>(_options: any) =>
+        Effect.succeed({
+          data: [
+            { name: "Alice", age: 25 },
+            { name: "Bob", age: 30 }
+          ],
+          model: "test-model",
+          timestamp: new Date(),
+          id: "test-response-id",
+          usage: {
+            promptTokens: 100,
+            completionTokens: 50,
+            totalTokens: 150,
+          },
+        } as any)
+    })
+  )
+);

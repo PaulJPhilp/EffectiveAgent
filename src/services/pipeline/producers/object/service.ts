@@ -3,20 +3,21 @@
  * @module services/ai/producers/object/service
  */
 
-import { TextPart, User } from "@/services/ai/input/schema.js";
+import { TextPart } from "@/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import type { EffectiveResponse } from "@/types.js";
 import { EffectiveInput, Message } from "@/types.js";
-import { JSONSchema, Schema as S } from "effect";
+import { JSONSchema, Schema as S } from "effect";   
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
-import type { ObjectServiceApi } from "./api.js";
-import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "./errors.js";
-import { ObjectGenerationOptions } from "./index.js";
+import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
+import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
+import type { ObjectGenerationOptions } from "@/services/pipeline/producers/object/types.js";
+
 /**
  * Result shape expected from the underlying provider client's generateObject method
  */
@@ -111,8 +112,8 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                     const effectiveInput = new EffectiveInput(
                         finalPrompt,
                         Chunk.make(new Message({
-                            role: new User(),
-                            parts: Chunk.make(new TextPart({ content: finalPrompt }))
+                            role: "user",
+                            parts: Chunk.make(new TextPart({ _tag: "Text", content: finalPrompt }))
                         }))
                     );
 

@@ -1,11 +1,11 @@
 // [DEPRECATED] All exports have been moved to input.service.ts
 // This file will be deleted after migration.
 
-import { EffectiveInput } from "@/types.js";
+import { EffectiveInput } from "@/types";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
-import { FilePart } from "./schema.js";
-import { NoAudioFileError } from "./service.js";
+import { NoAudioFileError } from "./errors";
+import { FilePart } from "./schema";
 
 /**
  * Type guard to check if a part is a FilePart.

@@ -1,0 +1,4 @@
+# Ignore compiled JS test files
+dist/
+*.js
+src/services/pipeline/producers/chat/__tests__/*.js

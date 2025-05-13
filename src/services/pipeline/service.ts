@@ -2,12 +2,15 @@
  * @file Service implementation for Pipeline.
  */
 
+import { PipelineConfigError } from "@/ea/pipelines/common/errors.js";
+import { PipelineApi, PipelineConfig } from "@/services/pipeline/shared/api.js";
+import { PipelineExecutionError, PipelineValidationError } from "@/services/pipeline/shared/errors.js";
 import { Duration, Effect, pipe } from "effect";
-import type { ImportedType } from "./api.js";
-import { PipelineConfigError, PipelineExecutionError, PipelineValidationError } from "./errors.js";
 
 const DEFAULT_CONFIG: Required<PipelineConfig> = {
-    timeout: Duration.seconds(30)
+    timeout: Duration.seconds(30),
+    maxRetries: 0,
+    retryDelay: Duration.seconds(1)
 };
 
 // Move validateConfig to a standalone function
@@ -51,7 +54,7 @@ export class Pipeline extends Effect.Service<PipelineApi>()(
                     validateConfig(finalConfig),
                     Effect.flatMap(() => effect),
                     Effect.timeout(finalConfig.timeout),
-                    Effect.mapError(error =>
+                    Effect.mapError(error => 
                         new PipelineExecutionError({
                             description: "Pipeline execution failed",
                             module: "services/pipeline",

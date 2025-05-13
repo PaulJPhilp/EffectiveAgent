@@ -1,4 +1,4 @@
-import { EffectiveError } from "@/errors.js";
+import { EffectiveError } from "@/errors";
 
 export type PipelineSpecificError = BasePipelineError;
 
@@ -57,6 +57,9 @@ export class PipelineConfigurationError extends BasePipelineError {
  * Error indicating a problem during pipeline execution.
  */
 export class PipelineExecutionError extends BasePipelineError {
+  module: string;
+  method: string;
+  description: any;
   constructor(description: string, cause?: unknown) {
     super({
       description: `Pipeline execution error: ${description}`,

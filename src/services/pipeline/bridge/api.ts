@@ -3,8 +3,8 @@ import {
     AgentRuntimeId,
     AgentRuntimeState
 } from "@/agent-runtime/index.js"
+import { BridgeServiceError } from "@/services/pipeline/bridge/errors"
 import { Effect, Stream } from "effect"
-import { BridgeServiceError } from "./errors.js"
 
 /**
  * API for the Bridge Service.
@@ -15,7 +15,7 @@ export interface BridgeServiceApi {
      * Creates a new agent runtime instance
      * 
      * @returns Effect<AgentRuntimeId> with the ID of the new instance
-     */ 
+     */
     readonly createAgentRuntime: () =>
         Effect.Effect<AgentRuntimeId, BridgeServiceError>
 

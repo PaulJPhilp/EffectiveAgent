@@ -84,8 +84,6 @@ class RedactedReasoningPart extends S.Class<RedactedReasoningPart>(
 
 }
 
-// [DEPRECATED] All exports have been moved to input.service.ts
-// This file will be deleted after migration.
 class ToolPart extends S.Class<ToolPart>(
     "ToolPart"
 )({
@@ -145,6 +143,3 @@ declare namespace EffectivePart {
 // [DEPRECATED] All exports have been moved to input.service.ts
 // This file will be deleted after migration.
 const EffectivePart: EffectivePart.Schema = S.Union(TextPart, ImagePart, ImageUrlPart, ToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);
-
-// FilePart is already exported by class declaration
-

@@ -6,11 +6,11 @@
 import { EffectiveError } from "@/errors.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { PipelineExecutionError } from "@/services/pipeline/pipeline/errors.js";
 import { ObjectService } from "@/services/pipeline/producers/object/service.js";
 import { type Usage } from "@/types.js";
 import { ConfigProvider, Effect, Option, Schema as S } from "effect";
-import { AiPipeline } from "../pipeline/base.js";
 
 /**
  * Input schema for the structured output pipeline
@@ -101,10 +101,16 @@ export class StructuredOutputPipeline<T> extends AiPipeline<
             Effect.provide(ObjectService.Default),
             Effect.provide(ModelService.Default),
             Effect.provide(ProviderService.Default),
-            Effect.mapError((error): EffectiveError =>
-                error instanceof EffectiveError ? error :
-                    new PipelineExecutionError("Failed to generate structured output")
-            )
+            Effect.mapError((error): EffectiveError => {
+                if (error instanceof EffectiveError) {
+                    return error;
+                }
+                const pipelineError = new PipelineExecutionError("Failed to generate structured output");
+                pipelineError.module = "structured-output"
+                pipelineError.method = "executeProducer"
+                pipelineError.description = String(error)
+                return pipelineError as EffectiveError
+            })
         );
     }
 }

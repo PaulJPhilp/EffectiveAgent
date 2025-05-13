@@ -3,12 +3,12 @@
  * @module framework/pipeline/text-completion
  */
 
-import type { ImportedType } from "@/errors.js";
+import { EffectiveError } from "@/errors.js";
+import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
 import TextService from "@/services/pipeline/producers/text/service.js";
 import { Effect, Option, Schema, pipe } from "effect";
-import { AiPipeline } from "../pipeline/base.js";
 
 /**
  * Pipeline for text completion using an AI model.
@@ -37,6 +37,7 @@ export class TextCompletionPipeline extends AiPipeline<
           prompt: input.prompt,
           modelId: input.modelId,
           system: Option.fromNullable(input.systemPrompt),
+          span: {} as any, // TODO: Add proper span handling
           parameters: {
             maxSteps: input.maxTokens,
             maxRetries: input.maxRetries,
@@ -46,7 +47,7 @@ export class TextCompletionPipeline extends AiPipeline<
             presencePenalty: input.presencePenalty,
             frequencyPenalty: input.frequencyPenalty,
             seed: input.seed,
-            stop: input.stop,
+            stop: input.stop ? [...input.stop] : undefined,
           },
         });
 

@@ -1,5 +1,8 @@
 import type { Message, ResponseMessage, Usage } from "@/types.js";
 import { Effect } from "effect";
+import type { PublicModelInfoDefinition } from "@/services/ai/model/schema.js";
+import type { ProviderConfigError } from "./errors.js";
+import type { ModelService } from "@/services/ai/model/service.js";
 import { ToolDefinition } from "../tool-registry/types.js";
 import type { ToolServiceApi } from "../tools/api.js";
 import type { ToolRegistryData } from "../tools/types.js";
@@ -65,7 +68,10 @@ export interface GenerateBaseResult {
  * Methods are specifically typed to match capabilities and return types.
  */
 export interface ProviderClientApi {
-    getModels(): unknown;
+    /**
+     * Returns the list of models supported by this provider.
+     */
+    getModels(): Effect.Effect<PublicModelInfoDefinition[], ProviderConfigError, typeof ModelService>;
     /**
      * Validates tool inputs against their schemas and prepares them for execution.
      * This should delegate to the ToolService for actual validation.

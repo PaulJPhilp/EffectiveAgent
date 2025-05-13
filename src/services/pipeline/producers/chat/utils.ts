@@ -3,7 +3,7 @@
  * @module services/ai/producers/chat/utils
  */
 
-import { Message, Model, TextPart, User, UserWithName } from "@/services/ai/input/schema.js"
+import { Message, Model, TextPart, User, UserWithName } from "@/services/pipeline/input/schema.js"
 import { Chunk, Effect } from "effect"
 
 /** Core message format for chat interactions */

@@ -3,18 +3,19 @@
  * @module services/ai/producers/text/service
  */
 
-import { Message, TextPart, User } from "@/services/ai/input/schema.js";
-import { ModelService, ModelServiceApi } from "@/services/ai/model/service.js";
+import { TextPart } from "@/schema.js";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { TestHarnessApi } from "@/services/core/test-harness/api.js";
-import { EffectiveInput } from "@/types.js";
+import { EffectiveInput, Message } from "@/types.js";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Option from "effect/Option";
-import type { TextServiceApi } from "./api.js";
-import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "./errors.js";
-import type { TextGenerationOptions } from "./types.js";
+import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
+import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "@/services/pipeline/producers/text/errors.js";
+import type { TextGenerationOptions } from "@/services/pipeline/producers/text/types.js";
 
 /**
  * Parameters for text generation
@@ -128,9 +129,9 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
           yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
 
           // Create EffectiveInput from the final prompt
-          const textPart = new TextPart({ content: finalPrompt });
+          const textPart = new TextPart({ _tag: "Text", content: finalPrompt });
           const message = new Message({
-            role: new User(),
+            role: "user",
             parts: Chunk.make(textPart)
           });
           const effectiveInput = new EffectiveInput(

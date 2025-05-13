@@ -1,7 +1,7 @@
 // [DEPRECATED] All exports have been moved to input.service.ts
 // This file will be deleted after migration.
 
-import { EffectiveError } from "@/errors.js";
+import { EffectiveError } from "@/errors";
 
 
 export class InputServiceError extends EffectiveError {

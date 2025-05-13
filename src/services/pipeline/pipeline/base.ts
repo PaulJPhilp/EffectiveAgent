@@ -1,8 +1,8 @@
 import { EffectiveError } from "@/errors.js";
-import { ExecutiveService } from "@/services/pipeline/service.js";
 import { Duration, Effect, Schema } from "effect";
+import { ExecutiveService } from "../shared/service.js";
 import { PipelineExecutionError } from "./errors.js";
-import type { ImportedType } from "./types.js";
+import { ExecutiveCallConfig } from "./types.js";
 
 /**
  * Abstract base class for defining non-streaming AI interaction pipelines.

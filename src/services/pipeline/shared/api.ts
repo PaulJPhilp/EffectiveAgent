@@ -3,14 +3,30 @@
  */
 
 import { Effect } from "effect";
-import type { Duration } from "effect";
-import type { ImportedType } from "./errors.js";
+import { PipelineError, PipelineValidationError } from "./errors.js";
+import { Duration } from "effect/Duration";
 
 /**
  * Represents the configuration for a pipeline execution.
  */
 export interface PipelineConfig {
+    /**
+     * Maximum duration to wait for the effect to complete
+     * @default Duration.seconds(30)
+     */
     readonly timeout?: Duration;
+
+    /**
+     * Number of times to retry the effect on failure
+     * @default 3
+     */
+    readonly maxRetries?: number;
+
+    /**
+     * Duration to wait between retries
+     * @default Duration.seconds(1)
+     */
+    readonly retryDelay?: Duration;
 }
 
 /**
@@ -25,11 +41,15 @@ export interface PipelineConfig {
  * ```typescript
  * const effect = Effect.succeed("result");
  * const result = yield* Pipeline.execute(effect, {
- *   timeout: Duration.seconds(30)
+ *   timeout: Duration.seconds(30),
+ *   maxRetries: 3,
+ *   retryDelay: Duration.seconds(1)
  * });
  * ```
  */
 export interface PipelineApi {
+    readonly _tag: "Pipeline";
+
     /**
      * Executes an Effect with configured timeout behavior.
      * 
@@ -42,8 +62,13 @@ export interface PipelineApi {
      * 
      * @remarks
      * The execution will:
+     * - Validate the configuration
+     * - Apply retries based on configuration
      * - Timeout after the specified duration
      * - Transform errors into PipelineError types
+     * 
+     * @throws {PipelineValidationError} If the configuration is invalid
+     * @throws {PipelineExecutionError} If the execution fails or times out
      */
     readonly execute: <A, E, R>(
         effect: Effect.Effect<A, E, R>,
@@ -54,7 +79,8 @@ export interface PipelineApi {
      * Validates pipeline configuration.
      * 
      * @param config - The configuration to validate
-     * @returns An Effect that succeeds if the config is valid, fails with PipelineValidationError otherwise
+     * @returns An Effect that succeeds if the config is valid
+     * @throws {PipelineValidationError} If the configuration is invalid
      */
     readonly validateConfig: (
         config: PipelineConfig

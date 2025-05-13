@@ -1,0 +1,251 @@
+# Effect Core Patterns
+
+## Service Definition
+
+### Core Pattern
+```typescript
+// types.ts
+export interface IMyService {
+  readonly doSomething: (input: string) => Effect.Effect<never, MyError, string>
+}
+
+export const MyServiceTag = Context.GenericTag<IMyService>("MyService")
+export type MyServiceType = typeof MyServiceTag
+
+// live.ts
+export class MyServiceLive implements IMyService {
+  readonly doSomething = (input: string) => Effect.succeed(`Processed: ${input}`)
+}
+
+export const make = () => new MyServiceLive()
+export type MyService = ReturnType<typeof make>
+
+export const MyServiceLive = Layer.succeed(MyServiceTag, make())
+```
+
+### With Dependencies
+```typescript
+// types.ts
+export interface IMyService {
+  readonly processWithLogger: (input: string) => Effect.Effect<never, MyError, string>
+}
+
+// live.ts
+export class MyServiceLive implements IMyService {
+  constructor(private readonly logger: LoggerService) {}
+
+  readonly processWithLogger = (input: string) =>
+    Effect.gen(function* (_) {
+      yield* _.logger.log(`Processing: ${input}`)
+      return `Processed: ${input}`
+    })
+}
+
+export const make = (logger: LoggerService) => new MyServiceLive(logger)
+export type MyService = ReturnType<typeof make>
+
+export const MyServiceLive = Layer.effect(
+  MyServiceTag,
+  Effect.map(LoggerServiceTag, make)
+)
+```
+
+## Error Handling
+
+### Error Definition
+```typescript
+// errors.ts
+export class MyError extends Data.TaggedError("MyError")<{
+  readonly message: string
+  readonly cause?: Error
+}> {}
+
+export class ValidationError extends Data.TaggedError("ValidationError")<{
+  readonly field: string
+  readonly message: string
+  readonly cause?: Error
+}> {}
+```
+
+### Error Handling Patterns
+```typescript
+// Handling specific error types
+const handleSpecificError = (input: string) =>
+  Effect.gen(function* (_) {
+    const result = yield* processInput(input).pipe(
+      Effect.catchTag("ValidationError", (error) =>
+        Effect.succeed(`Invalid input: ${error.field}`)
+      )
+    )
+    return result
+  })
+
+// Mapping errors
+const mapError = (input: string) =>
+  Effect.gen(function* (_) {
+    const result = yield* processInput(input).pipe(
+      Effect.mapError((error) => new MyError({
+        message: "Processing failed",
+        cause: error
+      }))
+    )
+    return result
+  })
+
+// Multiple error handlers
+const handleMultipleErrors = (input: string) =>
+  Effect.gen(function* (_) {
+    const result = yield* processInput(input).pipe(
+      Effect.catchTags({
+        ValidationError: (error) => Effect.succeed(`Invalid: ${error.field}`),
+        MyError: (error) => Effect.succeed(`Error: ${error.message}`)
+      })
+    )
+    return result
+  })
+```
+
+## Effect Composition
+
+### Sequential Operations
+```typescript
+const sequentialOps = Effect.gen(function* (_) {
+  const first = yield* firstOperation()
+  const second = yield* secondOperation(first)
+  const third = yield* thirdOperation(second)
+  return third
+})
+```
+
+### Parallel Operations
+```typescript
+const parallelOps = Effect.gen(function* (_) {
+  const [result1, result2] = yield* Effect.all([
+    firstOperation(),
+    secondOperation()
+  ])
+  return combineResults(result1, result2)
+})
+
+// With controlled concurrency
+const batchProcess = (items: Array<string>) =>
+  Effect.forEach(items, processItem, {
+    concurrency: 5,
+    batching: true
+  })
+```
+
+## Resource Management
+
+### Scoped Resources
+```typescript
+const withResource = Effect.gen(function* (_) {
+  const resource = yield* Effect.acquireRelease(
+    acquire(),
+    (resource) => cleanup(resource)
+  )
+  return yield* useResource(resource)
+})
+
+// Using Scope
+const withScope = Effect.gen(function* (_) {
+  const scope = yield* Effect.scope
+  const resource = yield* acquire().pipe(Effect.scoped)
+  return yield* useResource(resource)
+})
+```
+
+### Layer Resource Management
+```typescript
+const ResourceLayer = Layer.scoped(
+  ResourceTag,
+  Effect.gen(function* (_) {
+    const resource = yield* acquireResource()
+    yield* Effect.addFinalizer(() => cleanupResource(resource))
+    return resource
+  })
+)
+```
+
+## State Management
+
+### Ref Usage
+```typescript
+interface State {
+  readonly count: number
+  readonly lastUpdated: Date
+}
+
+const withState = Effect.gen(function* (_) {
+  const state = yield* Ref.make<State>({
+    count: 0,
+    lastUpdated: new Date()
+  })
+
+  const increment = yield* Ref.update(state, (current) => ({
+    count: current.count + 1,
+    lastUpdated: new Date()
+  }))
+
+  return increment
+})
+```
+
+### Atomic Operations
+```typescript
+const atomicUpdate = Effect.gen(function* (_) {
+  const ref = yield* Ref.make(0)
+  
+  const increment = Effect.forEach(
+    Array.from({ length: 100 }, (_, i) => i),
+    () => Ref.update(ref, (n) => n + 1),
+    { concurrency: "unbounded" }
+  )
+
+  yield* increment
+  const final = yield* Ref.get(ref)
+  return final
+})
+```
+
+## Best Practices
+
+1. **Service Design**
+   - Define interfaces with readonly methods
+   - Return Effect for all operations that can fail
+   - Keep service interfaces focused and small
+   - Use proper dependency injection via Layer
+
+2. **Error Handling**
+   - Define domain-specific error types
+   - Use tagged errors for type safety
+   - Handle all error cases explicitly
+   - Preserve error context with causes
+
+3. **Resource Management**
+   - Use scoped resources for cleanup
+   - Add finalizers for resource release
+   - Handle cleanup in error cases
+   - Use Layer for service lifecycles
+
+4. **State Management**
+   - Use Ref for shared mutable state
+   - Make atomic updates when needed
+   - Keep state minimal and focused
+   - Use proper concurrency control
+
+## Anti-patterns to Avoid
+
+1. **DO NOT**
+   - Use raw promises
+   - Throw errors
+   - Use global state
+   - Skip error handling
+   - Mix Effect with non-Effect code
+
+2. **NEVER**
+   - Use `any` type
+   - Ignore resource cleanup
+   - Leave errors unhandled
+   - Use manual promise chains
+   - Bypass the Effect type system 

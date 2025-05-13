@@ -2,12 +2,32 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
-import { Message } from "@/schema.js";
 import { Effect, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
+import { Message } from "@/schema.js";
 
-// Re-export Message
-export { Message } from "@/schema.js";
+/**
+ * Union type for all valid part types in the input pipeline.
+ * Includes core AI response parts and custom parts (FilePart, ReasoningPart, etc).
+ *
+ * This type should be imported by any service or API that needs to accept or validate input parts.
+ */
+import type { ImageUrlPart, TextPart, ToolCallPart } from "@effect/ai/AiResponse";
+// Import custom parts from input/schema (if not deprecated)
+// If FilePart/ReasoningPart are deprecated, only use core types
+export type EffectivePartType = TextPart | ToolCallPart | ImageUrlPart;
+// Add | FilePart | ReasoningPart here if still in use
+
+/**
+ * Result of the transcription process
+ */
+export interface TranscriptionResult {
+  readonly text: string;
+  readonly confidence: number;
+  readonly words?: ReadonlyArray<{ word: string; start: number; end: number; confidence: number }>;
+  readonly language?: string;
+}
+
 
 /**
  * Core input type for AI operations.
@@ -347,3 +367,5 @@ export interface User {
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
+export { Message };
+

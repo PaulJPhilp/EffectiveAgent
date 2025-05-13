@@ -6,7 +6,7 @@ interface AiServiceDeps {
   providerService: unknown;
 }
 
-import { User } from "@/services/ai/input/schema.js";
+import { User } from "@/services/pipeline/input/schema.js";
 import { AiResponse } from "@effect/ai";
 
 export class TestChatService extends Effect.Service<ChatServiceApi>()('TestChatService', {

@@ -23,17 +23,11 @@ export const METHOD_ADD_PART_OR_MESSAGE = "addPartOrMessage" as const;
 export const METHOD_EXTRACT_TEXTS_FOR_EMBEDDINGS = "extractTextsForEmbeddings" as const;
 export const METHOD_EXTRACT_TEXT_FOR_SPEECH = "extractTextForSpeech" as const;
 
+import { ImageUrlPart, Part, TextPart, ToolCallPart } from "@/schema.js";
 import { EffectiveInput, Message } from "@/types.js";
-import { ImagePart, ToolCallResolvedPart } from "@effect/ai/AiInput";
-import { Model, User } from "@effect/ai/AiRole";
-export { User } from "@effect/ai/AiRole";
-import { ImageUrlPart, Part, PartTypeId, TextPart, ToolCallPart } from "@effect/ai/AiResponse";
-import { Chunk, Context, Effect, Layer, Schema, pipe } from "effect";
-import * as Ref from "effect/Ref";
 
-// Re-export error types
-export { InputServiceError, InvalidInputError, InvalidMessageError, NoAudioFileError } from "./errors.js";
-
+import { Chunk, Effect, Ref } from "effect";
+import { InputServiceApi } from "./api.js";
 import { FilePart } from "./schema.js";
 export { FilePart };
 
@@ -51,7 +45,7 @@ interface FilePartLike {
   fileContent: Uint8Array;
   fileType: string;
   url: string;
-  [PartTypeId]: typeof PartTypeId;
+
 }
 
 /**
@@ -69,7 +63,7 @@ export function isFilePart(part: unknown): part is FilePartLike {
     'fileContent' in part &&
     'fileType' in part &&
     'url' in part &&
-    PartTypeId in part
+    true
   );
 }
 
@@ -148,12 +142,9 @@ export function extractAudioForTranscriptionEffect(
   return Effect.succeed(audioFile.fileContent.buffer as ArrayBuffer);
 }
 
-// Already imported above
-import { InputServiceApi } from "./api.js";
-
 // Helper functions
 const createTextPart = (text: string): TextPart =>
-  new TextPart({ content: text });
+  new TextPart({ _tag: "Text", content: text });
 
 const mapToAiRole = (role: EffectiveRole): "user" | "model" | "system" | "assistant" | "tool" => {
   switch (role) {
@@ -196,7 +187,7 @@ const convertToMessagePart = (part: Part): TextPart | ToolCallPart | ImageUrlPar
   if (isFilePart(part)) {
     // Ensure type safety with additional assertion
     const filePart: FilePartLike = part;
-    return new TextPart({ content: `File: ${filePart.fileName} (${filePart.fileType})` });
+    return new TextPart({ _tag: "Text", content: `File: ${filePart.fileName} (${filePart.fileType})` });
   }
 
   // Type assertions for type safety
@@ -214,23 +205,23 @@ const convertToMessagePart = (part: Part): TextPart | ToolCallPart | ImageUrlPar
       
       if (taggedPart._tag === "Text" && 'text' in typedPart) {
         const textPart = typedPart as TypedTextPart;
-        return new TextPart({ content: textPart.text });
+        return new TextPart({ _tag: "Text", content: textPart.text });
       } 
       
       if (taggedPart._tag === "ToolCall" && 'toolCall' in typedPart) {
         const toolCallPart = typedPart as TypedToolCallPart;
-        return new TextPart({ content: `Tool Call: ${toolCallPart.toolCall}` });
+        return new TextPart({ _tag: "Text", content: `Tool Call: ${toolCallPart.toolCall}` });
       } 
       
       if (taggedPart._tag === "ImageUrl" && 'url' in typedPart) {
         const imageUrlPart = typedPart as TypedImageUrlPart;
-        return new TextPart({ content: `Image URL: ${imageUrlPart.url}` });
+        return new TextPart({ _tag: "Text", content: `Image URL: ${imageUrlPart.url}` });
       }
     }
   }
 
   // Fallback for any other part type
-  return new TextPart({ content: `Unknown part type` });
+  return new TextPart({ _tag: "Text", content: `Unknown part type` });
 };
 
 const addPartAsMessage = (part: Part, role: EffectiveRole = ROLE_USER): Message => {

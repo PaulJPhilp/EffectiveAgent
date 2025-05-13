@@ -3,8 +3,8 @@
  * Defines methods for submitting audio and retrieving transcriptions.
  */
 import { Effect } from "effect";
+import type { TranscriptionResult } from "../../../../types.js";
 import { TranscriptionError } from "./errors.js";
-import { TranscriptionResult } from "./types.js";
 
 export interface TranscriptionServiceApi {
   /**

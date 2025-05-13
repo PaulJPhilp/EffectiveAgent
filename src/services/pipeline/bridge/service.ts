@@ -3,9 +3,10 @@ import {
     makeAgentRuntimeId
 } from "@/agent-runtime/index.js";
 import { AgentActivity, AgentRecordType, AgentRuntimeId } from "@/agent-runtime/types.js";
-import type { BridgeServiceApi } from "./api.js";
-
+import { SequenceGenerator } from "@/services/core/sequence/sequence-generator.js";
 import { Effect, Stream } from "effect";
+import uuid4 from "uuid4";
+import type { BridgeServiceApi } from "./api.js";
 import {
     BridgeMessageSendError,
     BridgeRuntimeCreationError,
@@ -14,64 +15,81 @@ import {
     BridgeSubscriptionError,
     BridgeTerminationError
 } from "./errors.js";
-import { BridgeState } from "./types.js";
+import { BridgeMessage, BridgeState, DEFAULT_RETENTION_CONFIG } from "./types.js";
 
 /**
- * Implementation of the Bridge Service
+ * Cleanup threshold in milliseconds
+ * Cleanup will be performed if this much time has passed since last cleanup
  */
+const CLEANUP_THRESHOLD_MS = 5 * 60 * 1000 // 5 minutes
+
 /**
  * Type guard to validate AgentRuntimeId.
  * @param id - The AgentRuntimeId to validate.
  * @returns True if valid, false otherwise.
  */
-/**
- * An empty string array for BridgeState initialization.
- */
-const EMPTY_MESSAGES: string[] = [];
-
-/**
- * The AgentRecordType for event messages.
- */
-const EVENT_TYPE: typeof AgentRecordType.EVENT = AgentRecordType.EVENT;
-
 function isValidAgentRuntimeId(id: AgentRuntimeId | undefined | null): boolean {
-    return typeof id === "string" && id.trim().length > 0;
+    return typeof id === "string" && id.length > 0
 }
 
 /**
- * Interface for UUID generation.
+ * An empty array for BridgeState initialization
  */
-export interface UuidGeneratorApi {
-    /**
-     * Generates a new UUID string.
-     * @returns {string} A new UUID.
-     */
-    generate(): string;
-}
+const EMPTY_MESSAGES: BridgeMessage[] = []
 
 /**
- * UuidGeneratorService - default implementation using crypto.randomUUID().
+ * The AgentRecordType for event messages
  */
-export const UuidGeneratorService = Effect.Service<UuidGeneratorApi>()(
-    "UuidGeneratorService",
-    {
-        effect: Effect.sync(() => ({
-            generate: () => crypto.randomUUID()
-        })),
-        dependencies: []
+const EVENT_TYPE: typeof AgentRecordType.EVENT = AgentRecordType.EVENT
+
+/**
+ * Performs cleanup of old messages based on retention policy
+ */
+function cleanupMessages(state: BridgeState): BridgeState {
+    const now = Date.now()
+    const { maxMessages, maxAgeMs } = state.retention
+    const minTimestamp = now - maxAgeMs
+
+    // Filter messages based on age and sort by sequence
+    const messages = state.messages
+        .filter(msg => msg.timestamp >= minTimestamp)
+        .sort((a, b) => b.sequence - a.sequence)
+        .slice(0, maxMessages)
+
+    return {
+        ...state,
+        messages,
+        lastCleanup: now
     }
-);
+}
 
+/**
+ * Checks if cleanup should be performed
+ */
+function shouldCleanup(state: BridgeState): boolean {
+    return Date.now() - state.lastCleanup > CLEANUP_THRESHOLD_MS
+}
+
+/**
+ * BridgeService class
+ */
 export class BridgeService extends Effect.Service<BridgeServiceApi>()("BridgeService", {
     effect: Effect.gen(function* () {
-        // Obtain dependencies
-        const agentRuntimeService = yield* AgentRuntimeService;
-        /**
-         * Obtain the UUID generator dependency for testability.
-         */
-        const uuidGenerator = yield* UuidGeneratorService;
+        // Get dependencies
+        const agentRuntimeService = yield* AgentRuntimeService
+        const sequenceGenerator = yield* SequenceGenerator
 
-        // Return implementation object with all API methods
+        // Helper to get state with cleanup if needed
+        const getStateWithCleanup = <S extends BridgeState>(id: AgentRuntimeId) =>
+            Effect.gen(function* () {
+                const state = yield* agentRuntimeService.getState<S>(id)
+                if (shouldCleanup(state.state)) {
+                    const cleanedState = cleanupMessages(state.state)
+                    return { ...state, state: cleanedState }
+                }
+                return state
+            })
+
         return {
             /**
              * Creates a new agent runtime and returns its ID.
@@ -79,8 +97,12 @@ export class BridgeService extends Effect.Service<BridgeServiceApi>()("BridgeSer
              */
             createAgentRuntime: () =>
                 Effect.gen(function* () {
-                    const id = makeAgentRuntimeId(uuidGenerator.generate());
-                    const initialState: BridgeState = { messages: EMPTY_MESSAGES };
+                    const id = makeAgentRuntimeId(uuid4());
+                    const initialState: BridgeState = {
+                        messages: EMPTY_MESSAGES,
+                        lastCleanup: Date.now(),
+                        retention: DEFAULT_RETENTION_CONFIG
+                    };
                     return yield* agentRuntimeService.create(id, initialState).pipe(
                         Effect.map(() => id),
                         Effect.catchAll((error) => Effect.fail(new BridgeRuntimeCreationError({
@@ -111,17 +133,36 @@ export class BridgeService extends Effect.Service<BridgeServiceApi>()("BridgeSer
                             cause: "Missing or invalid agent runtime ID"
                         }));
                     }
+
+                    const sequence = yield* sequenceGenerator.next();
+                    const now = Date.now();
+
                     const record: AgentActivity = {
-                        id: uuidGenerator.generate(),
+                        id: uuid4(),
                         agentRuntimeId: id,
-                        timestamp: Date.now(),
+                        timestamp: now,
                         type: EVENT_TYPE,
                         payload: { message },
-                        // Using timestamp as sequence for ordering; update if stricter sequencing is needed
-                        sequence: Date.now(),
+                        sequence,
                         metadata: {}
                     };
-                    return yield* agentRuntimeService.send(id, record).pipe(
+
+                    // Update state with new message
+                    const state = yield* getStateWithCleanup<BridgeState>(id);
+                    const newMessage: BridgeMessage = {
+                        content: message,
+                        timestamp: now,
+                        sequence
+                    };
+                    const newState = {
+                        ...state.state,
+                        messages: [newMessage, ...state.state.messages]
+                    };
+
+                    return yield* Effect.all([
+                        agentRuntimeService.send(id, record),
+                        agentRuntimeService.create(id, newState)
+                    ]).pipe(
                         Effect.catchAll((error) => Effect.fail(new BridgeMessageSendError({
                             runtimeId: id,
                             message,
@@ -157,7 +198,6 @@ export class BridgeService extends Effect.Service<BridgeServiceApi>()("BridgeSer
                         method: "getState",
                         cause: "Missing or invalid agent runtime ID"
                     })),
-
 
             /**
              * Subscribes to events for the specified agent runtime.
@@ -205,5 +245,5 @@ export class BridgeService extends Effect.Service<BridgeServiceApi>()("BridgeSer
     /**
      * Explicit dependencies: AgentRuntimeService and UuidGeneratorService.
      */
-    dependencies: [AgentRuntimeService.Default, UuidGeneratorService.Default]
-}) { } // Empty class body
+    dependencies: [AgentRuntimeService.Default, SequenceGenerator.Default]
+}) { }

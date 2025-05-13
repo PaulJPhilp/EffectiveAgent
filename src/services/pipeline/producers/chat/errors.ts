@@ -9,6 +9,20 @@ import { EffectiveError } from "@/errors.js";
  * Error thrown when there are issues with chat model configuration or access.
  * @extends EffectiveError
  */
+/**
+ * Base error type for chat service errors
+ */
+export type ChatServiceError =
+    | ChatModelError
+    | ChatProviderError
+    | ChatCompletionError
+    | ChatInputError
+    | ChatToolError
+    | ChatParameterError;
+
+/**
+ * Error thrown when there is an issue with the model
+ */
 export class ChatModelError extends EffectiveError {
     constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
         super(params);

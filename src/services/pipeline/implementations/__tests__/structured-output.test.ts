@@ -1,6 +1,8 @@
-import { StructuredOutputCacheService } from "@/ea/pipelines/structured-output/cache.js";
+import { CacheService, CacheServiceApi } from "@/ea/pipelines/structured-output/cache.js";
 import { GenerationError, SchemaValidationError } from "@/ea/pipelines/structured-output/errors.js";
+import { GenerateObjectResult } from "@/services/ai/provider/types.js";
 import { createTypedMock } from "@/services/core/test-harness/utils/typed-mocks.js";
+import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
 import { ObjectService } from "@/services/pipeline/producers/object/service.js";
 import * as S from "@effect/schema/Schema";
 import { Context, Effect } from "effect";
@@ -8,43 +10,45 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { StructuredOutputPipeline } from "../structured-output.js";
 
 // Test schemas
-const Person = S.struct({
-    name: S.string,
-    age: S.number,
-    email: S.string,
-});
+const Person = S.Struct({
+    name: S.String,
+    age: S.Number,
+    email: S.String
+}) as S.Schema<any>;
 
-const ComplexObject = S.struct({
-    id: S.string,
-    data: S.array(Person),
-    metadata: S.struct({
-        createdAt: S.string,
-        tags: S.array(S.string),
-    }),
-});
+const ComplexObject = S.Struct({
+    id: S.String,
+    data: S.Array(Person),
+    metadata: S.Struct({
+        createdAt: S.String,
+        tags: S.Array(S.String)
+    })
+}) as S.Schema<any>;
 
 describe("StructuredOutputPipeline", () => {
     // Mock services
-    let mockObjectService: ObjectService;
-    let mockCacheService: StructuredOutputCacheService;
-    let testContext: Context.Context<ObjectService | StructuredOutputCacheService>;
+    let mockObjectService: ObjectServiceApi;
+    let mockCacheService: CacheServiceApi;
+    let testContext: Context.Context<ObjectServiceApi | CacheServiceApi>;
 
     beforeEach(() => {
         // Reset mocks before each test
-        mockObjectService = createTypedMock<ObjectService>({
+        mockObjectService = createTypedMock<ObjectServiceApi>({
             generate: vi.fn()
         });
 
-        mockCacheService = createTypedMock<StructuredOutputCacheService>({
+        mockCacheService = createTypedMock<CacheServiceApi>({
             get: vi.fn(),
             set: vi.fn(),
             invalidate: vi.fn(),
-            clear: vi.fn()
+            clear: vi.fn(),
+            generateKey: vi.fn(),
+            _tag: "CacheService"
         });
 
         testContext = Context.empty().pipe(
             Context.add(ObjectService, mockObjectService),
-            Context.add(StructuredOutputCacheService, mockCacheService)
+            Context.add(CacheService, mockCacheService)
         );
     });
 
@@ -58,16 +62,17 @@ describe("StructuredOutputPipeline", () => {
 
             vi.mocked(mockObjectService.generate).mockImplementation(() =>
                 Effect.succeed({
-                    data: mockPerson,
+                    object: mockPerson,
                     model: "test-model",
                     timestamp: new Date(),
                     id: "test-id",
+                    finishReason: "stop",
                     usage: {
                         promptTokens: 10,
                         completionTokens: 20,
                         totalTokens: 30
                     }
-                })
+                } as GenerateObjectResult<typeof mockPerson>)
             );
 
             const pipeline = new StructuredOutputPipeline<typeof Person>(Person);
@@ -98,12 +103,13 @@ describe("StructuredOutputPipeline", () => {
 
             vi.mocked(mockObjectService.generate).mockImplementation(() =>
                 Effect.succeed({
-                    data: mockData,
+                    object: mockData,
                     model: "test-model",
                     timestamp: new Date(),
                     id: "test-id",
+                    finishReason: "stop",
                     usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }
-                })
+                } as GenerateObjectResult<typeof mockData>)
             );
 
             const pipeline = new StructuredOutputPipeline<typeof ComplexObject>(ComplexObject);
@@ -184,8 +190,8 @@ describe("StructuredOutputPipeline", () => {
 
     describe("Edge cases", () => {
         it("should handle empty arrays", async () => {
-            const EmptyArraySchema = S.struct({
-                items: S.array(Person)
+            const EmptyArraySchema = S.Struct({
+                items: S.Array(Person)
             });
 
             const mockData = {
@@ -194,12 +200,13 @@ describe("StructuredOutputPipeline", () => {
 
             vi.mocked(mockObjectService.generate).mockImplementation(() =>
                 Effect.succeed({
-                    data: mockData,
+                    object: mockData,
                     model: "test-model",
                     timestamp: new Date(),
                     id: "test-id",
+                    finishReason: "stop",
                     usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }
-                })
+                } as GenerateObjectResult<typeof mockData>)
             );
 
             const pipeline = new StructuredOutputPipeline<typeof EmptyArraySchema>(EmptyArraySchema);
@@ -214,24 +221,25 @@ describe("StructuredOutputPipeline", () => {
         });
 
         it("should handle optional fields", async () => {
-            const OptionalSchema = S.struct({
-                required: S.string,
-                optional: S.optional(S.number)
+            const OptionalSchema = S.Struct({
+                required: S.String,
+                optional: S.Optional(S.Number)
             });
 
             const mockData = {
-                required: "test"
-                // optional field omitted
+                required: "test",
+                optional: 42
             };
 
             vi.mocked(mockObjectService.generate).mockImplementation(() =>
                 Effect.succeed({
-                    data: mockData,
+                    object: mockData,
                     model: "test-model",
                     timestamp: new Date(),
                     id: "test-id",
+                    finishReason: "stop",
                     usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }
-                })
+                } as GenerateObjectResult<typeof mockData>)
             );
 
             const pipeline = new StructuredOutputPipeline<typeof OptionalSchema>(OptionalSchema);
@@ -303,12 +311,13 @@ describe("StructuredOutputPipeline", () => {
 
             vi.mocked(mockObjectService.generate).mockImplementation(() =>
                 Effect.succeed({
-                    data: generatedPerson,
+                    object: generatedPerson,
                     model: "test-model",
                     timestamp: new Date(),
                     id: "test-id",
+                    finishReason: "stop",
                     usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }
-                })
+                } as GenerateObjectResult<typeof generatedPerson>)
             );
 
             const pipeline = new StructuredOutputPipeline<typeof Person>(Person);
@@ -363,12 +372,13 @@ describe("StructuredOutputPipeline", () => {
 
             vi.mocked(mockObjectService.generate).mockImplementation(() =>
                 Effect.succeed({
-                    data: { name: "Test" },
+                    object: { name: "Test" },
                     model: "test-model",
                     timestamp: new Date(),
                     id: "test-id",
+                    finishReason: "stop",
                     usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 }
-                })
+                } as GenerateObjectResult)
             );
 
             const pipeline1 = new StructuredOutputPipeline<typeof Person>(Person);

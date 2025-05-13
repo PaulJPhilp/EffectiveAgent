@@ -2,9 +2,8 @@
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
-import type { ImportedType } from "./api.js";
-import { ChatHistoryError } from "./api.js";
-import { ChatHistoryService } from "./service.js";
+import { ChatHistory, ChatHistoryError, ChatMessage } from "@/services/pipeline/chat/api.js";
+import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
 
 describe("ChatHistoryService", () => {
   // Test data

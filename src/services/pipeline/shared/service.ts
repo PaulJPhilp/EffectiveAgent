@@ -1,4 +1,6 @@
 import { Duration, Effect, Schedule } from "effect";
+import { PipelineApi, PipelineConfig } from "./api.js";
+import { PipelineError, PipelineExecutionError, PipelineValidationError } from "./errors.js";
 
 /**
  * Parameters for configuring execution
@@ -69,17 +71,15 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
  * @file Service implementation for Pipeline.
  */
 
-import { pipe } from "effect";
-import type { ImportedType } from "./api.js";
-import { PipelineConfigError, PipelineExecutionError, PipelineValidationError } from "./errors.js";
-
 const DEFAULT_CONFIG: Required<PipelineConfig> = {
   maxRetries: 3,
   retryDelay: Duration.seconds(1),
   timeout: Duration.seconds(30)
 };
 
-// validateConfig function moved to the top
+/**
+ * Validates pipeline configuration
+ */
 const validateConfig = (
   config: PipelineConfig
 ): Effect.Effect<void, PipelineValidationError, never> =>
@@ -106,6 +106,8 @@ const validateConfig = (
         validationErrors: errors
       }));
     }
+
+    return yield* Effect.succeed(void 0);
   });
 
 /**
@@ -116,7 +118,40 @@ export class Pipeline extends Effect.Service<PipelineApi>()(
   {
     effect: Effect.succeed({
       _tag: "Pipeline" as const,
-      execute: () => Effect.succeed({}),
+      execute: <A, E, R>(
+        effect: Effect.Effect<A, E, R>,
+        config?: PipelineConfig
+      ): Effect.Effect<A, PipelineError, R> => {
+        const finalConfig = { ...DEFAULT_CONFIG, ...config };
+
+        return Effect.gen(function* () {
+          yield* validateConfig(finalConfig);
+
+          const withRetries = finalConfig.maxRetries > 0
+            ? Effect.retry(
+              effect,
+              {
+                times: finalConfig.maxRetries,
+                schedule: Schedule.spaced(finalConfig.retryDelay)
+              }
+            )
+            : effect;
+
+          const result = yield* Effect.timeout(withRetries, finalConfig.timeout).pipe(
+            Effect.catchAll(error =>
+              Effect.fail(new PipelineExecutionError({
+                description: "Pipeline execution timed out",
+                module: "services/pipeline",
+                method: "execute",
+                cause: error
+              }))
+            )
+          );
+
+          return result;
+        });
+      },
+      validateConfig
     }),
     dependencies: []
   }

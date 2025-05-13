@@ -1,7 +1,6 @@
-import { Effect, Either, Option } from "effect";
+import { Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
 import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "../errors.js";
-import { createListSchema, createPersonSchema, createProductSchema, createTaskSchema } from "../helpers.js";
 
 /**
  * Type definitions for test objects
@@ -45,7 +44,7 @@ describe("ObjectService with Test Harness", () => {
           email: "john@example.com"
         }
       };
-      
+
       // Verify the result
       expect(mockResult).toBeDefined();
       expect(mockResult.data).toBeDefined();
@@ -74,7 +73,7 @@ describe("ObjectService with Test Harness", () => {
           // email intentionally omitted
         }
       };
-      
+
       // Verify the result
       expect(mockResult).toBeDefined();
       expect(mockResult.data).toBeDefined();
@@ -82,7 +81,7 @@ describe("ObjectService with Test Harness", () => {
       expect(mockResult.data.age).toBe(25);
       expect(mockResult.data.email).toBeUndefined();
     });
-    
+
     it("should generate a list of objects", async () => {
       // Create a mock list generation result
       const mockResult: {
@@ -99,16 +98,18 @@ describe("ObjectService with Test Harness", () => {
           { name: "Bob", age: 28, email: "bob@example.com" }
         ]
       };
-      
+
       // Verify the result
       expect(mockResult).toBeDefined();
       expect(mockResult.data).toBeDefined();
+      if (!mockResult.data) return;
       expect(Array.isArray(mockResult.data)).toBe(true);
       expect(mockResult.data.length).toBe(2);
+      if (mockResult.data.length === 0 || mockResult.data[0] === undefined || mockResult.data[1] === undefined) return;
       expect(mockResult.data[0].name).toBe("Alice");
       expect(mockResult.data[1].email).toBe("bob@example.com");
     });
-    
+
     it("should fail if modelId is missing", async () => {
       // Create a mock error
       const mockError = new ObjectModelError({
@@ -116,13 +117,13 @@ describe("ObjectService with Test Harness", () => {
         module: "ObjectService",
         method: "generate"
       });
-      
+
       // Verify the error
       expect(mockError).toBeDefined();
       expect(mockError).toBeInstanceOf(ObjectModelError);
       expect(mockError.description).toContain("Model ID");
     });
-    
+
     it("should handle provider errors", async () => {
       // Create a mock error
       const mockError = new ObjectProviderError({
@@ -130,10 +131,10 @@ describe("ObjectService with Test Harness", () => {
         module: "ObjectService",
         method: "generate"
       });
-      
+
       // Run the test and catch the error
       const result = await Effect.runPromise(Effect.either(Effect.fail(mockError)));
-      
+
       // Verify the error
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
@@ -141,7 +142,7 @@ describe("ObjectService with Test Harness", () => {
         expect(result.left.description).toContain("Failed to get provider client");
       }
     });
-    
+
     it("should handle object generation errors", async () => {
       // Create a mock error
       const mockError = new ObjectGenerationError({
@@ -149,10 +150,10 @@ describe("ObjectService with Test Harness", () => {
         module: "ObjectService",
         method: "generate"
       });
-      
+
       // Run the test and catch the error
       const result = await Effect.runPromise(Effect.either(Effect.fail(mockError)));
-      
+
       // Verify the error
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
@@ -172,10 +173,10 @@ describe("ObjectService with Test Harness", () => {
           { path: "age", message: "Must be a number" }
         ]
       });
-      
+
       // Run the test and catch the error
       const result = await Effect.runPromise(Effect.either(Effect.fail(mockError)));
-      
+
       // Verify the error
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {

@@ -9,7 +9,7 @@ import { ProviderService } from "@/services/ai/provider/service.js";
 import { GenerateImageResult } from "@/services/ai/provider/types.js";
 import { EffectiveResponse, Message } from "@/types.js";
 
-import { TextPart, User } from "@/services/ai/input/schema.js";
+import { TextPart } from "@/schema.js";
 import { EffectiveInput } from "@/types.js";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
@@ -230,8 +230,8 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                     const effectiveInput = new EffectiveInput(
                         finalPrompt,
                         Chunk.make(new Message({
-                            role: new User(),
-                            parts: Chunk.make(new TextPart({ content: finalPrompt }))
+                            role: "user",
+                            parts: Chunk.make(new TextPart({ _tag: "Text", content: finalPrompt }))
                         }))
                     );
 

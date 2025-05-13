@@ -5,9 +5,11 @@ import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js"
 import { User } from "@/types.js"
 import type { LanguageModelV1 } from "@ai-sdk/provider"
-import { AiResponse, TextPart as ResponseTextPart } from "@effect/ai/AiResponse"
-import { Effect } from "effect"
+import { EffectiveResponse, Message } from "@/types.js"
+import { Effect, Chunk } from "effect"
 import type { MockAccessorApi } from "./api.js"
+import { EmbeddingInputError } from "@/services/pipeline/producers/embedding/errors.js"
+import { ObjectModelError, ObjectProviderError, ObjectGenerationError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js"
 
 /**
  * Implementation of the MockAccessorService using Effect.Service pattern.
@@ -310,10 +312,14 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()("Mock
        * Mock implementation of the ChatService.
        */
       mockChatService: {
-        create: (options) => Effect.succeed({
-          role: new User(),
-          parts: [new ResponseTextPart("Mock response")]
-        } as AiResponse)
+        create: (options: any) => Effect.succeed({
+          data: "Mock response",
+          metadata: {},
+          messages: Chunk.make({
+            role: "user",
+            parts: Chunk.make({ _tag: "Text", content: "Mock response" })
+          } as Message)
+        } as EffectiveResponse<string>)
       }
     }
   }),
