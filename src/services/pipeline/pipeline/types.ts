@@ -1,12 +1,12 @@
-import { Duration, Effect } from "effect";
+import { EffectiveError } from "@/errors.js";
+import { Effect } from "effect";
+import { type ExecutiveParameters, ExecutiveServiceError } from "../shared/service.js";
 import type {
   InputValidationError,
   OutputValidationError,
   PipelineConfigurationError,
 } from "./errors.js";
 import { } from "./errors.js";
-import { EffectiveError } from "@/errors.js";
-import { ExecutiveServiceError } from "../shared/service.js";
 
 /** Union of all possible errors the base AiPipeline run method can produce. */
 export type AiPipelineError<CustomError extends EffectiveError> =
@@ -22,8 +22,4 @@ export interface ExecutiveCallConfig<A, E, R> {
   effect: Effect.Effect<A, E, R>;
   /** Optional execution parameters */
   parameters?: ExecutiveParameters;
-}
-
-export interface ExecutiveParameters {
-  timeout?: Duration.Duration;
 }

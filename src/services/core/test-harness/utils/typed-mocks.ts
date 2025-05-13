@@ -5,8 +5,8 @@
  * interfaces while allowing for flexible customization.
  */
 
-import { Model } from "@/types.js";
-import { Chunk, Effect, Option } from "effect";
+import { EffectiveResponse } from "@/types.js";
+import { Effect } from "effect";
 
 /**
  * Creates a strongly typed mock object that conforms to the specified interface.
@@ -104,22 +104,20 @@ export const createMinimalMock = <T extends object>(
 };
 
 /**
- * Creates a mock AiResponse with proper type safety.
- * 
+ * Creates a mock EffectiveResponse with proper type safety.
+ *
  * @param text The response text
- * @returns A mock AiResponse
+ * @returns A mock EffectiveResponse
  */
-export const createMockAiResponse = (text: string): AiResponse => {
-  let response: AiResponse;
-  response = createTypedMock<AiResponse>({
-    text,
-    imageUrl: Option.none(),
-    withToolCallsJson: () => mockSuccess(response),
-    withToolCallsUnknown: () => response,
-    concat: (that: AiResponse) => that,
-    role: Model.make(),
-    parts: Chunk.empty(),
-    [Symbol.for("TypeId")]: "AiResponse"
-  });
-  return response;
+export const createMockEffectiveResponse = (text: string): EffectiveResponse<string> => {
+  return {
+    data: text,
+    metadata: {},
+    usage: {
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0
+    },
+    finishReason: "stop"
+  };
 };

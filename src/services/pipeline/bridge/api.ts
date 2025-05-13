@@ -3,7 +3,7 @@ import {
     AgentRuntimeId,
     AgentRuntimeState
 } from "@/agent-runtime/index.js"
-import { BridgeServiceError } from "@/services/pipeline/bridge/errors"
+import { BridgeServiceError } from "@/services/pipeline/bridge/errors.js"
 import { Effect, Stream } from "effect"
 
 /**

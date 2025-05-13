@@ -5,7 +5,7 @@ import {
 import { AgentActivity, AgentRecordType, AgentRuntimeId } from "@/agent-runtime/types.js";
 import { SequenceGenerator } from "@/services/core/sequence/sequence-generator.js";
 import { Effect, Stream } from "effect";
-import uuid4 from "uuid4";
+import { v4 as uuid4 } from "uuid";
 import type { BridgeServiceApi } from "./api.js";
 import {
     BridgeMessageSendError,
@@ -243,7 +243,7 @@ export class BridgeService extends Effect.Service<BridgeServiceApi>()("BridgeSer
         };
     }),
     /**
-     * Explicit dependencies: AgentRuntimeService and UuidGeneratorService.
+     * Explicit dependencies: AgentRuntimeService and SequenceGenerator.
      */
     dependencies: [AgentRuntimeService.Default, SequenceGenerator.Default]
 }) { }

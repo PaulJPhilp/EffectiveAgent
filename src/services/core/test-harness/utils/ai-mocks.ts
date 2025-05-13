@@ -1,20 +1,21 @@
-/**
- * Mock implementations for AI-related services and types.
- */
-
-import { Model } from "@/types.js";
-import { AiResponse } from "@effect/ai/AiResponse.js";
+import { EffectiveResponse } from "@/types.js"
 
 /**
- * Creates a mock AiResponse object.
+ * Creates a mock EffectiveResponse object.
  * 
  * @param text The text content
  * @param tokenCount The number of tokens used
- * @returns A mock AiResponse object
+ * @returns A mock EffectiveResponse object
  */
-export const createMockAiResponse = (text: string, tokenCount: number): AiResponse => {
-  return AiResponse.fromText({
-    role: new Model(),
-    content: text
-  });
+export const createMockEffectiveResponse = (text: string, tokenCount: number): EffectiveResponse<string> => {
+  return {
+    data: text,
+    metadata: {},
+    usage: {
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0
+    },
+    finishReason: "stop"
+  };
 };

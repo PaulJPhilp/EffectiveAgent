@@ -1,7 +1,6 @@
 import { EffectiveError } from "@/errors.js";
-import { Duration, Effect, Schema } from "effect";
+import { Effect, Schema } from "effect";
 import { ExecutiveService } from "../shared/service.js";
-import { PipelineExecutionError } from "./errors.js";
 import { ExecutiveCallConfig } from "./types.js";
 
 /**
@@ -39,7 +38,7 @@ export abstract class AiPipeline<
     return Effect.succeed({
       effect: this.executeProducer(input),
       parameters: {
-        timeout: Duration.millis(30000)
+        timeoutMs: 30000
       } as const
     });
   }
@@ -72,8 +71,21 @@ export abstract class AiPipeline<
       return result as Out;
     }).pipe(
       Effect.mapError((error) => {
-        if (error instanceof EffectiveError) return error;
-        return new PipelineExecutionError(`Failed to execute pipeline: ${error}`);
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "description" in error &&
+          "module" in error &&
+          "method" in error
+        ) {
+          return error as EffectiveError
+        }
+        return {
+          description: `Failed to execute pipeline: ${String(error)}`,
+          module: "pipeline",
+          method: "run",
+          cause: error
+        } as EffectiveError
       })
     );
   }

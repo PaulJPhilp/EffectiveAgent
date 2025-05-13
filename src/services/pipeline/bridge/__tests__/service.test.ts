@@ -19,7 +19,7 @@ import {
   BridgeStateError,
   BridgeTerminationError
 } from "../errors.js";
-import { BridgeService, UuidGeneratorService } from "../service.js";
+import { BridgeService } from "../service.js";
 
 describe("BridgeService", () => {
   // Test for agent runtime creation success case
@@ -183,9 +183,6 @@ describe("BridgeService", () => {
         getState: <S>(id: AgentRuntimeId) => Effect.Effect<AgentRuntimeState<S>, Error>;
         terminate: (id: AgentRuntimeId) => Effect.Effect<void, Error>;
       };
-      uuidGeneratorService: {
-        generate: () => string;
-      };
     },
     test: (service: BridgeServiceApi) => Effect.Effect<void, BridgeServiceError>
   ) {
@@ -197,20 +194,11 @@ describe("BridgeService", () => {
       }
     );
 
-    const MockUuidGeneratorService = Effect.Service<typeof UuidGeneratorService>()(
-      "UuidGeneratorService",
-      {
-        effect: Effect.succeed(mocks.uuidGeneratorService),
-        dependencies: []
-      }
-    );
-
     return Effect.gen(function* () {
       const service = yield* BridgeService;
       yield* test(service);
     }).pipe(
-      Effect.provide(MockAgentRuntimeService.Default),
-      Effect.provide(MockUuidGeneratorService.Default)
+      Effect.provide(MockAgentRuntimeService.Default)
     );
   }
 
@@ -266,7 +254,7 @@ describe("BridgeService", () => {
           } as AgentRuntimeState<S>),
           terminate: () => Effect.succeed((void 0))
         },
-        uuidGeneratorService: { generate: () => "mock-uuid" }
+
       },
       (service: BridgeServiceApi) =>
         Effect.gen(function* () {

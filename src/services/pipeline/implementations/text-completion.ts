@@ -4,6 +4,9 @@
  */
 
 import { EffectiveError } from "@/errors.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
@@ -52,8 +55,8 @@ export class TextCompletionPipeline extends AiPipeline<
         });
 
         return {
-          text: result.data.text,
-          usage: result.metadata.usage ?? {
+          text: result.text,
+          usage: result.usage ?? {
             promptTokens: 0,
             completionTokens: 0,
             totalTokens: 0
@@ -64,7 +67,10 @@ export class TextCompletionPipeline extends AiPipeline<
         description: "Failed to generate text completion",
         cause: error
       })),
-      Effect.provide(TextService)
+      Effect.provide(TextService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ModelService.Default),
+      Effect.provide(ConfigurationService.Default)
     );
   }
 }
