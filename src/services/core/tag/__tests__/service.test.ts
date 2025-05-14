@@ -79,12 +79,16 @@ describe("TagService", () => {
   it("should prevent duplicate tag names", () =>
     Effect.gen(function* () {
       const service = yield* TestTagService;
-      yield* service.createTag("duplicate-tag");
-      try {
-        yield* service.createTag("duplicate-tag");
-        expect(false).toBe(true); // Should not reach here
-      } catch (error) {
-        expect((error as DuplicateTagNameError)._tag).toBe("DuplicateTagNameError");
+      const result = yield* Effect.either(service.createTag("duplicate-tag"));
+
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        const error = result.left;
+        expect(error).toBeInstanceOf(DuplicateTagNameError);
+        if (error instanceof DuplicateTagNameError) {
+          expect(error._tag).toBe("DuplicateTagNameError");
+          expect(error.tagName).toBe("duplicate-tag");
+        }
       }
     })
   );

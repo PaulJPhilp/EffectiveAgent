@@ -689,12 +689,11 @@ describe("deleteLinksTo transaction", () => {
                     entityB_type: "Target"
                 }));
 
-                // Create the links - might fail but that's ok
-                try {
-                    yield* service.createLinks(inputs);
-                } catch (error) {
-                    // Expected in some cases
-                }
+                // Create the links - might fail due to simulated network issues, which is acceptable for this test setup.
+                yield* Effect.catchAll(
+                    service.createLinks(inputs),
+                    () => Effect.void // Ignore errors from createLinks for this test
+                );
 
                 // Attempt to delete all links to the target
                 const result = yield* Effect.either(service.deleteLinksTo("network-test-target", "Target"));

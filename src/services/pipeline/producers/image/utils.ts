@@ -1,6 +1,6 @@
 /**
- * @file Utility functions for working with image generation
- * @module services/ai/producers/image/utils
+ * @file Helper functions for working with image generation
+ * @module services/pipeline/producers/image/helpers
  */
 
 /**
@@ -180,16 +180,16 @@ export function createContentImagePrompt(
         }
     };
 
-    // Get settings for requested style
+    // Get settings for requested style (we know this exists since style is a literal union type)
     const settings = styleSettings[style];
 
-    // Generate prompt using enhancePrompt
+    // Generate prompt using enhancePrompt with safe access
     const prompt = enhancePrompt(basePrompt, {
-        style: settings.style,
-        lighting: settings.lighting,
-        detail: settings.detail,
-        mood: settings.mood,
-        format: settings.format
+        style: settings?.style ?? "professional",
+        lighting: settings?.lighting ?? "natural lighting",
+        detail: settings?.detail ?? "high detail",
+        mood: settings?.mood ?? "neutral",
+        format: settings?.format
     });
 
     // Create specific negative prompts for content images
@@ -200,13 +200,9 @@ export function createContentImagePrompt(
         "typography",
         "UI elements",
         "buttons",
-        "interface",
         "logos",
-        "human faces" // Often problematic in generated images
+        "borders"
     ]);
 
-    return {
-        prompt,
-        negativePrompt
-    };
+    return { prompt, negativePrompt };
 } 

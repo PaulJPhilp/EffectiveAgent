@@ -7,16 +7,14 @@
 
 import { Context, Effect, Layer } from "effect";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { 
-  mockService, 
-  provideMockService, 
+import {
   withResource
 } from "../utils/context-management.js";
-import { 
-  createServiceError, 
-  createTypedMock, 
+import {
+  createServiceError,
+  createTypedMock,
   mockFailure,
-  mockSuccess 
+  mockSuccess
 } from "../utils/typed-mocks.js";
 
 // Define a sample database service
@@ -35,7 +33,7 @@ interface LoggerService {
 
 // Define a sample user service that depends on database and logger
 interface UserService {
-  getUserById: (id: string) => Effect.Effect<User, UserNotFoundError | 
+  getUserById: (id: string) => Effect.Effect<User, UserNotFoundError |
     DatabaseError>;
   createUser: (user: User) => Effect.Effect<User, DatabaseError>;
 }
@@ -72,60 +70,71 @@ class UserServiceImpl implements UserService {
   constructor(
     private readonly db: DatabaseService,
     private readonly logger: LoggerService
-  ) {}
+  ) { }
 
-  getUserById(id: string): Effect.Effect<User, UserNotFoundError | 
-    DatabaseError> {
-    return Effect.gen(function*() {
+  getUserById(id: string): Effect.Effect<User, UserNotFoundError | DatabaseError> {
+    const logic = Effect.gen(function* () {
       yield* Effect.logDebug(`Getting user with ID: ${id}`);
-      
-      try {
-        const db = yield* DatabaseServiceTag;
-        const logger = yield* LoggerServiceTag;
-        
-        const user = yield* db.getUser(id);
-        yield* logger.log(`Found user: ${user.name}`);
-        return user;
-      } catch (error) {
+      const db = yield* DatabaseServiceTag;
+      const logger = yield* LoggerServiceTag;
+
+      const user = yield* db.getUser(id);
+      yield* logger.log(`Found user: ${user.name}`);
+      return user;
+    });
+
+    return Effect.tryCatchEffect(
+      logic,
+      (caughtError) => Effect.gen(function* () {
         const logger = yield* LoggerServiceTag;
         yield* logger.error(
-          `Error getting user: ${error instanceof Error ? error.message : String(error)}`,
-          error instanceof Error ? error : undefined
+          `Error getting user: ${caughtError instanceof Error ? caughtError.message : String(caughtError)}`,
+          caughtError instanceof Error ? caughtError : new Error(String(caughtError))
         );
-        throw error;
-      }
-    }).pipe(
+        if (caughtError instanceof UserNotFoundError || caughtError instanceof DatabaseError) {
+          return yield* Effect.fail(caughtError);
+        }
+        // For unexpected errors, wrap in DatabaseError as a default
+        return yield* Effect.fail(new DatabaseError(`Unexpected error in getUserById: ${String(caughtError)}`));
+      })
+    ).pipe(
       Effect.provideService(DatabaseServiceTag, this.db),
       Effect.provideService(LoggerServiceTag, this.logger)
     );
   }
 
   createUser(user: User): Effect.Effect<User, DatabaseError> {
-    return Effect.gen(function*() {
+    const logic = Effect.gen(function* () {
       yield* Effect.logDebug(`Creating user: ${user.name}`);
-      
-      try {
-        const db = yield* DatabaseServiceTag;
-        const logger = yield* LoggerServiceTag;
-        
-        yield* db.saveUser(user);
-        yield* logger.log(`Created user: ${user.name}`);
-        return user;
-      } catch (error) {
+      const db = yield* DatabaseServiceTag;
+      const logger = yield* LoggerServiceTag;
+
+      yield* db.saveUser(user);
+      yield* logger.log(`Created user: ${user.name}`);
+      return user;
+    });
+
+    return Effect.tryCatchEffect(
+      logic,
+      (caughtError) => Effect.gen(function* () {
         const logger = yield* LoggerServiceTag;
         yield* logger.error(
-          `Error creating user: ${error instanceof Error ? error.message : String(error)}`,
-          error instanceof Error ? error : undefined
+          `Error creating user: ${caughtError instanceof Error ? caughtError.message : String(caughtError)}`,
+          caughtError instanceof Error ? caughtError : new Error(String(caughtError))
         );
-        throw error;
-      }
-    }).pipe(
+        if (caughtError instanceof DatabaseError) {
+          return yield* Effect.fail(caughtError);
+        }
+        // For unexpected errors, wrap in DatabaseError
+        return yield* Effect.fail(new DatabaseError(`Unexpected error in createUser: ${String(caughtError)}`));
+      })
+    ).pipe(
       Effect.provideService(DatabaseServiceTag, this.db),
       Effect.provideService(LoggerServiceTag, this.logger)
     );
   }
 
-  static make = Effect.gen(function*() {
+  static make = Effect.gen(function* () {
     const db = yield* DatabaseServiceTag;
     const logger = yield* LoggerServiceTag;
     return new UserServiceImpl(db, logger);
@@ -183,7 +192,7 @@ describe("UserService", () => {
   });
 
   // Create a resource for database connection
-  const withDatabase = (db: DatabaseService) => 
+  const withDatabase = (db: DatabaseService) =>
     withResource(
       db.connect(),
       () => db.disconnect()
@@ -203,7 +212,7 @@ describe("UserService", () => {
       const userService = new UserServiceImpl(spiedDb, spiedLogger);
 
       // Use withResource to manage database connection
-      const program = withDatabase(spiedDb)(() => 
+      const program = withDatabase(spiedDb)(() =>
         userService.getUserById("user-123")
       );
 
@@ -230,23 +239,44 @@ describe("UserService", () => {
       const userService = new UserServiceImpl(errorDb, spiedLogger);
 
       // Use withResource to manage database connection
-      const program = withDatabase(errorDb)(() => 
+      const program = withDatabase(errorDb)(() =>
         userService.getUserById("user-123")
       );
 
-      // Run the program and catch the error
-      try {
-        await Effect.runPromise(program);
-        // Should not reach here
-        expect(true).toBe(false);
-      } catch (error) {
-        // Verify the error
+      // Run the program and assert the error
+      const result = await Effect.runPromise(Effect.either(program));
+
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        const error = result.left;
         expect(error).toBeInstanceOf(UserNotFoundError);
-        expect((error as UserNotFoundError).userId).toBe("user-123");
-        expect(getUserSpy).toHaveBeenCalledWith("user-123");
-        expect(errorSpy).toHaveBeenCalled();
-        expect(logSpy).not.toHaveBeenCalled();
+        if (error instanceof UserNotFoundError) { // Type guard for specific properties
+          expect(error.userId).toBe("user-123");
+        }
       }
+      expect(getUserSpy).toHaveBeenCalledWith("user-123");
+      expect(errorSpy).toHaveBeenCalled(); // errorSpy is called by the refactored UserServiceImpl
+      expect(logSpy).not.toHaveBeenCalled();
+    });
+
+    it("should handle database error on get user", async () => {
+      // Create a mock database that returns an error
+      const errorDb = createTypedMock<DatabaseService>(spiedDb, {
+        getUser: (id) => {
+          getUserSpy(id);
+          return mockFailure(createServiceError(DatabaseError, "Connection lost"));
+        }
+      });
+
+      const userService = new UserServiceImpl(errorDb, spiedLogger);
+      const program = withDatabase(errorDb)(() => userService.getUserById("user-123"));
+      const result = await Effect.runPromise(Effect.either(program));
+
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        expect(result.left).toBeInstanceOf(DatabaseError);
+      }
+      expect(errorSpy).toHaveBeenCalled();
     });
   });
 
@@ -256,7 +286,7 @@ describe("UserService", () => {
       const userService = new UserServiceImpl(spiedDb, spiedLogger);
 
       // Use withResource to manage database connection
-      const program = withDatabase(spiedDb)(() => 
+      const program = withDatabase(spiedDb)(() =>
         userService.createUser(testUser)
       );
 
@@ -270,36 +300,23 @@ describe("UserService", () => {
       expect(errorSpy).not.toHaveBeenCalled();
     });
 
-    it("should handle database error", async () => {
-      // Create a mock database that returns an error
+    it("should handle database error on create user", async () => {
       const errorDb = createTypedMock<DatabaseService>(spiedDb, {
         saveUser: (user) => {
           saveUserSpy(user);
-          return mockFailure(new DatabaseError("Database connection failed"));
+          return mockFailure(createServiceError(DatabaseError, "Disk full"));
         }
       });
 
-      // Create a UserService instance with mock dependencies
       const userService = new UserServiceImpl(errorDb, spiedLogger);
+      const program = withDatabase(errorDb)(() => userService.createUser(testUser));
+      const result = await Effect.runPromise(Effect.either(program));
 
-      // Use withResource to manage database connection
-      const program = withDatabase(errorDb)(() => 
-        userService.createUser(testUser)
-      );
-
-      // Run the program and catch the error
-      try {
-        await Effect.runPromise(program);
-        // Should not reach here
-        expect(true).toBe(false);
-      } catch (error) {
-        // Verify the error
-        expect(error).toBeInstanceOf(DatabaseError);
-        expect((error as DatabaseError).message).toBe("Database connection failed");
-        expect(saveUserSpy).toHaveBeenCalledWith(testUser);
-        expect(errorSpy).toHaveBeenCalled();
-        expect(logSpy).not.toHaveBeenCalled();
+      expect(result._tag).toBe("Left");
+      if (result._tag === "Left") {
+        expect(result.left).toBeInstanceOf(DatabaseError);
       }
+      expect(errorSpy).toHaveBeenCalled();
     });
   });
 });

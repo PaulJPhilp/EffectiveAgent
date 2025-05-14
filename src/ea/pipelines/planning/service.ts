@@ -3,7 +3,7 @@
  * @module ea/pipelines/planning/service
  */
 
-import { Effect } from "effect";
+import { Cause, Effect } from "effect";
 import {
     type PlanStep,
     type PlanningPipelineApi,
@@ -55,152 +55,146 @@ export class PlanningPipelineService extends Effect.Service<PlanningPipelineApi>
 
         // Method implementations
         const createPlan = (input: PlanningPipelineInput): Effect.Effect<PlanningPipelineOutput, PlanningPipelineError> =>
-            Effect.gen(function* (_) {
-                yield* _(Effect.logInfo(`Creating plan for goal: ${input.goal}`));
+            Effect.gen(function* () {
+                yield* Effect.logInfo(`Creating plan for goal: ${input.goal}`);
 
-                try {
-                    // Analyze the task first
-                    const analysis = yield* _(taskAnalysis.analyzeTask(input.goal));
+                // Analyze the task first
+                const analysis = yield* taskAnalysis.analyzeTask(input.goal);
 
-                    // TODO: Replace with actual Phoenix MCP server call
-                    // For now, using mock plan steps
-                    const mockSteps: PlanStep[] = [
-                        {
-                            id: generateStepId(0),
-                            description: "Analyze requirements and constraints",
-                            expectedOutput: "Detailed understanding of the problem",
-                            estimatedTimeMinutes: 30,
-                            tools: ["documentation", "analysis"]
-                        },
-                        {
-                            id: generateStepId(1),
-                            description: "Identify necessary resources",
-                            expectedOutput: "List of resources needed",
-                            dependsOn: [generateStepId(0)],
-                            estimatedTimeMinutes: 20,
-                            tools: ["research"]
-                        },
-                        {
-                            id: generateStepId(2),
-                            description: "Develop implementation strategy",
-                            expectedOutput: "Detailed action plan",
-                            dependsOn: [generateStepId(1)],
-                            estimatedTimeMinutes: 45,
-                            tools: ["planning", "visualization"],
-                            subSteps: [
-                                {
-                                    id: `${generateStepId(2)}-sub-1`,
-                                    description: "Define milestones",
-                                    estimatedTimeMinutes: 15
-                                },
-                                {
-                                    id: `${generateStepId(2)}-sub-2`,
-                                    description: "Allocate resources",
-                                    dependsOn: [`${generateStepId(2)}-sub-1`],
-                                    estimatedTimeMinutes: 15
-                                }
-                            ]
-                        }
-                    ];
-
-                    // Calculate total estimated time
-                    const totalTime = mockSteps.reduce((total, step) => {
-                        const stepTime = step.estimatedTimeMinutes || 0;
-                        const subStepsTime = (step.subSteps || []).reduce(
-                            (subTotal, subStep) => subTotal + (subStep.estimatedTimeMinutes || 0),
-                            0
-                        );
-                        return total + stepTime + subStepsTime;
-                    }, 0);
-
-                    return yield* _(Effect.succeed({
-                        summary: `Plan to achieve: ${input.goal}`,
-                        steps: mockSteps,
-                        expectedOutcome: "Successfully completed goal with all requirements met",
-                        risks: [
-                            ...analysis.risks,
-                            "Potential time overruns if resources are limited",
-                            "Technical challenges may arise during implementation"
-                        ],
-                        alternatives: [
+                // TODO: Replace with actual Phoenix MCP server call
+                // For now, using mock plan steps
+                const mockSteps: PlanStep[] = [
+                    {
+                        id: generateStepId(0),
+                        description: "Analyze requirements and constraints",
+                        expectedOutput: "Detailed understanding of the problem",
+                        estimatedTimeMinutes: 30,
+                        tools: ["documentation", "analysis"]
+                    },
+                    {
+                        id: generateStepId(1),
+                        description: "Identify necessary resources",
+                        expectedOutput: "List of resources needed",
+                        dependsOn: [generateStepId(0)],
+                        estimatedTimeMinutes: 20,
+                        tools: ["research"]
+                    },
+                    {
+                        id: generateStepId(2),
+                        description: "Develop implementation strategy",
+                        expectedOutput: "Detailed action plan",
+                        dependsOn: [generateStepId(1)],
+                        estimatedTimeMinutes: 45,
+                        tools: ["planning", "visualization"],
+                        subSteps: [
                             {
-                                description: "Alternative approach using different methodology",
-                                pros: ["Potentially faster", "Less resource intensive"],
-                                cons: ["Higher risk", "Less comprehensive"]
+                                id: `${generateStepId(2)}-sub-1`,
+                                description: "Define milestones",
+                                estimatedTimeMinutes: 15
+                            },
+                            {
+                                id: `${generateStepId(2)}-sub-2`,
+                                description: "Allocate resources",
+                                dependsOn: [`${generateStepId(2)}-sub-1`],
+                                estimatedTimeMinutes: 15
                             }
-                        ],
-                        estimatedTotalTimeMinutes: totalTime
-                    }));
-                } catch (error) {
-                    return yield* _(
-                        Effect.fail(
-                            new PlanningPipelineError({
-                                message: `Failed to create plan: ${error instanceof Error ? error.message : String(error)}`,
-                                cause: error
-                            })
-                        )
+                        ]
+                    }
+                ];
+
+                // Calculate total estimated time
+                const totalTime = mockSteps.reduce((total, step) => {
+                    const stepTime = step.estimatedTimeMinutes || 0;
+                    const subStepsTime = (step.subSteps || []).reduce(
+                        (subTotal, subStep) => subTotal + (subStep.estimatedTimeMinutes || 0),
+                        0
                     );
-                }
-            });
+                    return total + stepTime + subStepsTime;
+                }, 0);
+
+                return {
+                    summary: `Plan to achieve: ${input.goal}`,
+                    steps: mockSteps,
+                    expectedOutcome: "Successfully completed goal with all requirements met",
+                    risks: [
+                        ...analysis.risks,
+                        "Potential time overruns if resources are limited",
+                        "Technical challenges may arise during implementation"
+                    ],
+                    alternatives: [
+                        {
+                            description: "Alternative approach using different methodology",
+                            pros: ["Potentially faster", "Less resource intensive"],
+                            cons: ["Higher risk", "Less comprehensive"]
+                        }
+                    ],
+                    estimatedTotalTimeMinutes: totalTime
+                };
+            }).pipe(
+                Effect.catchAllCause(causeObject => {
+                    const underlyingError = Cause.squash(causeObject);
+                    return Effect.fail(new PlanningPipelineError({
+                        message: `Failed to create plan: ${underlyingError instanceof Error ? underlyingError.message : String(underlyingError)}`,
+                        cause: underlyingError
+                    }));
+                })
+            );
 
         const refinePlan = (
             existingPlan: PlanningPipelineOutput,
             updatedInput: Partial<PlanningPipelineInput>
         ): Effect.Effect<PlanningPipelineOutput, PlanningPipelineError> =>
-            Effect.gen(function* (_) {
-                yield* _(Effect.logInfo(`Refining existing plan with updated constraints`));
+            Effect.gen(function* () {
+                yield* Effect.logInfo(`Refining existing plan with updated constraints`);
 
-                try {
-                    // TODO: Replace with actual Phoenix MCP server call
-                    // For now, we'll add a refinement note and an extra step
-                    const refinedSteps = [...existingPlan.steps];
+                // TODO: Replace with actual Phoenix MCP server call
+                // For now, we\'ll add a refinement note and an extra step
+                const refinedSteps = [...existingPlan.steps];
 
-                    // Add a new step if not already at max
-                    if (!updatedInput.maxSteps || refinedSteps.length < updatedInput.maxSteps) {
-                        refinedSteps.push({
-                            id: generateStepId(refinedSteps.length),
-                            description: "Additional refinement step based on updated constraints",
-                            dependsOn: [refinedSteps[refinedSteps.length - 1].id],
-                            estimatedTimeMinutes: 25,
-                            tools: ["analysis", "revision"]
-                        });
-                    }
-
-                    // Recalculate total time
-                    const totalTime = refinedSteps.reduce((total, step) => {
-                        const stepTime = step.estimatedTimeMinutes || 0;
-                        const subStepsTime = (step.subSteps || []).reduce(
-                            (subTotal, subStep) => subTotal + (subStep.estimatedTimeMinutes || 0),
-                            0
-                        );
-                        return total + stepTime + subStepsTime;
-                    }, 0);
-
-                    return yield* _(Effect.succeed({
-                        ...existingPlan,
-                        summary: `Refined plan: ${existingPlan.summary} (updated with new constraints)`,
-                        steps: refinedSteps,
-                        estimatedTotalTimeMinutes: totalTime
-                    }));
-                } catch (error) {
-                    return yield* _(
-                        Effect.fail(
-                            new PlanningPipelineError({
-                                message: `Failed to refine plan: ${error instanceof Error ? error.message : String(error)}`,
-                                cause: error
-                            })
-                        )
-                    );
+                // Add a new step if not already at max
+                if (!updatedInput.maxSteps || refinedSteps.length < updatedInput.maxSteps) {
+                    const lastStep = refinedSteps.length > 0 ? refinedSteps[refinedSteps.length - 1] : undefined;
+                    refinedSteps.push({
+                        id: generateStepId(refinedSteps.length),
+                        description: "Additional refinement step based on updated constraints",
+                        dependsOn: lastStep ? [lastStep.id] : [],
+                        estimatedTimeMinutes: 25,
+                        tools: ["analysis", "revision"]
+                    });
                 }
-            });
+
+                // Recalculate total time
+                const totalTime = refinedSteps.reduce((total, step) => {
+                    const stepTime = step.estimatedTimeMinutes || 0;
+                    const subStepsTime = (step.subSteps || []).reduce(
+                        (subTotal, subStep) => subTotal + (subStep.estimatedTimeMinutes || 0),
+                        0
+                    );
+                    return total + stepTime + subStepsTime;
+                }, 0);
+
+                return {
+                    ...existingPlan,
+                    summary: `Refined plan: ${existingPlan.summary} (updated with new constraints)`,
+                    steps: refinedSteps,
+                    estimatedTotalTimeMinutes: totalTime
+                };
+            }).pipe(
+                Effect.catchAllCause(causeObject => {
+                    const underlyingError = Cause.squash(causeObject);
+                    return Effect.fail(new PlanningPipelineError({
+                        message: `Failed to refine plan: ${underlyingError instanceof Error ? underlyingError.message : String(underlyingError)}`,
+                        cause: underlyingError
+                    }));
+                })
+            );
 
         // Return implementation of the API
         return {
             createPlan,
             refinePlan
         };
-    }),
-    dependencies: []
+    })
 }) { }
 
 /**

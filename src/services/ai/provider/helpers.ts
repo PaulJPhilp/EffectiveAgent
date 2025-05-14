@@ -1,10 +1,12 @@
 import { ModelCapability } from "@/schema.js";
 import { LoggingServiceApi } from "@/services/core/logging/api.js";
+import { EffectiveResponse } from "@/types.js";
 import { Config, ConfigProvider, Effect } from "effect";
 import { ModelServiceApi } from "../model/api.js";
 import { ModelService } from "../model/service.js";
 import { ProviderConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "./errors.js";
 import { ProvidersType } from "./schema.js";
+import { GenerateBaseResult } from "./types.js";
 
 /**
  * Loads the provider configuration string from the provided ConfigProvider
@@ -101,13 +103,13 @@ export function getProviderName(params: {
 }): Effect.Effect<string, ProviderConfigError> {
   const { modelService, modelId, logger, method } = params;
   return modelService.getProviderName(modelId).pipe(
-    Effect.tapError((err) =>
+    Effect.tapError((err: unknown) =>
       logger.error(
         `Provider lookup failed for modelId ${modelId}: ${err instanceof Error ? err.message : String(err)}`
       )
     ),
     Effect.mapError(
-      (err) =>
+      (err: unknown) =>
         new ProviderConfigError({
           description: `Provider lookup failed for modelId ${modelId}: ${err instanceof Error ? err.message : String(err)}`,
           module: "ProviderClient",
@@ -132,9 +134,9 @@ export const validateModelId = ({ options, method }: {
     const defaultId = yield* Effect.mapError(
       Effect.gen(function* () {
         const modelService = yield* ModelService;
-        return yield* modelService.getDefaultModelId("openai" as const, ModelCapability.literals[1]);
+        return yield* modelService.getDefaultModelId();
       }),
-      err => new ProviderConfigError({
+      (err: unknown) => new ProviderConfigError({
         description: `Failed to get default model ID: ${err instanceof Error ? err.message : String(err)}`,
         module: "ProviderClient",
         method
@@ -149,7 +151,7 @@ export const validateModelId = ({ options, method }: {
       const modelService = yield* ModelService;
       return yield* modelService.exists(modelId);
     }),
-    err => new ProviderConfigError({
+    (err: unknown) => new ProviderConfigError({
       description: `Failed to check if model ${modelId} exists: ${err instanceof Error ? err.message : String(err)}`,
       module: "ProviderClient",
       method
@@ -157,11 +159,11 @@ export const validateModelId = ({ options, method }: {
   );
 
   if (!exists) {
-    throw new ProviderConfigError({
+    return yield* Effect.fail(new ProviderConfigError({
       description: `Model ${modelId} not found`,
       module: "ProviderClient",
       method
-    });
+    }));
   }
 
   return modelId;

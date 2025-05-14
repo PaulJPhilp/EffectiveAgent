@@ -3,10 +3,10 @@
  */
 
 import { Message } from "@/schema.js";
+import { Span } from "@opentelemetry/api";
 import { Effect } from "effect";
 import { Option } from "effect/Option";
-import { Span } from "@opentelemetry/api";
-import { CoreMessage } from "./helpers.js";
+import { CoreMessage } from "./utils.js";
 
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";

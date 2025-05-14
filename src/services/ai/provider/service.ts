@@ -118,11 +118,11 @@ export class ProviderService extends Effect.Service<ProviderServiceApi>()("Provi
                     }
 
                     if (!isProvidersType(providerName)) {
-                        throw new ProviderConfigError({
+                        return yield* Effect.fail(new ProviderConfigError({
                             description: `Invalid provider name: ${providerName}`,
                             module: "ProviderService",
                             method: "getProviderClient"
-                        });
+                        }));
                     }
                     // Initialize the provider with the API key
                     if (typeof (providerClient as any).setVercelProvider === "function") {

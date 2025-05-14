@@ -187,6 +187,6 @@ export const weatherImpl = (input: unknown): Effect.Effect<WeatherOutput, Error>
                 };
 
             default:
-                throw new Error(`Unsupported operation: ${data.operation}`);
+                return yield* Effect.fail(new Error(`Unsupported operation: ${data.operation}`));
         }
     }); 

@@ -83,10 +83,10 @@ export class ClusteringService extends Effect.Service<ClusteringServiceApi>()("C
 export class CategorizationPipelineService extends Effect.Service<CategorizationPipelineApi>()(
     CategorizationPipeline,
     {
-        effect: Effect.gen(function* (_) {
+        effect: Effect.gen(function* () {
             // Yield dependencies
-            const embeddings = yield* _(EmbeddingProvider);
-            const clustering = yield* _(ClusteringService);
+            const embeddings = yield* EmbeddingProvider;
+            const clustering = yield* ClusteringService;
 
             // Helper to generate a unique ID with a given prefix
             const generateId = (prefix: string, index: number): string =>
@@ -94,22 +94,22 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
 
             // Method implementations
             const categorize = (input: CategorizationPipelineInput): Effect.Effect<CategorizationPipelineOutput, CategorizationPipelineError> =>
-                Effect.gen(function* (_) {
-                    yield* _(Effect.logInfo(`Categorizing ${input.items.length} items into ${input.categories?.length || 'auto-discovered'} categories`));
+                Effect.tryCatchEffect(
+                    Effect.gen(function* () {
+                        yield* Effect.logInfo(`Categorizing ${input.items.length} items into ${input.categories?.length || 'auto-discovered'} categories`);
 
-                    try {
                         // Generate embeddings for each item
-                        const itemEmbeddings = yield* _(Effect.forEach(
+                        const itemEmbeddings = yield* Effect.forEach(
                             input.items,
                             item => embeddings.generateEmbedding(
                                 typeof item.content === 'string' ?
                                     item.content :
                                     JSON.stringify(item.content)
                             )
-                        ));
+                        );
 
                         // Use clustering to group similar items
-                        const clusterResult = yield* _(clustering.clusterData(itemEmbeddings));
+                        const clusterResult = yield* clustering.clusterData(itemEmbeddings);
 
                         // Mock categories if none provided
                         const categories = input.categories || clusterResult.clusters.map((cluster, i) => ({
@@ -157,7 +157,7 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                             });
                         });
 
-                        return yield* _(Effect.succeed({
+                        return {
                             results,
                             stats: {
                                 uncategorizedCount,
@@ -165,18 +165,13 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                                 averageConfidence: totalCategorizations > 0 ?
                                     totalConfidence / totalCategorizations : 0
                             }
-                        }));
-                    } catch (error) {
-                        return yield* _(
-                            Effect.fail(
-                                new CategorizationPipelineError({
-                                    message: `Categorization failed: ${error instanceof Error ? error.message : String(error)}`,
-                                    cause: error
-                                })
-                            )
-                        );
-                    }
-                });
+                        };
+                    }),
+                    (caughtError) => new CategorizationPipelineError({
+                        message: `Categorization failed: ${caughtError instanceof Error ? caughtError.message : String(caughtError)}`,
+                        cause: caughtError
+                    })
+                );
 
             const discoverCategories = (
                 items: Array<{ id: string; content: string | Record<string, unknown> }>,
@@ -186,22 +181,22 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                     includeExplanations?: boolean;
                 }
             ): Effect.Effect<CategorizationPipelineOutput, CategorizationPipelineError> =>
-                Effect.gen(function* (_) {
-                    yield* _(Effect.logInfo(`Discovering categories from ${items.length} items`));
+                Effect.tryCatchEffect(
+                    Effect.gen(function* () {
+                        yield* Effect.logInfo(`Discovering categories from ${items.length} items`);
 
-                    try {
                         // Generate embeddings for items
-                        const itemEmbeddings = yield* _(Effect.forEach(
+                        const itemEmbeddings = yield* Effect.forEach(
                             items,
                             item => embeddings.generateEmbedding(
                                 typeof item.content === 'string' ?
                                     item.content :
                                     JSON.stringify(item.content)
                             )
-                        ));
+                        );
 
                         // Use clustering to discover categories
-                        const clusterResult = yield* _(clustering.clusterData(itemEmbeddings));
+                        const clusterResult = yield* clustering.clusterData(itemEmbeddings);
 
                         // Create categories from clusters
                         const discoveredCategories: Category[] = clusterResult.clusters.map((cluster, i) => ({
@@ -224,34 +219,26 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                         };
 
                         // Use the categorize method to assign items to the discovered categories
-                        const result = yield* _(categorize(categorizationInput));
+                        const result = yield* categorize(categorizationInput);
 
                         // Add discovered categories to the result
-                        return yield* _(Effect.succeed({
+                        return {
                             ...result,
                             discoveredCategories
-                        }));
-                    } catch (error) {
-                        return yield* _(
-                            Effect.fail(
-                                new CategorizationPipelineError({
-                                    message: `Category discovery failed: ${error instanceof Error ? error.message : String(error)}`,
-                                    cause: error
-                                })
-                            )
-                        );
-                    }
-                });
+                        };
+                    }),
+                    (caughtError) => new CategorizationPipelineError({
+                        message: `Category discovery failed: ${caughtError instanceof Error ? caughtError.message : String(caughtError)}`,
+                        cause: caughtError
+                    })
+                );
 
             // Return implementation of the API
             return {
                 categorize,
                 discoverCategories
             };
-        }),
-
-        // List dependencies required by the 'effect' factory
-        dependencies: [EmbeddingProvider, ClusteringService]
+        })
     }
 ) { }
 

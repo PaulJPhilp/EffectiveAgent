@@ -112,4 +112,4 @@ export function createChatMessageSchema() {
  */
 export function createAddressSchema() {
     return Address
-}
+} 

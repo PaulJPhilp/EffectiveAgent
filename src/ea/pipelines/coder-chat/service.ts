@@ -3,9 +3,8 @@
  * @module ea/pipelines/coder-chat/service
  */
 
-import { Effect } from "effect";
+import { Cause, Effect } from "effect";
 import {
-    CoderChatPipeline,
     type CoderChatPipelineApi,
     CoderChatPipelineError,
     type CoderChatPipelineInput,
@@ -67,7 +66,7 @@ export class LanguageToolProvider extends Effect.Service<LanguageToolProviderApi
  * Implementation of the CoderChatPipeline service
  */
 export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineApi>()(
-    CoderChatPipeline,
+    "CoderChatPipeline",
     {
         effect: Effect.gen(function* () {
             // Yield dependencies
@@ -136,49 +135,48 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                 Effect.gen(function* () {
                     yield* Effect.logInfo(`Generating coding response for language: ${input.language || "general"}`);
 
-                    try {
-                        // TODO: Replace with actual Phoenix MCP server call
-                        // For now, using mock responses
-                        const language = input.language || "javascript";
+                    // TODO: Replace with actual Phoenix MCP server call
+                    // For now, using mock responses
+                    const language = input.language || "javascript";
 
-                        // Generate mock message based on user input
-                        let responseMessage = `Here's some guidance on ${input.message}`;
+                    // Generate mock message based on user input
+                    let responseMessage = `Here\'s some guidance on ${input.message}`;
 
-                        // Check for common coding questions and provide more specific responses
-                        if (input.message.toLowerCase().includes("function")) {
-                            responseMessage = `Functions are blocks of reusable code. In ${language}, they can be defined in various ways depending on your needs. Here's how you can create and use functions effectively.`;
-                        } else if (input.message.toLowerCase().includes("error")) {
-                            responseMessage = `Error handling is crucial for robust applications. In ${language}, you can use try/catch patterns or promise-based error handling depending on your context.`;
-                        } else if (input.message.toLowerCase().includes("api") || input.message.toLowerCase().includes("fetch")) {
-                            responseMessage = `Making API calls in ${language} typically involves using fetch or a dedicated HTTP client library. I've included an example below that demonstrates best practices.`;
-                        }
-
-                        // Generate code examples if requested
-                        const codeExamples = input.includeCode ? [
-                            {
-                                language,
-                                ...getCodeExample(language, input.message)
-                            }
-                        ] : undefined;
-
-                        // Include documentation references
-                        const references = getDocumentationReferences(language);
-
-                        // Create the response
-                        return yield* Effect.succeed({
-                            message: responseMessage,
-                            codeExamples,
-                            references
-                        });
-                    } catch (error) {
-                        return yield* Effect.fail(
-                            new CoderChatPipelineError({
-                                message: `Failed to generate coding response: ${error instanceof Error ? error.message : String(error)}`,
-                                cause: error
-                            })
-                        );
+                    // Check for common coding questions and provide more specific responses
+                    if (input.message.toLowerCase().includes("function")) {
+                        responseMessage = `Functions are blocks of reusable code. In ${language}, they can be defined in various ways depending on your needs. Here\'s how you can create and use functions effectively.`;
+                    } else if (input.message.toLowerCase().includes("error")) {
+                        responseMessage = `Error handling is crucial for robust applications. In ${language}, you can use try/catch patterns or promise-based error handling depending on your context.`;
+                    } else if (input.message.toLowerCase().includes("api") || input.message.toLowerCase().includes("fetch")) {
+                        responseMessage = `Making API calls in ${language} typically involves using fetch or a dedicated HTTP client library. I\'ve included an example below that demonstrates best practices.`;
                     }
-                });
+
+                    // Generate code examples if requested
+                    const codeExamples = input.includeCode ? [
+                        {
+                            language,
+                            ...getCodeExample(language, input.message)
+                        }
+                    ] : undefined;
+
+                    // Include documentation references
+                    const references = getDocumentationReferences(language);
+
+                    // Create the response
+                    return {
+                        message: responseMessage,
+                        codeExamples,
+                        references
+                    };
+                }).pipe(
+                    Effect.catchAllCause(causeObject => {
+                        const underlyingError = Cause.squash(causeObject);
+                        return Effect.fail(new CoderChatPipelineError({
+                            message: `Failed to generate coding response: ${underlyingError instanceof Error ? underlyingError.message : String(underlyingError)}`,
+                            cause: underlyingError
+                        }));
+                    })
+                );
 
             const reviewCode = (
                 code: string,
@@ -188,81 +186,77 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                 Effect.gen(function* () {
                     yield* Effect.logInfo(`Reviewing code in language: ${language}`);
 
-                    try {
-                        // TODO: Replace with actual Phoenix MCP server call
-                        // For now, using mock responses
-                        const codeLines = code.split('\n').length;
-                        const hasComments = code.includes('//') || code.includes('/*') || code.includes('#');
-                        const hasErrorHandling = code.includes('try') || code.includes('catch') || code.includes('throw');
+                    // TODO: Replace with actual Phoenix MCP server call
+                    // For now, using mock responses
+                    const codeLines = code.split('\n').length;
+                    const hasComments = code.includes('//') || code.includes('/*') || code.includes('#');
+                    const hasErrorHandling = code.includes('try') || code.includes('catch') || code.includes('throw');
 
-                        let reviewMessage = `I've reviewed your ${language} code (${codeLines} lines). `;
+                    let reviewMessage = `I\'ve reviewed your ${language} code (${codeLines} lines). `;
 
-                        // Add feedback points
-                        const feedbackPoints = [];
+                    // Add feedback points
+                    const feedbackPoints = [];
 
-                        if (!hasComments) {
-                            feedbackPoints.push("Consider adding comments to explain complex logic");
-                        } else {
-                            feedbackPoints.push("Good job including comments in your code");
-                        }
-
-                        if (!hasErrorHandling) {
-                            feedbackPoints.push("Your code could benefit from error handling to make it more robust");
-                        } else {
-                            feedbackPoints.push("I like that you've included error handling in your code");
-                        }
-
-                        // Add language-specific feedback
-                        if (language.toLowerCase() === 'typescript') {
-                            if (!code.includes(':')) {
-                                feedbackPoints.push("Consider adding type annotations to improve type safety");
-                            } else {
-                                feedbackPoints.push("Good use of TypeScript's type system");
-                            }
-                        }
-
-                        if (language.toLowerCase() === 'javascript' || language.toLowerCase() === 'typescript') {
-                            if (code.includes('var ')) {
-                                feedbackPoints.push("Consider using 'let' or 'const' instead of 'var' for better scoping");
-                            }
-                        }
-
-                        // Format the message
-                        reviewMessage += feedbackPoints.join(". ") + ".";
-
-                        // Add a suggestion for improvement with code example
-                        const improvement = {
-                            language,
-                            code: "// Improved version of your code would include:\n" +
-                                (hasErrorHandling ? "" : "try {\n  // Your code here\n} catch (error) {\n  // Handle errors\n}\n"),
-                            explanation: "This example shows how you might improve your code based on my review."
-                        };
-
-                        // Create the response
-                        return yield* Effect.succeed({
-                            message: reviewMessage,
-                            codeExamples: [improvement],
-                            references: getDocumentationReferences(language)
-                        });
-                    } catch (error) {
-                        return yield* Effect.fail(
-                            new CoderChatPipelineError({
-                                message: `Failed to review code: ${error instanceof Error ? error.message : String(error)}`,
-                                cause: error
-                            })
-                        );
+                    if (!hasComments) {
+                        feedbackPoints.push("Consider adding comments to explain complex logic");
+                    } else {
+                        feedbackPoints.push("Good job including comments in your code");
                     }
-                });
+
+                    if (!hasErrorHandling) {
+                        feedbackPoints.push("Your code could benefit from error handling to make it more robust");
+                    } else {
+                        feedbackPoints.push("I like that you\'ve included error handling in your code");
+                    }
+
+                    // Add language-specific feedback
+                    if (language.toLowerCase() === 'typescript') {
+                        if (!code.includes(':')) {
+                            feedbackPoints.push("Consider adding type annotations to improve type safety");
+                        } else {
+                            feedbackPoints.push("Good use of TypeScript\'s type system");
+                        }
+                    }
+
+                    if (language.toLowerCase() === 'javascript' || language.toLowerCase() === 'typescript') {
+                        if (code.includes('var ')) {
+                            feedbackPoints.push("Consider using 'let' or 'const' instead of 'var' for better scoping");
+                        }
+                    }
+
+                    // Format the message
+                    reviewMessage += feedbackPoints.join(". ") + ".";
+
+                    // Add a suggestion for improvement with code example
+                    const improvement = {
+                        language,
+                        code: "// Improved version of your code would include:\n" +
+                            (hasErrorHandling ? "" : "try {\n  // Your code here\n} catch (error) {\n  // Handle errors\n}\n"),
+                        explanation: "This example shows how you might improve your code based on my review."
+                    };
+
+                    // Create the response
+                    return {
+                        message: reviewMessage,
+                        codeExamples: [improvement],
+                        references: getDocumentationReferences(language)
+                    };
+                }).pipe(
+                    Effect.catchAllCause(causeObject => {
+                        const underlyingError = Cause.squash(causeObject);
+                        return Effect.fail(new CoderChatPipelineError({
+                            message: `Failed to review code: ${underlyingError instanceof Error ? underlyingError.message : String(underlyingError)}`,
+                            cause: underlyingError
+                        }));
+                    })
+                );
 
             // Return implementation of the API
             return {
                 chat,
                 reviewCode
             };
-        }),
-
-        // List dependencies required by the 'effect' factory
-        dependencies: [LanguageToolProvider, DocumentationService]
+        })
     }
 ) { }
 

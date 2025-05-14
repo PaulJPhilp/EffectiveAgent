@@ -87,14 +87,13 @@ export async function runEffectWithLayers<R, E, A>(
     effect: Effect.Effect<A, E, R>,
     layers: Layer.Layer<R>
 ): Promise<{ result?: A; error?: E }> {
-    try {
-        const result = await Effect.runPromise(
-            effect.pipe(Effect.provide(layers))
-        );
-        return { result };
-    } catch (error) {
-        return { error: error as E };
+    const resultOrError = await Effect.runPromise(
+        Effect.either(effect.pipe(Effect.provide(layers)))
+    );
+    if (resultOrError._tag === "Right") {
+        return { result: resultOrError.right };
     }
+    return { error: resultOrError.left };
 }
 
 /**

@@ -3,7 +3,7 @@
  * @module ea/pipelines/venture-capitalist-chat/service
  */
 
-import { Effect } from "effect";
+import { Cause, Effect } from "effect";
 import {
     type VentureCapitalistChatPipelineApi,
     VentureCapitalistChatPipelineError,
@@ -287,10 +287,10 @@ export class FinancialModelingTool extends Effect.Service<FinancialModelingToolA
 export class VentureCapitalistChatPipelineService extends Effect.Service<VentureCapitalistChatPipelineApi>()(
     "VentureCapitalistChatPipeline",
     {
-        effect: Effect.gen(function* (_) {
+        effect: Effect.gen(function* () {
             // Get dependencies
-            const marketResearch = yield* _(MarketResearchTool);
-            const financialModeling = yield* _(FinancialModelingTool);
+            const marketResearch = yield* MarketResearchTool;
+            const financialModeling = yield* FinancialModelingTool;
 
             // Helper to analyze pitch
             const analyzePitch = (pitch: string, industry?: string, stage?: string): Effect.Effect<{
@@ -342,8 +342,8 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                     };
 
                     // Get industry insights for valuation
-                    const industryInsights = yield* _(marketResearch.getIndustryInsights(industry || ""));
-                    const stageRequirements = yield* _(financialModeling.getInvestmentStageRequirements(stage || "seed"));
+                    const industryInsights = yield* marketResearch.getIndustryInsights(industry || "");
+                    const stageRequirements = yield* financialModeling.getInvestmentStageRequirements(stage || "seed");
 
                     // Create a valuation range based on industry and stage
                     const baseValuation = stageRequirements.typicalRange;
@@ -371,112 +371,37 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                 Effect.gen(function* () {
                     yield* Effect.logInfo(`Generating venture capitalist response for industry: ${input.industry || "general"}`);
 
-                    try {
-                        // TODO: Replace with actual Phoenix MCP server call
-                        // For now, using mock responses
-                        const providedMetrics = input.metrics || [];
+                    // TODO: Replace with actual Phoenix MCP server call
+                    // For now, using mock responses
+                    const providedMetrics = input.metrics || [];
 
-                        // Get industry insights
-                        const industryData = yield* _(marketResearch.getIndustryInsights(input.industry || ""));
+                    // Get industry insights
+                    const industryData = yield* marketResearch.getIndustryInsights(input.industry || "");
 
-                        // Get investment stage requirements
-                        const stageData = yield* _(financialModeling.getInvestmentStageRequirements(input.investmentStage || ""));
+                    // Get investment stage requirements
+                    const stageData = yield* financialModeling.getInvestmentStageRequirements(input.investmentStage || "");
 
-                        // Generate a response based on the message and context
-                        let responseMessage = "";
+                    // Generate a response based on the message and context
+                    let responseMessage = "";
 
-                        // Check if the message appears to be a pitch
-                        const isPitch = input.message.length > 100 &&
-                            (input.message.toLowerCase().includes("startup") ||
-                                input.message.toLowerCase().includes("business") ||
-                                input.message.toLowerCase().includes("company") ||
-                                input.message.toLowerCase().includes("venture") ||
-                                input.message.toLowerCase().includes("funding"));
+                    // Check if the message appears to be a pitch
+                    const isPitch = input.message.length > 100 &&
+                        (input.message.toLowerCase().includes("startup") ||
+                            input.message.toLowerCase().includes("business") ||
+                            input.message.toLowerCase().includes("company") ||
+                            input.message.toLowerCase().includes("venture") ||
+                            input.message.toLowerCase().includes("funding"));
 
-                        if (isPitch) {
-                            // Analyze the pitch
-                            const pitchAnalysis = yield* _(analyzePitch(input.message, input.industry, input.investmentStage));
+                    if (isPitch) {
+                        // Analyze the pitch
+                        const pitchAnalysis = yield* analyzePitch(input.message, input.industry, input.investmentStage);
 
-                            // Generate response for a pitch
-                            responseMessage = `Thank you for sharing your business concept. As a venture capitalist focused on ${input.industry || "various sectors"}, I look at opportunities through a specific lens. `;
-                            responseMessage += `Your venture appears to be at the ${input.investmentStage || "early"} stage, where we typically look for ${stageData.expectations.join(", ")}. `;
-                            responseMessage += `I've analyzed your proposal and identified several key points worth discussing further.`;
+                        // Generate response for a pitch
+                        responseMessage = `Thank you for sharing your business concept. As a venture capitalist focused on ${input.industry || "various sectors"}, I look at opportunities through a specific lens. `;
+                        responseMessage += `Your venture appears to be at the ${input.investmentStage || "early"} stage, where we typically look for ${stageData.expectations.join(", ")}. `;
+                        responseMessage += `I\'ve analyzed your proposal and identified several key points worth discussing further.`;
 
-                            // Include the analysis and comparables
-                            return {
-                                message: responseMessage,
-                                analysis: {
-                                    strengths: pitchAnalysis.strengths,
-                                    concerns: pitchAnalysis.concerns,
-                                    suggestions: pitchAnalysis.suggestions,
-                                    valuationRange: pitchAnalysis.valuationRange
-                                },
-                                comparables: industryData.comparables
-                            };
-                        } else {
-                            // General VC advice or perspective
-                            responseMessage = `From a venture capital perspective focused on ${input.industry || "multiple industries"}, `;
-
-                            if (input.message.toLowerCase().includes("valuation")) {
-                                responseMessage += `valuation is both an art and a science. In ${input.industry || "this sector"}, we typically see valuations of ${stageData.typicalRange.min / 1000000}-${stageData.typicalRange.max / 1000000}M for ${input.investmentStage || "early stage"} companies. `;
-                                responseMessage += `Key metrics that drive valuation include ${industryData.keyMetrics.join(", ")}. `;
-                                responseMessage += `Current trends affecting valuations include ${industryData.trends.join(", ")}.`;
-                            } else if (input.message.toLowerCase().includes("metrics") || input.message.toLowerCase().includes("kpi")) {
-                                responseMessage += `investors at the ${input.investmentStage || "early"} stage typically focus on ${industryData.keyMetrics.join(", ")}. `;
-                                responseMessage += `These metrics provide insight into the company's growth trajectory, unit economics, and market potential.`;
-                            } else if (input.message.toLowerCase().includes("trend")) {
-                                responseMessage += `we're seeing several interesting trends in the market: ${industryData.trends.join(", ")}. `;
-                                responseMessage += `Companies that position themselves to capitalize on these trends often attract more investor interest.`;
-                            } else {
-                                responseMessage += `I'd consider several factors: market opportunity, team capabilities, traction, and competitive advantage. `;
-                                responseMessage += `For ${input.investmentStage || "early stage"} companies in ${input.industry || "this space"}, we typically look for ${stageData.expectations.slice(0, 2).join(" and ")}. `;
-                                responseMessage += `The most successful ventures demonstrate strong ${industryData.keyMetrics[0]} and a clear path to scaling.`;
-                            }
-
-                            // Create a simplified analysis
-                            return {
-                                message: responseMessage
-                            };
-                        }
-                    } catch (error) {
-                        return yield* Effect.fail(
-                            new VentureCapitalistChatPipelineError({
-                                message: `Failed to generate venture capitalist response: ${error instanceof Error ? error.message : String(error)}`,
-                                cause: error
-                            })
-                        );
-                    }
-                });
-
-            const evaluatePitch = (
-                pitchText: string,
-                options?: Partial<Omit<VentureCapitalistChatPipelineInput, "message">>
-            ): Effect.Effect<VentureCapitalistChatResponse, VentureCapitalistChatPipelineError> =>
-                Effect.gen(function* () {
-                    yield* Effect.logInfo(`Evaluating business pitch for industry: ${options?.industry || "general"}`);
-
-                    try {
-                        // TODO: Replace with actual Phoenix MCP server call
-                        // For now, using mock responses
-                        const pitchAnalysis = yield* _(analyzePitch(
-                            pitchText,
-                            options?.industry,
-                            options?.investmentStage
-                        ));
-
-                        // Get industry insights
-                        const industryData = yield* _(marketResearch.getIndustryInsights(options?.industry || ""));
-
-                        // Get investment stage requirements
-                        const stageData = yield* _(financialModeling.getInvestmentStageRequirements(options?.investmentStage || "seed"));
-
-                        // Craft a comprehensive response
-                        const responseMessage = `I've reviewed your business pitch through a venture capital lens. ` +
-                            `For a ${options?.investmentStage || "seed"} stage company in ${options?.industry || "this industry"}, ` +
-                            `we typically evaluate against key criteria like ${stageData.expectations.slice(0, 2).join(" and ")}. ` +
-                            `Your pitch demonstrates several interesting aspects that warrant further discussion.`;
-
-                        // Return detailed analysis
+                        // Include the analysis and comparables
                         return {
                             message: responseMessage,
                             analysis: {
@@ -487,25 +412,94 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                             },
                             comparables: industryData.comparables
                         };
-                    } catch (error) {
-                        return yield* Effect.fail(
-                            new VentureCapitalistChatPipelineError({
-                                message: `Failed to evaluate pitch: ${error instanceof Error ? error.message : String(error)}`,
-                                cause: error
-                            })
-                        );
                     }
-                });
+                    // General VC advice or perspective
+                    responseMessage = `From a venture capital perspective focused on ${input.industry || "multiple industries"}, `;
+
+                    if (input.message.toLowerCase().includes("valuation")) {
+                        responseMessage += `valuation is both an art and a science. In ${input.industry || "this sector"}, we typically see valuations of ${stageData.typicalRange.min / 1000000}-${stageData.typicalRange.max / 1000000}M for ${input.investmentStage || "early stage"} companies. `;
+                        responseMessage += `Key metrics that drive valuation include ${industryData.keyMetrics.join(", ")}. `;
+                        responseMessage += `Current trends affecting valuations include ${industryData.trends.join(", ")}.`;
+                    } else if (input.message.toLowerCase().includes("metrics") || input.message.toLowerCase().includes("kpi")) {
+                        responseMessage += `investors at the ${input.investmentStage || "early"} stage typically focus on ${industryData.keyMetrics.join(", ")}. `;
+                        responseMessage += `These metrics provide insight into the company\'s growth trajectory, unit economics, and market potential.`;
+                    } else if (input.message.toLowerCase().includes("trend")) {
+                        responseMessage += `we\'re seeing several interesting trends in the market: ${industryData.trends.join(", ")}. `;
+                        responseMessage += `Companies that position themselves to capitalize on these trends often attract more investor interest.`;
+                    } else {
+                        responseMessage += `I\'d consider several factors: market opportunity, team capabilities, traction, and competitive advantage. `;
+                        responseMessage += `For ${input.investmentStage || "early stage"} companies in ${input.industry || "this space"}, we typically look for ${stageData.expectations.slice(0, 2).join(" and ")}. `;
+                        responseMessage += `The most successful ventures demonstrate strong ${industryData.keyMetrics[0]} and a clear path to scaling.`;
+                    }
+
+                    // Create a simplified analysis
+                    return {
+                        message: responseMessage
+                    };
+                }).pipe(
+                    Effect.catchAllCause(causeObject => {
+                        const underlyingError = Cause.squash(causeObject);
+                        return Effect.fail(new VentureCapitalistChatPipelineError({
+                            message: `Failed to generate venture capitalist response: ${underlyingError instanceof Error ? underlyingError.message : String(underlyingError)}`,
+                            cause: underlyingError
+                        }));
+                    })
+                );
+
+            const evaluatePitch = (
+                pitchText: string,
+                options?: Partial<Omit<VentureCapitalistChatPipelineInput, "message">>
+            ): Effect.Effect<VentureCapitalistChatResponse, VentureCapitalistChatPipelineError> =>
+                Effect.gen(function* () {
+                    yield* Effect.logInfo(`Evaluating business pitch for industry: ${options?.industry || "general"}`);
+
+                    // TODO: Replace with actual Phoenix MCP server call
+                    // For now, using mock responses
+                    const pitchAnalysis = yield* analyzePitch(
+                        pitchText,
+                        options?.industry,
+                        options?.investmentStage
+                    );
+
+                    // Get industry insights
+                    const industryData = yield* marketResearch.getIndustryInsights(options?.industry || "");
+
+                    // Get investment stage requirements
+                    const stageData = yield* financialModeling.getInvestmentStageRequirements(options?.investmentStage || "seed");
+
+                    // Craft a comprehensive response
+                    const responseMessage = `I\'ve reviewed your business pitch through a venture capital lens. ` +
+                        `For a ${options?.investmentStage || "seed"} stage company in ${options?.industry || "this industry"}, ` +
+                        `we typically evaluate against key criteria like ${stageData.expectations.slice(0, 2).join(" and ")}. ` +
+                        `Your pitch demonstrates several interesting aspects that warrant further discussion.`;
+
+                    // Return detailed analysis
+                    return {
+                        message: responseMessage,
+                        analysis: {
+                            strengths: pitchAnalysis.strengths,
+                            concerns: pitchAnalysis.concerns,
+                            suggestions: pitchAnalysis.suggestions,
+                            valuationRange: pitchAnalysis.valuationRange
+                        },
+                        comparables: industryData.comparables
+                    };
+                }).pipe(
+                    Effect.catchAllCause(causeObject => {
+                        const underlyingError = Cause.squash(causeObject);
+                        return Effect.fail(new VentureCapitalistChatPipelineError({
+                            message: `Failed to evaluate pitch: ${underlyingError instanceof Error ? underlyingError.message : String(underlyingError)}`,
+                            cause: underlyingError
+                        }));
+                    })
+                );
 
             // Return implementation of the API
             return {
                 chat,
                 evaluatePitch
             };
-        }),
-
-        // List dependencies
-        dependencies: [MarketResearchTool, FinancialModelingTool]
+        })
     }
 ) { }
 
