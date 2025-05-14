@@ -1,7 +1,8 @@
 import { ModelCapability } from "@/schema.js";
+import { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
 import { LoggingServiceApi } from "@/services/core/logging/api.js";
 import { EffectiveResponse } from "@/types.js";
-import { Config, ConfigProvider, Effect } from "effect";
+import { Effect } from "effect";
 import { ModelServiceApi } from "../model/api.js";
 import { ModelService } from "../model/service.js";
 import { ProviderConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "./errors.js";
@@ -9,26 +10,16 @@ import { ProvidersType } from "./schema.js";
 import { GenerateBaseResult } from "./types.js";
 
 /**
- * Loads the provider configuration string from the provided ConfigProvider
- * @param configProvider - The configuration provider instance
+ * Loads the provider configuration string from the provided ConfigurationService
+ * @param configService - The configuration service instance
  * @param method - The method name for error context
  * @returns An Effect containing the config string or a ProviderConfigError
  */
 export const loadConfigString = (
-  configProvider: ConfigProvider.ConfigProvider,
+  configService: ConfigurationServiceApi,
   method: string
 ): Effect.Effect<string, ProviderConfigError> => {
-  return Effect.try({
-    try: () => configProvider.load(Config.string("providersConfigJsonString")),
-    catch: (error) =>
-      new ProviderConfigError({
-        description: "Failed to load provider config string (sync error)",
-        module: "ProviderService",
-        method,
-        cause: error instanceof Error ? error : new Error(String(error))
-      })
-  }).pipe(
-    Effect.flatten,
+  return configService.loadConfig<string>({ filePath: "providersConfigJsonString", schema: undefined as any }).pipe(
     Effect.mapError((cause) =>
       new ProviderConfigError({
         description: "Failed to load provider config string",

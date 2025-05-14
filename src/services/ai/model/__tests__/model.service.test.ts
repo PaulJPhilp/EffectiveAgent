@@ -4,7 +4,6 @@ import { describe, expect, it } from "vitest";
 import type { ModelMetadata } from "../model-universe.js";
 import { ModelService } from "../service.js";
 
-// Create the test harness with the ModelService implementation
 const testHarness = createServiceTestHarness(ModelService.Default);
 
 /**
@@ -20,7 +19,7 @@ describe("ModelService", () => {
                 expect(result).toBe(true);
             });
 
-            await testHarness.runTest(effect);
+            await testHarness.runTest(effect as Effect.Effect<void, never, never>)
         });
 
         it("should validate non-existent model", async () => {
@@ -30,7 +29,7 @@ describe("ModelService", () => {
                 expect(result).toBe(false);
             });
 
-            await testHarness.runTest(effect);
+            await testHarness.runTest(effect as Effect.Effect<void, never, never>);
         });
     });
 
@@ -45,7 +44,7 @@ describe("ModelService", () => {
                 });
             });
 
-            await testHarness.runTest(effect);
+            await testHarness.runTest(effect as Effect.Effect<void, never, never>);
         });
 
         it("should return empty array for non-existent capability", async () => {
@@ -55,7 +54,7 @@ describe("ModelService", () => {
                 expect(models).toEqual([]);
             });
 
-            await testHarness.runTest(effect);
+            await testHarness.runTest(effect as Effect.Effect<void, never, never>);
         });
     });
 
@@ -71,7 +70,7 @@ describe("ModelService", () => {
                 });
             });
 
-            await testHarness.runTest(effect);
+            await testHarness.runTest(effect as Effect.Effect<void, never, never>)
         });
 
         it("should return empty array for non-existent capabilities", async () => {
@@ -81,7 +80,7 @@ describe("ModelService", () => {
                 expect(models).toEqual([]);
             });
 
-            await testHarness.runTest(effect);
+            await testHarness.runTest(effect as Effect.Effect<void, never, never>)
         });
     });
 
@@ -93,7 +92,7 @@ describe("ModelService", () => {
                 expect(provider).toBe("openai");
             });
 
-            await testHarness.runTest(effect);
+            await testHarness.runTest(effect as Effect.Effect<void, never, never>)
         });
 
         it("should return openai for non-existent model", async () => {
@@ -103,7 +102,7 @@ describe("ModelService", () => {
                 expect(provider).toBe("openai");
             });
 
-            await testHarness.runTest(effect);
+            await testHarness.runTest(effect as Effect.Effect<void, never, never>)
         });
     });
 });

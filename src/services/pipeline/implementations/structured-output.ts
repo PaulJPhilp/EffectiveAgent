@@ -6,11 +6,12 @@
 import { EffectiveError } from "@/errors.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { PipelineExecutionError } from "@/services/pipeline/pipeline/errors.js";
 import { ObjectService } from "@/services/pipeline/producers/object/service.js";
 import { type Usage } from "@/types.js";
-import { ConfigProvider, Effect, Option, Schema as S } from "effect";
+import { Effect, Option, Schema as S } from "effect";
 
 /**
  * Input schema for the structured output pipeline
@@ -68,7 +69,7 @@ export class StructuredOutputPipeline<T> extends AiPipeline<
      */
     protected override executeProducer(
         input: StructuredOutputInput,
-    ): Effect.Effect<StructuredOutputOutput<T>, EffectiveError, ConfigProvider.ConfigProvider> {
+    ): Effect.Effect<StructuredOutputOutput<T>, EffectiveError, never> {
         const self = this;
         return Effect.gen(function* () {
             const objectService = yield* ObjectService;
@@ -99,8 +100,9 @@ export class StructuredOutputPipeline<T> extends AiPipeline<
             };
         }).pipe(
             Effect.provide(ObjectService.Default),
-            Effect.provide(ModelService.Default),
-            Effect.provide(ProviderService.Default),
+            Effect.provide(ModelService),
+            Effect.provide(ProviderService),
+            Effect.provide(ConfigurationService.Default),
             Effect.mapError((error): EffectiveError => {
                 if (error instanceof EffectiveError) {
                     return error;

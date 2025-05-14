@@ -65,7 +65,7 @@ describe("ModelService with MODEL_UNIVERSE", () => {
       // Verify our test data is consistent
       const openaiModels = MODEL_UNIVERSE.filter(m => m.provider === "openai");
       expect(openaiModels.length).toBeGreaterThan(0);
-    }).pipe(Effect.provide(ModelService.Default), Effect.runPromise)
+    }).pipe(Effect.provide(ModelService), Effect.runPromise)
   );
 
   it("should get provider name from model ID", () =>
@@ -79,7 +79,7 @@ describe("ModelService with MODEL_UNIVERSE", () => {
       // Test with a known Anthropic model
       const provider2 = yield* service.getProviderName("claude-3-opus");
       expect(provider2).toBe("anthropic");
-    }).pipe(Effect.provide(ModelService.Default), Effect.runPromise)
+    }).pipe(Effect.provide(ModelService), Effect.runPromise)
   );
 
   it("should find models with multiple capabilities", () =>
@@ -110,7 +110,7 @@ describe("ModelService with MODEL_UNIVERSE", () => {
       // Verify we can get the provider name for a model
       const provider = yield* service.getProviderName(testModelId);
       expect(provider).toBe("openai");
-    }).pipe(Effect.provide(ModelService.Default), Effect.runPromise)
+    }).pipe(Effect.provide(ModelService), Effect.runPromise)
   );
 
   it("should get provider name from model ID", () =>
@@ -124,7 +124,7 @@ describe("ModelService with MODEL_UNIVERSE", () => {
       // Test with a known Anthropic model
       const provider2 = yield* service.getProviderName("claude-3-opus");
       expect(provider2).toBe("anthropic");
-    }).pipe(Effect.provide(ModelService.Default), Effect.runPromise)
+    }).pipe(Effect.provide(ModelService), Effect.runPromise)
   );
 
   it("should validate supported model capabilities", () =>
@@ -145,6 +145,6 @@ describe("ModelService with MODEL_UNIVERSE", () => {
       // Check universe arrays directly
       expect(MODEL_IDS).toContain("gpt-4o");
       expect(MODEL_IDS).toContain("claude-3-opus");
-    }).pipe(Effect.provide(ModelService.Default), Effect.runPromise)
+    }).pipe(Effect.provide(ModelService), Effect.runPromise)
   );
 });

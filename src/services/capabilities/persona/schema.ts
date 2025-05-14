@@ -7,22 +7,22 @@ import { Description, Metadata, Name, Version } from "@/schema.js";
 import { Schema as S } from "effect";
 
 // Define allowed values for enum-like fields
-const AllowedTones = Schema.Literal(
+const AllowedTones = S.Literal(
 	"formal",
 	"casual",
 	"professional",
 	"witty",
 	"empathetic",
 );
-const AllowedVerbosity = Schema.Literal("concise", "normal", "verbose");
-const AllowedOutputFormat = Schema.Literal("text", "markdown", "json");
+const AllowedVerbosity = S.Literal("concise", "normal", "verbose");
+const AllowedOutputFormat = S.Literal("text", "markdown", "json");
 
 /**
  * Schema.Class for a single example dialogue pair
  */
 export class ExampleDialogue extends S.Class<ExampleDialogue>("ExampleDialogue")({
-	request: Schema.String,
-	response: Schema.String,
+	request: S.String,
+	response: S.String,
 }) { }
 
 /**
@@ -31,11 +31,11 @@ export class ExampleDialogue extends S.Class<ExampleDialogue>("ExampleDialogue")
  */
 export class Persona extends S.Class<Persona>("Persona")({
 	/** Unique identifier for the persona. */
-	name: Schema.String.pipe(Schema.minLength(1)),
+	name: S.String.pipe(S.minLength(1)),
 	/** Optional user-friendly description. */
-	description: Schema.String.pipe(S.optional),
+	description: S.String.pipe(S.optional),
 	/** Core instructions defining the persona's behavior and style. */
-	instructions: Schema.String.pipe(Schema.minLength(1)),
+	instructions: S.String.pipe(S.minLength(1)),
 	/** Optional tone specification. */
 	tone: AllowedTones.pipe(S.optional),
 	/** Optional verbosity specification. */
@@ -43,7 +43,7 @@ export class Persona extends S.Class<Persona>("Persona")({
 	/** Optional output format specification. */
 	outputFormat: AllowedOutputFormat.pipe(S.optional),
 	/** Optional few-shot examples. */
-	exampleDialogues: Schema.Array(ExampleDialogue).pipe(S.optional),
+	exampleDialogues: S.Array(ExampleDialogue).pipe(S.optional),
 }) { }
 
 /**
@@ -53,7 +53,7 @@ export class Persona extends S.Class<Persona>("Persona")({
 export class PersonasFile extends S.Class<PersonasFile>("PersonasFile")({
 	name: Name,
 	description: Description.pipe(S.optional),
-	personas: Schema.Array(Persona).pipe(Schema.minItems(1)),
+	personas: S.Array(Persona).pipe(S.minItems(1)),
 	/** Optional metadata for the configuration file. */
 	metadata: Metadata.pipe(S.optional),
 	/** Optional versioning information for the configuration file. */

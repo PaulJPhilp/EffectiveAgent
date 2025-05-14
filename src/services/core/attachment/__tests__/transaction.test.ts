@@ -271,13 +271,13 @@ describe("AttachmentService Transaction Support", () => {
 
             // Combine with attachment service layer
             const testLayer = Layer.provide(
-                AttachmentServiceLive,
-                repoLayer
-            // Combine with attachment service layer
-            const testLayer = Layer.provide(
                 repoLayer,
                 AttachmentServiceLive
             );
+
+            // Run test with the special layer
+            const test = Effect.gen(function* () {
+                const service = yield* AttachmentService;
 
                 // First create several links for the same target entity
                 const inputs = [

@@ -3,14 +3,11 @@
  * @file Scaffold for ProviderService integration tests using effect/vitest.
  */
 
-import { mockService, provideMockService, withResource } from "@/services/core/test-harness/utils/context-management.js";
-import { createTypedMock, mockFailure, mockSuccess } from "@/services/core/test-harness/utils/typed-mocks.js";
-import { Effect } from "effect"
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "../errors.js"
-import { ProviderFile } from "../schema.js"
-import { ProviderService } from "../service.js"
-import type { ImportedType } from "../types.js";
+import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "../errors.js";
+import { ProviderFile } from "../schema.js";
+import { ProviderService } from "../service.js";
 
 // Valid test config
 const validConfig: ProviderFile = {
@@ -34,8 +31,8 @@ const invalidConfig: any = {
 };
 
 // Create test layer for provider service
-const createTestLayer = (config: any) =>
-  Effect.provideServiceEffect(ProviderService, Effect.succeed<ProviderServiceApi>({
+const createTestLayer = (config: any) => {
+  const mockProviderServiceEffect = Effect.succeed<ProviderServiceApi>({
     load: Effect.gen(function* () {
       // Validate the config
       if (typeof config.name !== 'string' || !Array.isArray(config.providers)) {
@@ -51,46 +48,49 @@ const createTestLayer = (config: any) =>
     getProviderClient: (providerName: string) =>
       config.providers.some((p: { name: string }) => p.name === providerName)
         ? Effect.succeed({
-            name: providerName,
-            chat: () => Effect.succeed({ 
-              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test" }, 
-              metadata: { id: "test", timestamp: new Date() } 
-            }) as Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderConfigError | ProviderOperationError, never>,
-            setVercelProvider: () => Effect.succeed(undefined),
-            getProvider: () => Effect.succeed({} as EffectiveProviderApi),
-            generateText: () => Effect.succeed({ 
-              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test" }, 
-              metadata: { id: "test", timestamp: new Date() } 
-            }) as Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderConfigError | ProviderOperationError, never>,
-            generateObject: <T>() => Effect.succeed({ 
-              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, object: {} as T }, 
-              metadata: { id: "test", timestamp: new Date() } 
-            }) as Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, ProviderConfigError | ProviderOperationError, never>,
-            generateSpeech: () => Effect.succeed({ 
-              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, audioData: "test", format: "mp3", parameters: { voice: "test" } }, 
-              metadata: { id: "test", timestamp: new Date() } 
-            }) as Effect.Effect<EffectiveResponse<GenerateSpeechResult>, never, never>,
-            transcribe: () => Effect.succeed({ 
-              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test", duration: 0, parameters: { language: "en" } }, 
-              metadata: { id: "test", timestamp: new Date() } 
-            }) as Effect.Effect<EffectiveResponse<TranscribeResult>, never, never>,
-            generateEmbeddings: () => Effect.succeed({ 
-              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, embeddings: [[0]], dimensions: 1, texts: ["test"], parameters: {} }, 
-              metadata: { id: "test", timestamp: new Date() } 
-            }) as Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, never, never>,
-            generateImage: () => Effect.succeed({ 
-              data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, imageUrl: "test", parameters: { size: "1024x1024" } }, 
-              metadata: { id: "test", timestamp: new Date() } 
-            }) as Effect.Effect<EffectiveResponse<GenerateImageResult>, ProviderConfigError | ProviderOperationError, never>,
-            getCapabilities: () => Effect.succeed(new Set()),
-            getModels: () => Effect.succeed([])
-          })
+          name: providerName,
+          chat: () => Effect.succeed({
+            data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test" },
+            metadata: { id: "test", timestamp: new Date() }
+          }) as Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderConfigError | ProviderOperationError, never>,
+          setVercelProvider: () => Effect.succeed(undefined),
+          getProvider: () => Effect.succeed({} as EffectiveProviderApi),
+          generateText: () => Effect.succeed({
+            data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test" },
+            metadata: { id: "test", timestamp: new Date() }
+          }) as Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderConfigError | ProviderOperationError, never>,
+          generateObject: <T>() => Effect.succeed({
+            data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, object: {} as T },
+            metadata: { id: "test", timestamp: new Date() }
+          }) as Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, ProviderConfigError | ProviderOperationError, never>,
+          generateSpeech: () => Effect.succeed({
+            data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, audioData: "test", format: "mp3", parameters: { voice: "test" } },
+            metadata: { id: "test", timestamp: new Date() }
+          }) as Effect.Effect<EffectiveResponse<GenerateSpeechResult>, never, never>,
+          transcribe: () => Effect.succeed({
+            data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, text: "test", duration: 0, parameters: { language: "en" } },
+            metadata: { id: "test", timestamp: new Date() }
+          }) as Effect.Effect<EffectiveResponse<TranscribeResult>, never, never>,
+          generateEmbeddings: () => Effect.succeed({
+            data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, embeddings: [[0]], dimensions: 1, texts: ["test"], parameters: {} },
+            metadata: { id: "test", timestamp: new Date() }
+          }) as Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, never, never>,
+          generateImage: () => Effect.succeed({
+            data: { id: "test", model: "test", timestamp: new Date(), finishReason: "stop", usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 }, imageUrl: "test", parameters: { size: "1024x1024" } },
+            metadata: { id: "test", timestamp: new Date() }
+          }) as Effect.Effect<EffectiveResponse<GenerateImageResult>, ProviderConfigError | ProviderOperationError, never>,
+          getCapabilities: () => Effect.succeed(new Set()),
+          getModels: () => Effect.succeed([])
+        })
         : Effect.fail(new ProviderNotFoundError({
-            providerName,
-            module: "ProviderService",
-            method: "getProviderClient"
-          }))
-  }));
+          providerName,
+          module: "ProviderService",
+          method: "getProviderClient"
+        }))
+  });
+  return (effectToRun: Effect.Effect<unknown, unknown, ProviderServiceApi>) =>
+    Effect.provideServiceEffect(effectToRun, ProviderService, mockProviderServiceEffect);
+};
 
 /**
  * @file ProviderService tests using Effect test harness.

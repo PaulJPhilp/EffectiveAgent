@@ -7,13 +7,13 @@ import { Schema as S } from "effect";
 
 // --- SkillExecutionParams Class Schema ---
 export class SkillExecutionParams extends S.Class<SkillExecutionParams>("SkillExecutionParams")({
-	temperature: Schema.Number.pipe(S.optional),
-	maxTokens: Schema.Number.pipe(S.optional),
-	topP: Schema.Number.pipe(S.optional),
-	topK: Schema.Number.pipe(S.optional),
-	stopSequences: Schema.Array(Schema.String).pipe(S.optional),
-	presencePenalty: Schema.Number.pipe(S.optional),
-	frequencyPenalty: Schema.Number.pipe(S.optional),
+	temperature: S.Number.pipe(S.optional),
+	maxTokens: S.Number.pipe(S.optional),
+	topP: S.Number.pipe(S.optional),
+	topK: S.Number.pipe(S.optional),
+	stopSequences: S.Array(S.String).pipe(S.optional),
+	presencePenalty: S.Number.pipe(S.optional),
+	frequencyPenalty: S.Number.pipe(S.optional),
 }) { }
 
 export type SkillExecutionParamsType = Schema.Schema.Type<typeof SkillExecutionParams>;
@@ -24,16 +24,16 @@ export type SkillExecutionParamsType = Schema.Schema.Type<typeof SkillExecutionP
  * linking together prompts, configuration, and execution parameters.
  */
 export class Skill extends S.Class<Skill>("Skill")({
-	name: Schema.String.pipe(Schema.minLength(1)),
-	description: Schema.String.pipe(S.optional),
-	intelligenceName: Schema.String.pipe(Schema.minLength(1)),
-	personaName: Schema.String.pipe(Schema.minLength(1), S.optional),
-	promptTemplateName: Schema.String.pipe(Schema.minLength(1)),
-	systemPromptOverride: Schema.String.pipe(S.optional),
+	name: S.String.pipe(S.minLength(1)),
+	description: S.String.pipe(S.optional),
+	intelligenceName: S.String.pipe(S.minLength(1)),
+	personaName: S.String.pipe(S.minLength(1), S.optional),
+	promptTemplateName: S.String.pipe(S.minLength(1)),
+	systemPromptOverride: S.String.pipe(S.optional),
 	defaultParams: SkillExecutionParams.pipe(S.optional),
-	inputSchemaRef: Schema.String.pipe(S.optional),
-	outputSchemaRef: Schema.String.pipe(S.optional),
-	metadata: Schema.Record({ key: Schema.String, value: Schema.Unknown }).pipe(S.optional),
+	inputSchemaRef: S.String.pipe(S.optional),
+	outputSchemaRef: S.String.pipe(S.optional),
+	metadata: S.Record({ key: S.String, value: S.Unknown }).pipe(S.optional),
 }) { }
 
 /**
@@ -41,5 +41,5 @@ export class Skill extends S.Class<Skill>("Skill")({
  * Contains an array of skill definitions.
  */
 export class SkillFile extends S.Class<SkillFile>("SkillFile")({
-	skills: Schema.Array(Skill).pipe(Schema.minItems(1)),
+	skills: S.Array(Skill).pipe(S.minItems(1)),
 }) { }

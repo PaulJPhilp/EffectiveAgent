@@ -4,10 +4,10 @@ import { EntityParseError } from "@/errors.js";
  * @module services/ai/provider/service
  */
 import { type ProviderClientApi } from "@/services/ai/provider/types.js";
-import { Config, ConfigProvider, Effect, Schema as S } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { Effect, Schema as S } from "effect";
 import { ProviderServiceApi } from "./api.js";
 import { ProviderConfigError, ProviderNotFoundError, ProviderOperationError } from "./errors.js";
-import { loadConfigString, parseConfigJson } from "./helpers.js";
 import { PROVIDER_NAMES } from "./provider-universe.js";
 import { ProviderFile, ProvidersType } from "./schema.js";
 import { EffectiveProviderApi } from "./types.js";
@@ -49,7 +49,7 @@ const validateProviderConfig = (parsedConfig: any, method: string) => {
 
 export class ProviderService extends Effect.Service<ProviderServiceApi>()("ProviderService", {
     effect: Effect.gen(function* () {
-        const configProvider = yield* ConfigProvider.ConfigProvider;
+        const configService = yield* ConfigurationService;
 
         return {
             /**
@@ -57,9 +57,8 @@ export class ProviderService extends Effect.Service<ProviderServiceApi>()("Provi
              * @returns An Effect containing the validated provider configuration or a ProviderConfigError
              */
             load: Effect.gen(function* () {
-                const rawConfig = yield* loadConfigString(configProvider, "load");
-                const parsedConfig = yield* parseConfigJson(rawConfig, "load");
-                const validConfig = yield* validateProviderConfig(parsedConfig, "load");
+                const rawConfig = yield* configService.loadConfig({ filePath: "providers", schema: ProviderFile });
+                const validConfig = yield* validateProviderConfig(rawConfig, "load");
                 return validConfig;
             }),
             /**
@@ -73,9 +72,8 @@ export class ProviderService extends Effect.Service<ProviderServiceApi>()("Provi
             getProviderClient: (providerName: ProvidersType) => {
                 return Effect.gen(function* () {
                     // Get the validated provider configuration
-                    const rawConfig = yield* loadConfigString(configProvider, "getProviderClient");
-                    const parsedConfig = yield* parseConfigJson(rawConfig, "getProviderClient");
-                    const validConfig = yield* validateProviderConfig(parsedConfig, "getProviderClient");
+                    const rawConfig = yield* configService.loadConfig({ filePath: "providers", schema: ProviderFile });
+                    const validConfig = yield* validateProviderConfig(rawConfig, "getProviderClient");
 
                     // Find the provider info
                     const providerInfo = validConfig.providers.find(p => p.name === providerName);
@@ -98,15 +96,14 @@ export class ProviderService extends Effect.Service<ProviderServiceApi>()("Provi
                     }
 
                     // Load the API key
-                    const apiKey = yield* configProvider.load(Config.string(apiKeyEnvVar))
-                        .pipe(
-                            Effect.mapError(configError => new ProviderConfigError({
-                                description: `Failed to load API key from env var: ${apiKeyEnvVar}`,
-                                module: "ProviderService",
-                                method: "getProviderClient",
-                                cause: configError instanceof Error ? configError : new Error(String(configError))
-                            }))
-                        );
+                    const apiKey = yield* configService.loadConfig({ filePath: apiKeyEnvVar, schema: S.String }).pipe(
+                        Effect.mapError(configError => new ProviderConfigError({
+                            description: `Failed to load API key from env var: ${apiKeyEnvVar}`,
+                            module: "ProviderService",
+                            method: "getProviderClient",
+                            cause: configError instanceof Error ? configError : new Error(String(configError))
+                        }))
+                    );
 
                     yield* Effect.log(`Using provider: ${providerName} with API key from env var: ${apiKeyEnvVar}`);
 

@@ -9,7 +9,7 @@
  */
 
 import { ModelCapability } from "@/schema.js";
-import { Effect, Schema as S } from "effect";
+import { Effect, Layer, Schema as S } from "effect";
 import type { ModelServiceApi } from "./api.js";
 import { ModelNotFoundError } from "./errors.js";
 import { MODEL_UNIVERSE } from "./model-universe.js";

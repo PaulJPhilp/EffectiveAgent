@@ -1,0 +1,487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="bun test" tests="320" assertions="1099" failures="36" skipped="0" time="5.085647">
+  <testsuite name="src/agent-runtime/__tests__/service.test.ts" tests="9" assertions="11" failures="8" skipped="0" time="0.276" hostname="Pauls-Mac-mini.local">
+    <testcase name="should create a new AgentRuntime with initial state" classname="create &amp;gt; AgentRuntimeService" time="0.008496" file="src/agent-runtime/__tests__/service.test.ts" assertions="6" />
+    <testcase name="should fail when creating an AgentRuntime with existing ID" classname="create &amp;gt; AgentRuntimeService" time="0.001766" file="src/agent-runtime/__tests__/service.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should handle state change activities" classname="send &amp;gt; AgentRuntimeService" time="0.001455" file="src/agent-runtime/__tests__/service.test.ts" assertions="1">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should handle command activities" classname="send &amp;gt; AgentRuntimeService" time="0.001204" file="src/agent-runtime/__tests__/service.test.ts" assertions="1">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should handle concurrent state changes" classname="send &amp;gt; AgentRuntimeService" time="0.105486" file="src/agent-runtime/__tests__/service.test.ts" assertions="1">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should handle invalid state changes" classname="send &amp;gt; AgentRuntimeService" time="0.001093" file="src/agent-runtime/__tests__/service.test.ts" assertions="1">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should receive activities in priority order" classname="subscribe &amp;gt; AgentRuntimeService" time="0.107459" file="src/agent-runtime/__tests__/service.test.ts" assertions="1">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should clean up resources when terminating an AgentRuntime" classname="terminate &amp;gt; AgentRuntimeService" time="0.052732" file="src/agent-runtime/__tests__/service.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should handle termination of non-existent runtime" classname="terminate &amp;gt; AgentRuntimeService" time="0.000784" file="src/agent-runtime/__tests__/service.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+  </testsuite>
+  <testsuite name="src/agent-runtime/__tests__/agent-runtime.test.ts" tests="1" assertions="5" failures="1" skipped="0" time="0.004" hostname="Pauls-Mac-mini.local">
+    <testcase name="basic lifecycle operations" classname="AgentRuntime" time="0.004893" file="src/agent-runtime/__tests__/agent-runtime.test.ts" assertions="5">
+      <failure type="AssertionError" />
+    </testcase>
+  </testsuite>
+  <testsuite name="src/services/ai/errors.test.ts" tests="7" assertions="23" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should create error with correct properties" classname="ChatCompletionError &amp;gt; Error Classes" time="0.000809" file="src/services/ai/errors.test.ts" assertions="4" />
+    <testcase name="should create error with correct properties" classname="AuthenticationError &amp;gt; Error Classes" time="0.000017" file="src/services/ai/errors.test.ts" assertions="4" />
+    <testcase name="should map rate limit error" classname="Error Mapping" time="0.000099" file="src/services/ai/errors.test.ts" assertions="3" />
+    <testcase name="should map authentication error" classname="Error Mapping" time="0.000004" file="src/services/ai/errors.test.ts" assertions="3" />
+    <testcase name="should map unknown error to ProviderAPIError" classname="Error Mapping" time="0.000055" file="src/services/ai/errors.test.ts" assertions="3" />
+    <testcase name="should map Effect errors to EffectiveError" classname="withErrorMapping" time="0.000042" file="src/services/ai/errors.test.ts" assertions="2" />
+    <testcase name="should handle non-Error failures" classname="withErrorMapping" time="0.000474" file="src/services/ai/errors.test.ts" assertions="4" />
+  </testsuite>
+  <testsuite name="src/ea/pipelines/weather/__tests__/e2e.test.ts" tests="3" assertions="10" failures="0" skipped="0" time="0.003" hostname="Pauls-Mac-mini.local">
+    <testcase name="should process a complete weather request flow" classname="Complete Weather Data Flow &amp;gt; Weather Pipeline E2E Tests" time="0.002484" file="src/ea/pipelines/weather/__tests__/e2e.test.ts" assertions="8" />
+    <testcase name="should handle invalid locations gracefully" classname="Error Handling &amp;gt; Weather Pipeline E2E Tests" time="0.000034" file="src/ea/pipelines/weather/__tests__/e2e.test.ts" assertions="1" />
+    <testcase name="should complete weather requests within acceptable timeframe" classname="Pipeline Performance &amp;gt; Weather Pipeline E2E Tests" time="0.001104" file="src/ea/pipelines/weather/__tests__/e2e.test.ts" assertions="1" />
+  </testsuite>
+  <testsuite name="src/ea/pipelines/weather/__tests__/service.test.ts" tests="7" assertions="17" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should return weather data for a valid location" classname="getWeather &amp;gt; makeWeatherService &amp;gt; WeatherService" time="0.000463" file="src/ea/pipelines/weather/__tests__/service.test.ts" assertions="5" />
+    <testcase name="should respect requested units" classname="getWeather &amp;gt; makeWeatherService &amp;gt; WeatherService" time="0.000053" file="src/ea/pipelines/weather/__tests__/service.test.ts" assertions="1" />
+    <testcase name="should include forecast data when requested" classname="getWeather &amp;gt; makeWeatherService &amp;gt; WeatherService" time="0.000083" file="src/ea/pipelines/weather/__tests__/service.test.ts" assertions="4" />
+    <testcase name="should return formatted weather summary" classname="getWeatherSummary &amp;gt; makeWeatherService &amp;gt; WeatherService" time="0.000045" file="src/ea/pipelines/weather/__tests__/service.test.ts" assertions="4" />
+    <testcase name="should include forecast in summary when requested" classname="getWeatherSummary &amp;gt; makeWeatherService &amp;gt; WeatherService" time="0.000042" file="src/ea/pipelines/weather/__tests__/service.test.ts" assertions="1" />
+    <testcase name="should return mock weather data" classname="makeMockWeatherService &amp;gt; WeatherService" time="0.000079" file="src/ea/pipelines/weather/__tests__/service.test.ts" assertions="1" />
+    <testcase name="should return mock summary" classname="makeMockWeatherService &amp;gt; WeatherService" time="0.000054" file="src/ea/pipelines/weather/__tests__/service.test.ts" assertions="1" />
+  </testsuite>
+  <testsuite name="src/ea/pipelines/weather/__tests__/integration.test.ts" tests="4" assertions="9" failures="0" skipped="0" time="0.001" hostname="Pauls-Mac-mini.local">
+    <testcase name="should provide weather data through layer" classname="Live Service Layer &amp;gt; Weather Pipeline Integration" time="0.001129" file="src/ea/pipelines/weather/__tests__/integration.test.ts" assertions="3" />
+    <testcase name="should provide weather summary through layer" classname="Live Service Layer &amp;gt; Weather Pipeline Integration" time="0.000589" file="src/ea/pipelines/weather/__tests__/integration.test.ts" assertions="2" />
+    <testcase name="should provide mock weather data through test layer" classname="Test Service Layer &amp;gt; Weather Pipeline Integration" time="0.000406" file="src/ea/pipelines/weather/__tests__/integration.test.ts" assertions="2" />
+    <testcase name="should respect configuration from context" classname="Configuration Context &amp;gt; Weather Pipeline Integration" time="0.000514" file="src/ea/pipelines/weather/__tests__/integration.test.ts" assertions="2" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/chat/__tests__/service.test.ts" tests="9" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should return null for non-existent history" classname="loadHistory &amp;gt; ChatHistoryService" time="0" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with invalid history ID" classname="loadHistory &amp;gt; ChatHistoryService" time="0.000007" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should successfully load existing history" classname="loadHistory &amp;gt; ChatHistoryService" time="0.000005" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should successfully save valid history" classname="saveHistory &amp;gt; ChatHistoryService" time="0" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with invalid history ID" classname="saveHistory &amp;gt; ChatHistoryService" time="0" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with invalid history format" classname="saveHistory &amp;gt; ChatHistoryService" time="0.000003" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with invalid message role" classname="saveHistory &amp;gt; ChatHistoryService" time="0.000014" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with invalid message content" classname="saveHistory &amp;gt; ChatHistoryService" time="0" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should update existing history" classname="saveHistory &amp;gt; ChatHistoryService" time="0.000018" file="src/services/pipeline/chat/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/bridge/__tests__/service.test.ts" tests="13" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should create an agent runtime" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle errors when creating an agent runtime" classname="BridgeService" time="0.00001" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should send a message to an agent runtime" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle errors when sending a message" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should get the state of an agent runtime" classname="BridgeService" time="0.00004" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle errors when getting state" classname="BridgeService" time="0.000008" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should subscribe to an agent runtime" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with BridgeRuntimeNotFoundError for invalid agent runtime ID" classname="BridgeService" time="0.000026" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should return a stream for valid agent runtime ID" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with BridgeRuntimeNotFoundError for invalid agent runtime ID" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should propagate BridgeSubscriptionError from underlying service" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should terminate an agent runtime" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle errors when terminating an agent runtime" classname="BridgeService" time="0" file="src/services/pipeline/bridge/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/implementations/__tests__/structured-output.test.ts" tests="4" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should validate complex object" classname="StructuredOutputPipeline" time="0" file="src/services/pipeline/implementations/__tests__/structured-output.test.ts" assertions="0" />
+    <testcase name="should handle validation errors" classname="StructuredOutputPipeline" time="0.000006" file="src/services/pipeline/implementations/__tests__/structured-output.test.ts" assertions="0" />
+    <testcase name="should handle empty array" classname="StructuredOutputPipeline" time="0" file="src/services/pipeline/implementations/__tests__/structured-output.test.ts" assertions="0" />
+    <testcase name="should handle optional fields" classname="StructuredOutputPipeline" time="0" file="src/services/pipeline/implementations/__tests__/structured-output.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/core/websocket/__tests__/service.test.ts" tests="16" assertions="38" failures="1" skipped="0" time="4.186" hostname="Pauls-Mac-mini.local">
+    <testcase name="happy path: connect, send, receive, disconnect" classname="WebSocketService (integration)" time="0.005793" file="src/services/core/websocket/__tests__/service.test.ts" assertions="2" />
+    <testcase name="should handle connection failure" classname="WebSocketService (integration)" time="0.000428" file="src/services/core/websocket/__tests__/service.test.ts" assertions="3" />
+    <testcase name="should handle send failure" classname="WebSocketService (integration)" time="0.000385" file="src/services/core/websocket/__tests__/service.test.ts" assertions="3" />
+    <testcase name="should handle serialization error" classname="WebSocketService (integration)" time="0.00136" file="src/services/core/websocket/__tests__/service.test.ts" assertions="3" />
+    <testcase name="should handle multiple messages in receive stream" classname="WebSocketService (integration)" time="0.001572" file="src/services/core/websocket/__tests__/service.test.ts" assertions="4" />
+    <testcase name="should handle send after disconnect" classname="WebSocketService (integration)" time="0.000148" file="src/services/core/websocket/__tests__/service.test.ts" assertions="3" />
+    <testcase name="should handle reconnection" classname="WebSocketService (integration)" time="0.004887" file="src/services/core/websocket/__tests__/service.test.ts" assertions="2" />
+    <testcase name="should handle stream error propagation" classname="WebSocketService (integration)" time="0.003212" file="src/services/core/websocket/__tests__/service.test.ts" assertions="3" />
+    <testcase name="should handle server disconnection" classname="WebSocketService (integration)" time="1.013371" file="src/services/core/websocket/__tests__/service.test.ts" assertions="1" />
+    <testcase name="should handle malformed JSON in receive stream" classname="WebSocketService (integration)" time="2.013246" file="src/services/core/websocket/__tests__/service.test.ts" assertions="3" />
+    <testcase name="should cleanup resources on disconnect" classname="WebSocketService (integration)" time="1.114017" file="src/services/core/websocket/__tests__/service.test.ts" assertions="1" />
+    <testcase name="should handle concurrent operations safely" classname="WebSocketService (integration)" time="0.007833" file="src/services/core/websocket/__tests__/service.test.ts" assertions="1" />
+    <testcase name="should handle multiple subscriptions from same client" classname="WebSocketService (integration)" time="0.009769" file="src/services/core/websocket/__tests__/service.test.ts" assertions="2" />
+    <testcase name="should handle large messages" classname="WebSocketService (integration)" time="0.003795" file="src/services/core/websocket/__tests__/service.test.ts" assertions="3" />
+    <testcase name="should handle connection timeout" classname="WebSocketService (integration)" time="0.00611" file="src/services/core/websocket/__tests__/service.test.ts" assertions="1">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should handle binary messages" classname="WebSocketService (integration)" time="0.007715" file="src/services/core/websocket/__tests__/service.test.ts" assertions="3" />
+  </testsuite>
+  <testsuite name="src/services/core/file/__tests__/service.test.ts" tests="8" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should store a file and return the full entity" classname="FileService" time="0.000134" file="src/services/core/file/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should retrieve file content correctly" classname="FileService" time="0.000051" file="src/services/core/file/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail retrieveFileContent with FileNotFoundError for non-existent ID" classname="FileService" time="0" file="src/services/core/file/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should retrieve file metadata correctly" classname="FileService" time="0" file="src/services/core/file/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail retrieveFileMetadata with FileNotFoundError for non-existent ID" classname="FileService" time="0" file="src/services/core/file/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should find files by owner" classname="FileService" time="0" file="src/services/core/file/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should delete a file" classname="FileService" time="0" file="src/services/core/file/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail deleteFile with FileNotFoundError for non-existent ID" classname="FileService" time="0" file="src/services/core/file/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/core/attachment/__tests__/example.test.ts" tests="1" assertions="3" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should access the service correctly" classname="Effect v3.14 Tag &amp;amp; Service pattern" time="0.000614" file="src/services/core/attachment/__tests__/example.test.ts" assertions="3" />
+  </testsuite>
+  <testsuite name="src/services/core/attachment/__tests__/service.test.ts" tests="13" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should ensure atomicity in createLinks (all succeed or none)" classname="Transaction Support &amp;gt; AttachmentApiLive &amp;gt; AttachmentService" time="0.000005" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should create a link" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should create a link with extended fields (metadata, createdBy, expiresAt)" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should get a link by its ID" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should find links from a specific entity" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should find links to a specific entity" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should delete a link" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail deleteLink with AttachmentLinkNotFoundError for non-existent ID" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should create multiple links with createLinks" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle empty array in createLinks" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should delete all links from a source entity" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should delete all links to a target entity" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle no links found in bulk delete operations" classname="AttachmentApiLive &amp;gt; AttachmentService" time="0.000059" file="src/services/core/attachment/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/core/attachment/__tests__/transaction.test.ts" tests="3" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should ensure atomicity in createLinks (all succeed or none)" classname="AttachmentService Transaction Support" time="0" file="src/services/core/attachment/__tests__/transaction.test.ts" assertions="0" />
+    <testcase name="should ensure atomicity in deleteLinksFrom (all succeed or none)" classname="AttachmentService Transaction Support" time="0" file="src/services/core/attachment/__tests__/transaction.test.ts" assertions="0" />
+    <testcase name="should ensure atomicity in deleteLinksTo (all succeed or none)" classname="AttachmentService Transaction Support" time="0.000178" file="src/services/core/attachment/__tests__/transaction.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/core/tag/__tests__/service.test.ts" tests="4" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should create a new tag" classname="TagService" time="0.000006" file="src/services/core/tag/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should prevent duplicate tag names" classname="TagService" time="0" file="src/services/core/tag/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should find tags by name prefix" classname="TagService" time="0" file="src/services/core/tag/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should tag and untag entities" classname="TagService" time="0" file="src/services/core/tag/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/core/logging/__tests__/service.test.ts" tests="12" assertions="28" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="provides basic logging functionality" classname="logging methods &amp;gt; LoggingService" time="0.000514" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="handles error objects correctly" classname="logging methods &amp;gt; LoggingService" time="0.000125" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="handles causes in logs" classname="logging methods &amp;gt; LoggingService" time="0.000417" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="should handle all log levels" classname="log level handling &amp;gt; LoggingService" time="0.000131" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="should handle all convenience methods" classname="log level handling &amp;gt; LoggingService" time="0.000057" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="handles fatal level logs" classname="fatal level logging &amp;gt; LoggingService" time="0.000077" file="src/services/core/logging/__tests__/service.test.ts" assertions="3" />
+    <testcase name="handles nested JSON objects" classname="complex data structures &amp;gt; LoggingService" time="0.000051" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="handles arrays in data" classname="complex data structures &amp;gt; LoggingService" time="0.000052" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="handles custom errors" classname="error handling &amp;gt; LoggingService" time="0.000411" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="handles error cause chains" classname="error handling &amp;gt; LoggingService" time="0.000387" file="src/services/core/logging/__tests__/service.test.ts" assertions="5" />
+    <testcase name="accepts JSON objects in error logs" classname="log data types &amp;gt; LoggingService" time="0.000097" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+    <testcase name="accepts empty log messages" classname="log data types &amp;gt; LoggingService" time="0.000115" file="src/services/core/logging/__tests__/service.test.ts" assertions="2" />
+  </testsuite>
+  <testsuite name="src/services/capabilities/skill/__tests__/service.test.ts" tests="3" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should load and validate skill config successfully" classname="SkillService" time="0" file="src/services/capabilities/skill/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with SkillConfigError if config is invalid JSON" classname="SkillService" time="0" file="src/services/capabilities/skill/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with SkillConfigError if config fails schema validation" classname="SkillService" time="0" file="src/services/capabilities/skill/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/capabilities/intelligence/__tests__/service.test.ts" tests="3" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should load and validate intelligence config successfully" classname="IntelligenceService" time="0" file="src/services/capabilities/intelligence/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with IntelligenceConfigError if config is invalid JSON" classname="IntelligenceService" time="0.000037" file="src/services/capabilities/intelligence/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with IntelligenceConfigError if config fails schema validation" classname="IntelligenceService" time="0.000006" file="src/services/capabilities/intelligence/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/capabilities/persona/__tests__/service.test.ts" tests="3" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should load and validate persona config successfully" classname="PersonaService" time="0" file="src/services/capabilities/persona/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with PersonaConfigError if config is invalid JSON" classname="PersonaService" time="0.000008" file="src/services/capabilities/persona/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with PersonaConfigError if config fails schema validation" classname="PersonaService" time="0" file="src/services/capabilities/persona/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/ai/tools/__tests__/service.test.ts" tests="8" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should execute a tool successfully" classname="run &amp;gt; ToolService" time="0.000047" file="src/services/ai/tools/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail when tool is not found" classname="run &amp;gt; ToolService" time="0" file="src/services/ai/tools/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail when input validation fails" classname="run &amp;gt; ToolService" time="0" file="src/services/ai/tools/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with empty input" classname="run &amp;gt; ToolService" time="0" file="src/services/ai/tools/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with invalid tool name format" classname="run &amp;gt; ToolService" time="0" file="src/services/ai/tools/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with null input" classname="run &amp;gt; ToolService" time="0" file="src/services/ai/tools/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with undefined input" classname="run &amp;gt; ToolService" time="0" file="src/services/ai/tools/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with output validation error" classname="run &amp;gt; ToolService" time="0" file="src/services/ai/tools/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/ai/tools/__tests__/http-client.test.ts" tests="2" assertions="2" failures="1" skipped="0" time="0.001" hostname="Pauls-Mac-mini.local">
+    <testcase name="should return data for a successful request" classname="Test HttpClient" time="0.000776" file="src/services/ai/tools/__tests__/http-client.test.ts" assertions="1" />
+    <testcase name="should handle errors for failed requests" classname="Test HttpClient" time="0.001058" file="src/services/ai/tools/__tests__/http-client.test.ts" assertions="1">
+      <failure type="AssertionError" />
+    </testcase>
+  </testsuite>
+  <testsuite name="src/services/ai/tool-registry/__tests__/service.test.ts" tests="7" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should return registry data" classname="ToolRegistryService" time="0" file="src/services/ai/tool-registry/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should get tool by name" classname="ToolRegistryService" time="0.000009" file="src/services/ai/tool-registry/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should get toolkit by name" classname="ToolRegistryService" time="0" file="src/services/ai/tool-registry/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail when tool not found" classname="ToolRegistryService" time="0" file="src/services/ai/tool-registry/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail when toolkit not found" classname="ToolRegistryService" time="0" file="src/services/ai/tool-registry/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle invalid tool name format" classname="ToolRegistryService" time="0" file="src/services/ai/tool-registry/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should list all tools" classname="ToolRegistryService" time="0" file="src/services/ai/tool-registry/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/ai/provider/__tests__/services.test.ts" tests="8" assertions="0" failures="8" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="loads a valid provider config" classname="ProviderService" time="0.000288" file="src/services/ai/provider/__tests__/services.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="throws on invalid provider config" classname="ProviderService" time="0.000112" file="src/services/ai/provider/__tests__/services.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="returns a provider client for a valid provider name" classname="ProviderService" time="0.00007" file="src/services/ai/provider/__tests__/services.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="throws on unknown provider name" classname="ProviderService" time="0.000073" file="src/services/ai/provider/__tests__/services.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="returns Left for empty provider name" classname="ProviderService" time="0.000074" file="src/services/ai/provider/__tests__/services.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="handles config with empty providers array" classname="ProviderService" time="0.000078" file="src/services/ai/provider/__tests__/services.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="handles config with duplicate provider names" classname="ProviderService" time="0.000084" file="src/services/ai/provider/__tests__/services.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="loads config with missing optional fields" classname="ProviderService" time="0.000076" file="src/services/ai/provider/__tests__/services.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+  </testsuite>
+  <testsuite name="src/services/ai/provider/__tests__/helpers.test.ts" tests="4" assertions="7" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="loads config string successfully" classname="loadConfigString &amp;gt; helpers.ts" time="0.000465" file="src/services/ai/provider/__tests__/helpers.test.ts" assertions="1" />
+    <testcase name="returns ProviderConfigError if config is missing" classname="loadConfigString &amp;gt; helpers.ts" time="0.000211" file="src/services/ai/provider/__tests__/helpers.test.ts" assertions="3" />
+    <testcase name="parses valid JSON" classname="parseConfigJson &amp;gt; helpers.ts" time="0.000625" file="src/services/ai/provider/__tests__/helpers.test.ts" assertions="1" />
+    <testcase name="returns ProviderConfigError on invalid JSON" classname="parseConfigJson &amp;gt; helpers.ts" time="0.000003" file="src/services/ai/provider/__tests__/helpers.test.ts" assertions="2" />
+  </testsuite>
+  <testsuite name="src/services/ai/prompt/__tests__/service.test.ts" tests="14" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should load prompt configuration successfully" classname="load &amp;gt; PromptService &amp;gt; PromptService" time="0" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should retrieve prompt by name" classname="getPrompt &amp;gt; PromptService &amp;gt; PromptService" time="0.00001" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle missing prompt" classname="getPrompt &amp;gt; PromptService &amp;gt; PromptService" time="0" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should render template string with variables" classname="renderString &amp;gt; PromptService &amp;gt; PromptService" time="0" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle multiple variables" classname="renderString &amp;gt; PromptService &amp;gt; PromptService" time="0.000049" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle missing variables" classname="renderString &amp;gt; PromptService &amp;gt; PromptService" time="0" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle invalid template syntax" classname="renderString &amp;gt; PromptService &amp;gt; PromptService" time="0" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should render a stored template" classname="renderTemplate &amp;gt; PromptService &amp;gt; PromptService" time="0" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle complex templates with conditionals" classname="renderTemplate &amp;gt; PromptService &amp;gt; PromptService" time="0.000003" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle multiple variables in stored templates" classname="renderTemplate &amp;gt; PromptService &amp;gt; PromptService" time="0.000011" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle multiple variables in stored templates" classname="renderTemplate &amp;gt; PromptService &amp;gt; PromptService" time="0.000008" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle nested object access" classname="renderTemplate &amp;gt; PromptService &amp;gt; PromptService" time="0" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle missing template" classname="renderTemplate &amp;gt; PromptService &amp;gt; PromptService" time="0.000016" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with RenderingError for invalid context" classname="renderTemplate &amp;gt; PromptService &amp;gt; PromptService" time="0" file="src/services/ai/prompt/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/ai/prompt/__tests__/main.test.ts" tests="6" assertions="12" failures="0" skipped="0" time="0.015" hostname="Pauls-Mac-mini.local">
+    <testcase name="renderTemplate returns rendered string for valid template" classname="PromptApi" time="0.014723" file="src/services/ai/prompt/__tests__/main.test.ts" assertions="1" />
+    <testcase name="renderTemplate fails with TemplateNotFoundError for missing template" classname="PromptApi" time="0.000824" file="src/services/ai/prompt/__tests__/main.test.ts" assertions="3" />
+    <testcase name="renderTemplate fails with RenderingError for invalid template syntax" classname="PromptApi" time="0.001254" file="src/services/ai/prompt/__tests__/main.test.ts" assertions="3" />
+    <testcase name="renderString returns rendered string for valid template string" classname="PromptApi" time="0.000724" file="src/services/ai/prompt/__tests__/main.test.ts" assertions="1" />
+    <testcase name="renderString fails with RenderingError for invalid template string" classname="PromptApi" time="0.000696" file="src/services/ai/prompt/__tests__/main.test.ts" assertions="3" />
+    <testcase name="renderTemplate handles missing context variables gracefully" classname="PromptApi" time="0.000707" file="src/services/ai/prompt/__tests__/main.test.ts" assertions="1" />
+  </testsuite>
+  <testsuite name="src/services/ai/model/__tests__/model-universe.test.ts" tests="8" assertions="737" failures="1" skipped="0" time="0.004" hostname="Pauls-Mac-mini.local">
+    <testcase name="should contain a comprehensive list of models" classname="MODEL_UNIVERSE" time="0" file="src/services/ai/model/__tests__/model-universe.test.ts" assertions="2" />
+    <testcase name="should include standard providers" classname="MODEL_UNIVERSE" time="0.000223" file="src/services/ai/model/__tests__/model-universe.test.ts" assertions="3" />
+    <testcase name="should have valid model metadata" classname="MODEL_UNIVERSE" time="0.000075" file="src/services/ai/model/__tests__/model-universe.test.ts" assertions="717" />
+    <testcase name="should find models by capability" classname="ModelService with MODEL_UNIVERSE" time="0.001761" file="src/services/ai/model/__tests__/model-universe.test.ts" assertions="1">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should get provider name from model ID" classname="ModelService with MODEL_UNIVERSE" time="0.003749" file="src/services/ai/model/__tests__/model-universe.test.ts" assertions="2" />
+    <testcase name="should find models with multiple capabilities" classname="ModelService with MODEL_UNIVERSE" time="0.000662" file="src/services/ai/model/__tests__/model-universe.test.ts" assertions="5" />
+    <testcase name="should get provider name from model ID" classname="ModelService with MODEL_UNIVERSE" time="0.000279" file="src/services/ai/model/__tests__/model-universe.test.ts" assertions="2" />
+    <testcase name="should validate supported model capabilities" classname="ModelService with MODEL_UNIVERSE" time="0.000234" file="src/services/ai/model/__tests__/model-universe.test.ts" assertions="5" />
+  </testsuite>
+  <testsuite name="src/services/ai/policy/__tests__/service.test.ts" tests="4" assertions="9" failures="0" skipped="0" time="0.001" hostname="Pauls-Mac-mini.local">
+    <testcase name="should allow operations by default when no rules exist" classname="checkPolicy &amp;gt; PolicyService" time="0" file="src/services/ai/policy/__tests__/service.test.ts" assertions="2" />
+    <testcase name="should deny operations when matching deny rule exists" classname="checkPolicy &amp;gt; PolicyService" time="0.001088" file="src/services/ai/policy/__tests__/service.test.ts" assertions="2" />
+    <testcase name="should record policy usage outcome" classname="recordOutcome &amp;gt; PolicyService" time="0.000276" file="src/services/ai/policy/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should support full CRUD operations for rules" classname="rule management &amp;gt; PolicyService" time="0.000538" file="src/services/ai/policy/__tests__/service.test.ts" assertions="5" />
+  </testsuite>
+  <testsuite name="src/docs/examples/dist/counter-service/__tests__/service.test.js" tests="8" assertions="0" failures="8" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should increment by 1 by default" classname="increment &amp;gt; CounterService" time="0.000353" file="src/docs/examples/dist/counter-service/__tests__/service.test.js" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should increment by specified amount" classname="increment &amp;gt; CounterService" time="0.000082" file="src/docs/examples/dist/counter-service/__tests__/service.test.js" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should fail with InvalidAmountError for negative amount" classname="increment &amp;gt; CounterService" time="0.000066" file="src/docs/examples/dist/counter-service/__tests__/service.test.js" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should decrement by 1 by default" classname="decrement &amp;gt; CounterService" time="0.000062" file="src/docs/examples/dist/counter-service/__tests__/service.test.js" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should fail when decrementing below zero" classname="decrement &amp;gt; CounterService" time="0.00006" file="src/docs/examples/dist/counter-service/__tests__/service.test.js" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should reset to 0 by default" classname="reset &amp;gt; CounterService" time="0.000058" file="src/docs/examples/dist/counter-service/__tests__/service.test.js" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should reset to specified value" classname="reset &amp;gt; CounterService" time="0.000062" file="src/docs/examples/dist/counter-service/__tests__/service.test.js" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should fail with InvalidAmountError for negative reset value" classname="reset &amp;gt; CounterService" time="0.000079" file="src/docs/examples/dist/counter-service/__tests__/service.test.js" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+  </testsuite>
+  <testsuite name="src/services/pipeline/producers/chat/__tests__/service-with-harness.test.ts" tests="2" assertions="0" failures="1" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should generate chat completion successfully" classname="generate &amp;gt; ChatService" time="0.000686" file="src/services/pipeline/producers/chat/__tests__/service-with-harness.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should fail when input is empty" classname="generate &amp;gt; ChatService" time="0.000054" file="src/services/pipeline/producers/chat/__tests__/service-with-harness.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/producers/transcription/__tests__/service.test.ts" tests="4" assertions="4" failures="0" skipped="0" time="0.001" hostname="Pauls-Mac-mini.local">
+    <testcase name="should handle abort signal" classname="TranscriptionService" time="0.000039" file="src/services/pipeline/producers/transcription/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should successfully transcribe audio" classname="TranscriptionService" time="0.001093" file="src/services/pipeline/producers/transcription/__tests__/service.test.ts" assertions="2" />
+    <testcase name="should fail when model ID is not provided" classname="TranscriptionService" time="0.000772" file="src/services/pipeline/producers/transcription/__tests__/service.test.ts" assertions="1" />
+    <testcase name="should fail when provider is not found" classname="TranscriptionService" time="0.000126" file="src/services/pipeline/producers/transcription/__tests__/service.test.ts" assertions="1" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/producers/transcription/__tests__/service-with-harness.test.ts" tests="5" assertions="15" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should transcribe audio successfully" classname="transcribe &amp;gt; TranscriptionService with Test Harness" time="0.000005" file="src/services/pipeline/producers/transcription/__tests__/service-with-harness.test.ts" assertions="1" />
+    <testcase name="should fail when no model ID is provided" classname="transcribe &amp;gt; TranscriptionService with Test Harness" time="0.000996" file="src/services/pipeline/producers/transcription/__tests__/service-with-harness.test.ts" assertions="3" />
+    <testcase name="should fail when provider is not found" classname="transcribe &amp;gt; TranscriptionService with Test Harness" time="0.000095" file="src/services/pipeline/producers/transcription/__tests__/service-with-harness.test.ts" assertions="3" />
+    <testcase name="should fail when model does not have transcription capability" classname="transcribe &amp;gt; TranscriptionService with Test Harness" time="0.000049" file="src/services/pipeline/producers/transcription/__tests__/service-with-harness.test.ts" assertions="3" />
+    <testcase name="should pass options to the provider client" classname="transcribe &amp;gt; TranscriptionService with Test Harness" time="0.000028" file="src/services/pipeline/producers/transcription/__tests__/service-with-harness.test.ts" assertions="5" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/producers/image/__tests__/utils.test.ts" tests="17" assertions="38" failures="1" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should return base prompt when no options provided" classname="enhancePrompt &amp;gt; Image Generation Utilities" time="0" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+    <testcase name="should format prompt with all options" classname="enhancePrompt &amp;gt; Image Generation Utilities" time="0.000027" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+    <testcase name="should include only provided options" classname="enhancePrompt &amp;gt; Image Generation Utilities" time="0" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+    <testcase name="should return default negative prompts when no exclusions added" classname="createNegativePrompt &amp;gt; Image Generation Utilities" time="0" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="3" />
+    <testcase name="should include additional exclusions" classname="createNegativePrompt &amp;gt; Image Generation Utilities" time="0" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="4" />
+    <testcase name="should create a product image prompt with no features" classname="createProductImagePrompt &amp;gt; Image Generation Utilities" time="0.000105" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="3" />
+    <testcase name="should create a product image prompt with features" classname="createProductImagePrompt &amp;gt; Image Generation Utilities" time="0.000041" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="4" />
+    <testcase name="should create a content image prompt with default photographic style" classname="createContentImagePrompt &amp;gt; Image Generation Utilities" time="0.000172" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="6">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should include context when provided" classname="createContentImagePrompt &amp;gt; Image Generation Utilities" time="0.000023" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+    <testcase name="should apply digital art style correctly" classname="createContentImagePrompt &amp;gt; Image Generation Utilities" time="0" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="3" />
+    <testcase name="should apply artistic style correctly" classname="createContentImagePrompt &amp;gt; Image Generation Utilities" time="0.000058" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="3" />
+    <testcase name="should apply minimalist style correctly" classname="createContentImagePrompt &amp;gt; Image Generation Utilities" time="0.000017" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="3" />
+    <testcase name="should return empty string for empty URL" classname="formatImageUrl &amp;gt; Image Generation Utilities" time="0.000024" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+    <testcase name="should return original URL for full format" classname="formatImageUrl &amp;gt; Image Generation Utilities" time="0.000004" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+    <testcase name="should append width parameter for thumbnail" classname="formatImageUrl &amp;gt; Image Generation Utilities" time="0.000013" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+    <testcase name="should append width parameter for preview" classname="formatImageUrl &amp;gt; Image Generation Utilities" time="0" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+    <testcase name="should handle URLs that already have query parameters" classname="formatImageUrl &amp;gt; Image Generation Utilities" time="0" file="src/services/pipeline/producers/image/__tests__/utils.test.ts" assertions="1" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/producers/image/__tests__/service.test.ts" tests="6" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should handle abort signal" classname="ImageService" time="0.000009" file="src/services/pipeline/producers/image/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should generate image with valid options" classname="ImageService" time="0.000016" file="src/services/pipeline/producers/image/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with invalid size" classname="ImageService" time="0.000014" file="src/services/pipeline/producers/image/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail with invalid model" classname="ImageService" time="0.000023" file="src/services/pipeline/producers/image/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should include negative prompt when provided" classname="ImageService" time="0.000013" file="src/services/pipeline/producers/image/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should include system prompt when provided" classname="ImageService" time="0.000009" file="src/services/pipeline/producers/image/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/producers/image/__tests__/service-with-harness.test.ts" tests="3" assertions="11" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should generate an image successfully" classname="generate &amp;gt; ImageService with Test Harness" time="0.000059" file="src/services/pipeline/producers/image/__tests__/service-with-harness.test.ts" assertions="5" />
+    <testcase name="should fail when no model ID is provided" classname="generate &amp;gt; ImageService with Test Harness" time="0.000085" file="src/services/pipeline/producers/image/__tests__/service-with-harness.test.ts" assertions="3" />
+    <testcase name="should fail with invalid image size" classname="generate &amp;gt; ImageService with Test Harness" time="0.000081" file="src/services/pipeline/producers/image/__tests__/service-with-harness.test.ts" assertions="3" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/producers/object/__tests__/service-with-harness.test.ts" tests="7" assertions="33" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should generate an object successfully" classname="generate &amp;gt; ObjectService with Test Harness" time="0.000072" file="src/services/pipeline/producers/object/__tests__/service-with-harness.test.ts" assertions="8" />
+    <testcase name="should handle optional fields correctly" classname="generate &amp;gt; ObjectService with Test Harness" time="0.00001" file="src/services/pipeline/producers/object/__tests__/service-with-harness.test.ts" assertions="5" />
+    <testcase name="should generate a list of objects" classname="generate &amp;gt; ObjectService with Test Harness" time="0" file="src/services/pipeline/producers/object/__tests__/service-with-harness.test.ts" assertions="6" />
+    <testcase name="should fail if modelId is missing" classname="generate &amp;gt; ObjectService with Test Harness" time="0.00018" file="src/services/pipeline/producers/object/__tests__/service-with-harness.test.ts" assertions="3" />
+    <testcase name="should handle provider errors" classname="generate &amp;gt; ObjectService with Test Harness" time="0.000182" file="src/services/pipeline/producers/object/__tests__/service-with-harness.test.ts" assertions="3" />
+    <testcase name="should handle object generation errors" classname="generate &amp;gt; ObjectService with Test Harness" time="0.000086" file="src/services/pipeline/producers/object/__tests__/service-with-harness.test.ts" assertions="3" />
+    <testcase name="should handle schema validation errors" classname="generate &amp;gt; ObjectService with Test Harness" time="0.000106" file="src/services/pipeline/producers/object/__tests__/service-with-harness.test.ts" assertions="5" />
+  </testsuite>
+  <testsuite name="src/services/pipeline/producers/text/__tests__/service.test.ts" tests="7" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should handle abort signal" classname="generate &amp;gt; TextService with Test Harness" time="0.000043" file="src/services/pipeline/producers/text/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should generate text for valid input" classname="generate &amp;gt; TextService with Test Harness" time="0" file="src/services/pipeline/producers/text/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should handle array of messages" classname="generate &amp;gt; TextService with Test Harness" time="0.000018" file="src/services/pipeline/producers/text/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail for empty input" classname="generate &amp;gt; TextService with Test Harness" time="0" file="src/services/pipeline/producers/text/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail when model is not found" classname="generate &amp;gt; TextService with Test Harness" time="0.000011" file="src/services/pipeline/producers/text/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail when provider is not found" classname="generate &amp;gt; TextService with Test Harness" time="0.000016" file="src/services/pipeline/producers/text/__tests__/service.test.ts" assertions="0" />
+    <testcase name="should fail when text generation fails" classname="generate &amp;gt; TextService with Test Harness" time="0" file="src/services/pipeline/producers/text/__tests__/service.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/core/test-harness/utils/__tests__/context-management.test.ts" tests="2" assertions="12" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should properly set up and tear down a resource" classname="withResource &amp;gt; context-management utilities" time="0.000433" file="src/services/core/test-harness/utils/__tests__/context-management.test.ts" assertions="6" />
+    <testcase name="should tear down the resource even if use throws an error" classname="withResource &amp;gt; context-management utilities" time="0.00015" file="src/services/core/test-harness/utils/__tests__/context-management.test.ts" assertions="6" />
+  </testsuite>
+  <testsuite name="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" tests="9" assertions="25" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should create a mock that conforms to the interface" classname="createTypedMock &amp;gt; typed-mocks utilities" time="0.000031" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="5" />
+    <testcase name="should allow overriding specific properties" classname="createTypedMock &amp;gt; typed-mocks utilities" time="0" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="2" />
+    <testcase name="should create an Effect that succeeds with the provided value" classname="mockSuccess &amp;gt; typed-mocks utilities" time="0.000075" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="2" />
+    <testcase name="should create an Effect that fails with the provided error" classname="mockFailure &amp;gt; typed-mocks utilities" time="0.000081" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="3" />
+    <testcase name="should create a type-safe error instance" classname="createServiceError &amp;gt; typed-mocks utilities" time="0.000034" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="3" />
+    <testcase name="should create a minimal mock with only the specified properties" classname="createMinimalMock &amp;gt; typed-mocks utilities" time="0.000046" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="3" />
+    <testcase name="should return true for objects with all required properties" classname="hasRequiredProperties &amp;gt; typed-mocks utilities" time="0.000077" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="1" />
+    <testcase name="should return false for objects missing required properties" classname="hasRequiredProperties &amp;gt; typed-mocks utilities" time="0" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="1" />
+    <testcase name="should return false for non-object values" classname="hasRequiredProperties &amp;gt; typed-mocks utilities" time="0.00001" file="src/services/core/test-harness/utils/__tests__/typed-mocks.test.ts" assertions="5" />
+  </testsuite>
+  <testsuite name="src/services/ai/tools/implementations/__tests__/weather.test.ts" tests="10" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should return current weather in metric units" classname="CURRENT operation &amp;gt; Weather Tool" time="0.000015" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should return current weather in imperial units" classname="CURRENT operation &amp;gt; Weather Tool" time="0" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should use metric units by default" classname="CURRENT operation &amp;gt; Weather Tool" time="0" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should return forecast for specified days" classname="FORECAST operation &amp;gt; Weather Tool" time="0.000027" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should limit forecast to available days" classname="FORECAST operation &amp;gt; Weather Tool" time="0" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should return one day forecast by default" classname="FORECAST operation &amp;gt; Weather Tool" time="0.000015" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should return weather alerts" classname="ALERTS operation &amp;gt; Weather Tool" time="0.000007" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should handle invalid input schema" classname="Error handling &amp;gt; Weather Tool" time="0" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should handle missing required fields" classname="Error handling &amp;gt; Weather Tool" time="0" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+    <testcase name="should handle invalid operation" classname="Error handling &amp;gt; Weather Tool" time="0.000001" file="src/services/ai/tools/implementations/__tests__/weather.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/ai/tools/implementations/__tests__/web-search.test.ts" tests="11" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should perform basic search" classname="SEARCH operation &amp;gt; Web Search Tool" time="0" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should respect maxResults parameter" classname="SEARCH operation &amp;gt; Web Search Tool" time="0" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should apply filter" classname="SEARCH operation &amp;gt; Web Search Tool" time="0" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should search news" classname="NEWS operation &amp;gt; Web Search Tool" time="0" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should respect daysAgo parameter" classname="NEWS operation &amp;gt; Web Search Tool" time="0" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should include article metadata" classname="NEWS operation &amp;gt; Web Search Tool" time="0" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should search images" classname="IMAGES operation &amp;gt; Web Search Tool" time="0" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should include image metadata" classname="IMAGES operation &amp;gt; Web Search Tool" time="0.000022" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should handle invalid operation" classname="Error handling &amp;gt; Web Search Tool" time="0.000009" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should handle invalid maxResults" classname="Error handling &amp;gt; Web Search Tool" time="0.000006" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+    <testcase name="should handle invalid daysAgo" classname="Error handling &amp;gt; Web Search Tool" time="0" file="src/services/ai/tools/implementations/__tests__/web-search.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" tests="8" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should search Wikipedia articles" classname="SEARCH operation &amp;gt; Wikipedia Tool" time="0.000011" file="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" assertions="0" />
+    <testcase name="should handle empty search results" classname="SEARCH operation &amp;gt; Wikipedia Tool" time="0.000091" file="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" assertions="0" />
+    <testcase name="should get article summary" classname="SUMMARY operation &amp;gt; Wikipedia Tool" time="0" file="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" assertions="0" />
+    <testcase name="should handle non-existent articles" classname="SUMMARY operation &amp;gt; Wikipedia Tool" time="0" file="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" assertions="0" />
+    <testcase name="should get random articles" classname="RANDOM operation &amp;gt; Wikipedia Tool" time="0" file="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" assertions="0" />
+    <testcase name="should handle single random article request" classname="RANDOM operation &amp;gt; Wikipedia Tool" time="0" file="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" assertions="0" />
+    <testcase name="should handle invalid input schema" classname="Error handling &amp;gt; Wikipedia Tool" time="0" file="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" assertions="0" />
+    <testcase name="should handle missing required fields" classname="Error handling &amp;gt; Wikipedia Tool" time="0.000052" file="src/services/ai/tools/implementations/__tests__/wikipedia.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/ai/tools/implementations/__tests__/news.test.ts" tests="8" assertions="0" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should search news articles" classname="SEARCH operation &amp;gt; News Tool" time="0" file="src/services/ai/tools/implementations/__tests__/news.test.ts" assertions="0" />
+    <testcase name="should handle empty search results" classname="SEARCH operation &amp;gt; News Tool" time="0" file="src/services/ai/tools/implementations/__tests__/news.test.ts" assertions="0" />
+    <testcase name="should fetch top headlines" classname="TOP_HEADLINES operation &amp;gt; News Tool" time="0" file="src/services/ai/tools/implementations/__tests__/news.test.ts" assertions="0" />
+    <testcase name="should fetch news by category" classname="BY_CATEGORY operation &amp;gt; News Tool" time="0" file="src/services/ai/tools/implementations/__tests__/news.test.ts" assertions="0" />
+    <testcase name="should handle missing API key" classname="Error handling &amp;gt; News Tool" time="0" file="src/services/ai/tools/implementations/__tests__/news.test.ts" assertions="0" />
+    <testcase name="should handle API errors" classname="Error handling &amp;gt; News Tool" time="0.000057" file="src/services/ai/tools/implementations/__tests__/news.test.ts" assertions="0" />
+    <testcase name="should handle invalid input schema" classname="Error handling &amp;gt; News Tool" time="0" file="src/services/ai/tools/implementations/__tests__/news.test.ts" assertions="0" />
+    <testcase name="should handle missing required fields" classname="Error handling &amp;gt; News Tool" time="0" file="src/services/ai/tools/implementations/__tests__/news.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/ai/tools/implementations/__tests__/datetime.test.ts" tests="15" assertions="0" failures="0" skipped="0" time="0.001" hostname="Pauls-Mac-mini.local">
+    <testcase name="should return current time in ISO format" classname="NOW operation &amp;gt; DateTime Tool" time="0" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should format current time in different formats" classname="NOW operation &amp;gt; DateTime Tool" time="0.000148" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should parse zoned date-time string" classname="PARSE operation &amp;gt; DateTime Tool" time="0" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should parse plain date-time string" classname="PARSE operation &amp;gt; DateTime Tool" time="0.001092" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should fail with invalid date string" classname="PARSE operation &amp;gt; DateTime Tool" time="0.000066" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should format date in different formats" classname="FORMAT operation &amp;gt; DateTime Tool" time="0.000027" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should format with custom locale" classname="FORMAT operation &amp;gt; DateTime Tool" time="0.000009" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should add various units" classname="ADD operation &amp;gt; DateTime Tool" time="0.000009" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should handle negative amounts" classname="ADD operation &amp;gt; DateTime Tool" time="0" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should subtract various units" classname="SUBTRACT operation &amp;gt; DateTime Tool" time="0.000012" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should calculate difference in various units" classname="DIFF operation &amp;gt; DateTime Tool" time="0.000096" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should handle negative differences" classname="DIFF operation &amp;gt; DateTime Tool" time="0.000016" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should handle invalid input schema" classname="Error handling &amp;gt; DateTime Tool" time="0.000026" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should handle invalid dates" classname="Error handling &amp;gt; DateTime Tool" time="0.000037" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+    <testcase name="should handle invalid operation" classname="Error handling &amp;gt; DateTime Tool" time="0.000005" file="src/services/ai/tools/implementations/__tests__/datetime.test.ts" assertions="0" />
+  </testsuite>
+  <testsuite name="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" tests="8" assertions="50" failures="0" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should create an entity and assign placeholder timestamps" classname="InMemoryRepositoryLiveLayer (No Clock)" time="0.000909" file="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" assertions="6" />
+    <testcase name="should find an entity by ID" classname="InMemoryRepositoryLiveLayer (No Clock)" time="0.000357" file="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" assertions="5" />
+    <testcase name="should find entities with findMany and findOne" classname="InMemoryRepositoryLiveLayer (No Clock)" time="0.000868" file="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" assertions="12" />
+    <testcase name="should update an entity and its placeholder timestamp" classname="InMemoryRepositoryLiveLayer (No Clock)" time="0.000259" file="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" assertions="10" />
+    <testcase name="should fail update with EntityNotFoundError for non-existent ID" classname="InMemoryRepositoryLiveLayer (No Clock)" time="0.000113" file="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" assertions="5" />
+    <testcase name="should delete an entity" classname="InMemoryRepositoryLiveLayer (No Clock)" time="0.000274" file="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" assertions="3" />
+    <testcase name="should fail update with EntityNotFoundError for non-existent ID" classname="InMemoryRepositoryLiveLayer (No Clock)" time="0.000042" file="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" assertions="5" />
+    <testcase name="should count entities" classname="InMemoryRepositoryLiveLayer (No Clock)" time="0.00031" file="src/services/core/repository/implementations/in-memory/__tests__/live.test.ts" assertions="4" />
+  </testsuite>
+  <testsuite name="src/services/core/repository/implementations/drizzle/__tests__/live.test.ts" tests="6" assertions="0" failures="6" skipped="0" time="0" hostname="Pauls-Mac-mini.local">
+    <testcase name="should create and retrieve an entity" classname="DrizzleRepository" time="0" file="src/services/core/repository/implementations/drizzle/__tests__/live.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should find multiple entities" classname="DrizzleRepository" time="0" file="src/services/core/repository/implementations/drizzle/__tests__/live.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should update an entity" classname="DrizzleRepository" time="0" file="src/services/core/repository/implementations/drizzle/__tests__/live.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should fail to update non-existent entity" classname="DrizzleRepository" time="0" file="src/services/core/repository/implementations/drizzle/__tests__/live.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should delete an entity" classname="DrizzleRepository" time="0" file="src/services/core/repository/implementations/drizzle/__tests__/live.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+    <testcase name="should count entities" classname="DrizzleRepository" time="0" file="src/services/core/repository/implementations/drizzle/__tests__/live.test.ts" assertions="0">
+      <failure type="AssertionError" />
+    </testcase>
+  </testsuite>
+</testsuites>

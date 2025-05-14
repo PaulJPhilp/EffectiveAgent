@@ -3,7 +3,8 @@
  * and the layer providing loaded PromptConfigData.
  */
 
-import { Config, ConfigProvider, Effect, HashMap, Ref, Schema as S } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { Effect, HashMap, Ref, Schema as S } from "effect";
 import { Liquid } from "liquidjs";
 import {
     PromptConfigError,
@@ -29,8 +30,8 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
 
         return {
             load: () => Effect.gen(function* () {
-                const configProvider = yield* ConfigProvider.ConfigProvider;
-                const rawConfig = yield* configProvider.load(Config.string("prompts")).pipe(
+                const configService = yield* ConfigurationService;
+                const rawConfig = yield* configService.readConfig("prompts").pipe(
                     Effect.mapError(cause => new PromptConfigError({
                         description: "Failed to read prompts.json",
                         module: "PromptService",

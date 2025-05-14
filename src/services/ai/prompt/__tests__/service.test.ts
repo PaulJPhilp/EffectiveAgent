@@ -1,6 +1,6 @@
-import { Effect } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import type { ImportedType } from "../schema.js";
 import { PromptService } from "../service.js";
 
 // Direct service reference - no Layer usage
@@ -33,14 +33,32 @@ describe("PromptService", () => {
         ]
     };
 
+    const mockConfigService: ConfigurationService = {
+        readConfig: (key: string) =>
+            key === "prompts"
+                ? Effect.succeed(JSON.stringify(mockPromptFile))
+                : Effect.fail(new Error("Missing config")),
+        readFile: () => Effect.fail(new Error("not implemented")),
+        parseJson: () => Effect.fail(new Error("not implemented")),
+        validateWithSchema: () => Effect.fail(new Error("not implemented")),
+        loadConfig: () => Effect.fail(new Error("not implemented")),
+    };
+    const configLayer = Layer.succeed(ConfigurationService, mockConfigService);
+
+    // Provide the config layer for all tests
+    const runWithConfig = <A>(effect: Effect.Effect<A, any, any>) =>
+        Effect.runPromise(Effect.provide(effect, configLayer));
+
     describe("PromptService", () => {
         // Create service instance for each test
         describe("load", () => {
-            it("should load prompt configuration successfully", () => Effect.gen(function* () {
-                const service = yield* TestPromptService;
-                const result = yield* service.load();
-                expect(result).toBeDefined();
-            }));
+            it("should load prompt configuration successfully", async () => {
+                await runWithConfig(Effect.gen(function* () {
+                    const service = yield* TestPromptService;
+                    const result = yield* service.load();
+                    expect(result).toBeDefined();
+                }));
+            });
 
             // Note: Invalid JSON config is handled by ConfigProvider
 
@@ -48,23 +66,26 @@ describe("PromptService", () => {
         });
 
         describe("getPrompt", () => {
-            it("should retrieve prompt by name", () => Effect.gen(function* () {
-                const service = yield* PromptService;
-                yield* service.load();
-                const prompt = yield* service.getPrompt("test-prompt");
-                expect(prompt).toEqual(mockPromptFile.prompts[0]);
-            }));
+            it("should retrieve prompt by name", async () => {
+                await runWithConfig(Effect.gen(function* () {
+                    const service = yield* PromptService;
+                    yield* service.load();
+                    const prompt = yield* service.getPrompt("test-prompt");
+                    expect(prompt).toEqual(mockPromptFile.prompts[0]);
+                }));
+            });
 
-            it("should handle missing prompt", () => Effect.gen(function* () {
-                const service = yield* PromptService;
-                yield* service.load();
-
-                const result = yield* Effect.either(service.getPrompt("non-existent"));
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect((result.left as any).name).toBe("TemplateNotFoundError");
-                }
-            }));
+            it("should handle missing prompt", async () => {
+                await runWithConfig(Effect.gen(function* () {
+                    const service = yield* PromptService;
+                    yield* service.load();
+                    const result = yield* Effect.either(service.getPrompt("non-existent"));
+                    expect(result._tag).toBe("Left");
+                    if (result._tag === "Left") {
+                        expect((result.left as any).name).toBe("TemplateNotFoundError");
+                    }
+                }));
+            });
         });
 
         describe("renderString", () => {

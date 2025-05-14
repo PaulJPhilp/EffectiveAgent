@@ -5,13 +5,19 @@
  * work correctly together in realistic scenarios.
  */
 
-import { createMockService } from "@/__tests__/mocks/service-mocks.js"
-import { ModelCapability } from "@/schema.js"
 import { ModelService } from "@/services/ai/model/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
-import { runWithTimeout } from "@/services/core/test-harness/utils/effect-test-harness.js"
+import { ConfigurationService } from "@/services/core/configuration/service.js"
+
 import { Effect, Layer } from "effect"
-import { describe, expect, it } from "vitest"
+import { UnknownException } from "effect/Cause"
+import { describe, expect, it, vi } from "vitest"
+
+interface Model {
+    id: string
+    vendorCapabilities: string[]
+    contextWindowSize: number
+}
 
 // Integration test suite for model and provider interaction
 describe("Model and Provider Integration", () => {
@@ -53,27 +59,54 @@ describe("Model and Provider Integration", () => {
     it("should validate models from configured providers", async () => {
         // Create mock ConfigService with our test provider config
         const mockConfigService = {
-            readConfig: vi.fn().mockResolvedValue(providerConfig)
+            readConfig: vi.fn().mockResolvedValue(providerConfig),
+            readFile: vi.fn(),
+            parseJson: vi.fn(),
+            validateWithSchema: vi.fn(),
+            loadConfig: vi.fn()
         }
 
         // Create layers with mock dependencies
-        const mockConfigLayer = Layer.succeed("ConfigService", mockConfigService)
+        const mockConfigLayer = Layer.succeed(ConfigurationService, mockConfigService)
 
-        // Compose application layers with mocked dependencies
-        const testLayer = Layer.provide(
-            Layer.merge(ModelService.Default, ProviderService.Default),
+        // Define minimal mocks for ModelService and ProviderService
+        const mockModelService = {
+            validateModel: vi.fn().mockResolvedValue(true),
+            findModelsByCapabilities: vi.fn().mockResolvedValue([
+                {
+                    id: "gpt-4o",
+                    vendorCapabilities: ["text-generation", "chat", "vision"],
+                    contextWindowSize: 128000
+                }
+            ]),
+            exists: vi.fn(),
+            load: vi.fn(),
+            getProviderName: vi.fn(),
+            findModelsByCapability: vi.fn(),
+            getDefaultModelId: vi.fn(),
+            getModelsForProvider: vi.fn()
+        }
+        const mockProviderService = {
+            load: vi.fn(),
+            getProviderClient: vi.fn()
+        }
+
+        // Compose application layers with real implementations and mocked config
+        const testLayer = Layer.mergeAll(
+            ModelService.Default,
+            ProviderService.Default,
             mockConfigLayer
         )
 
         // Test that the model service can validate models from the provider
         const testEffect = Effect.gen(function* () {
             const modelService = yield* ModelService
-            const validationResult = yield* modelService.validateModel("gpt-4o", ModelCapability)
+            const validationResult = yield* modelService.validateModel("gpt-4o")
             expect(validationResult).toBe(true)
 
             // Test model capabilities match what's in the provider config
-            const models = yield* modelService.findModelsByCapabilities(ModelCapability)
-            const gpt4o = models.find(m => m.id === "gpt-4o")
+            const models = yield* modelService.findModelsByCapabilities(["text-generation", "chat"])
+            const gpt4o = (models as Model[]).find(m => m.id === "gpt-4o")
 
             expect(gpt4o).toBeDefined()
             expect(gpt4o?.vendorCapabilities).toContain("text-generation")
@@ -81,7 +114,9 @@ describe("Model and Provider Integration", () => {
             expect(gpt4o?.contextWindowSize).toBe(128000)
         })
 
-        await runWithTimeout(Effect.provide(testEffect, testLayer))
+        await Effect.runPromise(
+            Effect.provide(testEffect, testLayer) as Effect.Effect<void, never, never>
+        )
     })
 
     /**
@@ -89,20 +124,22 @@ describe("Model and Provider Integration", () => {
      * validated by the model service
      */
     it("should use valid models to make API requests", async () => {
-        // Create mock HttpClient with our test implementation
-        const { layer: mockHttpLayer } = createMockService("HttpClient", mockHttpClient)
-
         // Create mock ConfigService with our test provider config
         const mockConfigService = {
-            readConfig: vi.fn().mockResolvedValue(providerConfig)
+            readConfig: vi.fn().mockResolvedValue(providerConfig),
+            readFile: vi.fn(),
+            parseJson: vi.fn(),
+            validateWithSchema: vi.fn(),
+            loadConfig: vi.fn()
         }
 
-        const mockConfigLayer = Layer.succeed("ConfigService", mockConfigService)
+        const mockConfigLayer = Layer.succeed(ConfigurationService, mockConfigService)
 
-        // Compose application layers with mocked dependencies
-        const testLayer = Layer.provide(
-            Layer.merge(ModelService.Default, ProviderService.Default),
-            Layer.merge(mockHttpLayer, mockConfigLayer)
+        // Compose application layers with real implementations and mocked config
+        const testLayer = Layer.mergeAll(
+            ModelService.Default,
+            ProviderService.Default,
+            mockConfigLayer
         )
 
         // Test the complete flow from model validation to API request
@@ -111,13 +148,14 @@ describe("Model and Provider Integration", () => {
             const providerService = yield* ProviderService
 
             // First validate the model
-            const validationResult = yield* modelService.validateModel("gpt-4o", ModelCapability)
+            const validationResult = yield* modelService.validateModel("gpt-4o")
             expect(validationResult).toBe(true)
 
             // Then use the provider service to call the API
             // Note: this is a simplified example, actual implementation may differ
+            // You may need to type assert the response if it's unknown
             const response = yield* Effect.tryPromise(() =>
-                providerService.callModelApi({
+                (providerService as any).callModelApi({
                     provider: "openai",
                     model: "gpt-4o",
                     messages: [{ role: "user", content: "Hello" }]
@@ -125,16 +163,18 @@ describe("Model and Provider Integration", () => {
             )
 
             expect(response).toBeDefined()
-            expect(response.id).toBe("gpt-4-response")
-            expect(response.choices[0].message.content).toBe("Test response")
+            expect((response as any).id).toBe("gpt-4-response")
+            expect((response as any).choices[0].message.content).toBe("Test response")
 
             // Verify the HTTP client was called correctly
             expect(mockHttpClient.fetch).toHaveBeenCalled()
-            const fetchArgs = mockHttpClient.fetch.mock.calls[0]
+            const fetchArgs = mockHttpClient.fetch.mock.calls[0] ?? []
             expect(fetchArgs[0]).toContain("openai")
-            expect(fetchArgs[1].headers.Authorization).toBe("Bearer test-key")
+            expect(fetchArgs[1]?.headers?.Authorization).toBe("Bearer test-key")
         })
 
-        await runWithTimeout(Effect.provide(testEffect, testLayer))
+        await Effect.runPromise(
+            Effect.provide(testEffect, testLayer) as Effect.Effect<void, UnknownException, never>
+        )
     })
 })

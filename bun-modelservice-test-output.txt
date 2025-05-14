@@ -1,0 +1,28 @@
+[0m[1mbun test [0m[2mv1.2.12 (32a47ae4)[0m
+EffectRunnerService: {
+  [0m_id[2m:[0m [0m[32m[0m[32m"Tag"[0m[0m[0m[2m,[0m
+  [0mkey[2m:[0m [0m[32m[0m[32m"EffectRunnerService"[0m[0m[0m[2m,[0m
+  [0mstack[2m:[0m [0m[32m[0m[32m"Error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/node_modules/effect/dist/esm/Effect.js:10457:27)\n    at /Users/paul/Projects/EffectiveAgent/src/services/core/test-harness/components/effect-runners/service.ts:36:74"[0m[0m[0m[2m,[0m
+}
+AssertionHelperService: {
+  [0m_id[2m:[0m [0m[32m[0m[32m"Tag"[0m[0m[0m[2m,[0m
+  [0mkey[2m:[0m [0m[32m[0m[32m"AssertionHelperService"[0m[0m[0m[2m,[0m
+  [0mstack[2m:[0m [0m[32m[0m[32m"Error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/node_modules/effect/dist/esm/Effect.js:10457:27)\n    at /Users/paul/Projects/EffectiveAgent/src/services/core/test-harness/components/assertion-helpers/service.ts:39:80"[0m[0m[0m[2m,[0m
+}
+MockAccessorService TAG: {
+  [0m_id[2m:[0m [0m[32m[0m[32m"Tag"[0m[0m[0m[2m,[0m
+  [0mkey[2m:[0m [0m[32m[0m[32m"MockAccessorService"[0m[0m[0m[2m,[0m
+  [0mstack[2m:[0m [0m[32m[0m[32m"Error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/node_modules/effect/dist/esm/Effect.js:10457:27)\n    at /Users/paul/Projects/EffectiveAgent/src/services/core/test-harness/components/mock-accessors/service.ts:392:74"[0m[0m[0m[2m,[0m
+}
+mockAccessorServiceImplObject: object [0m[33mtrue[0m
+FixtureService: {
+  [0m_id[2m:[0m [0m[32m[0m[32m"Tag"[0m[0m[0m[2m,[0m
+  [0mkey[2m:[0m [0m[32m[0m[32m"FixtureService"[0m[0m[0m[2m,[0m
+  [0mstack[2m:[0m [0m[32m[0m[32m"Error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/node_modules/effect/dist/esm/Effect.js:10457:27)\n    at /Users/paul/Projects/EffectiveAgent/src/services/core/test-harness/components/fixtures/service.ts:42:64"[0m[0m[0m[2m,[0m
+}
+ConfigurationService TAG: {
+  [0m_id[2m:[0m [0m[32m[0m[32m"Tag"[0m[0m[0m[2m,[0m
+  [0mkey[2m:[0m [0m[32m[0m[32m"ConfigurationService"[0m[0m[0m[2m,[0m
+  [0mstack[2m:[0m [0m[32m[0m[32m"Error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/node_modules/effect/dist/esm/Effect.js:10457:27)\n    at /Users/paul/Projects/EffectiveAgent/src/services/core/configuration/service.ts:76:83"[0m[0m[0m[2m,[0m
+}
+configurationServiceEffect: object [0m[33mtrue[0m

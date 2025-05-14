@@ -13,7 +13,7 @@ import { TextCompletionError } from "@/services/pipeline/producers/text/errors.j
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
 import TextService from "@/services/pipeline/producers/text/service.js";
 import { NodeContext } from "@effect/platform-node";
-import { ConfigProvider, Effect, Layer, Option, Schema, pipe } from "effect";
+import { Effect, Option, Schema, pipe } from "effect";
 
 /**
  * Pipeline for text completion using an AI model.
@@ -70,10 +70,9 @@ export class TextCompletionPipeline extends AiPipeline<
         cause: error
       })),
       Effect.provide(TextService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ModelService.Default),
+      Effect.provide(ProviderService),
+      Effect.provide(ModelService),
       Effect.provide(ConfigurationService.Default),
-      Effect.provide(Layer.succeed(ConfigProvider.ConfigProvider, ConfigProvider.fromEnv())),
       Effect.provide(NodeContext.layer)
     );
   }

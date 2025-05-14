@@ -3,9 +3,9 @@
  * @module services/ai/producers/transcription/service
  */
 
-import type { ModelServiceApi } from "@/services/ai/model/api";
-import { ModelService } from "@/services/ai/model/service";
-import { ProviderService } from "@/services/ai/provider/service";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
 import { EffectiveResponse } from "@/types.js";
 import { Layer } from "effect";
 import * as Effect from "effect/Effect";

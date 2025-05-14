@@ -1,10 +1,11 @@
-import { Cause, ConfigProvider, Effect, Exit, Layer, Option } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { Cause, Effect, Exit, Layer, Option } from "effect";
 /**
  * @file Comprehensive tests for the PromptApi service implementation.
  */
-import { describe, expect, it } from "vitest"
-import { RenderingError, TemplateNotFoundError } from "../../errors.js"
-import { PromptService } from "../service.js"
+import { describe, expect, it } from "vitest";
+import { RenderingError, TemplateNotFoundError } from "../../errors.js";
+import { PromptService } from "../service.js";
 
 // --- Mock Data ---
 const validPromptConfig = {
@@ -18,12 +19,17 @@ const validPromptConfig = {
 
 // --- Tests ---
 describe("PromptApi", () => {
-    const validConfigLayer = Layer.succeed(
-        ConfigProvider.ConfigProvider,
-        ConfigProvider.fromMap(new Map([
-            ["prompts", JSON.stringify(validPromptConfig)]
-        ]))
-    );
+    const mockConfigService: ConfigurationService = {
+        readConfig: (key: string) =>
+            key === "prompts"
+                ? Effect.succeed(JSON.stringify(validPromptConfig))
+                : Effect.fail(new Error("Missing config")),
+        readFile: () => Effect.fail(new Error("not implemented")),
+        parseJson: () => Effect.fail(new Error("not implemented")),
+        validateWithSchema: () => Effect.fail(new Error("not implemented")),
+        loadConfig: () => Effect.fail(new Error("not implemented")),
+    };
+    const validConfigLayer = Layer.succeed(ConfigurationService, mockConfigService);
     const layer = PromptService.Default;
 
     it("renderTemplate returns rendered string for valid template", async () => {

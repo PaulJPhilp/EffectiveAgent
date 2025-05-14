@@ -8,12 +8,12 @@ import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
 import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
 import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
 import type { EffectiveResponse } from "@/types.js";
 import { EffectiveInput, EffectiveMessage } from "@/types.js";
-import { NodeContext } from "@effect/platform-node";
-import { ConfigProvider, JSONSchema, Layer, Schema as S } from "effect";
+import { JSONSchema, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
@@ -42,12 +42,6 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
         // Get services
         const providerService = yield* ProviderService;
         const modelService: ModelServiceApi = yield* ModelService;
-
-        // Create a combined layer for common provider needs, once.
-        const commonProviderLayer = Layer.merge(
-            NodeContext.layer,
-            Layer.succeed(ConfigProvider.ConfigProvider, ConfigProvider.fromEnv())
-        );
 
         return {
             generate: <S_Schema extends S.Schema<any, any>, T_Output = S.Schema.Type<S_Schema>>(options: ObjectGenerationOptions<S_Schema>): Effect.Effect<EffectiveResponse<T_Output>, Error> =>
@@ -134,8 +128,6 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                             signal: options.signal,
                             ...options.parameters
                         }
-                    ).pipe(
-                        Effect.provide(commonProviderLayer)
                     );
 
                     // Generate the object using the provider's generateObject method
@@ -185,9 +177,10 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                         // Fallback for truly unknown errors, though ideally all paths are typed
                         return new Error(`An unexpected error occurred: ${String(error)}`);
                     }),
-                    Effect.withSpan("ObjectService.generate")
+                    Effect.withSpan("ObjectService.generate"),
+                    Effect.provide(ConfigurationService.Default)
                 )
         };
     }),
-    dependencies: [ModelService.Default, ProviderService.Default]
+    dependencies: [ModelService, ProviderService]
 }) { }

@@ -3,7 +3,8 @@
  * @module services/capabilities/persona/service
  */
 
-import { Config, ConfigProvider, Effect, Ref, Schema as S } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { Effect, Ref, Schema as S } from "effect";
 import { PersonaConfigError } from "./errors.js";
 import { Persona, PersonasFile } from "./schema.js";
 
@@ -17,10 +18,10 @@ export class PersonaService extends Effect.Service<PersonaServiceApi>()("Persona
 
     return {
       load: () => Effect.gen(function* () {
-        const config = yield* ConfigProvider.ConfigProvider;
+        const configService = yield* ConfigurationService;
 
         // 1. Load raw config string
-        const rawConfig = yield* config.load(Config.string("personas")).pipe(
+        const rawConfig = yield* configService.readConfig("personas").pipe(
           Effect.mapError(cause => new PersonaConfigError({
             description: "Failed to load persona configuration",
             module: "PersonaService",

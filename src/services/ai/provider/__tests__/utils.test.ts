@@ -1,13 +1,22 @@
-import { ProviderConfigError } from "@ai/provider/errors.js";
-import { loadConfigString, parseConfigJson } from "@ai/provider/helpers.js";
-import { ConfigProvider, Effect } from 'effect';
+import { ProviderConfigError } from "@/services/ai/provider/errors.js";
+import { loadConfigString, parseConfigJson } from "@/services/ai/provider/utils.js";
+import { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
+import { ConfigParseError, ConfigReadError, ConfigValidationError } from "@/services/core/configuration/errors.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { Effect, Layer } from 'effect';
 import { describe, expect, it } from 'vitest';
 
 // Mocks
 const mockConfigString = '{"providers": [{"name": "openai"}]}' as const;
-const mockConfigProvider = ConfigProvider.fromMap(new Map([
-  ["providersConfigJsonString", mockConfigString]
-]));
+const mockConfigService: ConfigurationServiceApi = {
+  loadConfig: <T>(options: { filePath: string }) =>
+    options.filePath === "providersConfigJsonString"
+      ? Effect.succeed(mockConfigString as unknown as T) as Effect.Effect<T, ConfigReadError, never>
+      : Effect.fail(new ConfigReadError({ filePath: options.filePath })) as Effect.Effect<T, ConfigReadError, never>,
+  readFile: () => Effect.fail(new ConfigReadError({ filePath: "test.json" })),
+  parseJson: () => Effect.fail(new ConfigParseError({ filePath: "test.json" })),
+  validateWithSchema: () => Effect.fail(new ConfigValidationError({ filePath: "test.json", validationError: {} as any })),
+};
 
 // Deeply searches all nested properties for a ProviderConfigError instance
 function deepFindProviderConfigError(err: unknown, maxDepth = 10): boolean {
@@ -34,19 +43,25 @@ function deepFindProviderConfigError(err: unknown, maxDepth = 10): boolean {
   return false;
 }
 
-describe('helpers.ts', () => {
+describe('utils.ts', () => {
   describe('loadConfigString', () => {
     it('loads config string successfully', async () => {
-      const effect = loadConfigString(mockConfigProvider, 'testMethod');
-      const result = await Effect.runPromise(effect);
+      const mockConfigLayer = Layer.succeed(ConfigurationService, mockConfigService);
+      const effect = loadConfigString(mockConfigService, 'testMethod');
+      const result = await Effect.runPromise(Effect.provide(effect, mockConfigLayer));
       expect(result).toBe(mockConfigString);
     });
 
     it('returns ProviderConfigError if config is missing', async () => {
-      // Use an empty provider with no config string
-      const emptyProvider = ConfigProvider.fromMap(new Map());
-      const effect = loadConfigString(emptyProvider, 'testMethod');
-      const result = await Effect.runPromiseExit(effect);
+      const emptyConfigService: ConfigurationServiceApi = {
+        loadConfig: <T>() => Effect.fail(new ConfigReadError({ filePath: "test.json" })) as Effect.Effect<T, ConfigReadError, never>,
+        readFile: () => Effect.fail(new ConfigReadError({ filePath: "test.json" })),
+        parseJson: () => Effect.fail(new ConfigParseError({ filePath: "test.json" })),
+        validateWithSchema: () => Effect.fail(new ConfigValidationError({ filePath: "test.json", validationError: {} as any })),
+      };
+      const emptyConfigLayer = Layer.succeed(ConfigurationService, emptyConfigService);
+      const effect = loadConfigString(emptyConfigService, 'testMethod');
+      const result = await Effect.runPromiseExit(Effect.provide(effect, emptyConfigLayer));
       expect(result._tag).toBe('Failure');
       if (result._tag === 'Failure') {
         expect(result.cause._tag).toBe('Fail');
