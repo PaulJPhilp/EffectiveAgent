@@ -1,6 +1,5 @@
-import { type EffectiveRole } from "@/schema.js";
+import { type EffectiveRole } from "@/types.js";
 import {
-  InputServiceError,
   InvalidInputError,
   InvalidMessageError,
   NoAudioFileError
@@ -24,7 +23,7 @@ export const METHOD_EXTRACT_TEXTS_FOR_EMBEDDINGS = "extractTextsForEmbeddings" a
 export const METHOD_EXTRACT_TEXT_FOR_SPEECH = "extractTextForSpeech" as const;
 
 import { ImageUrlPart, Part, TextPart, ToolCallPart } from "@/schema.js";
-import { EffectiveInput, Message } from "@/types.js";
+import { EffectiveInput } from "@/types.js";
 
 import { Chunk, Effect, Ref } from "effect";
 import { InputServiceApi } from "./api.js";
@@ -119,14 +118,14 @@ export function extractAudioForTranscriptionEffect(
 ): Effect.Effect<ArrayBuffer, NoAudioFileError> {
   const audioFiles = Chunk.toReadonlyArray(input.messages).flatMap(message => {
     const parts = Chunk.toReadonlyArray(message.parts);
-    
+
     // First filter for instances of FilePart
     const fileParts = parts.filter(part => part instanceof FilePart) as FilePart[];
-    
+
     // Then filter for audio files
-    return fileParts.filter(part => 
-      part.fileType && 
-      typeof part.fileType === 'string' && 
+    return fileParts.filter(part =>
+      part.fileType &&
+      typeof part.fileType === 'string' &&
       part.fileType.startsWith('audio/')
     );
   });
@@ -198,21 +197,21 @@ const convertToMessagePart = (part: Part): TextPart | ToolCallPart | ImageUrlPar
   // Convert other known part types to TextPart using type assertion
   // for type safety
   const typedPart = part as unknown;
-  
+
   if (typeof typedPart === 'object' && typedPart !== null) {
     if ('_tag' in typedPart) {
       const taggedPart = typedPart as { _tag: string };
-      
+
       if (taggedPart._tag === "Text" && 'text' in typedPart) {
         const textPart = typedPart as TypedTextPart;
         return new TextPart({ _tag: "Text", content: textPart.text });
-      } 
-      
+      }
+
       if (taggedPart._tag === "ToolCall" && 'toolCall' in typedPart) {
         const toolCallPart = typedPart as TypedToolCallPart;
         return new TextPart({ _tag: "Text", content: `Tool Call: ${toolCallPart.toolCall}` });
-      } 
-      
+      }
+
       if (taggedPart._tag === "ImageUrl" && 'url' in typedPart) {
         const imageUrlPart = typedPart as TypedImageUrlPart;
         return new TextPart({ _tag: "Text", content: `Image URL: ${imageUrlPart.url}` });
@@ -248,7 +247,7 @@ const partToString = (part: Part): string => {
   if (part && typeof part === 'object' && '_tag' in part) {
     return `Part: ${part._tag}`;
   }
-  
+
   return String(part);
 };
 
@@ -273,14 +272,14 @@ export class InputService extends Effect.Service<InputServiceApi>()("InputServic
 
       // First: filter for parts that pass our isFilePart check
       const possibleFileParts = allParts.filter(part => isFilePart(part));
-      
+
       // Cast to FilePart[] since we know all elements pass isFilePart
       const fileParts = possibleFileParts as FilePart[];
-      
+
       // Now filter for audio files
-      return fileParts.filter(part => 
-        part.fileType && 
-        typeof part.fileType === 'string' && 
+      return fileParts.filter(part =>
+        part.fileType &&
+        typeof part.fileType === 'string' &&
         part.fileType.startsWith('audio/')
       );
     };

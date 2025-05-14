@@ -1,13 +1,8 @@
-
-import { ImagePart } from "@effect/ai/AiInput";
-import { ImageUrlPart, PartTypeId, TextPart, ToolCallPart } from "@effect/ai/AiResponse";
 import { Schema as S } from "effect";
-
-
+import { ImageUrlPart as BaseImageUrlPart, TextPart as BaseTextPart, ToolCallPart as BaseToolCallPart } from "../../../schema.js"; // Import base parts
 
 /**
  * Represents a file part in a message.
- * This is a custom part type that works with @effect/ai/AiResponse Part
  */
 export class FilePart extends S.Class<FilePart>(
     "FilePart"
@@ -18,12 +13,6 @@ export class FilePart extends S.Class<FilePart>(
     fileType: S.String,
     url: S.String
 }) {
-    /**
-     * Required by the Part interface for identification
-     * @since 1.0.0
-     */
-    readonly [PartTypeId]: PartTypeId = PartTypeId;
-
     constructor(
         fileName: string,
         fileContent: Uint8Array,
@@ -51,7 +40,6 @@ class TextStreamPart extends S.Class<TextStreamPart>(
 }) { }
 
 
-
 // === Main Model Definition Schema ===
 // [DEPRECATED] All exports have been moved to input.service.ts
 // This file will be deleted after migration.
@@ -63,11 +51,6 @@ class ReasoningPart extends S.Class<ReasoningPart>(
     text: S.String,
     signature: S.String.pipe(S.optional),
 }) {
-    /**
-     * @since 1.0.0
-     */
-    readonly [PartTypeId]: PartTypeId = PartTypeId
-
 }
 
 // [DEPRECATED] All exports have been moved to input.service.ts
@@ -79,9 +62,6 @@ class RedactedReasoningPart extends S.Class<RedactedReasoningPart>(
     type: S.Literal("redacted-reasoning"),
     data: S.String
 }) {
-
-    readonly [PartTypeId]: PartTypeId = PartTypeId
-
 }
 
 class ToolPart extends S.Class<ToolPart>(
@@ -94,11 +74,6 @@ class ToolPart extends S.Class<ToolPart>(
     toolDescription: S.String,
     toolArguments: S.String,
 }) {
-    /**
-     * @since 1.0.0
-     */
-    readonly [PartTypeId]: PartTypeId = PartTypeId
-
 }
 
 // [DEPRECATED] All exports have been moved to input.service.ts
@@ -110,15 +85,11 @@ class ToolResultPart extends S.Class<ToolResultPart>(
     type: S.Literal("tool-result"),
     data: S.String
 }) {
-    /**
-     * @since 1.0.0
-     */
-    readonly [PartTypeId]: PartTypeId = PartTypeId
-
 }
 
 // [DEPRECATED] All exports have been moved to input.service.ts
 // This file will be deleted after migration.
+// This local 'Part' union should be reviewed. For now, keeping its existing definition.
 type Part = FilePart | ReasoningPart | RedactedReasoningPart | ToolPart | ToolResultPart;
 
 
@@ -128,10 +99,10 @@ declare namespace EffectivePart {
     // [DEPRECATED] All exports have been moved to input.service.ts
     // This file will be deleted after migration.
     type Schema = S.Union<[
-        typeof TextPart,
-        typeof ImagePart,
-        typeof ImageUrlPart,
-        typeof ToolCallPart,
+        typeof BaseTextPart, // Use BaseTextPart from root schema
+        // ImagePart removed as its source from @effect/ai/AiInput is gone and its specific structure isn't locally defined here yet.
+        typeof BaseImageUrlPart, // Use BaseImageUrlPart from root schema
+        typeof BaseToolCallPart, // Use BaseToolCallPart from root schema
         typeof FilePart,
         typeof ToolPart,
         typeof ToolResultPart,
@@ -142,4 +113,4 @@ declare namespace EffectivePart {
 
 // [DEPRECATED] All exports have been moved to input.service.ts
 // This file will be deleted after migration.
-const EffectivePart: EffectivePart.Schema = S.Union(TextPart, ImagePart, ImageUrlPart, ToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);
+const EffectivePart: EffectivePart.Schema = S.Union(BaseTextPart, BaseImageUrlPart, BaseToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);

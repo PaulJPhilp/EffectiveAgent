@@ -29,7 +29,7 @@ import {
 } from "./types.js";
 
 // Use the imported ProviderClientApi type instead of redeclaring it
-export type { ProviderClientApi } from "./types.js";
+// export type { ProviderClientApi } from "./types.js";
 
 /**
  * Defines the public API for the ProviderService.

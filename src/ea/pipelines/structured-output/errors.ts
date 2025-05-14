@@ -3,6 +3,7 @@
  * @module ea/pipelines/structured-output/errors
  */
 
+import type { EffectiveUsage } from "@/types.js";
 import { PipelineError } from "../common/errors.js";
 
 /**
@@ -121,21 +122,13 @@ export class MaxRetriesExceededError extends StructuredOutputPipelineError {
 export class GenerationError extends StructuredOutputPipelineError {
     readonly modelId: string;
     readonly prompt: string;
-    readonly usage?: {
-        promptTokens: number;
-        completionTokens: number;
-        totalTokens: number;
-    };
+    readonly usage?: EffectiveUsage;
 
     constructor(params: {
         message: string;
         modelId: string;
         prompt: string;
-        usage?: {
-            promptTokens: number;
-            completionTokens: number;
-            totalTokens: number;
-        };
+        usage?: EffectiveUsage;
         cause?: unknown;
     }) {
         super({
@@ -169,8 +162,6 @@ export class ExtractionError extends StructuredOutputPipelineError {
         this.extractionPattern = params.extractionPattern;
     }
 }
-
-
 
 /**
  * Union type of all StructuredOutputPipeline error types

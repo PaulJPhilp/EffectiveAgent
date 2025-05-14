@@ -1,8 +1,6 @@
-import { TestHarnessService } from "@/services/test-harness/service.js";
-import { AiResponse } from "@effect/ai/AiResponse.js";
-import * as AiRole from "@effect/ai/AiRole.js";
+import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import { Effect, Either, Option } from "effect";
-import type { Tracer } from "effect";
+import { Span } from "effect/Tracer";
 import { describe, expect, it } from "vitest";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "../errors.js";
 import TextService from "../service.js";
@@ -35,19 +33,19 @@ describe("TextService with Test Harness", () => {
       )
     );
 
-    it("should generate text for valid input", () => 
+    it("should generate text for valid input", () =>
       Effect.gen(function* (_) {
         const service = yield* TextService;
         const result = yield* service.generate({
           modelId: "test-model",
           prompt: "Tell me a story",
-          system: Option.none()
-          // messages is not part of TextGenerationOptions
+          system: Option.none(),
+          span: {} as Span
         });
-        
+
         expect(result).toBeDefined();
-        expect(result.text).toBeDefined();
-        expect(typeof result.text).toBe("string");
+        expect((result.data as unknown as GenerateTextResult).text).toBeDefined();
+        expect(typeof (result.data as unknown as GenerateTextResult).text).toBe("string");
       }).pipe(
         Effect.provide(TextService.Default)
       )
@@ -59,12 +57,13 @@ describe("TextService with Test Harness", () => {
         const result = yield* service.generate({
           modelId: "test-model",
           prompt: "Tell me about robots",
-          system: Option.none()
+          system: Option.none(),
+          span: {} as Span
         });
-        
+
         expect(result).toBeDefined();
-        expect(result.text).toBeDefined();
-        expect(typeof result.text).toBe("string");
+        expect((result.data as unknown as GenerateTextResult).text).toBeDefined();
+        expect(typeof (result.data as unknown as GenerateTextResult).text).toBe("string");
       }).pipe(
         Effect.provide(TextService.Default)
       )
@@ -76,13 +75,14 @@ describe("TextService with Test Harness", () => {
         const result = yield* Effect.either(service.generate({
           modelId: "test-model",
           prompt: "",
-          system: Option.none()
+          system: Option.none(),
+          span: {} as Span
         }));
-        
+
         expect(Either.isLeft(result)).toBe(true);
         if (Either.isLeft(result)) {
           expect(result.left).toBeInstanceOf(TextInputError);
-          expect(result.left.description).toContain("Empty prompt");
+          expect((result.left as TextInputError).description).toContain("Empty prompt");
         }
       }).pipe(
         Effect.provide(TextService.Default)
@@ -95,13 +95,14 @@ describe("TextService with Test Harness", () => {
         const result = yield* Effect.either(service.generate({
           modelId: "nonexistent-model",
           prompt: "Test prompt",
-          system: Option.none()
+          system: Option.none(),
+          span: {} as Span
         }));
-        
+
         expect(Either.isLeft(result)).toBe(true);
         if (Either.isLeft(result)) {
-          expect(result.left).toBeInstanceOf(TextModelError); 
-          expect(result.left.description).toContain("Model not found");
+          expect(result.left).toBeInstanceOf(TextModelError);
+          expect((result.left as TextModelError).description).toContain("Model not found");
         }
       }).pipe(
         Effect.provide(TextService.Default)
@@ -114,13 +115,14 @@ describe("TextService with Test Harness", () => {
         const result = yield* Effect.either(service.generate({
           modelId: "test-model",
           prompt: "Test prompt",
-          system: Option.none()
+          system: Option.none(),
+          span: {} as Span
         }));
-        
+
         expect(Either.isLeft(result)).toBe(true);
         if (Either.isLeft(result)) {
           expect(result.left).toBeInstanceOf(TextProviderError);
-          expect(result.left.description).toContain("Provider not found");
+          expect((result.left as TextProviderError).description).toContain("Provider not found");
         }
       }).pipe(
         Effect.provide(TextService.Default)
@@ -133,13 +135,14 @@ describe("TextService with Test Harness", () => {
         const result = yield* Effect.either(service.generate({
           modelId: "test-model",
           prompt: "Test prompt",
-          system: Option.none()
+          system: Option.none(),
+          span: {} as Span
         }));
-        
+
         expect(Either.isLeft(result)).toBe(true);
         if (Either.isLeft(result)) {
           expect(result.left).toBeInstanceOf(TextGenerationError);
-          expect(result.left.description).toContain("Text generation failed");
+          expect((result.left as TextGenerationError).description).toContain("Text generation failed");
         }
       }).pipe(
         Effect.provide(TextService.Default)

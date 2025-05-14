@@ -5,8 +5,8 @@ import type { ChatCompletionOptions } from "@/services/pipeline/producers/chat/s
 import type { EmbeddingServiceApi } from "@/services/pipeline/producers/embedding/api.js"
 import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js"
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js"
+import type { EffectiveResponse } from "@/types.js"
 import type { LanguageModelV1 } from "@ai-sdk/provider"
-import type { AiResponse } from "@effect/ai/AiResponse"
 import type { Effect } from "effect"
 import type { Span } from "effect/Tracer"
 
@@ -37,7 +37,7 @@ interface TranscriptionServiceApi {
 
 
 interface ChatServiceApi {
-  create: (options: ChatCompletionOptions) => Effect.Effect<AiResponse, EffectiveError>;
+  create: (options: ChatCompletionOptions) => Effect.Effect<EffectiveResponse<string>, EffectiveError>;
 }
 
 /**

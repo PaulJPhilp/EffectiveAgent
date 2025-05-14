@@ -286,7 +286,41 @@ export class TranscribeError extends EffectiveError {
  * @extends EffectiveError
  */
 export class GenerateEmbeddingsError extends EffectiveError {
+    /**
+     * @param params - Error details
+     * @param params.description - Error message
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
     constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
         super(params);
+    }
+}
+
+/**
+ * Error thrown when a default model ID cannot be determined for a given provider and capability.
+ * @extends EffectiveError
+ */
+export class MissingModelIdError extends EffectiveError {
+    public readonly providerName: ProvidersType;
+    public readonly capability: ModelCapability;
+    /**
+     * @param params - Error details
+     * @param params.providerName - Provider name
+     * @param params.capability - Capability for which a model ID was missing
+     * @param params.module - Module name
+     * @param params.method - Method name
+     * @param params.cause - Optional cause
+     */
+    constructor(params: { providerName: ProvidersType; capability: ModelCapability; module: string; method: string; cause?: unknown }) {
+        super({
+            description: `Could not determine a default model ID for provider ${params.providerName} and capability ${params.capability}`,
+            module: params.module,
+            method: params.method,
+            cause: params.cause
+        });
+        this.providerName = params.providerName;
+        this.capability = params.capability;
     }
 }

@@ -2,21 +2,27 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
+import { Part as EffectiveLocalPart, Message as EffectiveMessage } from "@/schema.js";
 import { Effect, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
-import { Message } from "@/schema.js";
+
+/**
+ * Schema for model roles.
+ */
+export const EffectiveRole = S.Union(
+  S.Literal("user"),
+  S.Literal("model"),
+  S.Literal("system"),
+  S.Literal("assistant"),
+  S.Literal("tool")
+);
+export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>;
 
 /**
  * Union type for all valid part types in the input pipeline.
- * Includes core AI response parts and custom parts (FilePart, ReasoningPart, etc).
- *
- * This type should be imported by any service or API that needs to accept or validate input parts.
+ * Sourced from local schema definitions.
  */
-import type { ImageUrlPart, TextPart, ToolCallPart } from "@effect/ai/AiResponse";
-// Import custom parts from input/schema (if not deprecated)
-// If FilePart/ReasoningPart are deprecated, only use core types
-export type EffectivePartType = TextPart | ToolCallPart | ImageUrlPart;
-// Add | FilePart | ReasoningPart here if still in use
+export type EffectivePartType = EffectiveLocalPart;
 
 /**
  * Result of the transcription process
@@ -37,7 +43,7 @@ export class EffectiveInput extends S.Class<EffectiveInput>("EffectiveInput")({
   /** The input text/prompt to process */
   text: S.String,
   /** Messages in the conversation */
-  messages: S.Chunk(Message),
+  messages: S.Chunk(EffectiveMessage),
   /** Optional metadata for the request */
   metadata: S.optional(S.Struct({
     /** Operation name for tracing */
@@ -55,7 +61,7 @@ export class EffectiveInput extends S.Class<EffectiveInput>("EffectiveInput")({
     providerMetadata: S.optional(S.Record({ key: S.String, value: S.Unknown }))
   }))
 }) {
-  constructor(text: string, messages: Chunk.Chunk<Message>, metadata?: {
+  constructor(text: string, messages: Chunk.Chunk<EffectiveMessage>, metadata?: {
     operationName?: string;
     parameters?: {
       temperature?: number;
@@ -79,17 +85,13 @@ export interface EffectiveResponse<T> {
   /** The operation result */
   data: T;
   /** Usage statistics */
-  usage?: {
-    promptTokens: number;
-    completionTokens: number;
-    totalTokens: number;
-  };
+  usage?: EffectiveUsage;
   /** Reason for completion */
   finishReason?: "stop" | "length" | "content_filter" | "tool_calls" | "function_call";
   /** Provider-specific metadata */
   providerMetadata?: Record<string, unknown>;
   /** Messages in the conversation */
-  messages?: Chunk.Chunk<Message>;
+  messages?: Chunk.Chunk<EffectiveMessage>;
 }
 
 /**
@@ -276,7 +278,7 @@ export interface ProviderMetadata {
 /**
  * Token usage information for AI operations.
  */
-export interface Usage {
+export interface EffectiveUsage {
   promptTokens: number;
   completionTokens: number;
   totalTokens: number;
@@ -358,7 +360,7 @@ export interface BaseConfig {
 /**
  * Represents a user in the system
  */
-export interface User {
+export interface EffectiveUser {
   readonly id: string;
   readonly name: string;
   readonly email: string;
@@ -367,5 +369,6 @@ export interface User {
   readonly createdAt: Date;
   readonly updatedAt: Date;
 }
-export { Message };
+
+export { EffectiveMessage };
 

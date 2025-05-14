@@ -2,7 +2,6 @@
  * @file Test suite for InputService
  */
 
-import { Message } from "@/schema.js";
 import {
     InvalidInputError,
     InvalidMessageError,
@@ -15,9 +14,9 @@ import {
     ROLE_SYSTEM,
     ROLE_USER
 } from "@/services/pipeline/input/service.js";
-import { TextPart } from "@effect/ai/AiResponse";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
+import { Message, TextPart } from "../../../schema.js";
 
 // Test schema for Person object
 class Person extends Schema.Class<Person>("Person")({

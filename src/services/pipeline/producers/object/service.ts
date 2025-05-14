@@ -8,15 +8,16 @@ import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
+import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
 import type { EffectiveResponse } from "@/types.js";
-import { EffectiveInput, Message } from "@/types.js";
-import { JSONSchema, Schema as S } from "effect";   
+import { EffectiveInput, EffectiveMessage } from "@/types.js";
+import { NodeContext } from "@effect/platform-node";
+import { ConfigProvider, JSONSchema, Layer, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
-import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
-import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
-import type { ObjectGenerationOptions } from "@/services/pipeline/producers/object/types.js";
+import { ObjectGenerationOptions } from "./types.js";
 
 /**
  * Result shape expected from the underlying provider client's generateObject method
@@ -42,8 +43,14 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
         const providerService = yield* ProviderService;
         const modelService: ModelServiceApi = yield* ModelService;
 
+        // Create a combined layer for common provider needs, once.
+        const commonProviderLayer = Layer.merge(
+            NodeContext.layer,
+            Layer.succeed(ConfigProvider.ConfigProvider, ConfigProvider.fromEnv())
+        );
+
         return {
-            generate: <T>(options: ObjectGenerationOptions<T>) =>
+            generate: <S_Schema extends S.Schema<any, any>, T_Output = S.Schema.Type<S_Schema>>(options: ObjectGenerationOptions<S_Schema>): Effect.Effect<EffectiveResponse<T_Output>, Error> =>
                 Effect.gen(function* () {
                     // Validate prompt
                     if (!options.prompt || options.prompt.trim() === "") {
@@ -85,7 +92,7 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
 
                     // If system prompt is provided, prepend it to the prompt
                     let finalPrompt = options.prompt;
-                    const systemPrompt = Option.getOrUndefined(options.system);
+                    const systemPrompt = options.system ? Option.getOrUndefined(options.system) : undefined;
                     if (systemPrompt) {
                         finalPrompt = `${systemPrompt}\n\n${finalPrompt}`;
                     }
@@ -111,24 +118,29 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                     // Create EffectiveInput from the final prompt
                     const effectiveInput = new EffectiveInput(
                         finalPrompt,
-                        Chunk.make(new Message({
+                        Chunk.make(new EffectiveMessage({
                             role: "user",
                             parts: Chunk.make(new TextPart({ _tag: "Text", content: finalPrompt }))
                         }))
                     );
 
+                    // Create Effect for provider call with its context
+                    const providerCallEffect = providerClient.generateObject<T_Output>(
+                        effectiveInput,
+                        {
+                            modelId,
+                            schema: options.schema as unknown as S.Schema<any, T_Output>,
+                            system: systemPrompt,
+                            signal: options.signal,
+                            ...options.parameters
+                        }
+                    ).pipe(
+                        Effect.provide(commonProviderLayer)
+                    );
+
                     // Generate the object using the provider's generateObject method
                     const result = yield* Effect.promise(
-                        (): Promise<ProviderObjectGenerationResult<T>> => Effect.runPromise(providerClient.generateObject<T>(
-                            effectiveInput,
-                            {
-                                modelId,
-                                schema: options.schema,
-                                system: systemPrompt,
-                                signal: options.signal,
-                                ...options.parameters
-                            }
-                        ))
+                        (): Promise<ProviderObjectGenerationResult<T_Output>> => Effect.runPromise(providerCallEffect)
                     ).pipe(
                         Effect.mapError((error) => new ObjectGenerationError({
                             description: "Object generation failed",
@@ -153,19 +165,29 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
 
                     // Map the result to ObjectGenerationResult
                     return {
+                        metadata: result.metadata,
                         data: parsedObject,
-                        model: result.data.model,
-                        timestamp: result.data.timestamp,
-                        id: result.data.id,
-                        usage: result.data.usage ? {
-                            promptTokens: result.data.usage.promptTokens || 0,
-                            completionTokens: result.data.usage.completionTokens || 0,
-                            totalTokens: result.data.usage.totalTokens || 0
-                        } : undefined
-                    };
+                        usage: result.usage,
+                        finishReason: result.finishReason,
+                        providerMetadata: result.providerMetadata,
+                        messages: result.messages
+                    } as EffectiveResponse<T_Output>;
                 }).pipe(
+                    Effect.mapError(error => {
+                        // Ensure all known errors are preserved, otherwise wrap unknown
+                        if (error instanceof ObjectInputError ||
+                            error instanceof ObjectModelError ||
+                            error instanceof ObjectProviderError ||
+                            error instanceof ObjectSchemaError ||
+                            error instanceof ObjectGenerationError) {
+                            return error;
+                        }
+                        // Fallback for truly unknown errors, though ideally all paths are typed
+                        return new Error(`An unexpected error occurred: ${String(error)}`);
+                    }),
                     Effect.withSpan("ObjectService.generate")
                 )
         };
-    })
+    }),
+    dependencies: [ModelService.Default, ProviderService.Default]
 }) { }

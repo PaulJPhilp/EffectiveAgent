@@ -6,12 +6,14 @@
 import { EffectiveError } from "@/errors.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
 import TextService from "@/services/pipeline/producers/text/service.js";
-import { Effect, Option, Schema, pipe } from "effect";
+import { NodeContext } from "@effect/platform-node";
+import { ConfigProvider, Effect, Layer, Option, Schema, pipe } from "effect";
 
 /**
  * Pipeline for text completion using an AI model.
@@ -55,7 +57,7 @@ export class TextCompletionPipeline extends AiPipeline<
         });
 
         return {
-          text: result.text,
+          text: (result.data as unknown as GenerateTextResult).text,
           usage: result.usage ?? {
             promptTokens: 0,
             completionTokens: 0,
@@ -70,7 +72,9 @@ export class TextCompletionPipeline extends AiPipeline<
       Effect.provide(TextService.Default),
       Effect.provide(ProviderService.Default),
       Effect.provide(ModelService.Default),
-      Effect.provide(ConfigurationService.Default)
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(Layer.succeed(ConfigProvider.ConfigProvider, ConfigProvider.fromEnv())),
+      Effect.provide(NodeContext.layer)
     );
   }
 }

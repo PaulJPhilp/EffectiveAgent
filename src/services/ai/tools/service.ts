@@ -2,8 +2,7 @@
  * @file Implements the Tool Service using Effect.Service pattern.
  */
 
-import { Message } from "@/types.js";
-import { Effect, Schema } from "effect";
+import { Effect } from "effect";
 import { ToolRegistryService } from "../tool-registry/service.js";
 import type { ToolServiceApi } from "./api.js";
 import {
@@ -13,8 +12,7 @@ import {
     ToolNotFoundError,
     ToolOutputValidationError
 } from "./errors.js";
-import { type ToolImplementation } from "./schema.js";
-import type { FullToolName, IEffectImplementation } from "./types.js";
+import type { FullToolName } from "./types.js";
 
 /**
  * Implementation of the Tool Service.

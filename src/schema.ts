@@ -2,30 +2,31 @@
  * @file Defines core Effect schemas used across the application.
  */
 
+import type { EffectiveRole } from "@/types.js"; // Added import for EffectiveRole
 import { Schema as S } from "effect";
 
 /**
  * Text part in a message
  */
 export class TextPart extends S.Class<TextPart>("TextPart")({
-    _tag: S.Literal("Text"),
-    content: S.String
+  _tag: S.Literal("Text"),
+  content: S.String
 }) { }
 
 /**
  * Tool call part in a message
  */
 export class ToolCallPart extends S.Class<ToolCallPart>("ToolCallPart")({
-    _tag: S.Literal("ToolCall"),
-    toolCall: S.String
+  _tag: S.Literal("ToolCall"),
+  toolCall: S.String
 }) { }
 
 /**
  * Image URL part in a message
  */
 export class ImageUrlPart extends S.Class<ImageUrlPart>("ImageUrlPart")({
-    _tag: S.Literal("ImageUrl"),
-    url: S.String
+  _tag: S.Literal("ImageUrl"),
+  url: S.String
 }) { }
 
 /**
@@ -151,19 +152,6 @@ export type ModelCapability = S.Schema.Type<typeof ModelCapability>;
  * Schema for model context window size.
  */
 export const ContextWindowSize = PositiveInt;
-
-/**
- * Schema for model roles.
- */
-export const EffectiveRole = S.Union(
-  S.Literal("user"),
-  S.Literal("model"),
-  S.Literal("system"),
-  S.Literal("assistant"),
-  S.Literal("tool")
-);
-
-export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>
 
 /**
  * Schema for rate limit information.

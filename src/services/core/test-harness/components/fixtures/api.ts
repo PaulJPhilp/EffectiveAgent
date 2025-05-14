@@ -1,6 +1,5 @@
-import type { ImportedType } from "@/services/ai/producers/embedding/service.js";
-import { Context, Effect, Layer } from "effect";
-import { type Span, Tracer } from "effect/Tracer";
+// import type { ImportedType } from "@/services/ai/producers/embedding/service.js"; // This line will be removed or commented out
+import { type Span } from "effect/Tracer";
 
 /**
  * Common schema types for object generation tests
@@ -51,7 +50,7 @@ export interface FixtureApi {
        * Valid text input for text generation.
        */
       text: string;
-      
+
       /**
        * Valid embedding inputs (both string and array variants).
        */
@@ -59,7 +58,7 @@ export interface FixtureApi {
         single: string;
         multiple: string[];
       };
-      
+
       /**
        * Valid image generation input.
        */
@@ -68,21 +67,21 @@ export interface FixtureApi {
         size: string;
         negativePrompt: string;
       };
-      
+
       /**
        * Valid object generation input.
        */
       object: {
         prompt: string;
       };
-      
+
       /**
        * Valid transcription input.
        */
       transcription: {
         audioData: string;
       };
-      
+
       /**
        * Valid chat input.
        */
@@ -91,7 +90,7 @@ export interface FixtureApi {
         system: string;
       };
     };
-    
+
     /**
      * Common test schemas for object generation.
      */
@@ -100,24 +99,24 @@ export interface FixtureApi {
        * Creates a schema for a Person object.
        */
       createPersonSchema: () => unknown;
-      
+
       /**
        * Creates a schema for a Product object.
        */
       createProductSchema: () => unknown;
-      
+
       /**
        * Creates a schema for a Task object.
        */
       createTaskSchema: () => unknown;
-      
+
       /**
        * Creates a schema for a list of objects.
        * @param itemSchema The schema for the list items.
        */
       createListSchema: (itemSchema: unknown) => unknown;
     };
-    
+
     /**
      * Common mock responses for producer services.
      */
@@ -135,7 +134,7 @@ export interface FixtureApi {
           totalTokens: number;
         };
       };
-      
+
       /**
        * Mock text generation result.
        */
@@ -151,7 +150,7 @@ export interface FixtureApi {
         };
         finishReason: string;
       };
-      
+
       /**
        * Mock image generation result.
        */
@@ -170,7 +169,7 @@ export interface FixtureApi {
           id: string;
         }>;
       };
-      
+
       /**
        * Mock object generation result.
        */
@@ -185,7 +184,7 @@ export interface FixtureApi {
           totalTokens: number;
         };
       };
-      
+
       /**
        * Mock transcription result.
        */

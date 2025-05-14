@@ -54,27 +54,4 @@ export class ProviderResponse extends S.Class<ProviderResponse>("ProviderRespons
         completionTokens: S.Number,
         totalTokens: S.Number
     }))
-}) { }
-
-/**
- * Effective input type for provider operations
- */
-export interface EffectiveInput {
-    readonly messages: ReadonlyArray<{
-        readonly role: "user" | "assistant" | "system"
-        readonly content: string
-    }>
-    readonly functions?: ReadonlyArray<{
-        readonly name: string
-        readonly description?: string
-        readonly parameters: Record<string, unknown>
-    }>
-    readonly stream?: boolean
-    readonly maxTokens?: number
-    readonly temperature?: number
-    readonly topP?: number
-    readonly topK?: number
-    readonly frequencyPenalty?: number
-    readonly presencePenalty?: number
-    readonly stop?: ReadonlyArray<string>
-} 
+}) { } 

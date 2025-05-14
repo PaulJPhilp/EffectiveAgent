@@ -7,7 +7,7 @@ import { ModelServiceApi } from "@/services/ai/index.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { GenerateImageResult } from "@/services/ai/provider/types.js";
-import { EffectiveResponse, Message } from "@/types.js";
+import { EffectiveMessage, EffectiveResponse } from "@/types.js";
 
 import { TextPart } from "@/schema.js";
 import { EffectiveInput } from "@/types.js";
@@ -229,7 +229,7 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                     // Create EffectiveInput from the final prompt
                     const effectiveInput = new EffectiveInput(
                         finalPrompt,
-                        Chunk.make(new Message({
+                        Chunk.make(new EffectiveMessage({
                             role: "user",
                             parts: Chunk.make(new TextPart({ _tag: "Text", content: finalPrompt }))
                         }))

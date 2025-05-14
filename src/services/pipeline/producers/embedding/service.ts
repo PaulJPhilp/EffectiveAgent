@@ -1,5 +1,5 @@
-import { ModelService } from "@/services/ai/model/service"
-import { ProviderService } from "@/services/ai/provider/service"
+import { ModelService } from "@/services/ai/model/service.js"
+import { ProviderService } from "@/services/ai/provider/service.js"
 import { Effect } from "effect"
 import type { Span } from "effect/Tracer"
 import type { EmbeddingGenerationOptions, EmbeddingServiceApi } from "./api.js"

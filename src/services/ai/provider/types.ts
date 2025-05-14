@@ -1,12 +1,11 @@
-import type { Message, ResponseMessage, Usage } from "@/types.js";
-import { Effect } from "effect";
 import type { PublicModelInfoDefinition } from "@/services/ai/model/schema.js";
-import type { ProviderConfigError } from "./errors.js";
 import type { ModelService } from "@/services/ai/model/service.js";
+import type { EffectiveMessage, EffectiveUsage, ResponseMessage } from "@/types.js";
+import { Effect } from "effect";
 import { ToolDefinition } from "../tool-registry/types.js";
 import type { ToolServiceApi } from "../tools/api.js";
 import type { ToolRegistryData } from "../tools/types.js";
-import type { ProviderOperationError } from "./errors.js";
+import type { ProviderConfigError, ProviderOperationError } from "./errors.js";
 import { PROVIDER_NAMES } from "./provider-universe.js";
 
 /**
@@ -54,7 +53,7 @@ export interface GenerateBaseResult {
     /** Reason the generation finished */
     finishReason: FinishReason
     /** Token/compute usage details */
-    usage: Usage
+    usage: EffectiveUsage
     /** Provider-specific metadata */
     providerMetadata?: ProviderMetadata
     /** Optional raw response headers */
@@ -97,7 +96,7 @@ export interface ProviderClientApi {
     /**
      * Generates chat response.
      */
-    chat: (messages: Message[], options: ProviderChatOptions) => Effect.Effect<ChatResult, ProviderOperationError>;
+    chat: (messages: EffectiveMessage[], options: ProviderChatOptions) => Effect.Effect<ChatResult, ProviderOperationError>;
 
     /**
      * Generates image based on text prompt.
@@ -349,7 +348,9 @@ export type ModelCapability =
     | "audio"
     | "image-generation"
     | "embeddings"
-    | "tool-use";
+    | "tool-use"
+    | "search"
+    | "research";
 
 /**
  * Canonical provider metadata type for ProviderService.

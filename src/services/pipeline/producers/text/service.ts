@@ -9,13 +9,13 @@ import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { TestHarnessApi } from "@/services/core/test-harness/api.js";
-import { EffectiveInput, Message } from "@/types.js";
-import { Effect } from "effect";
-import * as Chunk from "effect/Chunk";
-import * as Option from "effect/Option";
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "@/services/pipeline/producers/text/errors.js";
 import type { TextGenerationOptions } from "@/services/pipeline/producers/text/types.js";
+import { EffectiveInput, EffectiveMessage, EffectiveUsage } from "@/types.js";
+import { Effect } from "effect";
+import * as Chunk from "effect/Chunk";
+import * as Option from "effect/Option";
 
 /**
  * Parameters for text generation
@@ -47,7 +47,7 @@ export interface ProviderTextGenerationResult {
     readonly warnings?: unknown[];
   };
   readonly metadata: {
-    readonly usage?: { promptTokens: number; completionTokens: number; totalTokens: number };
+    readonly usage?: EffectiveUsage;
     readonly finishReason: string;
     readonly model: string;
     readonly timestamp: Date;
@@ -130,7 +130,7 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
 
           // Create EffectiveInput from the final prompt
           const textPart = new TextPart({ _tag: "Text", content: finalPrompt });
-          const message = new Message({
+          const message = new EffectiveMessage({
             role: "user",
             parts: Chunk.make(textPart)
           });
