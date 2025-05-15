@@ -2,7 +2,7 @@
  * @file Defines core Effect schemas used across the application.
  */
 
-import type { EffectiveRole } from "@/types.js"; // Added import for EffectiveRole
+import { EffectiveRole } from "@/types.js"; // Added import for EffectiveRole
 import { Schema as S } from "effect";
 
 /**

@@ -2,7 +2,7 @@
  * @file Service implementation for Pipeline.
  */
 
-import { PipelineConfigError } from "@/ea/pipelines/common/errors.js";
+import { PipelineConfigError } from "@/examples/pipelines/common/errors.js";
 import { PipelineApi, PipelineConfig } from "@/services/pipeline/shared/api.js";
 import { PipelineExecutionError, PipelineValidationError } from "@/services/pipeline/shared/errors.js";
 import { Duration, Effect, pipe } from "effect";

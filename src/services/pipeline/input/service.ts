@@ -22,7 +22,7 @@ export const METHOD_ADD_PART_OR_MESSAGE = "addPartOrMessage" as const;
 export const METHOD_EXTRACT_TEXTS_FOR_EMBEDDINGS = "extractTextsForEmbeddings" as const;
 export const METHOD_EXTRACT_TEXT_FOR_SPEECH = "extractTextForSpeech" as const;
 
-import { ImageUrlPart, Part, TextPart, ToolCallPart } from "@/schema.js";
+import { ImageUrlPart, Message, Part, TextPart, ToolCallPart } from "@/schema.js";
 import { EffectiveInput } from "@/types.js";
 
 import { Chunk, Effect, Ref } from "effect";

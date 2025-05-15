@@ -16,7 +16,7 @@ import {
 } from "@/services/pipeline/input/service.js";
 import { Chunk, Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
-import { Message, TextPart } from "../../../schema.js";
+import { Message, TextPart } from "@/schema.js";
 
 // Test schema for Person object
 class Person extends Schema.Class<Person>("Person")({
@@ -34,7 +34,7 @@ describe("InputService", () => {
             const service = yield* InputService;
             const message = new Message({
                 role: "user",
-                parts: Chunk.make(new TextPart({ content: "Hello" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Hello" }))
             });
 
             yield* service.addMessage(message);
@@ -62,7 +62,7 @@ describe("InputService", () => {
             const service = yield* InputService;
             const message = new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Hello" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text",   content: "Hello" }))
             });
 
             yield* service.addMessage(message);
@@ -137,15 +137,15 @@ describe("message management", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: "user",
-                parts: Chunk.make(new TextPart({ content: "First" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "First" }))
             }),
             new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Second" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Second" }))
             }),
             new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Third" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Third" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -164,19 +164,19 @@ describe("message management", () => {
             // Add messages in sequence
             const msg1 = new Message({
                 role: "user",
-                parts: Chunk.make(new TextPart({ content: "First" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "First" }))
             });
             yield* service.addMessage(msg1);
 
             const msg2 = new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Second" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Second" }))
             });
             yield* service.addMessage(msg2);
 
             const msg3 = new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Third" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Third" }))
             });
             yield* service.addMessage(msg3);
 
@@ -210,15 +210,15 @@ describe("message management", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Initial text" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Initial text" }))
             }),
             new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "File: test.txt\nType: text/plain" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "File: test.txt\nType: text/plain" }))
             }),
             new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Additional reasoning" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Additional reasoning" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -235,7 +235,7 @@ describe("message management", () => {
             const service = yield* InputService;
 
             // Add different types of parts
-            const textPart = new TextPart({ content: "Initial text" });
+            const textPart = new TextPart({ _tag: "Text", content: "Initial text" });
             yield* service.addPartOrMessage(textPart);
 
             const filePart = new FilePart(
@@ -280,7 +280,7 @@ describe("role mapping", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: "user",
-                parts: Chunk.make(new TextPart({ content: "Test" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Test" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -297,7 +297,7 @@ describe("role mapping", () => {
             const service = yield* InputService;
             const message = new Message({
                 role: "user",
-                parts: Chunk.make(new TextPart({ content: "Test" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Test" }))
             });
 
             yield* service.addMessage(message);
@@ -319,7 +319,7 @@ describe("role mapping", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Test" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Test" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -336,7 +336,7 @@ describe("role mapping", () => {
             const service = yield* InputService;
             const message = new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Test" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Test" }))
             });
 
             yield* service.addMessage(message);
@@ -358,7 +358,7 @@ describe("role mapping", () => {
         getMessages: () => Effect.succeed(Chunk.make(
             new Message({
                 role: "model",
-                parts: Chunk.make(new TextPart({ content: "Test" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Test" }))
             })
         )),
         addMessage: (_message: Message) => Effect.succeed(undefined),
@@ -394,7 +394,7 @@ describe("message operations", () => {
             const service = yield* InputService;
             const message = new Message({
                 role: "user",
-                parts: Chunk.make(new TextPart({ content: "Hello" }))
+                parts: Chunk.make(new TextPart({ _tag: "Text", content: "Hello" }))
             });
 
             yield* service.addMessage(message);
@@ -428,11 +428,11 @@ describe("message operations", () => {
             const messages = [
                 new Message({
                     role: ROLE_USER,
-                    parts: Chunk.make(new TextPart({ content: "Hello" }))
+                    parts: Chunk.make(new TextPart({ _tag: "Text", content: "Hello" }))
                 }),
                 new Message({
                     role: ROLE_MODEL,
-                    parts: Chunk.make(new TextPart({ content: "Hi" }))
+                    parts: Chunk.make(new TextPart({ _tag: "Text", content: "Hi" }))
                 })
             ];
 

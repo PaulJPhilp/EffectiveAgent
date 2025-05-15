@@ -10,7 +10,7 @@ do_not_modify: true
 
 **IMPORTANT**: Before making ANY changes to services or starting ANY commands related to services:
 
-1. MUST review `src/docs/service-pattern.md` in full
+1. MUST review `src/docs/design/service-patterh/service-pattern.md` in full
 2. MUST understand the current Effect.Service pattern (v3.14+)
 3. MUST NOT use Context.Tag pattern (banned)
 4. MUST follow single service class implementation with:

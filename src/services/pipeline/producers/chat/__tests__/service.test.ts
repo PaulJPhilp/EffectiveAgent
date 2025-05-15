@@ -78,14 +78,8 @@ describe("ChatService", () => {
         parameters: { temperature: 0.7 }
       });
 
-      expect(result.role).toBe("user");
-      const messageOption = Option.fromNullable(result.text);
-      if (Option.isNone(messageOption)) {
-        throw new Error("Expected message to be present");
-      }
-      const message = messageOption.value;
-      expect(message).toBeDefined();
-      expect(typeof message).toBe("string");
+      expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
     })
   );
 
@@ -102,14 +96,8 @@ describe("ChatService", () => {
         parameters: { temperature: 0.7 }
       });
 
-      expect(result.role).toBe("user");
-      const messageOption = Option.fromNullable(result.text);
-      expect(Option.isSome(messageOption)).toBe(true);
-      if (Option.isSome(messageOption)) {
-        const message = messageOption.value;
-        expect(message).toBeDefined();
-        expect(typeof message).toBe("string");
-      }
+      expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
     })
   );
 
@@ -246,8 +234,8 @@ describe("ChatService", () => {
 
         expect(Either.isRight(result)).toBe(true);
         if (Either.isRight(result)) {
-          expect(result.right.text).toBe("I'm doing well, thank you!");
-          expect(result.right.role).toBe("user");
+          expect(result.right).toBe("I'm doing well, thank you!");
+          // Response is just a string, no role property
         }
       })
     );

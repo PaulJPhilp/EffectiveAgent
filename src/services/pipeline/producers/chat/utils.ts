@@ -3,7 +3,7 @@
  * @module services/ai/producers/chat/utils
  */
 
-import { Message, Model, TextPart, User, UserWithName } from "@/services/pipeline/input/schema.js"
+import { Message, TextPart } from "@/schema.js"
 import { Chunk, Effect } from "effect"
 
 /** Core message format for chat interactions */
@@ -50,10 +50,10 @@ export function mapMessageToCoreMessage(msg: Message): Effect.Effect<CoreMessage
             yield* Effect.logWarning("Message parts are missing or not a Chunk")
         }
 
-        if (msg.role instanceof User || msg.role instanceof UserWithName) {
+        if (msg.role === "user") {
             return { role: "user", content: textContent } as CoreMessage
         }
-        if (msg.role instanceof Model) {
+        if (msg.role === "model" || msg.role === "assistant") {
             return { role: "assistant", content: textContent } as CoreMessage
         }
         yield* Effect.logWarning(`Unsupported message role for CoreMessage mapping: ${String(msg.role)}`)

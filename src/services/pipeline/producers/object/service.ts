@@ -6,7 +6,7 @@
 import { TextPart } from "@/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
-import type { ProviderClientApi } from "@/services/ai/provider/api.js";
+import type { ProviderClientApi, ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
@@ -38,13 +38,10 @@ export type ProviderObjectGenerationResult<T> = EffectiveResponse<{
  * ObjectService provides methods for generating structured objects using AI providers.
  */
 export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", {
-    effect: Effect.gen(function* () {
-        // Get services
-        const providerService = yield* ProviderService;
-        const modelService: ModelServiceApi = yield* ModelService;
+    effect: Effect.succeed(({ modelService, providerService }: { modelService: ModelServiceApi; providerService: ProviderServiceApi }) => {
 
         return {
-            generate: <S_Schema extends S.Schema<any, any>, T_Output = S.Schema.Type<S_Schema>>(options: ObjectGenerationOptions<S_Schema>): Effect.Effect<EffectiveResponse<T_Output>, Error> =>
+            generate: <S_Schema extends S.Schema<any, any>, T_Output = S.Schema.Type<S_Schema>>(options: ObjectGenerationOptions<S_Schema>): Effect.Effect<EffectiveResponse<T_Output>, Error, any> =>
                 Effect.gen(function* () {
                     // Validate prompt
                     if (!options.prompt || options.prompt.trim() === "") {
@@ -182,5 +179,5 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                 )
         };
     }),
-    dependencies: [ModelService, ProviderService]
+    dependencies: [ModelService.Default, ProviderService.Default]
 }) { }
