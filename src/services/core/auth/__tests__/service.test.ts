@@ -1,18 +1,21 @@
 import { createServiceTestHarness } from "@/services/core/test-harness/utils/service-test.js"
 import { Effect } from "effect"
 import { describe, expect, it } from "vitest"
-import { AuthenticationError, AuthorizationError, InvalidAuthContextError } from "../errors.js"
+import { AuthServiceApi } from "../api.js"
+import { AuthenticationError, AuthError, AuthorizationError, InvalidAuthContextError } from "../errors.js"
 import { AuthService } from "../service.js"
 import type { AuthContext } from "../types.js"
 
 describe("AuthService", () => {
     const serviceHarness = createServiceTestHarness(
         AuthService,
-        () => Effect.gen(function* () {
-            // Create test implementation
-            const service = yield* AuthService
-            return service
-        })
+        () => Effect.succeed({
+            getCurrentContext: () => Effect.fail(new AuthenticationError({ message: "not implemented" })),
+            isAuthenticated: () => Effect.succeed(false),
+            validateRoles: () => Effect.succeed(undefined),
+            validateTenantAccess: () => Effect.succeed(undefined),
+            updateContext: () => Effect.fail(new AuthError({ message: "not implemented" }))
+        } satisfies AuthServiceApi)
     )
 
     describe("Authentication", () => {

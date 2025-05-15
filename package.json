@@ -26,7 +26,6 @@
     "@effect/platform-bun": "^0.60.22",
     "@effect/platform-node": "^0.76.22",
     "@effect/schema": "^0.75.5",
-    "@effect/vitest": "^0.21.4",
     "@langchain/core": "^0.3.51",
     "@langchain/langgraph": "^0.2.67",
     "@langchain/langgraph-sdk": "^0.0.54",
@@ -53,6 +52,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.3",
     "@effect/test": "^0.1.0",
+    "@effect/vitest": "^0.22.1",
     "@js-temporal/polyfill": "^0.5.1",
     "@types/bun": "^1.2.12",
     "@types/node": "^20.17.32",

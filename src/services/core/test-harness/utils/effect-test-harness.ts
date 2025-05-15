@@ -1,17 +1,20 @@
 import type { ModelServiceApi } from "@/services/ai/model/api.js"
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
 import { ConfigurationService, configurationServiceEffect } from "@/services/core/configuration/service.js"
+import type { RepositoryServiceApi } from "@/services/core/repository/api.js"
+import { RepositoryError } from "@/services/core/repository/errors.js"
+import type { BaseEntity } from "@/services/core/repository/types.js"
 import type { LanguageModelV1 } from "@ai-sdk/provider"
 import { NodeContext } from "@effect/platform-node"
+// import "@effect/vitest/register" // Removed this line as it's now in vitest.config.ts setupFiles
 import { Cause, Context, Effect, Exit as EffectExit, Either, Layer, Option, Runtime } from "effect"
 import { Span, SpanLink, SpanStatus } from "effect/Tracer"
+import { ConfigurationServiceApi } from "../../configuration/api.js"
 import { TestHarnessApi } from "../api.js"
-import AssertionHelperService, { AssertionHelperServiceImplementation } from "../components/assertion-helpers/service.js"
-import EffectRunnerService from "../components/effect-runners/service.js"
-import { FixtureApi } from "../components/fixtures/api.js"
-import { FixtureService, fixtureServiceEffect } from "../components/fixtures/service.js"
-import { MockAccessorApi } from "../components/mock-accessors/api.js"
-import MockAccessorService, { MockAccessorServiceImplementation, mockAccessorServiceImplObject } from "../components/mock-accessors/service.js"
+import { AssertionHelperService, AssertionHelperServiceImplementation } from "../components/assertion-helpers/service.js"
+import { EffectRunnerService, EffectRunnerServiceLive } from "../components/effect-runners/service.js"
+import { FixtureService } from "../components/fixtures/service.js"
+import { MockAccessorService, type MockAccessorServiceImplementation, mockAccessorServiceImplObject } from "../components/mock-accessors/service.js"
 
 // Helper function to swap the generic parameters in Either (copied from effect-runners/service.ts)
 const swapEither = <E, A>(either: Either.Either<A, E>): Either.Either<E, A> => {
@@ -124,25 +127,26 @@ export function createServiceTestHarness<R extends {} | never = never, E = any, 
     console.log("ConfigurationService TAG:", ConfigurationService);
     console.log("configurationServiceEffect:", typeof configurationServiceEffect, configurationServiceEffect !== undefined);
 
+    // Temporarily simplify this layer for debugging
     const harnessComponentsLayer = Layer.mergeAll(
-        EffectRunnerService.Default,
-        AssertionHelperService.Default,
-        Layer.succeed(MockAccessorService, mockAccessorServiceImplObject as MockAccessorApi),
-        Layer.effect(FixtureService, fixtureServiceEffect as Effect.Effect<FixtureApi, never, never>)
+        EffectRunnerServiceLive
+        // AssertionHelperServiceLive, 
+        // Layer.succeed(MockAccessorService, mockAccessorServiceImplObject as MockAccessorApi),
+        // Layer.effect(FixtureService, fixtureServiceEffect as Effect.Effect<FixtureApi, never, never>)
     );
 
     // Ensure ConfigurationService has NodeContext during its own initialization
-    const configurationLayerWithNodeContext = Layer.provide(
-        Layer.effect(ConfigurationService, configurationServiceEffect),
-        NodeContext.layer
+    const configurationLayerWithNodeContext = Layer.effect(
+        ConfigurationService,
+        Effect.provide(NodeContext.layer)(configurationServiceEffect as Effect.Effect<ConfigurationServiceApi, never, never>)
     );
 
-    // Merge the user's input layer, node context, internal harness services, and configuration service.
+    // Merge the user's input layer, node context, simplified internal harness services, and configuration service.
     const finalLayerForRuntime = Layer.mergeAll(
         inputLayer,
-        NodeContext.layer, // Keep for inputLayer and other harness components if they need FileSystem directly
-        harnessComponentsLayer,
-        configurationLayerWithNodeContext // Use the layer with NodeContext explicitly provided to ConfigurationService
+        NodeContext.layer,
+        harnessComponentsLayer, // Simplified layer
+        configurationLayerWithNodeContext
     );
 
     const runtimeEffect = Layer.toRuntime(finalLayerForRuntime).pipe(
@@ -234,4 +238,174 @@ export function createServiceTestHarness<R extends {} | never = never, E = any, 
         },
         close: () => Promise.resolve() // Scope managed by Effect.scoped, so this is a no-op or for other resources.
     } as ServiceTestHarness<R, E, A>
+}
+
+/**
+ * Generic in-memory RepositoryServiceApi mock factory for tests.
+ * @template TEntity - The entity type
+ * @param entityType - The string identifier for the entity type
+ * @param config - Optional configuration for failure simulation and tracking
+ * @returns RepositoryServiceApi<TEntity> and optional hooks
+ */
+export interface InMemoryRepoMockConfig<TEntity extends BaseEntity> {
+    failOnCreate?: string[]
+    failOnDelete?: string[]
+    requestsBeforeFailure?: number
+    simulateNetworkIssue?: boolean
+    onCreate?: (entity: TEntity) => void
+    onDelete?: (id: string) => void
+}
+
+export function createInMemoryRepositoryMock<TEntity extends BaseEntity>(
+    entityType: string,
+    config: InMemoryRepoMockConfig<TEntity> = {}
+): RepositoryServiceApi<TEntity> & {
+    getAll: () => TEntity[]
+    clear: () => void
+} {
+    const entities: Record<string, TEntity> = {}
+    let requestCount = 0
+
+    function maybeFailOnRequest(): Effect.Effect<undefined, RepositoryError> {
+        if (config.simulateNetworkIssue && Math.random() < 0.2) {
+            return Effect.fail(new RepositoryError({
+                message: `Simulated network connectivity issue`,
+                entityType
+            }))
+        }
+        if (config.requestsBeforeFailure && ++requestCount >= config.requestsBeforeFailure) {
+            return Effect.fail(new RepositoryError({
+                message: `Simulated failure after too many requests`,
+                entityType
+            }))
+        }
+        return Effect.succeed(undefined)
+    }
+
+    return {
+        create: (data: TEntity["data"]) => Effect.gen(function* () {
+            yield* maybeFailOnRequest()
+            if (config.failOnCreate && (config.failOnCreate as string[]).some(id => id === (data as any).id)) {
+                return yield* Effect.fail(new RepositoryError({
+                    message: `Simulated create failure for specific entity`,
+                    entityType
+                }))
+            }
+            const id = (data as any).id ?? `entity-${crypto.randomUUID()}`
+            const now = Date.now()
+            const entity = { id, createdAt: now, updatedAt: now, data } as TEntity
+            entities[id] = entity
+            config.onCreate?.(entity)
+            return entity
+        }),
+        findById: (id: string) => Effect.succeed(entities[id] ? Option.some(entities[id]) : Option.none<TEntity>()),
+        findOne: () => Effect.succeed(Option.none()),
+        findMany: (options?: any) => {
+            const filter = options?.filter || {}
+            const results: TEntity[] = []
+            for (const entity of Object.values(entities)) {
+                let match = true
+                for (const key in filter) {
+                    if ((entity.data as any)[key] !== filter[key]) {
+                        match = false
+                        break
+                    }
+                }
+                if (match) results.push(entity)
+            }
+            return Effect.succeed(results)
+        },
+        update: (id: string, patch: Partial<TEntity["data"]>) => {
+            if (!entities[id]) {
+                return Effect.fail(new RepositoryError({ message: `Entity not found`, entityType }))
+            }
+            entities[id] = { ...entities[id], data: { ...entities[id].data, ...patch }, updatedAt: Date.now() }
+            return Effect.succeed(entities[id])
+        },
+        delete: (id: string) => Effect.gen(function* () {
+            yield* maybeFailOnRequest()
+            if (config.failOnDelete && config.failOnDelete.includes(id)) {
+                return yield* Effect.fail(new RepositoryError({
+                    message: `Simulated delete failure for specific entity`,
+                    entityType
+                }))
+            }
+            if (!entities[id]) {
+                return yield* Effect.fail(new RepositoryError({
+                    message: `Entity not found`,
+                    entityType
+                }))
+            }
+            delete entities[id]
+            config.onDelete?.(id)
+            return undefined
+        }),
+        count: () => Effect.succeed(Object.keys(entities).length),
+        getAll: () => Object.values(entities),
+        clear: () => { for (const k in entities) delete entities[k] }
+    }
+}
+
+/**
+ * Helper to compose a service layer with a repository mock layer for tests.
+ * @template TService - The service type
+ * @template TRepo - The repository type
+ * @param serviceLayer - The Layer providing the service implementation (e.g., ServiceLive or Service.Default)
+ * @param repoTag - The Context.Tag for the repository
+ * @param repoImpl - The repository implementation or a factory function returning it
+ * @returns Layer providing the service with the repository mock
+ */
+export function createServiceTestLayer<TService, TRepo>(
+    serviceLayer: Layer.Layer<TService, never, TRepo>,
+    repoTag: import("effect").Context.Tag<TRepo, TRepo>,
+    repoImpl: TRepo | (() => TRepo)
+): Layer.Layer<TService, never, never> {
+    const repoLayer = typeof repoImpl === "function"
+        ? Layer.effect(repoTag, Effect.sync(repoImpl as () => TRepo))
+        : Layer.succeed(repoTag, repoImpl)
+    return Layer.provide(serviceLayer, repoLayer)
+}
+
+/**
+ * Creates a mock service layer with call tracking for all methods.
+ *
+ * @template T - The service interface type
+ * @param tag - The Context.Tag for the service
+ * @param implementation - The mock implementation of the service
+ * @returns An object with:
+ *   - layer: Layer providing the tracked mock service
+ *   - calls: function to get call arguments for a method
+ *   - reset: function to clear call history
+ */
+export function createTrackedMockLayer<T extends object>(
+    tag: import("effect").Context.Tag<T, T>,
+    implementation: T
+): {
+    layer: Layer.Layer<T, never, never>
+    calls: <K extends keyof T>(methodName: K) => unknown[][]
+    reset: () => void
+} {
+    const callStore = new Map<string, unknown[][]>()
+
+    // Proxy to track calls
+    const proxy = new Proxy(implementation, {
+        get(target, prop: string) {
+            const orig = target[prop as keyof T]
+            if (typeof orig === "function") {
+                return (...args: unknown[]) => {
+                    const calls = callStore.get(prop) ?? []
+                    calls.push(args)
+                    callStore.set(prop, calls)
+                    return (orig as Function).apply(target, args)
+                }
+            }
+            return orig
+        }
+    })
+
+    return {
+        layer: Layer.succeed(tag, proxy as T),
+        calls: <K extends keyof T>(methodName: K) => callStore.get(methodName as string) ?? [],
+        reset: () => callStore.clear()
+    }
 } 

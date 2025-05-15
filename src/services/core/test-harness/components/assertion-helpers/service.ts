@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import { AssertionHelperApi } from "./api.js";
 
 const assertionHelperServiceImplObject = {
@@ -44,4 +44,7 @@ export class AssertionHelperService extends Effect.Service<AssertionHelperApi>()
   }
 ) { }
 
-export default AssertionHelperService;
+export const AssertionHelperServiceLive = Layer.succeed(
+  AssertionHelperService,
+  assertionHelperServiceImplObject
+);

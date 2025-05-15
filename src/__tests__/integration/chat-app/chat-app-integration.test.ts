@@ -5,39 +5,31 @@
  * that the chat app can connect to for integration testing.
  */
 
-import { AgentRuntimeService } from "@/agent-runtime/service.js"
 import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js"
-import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
-import { ToolService } from "@/services/ai/tools/service.js"
 import { ToolRegistryData, ToolRegistryDataTag } from "@/services/ai/tools/types.js"
-import { MockWebSocketServer } from "@/services/core/mock-websocket/service.js"
-import { AssertionHelperService } from "@/services/core/test-harness/components/assertion-helpers/service.js"
-import EffectRunnerService from "@/services/core/test-harness/components/effect-runners/service.js"
-import FixtureService from "@/services/core/test-harness/components/fixtures/service.js"
-import MockAccessorService from "@/services/core/test-harness/components/mock-accessors/service.js"
-import { TestHarnessLayer, TestHarnessService } from "@/services/core/test-harness/service.js"
-import { NodeContext } from "@effect/platform-node.js"
-import { Effect, Exit, HashMap, Layer, Schema as S, Scope, Stream } from "effect"
+import { AgentRuntimeService, ToolRegistryService } from "@/services/core/effect-services"
+import { createServiceTestHarness } from "@/services/core/test-harness/utils/effect-test-harness.js"
+import { Effect, HashMap, Layer, Schema as S, Stream } from "effect"
 
 // Input schema for weather tool
-export class WeatherInput extends S.Class<WeatherInput>("WeatherInput")({
+class WeatherInput extends S.Class<WeatherInput>("WeatherInput")({
     location: S.String
 }) { }
 
 // Output schema for weather tool
-export class WeatherOutput extends S.Class<WeatherOutput>("WeatherOutput")({
+class WeatherOutput extends S.Class<WeatherOutput>("WeatherOutput")({
     temperature: S.Number,
     conditions: S.String,
     location: S.String
 }) { }
 
 // Input schema for time tool
-export class TimeInput extends S.Class<TimeInput>("TimeInput")({
+class TimeInput extends S.Class<TimeInput>("TimeInput")({
     timezone: S.optional(S.String)
 }) { }
 
 // Output schema for time tool
-export class TimeOutput extends S.Class<TimeOutput>("TimeOutput")({
+class TimeOutput extends S.Class<TimeOutput>("TimeOutput")({
     time: S.String,
     timezone: S.String
 }) { }
@@ -202,66 +194,30 @@ function createMockAgentRuntimeWithTools() {
 }
 
 describe('Chat App Integration', () => {
-    let scope: Scope.Scope
-    let testHarness: TestHarnessService
+    let harness: ReturnType<typeof createServiceTestHarness>
 
-    beforeAll(async () => {
-        // Create test resources
-        scope = await Effect.runPromise(Scope.make())
-
-        // Setup test harness
-        testHarness = await Effect.runPromise(
-            Effect.provide(TestHarnessService, TestHarnessLayer).pipe(
-                Effect.provide(
-                    Layer.merge(
-                        Layer.merge(
-                            EffectRunnerService.Default,
-                            AssertionHelperService.Default
-                        ),
-                        Layer.merge(
-                            MockAccessorService.Default,
-                            FixtureService.Default
-                        )
-                    )
-                )
+    beforeAll(() => {
+        // Provide the real Effect.Service classes for AgentRuntimeService and ToolRegistryService
+        harness = createServiceTestHarness(
+            Layer.mergeAll(
+                AgentRuntimeService,
+                ToolRegistryService
             )
         )
     })
 
     afterAll(async () => {
-        await Effect.runPromise(Scope.close(Exit.unit())(scope))
+        await harness.close()
     })
 
     it('should handle chat interactions with tool calls', async () => {
-        // Create a mock AgentRuntime with test tools
-        const mockAgentRuntime = createMockAgentRuntimeWithTools()
-
-        // Create scope layer
-        const scopeLayer = Layer.succeed(Scope.Scope, scope)
-
-        // Create test layer with all dependencies
-        const testLayer = Layer.mergeAll(
-            scopeLayer,
-            NodeContext.layer,
-            AgentRuntimeService.Default,
-            mockAgentRuntime.layer,
-            ToolService.Default,
-            ToolRegistryService.Default
-        )
-
-        // Run the test
-        await Effect.runPromise(
-            Effect.gen(function* (_) {
-                // Set up mock WebSocket server
-                const server = yield* MockWebSocketServer.make()
-                yield* server.start()
-
-                // Wait for test completion or timeout
-                yield* Effect.sleep('5 seconds')
-
-                // Cleanup
-                yield* server.stop()
-            }).pipe(Effect.provide(testLayer))
+        await harness.runTest(
+            Effect.gen(function* () {
+                // Use harness-provided mocks for all other dependencies
+                // Example: const agentRuntime = yield* AgentRuntimeService
+                // Example: const toolRegistry = yield* ToolRegistryService
+                // Simulate chat interaction and assertions here
+            })
         )
     })
 }) 

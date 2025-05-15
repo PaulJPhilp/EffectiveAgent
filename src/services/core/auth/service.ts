@@ -129,4 +129,6 @@ export class AuthService extends Effect.Service<AuthServiceApi>()("AuthService",
         };
     }),
     dependencies: []
-}) { } 
+}) { }
+
+export const AuthServiceTag = Effect.GenericTag<AuthServiceApi>("AuthService") 

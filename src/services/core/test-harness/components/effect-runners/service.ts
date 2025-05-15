@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 import { Either } from "effect/Either";
 import { Exit } from "effect/Exit";
 import { EffectRunnerApi } from "./api.js";
@@ -40,4 +40,7 @@ export class EffectRunnerService extends Effect.Service<EffectRunnerApi>()(
   }
 ) { }
 
-export default EffectRunnerService;
+export const EffectRunnerServiceLive = Layer.succeed(
+  EffectRunnerService,
+  effectRunnerServiceImplObject
+);

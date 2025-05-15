@@ -1,4 +1,4 @@
-import { Context, Effect, Option } from "effect";
+import { Context, Effect, Layer, Option } from "effect";
 import { type Span, SpanLink, SpanStatus } from "effect/Tracer";
 import { FixtureApi } from "./api.js";
 
@@ -44,4 +44,4 @@ export class FixtureService extends Effect.Service<FixtureApi>()("FixtureService
   dependencies: [], // This should be empty if Effect.gen handles its own dependencies via yield*
 }) { }
 
-export default FixtureService;
+export const FixtureServiceLive = Layer.effect(FixtureService, fixtureServiceEffect);

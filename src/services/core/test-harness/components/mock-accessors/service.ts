@@ -12,7 +12,7 @@ import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSch
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js"
 import { EffectiveInput, EffectiveMessage, EffectiveResponse } from "@/types.js"
 import type { LanguageModelV1 } from "@ai-sdk/provider"
-import { Chunk, Effect } from "effect"
+import { Chunk, Effect, Layer } from "effect"
 import type { MockAccessorApi } from "./api.js"
 
 // --- Stores for captured arguments ---
@@ -383,15 +383,20 @@ const mockAccessorServiceImplObject = {
 };
 
 export type MockAccessorServiceImplementation = typeof mockAccessorServiceImplObject;
-export { mockAccessorServiceImplObject }
 
 /**
  * Implementation of the MockAccessorService using Effect.Service pattern.
- * Provides access to standard mock objects for testing AI components.
+ * Provides access to mock implementations of various AI services and utilities for testing.
  */
 export class MockAccessorService extends Effect.Service<MockAccessorApi>()("MockAccessorService", {
   effect: Effect.succeed(mockAccessorServiceImplObject),
   dependencies: []
 }) { }
 
-export default MockAccessorService;
+export const MockAccessorServiceLive = Layer.succeed(
+  MockAccessorService,
+  mockAccessorServiceImplObject
+);
+
+export { mockAccessorServiceImplObject }
+

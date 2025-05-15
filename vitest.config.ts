@@ -9,6 +9,7 @@ export default defineConfig({
         environment: 'node',
         include: ['**/*.test.ts'],
         exclude: ['**/node_modules/**', '**/dist/**'],
+        setupFiles: [],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html', 'lcov'],
