@@ -1,63 +1,168 @@
-import * as S from "@effect/schema/Schema";
-import { Effect, Layer } from "effect";
-import { describe, expect, it } from "vitest";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import { Effect, Logger, Schema as S } from "effect";
+import * as Layer from "effect/Layer";
+import * as NodeFs from "node:fs/promises";
+import * as NodePath from "node:path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { setup } from "./setup.js";
 
-import { CacheServiceLiveLayer } from "../cache/service.js";
+function makeLogger(name: string) {
+    const fmtLogger = Logger.logfmtLogger
+    const fileLogger = fmtLogger.pipe(
+        PlatformLogger.toFile(NodePath.join(process.cwd(), "test-logs", `${name}.log`))
+    )
+    return Logger.replaceScoped(Logger.defaultLogger, fileLogger).pipe(Layer.provide(NodeFileSystem.layer))
+}
+
+
+// Re-export Schema for convenience
+const Schema = S;
+
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { LoggingService } from "@/services/core/logging/service.js";
+import { ObjectService } from "@/services/pipeline/producers/object/service.js";
+import { ExecutiveService } from "@/services/pipeline/shared/service.js";
+import { PlatformLogger } from "@effect/platform";
+import { PlatformError } from "@effect/platform/Error";
+import { VercelLlmService } from "../llm/service.js";
 import {
-    type GenerateStructuredOutputPayload,
-    SchemaValidationError,
-    StructuredOutputPipeline,
-    StructuredOutputPipelineError
-} from "../contract.js";
-import {
-    SchemaValidatorToolLiveLayer,
-    StructuredOutputPipelineLiveLayer
+    LocalSchemaValidatorService,
+    StructuredOutputPipelineService
 } from "../service.js";
 
-// Composite layer for E2E tests, using live services
-const E2EEnvLayer = Layer.provide(
-    StructuredOutputPipelineLiveLayer,
-    Layer.merge(CacheServiceLiveLayer, SchemaValidatorToolLiveLayer)
-);
+// Test configuration
+const TEST_LOG_DIR = NodePath.join(process.cwd(), "test-logs");
+const TEST_LOG_FILE = "e2e-test";
+
+// Get the LoggingService instance for tests
+const getTestLogger = () => Effect.gen(function* () {
+    return yield* LoggingService;
+});
+
+// Clean up test logs
+const cleanupTestLogs = () => {
+    return Effect.promise(async () => {
+        try {
+            await NodeFs.rm(TEST_LOG_DIR, { recursive: true, force: true });
+        } catch (error) {
+            console.error("Failed to clean up test logs:", error);
+        }
+    });
+};
+
+
 
 const UserProfileSchema = S.Struct({
     username: S.String,
     email: S.String,
-    isActive: S.Boolean
+    active: S.Boolean
 });
+
 type UserProfile = S.Schema.Type<typeof UserProfileSchema>;
 
 
 describe("StructuredOutputPipeline E2E Tests", () => {
-    it("generateStructuredOutput should attempt full flow and fail validation with mock LLM", async () => {
-        const payload: GenerateStructuredOutputPayload<typeof UserProfileSchema> = {
-            prompt: "Create a user profile for 'john.doe' with email 'john@example.com', active status true.",
-            schema: UserProfileSchema
-        };
+    let testNumber = 0;
+    let fileLogger: Layer.Layer<never, PlatformError, never>
+    // Setup before all tests
+    beforeAll(async () => {
+        // Setup test environment
+        await setup();
+        const logger = makeLogger(`e2e-test-${testNumber}`);
+        fileLogger = logger;
+        testNumber++
 
-        const program = Effect.gen(function* () {
-            const service = yield* StructuredOutputPipeline;
-            // The live pipeline uses generateMockLlmOutput which returns {},
-            // and SchemaValidatorToolLiveLayer which uses S.decodeUnknown.
-            // This will fail validation for UserProfileSchema as fields are not optional.
-            return yield* Effect.either(service.generateStructuredOutput(payload));
-        });
+        await Effect.runPromise(Effect.provide(Effect.succeed(logger), logger))
+    });
 
-        const result = await Effect.runPromise(program.pipe(Effect.provide(E2EEnvLayer)));
-
-        expect(result._tag).toBe("Left");
-        if (result._tag === "Left") {
-            expect(result.left).toBeInstanceOf(StructuredOutputPipelineError);
-            const cause = result.left.cause;
-            if (cause instanceof SchemaValidationError) {
-                expect(cause.message).toContain("Schema validation failed");
-            }
-            // Further checks could inspect the prompt formatting or cache interaction if needed,
-            // but the primary check here is that the pipeline runs and fails as expected with current mocks.
+    // Close logger after all tests
+    afterAll(async () => {
+        // Close the file logger if it was created
+        if (fileLogger) {
+            await Effect.runPromise(Effect.provide(Effect.succeed(fileLogger), fileLogger))
         }
-    }, 10000); // Increased timeout for E2E style test
+    });
 
-    // Add more E2E tests if the LLM mock becomes more sophisticated or if a real LLM is wired up.
-    // For example, testing retry logic would require the LLM mock to fail a few times then succeed,
-    // or the validator to behave similarly.
+    it('should extract a valid user profile', async () => {
+        const logger = makeLogger("e2e-test");
+        const input = "name: John Doe\nemail: john@example.com\nactive: true";
+
+        // Log test start
+        await Effect.runPromise(Effect.logInfo("Starting structured output test", { input }));
+
+        // Run the pipeline
+        const result = await Effect.runPromise(
+            Effect.gen(function* () {
+                const pipeline = yield* StructuredOutputPipelineService;
+                return yield* pipeline.extractStructured(input, UserProfileSchema);
+            }).pipe(
+                Effect.provide(ObjectService.Default),
+                Effect.provide(ExecutiveService.Default),
+                Effect.provide(StructuredOutputPipelineService.Default),
+                Effect.provide(LocalSchemaValidatorService.Default),
+                Effect.provide(VercelLlmService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+            )
+        );
+
+        // Log result
+        await Effect.runPromise(Effect.logInfo("Test completed successfully", { result }));
+
+        // Verify output
+        expect(result).toEqual({
+            username: "John Doe",
+            email: "john@example.com",
+            active: true
+        });
+    });
+
+    it("extractStructured should extract user profile from text with real LLM", async () => {
+
+        // Apply toFile to write logs to "/tmp/log.txt"
+        const fileLogger = makeLogger("e2e-test-extractStructured");
+
+
+        const text = `Here is a user profile for John Doe:
+            - Username: john.doe
+            - Email: john@example.com
+            - Status: Active (true)`;
+
+        // Run the pipeline with retry and timeout
+        const result = await Effect.runPromise(
+            Effect.gen(function* () {
+                yield* Effect.logInfo("Starting extractStructured test", { test: "extractStructured", text })
+                const executive = yield* ExecutiveService
+                const service = yield* StructuredOutputPipelineService
+                const output = yield* executive.execute(
+                    service.extractStructured(text, UserProfileSchema),
+                    {
+                        maxRetries: 2,
+                        timeoutMs: 15000
+                    }
+                )
+                yield* Effect.logDebug("Received result from extractStructured", { test: "extractStructured", result: output })
+                return output
+            }).pipe(
+                Effect.provide(
+                    Layer.mergeAll(
+                        ExecutiveService.Default,
+                        ObjectService.Default,
+                        StructuredOutputPipelineService.Default,
+                        LocalSchemaValidatorService.Default,
+                        VercelLlmService.Default
+                    ).pipe(
+                        Layer.provide(ConfigurationService.Default),
+                        Layer.provide(NodeFileSystem.layer),
+                        Layer.provide(fileLogger)
+                    )
+                )
+            )
+        )
+
+        // Verify output
+        expect(result.username).toBe("john.doe")
+        expect(result.email).toBe("john@example.com")
+        expect(result.active).toBe(true)
+    });
 }); 

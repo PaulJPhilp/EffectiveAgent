@@ -7,20 +7,23 @@ import type { EffectiveUsage } from "@/types.js";
 import { PipelineError } from "../common/errors.js";
 
 /**
- * Base error class for StructuredOutputPipeline errors
+ * Error class for structured output pipeline errors
  */
-export class StructuredOutputPipelineError extends PipelineError {
-    constructor(params: { message: string; cause?: unknown }) {
-        super({
-            message: params.message,
-            pipelineName: "StructuredOutputPipeline",
-            cause: params.cause,
-        });
+export class StructuredOutputPipelineError extends Error {
+    readonly _tag = "StructuredOutputPipelineError" as const;
+
+    constructor(params: {
+        message: string;
+        cause?: unknown;
+    }) {
+        super(params.message);
+        this.name = "StructuredOutputPipelineError";
+        this.cause = params.cause;
     }
 }
 
 /**
- * Error thrown when schema validation fails
+ * Error class for schema validation errors
  */
 export class SchemaValidationError extends StructuredOutputPipelineError {
     readonly validationIssues: string[];

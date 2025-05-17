@@ -1,3 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Global Coding Style
+
+*   **Language:** Use English for all code, comments, and documentation.
+*   **Formatting:** Adhere to project formatting standards (enforced by Biome/Prettier). Do not leave unnecessary blank lines within functions. Use Prettier defaults (printWidth: 80).
+*   **Readability:** Prioritize clear, maintainable, and human-readable code.
 # Global Coding Style
 
 *   **Language:** Use English for all code, comments, and documentation.
@@ -32,3 +42,43 @@
 *   **Security:** Always consider security implications.
 *   **Performance:** Consider performance implications where relevant.
 *   **Version Control:** Write clear commit messages (e.g., using conventional commits `feat:`, `fix:`, `refactor:`, `test:`, `docs:`), make small/focused commits, use meaningful branch names.
+
+# General Code Style & Formatting
+- Use English for all code and documentation.
+- Always declare the type of each variable and function (parameters and return value).
+- Avoid using any.
+- Create necessary types.
+- Use JSDoc to document public classes and methods.
+- Don't leave blank lines within a function.
+- One export per file.
+
+# Naming Conventions
+- Use PascalCase for classes.
+- Use camelCase for variables, functions, and methods.
+- Use kebab-case for file and directory names.
+- Use UPPERCASE for environment variables.
+- Avoid magic numbers and define constants.
+
+# Project Rules for EffectiveAgent
+
+## Import Paths
+- Always use absolute import paths (aliased with `@/` for the root `src` directory) for all internal modules and files.
+- Do not use relative paths like `../../foo/bar` for imports within the project.
+- Example:
+  ```ts
+  // Good
+  import { EffectiveError } from "@/effective-error.js";
+
+  // Bad
+  import { EffectiveError } from "../../effective-error.js";
+  ```
+
+## Rationale
+- Absolute paths improve code readability, maintainability, and reduce errors when refactoring or moving files.
+- They provide consistency across the codebase.
+
+## Enforcement
+- All contributors must follow this rule for new code and when refactoring existing code.
+- PRs that introduce or retain relative paths for internal imports should be updated before merging.
+
+---

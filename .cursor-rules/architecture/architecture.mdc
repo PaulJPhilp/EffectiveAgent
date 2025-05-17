@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Backend Architecture Rules
 
 *   **Framework:** EffectiveAgent Backend Services.

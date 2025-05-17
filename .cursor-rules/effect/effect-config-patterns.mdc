@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
 # Effect Configuration Patterns
 
 ## Core Configuration Patterns
@@ -13,10 +18,10 @@ export interface AppConfig {
   readonly debug: boolean
 }
 
-export const AppConfigSchema = Config.struct({
-  port: Config.number("PORT"),
-  apiKey: Config.secret("API_KEY"),
-  debug: Config.boolean("DEBUG")
+export const AppConfigSchema = Config.Struct({
+  port: Config.Number("PORT"),
+  apiKey: Config.Secret("API_KEY"),
+  debug: Config.Boolean("DEBUG")
 })
 
 // layer.ts
@@ -29,11 +34,11 @@ export const AppConfigLive = Layer.effect(
 ### JSON Configuration Files
 ```typescript
 // schema.ts
-export const ConfigFileSchema = Schema.struct({
-  version: Schema.string,
-  settings: Schema.struct({
-    timeout: Schema.number,
-    retries: Schema.number
+export const ConfigFileSchema = Schema.Struct({
+  version: Schema.String,
+  settings: Schema.Struct({
+    timeout: Schema.Number,
+    retries: Schema.Number
   })
 })
 
@@ -44,7 +49,7 @@ export class ConfigServiceLive implements ConfigService {
     private readonly configPath: string
   ) {}
 
-  readonly loadConfig = Effect.gen(function* (_) {
+  readonly loadConfig = Effect.gen(function* () {
     const content = yield* this.fs.readFileString(this.configPath)
     const parsed = JSON.parse(content)
     return yield* Schema.parse(ConfigFileSchema)(parsed)

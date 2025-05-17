@@ -21,12 +21,14 @@ export interface WeatherPipelineConfig {
 }
 
 /**
- * Context for Weather Pipeline Configuration
- * This is exported for test and Layer usages
+ * Default configuration for WeatherPipeline
  */
-export const WeatherPipelineConfigContext = Symbol.for(
-    "examples/pipelines/weather/WeatherPipelineConfigContext"
-);
+export const defaultConfig: WeatherPipelineConfig = {
+    defaultUnits: "celsius",
+    apiKey: "demo-key",
+    baseUrl: "https://api.example.com/weather",
+    timeoutMs: 5000
+};
 
 // -------------------------------------------------------------------------------------
 // SECTION: Input/Output Types

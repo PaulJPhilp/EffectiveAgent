@@ -1,3 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# TypeScript Type System Guidelines
+
+## Core Principles
+
+* Enable and maintain strict TypeScript configuration
 # TypeScript Type System Guidelines
 
 ## Core Principles
@@ -928,7 +938,7 @@ type ApplicationEffect<A> = Effect.Effect<A, ApplicationError>
 
 // DO: Handle composed errors
 const handleError = (error: ApplicationError): Effect.Effect<void, never> =>
-  Effect.gen(function* (_) {
+  Effect.gen(function* () {
     switch (error._tag) {
       case "DatabaseError":
         yield* LogError("Database error", error)
@@ -941,4 +951,12 @@ const handleError = (error: ApplicationError): Effect.Effect<void, never> =>
         break
     }
   })
-``` 
+```
+
+# Data Handling
+- Avoid placing validation inside functions—use classes with internal validation instead.
+- Prefer immutability for data:
+- Use readonly for immutable properties.
+- Use as const for literals that never change.
+- Use type guards to validate data types.
+- Prefer 'for...of' loops over 'forEach' for iteration. 

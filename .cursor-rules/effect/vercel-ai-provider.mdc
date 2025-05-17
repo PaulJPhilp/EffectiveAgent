@@ -1,0 +1,8 @@
+# Vercel AI Provider Rules
+
+## LLM Call Execution
+
+- **Never call the Vercel AI SDK (or any LLM API) directly to execute a completion or other operation.**
+- All LLM calls must be wrapped in an `Effect` and exposed via the provider service.
+- Only the executive service (or pipeline runner) may execute these Effects.
+- This ensures composability, testability, and separation of concerns. 

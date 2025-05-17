@@ -17,6 +17,7 @@
 
 import type { ImportedType } from "@/types.js";
 import { Cause, Effect, LogLevel } from "effect";
+import type { JsonObject } from "./types.js";
 
 /**
  * Service interface for logging messages and structured data.
@@ -195,6 +196,22 @@ export interface LoggingServiceApi {
   readonly logErrorCause: (
     cause: Cause.Cause<unknown>
   ) => Effect.Effect<void>;
+
+  /**
+   * Create a new logger instance with additional context.
+   *
+   * @param additionalContext - Additional context to add to all log messages
+   * @returns A new LoggingServiceApi instance with the combined context
+   *
+   * @example
+   * ```typescript
+   * const requestLogger = LoggingService.withContext({ requestId: '123' });
+   * yield* requestLogger.info('Request started');
+   * ```
+   */
+  readonly withContext: <T extends JsonObject>(
+    additionalContext: T
+  ) => LoggingServiceApi;
 }
 
 // Re-export LogLevel for convenience

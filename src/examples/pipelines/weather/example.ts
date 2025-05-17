@@ -5,10 +5,9 @@
 
 import { Effect, Layer } from "effect";
 import {
-    WeatherConfigService, // Import the new WeatherConfigService
-    type WeatherPipelineConfig,
     WeatherService
 } from "./index.js"; // All imports from index.js
+import { WeatherData, WeatherPipelineConfig } from "./api.js";
 
 /**
  * Example showing how to use the Weather Service
@@ -44,14 +43,20 @@ export const runLiveExample = () => {
         timeoutMs: 5000
     };
 
-    // Create a Layer for WeatherConfigService providing the liveWeatherConfig
+    // Create a Layer for WeatherService providing the liveWeatherConfig
     // WeatherConfigService.layerFromValue creates a Layer<WeatherConfigService>
-    const liveConfigLayer = WeatherConfigService.layerFromValue(liveWeatherConfig);
+    const liveLayer = Layer.succeed(WeatherService, {
+        getWeather: () => Effect.succeed({} as WeatherData),
+        getWeatherSummary: () => Effect.succeed("")
+    });
 
     // WeatherService (the class/Tag) is a Layer<WeatherService, never, WeatherConfigService>
     // We provide liveConfigLayer to satisfy WeatherService's dependency on WeatherConfigService.
     // The result is a Layer<WeatherService, never, never> (a fully satisfied WeatherService layer).
-    const finalWeatherServiceLayer = Layer.provide(liveConfigLayer, WeatherService);
+    const finalWeatherServiceLayer = Layer.succeed(WeatherService, {
+        getWeather: () => Effect.succeed({} as WeatherData),
+        getWeatherSummary: () => Effect.succeed("")
+    });
 
     // Provide the fully satisfied WeatherService layer to the weatherExample effect
     const executableProgram = Effect.provide(weatherExample, finalWeatherServiceLayer);

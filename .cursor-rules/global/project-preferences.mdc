@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+My build system is bun.
+My testing framework is vitest.
+I am building AI agents using LangGraph in TypeScript and Node.js.
+I am using the Vercel AI SDK for model interactions.
+When I ask about programming concepts (e.g., "What is a hook?"), give me a direct and clear explanation.
+I am using TypeScript for development.
+I am using Node.js for runtime.
+I am using bun for development.
+I am using dotenv for environment variables.
+I am using pdf-parse for PDF parsing.
+I am using biome for code formatting and linting.
+Follow the shared services architecture.
+Follow the DRY and SOLID principles.
+Do not make any changes to the shared services.

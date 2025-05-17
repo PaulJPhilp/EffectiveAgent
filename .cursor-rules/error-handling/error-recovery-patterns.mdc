@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Error Recovery Patterns
 
 ## Core Principles

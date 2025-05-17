@@ -8,7 +8,7 @@ export {
     WeatherConfigTestLayer,
     WeatherPipelineError, // Error class
     WeatherService,
-    WeatherServiceApi, // Interface for the service
+    type WeatherServiceApi, // Interface for the service
     WeatherServiceLiveLayer,
     WeatherServiceTestLayer,
     WeatherServiceWithMockConfigTestLayer

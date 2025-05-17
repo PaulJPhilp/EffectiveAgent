@@ -2,7 +2,7 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
-import { Part as EffectiveLocalPart, Message as EffectiveMessage } from "@/schema.js";
+import { EffectiveMessage, Part as EffectiveLocalPart } from "@/message-types.js";
 import { Effect, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 
@@ -370,5 +370,6 @@ export interface EffectiveUser {
   readonly updatedAt: Date;
 }
 
+// Re-export for backward compatibility
 export { EffectiveMessage };
 
