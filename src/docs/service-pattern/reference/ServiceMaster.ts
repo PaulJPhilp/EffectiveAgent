@@ -88,5 +88,3 @@ export class ServiceMaster extends Effect.Service<ServiceMasterApi>()(
         dependencies: [],
     }
 ) { }
-
-export default ServiceMaster; 

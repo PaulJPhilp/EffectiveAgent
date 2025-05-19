@@ -1,3 +1,0 @@
-{"timestamp":"2025-05-16T17:55:25.722Z","level":"DEBUG","message":"Test message","test":true}
-{"timestamp":"2025-05-16T17:55:25.722Z","level":"TRACE","message":"Debug message","debug":true}
-{"timestamp":"2025-05-16T17:55:25.723Z","level":"WARN","message":"Error message","error":true}

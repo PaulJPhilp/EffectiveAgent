@@ -8,16 +8,158 @@ do_not_modify: true
 
 # Standard Service Pattern (Effect-TS)
 
-This document outlines the standard pattern for creating services within this project using Effect-TS (version 3.14+). Adhering to this pattern ensures consistency, maintainability, and leverages the power of Effect for dependency management, error handling, and composition.
+This document describes the **current, canonical pattern** for defining services using Effect-TS (v3.14+) in this codebase. All new and refactored services must follow this approach for maintainability, type safety, and composability.
 
 ## Core Components
 
-A standard service consists of the following key parts:
+A standard service consists of:
 
-1.  **Service Interface (`api.ts`)**: Defines the contract of the service using a TypeScript interface named `ServiceNameApi` (e.g., `LoggingServiceApi`). This file **must** contain complete and correct JSDoc comments for the interface and all its methods, as it serves as the primary documentation for the service.
-2.  **Service Class Definition (`service.ts`)**: A class that extends `Effect.Service<ServiceNameApi>()`. This file defines the **default implementation** of the service via its `effect` property and lists its `dependencies`. This class also serves as the default layer.
-3.  **Alternative Implementations (`implementations/`)**: (Optional) Contains alternative layers or implementations of the service interface (e.g., `InMemoryLayer`, `LiveLayer` if different from default).
-4.  **Validation Schemas (`schema.ts`)**: (Optional) Contains Effect `Schema` definitions used for validating input or output data within the service.
+1.  **Service Interface (`api.ts`)**: TypeScript interface named `ServiceNameApi` with full JSDoc on the interface and all methods. This is the contract for consumers and implementors.
+2.  **Service Class (`service.ts`)**: `export class ServiceName extends Effect.Service<ServiceNameApi>()("ServiceName", { effect, dependencies }) { }`. Implements the default layer and tag. The `effect` property provides the implementation (using `Effect.succeed` or `Effect.gen`). The `dependencies` array lists required services (empty if none).
+3.  **Alternative Implementations (`implementations/`)**: (Optional) For in-memory, live, or mock variants.
+4.  **Schemas (`schema.ts`)**: (Optional) Effect-based schemas for input/output validation.
+5.  **Error Types (`errors.ts`)**: (Optional) Custom error classes using `Data.TaggedError`.
+6.  **Barrel (`index.ts`)**: Exports the service class, interface, schemas, and errors.
+7.  **Test Harness**: Use `createServiceTestHarness` for effectful testing and mocking.
+
+## File Structure
+
+```
+my-feature/
+├── __tests__/
+│   └── service.test.ts
+├── implementations/
+│   └── other-impl.layer.ts
+├── index.ts
+├── service.ts
+├── api.ts
+├── schema.ts
+├── errors.ts
+└── helpers.ts
+```
+
+## Interface & JSDoc Requirements
+
+- Place all method signatures in `ServiceNameApi`.
+- Every method and the interface itself must have clear, English JSDoc.
+- Use `@param`, `@returns`, and `@template` as appropriate. Always specify Effect types fully.
+- Example:
+
+```typescript
+/**
+ * Provides utilities for executing Effect workflows.
+ * @remarks Centralizes common Effect running patterns.
+ */
+export interface ServiceMasterApi {
+  /**
+   * Runs an Effect and returns Either.
+   * @param effect The Effect to execute.
+   * @returns An Effect yielding Either<E, A>.
+   */
+  readonly runEither: <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<Either<E, A>>;
+}
+```
+
+## Service Class Pattern
+
+- Always use:
+
+```typescript
+export class MyService extends Effect.Service<MyServiceApi>()(
+  "MyService",
+  {
+    effect: Effect.gen(function* () {
+      // Implementation
+      return {
+        // methods
+      };
+    }),
+    dependencies: [OtherService] // or []
+  }
+) { }
+```
+
+- The class itself is the Layer and Tag. Do **not** use `Context.Tag` (except for legacy Repository).
+- The `effect` property can use `Effect.succeed` (for sync) or `Effect.gen` (for async/complex).
+- `dependencies` is an array of required services (empty if none).
+
+## Anti-Patterns
+
+- **Do not use `Context.Tag`** for new services (except legacy Repository).
+- Do not define multiple service classes in one file.
+- Do not omit JSDoc or use `any` types.
+
+## Example: SkillService
+
+**api.ts**
+```typescript
+/**
+ * @file SkillService API
+ * Provides registration, lookup, and invocation of skills.
+ */
+export interface SkillServiceApi {
+  /**
+   * Registers a new skill.
+   * @param definition The skill definition object.
+   * @returns An Effect yielding the registered skill.
+   */
+  register(definition: SkillDefinition): Effect.Effect<RegisteredSkill, SkillConfigError>;
+  // ...other methods
+}
+```
+
+**service.ts**
+```typescript
+export class SkillService extends Effect.Service<SkillServiceApi>()(
+  "SkillService",
+  {
+    effect: Effect.gen(function* () {
+      // Internal state, helpers, etc.
+      return {
+        register: (definition) => /* ... */
+        // ...other methods
+      };
+    }),
+    dependencies: []
+  }
+) { }
+```
+
+## Testing Pattern
+
+- Use a test harness to inject the service and provide effectful mocks.
+- Example:
+
+```typescript
+export const createServiceTestHarness = <R, E, A>(
+  Service: Effect.Service<A, E, R>,
+  createTestImpl?: () => Effect.Effect<A>
+) => ({
+  runTest: (effect: Effect.Effect<any>) =>
+    Effect.runPromise(effect.pipe(Effect.provide(Service))),
+  expectError: (effect: Effect.Effect<any>, errorTag: string) =>
+    Effect.runPromise(
+      Effect.gen(function* () {
+        const result = yield* Effect.either(effect)
+        expect(result._tag).toBe("Left")
+        if (result._tag === "Left") {
+          expect(result.left._tag).toBe(errorTag)
+        }
+      }).pipe(Effect.provide(Service))
+    )
+});
+```
+
+- In tests, use `Effect.gen` to call service methods. Provide mocks as needed using effectful factories.
+
+## Summary
+
+- Always use the `Effect.Service` class pattern.
+- Fully document interfaces and methods.
+- List all dependencies explicitly.
+- Use a test harness for effectful, type-safe testing.
+- Avoid Context.Tag except for repository.
+- Keep all code and docs in English and TypeScript.
 
 ## File Structure Convention
 

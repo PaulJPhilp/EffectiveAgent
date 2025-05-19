@@ -1,161 +1,49 @@
 # Service Hierarchy Guidelines
 
-## Service Layer Organization
+## Layered Service Architecture
 
-Our service architecture follows a clean, layered approach with clear separation of concerns.
+This codebase enforces a layered service hierarchy to ensure separation of concerns, maintainability, and clear dependency direction. Each service must belong to exactly one layer:
 
-## Core Services
+### 1. Core Services
+- Provide foundational, reusable technical capabilities (e.g., file system, logging, configuration, cache, scheduler, metrics).
+- Stateless when possible, minimal dependencies.
+- No business logic.
 
-Core services represent the fundamental building blocks of our application.
+### 2. Business Services
+- Implement domain-specific or workflow logic (e.g., agent, prompt, skill, workflow, memory).
+- May depend on core services, but not on infrastructure or other business services unless justified by domain boundaries.
+- Stateful if required, clear bounded contexts.
 
-```typescript
-interface CoreServices {
-  readonly filesystem: FileSystemService
-  readonly config: ConfigurationService
-  readonly logging: LoggingService
-  readonly cache: CacheService
-  readonly scheduler: SchedulerService
-  readonly metrics: MetricsService
-}
-```
+### 3. Infrastructure Services
+- Integrate with external systems (e.g., database, messaging, HTTP, AI providers, storage).
+- Abstract third-party or platform concerns, manage connections, retries, etc.
+- May depend on core services.
 
-### Characteristics
-- Foundation of the application
-- No business logic
-- High reusability
-- Minimal dependencies
-- Stateless when possible
+### 4. Cross-Cutting Services
+- Provide concerns used across all layers (e.g., authentication, monitoring, validation, error handling, security).
+- Used by multiple layers, configuration-driven, aspect-oriented.
 
-### Examples
-- File system operations
-- Configuration management
-- Logging and telemetry
-- Caching mechanisms
-- Task scheduling
-- Metric collection
+## Allowed Dependencies
 
-## Business Services
-
-Business services implement domain-specific logic and workflows.
-
-```typescript
-interface BusinessServices {
-  readonly agent: AgentService
-  readonly prompt: PromptService
-  readonly skill: SkillService
-  readonly workflow: WorkflowService
-  readonly memory: MemoryService
-}
-```
-
-### Characteristics
-- Implement business rules
-- Domain-specific logic
-- May depend on core services
-- Stateful when required
-- Clear bounded contexts
-
-### Examples
-- Agent management
-- Prompt handling
-- Skill execution
-- Workflow orchestration
-- Memory management
-
-## Infrastructure Services
-
-Infrastructure services handle external system interactions and technical concerns.
-
-```typescript
-interface InfrastructureServices {
-  readonly database: DatabaseService
-  readonly messaging: MessagingService
-  readonly http: HttpClientService
-  readonly ai: AIProviderService
-  readonly storage: StorageService
-}
-```
-
-### Characteristics
-- Handle external dependencies
-- Provide technical capabilities
-- Abstract third-party services
-- Handle connection management
-- Implement retry logic
-
-### Examples
-- Database operations
-- Message queuing
-- HTTP clients
-- AI provider integration
-- Cloud storage access
-
-## Cross-Cutting Services
-
-Cross-cutting services provide functionality used across all layers.
-
-```typescript
-interface CrossCuttingServices {
-  readonly auth: AuthenticationService
-  readonly monitoring: MonitoringService
-  readonly validation: ValidationService
-  readonly error: ErrorHandlingService
-  readonly security: SecurityService
-}
-```
-
-### Characteristics
-- Used by multiple layers
-- Consistent across application
-- Aspect-oriented concerns
-- Configuration-driven
-- Standard patterns
-
-### Examples
-- Authentication/Authorization
-- Monitoring and alerting
-- Input validation
-- Error handling
-- Security controls
-
-## Service Dependencies
-
-```typescript
-interface ServiceDependencies {
-  // Core -> No dependencies outside core
-  readonly core: never
-
-  // Business -> Can depend on core
-  readonly business: CoreServices
-
-  // Infrastructure -> Can depend on core
-  readonly infrastructure: CoreServices
-
-  // Cross-cutting -> Can depend on core
-  readonly crossCutting: CoreServices
-}
-```
+- **Core**: May depend only on other core services.
+- **Business**: May depend on core services.
+- **Infrastructure**: May depend on core services.
+- **Cross-cutting**: May depend on core services.
+- **No layer may depend on business or infrastructure from core.**
 
 ## Best Practices
 
-1. Dependency Direction
-```typescript
-// DO: Follow dependency rules
-class BusinessService extends Effect.Service<BusinessServiceApi>() {
-  constructor(
-    private readonly core: CoreServices,
-    private readonly config: ConfigService
-  ) {}
-}
+- Register each service in the appropriate layer.
+- Respect dependency direction: Core < Business < Infrastructure; Cross-cutting can be used by any.
+- Avoid circular dependencies between services or layers.
+- Keep each service responsibility focused and aligned with its layer.
+- Separate unrelated concerns into distinct services.
 
-// DON'T: Create circular dependencies
-class CoreService extends Effect.Service<CoreServiceApi>() {
-  constructor(
-    private readonly business: BusinessService // WRONG!
-  ) {}
-}
-```
+## Anti-patterns (Hierarchy Only)
 
+- Skipping layers (e.g., business using infrastructure directly—always go through core/repository).
+- Circular dependencies between services or layers.
+- Mixing unrelated responsibilities in a single service.
 2. Service Registration
 ```typescript
 // DO: Register services in appropriate layers

@@ -62,32 +62,32 @@ These represent the primary way developers configure agent behavior:
 
 ## 6. Key Technology Choices & Patterns
 
-*   **Runtime:** Bun
-*   **Language:** TypeScript (v5.x, strict, no `enum`/`namespace`)
-*   **Core Framework:** Effect-TS (v3.14+)
-*   **Schema/Validation:** `@effect/schema` (for config files, entities)
-*   **Templating:** LiquidJS (`ai/prompt`)
-*   **Persistence (Prod):** PostgreSQL (Neon)
-*   **Persistence (Dev/Test):** SQLite / In-Memory (`core/repository`)
-*   **ORM:** Drizzle ORM
-*   **AI Interaction:** `@effect/ai` (using provider packages like `@effect/ai-openai`)
-*   **Agent Framework:** LangGraph
-    *   Graph-based workflow execution
-    *   Built-in support for:
-      - Thread-level persistence
-      - Human-in-the-loop interactions
-      - Multi-agent systems
-      - Tool calling with review capabilities
-      - Streaming responses
-*   **Testing:** 
-    *   Vitest (standard runner)
-    *   `Effect.runPromise`/`Effect.runPromiseExit`
-    *   `Layer.build` or helpers w/ type assertions
-    *   Custom mocks instead of Vitest mocking
-*   **Platform Services:** `@effect/platform-bun` (`BunContext.layer`) for `FileSystem`, etc.
-*   **Service Definition:** `make` (sync or effectful) + `ReturnType`/`Effect.Success` for type inference + `Layer.effect`/`Layer.succeed`
-*   **Dependency Injection:** `Layer.provide` for direct dependencies, `Layer.merge` for parallel services, `Layer.build` for test setup
-*   **Error Handling:** `Data.TaggedError` for all custom errors
+### Primary Stack (Runtime)
+
+- **Runtime:** Bun (Node.js compatible)
+- **Language:** TypeScript (v5.x, strict)
+- **Core Framework:** Effect (v3.14.6) — concurrency, async, error handling, DI
+- **Schema/Validation:** @effect/schema — config and entity validation
+- **Templating:** LiquidJS — prompt templating
+- **Persistence:** PostgreSQL (production), SQLite/In-Memory (dev/test)
+- **ORM:** Drizzle ORM — type-safe database access
+- **AI/LLM/Providers:** @effect/ai, @effect/ai-openai, @ai-sdk/*, @langchain/langgraph, Vercel AI SDK, ai — LLM, provider, and agent workflow
+- **Agent Workflow:** LangGraph, LangGraph SDK — graph-based workflow execution
+- **Platform Services:** @effect/platform-bun, @effect/platform-node — filesystem, platform abstractions
+- **Other:** rxjs, xstate, pdf-parse — streaming, state machines, PDF parsing
+
+### Development Stack (Additional)
+
+- **Testing:** Vitest (test runner), @effect/vitest, @effect/test — effect-based and standard testing
+- **Formatting/Linting:** Biome — code formatting and linting
+- **Types:** @types/node, @types/bun, @types/pg, @types/pdf-parse, @types/uuid — type definitions
+- **Polyfills:** @js-temporal/polyfill — temporal API support
+- **Dev Tools:** chalk — CLI coloring
+
+**Patterns & Conventions:**
+- Error handling: Data.TaggedError, custom error classes
+- Dependency injection: Effect Layers (Layer.provide, Layer.merge, Layer.build)
+- Strict type safety: no `enum`/`namespace`, top-level types/interfaces
 
 ## 7. Current Status & Next Steps
 
@@ -97,6 +97,8 @@ These represent the primary way developers configure agent behavior:
     - Tag implemented and tested
 *   **Phase 2 (AI/Capability Primitives Config):**
     *   `ai/prompt`: Config loading and API implemented and tested
+    *   `ai/memory`: Support long-term memory
+    *   `ai/tools`: Add MCP support
     *   `capabilities/intelligence`: Config service implemented and tested
     *   `capabilities/persona`: Config service implemented and tested
     *   `capabilities/skill`: Config service implemented and tested
@@ -110,6 +112,7 @@ These represent the primary way developers configure agent behavior:
 
 *   Consider abstracting `core/file` under a generic `core/storage` API if other backends (S3) are needed
 *   Refine error handling and mapping between service layers
+*   Evaluate long-term memory strategies and technologies.
 *   Finalize testing strategy for services requiring platform context
 *   Design patterns for agent state persistence and recovery
 *   Integration patterns for multi-agent orchestration

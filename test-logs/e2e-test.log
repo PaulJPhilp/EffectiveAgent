@@ -1,4 +1,2 @@
-{"timestamp":"2025-05-16T20:23:21.005Z","level":"DEBUG","message":"Starting structured output test","input":"name: John Doe\nemail: john@example.com\nactive: true"}
-{"timestamp":"2025-05-16T20:23:21.011Z","level":"TRACE","message":"Starting extractStructured test","test":"extractStructured","text":"Here is a user profile for John Doe:\n            - Username: john.doe\n            - Email: john@example.com\n            - Status: Active (true)"}
-{"timestamp":"2025-05-16T20:42:32.711Z","level":"DEBUG","message":"Starting structured output test","input":"name: John Doe\nemail: john@example.com\nactive: true"}
-{"timestamp":"2025-05-16T20:42:32.726Z","level":"TRACE","message":"Starting extractStructured test","test":"extractStructured","text":"Here is a user profile for John Doe:\n            - Username: john.doe\n            - Email: john@example.com\n            - Status: Active (true)"}
+{"timestamp":"2025-05-19T01:54:00.019Z","level":"INFO","message":"extractStructured called","text":"name: John Doe\nemail: john@example.com\nactive: true"}
+{"timestamp":"2025-05-19T01:54:00.021Z","level":"ERROR","message":"Error in extractStructured","error":"{\"error\":\"{}\"}"}

@@ -11,7 +11,7 @@ Effective Agent is a TypeScript library for building robust, scalable, concurren
 - **Agent-centric:** Designed for building multi-capability, multi-modal AI agents with minimal boilerplate.
 
 ### Features
-- Unified agent runtime and mailbox system
+- Unified agent runtime and mailbox (Actor) system
 - Modular AI model and provider management
 - Tool registry and execution system
 - Pipeline orchestration and input/output handling

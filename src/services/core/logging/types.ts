@@ -4,11 +4,6 @@
 
 import type { LogLevel } from "effect"
 
-/** Type representing a JSON-serializable object */
-export interface JsonObject {
-    [key: string]: string | number | boolean | null | JsonObject | JsonObject[]
-}
-
 /** Type for structured error data */
 export interface ErrorData {
     readonly message: string

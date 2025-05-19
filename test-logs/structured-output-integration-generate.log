@@ -1,0 +1,4 @@
+{"timestamp":"2025-05-19T03:18:40.768Z","level":"INFO","message":"Starting generateStructuredOutput test","payload":"{\"prompt\":\"Extract person details: My name is Alice and I am 30.\"}"}
+{"timestamp":"2025-05-19T03:18:40.770Z","level":"INFO","message":"generateStructuredOutput called","prompt":"Extract person details: My name is Alice and I am 30."}
+{"timestamp":"2025-05-19T03:18:40.770Z","level":"ERROR","message":"Error in generateStructuredOutput","error":"{\"error\":\"{}\"}"}
+{"timestamp":"2025-05-19T03:18:40.771Z","level":"INFO","message":"generateStructuredOutput result","result":"{\"_id\":\"Either\",\"_tag\":\"Left\",\"left\":{\"message\":\"Failed to generate structured output\",\"cause\":{},\"_tag\":\"StructuredOutputPipelineError\"}}"}

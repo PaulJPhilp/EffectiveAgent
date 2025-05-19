@@ -4,7 +4,8 @@
  */
 
 
-import { ObjectService } from "@/services/pipeline/producers/object/service.js";
+import type { LoggingServiceApi } from "@/services/core/logging/api.js";
+import { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
 import { Effect, Schema } from "effect";
 import { GenerateStructuredOutputPayload, SchemaValidationError, SchemaValidatorToolApi, StructuredOutputPipelineApi, StructuredOutputPipelineError } from "./api.js";
 
@@ -53,53 +54,81 @@ export class LocalSchemaValidatorService extends Effect.Service<SchemaValidatorT
  * Implementation of the StructuredOutputPipeline using Effect.Service pattern.
  * This service provides methods for generating and extracting structured data using LLMs.
  */
-export class StructuredOutputPipelineService extends Effect.Service<StructuredOutputPipelineApi>()(
-    "StructuredOutputPipelineService",
-    {
-        effect: Effect.gen(function* () {
-            const objectService = yield* ObjectService;
-            const schemaValidator = yield* LocalSchemaValidatorService;
-            return {
-                generateStructuredOutput: <A>(
-                    input: GenerateStructuredOutputPayload<Schema.Schema<A, A>>,
-                    maxRetries = 3
-                ): Effect.Effect<A, StructuredOutputPipelineError> =>
-                    Effect.gen(function* () {
+export function makeStructuredOutputPipelineService(logger: LoggingServiceApi, objectService: ObjectServiceApi, schemaValidator: SchemaValidatorToolApi): StructuredOutputPipelineApi {
+    return {
+        generateStructuredOutput: <A>(
+            input: GenerateStructuredOutputPayload<Schema.Schema<A, A>>,
+            maxRetries = 3
+        ): Effect.Effect<A, StructuredOutputPipelineError, never> =>
+            (
+                Effect.gen(function* () {
+                    yield* logger.info("generateStructuredOutput called", { prompt: input.prompt });
+                    try {
                         const result = yield* objectService.generate({
                             prompt: input.prompt,
                             schema: input.schema,
                             modelId: "gpt-4"
                         });
+                        yield* logger.info("Structured output generated", { data: JSON.stringify(result.data) });
                         return result.data as A;
-                    }).pipe(
-                        Effect.mapError(error => new StructuredOutputPipelineError({
+                    } catch (error) {
+                        yield* logger.error("Error in generateStructuredOutput", { error: JSON.stringify(error) });
+                        return yield* Effect.fail(new StructuredOutputPipelineError({
                             message: "Failed to generate structured output",
-                            cause: error
-                        }))
-                    ),
-                extractStructured: <A>(
-                    text: string,
-                    schema: Schema.Schema<A, A>,
-                    maxRetries = 3
-                ): Effect.Effect<A, StructuredOutputPipelineError> =>
-                    Effect.gen(function* () {
+                            cause: error instanceof Error ? error : new Error(String(error))
+                        }));
+                    }
+                }).pipe(
+                    Effect.catchAll((error) =>
+                        Effect.fail(
+                            error instanceof StructuredOutputPipelineError
+                                ? error
+                                : new StructuredOutputPipelineError({
+                                    message: "Unexpected error in generateStructuredOutput",
+                                    cause: error instanceof Error ? error : new Error(String(error)),
+                                })
+                        )
+                    )
+                )
+            ) as Effect.Effect<A, StructuredOutputPipelineError, never>,
+        extractStructured: <A>(
+            text: string,
+            schema: Schema.Schema<A, A>,
+            maxRetries = 3
+        ): Effect.Effect<A, StructuredOutputPipelineError, never> =>
+            (
+                Effect.gen(function* () {
+                    yield* logger.info("extractStructured called", { text });
+                    try {
                         const result = yield* objectService.generate({
                             prompt: `Extract structured data from this text: ${text}`,
                             schema: schema,
                             modelId: "gpt-4"
                         });
+                        yield* logger.info("Structured data extracted", { data: JSON.stringify(result.data) });
                         return result.data as A;
-                    }).pipe(
-                        Effect.mapError(error => new StructuredOutputPipelineError({
+                    } catch (error) {
+                        yield* logger.error("Error in extractStructured", { error: JSON.stringify(error) });
+                        return yield* Effect.fail(new StructuredOutputPipelineError({
                             message: "Failed to extract structured data",
-                            cause: error
-                        }))
+                            cause: error instanceof Error ? error : new Error(String(error))
+                        }));
+                    }
+                }).pipe(
+                    Effect.catchAll((error) =>
+                        Effect.fail(
+                            error instanceof StructuredOutputPipelineError
+                                ? error
+                                : new StructuredOutputPipelineError({
+                                    message: "Unexpected error in extractStructured",
+                                    cause: error instanceof Error ? error : new Error(String(error)),
+                                })
+                        )
                     )
-            }
-        }),
-        dependencies: [ObjectService.Default, LocalSchemaValidatorService.Default]
-    }
-) { }
+                )
+            ) as Effect.Effect<A, StructuredOutputPipelineError, never>,
+    };
+}
 
 /**
  * Mock Schema Validator Service implementation for testing
@@ -149,5 +178,3 @@ export class MockStructuredOutputPipelineService extends Effect.Service<Structur
         dependencies: []
     }
 ) { }
-
-export default StructuredOutputPipelineService;

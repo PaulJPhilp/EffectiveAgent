@@ -1,5 +1,8 @@
-import { Effect, Layer } from "effect"
-import { describe, expect, it } from "vitest"
+import { PlatformLogger } from "@effect/platform"
+import { NodeFileSystem } from "@effect/platform-node"
+import { Effect, Layer, Logger } from "effect"
+import * as NodePath from "node:path"
+import { beforeAll, describe, expect, it } from "vitest"
 import {
     MOCK_WEATHER_RESPONSE,
     WeatherPipelineError,
@@ -7,7 +10,23 @@ import {
     WeatherServiceApi
 } from "../index.js"
 
+function makeLogger(name: string) {
+    const fmtLogger = Logger.logfmtLogger
+    const fileLogger = fmtLogger.pipe(
+        PlatformLogger.toFile(NodePath.join(process.cwd(), "test-logs", `${name}.log`))
+    )
+    return Logger.replaceScoped(Logger.defaultLogger, fileLogger).pipe(Layer.provide(NodeFileSystem.layer))
+}
+
 describe("WeatherService", () => {
+    let fileLogger: Layer.Layer<never, never, never>
+
+    beforeAll(async () => {
+        const logger = makeLogger("weather-service-test")
+        fileLogger = logger
+        await Effect.runPromise(Effect.provide(Effect.unit, logger))
+    })
+
     it("should return a mock forecast", () => // Simplified test name
         Effect.runPromise(
             Effect.gen(function* () {

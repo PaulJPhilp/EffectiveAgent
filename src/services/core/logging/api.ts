@@ -15,9 +15,9 @@
  * a more convenient and standardized interface for the application.
  */
 
-import type { ImportedType } from "@/types.js";
+import type { JsonObject } from "@/types.js";
 import { Cause, Effect, LogLevel } from "effect";
-import type { JsonObject } from "./types.js";
+
 
 /**
  * Service interface for logging messages and structured data.
@@ -64,7 +64,7 @@ export interface LoggingServiceApi {
     level: LogLevel.LogLevel,
     message: string,
     data?: JsonObject
-  ) => Effect.Effect<void>;
+  ) => Effect.Effect<void, Error>;
 
   /**
    * Log a debug message.
@@ -80,7 +80,7 @@ export interface LoggingServiceApi {
   readonly debug: (
     message: string,
     data?: JsonObject
-  ) => Effect.Effect<void>;
+  ) => Effect.Effect<void, Error>;
 
   /**
    * Log an info message.
@@ -96,7 +96,7 @@ export interface LoggingServiceApi {
   readonly info: (
     message: string,
     data?: JsonObject
-  ) => Effect.Effect<void>;
+  ) => Effect.Effect<void, Error>;
 
   /**
    * Log a warning message.
@@ -112,7 +112,7 @@ export interface LoggingServiceApi {
   readonly warn: (
     message: string,
     data?: JsonObject
-  ) => Effect.Effect<void>;
+  ) => Effect.Effect<void, Error>;
 
   /**
    * Log an error message.
@@ -129,7 +129,7 @@ export interface LoggingServiceApi {
   readonly error: (
     message: string,
     data?: JsonObject | Error
-  ) => Effect.Effect<void>;
+  ) => Effect.Effect<void, Error>;
 
   /**
    * Log a trace message.
@@ -146,7 +146,7 @@ export interface LoggingServiceApi {
   readonly trace: (
     message: string,
     data?: JsonObject
-  ) => Effect.Effect<void>;
+  ) => Effect.Effect<void, Error>;
 
   /**
    * Log a cause with the specified log level.
@@ -171,8 +171,9 @@ export interface LoggingServiceApi {
    */
   readonly logCause: (
     level: LogLevel.LogLevel,
-    cause: Cause.Cause<unknown>
-  ) => Effect.Effect<void>;
+    cause: Cause.Cause<unknown>,
+    data?: JsonObject
+  ) => Effect.Effect<void, Error>;
 
   /**
    * Log an error cause.
@@ -194,8 +195,9 @@ export interface LoggingServiceApi {
    * ```
    */
   readonly logErrorCause: (
-    cause: Cause.Cause<unknown>
-  ) => Effect.Effect<void>;
+    cause: Cause.Cause<unknown>,
+    data?: JsonObject
+  ) => Effect.Effect<void, Error>;
 
   /**
    * Create a new logger instance with additional context.
@@ -216,3 +218,4 @@ export interface LoggingServiceApi {
 
 // Re-export LogLevel for convenience
 export type { LogLevel } from "effect";
+

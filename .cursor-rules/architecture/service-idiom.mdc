@@ -1,0 +1,62 @@
+# Rule: Idiomatic Service Construction (Effect-TS)
+
+To build an idiomatic service in this codebase, an AI agent MUST:
+
+1. **Use the Canonical Pattern:**
+   - Define a TypeScript interface named `ServiceNameApi` in `api.ts` with full English JSDoc for all methods and the interface itself.
+   - Implement a single service class in `service.ts` that extends `Effect.Service<ServiceNameApi>()`, with both the string identifier and implementation provided in the same declaration.
+   - The class must have an `effect` property (using `Effect.succeed` or `Effect.gen`) and a `dependencies` array listing all required services (empty if none).
+   - Do NOT use `Context.Tag` (except for legacy repository services).
+   - Do NOT split implementation across multiple classes or files.
+
+2. **Follow Naming and Structure Conventions:**
+   - Service classes: PascalCase with `Service` suffix
+   - Interfaces: PascalCase with `Api` suffix
+   - Directories/files: kebab-case
+   - Place all service logic, types, and documentation in English.
+
+3. **Documentation:**
+   - Every interface and method must have JSDoc with `@param`, `@returns`, and (if needed) `@template`.
+   - Document service purpose, dependencies, configuration, and error handling.
+   - Provide usage examples where appropriate.
+
+4. **Testing:**
+   - Use a test harness that injects the service class and allows effectful mocks.
+
+5. **Anti-patterns to Avoid:**
+   - No use of `Context.Tag` (except repository)
+   - No inheritance or split implementation
+   - No multiple service classes per file
+   - No use of `any` types
+   - No undocumented methods
+
+6. **Summary Example:**
+
+```typescript
+// api.ts
+/**
+ * @file ExampleService API
+ * Example idiomatic service contract.
+ */
+export interface ExampleServiceApi {
+  /**
+   * Example method.
+   * @param input Input string.
+   * @returns An Effect yielding a string result.
+   */
+  doSomething(input: string): Effect.Effect<string, ExampleError>;
+}
+
+// service.ts
+export class ExampleService extends Effect.Service<ExampleServiceApi>()(
+  "ExampleService",
+  {
+    effect: Effect.succeed({
+      doSomething: (input) => Effect.succeed(`Hello, ${input}`)
+    }),
+    dependencies: []
+  }
+) {}
+```
+
+All new and refactored services MUST follow this idiom.
