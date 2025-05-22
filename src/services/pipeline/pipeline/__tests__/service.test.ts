@@ -1,12 +1,33 @@
-import { createServiceTestHarness } from "@/services/core/test-harness/utils/service-test.js"
-import { createTypedMock } from "@/services/core/test-harness/utils/typed-mocks.js"
-import { Effect, Schema } from "effect"
-import { describe, expect, it } from "vitest"
-import { PipelineService } from "../api.js"
-import { InputValidationError, OutputValidationError } from "../errors.js"
-import { ExecutiveService } from "../service.js"
+import { Effect, Layer, Schema, Duration, Cause } from "effect";
+import * as S from "effect/Schema";
+import { describe, expect, it, vi, beforeEach } from "vitest"; 
+
+// Corrected imports for ExecutiveService components
+import { ExecutiveParameters, ExecutiveServiceApi } from "../../executive-service/api.js";
+import { ExecutiveServiceError } from "../../executive-service/errors.js"; 
+import { ExecutiveService } from "../../executive-service/service.js";
+
+import { PipelineService } from "../service.js";
+import { LoggingService } from "@/services/core/logging/service.js"; 
+import { InputValidationError, OutputValidationError } from "../errors.js";
 
 describe("PipelineService", () => {
+    // Global mock setup for ExecutiveService
+    const mockExecutiveExecute = vi.fn();
+    const mockExecutiveServiceInstance: ExecutiveServiceApi = {
+        _tag: "ExecutiveService" as const,
+        execute: mockExecutiveExecute,
+    };
+    const MockExecutiveServiceLayer = Layer.succeed(
+        ExecutiveService,
+        mockExecutiveServiceInstance
+    );
+
+    // Reset mock before each test to ensure test isolation
+    beforeEach(() => {
+        mockExecutiveExecute.mockReset();
+    });
+
     class TestInput extends S.Class<TestInput>("TestInput")({
         prompt: Schema.String
     }) { }
@@ -22,101 +43,116 @@ describe("PipelineService", () => {
         usage: TestUsage
     }) { }
 
-    const mockExecutiveService = createTypedMock<ExecutiveService>({
-        execute: <R, E, A>(effect: Effect.Effect<A, E, R>, parameters?: ExecutiveParameters) =>
-            Effect.succeed({
-                text: "test response",
-                usage: {
-                    promptTokens: 1,
-                    completionTokens: 1,
-                    totalTokens: 2
-                }
-            } as A)
-    })
+    // Tests will now use the MOCKED ExecutiveService via MockExecutiveServiceLayer.
 
-    const serviceHarness = createServiceTestHarness(
-        PipelineService,
-        () => Effect.gen(function* () {
-            const executiveService = mockExecutiveService
-            return {
-                execute: <In, Out>(
-                    input: In,
-                    schema: {
-                        input: Schema.Schema<In>,
-                        output: Schema.Schema<Out>
-                    },
-                    parameters?: ExecutiveParameters
-                ) =>
-                    Effect.gen(function* () {
-                        const validInput = yield* Schema.decode(schema.input)(input)
-                        const result = yield* executiveService.execute(Effect.succeed(validInput), parameters)
-                        const validOutput = yield* Schema.decode(schema.output)(result)
-                        return validOutput as Out
-                    })
+    it("should execute pipeline with valid input/output", () => {
+        mockExecutiveExecute.mockImplementationOnce((effect: Effect.Effect<any,any,any>, params?: ExecutiveParameters) => effect); 
+
+        return Effect.gen(function* () {
+            const service = yield* PipelineService;
+            const inputData = new TestInput({ prompt: "test prompt for mock exec" });
+            const inputEffect = Effect.succeed(inputData);
+            const parameters: ExecutiveParameters = { timeoutMs: 5000 };
+
+            const result = yield* Effect.either(service.execute(inputEffect, parameters));
+
+            expect(mockExecutiveExecute).toHaveBeenCalledTimes(1);
+            expect(mockExecutiveExecute).toHaveBeenCalledWith(inputEffect, parameters);
+
+            expect(result._tag).toBe("Right");
+            if (result._tag === "Right") {
+                expect(result.right).toEqual(inputData); 
             }
-        })
-    )
+        }).pipe(
+            Effect.provide(PipelineService.Default),
+            Effect.provide(MockExecutiveServiceLayer), 
+            Effect.provide(LoggingService.Default)
+        )
+    });
 
-    it("should execute pipeline with valid input/output", () =>
-        Effect.gen(function* () {
-            const service = yield* PipelineService
-            const result = yield* service.execute(
-                { prompt: "test" },
-                {
-                    input: TestInput,
-                    output: TestOutput
-                }
-            )
-            expect(result).toEqual({
-                text: "test response",
-                usage: {
-                    promptTokens: 1,
-                    completionTokens: 1,
-                    totalTokens: 2
-                }
-            })
-        }).pipe(Effect.provide(serviceHarness.TestLayer)))
+    it("should pass through error from executed effect, wrapped by mock ExecutiveService", () => {
+        const originalError = new Error("test effect error");
+        const failingEffect = Effect.fail(originalError);
 
-    it("should fail with InputValidationError for invalid input", () =>
-        Effect.gen(function* () {
-            const service = yield* PipelineService
-            const result = yield* Effect.either(
-                service.execute(
-                    { wrongField: "test" },
-                    {
-                        input: TestInput,
-                        output: TestOutput
-                    }
-                )
+        mockExecutiveExecute.mockImplementationOnce((effect: Effect.Effect<any,any,any>, params?: ExecutiveParameters) => 
+            effect.pipe(
+                Effect.catchAll((e) => {
+                    const causeMessage = e instanceof Error ? e.message : String(e);
+                    return Effect.fail(new ExecutiveServiceError(`Mocked wrapper for original error. Cause: ${causeMessage}`));
+                })
             )
-            expect(result._tag).toBe("Left")
+        );
+        
+        return Effect.gen(function* () {
+            const service = yield* PipelineService;
+            const result = yield* Effect.either(service.execute(failingEffect)); 
+
+            expect(mockExecutiveExecute).toHaveBeenCalledTimes(1);
+            expect(mockExecutiveExecute).toHaveBeenCalledWith(failingEffect, undefined); 
+
+            expect(result._tag).toBe("Left");
             if (result._tag === "Left") {
-                expect(result.left).toBeInstanceOf(InputValidationError)
+                expect(result.left).toBeInstanceOf(ExecutiveServiceError);
+                expect(result.left.message).toContain("Mocked wrapper for original error. Cause: test effect error");
             }
-        }).pipe(Effect.provide(serviceHarness.TestLayer)))
+        }).pipe(
+            Effect.provide(PipelineService.Default),
+            Effect.provide(MockExecutiveServiceLayer), 
+            Effect.provide(LoggingService.Default)
+        )
+    });
 
-    it("should fail with OutputValidationError for invalid output", () =>
-        Effect.gen(function* () {
-            // Override mock to return invalid output
-            const originalExecute = mockExecutiveService.execute
-            mockExecutiveService.execute = <R, E, A>() => Effect.succeed({ wrongField: "test" } as A)
+    it("should pass through an existing ExecutiveServiceError from effect via mock", () => {
+        const originalExecError = new ExecutiveServiceError("Initial executive error from effect");
+        const effectThatFailsWithExecError = Effect.fail(originalExecError);
 
-            const service = yield* PipelineService
-            const result = yield* Effect.either(
-                service.execute(
-                    { prompt: "test" },
-                    {
-                        input: TestInput,
-                        output: TestOutput
-                    }
-                )
-            )
-            expect(result._tag).toBe("Left")
+        mockExecutiveExecute.mockImplementationOnce((effect: Effect.Effect<any,any,any>, params?: ExecutiveParameters) => effect); 
+
+        return Effect.gen(function* () {
+            const service = yield* PipelineService;
+            const result = yield* Effect.either(service.execute(effectThatFailsWithExecError));
+
+            expect(mockExecutiveExecute).toHaveBeenCalledTimes(1);
+            expect(mockExecutiveExecute).toHaveBeenCalledWith(effectThatFailsWithExecError, undefined);
+
+            expect(result._tag).toBe("Left");
             if (result._tag === "Left") {
-                expect(result.left).toBeInstanceOf(OutputValidationError)
+                expect(result.left).toBe(originalExecError); 
             }
+        }).pipe(
+            Effect.provide(PipelineService.Default),
+            Effect.provide(MockExecutiveServiceLayer), 
+            Effect.provide(LoggingService.Default)
+        );
+    });
 
-            // Restore original mock
-            mockExecutiveService.execute = originalExecute
-        }).pipe(Effect.provide(serviceHarness.TestLayer)))
-}) 
+    it("should handle timeout correctly by passing parameters to ExecutiveService", () => {
+        mockExecutiveExecute.mockImplementationOnce((_effect: Effect.Effect<any, any, any>, params?: ExecutiveParameters) => {
+            if (params && params.timeoutMs && params.timeoutMs < 200) { 
+                return Effect.fail(new ExecutiveServiceError("Mocked timeout from ExecutiveService"));
+            }
+            return _effect; 
+        });
+
+        return Effect.gen(function* () {
+            const service = yield* PipelineService;
+            const inputEffect = Effect.succeed(new TestInput({ prompt: "test effect" }));
+            const paramsWithTimeout: ExecutiveParameters = { timeoutMs: 10 };
+
+            const result = yield* Effect.either(service.execute(inputEffect, paramsWithTimeout));
+
+            expect(mockExecutiveExecute).toHaveBeenCalledTimes(1);
+            expect(mockExecutiveExecute).toHaveBeenCalledWith(inputEffect, paramsWithTimeout);
+
+            expect(result._tag).toBe("Left");
+            if (result._tag === "Left") {
+                expect(result.left).toBeInstanceOf(ExecutiveServiceError);
+                expect(result.left.message).toContain("Mocked timeout from ExecutiveService");
+            }
+        }).pipe(
+            Effect.provide(PipelineService.Default),
+            Effect.provide(MockExecutiveServiceLayer), 
+            Effect.provide(LoggingService.Default)
+        )
+    });
+});

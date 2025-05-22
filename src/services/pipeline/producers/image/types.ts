@@ -67,7 +67,7 @@ export interface ImageGenerationOptions {
   /** Number of images to generate */
   readonly n?: number;
   /** Tracing span for observability */
-  readonly span: Span;
+  readonly span?: Span;
   /** Optional signal to abort the operation */
   readonly signal?: AbortSignal;
   /** Optional parameters for model behavior */

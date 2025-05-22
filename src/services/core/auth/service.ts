@@ -15,7 +15,7 @@ import type { AuthContext } from "./types.js";
 export class AuthService extends Effect.Service<AuthServiceApi>()("AuthService", {
     effect: Effect.gen(function* () {
         // Get dependencies
-        const logger = yield* LoggingService;
+        const logger = (yield* LoggingService).withContext({ service: "AuthService" });
 
         // Create a Ref to store the current auth context
         const contextRef = yield* Ref.make<AuthContext>({

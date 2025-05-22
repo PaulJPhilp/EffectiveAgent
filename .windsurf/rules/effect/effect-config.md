@@ -1,0 +1,173 @@
+---
+trigger: always_on
+description: 
+globs: 
+---
+# Effect Config Service Pattern
+
+## Overview
+Guidelines for using Effect's Config service to load and validate configuration data.
+
+## Core Pattern
+```typescript
+// 1. Define your schema
+export const MyConfigSchema = Schema.Struct({
+    // Schema definition with validation rules
+    name: Schema.String,
+    version: Schema.String,
+    items: Schema.Array(ItemSchema).pipe(Schema.minItems(1))
+});
+
+// 2. Load and validate in your Layer
+export const MyServiceLayer = Layer.effect(
+    MyServiceTag,
+    Effect.gen(function* () {
+        // Get ConfigProvider and load raw config
+        const configProvider = yield* ConfigProvider.ConfigProvider;
+        const rawConfig = yield* configProvider.load(Config.string("configKey")).pipe(
+            Effect.mapError(cause => new MyDomainError({
+                message: "Failed to load config",
+                cause: new EntityParseError({
+                    filePath: "config.json",
+                    cause
+                })
+            }))
+        );
+        
+        // Parse and validate using schema directly
+        const validConfig = yield* Schema.decode(MyConfigSchema)(JSON.parse(rawConfig)).pipe(
+            Effect.mapError(cause => new MyDomainError({
+                message: "Failed to validate config",
+                cause: new EntityParseError({
+                    filePath: "config.json",
+                    cause
+                })
+            }))
+        );
+
+        // Transform to domain model if needed
+        return new MyServiceData({
+            // Map config to service data
+        });
+    })
+);
+```
+
+## Best Practices
+
+1. Schema Definition
+- Define comprehensive Schema with all validation rules
+- Use Schema.pipe for additional validations
+- Keep schema in a separate schema.ts file
+- Export schema for type inference
+- Use descriptive error messages in validation rules
+
+2. Config Loading
+- Use ConfigProvider through Effect.gen
+- Load raw config as string first
+- Parse JSON after loading
+- Map config errors to domain errors immediately
+- Include file path in error context
+
+3. Schema Validation
+- Use Schema.decode directly after parsing
+- Validate entire config structure at once
+- Map validation errors to domain errors
+- Keep validation error messages clear and specific
+- Include original error as cause
+
+4. Error Handling
+- Create specific domain error types
+- Use EntityParseError for parsing failures
+- Preserve error context through causes
+- Map all errors to domain types
+- Handle both load and validation errors
+
+5. Service Structure
+- Keep config loading in Layer definition
+- Transform config to domain model after validation
+- Use Data.Class for service data structures
+- Implement clear service interfaces
+- Separate config loading from business logic
+
+6. Testing
+- Test both valid and invalid configurations
+- Test missing config scenarios
+- Test schema validation failures
+- Use ConfigProvider.fromJson for testing
+- Create comprehensive test cases
+
+## Anti-patterns to Avoid
+
+1. DO NOT:
+- Use Config.validate with Schema.is (use Schema.decode instead)
+- Mix config loading and business logic
+- Leave error messages generic
+- Skip error mapping
+- Use any in type definitions
+
+2. NEVER:
+- Access raw config without validation
+- Ignore validation errors
+- Use hardcoded values instead of config
+- Cast errors without proper mapping
+- Skip testing error paths
+
+## Example Implementation
+
+```typescript
+// schema.ts
+export const ModelConfigSchema = Schema.Struct({
+    name: Schema.String,
+    version: Schema.String,
+    models: Schema.Array(ModelDefinitionSchema).pipe(Schema.minItems(1))
+});
+
+// errors.ts
+export class ModelConfigError extends Data.TaggedError("ModelConfigError")<{
+    readonly message: string;
+    readonly cause: EntityLoadError | EntityParseError;
+}> { }
+
+// live.ts
+export const ModelConfigLiveLayer = Layer.effect(
+    ModelConfigDataTag,
+    Effect.gen(function* () {
+        // 1. Get ConfigProvider and load raw config
+        const configProvider = yield* ConfigProvider.ConfigProvider;
+        const rawConfig = yield* configProvider.load(Config.string("models")).pipe(
+            Effect.mapError(cause => new ModelConfigError({
+                message: "Failed to load model config",
+                cause: new EntityParseError({
+                    filePath: "models.json",
+                    cause
+                })
+            }))
+        );
+        const parsedConfig = JSON.parse(rawConfig);
+
+        // 2. Validate config using schema directly
+        const validConfig = yield* Schema.decode(ModelsConfigSchema)(parsedConfig).pipe(
+            Effect.mapError(cause => new ModelConfigError({
+                message: "Failed to validate model config",
+                cause: new EntityParseError({
+                    filePath: "models.json",
+                    cause
+                })
+            }))
+        );
+
+        // 3. Transform to domain model
+        const modelEntries = validConfig.models.map(
+            (model: ModelDefinition) => [model.id, model] as const
+        );
+        const modelsMap = HashMap.fromIterable(modelEntries);
+
+        // 4. Return typed service data
+        return new ModelConfigData({
+            models: modelsMap,
+            defaultModelName: validConfig.models[0]?.id ?? "missing-default"
+        });
+    })
+);
+``` 

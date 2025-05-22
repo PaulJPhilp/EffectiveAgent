@@ -18,7 +18,7 @@ const program = Effect.gen(function* () {
 
     try {
         // Get the logging interface
-        const loggingService = logger.createLoggingService()
+        const loggingService = logger.createLoggingService().withContext({ service: "WorkingExample" })
 
         // Log some messages
         yield* loggingService.info("Application started", {

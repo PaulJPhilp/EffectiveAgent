@@ -27,11 +27,11 @@ import type { ObjectServiceApi } from '@/services/pipeline/producers/object/api.
 import { ObjectGenerationError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from '@/services/pipeline/producers/object/errors.js';
 import type { TextGenerationOptions, TextServiceApi } from '@/services/pipeline/producers/text/api.js';
 import type { ChatCompletionOptions, ChatServiceApi } from '@/services/pipeline/producers/chat/api.js';
-import { createTypedMock } from '../../utils/typed-mocks.js';
-import type { GenerateBaseResult } from '@/services/pipeline/shared/generation-types.js';
+import { createTypedMock } from "../../utils/typed-mocks.js";
+import type { MockAccessorApi, CapturedArgs } from "./api.js";
+import type { GenerateBaseResult } from '@/services/pipeline/types.js';
 import type { EffectiveResponse, EffectiveInput } from '@/types.js';
 import type { ProviderClientApi, ProviderServiceApi } from "@/services/ai/provider/api.js";
-import { MissingModelIdError, ProviderConfigError, ProviderMissingCapabilityError, ProviderNotFoundError, ProviderOperationError } from "@/services/ai/provider/errors.js";
 import { ProviderToolError } from "@/services/ai/provider/errors/tool.js";
 import type { EffectiveProviderApi, GenerateEmbeddingsResult, GenerateImageResult, GenerateObjectResult, GenerateSpeechResult, GenerateTextResult, ProviderChatOptions, ProviderGenerateEmbeddingsOptions, ProviderGenerateImageOptions, ProviderGenerateObjectOptions, ProviderGenerateSpeechOptions, ProviderGenerateTextOptions, ProviderTranscribeOptions, TranscribeResult } from "@/services/ai/provider/types.js";
 import type { EmbeddingGenerationOptions, EmbeddingServiceApi } from "@/services/pipeline/producers/embedding/api.js";
@@ -40,23 +40,8 @@ import { TranscriptionError } from "@/services/pipeline/producers/transcription/
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import type { LanguageModelV1 } from "@ai-sdk/provider";
 import { Effect } from 'effect';
-import type { MockAccessorApi } from "./api.js";
 
-/**
- * Type definition for arguments captured during mock service calls.
- * Used for test verification and assertions.
- */
-type CapturedArgs = {
-  modelService: {
-    getProviderName?: { modelId: string };
-  };
-  providerService: {
-    getProviderClient?: { providerName: string };
-  };
-  providerClient: {
-    generateEmbeddings?: { texts: string[]; params: any };
-  };
-};
+
 
 /**
  * MockAccessorService provides mock implementations of various AI services for testing.
@@ -89,7 +74,7 @@ type CapturedArgs = {
  *       const result = yield* myService.processText('input');
  *       
  *       // Assert results and verify mock calls
- *       const capturedArgs = yield* mockAccessor.getMockCapturedArgs();
+ *       const capturedArgs: CapturedArgs = yield* mockAccessor.getMockCapturedArgs();
  *       expect(capturedArgs.providerClient.generateEmbeddings).toBeDefined();
  *     })
  *   );
@@ -579,6 +564,15 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
       } as unknown as LanguageModelV1;
 
       // Return the service implementation object
+      const resetMockCallArgs = (): Effect.Effect<void, never, never> => Effect.sync(() => {
+        capturedArgs.modelService = {};
+        capturedArgs.providerService = {};
+        capturedArgs.providerClient = {};
+        // If producerServices args were captured, reset them here too
+      });
+
+      const getMockCapturedArgs = (): Effect.Effect<CapturedArgs, never, never> => Effect.succeed(capturedArgs);  
+
       return {
         mockLanguageModelV1,
         mockModelService,
@@ -603,18 +597,14 @@ export class MockAccessorService extends Effect.Service<MockAccessorApi>()(
          * Should be called between test cases to ensure clean state.
          * @returns An Effect that resets all captured arguments when executed
          */
-        resetMockCallArgs: () => Effect.sync(() => {
-          capturedArgs.modelService.getProviderName = undefined;
-          capturedArgs.providerService.getProviderClient = undefined;
-          capturedArgs.providerClient.generateEmbeddings = undefined;
-        }),
+        resetMockCallArgs,
         
         /**
          * Retrieves all captured method call arguments for verification.
          * Useful for asserting that services were called with expected parameters.
          * @returns The current captured arguments state
          */
-        getMockCapturedArgs: () => Effect.succeed(capturedArgs)
+        getMockCapturedArgs,
       };
     }),
     dependencies: []

@@ -7,6 +7,8 @@ import { Effect, LogLevel } from "effect";
 import { describe, expect, it } from "vitest";
 import { makeWeatherService } from "../service.js";
 
+process.env.PROVIDERS_CONFIG_PATH = require('path').resolve(__dirname, '../../config/providers.json');
+
 const fileLogger = new FileLogger({
     logDir: "test-logs",
     logFileBaseName: "weather-integration-test",

@@ -1,2 +1,0 @@
-{"timestamp":"2025-05-19T01:54:00.026Z","level":"INFO","message":"extractStructured called","text":"Here is a user profile for John Doe:\n    - Username: john.doe\n    - Email: john@example.com\n    - Status: Active (true)"}
-{"timestamp":"2025-05-19T01:54:00.026Z","level":"ERROR","message":"Error in extractStructured","error":"{\"error\":\"{}\"}"}

@@ -2,10 +2,11 @@ import type { PublicModelInfoDefinition } from "@/services/ai/model/schema.js";
 import type { ModelService } from "@/services/ai/model/service.js";
 import type { EffectiveMessage, EffectiveUsage, ResponseMessage } from "@/types.js";
 import { Effect } from "effect";
-import { ToolDefinition } from "../tool-registry/types.js";
+import { type ToolDefinition } from "../tools/schema.js";
 import type { ToolServiceApi } from "../tools/api.js";
 import type { ToolRegistryData } from "../tools/types.js";
-import type { ProviderConfigError, ProviderOperationError } from "./errors.js";
+import type { ProviderServiceConfigError, ProviderOperationError } from "./errors.js";
+import type { ProviderClientApi } from "./api.js"; // Added import
 import { PROVIDER_NAMES } from "./provider-universe.js";
 
 /**
@@ -62,72 +63,6 @@ export interface GenerateBaseResult {
     body?: unknown
 }
 
-/**
- * Provider client interface defining all supported operations.
- * Methods are specifically typed to match capabilities and return types.
- */
-export interface ProviderClientApi {
-    /**
-     * Returns the list of models supported by this provider.
-     */
-    getModels(): Effect.Effect<PublicModelInfoDefinition[], ProviderConfigError, typeof ModelService>;
-    /**
-     * Validates tool inputs against their schemas and prepares them for execution.
-     * This should delegate to the ToolService for actual validation.
-     */
-    validateToolInputs: (tools: ToolDefinition[]) => Effect.Effect<void, ProviderOperationError>;
-
-    /**
-     * Executes tool calls requested by the model.
-     * This should delegate to the ToolService for actual execution.
-     */
-    executeToolCalls: (toolCalls: ToolCallRequest[], tools: ToolDefinition[]) => Effect.Effect<string[], ProviderOperationError>;
-
-    /**
-     * Generates text based on input prompt.
-     */
-    generateText: (input: string, options: ProviderGenerateTextOptions) => Effect.Effect<GenerateTextResult, ProviderOperationError>;
-
-    /**
-     * Generates structured object based on schema.
-     */
-    generateObject: <T>(input: string, options: ProviderGenerateObjectOptions<T>) => Effect.Effect<GenerateObjectResult<T>, ProviderOperationError>;
-
-    /**
-     * Generates chat response.
-     */
-    chat: (messages: EffectiveMessage[], options: ProviderChatOptions) => Effect.Effect<ChatResult, ProviderOperationError>;
-
-    /**
-     * Generates image based on text prompt.
-     */
-    generateImage: (prompt: string, options: ProviderGenerateImageOptions) => Effect.Effect<GenerateImageResult, ProviderOperationError>;
-
-    /**
-     * Generates speech from text.
-     */
-    generateSpeech: (text: string, options: ProviderGenerateSpeechOptions) => Effect.Effect<GenerateSpeechResult, ProviderOperationError>;
-
-    /**
-     * Transcribes audio to text.
-     */
-    transcribe: (audio: Buffer, options: ProviderTranscribeOptions) => Effect.Effect<TranscribeResult, ProviderOperationError>;
-
-    /**
-     * Generates embeddings for text.
-     */
-    generateEmbeddings: (texts: string[], options: ProviderGenerateEmbeddingsOptions) => Effect.Effect<GenerateEmbeddingsResult, ProviderOperationError>;
-
-    /**
-     * Streams text generation.
-     */
-    streamText: (input: string, options: ProviderGenerateTextOptions) => Effect.Effect<StreamingTextResult, ProviderOperationError>;
-
-    /**
-     * Streams object generation.
-     */
-    streamObject: <T>(input: string, options: ProviderGenerateObjectOptions<T>) => Effect.Effect<StreamingObjectResult<T>, ProviderOperationError>;
-}
 
 /**
  * Output type for generateText based on Vercel AI SDK GenerateTextResult
@@ -380,7 +315,7 @@ export interface ProviderMetadata {
  * - Model capability: What this specific model can do (e.g., "chat", "vision").
  * - Used for routing, validation, and fine-grained selection.
  */
-export interface ModelMetadata {
+export interface ProviderModelMetadata {
     id: string;
     name: string;
     /**
@@ -547,4 +482,4 @@ export type EffectiveProviderSettings = {
     settings: unknown;
 };
 
-export { ToolDefinition };
+export { ToolDefinition, type ProviderClientApi };

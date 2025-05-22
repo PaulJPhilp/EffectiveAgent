@@ -1,4 +1,4 @@
-import type { GenerateBaseResult } from "@/services/pipeline/shared/generation-types.js";
+import type { GenerateBaseResult } from "@/services/pipeline/types.js";
 import type { EffectiveResponse } from "@/types.js";
 import type { Effect } from "effect";
 import type { TextGenerationOptions } from "./types.js";

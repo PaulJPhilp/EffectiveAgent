@@ -1,0 +1,27 @@
+---
+trigger: model_decision
+description: Creating and running tests.
+globs: 
+---
+
+
+### Unit Testing Guidelines for Agents and Their Nodes
+
+1. **Test Framework:**
+   - **Vitest** is the required testing framework for all tests.
+
+2. **Configuration Service:**
+   - When testing an agent or its nodes, **use the real shared configuration service**.
+   - **Do not mock** any configuration files, specifically:
+     - **Shared Configuration Files:**  
+       - `models.json`  
+       - `providers.json`  
+       These files are common to all agents and are located in the `agents/config` folder.
+     - **Agent-Specific Configuration Files:**  
+       - `prompts.json`  
+       - `tasks.json`  
+       Each agent has its own versions, located in the `agents/{agent-name}/config` directory.
+
+3. **Mocking Practices:**
+   - When mocking is necessary for functions or methods, **prefer using Vitest's `spyOn` function** rather than creating full mocks.
+   - This practice ensures that the tests remain focused on agent behavior and use real configuration data where applicable.

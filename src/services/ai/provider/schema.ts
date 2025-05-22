@@ -20,7 +20,7 @@ export type ProvidersType = typeof Providers.Type;
 /**
  * Schema for a single AI Provider configuration entry.
  */
-export class Provider extends S.Class<Provider>("Provider")({
+export class ProviderConfigSchema extends S.Class<ProviderConfigSchema>("ProviderConfigSchema")({
     name: Providers,
     displayName: Name,
     type: S.String.pipe(S.minLength(1)),
@@ -30,7 +30,8 @@ export class Provider extends S.Class<Provider>("Provider")({
 }) { }
 
 export class ProviderFile extends S.Class<ProviderFile>("ProviderFile")({
+    version: S.String, // Added version field
     description: Description,
     name: Name,
-    providers: S.Array(Provider)
+    providers: S.Array(ProviderConfigSchema)
 }) { }

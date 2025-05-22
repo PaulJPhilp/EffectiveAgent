@@ -1,5 +1,31 @@
-import { EffectiveError } from "@/errors";
+import { EffectiveError } from "@/errors.js"; 
+import { Data } from "effect";
 
+// Errors moved from shared/errors.ts
+export class PipelineConfigError extends Data.TaggedError("PipelineConfigError")<{
+    readonly description: string;
+    readonly module: string;
+    readonly method: string;
+    readonly cause?: unknown;
+}> { }
+
+export class PipelineSharedExecutionError extends Data.TaggedError("PipelineSharedExecutionError")<{
+    readonly description: string;
+    readonly module: string;
+    readonly method: string;
+    readonly cause?: unknown;
+}> { }
+
+export class PipelineValidationError extends Data.TaggedError("PipelineValidationError")<{
+    readonly description: string;
+    readonly module: string;
+    readonly method: string;
+    readonly validationErrors: string[];
+}> { }
+
+export type PipelineError = PipelineConfigError | PipelineSharedExecutionError | PipelineValidationError;
+
+// Original errors from this file
 export type PipelineSpecificError = BasePipelineError;
 
 export class BasePipelineError extends EffectiveError {
@@ -11,10 +37,6 @@ export class BasePipelineError extends EffectiveError {
   }
 }
 
-/**
- * Error indicating that the raw input provided to the pipeline
- * failed validation against the pipeline's input schema.
- */
 export class InputValidationError extends BasePipelineError {
   constructor(cause: unknown) {
     super({
@@ -25,10 +47,6 @@ export class InputValidationError extends BasePipelineError {
   }
 }
 
-/**
- * Error indicating that the response received from the AI service
- * failed validation against the pipeline's output schema.
- */
 export class OutputValidationError extends BasePipelineError {
   constructor(cause: unknown) {
     super({
@@ -39,10 +57,6 @@ export class OutputValidationError extends BasePipelineError {
   }
 }
 
-/**
- * Error indicating a problem within the pipeline's configuration logic,
- * such as being unable to determine executive call options or an unsupported type.
- */
 export class PipelineConfigurationError extends BasePipelineError {
   constructor(description: string, cause?: unknown) {
     super({
@@ -53,13 +67,7 @@ export class PipelineConfigurationError extends BasePipelineError {
   }
 }
 
-/**
- * Error indicating a problem during pipeline execution.
- */
 export class PipelineExecutionError extends BasePipelineError {
-  module: string;
-  method: string;
-  description: any;
   constructor(description: string, cause?: unknown) {
     super({
       description: `Pipeline execution error: ${description}`,

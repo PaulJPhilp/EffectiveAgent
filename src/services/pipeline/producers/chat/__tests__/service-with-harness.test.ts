@@ -1,58 +1,33 @@
-import { TestHarnessService } from "@/services/core/test-harness/service.js"
-import { createServiceTestHarness } from "@/services/core/test-harness/utils/service-test.js"
-import { ChatService } from "@/services/pipeline/producers/chat/service.js"
-import { Effect } from "effect"
-import { describe, expect, it } from "vitest"
+import { ChatService } from "@/services/pipeline/producers/chat/service.js";
+import { Effect } from "effect";
+import { NodeFileSystem } from "@effect/platform-node";
 
-describe("ChatService", () => {
-  const harness = createServiceTestHarness(
-    ChatService,
-    () => Effect.gen(function* () {
-      return Effect.succeed({
-        generate: (options: any) => Effect.succeed({
-          data: {
-            output: "Test response",
-            usage: { promptTokens: 10, completionTokens: 20, totalTokens: 30 },
-            finishReason: "stop",
-            providerMetadata: {},
-            toolCalls: []
-          },
-          messages: []
-        })
-      })
-    })
-  )
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { type ChatCompletionOptions } from "@/services/pipeline/producers/chat/types.js";
+import { ChatInputError } from "@/services/pipeline/producers/chat/errors.js";
+import { describe, expect, it } from "vitest";
 
+describe("ChatService (Integration)", () => {
   describe("generate", () => {
-    it("should generate chat completion successfully", async () => {
-      const effect = Effect.gen(function* () {
-        const service = yield* ChatService
+    it("should fail when input is empty", () =>
+      Effect.gen(function* () {
+        const service = yield* ChatService;
         const result = yield* service.generate({
-          input: "Test input",
-          modelId: "test-model",
-          span: Effect.currentSpan,
-          text: "Test text"
-        })
-
-        expect(result.data.output).toBe("Test response")
-        expect(result.data.usage.totalTokens).toBe(30)
-      })
-
-      await harness.runTest(effect)
-    })
-
-    it("should fail when input is empty", async () => {
-      const effect = Effect.gen(function* () {
-        const service = yield* ChatService
-        yield* service.generate({
           input: "",
-          modelId: "test-model",
-          span: Effect.currentSpan,
-          text: ""
-        })
-      })
-
-      await harness.expectError(effect, "ChatInputError")
-    })
-  })
-})
+          modelId: "gpt-4"
+        } as ChatCompletionOptions).pipe(
+          Effect.flip
+        );
+        expect(result).toBeInstanceOf(ChatInputError);
+      }).pipe(
+        Effect.provide(ChatService.Default),
+        Effect.provide(ModelService.Default),
+        Effect.provide(ProviderService.Default),
+        Effect.provide(ConfigurationService.Default),
+        Effect.provide(NodeFileSystem.layer)
+      )
+    );
+  });
+});

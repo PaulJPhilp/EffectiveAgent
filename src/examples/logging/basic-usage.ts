@@ -17,7 +17,7 @@ const program = Effect.gen(function* () {
     yield* fileLogger.initialize()
 
     // Get the logging service interface
-    const logger = fileLogger.createLoggingService()
+    const logger = fileLogger.createLoggingService().withContext({ service: "BasicUsage" })
 
     // Log different types of messages
     yield* logger.info("Application started", { version: "1.0.0" })

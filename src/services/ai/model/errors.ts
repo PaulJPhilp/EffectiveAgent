@@ -3,8 +3,7 @@
  * @module services/ai/model/errors
  */
 
-import { EffectiveError } from "@/errors.js";
-import type { ImportedType } from "@/services/core/errors.js";
+import { EffectiveError, EntityLoadError, EntityParseError } from "@/errors.js";
 
 /**
  * Base error type for model-related errors
@@ -13,7 +12,7 @@ import type { ImportedType } from "@/services/core/errors.js";
  * Base error type for model-related errors.
  * @extends EffectiveError
  */
-export class ModelError extends EffectiveError {
+export class ModelServiceError extends EffectiveError {
   public readonly modelId: string;
   /**
    * @param params - Error details
@@ -22,7 +21,7 @@ export class ModelError extends EffectiveError {
    * @param params.method - Method where error occurred
    * @param params.cause - Optional cause
    */
-  constructor(params: { modelId: string; message: string; method: string; cause?: unknown }) {
+  constructor(params: { modelId: string; message: string; method: string; cause?: unknown }) { // Renamed from ModelError
     super({
       description: params.message,
       module: "services/ai/model/errors",
@@ -67,14 +66,16 @@ export class ModelConfigError extends EffectiveError {
  */
 export class ModelNotFoundError extends EffectiveError {
   public readonly modelId: string;
+
   /**
    * @param params - Error details
    * @param params.modelId - The missing model's ID
    * @param params.method - Method where error occurred
+   * @param params.description - Optional description
    */
-  constructor(params: { modelId: string; method: string }) {
+  constructor(params: { modelId: string; method: string; description?: string }) {
     super({
-      description: `Model not found: ${params.modelId}`,
+      description: params.description ?? `Model not found: ${params.modelId}`,
       module: "services/ai/model/errors",
       method: params.method,
     });
@@ -89,7 +90,7 @@ export class ModelNotFoundError extends EffectiveError {
  * Error when a default model ID cannot be found for a given provider and capability.
  * @extends EffectiveError
  */
-export class MissingModelIdError extends EffectiveError {
+export class ModelMissingModelIdError extends EffectiveError {
   public readonly provider: string;
   public readonly capability: string;
   /**
@@ -98,7 +99,7 @@ export class MissingModelIdError extends EffectiveError {
    * @param params.capability - Capability name
    * @param params.method - Method where error occurred
    */
-  constructor(params: { provider: string; capability: string; method: string }) {
+  constructor(params: { provider: string; capability: string; method: string }) { // Renamed from MissingModelIdError
     super({
       description: `Missing default model ID for provider '${params.provider}' and capability '${params.capability}'`,
       module: "services/ai/model/errors",

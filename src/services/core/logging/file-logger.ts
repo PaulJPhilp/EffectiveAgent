@@ -51,6 +51,7 @@ export class FileLogger {
     this.logFilePath = NodePath.join(this.config.logDir, `${this.config.logFileBaseName}.log`);
     this.writeLock = Ref.unsafeMake(false);
     this.rotationLock = Ref.unsafeMake(false);
+    console.log(`[FileLogger] logFilePath:`, this.logFilePath);
   }
 
   private readonly config: FileLoggerConfig;
@@ -104,8 +105,12 @@ export class FileLogger {
         timestamp,
         level: level.label,
         message,
+        service: data?.service,
         ...data
       }) + '\n';
+
+      // Debug: print to console before writing to file
+      console.log("[FileLogger] writeToFile:", logEntry);
 
       // Acquire write lock
       while (yield* Ref.get(self.writeLock)) {
@@ -117,7 +122,10 @@ export class FileLogger {
         // Write the log entry
         yield* Effect.tryPromise({
           try: () => self.fileHandle!.write(logEntry),
-          catch: (error) => new Error(`Failed to write log entry: ${error}`)
+          catch: (error) => {
+            console.error("[FileLogger] writeToFile error:", error);
+            return new Error(`Failed to write log entry: ${error}`);
+          }
         });
 
         // Check if rotation is needed
@@ -144,10 +152,12 @@ export class FileLogger {
     const self = this;
 
     const createLogMethod = (level: LogLevel.LogLevel) =>
-      (message: string, data?: JsonObject): Effect.Effect<void, Error> =>
-        LogLevel.greaterThanEqual(level, self.config.minLogLevel)
+      (message: string, data?: JsonObject): Effect.Effect<void, Error> => {
+        console.log(`[FileLogger] ${level.label} called:`, { message, data });
+        return LogLevel.greaterThanEqual(level, self.config.minLogLevel)
           ? self.writeToFile(level, message, data)
           : Effect.succeed(void 0) as Effect.Effect<void, Error>;
+      };
 
     const service: LoggingServiceApi = {
       debug: createLogMethod(LogLevel.Debug),
@@ -156,6 +166,7 @@ export class FileLogger {
       trace: createLogMethod(LogLevel.Trace),
 
       error: (message: string, error?: Error | unknown): Effect.Effect<void, Error> => {
+        console.log(`[FileLogger] ERROR called:`, { message, error });
         if (!LogLevel.greaterThanEqual(LogLevel.Error, self.config.minLogLevel)) {
           return Effect.succeed(void 0);
         }
@@ -176,22 +187,29 @@ export class FileLogger {
         return self.writeToFile(LogLevel.Error, message, errorData);
       },
 
-      log: (level: LogLevel.LogLevel, message: string, data?: JsonObject) =>
-        LogLevel.greaterThanEqual(level, self.config.minLogLevel)
+      log: (level: LogLevel.LogLevel, message: string, data?: JsonObject) => {
+        console.log(`[FileLogger] log called:`, { level: level.label, message, data });
+        return LogLevel.greaterThanEqual(level, self.config.minLogLevel)
           ? self.writeToFile(level, message, data)
-          : Effect.succeed(void 0),
+          : Effect.succeed(void 0);
+      },
 
-      logCause: (level: LogLevel.LogLevel, cause: Cause.Cause<unknown>, data?: JsonObject) =>
-        LogLevel.greaterThanEqual(level, self.config.minLogLevel)
+      logCause: (level: LogLevel.LogLevel, cause: Cause.Cause<unknown>, data?: JsonObject) => {
+        console.log(`[FileLogger] logCause called:`, { level: level.label, cause, data });
+        return LogLevel.greaterThanEqual(level, self.config.minLogLevel)
           ? self.writeToFile(level, Cause.pretty(cause), data)
-          : Effect.succeed(void 0),
+          : Effect.succeed(void 0);
+      },
 
-      logErrorCause: (cause: Cause.Cause<unknown>, data?: JsonObject) =>
-        LogLevel.greaterThanEqual(LogLevel.Error, self.config.minLogLevel)
+      logErrorCause: (cause: Cause.Cause<unknown>, data?: JsonObject) => {
+        console.log(`[FileLogger] logErrorCause called:`, { cause, data });
+        return LogLevel.greaterThanEqual(LogLevel.Error, self.config.minLogLevel)
           ? self.writeToFile(LogLevel.Error, Cause.pretty(cause), data)
-          : Effect.succeed(void 0),
+          : Effect.succeed(void 0);
+      },
 
       withContext: (additionalContext: JsonObject) => {
+        console.log(`[FileLogger] withContext called:`, { additionalContext });
         // TODO: Implement a simpler withContext that just merges context with data
         return service;
       }

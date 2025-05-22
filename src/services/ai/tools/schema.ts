@@ -110,6 +110,14 @@ export type ToolImplementation = S.Schema.Type<typeof ToolImplementation>;
 /**
  * Complete tool definition including metadata and implementation
  */
+/**
+ * Tool definition type that includes both metadata and implementation
+ */
+export type ToolDefinition = {
+    metadata: S.Schema.Type<typeof ToolMetadata>;
+    implementation: ToolImplementation;
+};
+
 export class Tool extends S.Class<Tool>("Tool")({
     metadata: ToolMetadata,
     implementation: ToolImplementation

@@ -316,17 +316,21 @@ export class RenderingError extends EffectiveError {
  * Error thrown when there are parsing issues
  */
 export class TemplateNotFoundError extends EffectiveError {
+    readonly templateName: string;
     constructor(params: {
         description: string;
+        templateName: string; // Added templateName
         module?: string;
         method?: string;
         cause?: unknown;
     }) {
         super({
-            ...params,
+            description: params.description,
             module: params.module ?? "Template",
             method: params.method ?? "find",
+            cause: params.cause
         });
+        this.templateName = params.templateName;
     }
 }
 

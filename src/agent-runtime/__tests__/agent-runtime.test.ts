@@ -1,5 +1,5 @@
-import { Effect } from "effect"
 import { describe, expect, test } from "vitest"
+import { Effect } from "effect"
 import { AgentRecordType, AgentRuntimeService, makeAgentRuntimeId } from "../index.js"
 
 describe("AgentRuntime", () => {

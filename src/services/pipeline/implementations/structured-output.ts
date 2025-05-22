@@ -100,8 +100,8 @@ export class StructuredOutputPipeline<T> extends AiPipeline<
             };
         }).pipe(
             Effect.provide(ObjectService.Default),
-            Effect.provide(ModelService),
-            Effect.provide(ProviderService),
+            Effect.provide(ModelService.Default),
+            Effect.provide(ProviderService.Default),
             Effect.provide(ConfigurationService.Default),
             Effect.mapError((error): EffectiveError => {
                 if (error instanceof EffectiveError) {

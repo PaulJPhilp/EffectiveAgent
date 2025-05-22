@@ -1,6 +1,6 @@
 import { EffectiveError } from "@/errors.js";
 import { Effect, Schema } from "effect";
-import { ExecutiveService } from "../shared/service.js";
+// PipelineService import removed
 import { ExecutiveCallConfig } from "./types.js";
 
 /**
@@ -17,8 +17,13 @@ export abstract class AiPipeline<
   In,
   Out,
   PipelineSpecificError extends EffectiveError,
-  PipelineConfigServices = never,
+  PipelineConfigServices = never, // This R might need adjustment later
 > {
+  constructor() { // pipelineService removed
+    // If pipelineService was used for other things, those need to be addressed.
+    // For now, assuming it was only for execute.
+  }
+
   // --- Abstract Properties/Methods (to be implemented by subclass) ---
 
   /** Effect Schema for validating raw input and deriving 'In' type. */
@@ -55,37 +60,31 @@ export abstract class AiPipeline<
   /** Executes the AI pipeline for the given raw input. */
   public run(
     input: In,
-  ): Effect.Effect<Out, EffectiveError, PipelineConfigServices | ExecutiveService> {
+  ): Effect.Effect<Out, EffectiveError, PipelineConfigServices> { // ExecutiveService removed from R
     const self = this;
     return Effect.gen(function* () {
-      // Get executive service
-      const executiveService = yield* ExecutiveService;
-
       // Configure and execute
       const config = yield* self.configureExecutiveCall(input);
-      const result = yield* executiveService.execute(
-        config.effect,
-        config.parameters
-      );
+      // Directly execute the effect from config. config.parameters are no longer used here.
+      const result = yield* config.effect;
 
       return result as Out;
     }).pipe(
-      Effect.mapError((error) => {
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "description" in error &&
-          "module" in error &&
-          "method" in error
-        ) {
-          return error as EffectiveError
+      Effect.mapError((error: unknown) => { // Explicitly type error as unknown
+        // If error is already an instance of EffectiveError, return it as is.
+        if (error instanceof EffectiveError) {
+          return error;
         }
-        return {
-          description: `Failed to execute pipeline: ${String(error)}`,
-          module: "pipeline",
+
+        // Otherwise, wrap it in a new EffectiveError.
+        // The EffectiveError constructor is expected to set 'name' and 'message' appropriately.
+        const description = `Failed to execute AiPipeline.run: ${error instanceof Error ? error.message : String(error)}`;
+        return new EffectiveError({
+          description: description,
+          module: "AiPipeline",
           method: "run",
-          cause: error
-        } as EffectiveError
+          cause: error, 
+        });
       })
     );
   }

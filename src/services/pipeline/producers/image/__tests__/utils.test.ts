@@ -96,7 +96,8 @@ describe("Image Generation Utilities", () => {
             // Check negative prompt
             expect(result.negativePrompt).toContain("text");
             expect(result.negativePrompt).toContain("UI elements");
-            expect(result.negativePrompt).toContain("human faces");
+            expect(result.negativePrompt).toContain("logos");
+            expect(result.negativePrompt).toContain("borders");
         });
 
         it("should include context when provided", () => {

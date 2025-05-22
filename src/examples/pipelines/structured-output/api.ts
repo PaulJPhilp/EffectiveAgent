@@ -87,7 +87,7 @@ export interface StructuredOutputPipelineApi {
     readonly extractStructured: <A>(
         text: string,
         schema: Schema.Schema<A, A>,
-        maxRetries?: number
+        options?: { maxRetries?: number; modelId?: string }
     ) => Effect.Effect<A, StructuredOutputPipelineError>;
 }
 
@@ -106,7 +106,7 @@ export class StructuredOutputPipeline extends Effect.Service<StructuredOutputPip
                 extractStructured: <A>(
                     text: string,
                     schema: Schema.Schema<A, A>,
-                    maxRetries?: number
+                    options?: { maxRetries?: number; modelId?: string }
                 ) => Effect.fail(new StructuredOutputPipelineError({ message: "extractStructured not implemented by default" }))
             };
         }),

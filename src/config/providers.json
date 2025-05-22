@@ -1,0 +1,14 @@
+{
+  "version": "1.0.0",
+  "name": "default-provider-config",
+  "description": "Default provider config for tests and development",
+  "providers": [
+    {
+      "name": "openai",
+      "displayName": "OpenAI",
+      "type": "llm",
+      "apiKeyEnvVar": "OPENAI_API_KEY",
+      "baseUrl": "https://api.openai.com/v1"
+    }
+  ]
+}

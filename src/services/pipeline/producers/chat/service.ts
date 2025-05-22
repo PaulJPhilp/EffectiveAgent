@@ -6,11 +6,13 @@
 import { Message, TextPart } from "@/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { EffectiveInput } from "@/types.js";
+import { EffectiveInput, EffectiveResponse } from "@/types.js";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
+import { ProviderServiceConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "@/services/ai/provider/errors.js";
+import type { GenerateTextResult, ProviderGenerateTextOptions, ToolCallRequest } from "@/services/ai/provider/types.js";
 import { ChatCompletionError, ChatInputError, ChatModelError, ChatProviderError } from "./errors.js";
-import type { ChatCompletionOptions, ChatCompletionResult, ChatServiceApi } from "./types.js";
+import type { ChatCompletionOptions, ChatCompletionResult, ChatServiceApi, ToolCall } from "./types.js";
 
 /**
  * Chat service implementation
@@ -132,44 +134,96 @@ const chatServiceEffect = Effect.succeed({
                 cause: error
             }))
         );
-        // Generate completion
-        return yield* provider.generateText(
-            effectiveInput,
-            {
-                modelId: options.modelId,
-                system: options.system,
-                parameters: {
-                    temperature: options.parameters?.temperature ?? 0.7,
-                    maxTokens: options.parameters?.maxTokens ?? 1000,
-                    topP: options.parameters?.topP,
-                    presencePenalty: options.parameters?.presencePenalty,
-                    frequencyPenalty: options.parameters?.frequencyPenalty,
-                    stop: options.parameters?.stop
-                },
-                signal: options.signal
-            }
-        ).pipe(
-            Effect.map((result) => ({
-                data: {
-                    content: result.output,
-                    usage: result.usage,
-                    finishReason: result.finishReason,
-                    providerMetadata: result.providerMetadata,
-                    toolCalls: result.toolCalls
-                } as ChatCompletionResult,
-                messages: effectiveInput.messages
-            })),
-            Effect.mapError((error) => new ChatCompletionError({
-                description: "Failed to generate chat completion",
-                module: "ChatService",
-                method: "generate",
-                cause: error
-            }))
-        );
+
+        return yield* Effect.succeed({ resolvedModelId: options.modelId, providerName, effectiveInput, chatOptions: options, providerClient: provider })
+            .pipe(
+                Effect.flatMap(({ resolvedModelId, providerName, effectiveInput, chatOptions, providerClient }) => {
+                    const providerTextOpts: ProviderGenerateTextOptions = {
+                        modelId: chatOptions.modelId,
+                        system: chatOptions.system,
+                        parameters: chatOptions.parameters,
+                    };
+
+                    return providerClient.generateText(effectiveInput, providerTextOpts)
+                        .pipe(
+                            Effect.mapError((err: ProviderServiceConfigError | ProviderOperationError | ProviderMissingCapabilityError) => {
+                                let op = "generateText";
+                                // Use providerName from outer scope as a default
+                                let pName = providerName; 
+                                const mod = "ChatService";
+                                const meth = "generate";
+
+                                if (err instanceof ProviderOperationError) {
+                                    op = err.operation;
+                                    pName = err.providerName;
+                                } else if (err instanceof ProviderMissingCapabilityError) {
+                                    pName = err.providerName;
+                                    op = `missing_capability: ${err.capability}`;
+                                } else if (err instanceof ProviderServiceConfigError) {
+                                    op = "providerConfigurationError";
+                                    // pName remains the outer scope providerName
+                                }
+
+                                return new ProviderOperationError({
+                                    operation: op,
+                                    message: err.message || "Provider operation failed",
+                                    providerName: pName,
+                                    module: mod,
+                                    method: meth,
+                                    cause: err,
+                                });
+                            }),
+                            Effect.map((response: EffectiveResponse<GenerateTextResult>) => {
+                                const sourceProviderMeta = response.data.providerMetadata ?? {};
+                                const { capabilities, configSchema, model, provider, ...restCompatibleProviderMeta } = sourceProviderMeta as any;
+
+                                const mappedToolCalls: ToolCall[] = (response.data.toolCalls ?? []).map((req: ToolCallRequest) => {
+                                    let parsedArgs: Record<string, string | number | boolean | null> = {};
+                                    try {
+                                        parsedArgs = JSON.parse(req.function.arguments);
+                                    } catch (e) {
+                                        Effect.logWarning(`Failed to parse arguments for tool call ${req.id}: ${req.function.arguments}`)
+                                    }
+                                    return {
+                                        id: req.id,
+                                        type: 'function' as const, // Ensure literal type
+                                        function: {
+                                            name: req.function.name,
+                                            arguments: parsedArgs,
+                                        },
+                                    };
+                                });
+
+                                return {
+                                    data: {
+                                        content: response.data.text,
+                                        usage: response.data.usage,
+                                        finishReason: response.data.finishReason,
+                                        providerMetadata: {
+                                            model: resolvedModelId,
+                                            provider: providerName,
+                                            ...restCompatibleProviderMeta,
+                                        },
+                                        toolCalls: mappedToolCalls,
+                                    } as ChatCompletionResult,
+                                    messages: effectiveInput.messages,
+                                };
+                            })
+                        );
+                })
+            )
+            .pipe(
+                Effect.mapError((error) => new ChatCompletionError({
+                    description: "Failed to generate chat completion",
+                    module: "ChatService",
+                    method: "generate",
+                    cause: error
+                }))
+            );
     }),
 });
 
 export class ChatService extends Effect.Service<ChatServiceApi>()("ChatService", {
     effect: chatServiceEffect,
-    dependencies: [] // Remove problematic dependencies for now, will be added to Default layer
+    dependencies: [ModelService.Default, ProviderService.Default]
 }) { }

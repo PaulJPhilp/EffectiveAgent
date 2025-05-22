@@ -9,7 +9,7 @@ import type {
     ConfigReadError,
     ConfigValidationError
 } from "./errors.js";
-import type { BaseConfig } from "./types.js";
+import type { BaseConfig } from "@/types.ts";
 
 /**
  * Options for loading a configuration file

@@ -1,0 +1,22 @@
+---
+trigger: always_on
+description: 
+globs: 
+---
+# Clean Code Guidelines
+
+## Project Setup
+- Use Bun as the package manager for all dependency management and script execution. Do not use npm or yarn.
+
+## Anti-patterns
+- Do not use non-null assertions (!).
+
+# Functions & Logic
+- Keep functions short and single-purpose (<20 lines).
+- Avoid deeply nested blocks by:
+- Use early returns.
+- Extract logic into utility functions.
+- Use higher-order functions (map, filter, reduce) to simplify logic.
+- Use arrow functions for simple cases (<3 instructions), named functions otherwise.
+- Use default parameter values instead of null/undefined checks.
+- Use RO-RO (Receive Object, Return Object) for passing and returning multiple parameters.

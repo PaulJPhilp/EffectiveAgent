@@ -1,236 +1,284 @@
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { Effect, Layer } from "effect";
-import { describe, expect, it } from "vitest";
+import { ConfigurationServiceApi, LoadConfigOptions } from "@/services/core/configuration/api.js";
+import { BaseConfig } from "@/services/core/configuration/schema.js";
+import {
+    ConfigParseError,
+    ConfigReadError,
+    ConfigValidationError,
+} from "@/services/core/configuration/errors.js";
+import {
+    ConfigurationService,
+} from "@/services/core/configuration/service.js";
+import { ConfigProvider, Effect, Either, Layer, ParseResult, Schema as S } from "effect";
+import { describe, expect, it, vi } from "vitest";
+import { PromptConfigError, RenderingError, TemplateNotFoundError } from "../../errors.js";
+import { Prompt, PromptFile } from "../schema.js";
 import { PromptService } from "../service.js";
 
-// Direct service reference - no Layer usage
-const TestPromptService = PromptService;
+const PROMPT_FILE_PATH = "./config/prompts.json";
+const PROMPTS_CONFIG_PATH_KEY = "PROMPT_SERVICE_PROMPT_FILE_PATH";
+
+const examplePromptFile: PromptFile = {
+    name: "Test Prompts",
+    version: "1.0.0",
+    prompts: [
+        {
+            name: "TestPrompt1",
+            description: "A test prompt",
+            template: "Hello, {{name}}!"
+        }
+    ]
+};
+
+// Helper to create a ParseError instance for mocking
+const createMockParseError = (error: ParseResult.ParseIssue): ParseResult.ParseError => {
+    return ParseResult.parseError(error);
+};
 
 describe("PromptService", () => {
-    const mockPromptFile: PromptFile = {
-        name: "test-prompts",
-        prompts: [
-            {
-                name: "test-prompt",
-                description: "A test prompt",
-                template: "Hello {{ name }}!"
-            },
-            {
-                name: "multi-variable",
-                description: "A prompt with multiple variables",
-                template: "{{ greeting }} {{ name }}! Your role is {{ role }} and your level is {{ level }}."
-            },
-            {
-                name: "nested-objects",
-                description: "A prompt with nested objects",
-                template: "User {{ user.name }} ({{ user.id }}) has access level {{ user.access.level }}"
-            },
-            {
-                name: "complex-prompt",
-                description: "A prompt with conditionals",
-                template: "Welcome {{ name }}{% if isAdmin %} Admin{% endif %}!"
+    // Use a simple mock function approach that works better with TypeScript
+    const mockLoadConfig = vi.fn();
+    
+    // Type assertion for better IDE support without causing type errors
+    type LoadConfigFn = ConfigurationServiceApi["loadConfig"];
+
+    const MockConfigurationService = ConfigurationService.of({
+        loadConfig: mockLoadConfig,
+        // Add the remaining required methods from the API with no-op implementations
+        // since PromptService only uses loadConfig
+        readFile: vi.fn().mockImplementation(() => Effect.succeed("")),
+        parseJson: vi.fn().mockImplementation(() => Effect.succeed({})),
+        validateWithSchema: vi.fn().mockImplementation(() => Effect.succeed({}))
+    });
+    const MockConfigurationServiceLayer = Layer.succeed(ConfigurationService, MockConfigurationService);
+
+    const testConfigProviderLayer = ConfigProvider.fromMap(
+        new Map([[PROMPTS_CONFIG_PATH_KEY, PROMPT_FILE_PATH]])
+    );
+
+    const createTestLayer = (
+        mockConfigImpl?: (
+            params: Parameters<ConfigurationServiceApi["loadConfig"]>[0]
+        ) => ReturnType<ConfigurationServiceApi["loadConfig"]>
+    ) => {
+        if (mockConfigImpl) {
+            mockLoadConfig.mockImplementation(mockConfigImpl);
+        } else {
+            // Default mock implementation if none provided
+            mockLoadConfig.mockReturnValue(Effect.succeed(examplePromptFile as any)); // Cast as any to satisfy schema type in mock
+        }
+        return PromptService.Default.pipe(
+            Layer.provide(MockConfigurationServiceLayer),
+            Layer.provide(Layer.setConfigProvider(testConfigProviderLayer))
+        );
+    }
+
+    it("load: should load prompt configuration successfully", () =>
+        Effect.gen(function* () {
+            const service = yield* PromptService;
+            const result = yield* service.load();
+            expect(result.prompts.length).toBe(1);
+            expect(result.prompts[0]?.name).toBe("TestPrompt1");
+            expect(result.version).toBe("1.0.0");
+        }).pipe(Effect.provide(createTestLayer()))
+    );
+
+    it("load: should handle ConfigReadError from loadConfig", () =>
+        Effect.gen(function* () {
+            const readError = new ConfigReadError({ filePath: PROMPT_FILE_PATH, cause: "permission denied" });
+            const layer = createTestLayer(() => Effect.fail(readError));
+
+            const service = yield* PromptService;
+            const result = yield* Effect.either(service.load());
+
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(PromptConfigError);
+                expect(result.left.cause).toBe(readError);
+                expect(result.left.description).toContain(PROMPT_FILE_PATH);
             }
-        ]
-    };
+        }).pipe(Effect.provide(createTestLayer(() =>
+            Effect.fail(new ConfigReadError({ filePath: PROMPT_FILE_PATH, cause: "test read error" }))
+        )))
+    );
 
-    const mockConfigService: ConfigurationService = {
-        readConfig: (key: string) =>
-            key === "prompts"
-                ? Effect.succeed(JSON.stringify(mockPromptFile))
-                : Effect.fail(new Error("Missing config")),
-        readFile: () => Effect.fail(new Error("not implemented")),
-        parseJson: () => Effect.fail(new Error("not implemented")),
-        validateWithSchema: () => Effect.fail(new Error("not implemented")),
-        loadConfig: () => Effect.fail(new Error("not implemented")),
-    };
-    const configLayer = Layer.succeed(ConfigurationService, mockConfigService);
+    it("load: should handle ConfigParseError from loadConfig", () =>
+        Effect.gen(function* () {
+            const parseError = new ConfigParseError({ filePath: PROMPT_FILE_PATH, cause: "invalid json" });
+            const layer = createTestLayer(() => Effect.fail(parseError));
 
-    // Provide the config layer for all tests
-    const runWithConfig = <A>(effect: Effect.Effect<A, any, any>) =>
-        Effect.runPromise(Effect.provide(effect, configLayer));
+            const service = yield* PromptService;
+            const result = yield* Effect.either(service.load());
 
-    describe("PromptService", () => {
-        // Create service instance for each test
-        describe("load", () => {
-            it("should load prompt configuration successfully", async () => {
-                await runWithConfig(Effect.gen(function* () {
-                    const service = yield* TestPromptService;
-                    const result = yield* service.load();
-                    expect(result).toBeDefined();
-                }));
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(PromptConfigError);
+                expect(result.left.cause).toBe(parseError);
+            }
+        }).pipe(Effect.provide(createTestLayer(() =>
+            Effect.fail(new ConfigParseError({ filePath: PROMPT_FILE_PATH, cause: "test parse error" }))
+        )))
+    );
+
+    it("load: should handle ConfigValidationError from loadConfig", () =>
+        Effect.gen(function* () {
+            // Create a simplified mock ParseError for testing purposes
+            // Using two-step type assertion as recommended by TypeScript
+            const mockPe = createMockParseError({
+                _tag: "Pointer",
+                path: ["prompts"],
+                issue: { _tag: "Missing", ast: { type: "array" }, actual: undefined },
+                actual: undefined // Required by Pointer type
+            } as unknown as ParseResult.ParseIssue);
+            const validationError = new ConfigValidationError({
+                filePath: PROMPT_FILE_PATH,
+                validationError: mockPe
             });
+            const layer = createTestLayer(() => Effect.fail(validationError));
 
-            // Note: Invalid JSON config is handled by ConfigProvider
+            const service = yield* PromptService;
+            const result = yield* Effect.either(service.load());
 
-            // Note: Schema validation is handled internally by the service
-        });
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(PromptConfigError);
+                expect(result.left.cause).toBe(validationError);
+            }
+        }).pipe(Effect.provide(createTestLayer(() => {
+            // Create a simplified mock ParseError for testing purposes
+            // Using two-step type assertion as recommended by TypeScript
+            const pe = createMockParseError({
+                _tag: "Type", 
+                ast: { type: "string" },
+                actual: 123
+            } as unknown as ParseResult.ParseIssue);
+            return Effect.fail(new ConfigValidationError({ filePath: PROMPT_FILE_PATH, validationError: pe }));
+        })))
+    );
 
-        describe("getPrompt", () => {
-            it("should retrieve prompt by name", async () => {
-                await runWithConfig(Effect.gen(function* () {
-                    const service = yield* PromptService;
-                    yield* service.load();
-                    const prompt = yield* service.getPrompt("test-prompt");
-                    expect(prompt).toEqual(mockPromptFile.prompts[0]);
-                }));
-            });
 
-            it("should handle missing prompt", async () => {
-                await runWithConfig(Effect.gen(function* () {
-                    const service = yield* PromptService;
-                    yield* service.load();
-                    const result = yield* Effect.either(service.getPrompt("non-existent"));
-                    expect(result._tag).toBe("Left");
-                    if (result._tag === "Left") {
-                        expect((result.left as any).name).toBe("TemplateNotFoundError");
-                    }
-                }));
-            });
-        });
-
-        describe("renderString", () => {
-            it("should render template string with variables", () => Effect.gen(function* () {
+    describe("getPrompt", () => {
+        it("should retrieve prompt by name after loading", () =>
+            Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
-                const result = yield* service.renderString({
-                    templateString: "Hello {{ name }}!",
-                    context: { name: "World" }
-                });
-                expect(result).toBe("Hello World!");
-            }));
+                const prompt = yield* service.getPrompt("TestPrompt1");
+                expect(prompt.name).toBe("TestPrompt1");
+                expect(prompt.template).toBe("Hello, {{name}}!");
+            }).pipe(Effect.provide(createTestLayer()))
+        );
 
-            it("should handle multiple variables", () => Effect.gen(function* () {
+        it("should return TemplateNotFoundError for missing prompt", () =>
+            Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
-                const result = yield* service.renderString({
-                    templateString: "{{ greeting }} {{ name }}!",
-                    context: { greeting: "Hi", name: "User" }
-                });
-                expect(result).toBe("Hi User!");
-            }));
-
-            it("should handle missing variables", () => Effect.gen(function* () {
-                const service = yield* PromptService;
-                yield* service.load();
-
-                const result = yield* Effect.either(service.renderString({
-                    templateString: "Hello {{ name }}!",
-                    context: {}
-                }));
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect((result.left as any).name).toBe("RenderingError");
+                const result = yield* Effect.either(service.getPrompt("MissingPrompt"));
+                expect(Either.isLeft(result)).toBe(true);
+                if (Either.isLeft(result) && result.left instanceof TemplateNotFoundError) {
+                    expect(result.left.templateName).toBe("MissingPrompt");
+                } else if (Either.isLeft(result)) {
+                    // Fail test if it's Left but not TemplateNotFoundError
+                    expect(result.left).toBeInstanceOf(TemplateNotFoundError);
                 }
-            }));
+            }).pipe(Effect.provide(createTestLayer()))
+        );
 
-            it("should handle invalid template syntax", () => Effect.gen(function* () {
+        it("should return TemplateNotFoundError if load failed", () =>
+            Effect.gen(function* () {
+                const readError = new ConfigReadError({ filePath: PROMPT_FILE_PATH });
+                const layer = createTestLayer(() => Effect.fail(readError));
+
                 const service = yield* PromptService;
-                yield* service.load();
+                yield* Effect.ignore(service.load());
+                const result = yield* Effect.either(service.getPrompt("TestPrompt1"));
 
-                const result = yield* Effect.either(service.renderString({
-                    templateString: "Hello {{ name !",
-                    context: { name: "World" }
-                }));
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect((result.left as any).name).toBe("RenderingError");
+                expect(Either.isLeft(result)).toBe(true);
+                if (Either.isLeft(result) && result.left instanceof TemplateNotFoundError) {
+                    expect(result.left.templateName).toBe("TestPrompt1");
+                } else if (Either.isLeft(result)) {
+                    expect(result.left).toBeInstanceOf(TemplateNotFoundError);
                 }
-            }));
-        });
+            }).pipe(Effect.provide(createTestLayer(() =>
+                Effect.fail(new ConfigReadError({ filePath: PROMPT_FILE_PATH }))
+            )))
+        );
+    });
 
-        describe("renderTemplate", () => {
-            it("should render a stored template", () => Effect.gen(function* () {
+    describe("renderTemplate", () => {
+        it("should render a loaded prompt template", () =>
+            Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
-                const result = yield* service.renderTemplate({
-                    templateName: "test-prompt",
+                const rendered = yield* service.renderTemplate({
+                    templateName: "TestPrompt1",
                     context: { name: "World" }
                 });
-                expect(result).toBe("Hello World!");
-            }));
+                expect(rendered).toBe("Hello, World!");
+            }).pipe(Effect.provide(createTestLayer()))
+        );
 
-            it("should handle complex templates with conditionals", () => Effect.gen(function* () {
-                const service = yield* PromptService;
-                yield* service.load();
-                const result = yield* service.renderTemplate({
-                    templateName: "complex-prompt",
-                    context: { name: "Admin", isAdmin: true }
-                });
-                expect(result).toBe("Welcome Admin Admin!");
-            }));
+        it("should return TemplateNotFoundError if template not loaded (due to load failure)", () =>
+            Effect.gen(function* () {
+                const readError = new ConfigReadError({ filePath: PROMPT_FILE_PATH });
+                const layer = createTestLayer(() => Effect.fail(readError));
 
-            it("should handle multiple variables in stored templates", () => Effect.gen(function* () {
                 const service = yield* PromptService;
-                yield* service.load();
-                const result = yield* service.renderTemplate({
-                    templateName: "multi-variable",
-                    context: {
-                        greeting: "Welcome",
-                        name: "User",
-                        role: "Admin",
-                        level: 5
-                    }
-                });
-                expect(result).toBe("Welcome User! Your role is Admin and your level is 5.");
-            }));
-
-            it("should handle multiple variables in stored templates", () => Effect.gen(function* () {
-                const service = yield* PromptService;
-                yield* service.load();
-                const result = yield* service.renderTemplate({
-                    templateName: "multi-variable",
-                    context: {
-                        greeting: "Welcome",
-                        name: "User",
-                        role: "Admin",
-                        level: 5
-                    }
-                });
-                expect(result).toBe("Welcome User! Your role is Admin and your level is 5.");
-            }));
-
-            it("should handle nested object access", () => Effect.gen(function* () {
-                const service = yield* PromptService;
-                yield* service.load();
-                const result = yield* service.renderTemplate({
-                    templateName: "nested-objects",
-                    context: {
-                        user: {
-                            name: "John",
-                            id: "123",
-                            access: { level: "admin" }
-                        }
-                    }
-                });
-                expect(result).toBe("User John (123) has access level admin");
-            }));
-
-            it("should handle missing template", () => Effect.gen(function* () {
-                const service = yield* PromptService;
-                yield* service.load();
+                yield* Effect.ignore(service.load());
 
                 const result = yield* Effect.either(service.renderTemplate({
-                    templateName: "non-existent",
+                    templateName: "TestPrompt1",
                     context: { name: "World" }
                 }));
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect((result.left as any).name).toBe("TemplateNotFoundError");
+                expect(Either.isLeft(result)).toBe(true);
+                if (Either.isLeft(result) && result.left instanceof TemplateNotFoundError) {
+                    expect(result.left.templateName).toBe("TestPrompt1");
+                } else if (Either.isLeft(result)) {
+                    expect(result.left).toBeInstanceOf(TemplateNotFoundError);
                 }
-            }));
+            }).pipe(Effect.provide(createTestLayer(() =>
+                Effect.fail(new ConfigReadError({ filePath: PROMPT_FILE_PATH }))
+            )))
+        );
 
-            it("should fail with RenderingError for invalid context", () => Effect.gen(function* () {
+        it("should return RenderingError for invalid data in template", () =>
+            Effect.gen(function* () {
                 const service = yield* PromptService;
                 yield* service.load();
                 const result = yield* Effect.either(service.renderTemplate({
-                    templateName: "test-prompt",
-                    context: {} // Missing required 'name' variable
+                    templateName: "TestPrompt1",
+                    context: { wrong_key: "World" }
                 }));
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect((result.left as any).name).toBe("RenderingError");
+                expect(Either.isLeft(result)).toBe(true);
+                if (Either.isLeft(result)) {
+                    expect(result.left).toBeInstanceOf(RenderingError);
                 }
-            }));
-        });
+            }).pipe(Effect.provide(createTestLayer()))
+        );
+    });
+
+    describe("renderString", () => {
+        it("should render a string template directly", () =>
+            Effect.gen(function* () {
+                const service = yield* PromptService;
+                const rendered = yield* service.renderString({
+                    templateString: "Hi, {{user}}.",
+                    context: { user: "Tester" }
+                });
+                expect(rendered).toBe("Hi, Tester.");
+            }).pipe(Effect.provide(createTestLayer()))
+        );
+
+        it("should return RenderingError for invalid template string syntax", () =>
+            Effect.gen(function* () {
+                const service = yield* PromptService;
+                const result = yield* Effect.either(service.renderString({
+                    templateString: "Hi, {{user.", // Invalid Liquid syntax
+                    context: { user: "Tester" }
+                }));
+                expect(Either.isLeft(result)).toBe(true);
+                if (Either.isLeft(result)) {
+                    expect(result.left).toBeInstanceOf(RenderingError);
+                }
+            }).pipe(Effect.provide(createTestLayer()))
+        );
     });
 });

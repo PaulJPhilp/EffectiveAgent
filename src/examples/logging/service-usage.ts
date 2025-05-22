@@ -19,7 +19,7 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()("Logging
         yield* fileLogger.initialize()
 
         // Get the logging service implementation
-        const loggingService = fileLogger.createLoggingService()
+        const loggingService = fileLogger.createLoggingService().withContext({ service: "LoggingService" })
 
         // Clean up when the service is shutdown
         yield* Effect.addFinalizer(() => fileLogger.close())
@@ -31,7 +31,7 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()("Logging
 // Example usage in an application
 const program = Effect.gen(function* () {
     // Access the logging service
-    const logger = yield* LoggingService
+    const logger = (yield* LoggingService).withContext({ service: "LoggingService" })
 
     // Use the logger in your application
     yield* logger.info("Application starting", {

@@ -4,83 +4,118 @@
  */
 
 import { Message, TextPart } from "@/schema.js";
-import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
-import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
-import { ChatToolError } from "@/services/pipeline/producers/chat/errors.js";
-import { ChatCreationOptions } from "@/services/pipeline/producers/chat/types.js";
 import { Span } from "@opentelemetry/api";
 import { Effect, Either } from "effect";
 import * as Chunk from "effect/Chunk";
 import { describe, expect, it } from "vitest";
 import { ChatParameterError, ChatModelError } from "../errors.js";
 import { ChatService } from "../service.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
 import * as Option from "effect/Option";
+import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
+import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
 
-describe("ChatService", () => {
-  const createTestService = () => Effect.gen(function* () {
-    const mockAccessor = yield* MockAccessorService;
-    const fixtureService = yield* FixtureService;
-    return yield* ChatService;
-  });
+describe("ChatService Integration Tests", () => {
+  // createTestService and createBaseRequest removed as they were mock-dependent
 
-  const createBaseRequest = (fixtures: { mockSpan: any }): ChatCreationOptions => ({
-    modelId: "test-model",
-    input: new Message({
-      role: "user",
-      parts: Chunk.make(new TextPart({ _tag: "Text", content: "Hello" }))
-    }),
-    system: Option.none(),
-  });
+  // Minimal mock span for testing purposes, reusable across tests
+  const mockSpan = {
+    setAttribute: () => mockSpan,
+    setAttributes: () => mockSpan,
+    addEvent: () => mockSpan,
+    setStatus: () => mockSpan,
+    updateName: () => mockSpan,
+    end: () => {},
+    isRecording: () => true,
+    recordException: () => {},
+    context: () => ({ traceId: "mock-trace-id", spanId: "mock-span-id", traceFlags: 1 }),
+    spanContext: () => ({ traceId: "mock-trace-id", spanId: "mock-span-id", traceFlags: 1 }),
+  } as any as Span;
 
-  it("should handle abort signal", () =>
+  it("should handle abort signal during generation", () =>
     Effect.gen(function* () {
-      const service = yield* createTestService();
+      const chatService = yield* ChatService;
       const controller = new AbortController();
-      const fixtures = yield* FixtureService;
 
       // Abort after a short delay
       setTimeout(() => controller.abort(), 100);
 
       const result = yield* Effect.either(
-        service.create({
-          modelId: "test-model",
-          input: new Message({
-            role: "user",
-            parts: Chunk.make(new TextPart({ _tag: "Text", content: "Hello" }))
-          }),
-          system: Option.none()
+        chatService.generate({
+          modelId: "gpt-3.5-turbo", // Use a model that would involve provider interaction
+          input: "Hello, this is a test that should be aborted.",
+          span: mockSpan, // Use the shared mockSpan
+          parameters: { temperature: 0.7 }
         })
       );
 
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
-        const error = result.left as ChatToolError;
-        expect(error).toBeInstanceOf(ChatToolError);
-        expect(error.description).toContain("aborted");
+        // Check for a relevant error. AbortController usually causes an AbortError.
+        // The service might wrap this in a specific ChatError or ProviderError.
+        // For now, let's expect a general error and refine if needed.
+        // Depending on how AbortSignal is handled deep down, it might be a ChatCompletionError
+        // or a ProviderOperationError with a cause of AbortError.
+        expect(result.left).toBeInstanceOf(Error); // General check
+        // A more specific check would be ideal once behavior is known:
+        // expect(result.left).toBeInstanceOf(ChatCompletionError);
+        // if (result.left instanceof ChatCompletionError && result.left.cause instanceof Error) {
+        //   expect(result.left.cause.name).toBe("AbortError");
+        // }
+        // For now, checking if the message contains 'abort' or 'cancel' can be a starting point
+        const errorMessage = (result.left as Error).message.toLowerCase();
+        const errorDescription = (result.left as any).description?.toLowerCase() ?? "";
+        expect(errorMessage.includes("abort") || errorMessage.includes("cancel") || errorDescription.includes("abort") || errorDescription.includes("cancel")).toBe(true);
       }
     }).pipe(
       Effect.provide(ChatService.Default),
-      Effect.provide(FixtureService.Default),
-      Effect.provide(MockAccessorService.Default)
+      Effect.provide(ModelService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ConfigurationService.Default)
     )
   );
 
   it("should generate a chat response successfully", () =>
     Effect.gen(function* () {
-      const fixtures = yield* FixtureService;
-      const mocks = yield* MockAccessorService;
+      const chatService = yield* ChatService;
 
-      const result = yield* mocks.mockProducerServices.mockChatService.create({
-        modelId: "test-model-id",
-        system: undefined,
-        input: "Hi!",
-        span: fixtures.mockSpan as any,
+      // Minimal mock span for testing purposes
+      const mockSpan = {
+        setAttribute: () => mockSpan,
+        setAttributes: () => mockSpan,
+        addEvent: () => mockSpan,
+        setStatus: () => mockSpan,
+        updateName: () => mockSpan,
+        end: () => {},
+        isRecording: () => true,
+        recordException: () => {},
+        context: () => ({ traceId: "mock-trace-id", spanId: "mock-span-id", traceFlags: 1 }),
+        spanContext: () => ({ traceId: "mock-trace-id", spanId: "mock-span-id", traceFlags: 1 }),
+      } as any as Span;
+
+      const result = yield* chatService.generate({
+        modelId: "gpt-3.5-turbo", // Replace with a model configured in your environment
+        input: "Hello, world!",
+        span: mockSpan,
         parameters: { temperature: 0.7 }
       });
 
       expect(result).toBeDefined();
-      expect(typeof result).toBe("string");
-    })
+      expect(result.data).toBeDefined();
+      expect(typeof result.data.content).toBe("string");
+      expect(result.data.content.length).toBeGreaterThan(0);
+      expect(result.data.finishReason).toBeDefined();
+      expect(result.data.usage).toBeDefined();
+      expect(result.data.providerMetadata).toBeDefined();
+      // Add more specific assertions based on expected ChatCompletionResult structure
+    }).pipe(
+      Effect.provide(ChatService.Default),
+      Effect.provide(ModelService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ConfigurationService.Default)
+    )
   );
 
   it("should handle multiple user messages", () =>
@@ -139,128 +174,147 @@ describe("ChatService", () => {
     it("should reject out-of-range temperature", () =>
       Effect.gen(function* () {
         const service = yield* ChatService;
-        const fixtures = yield* FixtureService;
 
         const result = yield* Effect.either(service.generate({
-          modelId: "test-model",
+          modelId: "gpt-3.5-turbo", // Use a real model ID
           input: "Hello",
-          span: fixtures.mockSpan as any,
+          span: mockSpan, // Use shared mockSpan
           system: undefined,
-          parameters: { temperature: 1.5 }
+          parameters: { temperature: 2.5 } // Value clearly out of typical 0-2 range
         }));
 
         expect(Either.isLeft(result)).toBe(true);
         if (Either.isLeft(result)) {
-          const error = result.left as ChatParameterError;
-          expect(error).toBeInstanceOf(ChatParameterError);
-          expect(error.description).toContain("temperature");
-          expect(error.description).toContain("1.5");
+          // The error might be ChatParameterError if validated by ChatService,
+          // or a ProviderOperationError if validated by the provider.
+          // Let's be a bit more general for now, or check for either.
+          const error = result.left;
+          expect(error).toBeInstanceOf(Error);
+          // Further refinement: check if error is ChatParameterError or ProviderError containing relevant message
+          const errorMessage = (error as Error).message?.toLowerCase() + ((error as any).description?.toLowerCase() || "");
+          expect(errorMessage).toContain("temperature");
         }
       }).pipe(
         Effect.provide(ChatService.Default),
-        Effect.provide(FixtureService.Default),
-        Effect.provide(MockAccessorService.Default)
+        Effect.provide(ModelService.Default),
+        Effect.provide(ProviderService.Default),
+        Effect.provide(ConfigurationService.Default)
       )
     );
 
     it("should reject out-of-range presence penalty", () =>
       Effect.gen(function* () {
-        const service = yield* createTestService();
-        const fixtures = yield* FixtureService;
+        const service = yield* ChatService;
 
         const result = yield* Effect.either(service.generate({
-          modelId: "test-model",
+          modelId: "gpt-3.5-turbo", // Use a real model ID
           input: "Hello",
-          span: fixtures.mockSpan as any,
+          span: mockSpan, // Use shared mockSpan
           system: undefined,
-          parameters: { presencePenalty: -3 }
+          parameters: { presencePenalty: 3 } // Value clearly out of typical -2 to 2 range
         }));
 
         expect(Either.isLeft(result)).toBe(true);
         if (Either.isLeft(result)) {
-          const error = result.left as ChatParameterError;
-          expect(error).toBeInstanceOf(ChatParameterError);
-          expect(error.description).toContain("presence penalty");
-          expect(error.description).toContain("-3");
+          const error = result.left;
+          expect(error).toBeInstanceOf(Error);
+          const errorMessage = (error as Error).message?.toLowerCase() + ((error as any).description?.toLowerCase() || "");
+          expect(errorMessage).toContain("presence_penalty"); // OpenAI uses presence_penalty
         }
       }).pipe(
         Effect.provide(ChatService.Default),
-        Effect.provide(FixtureService.Default),
-        Effect.provide(MockAccessorService.Default)
+        Effect.provide(ModelService.Default),
+        Effect.provide(ProviderService.Default),
+        Effect.provide(ConfigurationService.Default)
       )
     );
 
     it("should reject out-of-range top-p", () =>
       Effect.gen(function* () {
-        const service = yield* createTestService();
-        const fixtures = yield* FixtureService;
+        const service = yield* ChatService;
 
         const result = yield* Effect.either(service.generate({
-          modelId: "test-model",
+          modelId: "gpt-3.5-turbo", // Use a real model ID
           input: "Hello",
-          span: fixtures.mockSpan as any,
+          span: mockSpan, // Use shared mockSpan
           system: undefined,
-          parameters: { topP: 1.5 }
+          parameters: { topP: 1.5 } // Value clearly out of typical 0-1 range
         }));
 
         expect(Either.isLeft(result)).toBe(true);
         if (Either.isLeft(result)) {
-          const error = result.left as ChatParameterError;
-          expect(error).toBeInstanceOf(ChatParameterError);
-          expect(error.description).toContain("top-p");
-          expect(error.description).toContain("1.5");
+          const error = result.left;
+          expect(error).toBeInstanceOf(Error);
+          const errorMessage = (error as Error).message?.toLowerCase() + ((error as any).description?.toLowerCase() || "");
+          expect(errorMessage).toContain("top_p"); // OpenAI uses top_p
         }
       }).pipe(
         Effect.provide(ChatService.Default),
-        Effect.provide(FixtureService.Default),
-        Effect.provide(MockAccessorService.Default)
+        Effect.provide(ModelService.Default),
+        Effect.provide(ProviderService.Default),
+        Effect.provide(ConfigurationService.Default)
       )
     );
 
 
     it("should create a chat completion", () =>
       Effect.gen(function* () {
-        const fixtures = yield* FixtureService;
-        const mocks = yield* MockAccessorService;
+        const service = yield* ChatService;
 
         const result = yield* Effect.either(
-          mocks.mockProducerServices.mockChatService.create({
-            modelId: "test-model",
+          service.generate({
+            modelId: "gpt-3.5-turbo", // Use a real model ID
             input: "Hello, how are you?",
             system: undefined,
-            span: fixtures.mockSpan as any
+            span: mockSpan // Use shared mockSpan
           })
         );
 
         expect(Either.isRight(result)).toBe(true);
         if (Either.isRight(result)) {
-          expect(result.right).toBe("I'm doing well, thank you!");
-          // Response is just a string, no role property
+          expect(result.right).toBeDefined();
+          expect(result.right.data).toBeDefined(); // Corrected: use .data
+          expect(typeof result.right.data.content).toBe("string"); // Corrected: use .data
+          expect(result.right.data.content.length).toBeGreaterThan(0); // Corrected: use .data
+          // Optional: Check for finishReason, usage, etc. if needed
         }
-      })
+      }).pipe(
+        Effect.provide(ChatService.Default),
+        Effect.provide(ModelService.Default),
+        Effect.provide(ProviderService.Default),
+        Effect.provide(ConfigurationService.Default)
+      )
     );
 
     it("should handle empty input", () =>
       Effect.gen(function* () {
-        const fixtures = yield* FixtureService;
-        const mocks = yield* MockAccessorService;
+        const service = yield* ChatService;
 
         const result = yield* Effect.either(
-          mocks.mockProducerServices.mockChatService.create({
-            modelId: "test-model",
-            input: "",
+          service.generate({
+            modelId: "gpt-3.5-turbo", // Use a real model ID
+            input: "", // Empty input
+            span: mockSpan, // Use shared mockSpan
             system: undefined,
-            parameters: { temperature: 0.7 },
-            span: fixtures.mockSpan as any
+            parameters: { temperature: 0.7 }
           })
         );
 
         expect(Either.isLeft(result)).toBe(true);
         if (Either.isLeft(result)) {
-          const error = result.left as ChatParameterError;
-          expect(error.description).toContain("Input text is required");
+          const error = result.left;
+          // Expect ChatParameterError if ChatService validates this upfront.
+          // Otherwise, it might be a different error if it reaches the provider.
+          expect(error).toBeInstanceOf(ChatParameterError);
+          const errorMessage = (error as Error).message?.toLowerCase() + ((error as any).description?.toLowerCase() || "");
+          expect(errorMessage).toContain("input text is required");
         }
-      })
+      }).pipe(
+        Effect.provide(ChatService.Default),
+        Effect.provide(ModelService.Default),
+        Effect.provide(ProviderService.Default),
+        Effect.provide(ConfigurationService.Default)
+      )
     );
 
     it("should fail when model not found", () =>

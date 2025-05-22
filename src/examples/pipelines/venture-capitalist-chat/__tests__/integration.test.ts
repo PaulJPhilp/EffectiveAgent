@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 // Add imports for VentureCapitalistChatService, its live layer, and AI model mock layers
 
+process.env.PROVIDERS_CONFIG_PATH = require('path').resolve(__dirname, '../../config/providers.json');
+
 describe("VentureCapitalistChatService integration tests", () => {
     it("should run the VC chat pipeline with a mock AI model", async () => {
         // TODO: Implement test:

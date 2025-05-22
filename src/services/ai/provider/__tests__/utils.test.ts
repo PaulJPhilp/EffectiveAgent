@@ -1,4 +1,4 @@
-import { ProviderConfigError } from "@/services/ai/provider/errors.js";
+import { ProviderServiceConfigError } from "@/services/ai/provider/errors.js";
 import { loadConfigString, parseConfigJson } from "@/services/ai/provider/utils.js";
 import { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
 import { ConfigParseError, ConfigReadError, ConfigValidationError } from "@/services/core/configuration/errors.js";
@@ -18,10 +18,10 @@ const mockConfigService: ConfigurationServiceApi = {
   validateWithSchema: () => Effect.fail(new ConfigValidationError({ filePath: "test.json", validationError: {} as any })),
 };
 
-// Deeply searches all nested properties for a ProviderConfigError instance
+// Deeply searches all nested properties for a ProviderServiceConfigError instance
 function deepFindProviderConfigError(err: unknown, maxDepth = 10): boolean {
   if (!err || typeof err !== 'object' || maxDepth <= 0) return false;
-  if (err instanceof ProviderConfigError) return true;
+  if (err instanceof ProviderServiceConfigError) return true;
   // Handle Effect errors which have a 'cause' property
   if ('cause' in err && err.cause) {
     if (deepFindProviderConfigError(err.cause, maxDepth - 1)) return true;
@@ -52,7 +52,7 @@ describe('utils.ts', () => {
       expect(result).toBe(mockConfigString);
     });
 
-    it('returns ProviderConfigError if config is missing', async () => {
+    it('returns ProviderServiceConfigError if config is missing', async () => {
       const emptyConfigService: ConfigurationServiceApi = {
         loadConfig: <T>() => Effect.fail(new ConfigReadError({ filePath: "test.json" })) as Effect.Effect<T, ConfigReadError, never>,
         readFile: () => Effect.fail(new ConfigReadError({ filePath: "test.json" })),
@@ -66,7 +66,7 @@ describe('utils.ts', () => {
       if (result._tag === 'Failure') {
         expect(result.cause._tag).toBe('Fail');
         if (result.cause._tag === 'Fail') {
-          expect(result.cause.error).toBeInstanceOf(ProviderConfigError);
+          expect(result.cause.error).toBeInstanceOf(ProviderServiceConfigError);
         }
       }
     });
@@ -79,13 +79,13 @@ describe('utils.ts', () => {
       expect(result).toEqual({ foo: 123 });
     });
 
-    it('returns ProviderConfigError on invalid JSON', async () => {
+    it('returns ProviderServiceConfigError on invalid JSON', async () => {
       const effect = parseConfigJson('not-json', 'testMethod');
       const exit = await Effect.runPromiseExit(effect);
 
       expect(exit._tag).toBe('Failure');
       if (exit._tag === 'Failure') {
-        // deepFindProviderConfigError can inspect the Cause object directly
+        // deepFindProviderConfigError can inspect the Cause object directly for ProviderServiceConfigError
         expect(deepFindProviderConfigError(exit.cause)).toBe(true);
       }
     });

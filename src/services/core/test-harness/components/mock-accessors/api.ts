@@ -7,7 +7,24 @@ import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js"
 import type { EffectiveResponse } from "@/types.js"
 import type { LanguageModelV1 } from "@ai-sdk/provider"
-import type { Effect } from "effect"
+import type { Effect } from "effect";
+
+/**
+ * Represents the arguments captured by a specific mock service's methods.
+ */
+export interface CapturedServiceArgs {
+  [methodName: string]: any; // or more specific types if known
+}
+
+/**
+ * Structure for storing all captured arguments by various mock services.
+ */
+export interface CapturedArgs {
+  modelService: CapturedServiceArgs;
+  providerService: CapturedServiceArgs;
+  providerClient: CapturedServiceArgs;
+  // producerServices?: { [serviceName: string]: CapturedServiceArgs }; // Optional: if needed for producer services directly
+}
 import type { Span } from "effect/Tracer"
 
 // Define interfaces for services that don't have API files
@@ -98,4 +115,16 @@ export interface MockAccessorApi {
      */
     readonly mockChatService: ChatServiceApi;
   };
+
+  /**
+   * Resets all captured arguments stored by the mock services.
+   * @returns An Effect that completes when arguments are reset.
+   */
+  resetMockCallArgs: () => Effect.Effect<void, never, never>;
+
+  /**
+   * Retrieves the arguments captured by various mock service calls.
+   * @returns An Effect that yields the CapturedArgs object.
+   */
+  getMockCapturedArgs: () => Effect.Effect<CapturedArgs, never, never>;
 }

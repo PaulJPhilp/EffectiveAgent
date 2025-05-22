@@ -1,60 +1,137 @@
 /**
- * Integration tests for model and provider services
- * 
- * These tests verify that the model service and provider service
- * work correctly together in realistic scenarios.
+ * @file Integration tests for model and provider services
+ * @module tests/integration/model-provider-integration
  */
 
-import { ModelService } from "@/services/ai/model/service.js"
-import { ProviderService } from "@/services/ai/provider/service.js"
-import { createServiceTestHarness } from "@/services/core/test-harness/utils/effect-test-harness.js"
-import { Effect, Layer } from "effect"
-import { afterAll, beforeAll, describe, expect, it } from "vitest"
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ProviderNotFoundError } from "@/services/ai/provider/errors.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { Effect } from "effect";
+import { NodeFileSystem } from "@effect/platform-node";
+import path from "path";
+import { fileURLToPath } from "url";
+import { beforeAll, describe, expect, it } from "vitest";
 
-interface Model {
-    id: string
-    vendorCapabilities: string[]
-    contextWindowSize: number
-}
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-describe("Model and Provider Integration", () => {
-    let harness: ReturnType<typeof createServiceTestHarness>
+// Set up test configuration paths
+beforeAll(() => {
+    process.env.PROVIDERS_CONFIG_PATH = path.join(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../../config/providers.json"
+    );
+    process.env.MODELS_CONFIG_PATH = path.join(
+        path.dirname(fileURLToPath(import.meta.url)),
+        "../../config/models.json"
+    );
+});
 
-    beforeAll(() => {
-        harness = createServiceTestHarness(
-            Layer.mergeAll(
-                ModelService,
-                ProviderService
-                // If a mock HTTP client or config service is required and not available in the harness, add it to the harness layer.
+// Test suite for ModelService
+describe("ModelService", () => {
+    it("should load model configurations", async () => {
+        const effect = Effect.gen(function* () {
+            const service = yield* ModelService;
+            const result = yield* service.load();
+            expect(result).toBeDefined();
+            expect(Array.isArray(result.models)).toBe(true);
+        });
+
+        await Effect.runPromise(
+            effect.pipe(
+                Effect.provide(ModelService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+
             )
-        )
-    })
-
-    afterAll(async () => {
-        await harness.close()
-    })
+        );
+    });
 
     it("should validate models from configured providers", async () => {
-        await harness.runTest(
-            Effect.gen(function* () {
-                const modelService = yield* ModelService
-                const providerService = yield* ProviderService
-                // Example: Validate a model and assert results
-                const isValid = yield* modelService.validateModel("mock-model")
-                expect(isValid).toBe(true)
-            })
-        )
-    })
+        const effect = Effect.gen(function* () {
+            const service = yield* ModelService;
+            const result = yield* service.validateModel("gpt-4o");
+            expect(result).toBe(true);
+        });
 
-    it("should use valid models to make API requests", async () => {
-        await harness.runTest(
-            Effect.gen(function* () {
-                const modelService = yield* ModelService
-                const providerService = yield* ProviderService
-                // Example: Use a valid model to make an API request and assert results
-                const providerName = yield* modelService.getProviderName("mock-model")
-                expect(providerName).toBe("mock-provider")
-            })
-        )
-    })
-})
+        await Effect.runPromise(
+            effect.pipe(
+                Effect.provide(ModelService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+            )
+        );
+    });
+
+    it("should return provider name for a model", async () => {
+        const effect = Effect.gen(function* () {
+            const service = yield* ModelService;
+            const result = yield* service.getProviderName("gpt-4o");
+            expect(result).toBeDefined();
+        });
+
+        await Effect.runPromise(
+            effect.pipe(
+                Effect.provide(ModelService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+            )
+        );
+    });
+});
+
+// Test suite for ProviderService
+describe("ProviderService", () => {
+    it("should load provider configurations", async () => {
+        const effect = Effect.gen(function* () {
+            const service = yield* ProviderService;
+            const result = yield* service.load();
+            expect(result).toBeDefined();
+            expect(Array.isArray(result.providers)).toBe(true);
+        });
+
+        await Effect.runPromise(
+            effect.pipe(
+                Effect.provide(ProviderService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+            )
+        );
+    });
+
+    it("should return a provider client by name", async () => {
+        const effect = Effect.gen(function* () {
+            const service = yield* ProviderService;
+            const client = yield* service.getProviderClient("openai");
+            expect(client).toBeDefined();
+        });
+
+        await Effect.runPromise(
+            effect.pipe(
+                Effect.provide(ProviderService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+            )
+        );
+    });
+
+    it("throws on unknown provider name", async () => {
+        const effect = Effect.gen(function* () {
+            const service = yield* ProviderService;
+            const result = yield* Effect.either(service.getProviderClient("nonexistent"));
+            expect(result._tag).toBe("Left");
+            if (result._tag === "Left") {
+                expect(result.left).toBeInstanceOf(ProviderNotFoundError);
+            }
+        });
+
+        await Effect.runPromise(
+            effect.pipe(
+                Effect.provide(ProviderService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+            )
+        );
+    });
+});

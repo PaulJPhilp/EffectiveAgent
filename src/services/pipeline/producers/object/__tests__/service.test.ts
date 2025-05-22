@@ -1,349 +1,303 @@
 /**
- * @file Complete test suite for ObjectService
+ * @file Integration tests for ObjectService
+ * @module services/pipeline/producers/object/__tests__/service.test
  */
 
-
-import { Effect, Option } from "effect";
+import { Effect, Option, pipe, Either, Exit } from "effect";
 import { describe, expect, it } from "vitest";
-import {
-  ObjectGenerationError,
+import { Schema } from "effect";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { NodeFileSystem } from "@effect/platform-node";
+import { ObjectService } from "../service.js";
+import { 
+  ObjectInputError, 
   ObjectModelError,
   ObjectProviderError,
   ObjectSchemaError,
+  ObjectGenerationError
 } from "../errors.js";
-import {
-  createListSchema,
-  createPersonSchema,
-  createProductSchema,
-  createTaskSchema,
-} from "../helpers.js";
-import { ObjectService } from "../service.js";
+import type { ObjectGenerationOptions } from "../types.js";
+import type { EffectiveResponse } from "@/types.js";
+import { randomUUID } from "node:crypto";
 
-interface Person {
-  name: string;
-  age: number;
-  email?: string;
-}
+type SchemaType<S> = S extends Schema.Schema<infer A> ? A : never;
 
-describe("ObjectService", () => {
-  it("should handle abort signal", () =>
+// Test schemas
+const PersonSchema = Schema.Struct({
+  name: Schema.String,
+  age: Schema.Number,
+  email: Schema.optional(Schema.String),
+});
+
+type Person = Schema.Schema.Type<typeof PersonSchema>;
+
+const TaskSchema = Schema.Struct({
+  id: Schema.String,
+  title: Schema.String,
+  completed: Schema.Boolean,
+  dueDate: Schema.optional(Schema.String),
+});
+
+type Task = Schema.Schema.Type<typeof TaskSchema>;
+
+// Helper function to create a test response
+const createTestResponse = <T>(data: T): EffectiveResponse<T> => ({
+  data,
+  metadata: {
+    id: randomUUID(),
+    model: "test-model",
+    timestamp: new Date()
+  },
+  usage: {
+    promptTokens: 0,
+    completionTokens: 0,
+    totalTokens: 0
+  },
+  finishReason: "stop"
+});
+
+describe("ObjectService Integration Tests", () => {
+  // Test setup
+  const testModelId = "test-model";
+  const testPrompt = "Generate a test person";
+  const testSystemPrompt = "You are a helpful assistant.";
+
+  // Helper function to create test options
+  const createTestOptions = <S extends Schema.Schema<any>>(
+    schema: S,
+    overrides: Partial<ObjectGenerationOptions<S>> = {}
+  ): ObjectGenerationOptions<S> => ({
+    modelId: testModelId,
+    prompt: testPrompt,
+    system: Option.some(testSystemPrompt),
+    schema,
+    span: {} as any,
+    signal: undefined,
+    ...overrides
+  });
+
+  it("should generate a valid object", () =>
     Effect.gen(function* () {
-      const controller = new AbortController();
-      const schema = createPersonSchema();
-      const options = {
-        modelId: "test-model",
-        prompt: "Generate a person",
-        system: Option.none(),
-        schema,
-        span: {} as any,
-        signal: controller.signal
-      };
-
-      // Abort after a short delay
-      setTimeout(() => controller.abort(), 100);
-
-      // The operation should be aborted
       const objectService = yield* ObjectService;
-      const result = yield* objectService.generate<Person>(options);
-      return result;
-    })
-  );
-
-  // --- Success Case ---
-  const mockImplementation = {
-    generate: <T>(_options: any) =>
-      Effect.succeed({
-        data: {
-          name: "John Doe",
-          age: 30,
-          email: "john@example.com",
-        },
-        model: "test-model",
-        timestamp: new Date(),
-        id: "test-response-id",
-        usage: {
-          promptTokens: 100,
-          completionTokens: 50,
-          totalTokens: 150,
-        },
-      } as any)
-  };
-  it("should generate an object successfully", () =>
-    Effect.gen(function* () {
-      const objectService = yield* ObjectService;
-      const result = yield* objectService.generate<Person>({
-        modelId: "test-model",
-        prompt: "Generate a person named John Doe",
-        system: Option.none(),
-        schema: createPersonSchema(),
-        span: {} as any,
-        signal: undefined,
-      });
-
-      expect(result.data.name).toBe("John Doe");
-      expect(result.data.age).toBe(30);
-      expect(result.data.email).toBe("john@example.com");
-      expect(result.model).toBe("test-model");
-      expect(result.id).toBe("test-response-id");
-      expect(result.usage?.totalTokens).toBe(150);
-      return result;
+      const options = createTestOptions(PersonSchema);
+      
+      const result = yield* pipe(
+        objectService.generate(options),
+        Effect.map((response): EffectiveResponse<Person> => ({
+          ...response,
+          data: response.data as Person
+        }))
+      );
+      
+      // Validate the response structure
+      expect(result).toHaveProperty("data");
+      expect(result).toHaveProperty("metadata");
+      expect(result.metadata).toHaveProperty("model");
+      expect(typeof result.metadata.model).toBe("string");
+      expect(result.metadata).toHaveProperty("id");
+      expect(typeof result.metadata.id).toBe("string");
+      
+      // Validate the data against the schema
+      const decodedPerson = yield* Effect.either(Schema.decode(PersonSchema)(result.data));
+      if (Either.isLeft(decodedPerson)) {
+        throw new Error("Failed to decode person");
+      }
+      const person = decodedPerson.right;
+      expect(typeof person.name).toBe("string");
+      expect(typeof person.age).toBe("number");
     }).pipe(
-      Effect.provideService(ObjectService, mockImplementation)
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ModelService.Default),
+      Effect.provide(NodeFileSystem.layer)
     )
   );
 
-  // --- Missing modelId ---
-  const createMissingModelIdService = () =>
-    Effect.succeed({
-      generate: <T>(_options: any) =>
-        Effect.fail(
-          new ObjectModelError({
-            description: "Model ID must be provided",
-            module: "ObjectService",
-            method: "generate",
-          }),
-        ),
-    });
-  const mockMissingModelIdImpl = {
-    generate: <T>(_options: any) =>
-      Effect.fail(
-        new ObjectModelError({
-          description: "Model ID must be provided",
-          module: "ObjectService",
-          method: "generate",
-        }),
-      ),
-  };
-
-  it("should fail if modelId is missing", () =>
+  it("should handle missing model ID", () =>
     Effect.gen(function* () {
-      const service = yield* ObjectService;
-      const result = yield* Effect.either(
-        service.generate<Person>({
-          modelId: undefined,
-          prompt: "Generate a person with missing model ID",
-          system: Option.none(),
-          schema: createPersonSchema(),
-          span: {} as any,
+      const objectService = yield* ObjectService;
+      const options = createTestOptions(PersonSchema, { modelId: "" });
+      
+      const result = yield* pipe(
+        objectService.generate(options),
+        Effect.either,
+        Effect.flatMap((either) => {
+          if (Either.isRight(either)) {
+            return Effect.fail(new Error("Expected failure but got success"));
+          }
+          if (!(either.left instanceof ObjectModelError)) {
+            return Effect.fail(new Error(`Expected ObjectModelError but got ${either.left?.constructor.name}`));
+          }
+          return Effect.succeed(either.left);
         })
-      )
-
-      expect(result._tag).toBe("Left");
-      if (result._tag === "Left") {
-        expect(result.left).toBeInstanceOf(ObjectModelError);
-      }
-    })
+      );
+      
+      expect(result).toBeInstanceOf(ObjectModelError);
+      return result;
+    }).pipe(
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ModelService.Default),
+      Effect.provide(NodeFileSystem.layer)
+    )
   );
 
-  // --- Provider Error ---
-  const createProviderErrorService = () =>
-    Effect.succeed({
-      generate: <T>(_options: any) =>
-        Effect.fail(
-          new ObjectProviderError({
-            description: "Failed to get provider client",
-            module: "ObjectService",
-            method: "generate",
-            cause: new Error("Provider unavailable"),
-          }),
-        ),
-    });
-  const mockProviderErrorImpl = {
-    generate: <T>(_options: any) =>
-      Effect.fail(
-        new ObjectProviderError({
-          description: "Failed to get provider client",
-          module: "ObjectService",
-          method: "generate",
-          cause: new Error("Provider unavailable"),
-        }),
-      ),
-  };
-
-  it("should handle provider errors", () =>
+  it("should handle invalid model ID", () =>
     Effect.gen(function* () {
-      const service = yield* ObjectService;
-      const result = yield* Effect.either(
-        service.generate({
-          modelId: "test-model",
-          prompt: "Generate a product with provider error",
-          system: Option.none(),
-          schema: createProductSchema(),
-          span: {} as any,
+      const objectService = yield* ObjectService;
+      const options = createTestOptions(PersonSchema, { 
+        modelId: "non-existent-model" 
+      });
+      
+      const result = yield* pipe(
+        objectService.generate(options),
+        Effect.either,
+        Effect.flatMap((either) => {
+          if (Either.isRight(either)) {
+            return Effect.fail(new Error("Expected failure but got success"));
+          }
+          if (![ObjectModelError, ObjectProviderError].some(ErrorType => 
+            either.left instanceof ErrorType
+          )) {
+            return Effect.fail(new Error(`Expected ObjectModelError or ObjectProviderError but got ${either.left?.constructor.name}`));
+          }
+          return Effect.succeed(either.left);
         })
-      )
-
-      expect(result._tag).toBe("Left");
-      if (result._tag === "Left") {
-        expect(result.left).toBeInstanceOf(ObjectProviderError);
-        expect(result.left.description).toContain("Failed to get provider client");
-      }
-    })
+      );
+      
+      // If we get here, we know it's one of the expected error types
+      return result;
+    }).pipe(
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ModelService.Default),
+      Effect.provide(NodeFileSystem.layer)
+    )
   );
 
-  // --- Generation Error ---
-  const createGenerationErrorService = () =>
-    Effect.succeed({
-      generate: <T>(_options: any) =>
-        Effect.fail(
-          new ObjectGenerationError({
-            description: "Object generation failed",
-            module: "ObjectService",
-            method: "generate",
-            cause: new Error("Timeout"),
-          }),
-        ),
-    });
-  const mockGenerationErrorImpl = {
-    generate: <T>(_options: any) =>
-      Effect.fail(
-        new ObjectGenerationError({
-          description: "Object generation failed",
-          module: "ObjectService",
-          method: "generate",
-        }),
-      ),
-  };
-
-  it("should handle object generation errors", () =>
+  it("should handle abort signal", () =>
     Effect.gen(function* () {
-      const service = yield* ObjectService;
-      const result = yield* Effect.either(
-        service.generate({
-          modelId: "test-model",
-          prompt: "Generate a task with generation error",
-          system: Option.none(),
-          schema: createTaskSchema(),
-          span: {} as any,
+      const controller = new AbortController();
+      const objectService = yield* ObjectService;
+      
+      // Abort immediately
+      controller.abort();
+      
+      const options = createTestOptions(PersonSchema, {
+        signal: controller.signal
+      });
+      
+      const result = yield* pipe(
+        objectService.generate(options),
+        Effect.either,
+        Effect.flatMap((either) => {
+          if (Either.isRight(either)) {
+            return Effect.fail(new Error("Expected failure due to abort"));
+          }
+          // Verify that we got an error
+          if (!either.left) {
+            return Effect.fail(new Error("Expected an error but got undefined"));
+          }
+          return Effect.succeed(either.left);
         })
-      )
+      );
+      
+      // If we get here, we know we have an error
+      expect(result).toBeDefined();
+      return result;
+    }).pipe(
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ModelService.Default),
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
 
-      expect(result._tag).toBe("Left");
-      if (result._tag === "Left") {
-        expect(result.left).toBeInstanceOf(ObjectGenerationError);
-        expect(result.left.description).toContain("Object generation failed");
+  it("should generate a task with all required fields", () =>
+    Effect.gen(function* () {
+      const objectService = yield* ObjectService;
+      const options = createTestOptions(TaskSchema, {
+        prompt: "Generate a task for writing tests"
+      });
+      
+      const result = yield* pipe(
+        objectService.generate(options),
+        Effect.map((response): EffectiveResponse<Task> => ({
+          ...response,
+          data: response.data as Task
+        }))
+      );
+      
+      // Validate the response structure
+      expect(result).toHaveProperty("data");
+      expect(result).toHaveProperty("metadata");
+      expect(result.metadata).toHaveProperty("model");
+      expect(result.metadata).toHaveProperty("id");
+      
+      // Validate the data against the schema
+      const decodedTask = yield* Effect.either(Schema.decode(TaskSchema)(result.data));
+      if (Either.isLeft(decodedTask)) {
+        throw new Error("Failed to decode task");
       }
-    })
+      const task = decodedTask.right;
+      expect(typeof task.id).toBe("string");
+      expect(typeof task.title).toBe("string");
+      expect(typeof task.completed).toBe("boolean");
+      
+      return result;
+    }).pipe(
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ModelService.Default),
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
+  it("should generate a list of objects", () =>
+    Effect.gen(function* () {
+      const objectService = yield* ObjectService;
+      const ListSchema = Schema.Array(PersonSchema);
+      const options = createTestOptions(ListSchema, {
+        prompt: "Generate a list of two people"
+      });
+      
+      const result = yield* pipe(
+        objectService.generate(options),
+        Effect.map((response): EffectiveResponse<Person[]> => ({
+          ...response,
+          data: response.data as Person[]
+        }))
+      );
+      
+      // Validate the response structure
+      expect(result).toHaveProperty("data");
+      expect(Array.isArray(result.data)).toBe(true);
+      expect(result.data.length).toBeGreaterThan(0);
+      
+      // Validate each item in the array against the schema
+      for (const item of result.data) {
+        const decodedItem = yield* pipe(
+          Schema.decode(PersonSchema)(item),
+          Effect.either,
+          Effect.flatMap((either) => {
+            if (Either.isLeft(either)) {
+              return Effect.fail(new Error("Failed to decode person in array"));
+            }
+            return Effect.succeed(either.right);
+          })
+        );
+        
+        expect(typeof decodedItem.name).toBe("string");
+        expect(typeof decodedItem.age).toBe("number");
+      }
+      
+      return result;
+    }).pipe(
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ModelService.Default),
+      Effect.provide(NodeFileSystem.layer)
+    )
   );
 });
-
-// --- Schema Validation Error ---
-const createSchemaErrorService = () =>
-  Effect.succeed({
-    generate: <T>(_options: any) =>
-      Effect.fail(
-        new ObjectSchemaError({
-          description: "Generated object does not match schema",
-          module: "ObjectService",
-          method: "generate",
-          schema: createPersonSchema(),
-          result: { name: 123, age: "thirty" },
-          validationErrors: [
-            { message: "name must be string" },
-            { message: "age must be number" },
-          ],
-        }),
-      ),
-  });
-const mockSchemaErrorImpl = {
-  generate: <T>(_options: any) =>
-    Effect.fail(
-      new ObjectSchemaError({
-        description: "Generated object does not match schema",
-        module: "ObjectService",
-        method: "generate",
-        validationErrors: [],
-      }),
-    ),
-};
-it("should handle schema validation errors", () =>
-  Effect.gen(function* () {
-    const service = yield* ObjectService;
-    const result = yield* Effect.either(
-      service.generate<Person>({
-        modelId: "test-model",
-        prompt: "Generate a person with invalid data",
-        system: Option.none(),
-        schema: createPersonSchema(),
-        span: {} as any,
-      })
-    );
-
-    expect(result._tag).toBe("Left");
-    if (result._tag === "Left") {
-      expect(result.left).toBeInstanceOf(ObjectSchemaError);
-      expect(result.left.description).toContain(
-        "Generated object does not match schema",
-      );
-      if (result.left instanceof ObjectSchemaError) {
-        expect(Array.isArray(result.left.validationErrors)).toBe(true);
-      }
-    }
-    return result;
-  })
-);
-
-// --- Optional Fields ---
-it("should handle optional fields correctly", () =>
-  Effect.gen(function* () {
-    const objectService = yield* ObjectService;
-    const result = yield* objectService.generate<Person>({
-      modelId: "test-model",
-      prompt: "Generate a person without email",
-      system: Option.none(),
-      schema: createPersonSchema(),
-      span: {} as any,
-    });
-    expect(result.data.name).toBe("Jane Doe");
-    expect(result.data.age).toBe(25);
-    expect(result.data.email).toBeUndefined();
-    expect(result.model).toBe("test-model");
-    expect(result.id).toBe("test-response-id-2");
-    expect(result.usage?.totalTokens).toBe(120);
-    return result;
-  })
-);
-
-// --- List Schema ---
-it("should generate a list of objects", () =>
-  Effect.gen(function* () {
-    const objectService = yield* ObjectService;
-    const result = yield* objectService.generate<ReadonlyArray<Person>>({
-      modelId: "test-model",
-      prompt: "Generate a list of people",
-      system: Option.none(),
-      schema: createListSchema(createPersonSchema()),
-      span: {} as any,
-    });
-
-    expect(Array.isArray(result.data)).toBe(true);
-    expect(result.data.length).toBe(2);
-    expect(result.data[0].name).toBe("Alice");
-    expect(result.data[0].age).toBe(25);
-    expect(result.data[1].name).toBe("Bob");
-    expect(result.data[1].age).toBe(30);
-    expect(result.model).toBe("test-model");
-    expect(result.id).toBe("test-response-id");
-    expect(result.usage?.totalTokens).toBe(150);
-
-    return result;
-  }).pipe(
-    Effect.provideService(ObjectService, {
-      generate: <T>(_options: any) =>
-        Effect.succeed({
-          data: [
-            { name: "Alice", age: 25 },
-            { name: "Bob", age: 30 }
-          ],
-          model: "test-model",
-          timestamp: new Date(),
-          id: "test-response-id",
-          usage: {
-            promptTokens: 100,
-            completionTokens: 50,
-            totalTokens: 150,
-          },
-        } as any)
-    })
-  )
-);

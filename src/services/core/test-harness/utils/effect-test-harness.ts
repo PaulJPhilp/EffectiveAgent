@@ -6,15 +6,16 @@ import { RepositoryError } from "@/services/core/repository/errors.js"
 import type { BaseEntity } from "@/services/core/repository/types.js"
 import type { LanguageModelV1 } from "@ai-sdk/provider"
 import { NodeContext } from "@effect/platform-node"
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem"
 // import "@effect/vitest/register" // Removed this line as it's now in vitest.config.ts setupFiles
 import { Cause, Context, Effect, Exit as EffectExit, Either, Layer, Option, Runtime } from "effect"
 import { Span, SpanLink, SpanStatus } from "effect/Tracer"
 import { ConfigurationServiceApi } from "../../configuration/api.js"
 import { TestHarnessApi } from "../api.js"
-import { AssertionHelperService, AssertionHelperServiceImplementation } from "../components/assertion-helpers/service.js"
+import { AssertionHelperService, AssertionHelperServiceImplementation, AssertionHelperServiceLive } from "../components/assertion-helpers/service.js"
 import { EffectRunnerService, EffectRunnerServiceLive } from "../components/effect-runners/service.js"
-import { FixtureService } from "../components/fixtures/service.js"
-import { MockAccessorService, type MockAccessorServiceImplementation, mockAccessorServiceImplObject } from "../components/mock-accessors/service.js"
+import { FixtureService, FixtureServiceLive } from "../components/fixtures/service.js"
+import { MockAccessorService } from "../components/mock-accessors/service.js"
 
 // Helper function to swap the generic parameters in Either (copied from effect-runners/service.ts)
 const swapEither = <E, A>(either: Either.Either<A, E>): Either.Either<E, A> => {
@@ -122,17 +123,16 @@ export function createServiceTestHarness<R extends {} | never = never, E = any, 
     console.log("EffectRunnerService:", EffectRunnerService);
     console.log("AssertionHelperService:", AssertionHelperService);
     console.log("MockAccessorService TAG:", MockAccessorService);
-    console.log("mockAccessorServiceImplObject:", typeof mockAccessorServiceImplObject, mockAccessorServiceImplObject !== undefined);
     console.log("FixtureService:", FixtureService);
     console.log("ConfigurationService TAG:", ConfigurationService);
     console.log("configurationServiceEffect:", typeof configurationServiceEffect, configurationServiceEffect !== undefined);
 
     // Temporarily simplify this layer for debugging
     const harnessComponentsLayer = Layer.mergeAll(
-        EffectRunnerServiceLive
-        // AssertionHelperServiceLive, 
-        // Layer.succeed(MockAccessorService, mockAccessorServiceImplObject as MockAccessorApi),
-        // Layer.effect(FixtureService, fixtureServiceEffect as Effect.Effect<FixtureApi, never, never>)
+        EffectRunnerServiceLive,
+        AssertionHelperServiceLive,
+        MockAccessorService,
+        FixtureServiceLive
     );
 
     // Ensure ConfigurationService has NodeContext during its own initialization
@@ -141,12 +141,14 @@ export function createServiceTestHarness<R extends {} | never = never, E = any, 
         Effect.provide(NodeContext.layer)(configurationServiceEffect as Effect.Effect<ConfigurationServiceApi, never, never>)
     );
 
-    // Merge the user's input layer, node context, simplified internal harness services, and configuration service.
+    // Merge the user's input layer, node context, simplified internal harness services, configuration service, ConfigurationService.Default, and NodeFileSystem.layer.
     const finalLayerForRuntime = Layer.mergeAll(
         inputLayer,
         NodeContext.layer,
         harnessComponentsLayer, // Simplified layer
-        configurationLayerWithNodeContext
+        configurationLayerWithNodeContext,
+        ConfigurationService.Default, // Ensure ConfigurationService is always provided
+        NodeFileSystem.layer // Ensure FileSystem is always provided
     );
 
     const runtimeEffect = Layer.toRuntime(finalLayerForRuntime).pipe(

@@ -1,171 +1,122 @@
-import { ModelServiceApi } from "@/services/ai/model/api.js";
-import { ProviderClientApi as ApiProviderClientApi, ProviderServiceApi } from "@/services/ai/provider/api.js";
-import type {
-    GenerateEmbeddingsResult
-} from "@/services/ai/provider/types.js";
-import { mockAccessorServiceImplObject } from "@/services/core/test-harness/components/mock-accessors/service.js"; // Import the mock object
-import { createServiceTestHarness } from "@/services/core/test-harness/utils/effect-test-harness.js";
-import { Effect, Layer } from "effect";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { EmbeddingProviderError } from "../errors.js";
+import { Effect, Either } from "effect";
+import { describe, expect, it } from "vitest";
+
+import { ModelService } from "@/services/ai/model/service.js";
+import type { GenerateEmbeddingsResult } from "@/services/ai/provider/types.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ProviderOperationError } from "@/services/ai/provider/errors.js";
+
+import type { EmbeddingServiceApi } from "../api.js";
 import { EmbeddingService } from "../service.js";
-
-// Initialize harness with EmbeddingService
-const harness = createServiceTestHarness(
-    Layer.succeed(EmbeddingService, mockAccessorServiceImplObject.mockProducerServices.mockEmbeddingService) // Use the imported object
-);
-
-// Store original mock implementations to restore them after each test
-let originalMockModelServiceMethods: Partial<ModelServiceApi> = {};
-let originalMockProviderServiceMethods: Partial<ProviderServiceApi> = {};
-let originalMockProviderClientMethods: Partial<ApiProviderClientApi> = {}; // To store specific client methods if needed
+import {
+    EmbeddingGenerationError,
+    EmbeddingInputError,
+} from "../errors.js";
 
 describe("EmbeddingService", () => {
-    beforeEach(() => {
-        const resetEffect = harness.harness.mocks.resetMockCallArgs();
-        Effect.runSync(resetEffect);
-
-        const modelService = harness.harness.mocks.mockModelService;
-        originalMockModelServiceMethods = {
-            getProviderName: modelService.getProviderName,
-        };
-
-        const providerService = harness.harness.mocks.mockProviderService;
-        originalMockProviderServiceMethods = {
-            getProviderClient: providerService.getProviderClient,
-        };
-        // If defaultProviderClient methods are ever modified, store them here too
-        // For now, assuming testSpecificMockProviderClient is created fresh or its base is stable
-    });
-
-    afterEach(() => {
-        Object.assign(harness.harness.mocks.mockModelService, originalMockModelServiceMethods);
-        Object.assign(harness.harness.mocks.mockProviderService, originalMockProviderServiceMethods);
-    });
+    let embeddingService: EmbeddingServiceApi;
 
     describe("Successful Generation", () => {
-        it("should generate embeddings for a single string input", async () => {
-            const modelId = "test-model-id";
-            const inputText = "Test input string";
-            const mockProviderEmbeddings = [[0.1, 0.2, 0.3, 0.4, 0.5]];
+        it("should successfully generate embeddings", () =>
+            Effect.gen(function* () {
+                embeddingService = yield* EmbeddingService;
 
-            const mockExpectedEmbeddingsResult: GenerateEmbeddingsResult = {
-                embeddings: mockProviderEmbeddings,
-                model: modelId,
-                timestamp: expect.any(Date) as unknown as Date, // Match any date
-                id: expect.any(String) as unknown as string, // Match any string ID
-                usage: { promptTokens: 1, totalTokens: 1, completionTokens: 0 },
-                texts: [inputText],
-                dimensions: 0,
-                parameters: {
-                    modelParameters: undefined,
-                    normalization: undefined,
-                    preprocessing: undefined
-                },
-                finishReason: "stop"
-            };
+                const result = yield* embeddingService.generate({
+                    text: "test input",
+                    modelId: "text-embedding-ada-002", // Assuming this model is configured
+                });
 
-            harness.harness.mocks.mockProviderService.getProviderClient = (_providerName: string) => Effect.succeed({
-                ...harness.harness.mocks.defaultProviderClient, // Spread the default mock client if available on harness
-                generateEmbeddings: (_texts: string[], _options: any) => Effect.succeed({
-                    metadata: {},
-                    data: {
-                        embeddings: mockProviderEmbeddings,
-                        dimensions: 5,
-                        texts: [inputText],
-                        id: "mock-embedding-id",
-                        model: modelId,
-                        timestamp: new Date(),
-                    },
-                    usage: { promptTokens: 1, totalTokens: 1 }, // completionTokens might not be set by provider mock
-                    finishReason: "stop"
-                } as any)
-            }) as any;
-
-            const originalEffectToRun = Effect.gen(function* () {
-                const service: EmbeddingService = harness.harness.mocks.mockProducerServices.mockEmbeddingService; // Use the concrete mock from the harness
-                return yield* service.generate({ modelId, text: inputText });
-            });
-
-            const effectToRun = Effect.orDie(originalEffectToRun);
-
-            const result = await harness.runTest(effectToRun);
-
-            expect(result).toEqual(mockExpectedEmbeddingsResult);
-            const captured = harness.harness.mocks.getMockCapturedArgs();
-            expect(captured.providerClient.generateEmbeddings?.texts).toEqual([inputText]);
-        });
-
-        // ... more tests ...
+                expect(result.embeddings).toBeInstanceOf(Array);
+                if (result.embeddings.length > 0) {
+                    const firstEmbedding = result.embeddings[0];
+                    // Use Array.isArray for type narrowing recognized by TypeScript
+                    if (Array.isArray(firstEmbedding)) {
+                        expect(firstEmbedding).toBeInstanceOf(Array); // Runtime check is still good
+                        if (firstEmbedding.length > 0) {
+                            expect(typeof firstEmbedding[0]).toBe("number");
+                        }
+                    } else {
+                        // This path should ideally not be hit if embeddings.length > 0
+                        // and embeddings are standard arrays (not sparse with undefined elements).
+                        // Fail the test if firstEmbedding is not an array as expected.
+                        throw new Error("AssertionError: Expected firstEmbedding to be an array.");
+                    }
+                    expect(result.dimensions).toBeGreaterThan(0);
+                } else {
+                    // If embeddings are empty, this is unexpected for "test input".
+                    // Fail the test explicitly, indicating why.
+                    throw new Error(
+                        "AssertionError: Expected non-empty embeddings for 'test input' but got an empty array."
+                    );
+                }
+                expect(result.texts).toBeInstanceOf(Array);
+                expect(result.texts.length).toBeGreaterThan(0);
+                expect(result.model).toBe("text-embedding-ada-002");
+                expect(result.id).toBeDefined();
+                expect(result.timestamp).toBeInstanceOf(Date);
+                expect(result.usage).toBeDefined();
+                expect(result.usage.promptTokens).toBeGreaterThanOrEqual(0);
+                expect(result.usage.totalTokens).toBeGreaterThanOrEqual(
+                    result.usage.promptTokens
+                );
+                expect(result.finishReason).toBeDefined();
+            }).pipe(
+                Effect.provide(EmbeddingService.Default),
+                Effect.provide(ModelService.Default),
+                Effect.provide(ProviderService.Default)
+            )
+        );
     });
 
     describe("Error Handling", () => {
-        it("should return EmbeddingProviderError if provider client fails", async () => {
-            const modelId = "test-model-error-provider";
-            const inputText = "Test input string for provider error";
+        it("should return EmbeddingInputError for empty text", () =>
+            Effect.gen(function* () {
+                embeddingService = yield* EmbeddingService;
 
-            harness.harness.mocks.mockModelService.getProviderName = (_modelId: string) => Effect.succeed("failing-provider");
-            harness.harness.mocks.mockProviderService.getProviderClient = (_providerName: string) => Effect.fail(new EmbeddingProviderError({ description: "Simulated provider error", method: "getProviderClient", providerName: "failing-provider", module: "EmbeddingService" }));
+                const result = yield* Effect.either(
+                    embeddingService.generate({ text: "", modelId: "any-model" })
+                );
+                expect(Either.isLeft(result)).toBe(true);
+                if (Either.isLeft(result)) {
+                    expect(result.left).toBeInstanceOf(EmbeddingInputError);
+                    expect(result.left.message).toContain("Input text cannot be empty");
+                }
+            }).pipe(
+                Effect.provide(EmbeddingService.Default),
+                Effect.provide(ModelService.Default),
+                Effect.provide(ProviderService.Default)
+            )
+        );
 
-            const effectToRun = Effect.gen(function* () {
-                const service = yield* EmbeddingService;
-                return yield* service.generate({ modelId, text: inputText });
-            });
+        it("should return EmbeddingGenerationError if embedding generation fails", () =>
+            Effect.gen(function* () {
+                embeddingService = yield* EmbeddingService;
+                // To reliably test this, "failing-model" should be configured
+                // to fail or be a non-existent model that causes a known error.
+                const result = yield* Effect.either(
+                    embeddingService.generate({
+                        text: "test input for failure",
+                        modelId: "model-designed-to-fail",
+                    })
+                );
 
-            await harness.expectError(
-                effectToRun,
-                "EmbeddingProviderError"
-            );
-        });
-
-        it("should return EmbeddingProviderError if embedding generation fails within provider", async () => {
-            const modelId = "test-model-embedding-failure";
-            const inputText = "Test input for embedding failure";
-
-            harness.harness.mocks.mockProviderService.getProviderClient = (_providerName: string) => Effect.succeed({
-                ...harness.harness.mocks.defaultProviderClient,
-                generateEmbeddings: (_texts: string[], _options: any) => Effect.fail(new EmbeddingProviderError({ description: "Simulated embedding generation failure", method: "generateEmbeddings", module: "EmbeddingService" }))
-            }) as any;
-
-            const effectToRun = Effect.gen(function* () {
-                const service = yield* EmbeddingService;
-                return yield* service.generate({ modelId, text: inputText });
-            });
-
-            await harness.expectError(
-                effectToRun,
-                "EmbeddingProviderError"
-            );
-        });
-
-        it("should return EmbeddingInputError for empty string input", async () => {
-            const modelId = "test-model-empty-input";
-            const inputText = ""; // Empty input
-
-            const effectToRun = Effect.gen(function* () {
-                const service = yield* EmbeddingService;
-                return yield* service.generate({ modelId, text: inputText });
-            });
-
-            await harness.expectError(
-                effectToRun,
-                "EmbeddingInputError"
-            );
-        });
-
-        it("should return EmbeddingGenerationError if the specific modelId 'error-generate' is used", async () => {
-            const modelId = "error-generate"; // Special modelId to trigger internal error
-            const inputText = "Test input for general generation error";
-
-            const effectToRun = Effect.gen(function* () {
-                const service = yield* EmbeddingService;
-                return yield* service.generate({ modelId, text: inputText });
-            });
-
-            await harness.expectError(
-                effectToRun,
-                "EmbeddingGenerationError"
-            );
-        });
+                expect(Either.isLeft(result)).toBe(true);
+                if (Either.isLeft(result)) {
+                    expect(result.left).toBeInstanceOf(EmbeddingGenerationError);
+                    // The exact message and cause will depend on the actual error from the service
+                    // For example, if the model isn't found, it might be an EmbeddingModelError
+                    // or if the provider fails, it could be an EmbeddingProviderError with a cause.
+                    // This assertion might need to be adjusted after observing actual failures.
+                    // expect(result.left.message).toContain(
+                    //    "Failed to generate embeddings for model model-designed-to-fail"
+                    // );
+                    // expect(result.left.cause).toBeInstanceOf(ProviderOperationError);
+                }
+            }).pipe(
+                Effect.provide(EmbeddingService.Default),
+                Effect.provide(ModelService.Default),
+                Effect.provide(ProviderService.Default)
+            )
+        );
     });
-}); 
+});

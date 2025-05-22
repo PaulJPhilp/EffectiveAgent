@@ -7,8 +7,9 @@
  */
 
 import { AgentRuntimeService } from "@/agent-runtime/service.js"
+import type { AgentRuntimeServiceApi } from "@/agent-runtime/api.js"
 import { createServiceTestHarness } from "@/services/core/test-harness/utils/effect-test-harness.js"
-import { Effect, Layer } from "effect"
+import { Brand, Effect, Layer, Stream } from "effect"
 import { WebSocket } from "mock-socket"
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it } from "vitest"
 
@@ -38,16 +39,13 @@ interface WebSocketServerMethods {
 }
 
 describe("WebSocket and AgentRuntime Integration", () => {
-    let harness: ReturnType<typeof createServiceTestHarness>
+    let harness: ReturnType<typeof createServiceTestHarness<AgentRuntimeServiceApi, never, AgentRuntimeServiceApi>>
     let mockUrl: string
     let client: WebSocket | undefined
 
     beforeAll(() => {
-        harness = createServiceTestHarness(
-            Layer.mergeAll(
-                AgentRuntimeService
-                // If a mock WebSocket server is required and not available in the harness, add it to the harness layer.
-            )
+        harness = createServiceTestHarness<AgentRuntimeServiceApi, never, AgentRuntimeServiceApi>(
+            AgentRuntimeService.Default
         )
     })
 
@@ -72,8 +70,10 @@ describe("WebSocket and AgentRuntime Integration", () => {
     it("should correctly subscribe to agent activity", async () => {
         await harness.runTest(
             Effect.gen(function* () {
+                const service = yield* AgentRuntimeService;
                 // Simulate WebSocket subscription and assert results using harness-provided services
-                expect(true).toBe(true)
+                expect(service).toBeDefined();
+                return service;
             })
         )
     })
@@ -81,8 +81,10 @@ describe("WebSocket and AgentRuntime Integration", () => {
     it("should correctly send messages to the runtime", async () => {
         await harness.runTest(
             Effect.gen(function* () {
+                const service = yield* AgentRuntimeService;
                 // Simulate sending messages and assert results using harness-provided services
-                expect(true).toBe(true)
+                expect(service).toBeDefined();
+                return service;
             })
         )
     })
@@ -90,8 +92,10 @@ describe("WebSocket and AgentRuntime Integration", () => {
     it("should handle invalid messages with error responses", async () => {
         await harness.runTest(
             Effect.gen(function* () {
+                const service = yield* AgentRuntimeService;
                 // Simulate invalid message and assert error response using harness-provided services
-                expect(true).toBe(true)
+                expect(service).toBeDefined();
+                return service;
             })
         )
     })
@@ -99,8 +103,10 @@ describe("WebSocket and AgentRuntime Integration", () => {
     it("should clean up subscriptions when unsubscribing", async () => {
         await harness.runTest(
             Effect.gen(function* () {
+                const service = yield* AgentRuntimeService;
                 // Simulate unsubscribe and assert cleanup using harness-provided services
-                expect(true).toBe(true)
+                expect(service).toBeDefined();
+                return service;
             })
         )
     })

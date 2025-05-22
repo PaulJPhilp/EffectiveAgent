@@ -1,0 +1,12 @@
+---
+trigger: model_decision
+description: 
+globs: 
+---
+# Effect
+- Use Effect.flatMap for async operations.
+- Use Effect.logDebug for debugging.
+- Use Effect.logWarning for warnings.
+- Use Effect.logError for errors.
+- Use Effect version 3.14 or later.
+- Avoid using the (_) pattern in Effect.gen.

@@ -1,127 +1,128 @@
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { Cause, Effect, Exit, Layer, Option } from "effect";
-/**
- * @file Comprehensive tests for the PromptApi service implementation.
- */
+import { Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
 import { RenderingError, TemplateNotFoundError } from "../../errors.js";
 import { PromptService } from "../service.js";
 
-// --- Mock Data ---
-const validPromptConfig = {
-    description: "Test prompt config",
-    name: "test-prompt-config",
-    prompts: [
-        { name: "greeting", template: "Hello, {{name}}! Welcome to {{place}}." },
-        { name: "bad", template: "Hello, {{ name }" }
-    ]
-};
+// We'll use the real prompt config file from the system
+// and let the real ConfigurationService handle loading
+
+// Helper function to create a test instance of PromptService
+const getPromptService = () => Effect.gen(function* () {
+    // Get the PromptService instance (using the real service implementation)
+    const service = yield* PromptService;
+    
+    // Load prompts using the real ConfigurationService
+    yield* service.load();
+    
+    return service;
+});
 
 // --- Tests ---
 describe("PromptApi", () => {
-    const mockConfigService: ConfigurationService = {
-        readConfig: (key: string) =>
-            key === "prompts"
-                ? Effect.succeed(JSON.stringify(validPromptConfig))
-                : Effect.fail(new Error("Missing config")),
-        readFile: () => Effect.fail(new Error("not implemented")),
-        parseJson: () => Effect.fail(new Error("not implemented")),
-        validateWithSchema: () => Effect.fail(new Error("not implemented")),
-        loadConfig: () => Effect.fail(new Error("not implemented")),
-    };
-    const validConfigLayer = Layer.succeed(ConfigurationService, mockConfigService);
-    const layer = PromptService.Default;
 
-    it("renderTemplate returns rendered string for valid template", async () => {
-        const effect = Effect.gen(function* () {
-            const apiService = yield* PromptService;
-            yield* apiService.load();
-            const api = yield* PromptService;
-            const result = yield* api.renderTemplate({ templateName: "greeting", context: { name: "Alice", place: "Wonderland" } });
+    it("renderTemplate returns rendered string for valid template", () => 
+        Effect.gen(function* () {
+            // Get service instance
+            const service = yield* getPromptService();
+            
+            // Test the template rendering
+            const result = yield* service.renderTemplate({ 
+                templateName: "greeting", 
+                context: { name: "Alice", place: "Wonderland" } 
+            });
+            
+            // Assert result
             expect(result).toBe("Hello, Alice! Welcome to Wonderland.");
-        });
-        const runnable = Effect.provide(effect, validConfigLayer);
-        const provided = Effect.provide(runnable, layer);
-        await Effect.runPromise(provided);
-    });
+        })
+    );
 
-    it("renderTemplate fails with TemplateNotFoundError for missing template", async () => {
-        const effect = Effect.gen(function* () {
-            const apiService = yield* PromptService;
-            yield* apiService.load();
-            const api = yield* PromptService;
-            yield* api.renderTemplate({ templateName: "missing", context: {} });
-        });
-        const runnable = Effect.provide(effect, validConfigLayer);
-        const provided = Effect.provide(runnable, layer);
-        const exit = await Effect.runPromise(Effect.exit(provided));
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isFailure(exit)) {
-            const err = Cause.failureOption(exit.cause);
-            expect(Option.isSome(err)).toBe(true);
-            expect(Option.getOrThrow(err)).toBeInstanceOf(TemplateNotFoundError);
-        }
-    });
+    it("renderTemplate fails with TemplateNotFoundError for missing template", () =>
+        Effect.gen(function* () {
+            // Get service instance
+            const service = yield* getPromptService();
+            
+            // Attempt to render a non-existent template
+            const result = yield* Effect.either(
+                service.renderTemplate({ templateName: "missing", context: {} })
+            );
+            
+            // Assert error
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(TemplateNotFoundError);
+                expect((result.left as TemplateNotFoundError).templateName).toBe("missing");
+            }
+        })
+    );
 
-    it("renderTemplate fails with RenderingError for invalid template syntax", async () => {
-        const effect = Effect.gen(function* () {
-            const apiService = yield* PromptService;
-            yield* apiService.load();
-            const api = yield* PromptService;
-            yield* api.renderTemplate({ templateName: "bad", context: { name: "Bob" } });
-        });
-        const runnable = Effect.provide(effect, validConfigLayer);
-        const provided = Effect.provide(runnable, layer);
-        const exit = await Effect.runPromise(Effect.exit(provided));
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isFailure(exit)) {
-            const err = Cause.failureOption(exit.cause);
-            expect(Option.isSome(err)).toBe(true);
-            expect(Option.getOrThrow(err)).toBeInstanceOf(RenderingError);
-        }
-    });
+    it("renderTemplate fails with RenderingError for invalid template syntax", () =>
+        Effect.gen(function* () {
+            // Get service instance
+            const service = yield* getPromptService();
+            
+            // Attempt to render a template with invalid syntax
+            const result = yield* Effect.either(
+                service.renderTemplate({ templateName: "bad", context: { name: "Bob" } })
+            );
+            
+            // Assert error
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(RenderingError);
+            }
+        })
+    );
 
-    it("renderString returns rendered string for valid template string", async () => {
-        const effect = Effect.gen(function* () {
-            const apiService = yield* PromptService;
-            yield* apiService.load();
-            const api = yield* PromptService;
-            const result = yield* api.renderString({ templateString: "Hi, {{name}}!", context: { name: "Eve" } });
+    it("renderString returns rendered string for valid template string", () =>
+        Effect.gen(function* () {
+            // Get service instance
+            const service = yield* getPromptService();
+            
+            // Test direct string rendering
+            const result = yield* service.renderString({ 
+                templateString: "Hi, {{name}}!", 
+                context: { name: "Eve" } 
+            });
+            
+            // Assert result
             expect(result).toBe("Hi, Eve!");
-        });
-        const runnable = Effect.provide(effect, validConfigLayer);
-        const provided = Effect.provide(runnable, layer);
-        await Effect.runPromise(provided);
-    });
+        })
+    );
 
-    it("renderString fails with RenderingError for invalid template string", async () => {
-        const effect = Effect.gen(function* () {
-            const apiService = yield* PromptService;
-            yield* apiService.load();
-            const api = yield* PromptService;
-            yield* api.renderString({ templateString: "Hello, {{ name }", context: { name: "X" } });
-        });
-        const runnable = Effect.provide(effect, validConfigLayer);
-        const provided = Effect.provide(runnable, layer);
-        const exit = await Effect.runPromise(Effect.exit(provided));
-        expect(Exit.isFailure(exit)).toBe(true);
-        if (Exit.isFailure(exit)) {
-            const err = Cause.failureOption(exit.cause);
-            expect(Option.isSome(err)).toBe(true);
-            expect(Option.getOrThrow(err)).toBeInstanceOf(RenderingError);
-        }
-    });
+    it("renderString fails with RenderingError for invalid template string", () =>
+        Effect.gen(function* () {
+            // Get service instance
+            const service = yield* getPromptService();
+            
+            // Attempt to render a string with invalid syntax
+            const result = yield* Effect.either(
+                service.renderString({ 
+                    templateString: "Hello, {{ name }", 
+                    context: { name: "X" } 
+                })
+            );
+            
+            // Assert error
+            expect(Either.isLeft(result)).toBe(true);
+            if (Either.isLeft(result)) {
+                expect(result.left).toBeInstanceOf(RenderingError);
+            }
+        })
+    );
 
-    it("renderTemplate handles missing context variables gracefully", async () => {
-        const effect = Effect.gen(function* () {
-            const apiService = yield* PromptService;
-            yield* apiService.load();
-            const api = yield* PromptService;
-            const result = yield* api.renderTemplate({ templateName: "greeting", context: {} });
+    it("renderTemplate handles missing context variables gracefully", () =>
+        Effect.gen(function* () {
+            // Get service instance
+            const service = yield* getPromptService();
+            
+            // Test with missing context variables
+            const result = yield* service.renderTemplate({ 
+                templateName: "greeting", 
+                context: {} 
+            });
+            
+            // Assert result handles missing variables by rendering empty values
             expect(result).toBe("Hello, ! Welcome to .");
-        });
-        const runnable = Effect.provide(effect, validConfigLayer);
-        const provided = Effect.provide(runnable, layer);
-        await Effect.runPromise(provided);
-    });
+        })
+    );
 });

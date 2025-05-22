@@ -12,7 +12,7 @@ import { EffectiveInput } from "@/types.js";
 import { ProviderClientApi } from "./api.js";
 
 import {
-  ProviderConfigError
+  ProviderServiceConfigError
 } from "./errors.js";
 import type {
   EffectiveProviderApi,
@@ -35,7 +35,7 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
       const getProviderHelper = () => Effect.gen(function* () {
         const option = yield* Ref.get(providerRef);
         if (Option.isNone(option)) {
-          return yield* Effect.fail(new ProviderConfigError({
+          return yield* Effect.fail(new ProviderServiceConfigError({
             description: "Provider not set. Call setVercelProvider first.",
             module: "ProviderClient",
             method: "getProvider"
@@ -48,7 +48,7 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
         setVercelProvider: (vercelProvider?: EffectiveProviderApi) =>
           Effect.gen(function* () {
             if (!vercelProvider) {
-              return yield* Effect.fail(new ProviderConfigError({
+              return yield* Effect.fail(new ProviderServiceConfigError({
                 description: "Invalid provider config: provider is undefined",
                 module: "ProviderClient",
                 method: "setVercelProvider"

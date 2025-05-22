@@ -17,7 +17,7 @@ type ProvidersType = typeof PROVIDER_NAMES[number];
  * Base error type for provider-related errors.
  * @extends EffectiveError
  */
-export class ProviderError extends EffectiveError {
+export class ProviderServiceError extends EffectiveError {
     public readonly providerName: string;
     /**
      * @param params - Error details
@@ -27,7 +27,7 @@ export class ProviderError extends EffectiveError {
      * @param params.method - Method name
      * @param params.cause - Optional cause
      */
-    constructor(params: { providerName: string; description: string; module: string; method: string; cause?: unknown }) {
+    constructor(params: { providerName: string; description: string; module: string; method: string; cause?: unknown }) { // Renamed from ProviderError
         super({ description: params.description, cause: params.cause, module: params.module, method: params.method });
         this.providerName = params.providerName;
     }
@@ -41,7 +41,7 @@ export class ProviderError extends EffectiveError {
  * Error class for failures related to loading, parsing, or validating the provider configuration.
  * @extends EffectiveError
  */
-export class ProviderConfigError extends EffectiveError {
+export class ProviderServiceConfigError extends EffectiveError {
     /**
      * @param params - Error details
      * @param params.description - Error description
@@ -49,7 +49,7 @@ export class ProviderConfigError extends EffectiveError {
      * @param params.method - Method name
      * @param params.cause - Optional cause
      */
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
         super(params);
     }
 }
@@ -246,7 +246,7 @@ export class GenerateTextError extends EffectiveError {
      * @param params.method - Method name
      * @param params.cause - Optional cause
      */
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
         super(params);
     }
 }
@@ -256,7 +256,7 @@ export class GenerateTextError extends EffectiveError {
  * @extends EffectiveError
  */
 export class GenerateObjectError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
         super(params);
     }
 }
@@ -266,7 +266,7 @@ export class GenerateObjectError extends EffectiveError {
  * @extends EffectiveError
  */
 export class GenerateSpeechError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
         super(params);
     }
 }
@@ -276,7 +276,7 @@ export class GenerateSpeechError extends EffectiveError {
  * @extends EffectiveError
  */
 export class TranscribeError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
         super(params);
     }
 }
@@ -293,7 +293,7 @@ export class GenerateEmbeddingsError extends EffectiveError {
      * @param params.method - Method name
      * @param params.cause - Optional cause
      */
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
         super(params);
     }
 }
@@ -302,7 +302,7 @@ export class GenerateEmbeddingsError extends EffectiveError {
  * Error thrown when a default model ID cannot be determined for a given provider and capability.
  * @extends EffectiveError
  */
-export class MissingModelIdError extends EffectiveError {
+export class ProviderMissingModelIdError extends EffectiveError {
     public readonly providerName: ProvidersType;
     public readonly capability: ModelCapability;
     /**
@@ -324,3 +324,79 @@ export class MissingModelIdError extends EffectiveError {
         this.capability = params.capability;
     }
 }
+
+/**
+ * Error thrown when a provider tool operation fails
+ */
+export class ProviderToolError extends EffectiveError {
+    constructor(params: {
+        description: string
+        module?: string
+        method?: string
+        cause?: unknown
+        provider?: string
+    }) {
+        super({
+            ...params,
+            module: params.module ?? `Provider:${params.provider ?? "Unknown"}`,
+            method: params.method ?? "toolOperation"
+        })
+    }
+}
+
+/**
+ * Error thrown when a tool execution fails
+ */
+export class ToolExecutionError extends EffectiveError {
+    constructor(params: {
+        description: string
+        module?: string
+        method?: string
+        cause?: unknown
+        toolName?: string
+    }) {
+        super({
+            ...params,
+            module: params.module ?? `Tool:${params.toolName ?? "Unknown"}`,
+            method: params.method ?? "execute"
+        })
+    }
+}
+
+/**
+ * Error thrown when tool validation fails
+ */
+export class ToolValidationError extends EffectiveError {
+    constructor(params: {
+        description: string
+        module?: string
+        method?: string
+        cause?: unknown
+        toolName?: string
+    }) {
+        super({
+            ...params,
+            module: params.module ?? `Tool:${params.toolName ?? "Unknown"}`,
+            method: params.method ?? "validate"
+        })
+    }
+}
+
+/**
+ * Error thrown when tool configuration is invalid
+ */
+export class ToolConfigurationError extends EffectiveError {
+    constructor(params: {
+        description: string
+        module?: string
+        method?: string
+        cause?: unknown
+        toolName?: string
+    }) {
+        super({
+            ...params,
+            module: params.module ?? `Tool:${params.toolName ?? "Unknown"}`,
+            method: params.method ?? "configure"
+        })
+    }
+} 

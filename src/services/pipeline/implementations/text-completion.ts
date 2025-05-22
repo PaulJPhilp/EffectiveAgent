@@ -12,6 +12,7 @@ import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
 import TextService from "@/services/pipeline/producers/text/service.js";
+// PipelineService import removed
 import { NodeContext } from "@effect/platform-node";
 import { Effect, Option, Schema, pipe } from "effect";
 
@@ -22,10 +23,21 @@ export class TextCompletionPipeline extends AiPipeline<
   TextCompletionInput,
   TextCompletionOutput,
   TextCompletionError,
-  never
+  never // PipelineConfigServices - assuming none for TextCompletionPipeline itself
 > {
   readonly inputSchema = TextCompletionInput as Schema.Schema<unknown, TextCompletionInput>;
   readonly outputSchema = TextCompletionOutput as Schema.Schema<unknown, TextCompletionOutput>;
+
+  constructor(
+    // pipelineService: PipelineService, // Removed
+    private readonly textService: TextService,
+    // Assuming ProviderService, ModelService, ConfigurationService are implicitly 
+    // provided to TextService or are not direct dependencies here.
+    // If they were direct dependencies of TextCompletionPipeline's logic beyond TextService,
+    // they would be injected here too.
+  ) {
+    super(); // Call base constructor without arguments
+  }
 
   /**
    * Execute the producer to generate text completion.
@@ -34,11 +46,14 @@ export class TextCompletionPipeline extends AiPipeline<
    */
   protected override executeProducer(
     input: TextCompletionInput,
-  ): Effect.Effect<TextCompletionOutput, EffectiveError, never> {
-    return pipe(
-      Effect.gen(function* () {
-        const service = yield* TextService;
-        const result = yield* service.generate({
+  ): Effect.Effect<TextCompletionOutput, EffectiveError, TextService> { // R changed from 'never' to 'TextService'
+    // Get the injected TextService instance
+    const textServiceInstance = this.textService;
+
+    // Create the effect that uses the TextService instance
+    const generationEffect = Effect.gen(function* () {
+      // Now 'service' refers to the instance, not a yielded Tag
+      const result = yield* textServiceInstance.generate({ // USE INJECTED SERVICE
           prompt: input.prompt,
           modelId: input.modelId,
           system: Option.fromNullable(input.systemPrompt),
@@ -64,16 +79,14 @@ export class TextCompletionPipeline extends AiPipeline<
             totalTokens: 0
           }
         } satisfies TextCompletionOutput;
-      }),
+    });
+
+    return pipe(
+      generationEffect, // This effect requires TextService (or TextServiceApi)
       Effect.mapError((error): EffectiveError => new TextCompletionError({
         description: "Failed to generate text completion",
         cause: error
-      })),
-      Effect.provide(TextService.Default),
-      Effect.provide(ProviderService),
-      Effect.provide(ModelService),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeContext.layer)
+      }))
     );
   }
 }

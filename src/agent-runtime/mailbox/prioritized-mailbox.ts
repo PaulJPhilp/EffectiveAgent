@@ -4,6 +4,7 @@
 
 import { Effect, Queue, Ref, Schedule, Stream, pipe } from "effect"
 import { AgentActivity, MessagePriority as Priority } from "../types.js"
+import { MailboxError } from "../errors.js"
 import { Mailbox } from "./mailbox.js"
 
 /**
@@ -75,7 +76,7 @@ export class PrioritizedMailbox extends Mailbox {
     /**
      * Offers an activity to the mailbox with backpressure
      */
-    override offer(activity: AgentActivity): Effect.Effect<void, Error> {
+    override offer(activity: AgentActivity): Effect.Effect<void, MailboxError> {
         const priority = activity.metadata.priority ?? Priority.NORMAL
         const timeout = activity.metadata.timeout ?? this.config.size
         const queue = this.queues.get(this.config.enablePrioritization ? priority : Priority.NORMAL)!
@@ -91,31 +92,41 @@ export class PrioritizedMailbox extends Mailbox {
                     }))
                 )
             ),
-            Effect.mapError(() => new Error(`Mailbox offer timed out after ${timeout}ms`))
+            Effect.mapError(() => new MailboxError({
+                agentRuntimeId: activity.metadata.agentRuntimeId,
+                message: `Mailbox offer timed out after ${timeout}ms`
+            }))
         )
     }
 
     /**
      * Takes the next activity from the mailbox, respecting priorities
      */
-    override take(): Effect.Effect<AgentActivity, Error> {
+    override take(): Effect.Effect<AgentActivity, MailboxError> {
         if (!this.config.enablePrioritization) {
             const queue = this.queues.get(Priority.NORMAL)
             if (!queue) {
-                return Effect.fail(new Error("Default queue not found"))
+                return Effect.fail(new MailboxError({
+                    agentRuntimeId: undefined as any,
+                    message: "Default queue not found"
+                }))
             }
             return Queue.take(queue)
         }
+        const self = this
         return pipe(
             Effect.gen(function* () {
                 for (let priority = Priority.HIGH; priority <= Priority.BACKGROUND; priority++) {
-                    const queue = this.queues.get(priority)
+                    const queue = self.queues.get(priority)
                     if (!queue) continue
                     const size = yield* Queue.size(queue)
                     if (size > 0) return yield* Queue.take(queue)
                 }
-                const highPriorityQueue = this.queues.get(Priority.HIGH)
-                if (!highPriorityQueue) return yield* Effect.fail(new Error("High priority queue not found"))
+                const highPriorityQueue = self.queues.get(Priority.HIGH)
+                if (!highPriorityQueue) return yield* Effect.fail(new MailboxError({
+                    agentRuntimeId: undefined as any,
+                    message: "High priority queue not found"
+                }))
                 return yield* Queue.take(highPriorityQueue)
             }),
             Effect.tap(() =>
@@ -155,7 +166,7 @@ export class PrioritizedMailbox extends Mailbox {
     /**
      * Creates a stream of activities from the mailbox
      */
-    override subscribe(): Stream.Stream<AgentActivity, Error> {
+    override subscribe(): Stream.Stream<AgentActivity, MailboxError> {
         return Stream.repeatEffect(this.take()).pipe(
             Stream.catchAll(error => Stream.fail(error))
         )

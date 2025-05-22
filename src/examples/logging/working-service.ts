@@ -19,7 +19,7 @@ export class AppLoggingService extends Effect.Service<LoggingServiceApi>()("AppL
         })
 
         yield* logger.initialize()
-        const loggingService = logger.createLoggingService()
+        const loggingService = logger.createLoggingService().withContext({ service: "AppLoggingService" })
         yield* Effect.addFinalizer(() =>
             Effect.succeed(logger.close())
         )
@@ -30,7 +30,7 @@ export class AppLoggingService extends Effect.Service<LoggingServiceApi>()("AppL
 // Example of using the logging service in another service
 export class UserService extends Effect.Service<UserServiceApi>()("UserService", {
     effect: Effect.gen(function* () {
-        const logger = yield* AppLoggingService
+        const logger = (yield* AppLoggingService).withContext({ service: "AppLoggingService" });
         return {
             createUser: (name: string) => Effect.gen(function* () {
                 yield* logger.info("Creating user", { name })

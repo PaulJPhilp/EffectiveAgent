@@ -4,7 +4,7 @@
  */
 
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { Effect, HashMap, Ref, Schema as S } from "effect";
+import { Effect, HashMap, Ref, Schema as S, Config, ConfigProvider } from "effect";
 import { Liquid } from "liquidjs";
 import {
     PromptConfigError,
@@ -20,46 +20,42 @@ import {
     type RenderTemplateParams
 } from "./types.js";
 
+const PROMPTS_CONFIG_PATH_KEY = "PROMPT_SERVICE_PROMPT_FILE_PATH";
+
 export class PromptService extends Effect.Service<PromptService>()("PromptService", {
     effect: Effect.gen(function* () {
-        // Static instance for all service instances
         const liquid = new Liquid();
-
-        // Initialize in constructor
         const promptRef = yield* Ref.make(HashMap.empty<string, Prompt>());
+        const configService = yield* ConfigurationService;
+        const configProvider = yield* ConfigProvider.ConfigProvider;
+
+        const promptFilePath = yield* configProvider.load(Config.string(PROMPTS_CONFIG_PATH_KEY)).pipe(
+            Effect.mapError(cause => new PromptConfigError({
+                description: `Failed to load prompt file path from config key: '${PROMPTS_CONFIG_PATH_KEY}'`,
+                module: "PromptService",
+                method: "constructor", // Or a dedicated init phase
+                cause
+            }))
+        );
 
         return {
             load: () => Effect.gen(function* () {
-                const configService = yield* ConfigurationService;
-                const rawConfig = yield* configService.readConfig("prompts").pipe(
+                const loadedConfig = yield* configService.loadConfig({ 
+                    filePath: promptFilePath, 
+                    schema: PromptFile 
+                }).pipe(
                     Effect.mapError(cause => new PromptConfigError({
-                        description: "Failed to read prompts.json",
+                        description: `Failed to load or validate prompts file from path: ${promptFilePath}`,
                         module: "PromptService",
                         method: "load",
-                        cause: cause instanceof Error ? cause : new Error(String(cause))
+                        cause // This will be ConfigReadError, ConfigParseError, or ConfigValidationError
                     }))
                 );
-
-                const parsedConfig = yield* Effect.try(() => JSON.parse(rawConfig)).pipe(
-                    Effect.mapError(error => new PromptConfigError({
-                        description: "Invalid JSON in prompts.json",
-                        module: "PromptService",
-                        method: "load",
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    }))
-                );
-
-                const validConfig = yield* S.decode(PromptFile)(parsedConfig).pipe(
-                    Effect.mapError(cause => new PromptConfigError({
-                        description: "Schema validation failed",
-                        module: "PromptService",
-                        method: "load",
-                        cause
-                    }))
-                );
+                // Explicitly cast/assert type if necessary, or ensure loadConfig returns typed data
+                const validConfig = loadedConfig as PromptFile;
 
                 const promptEntries = validConfig.prompts.map(
-                    (def): [string, Prompt] => [def.name, def]
+                    (def: Prompt): [string, Prompt] => [def.name, def]
                 );
 
                 yield* Ref.set(promptRef, HashMap.fromIterable(promptEntries));
@@ -72,6 +68,7 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
                         HashMap.get(map, name).pipe(
                             Effect.mapError(() => new TemplateNotFoundError({
                                 description: `Template '${name}' not found`,
+                                templateName: name,
                                 module: "PromptService",
                                 method: "getPrompt"
                             }))
@@ -103,6 +100,7 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
                         HashMap.get(map, params.templateName).pipe(
                             Effect.mapError(() => new TemplateNotFoundError({
                                 description: `Template '${params.templateName}' not found`,
+                                templateName: params.templateName,
                                 module: "PromptService",
                                 method: "renderTemplate"
                             })),

@@ -42,7 +42,7 @@ export class RateLimitSchema extends S.Class<RateLimitSchema>("RateLimitSchema")
     tokensPerMinute: PositiveNumber.pipe(S.optional)
 }) { }
 
-export class ModelMetadata extends S.Class<ModelMetadata>("ModelMetadata")({
+export class ModelMetadataSchema extends S.Class<ModelMetadataSchema>("ModelMetadataSchema")({
     description: S.String.pipe(S.optional)
 }) { }
 
@@ -76,7 +76,7 @@ export class Model extends S.Class<Model>("Model")({
     contextWindowSize: ContextWindowSize.pipe(S.optional),
     costPer1kInputTokens: PositiveNumber.pipe(S.optional),
     costPer1kOutputTokens: PositiveNumber.pipe(S.optional),
-    metadata: S.Class<ModelMetadata>("ModelMetadata")({
+    metadata: S.Class<ModelMetadataSchema>("ModelMetadataSchema")({
         description: S.String.pipe(S.optional)
     }).pipe(S.optional),
     supportedLanguages: S.Array(S.String).pipe(S.optional),
@@ -111,7 +111,7 @@ export class PublicModelInfo extends S.Class<PublicModelInfo>("PublicModelInfo")
     contextWindowSize: ContextWindowSize.pipe(S.optional),
     costPer1kInputTokens: PositiveNumber.pipe(S.optional),
     costPer1kOutputTokens: PositiveNumber.pipe(S.optional),
-    metadata: S.Class<ModelMetadata>("ModelMetadata")({
+    metadata: S.Class<ModelMetadataSchema>("ModelMetadataSchema")({
         description: S.String.pipe(S.optional)
     }).pipe(S.optional),
     supportedLanguages: S.Array(S.String).pipe(S.optional),

@@ -1,2 +1,0 @@
-{"timestamp":"2025-05-19T01:54:00.019Z","level":"INFO","message":"extractStructured called","text":"name: John Doe\nemail: john@example.com\nactive: true"}
-{"timestamp":"2025-05-19T01:54:00.021Z","level":"ERROR","message":"Error in extractStructured","error":"{\"error\":\"{}\"}"}

@@ -1,18 +1,20 @@
-import type { ImportedType } from "@/types.js";
+import type { EffectiveInput, EffectiveResponse } from "@/types.js";
 import type { Effect } from "effect";
 import type { ProviderMetadata } from "./types.js";
 
 import { ModelCapability } from "@/schema.js";
-import { LanguageModelV1 } from "@ai-sdk/provider.js";
+import { LanguageModelV1 } from "@ai-sdk/provider";
+import { ModelServiceApi } from "../model/api.js";
 import {
-    ProviderConfigError,
+    ProviderMissingModelIdError,
+    ProviderServiceConfigError,
     ProviderMissingCapabilityError,
     ProviderOperationError
 } from "./errors.js";
+import { ProviderToolError } from "./errors/tool.js";
 import { ProvidersType } from "./schema.js";
 import {
     EffectiveProviderApi,
-    EffectiveResponse,
     GenerateEmbeddingsResult,
     GenerateImageResult,
     GenerateObjectResult,
@@ -39,14 +41,14 @@ export type ProviderServiceApi = {
      * Loads the provider configuration.
      * Returns a ProviderFile containing ProviderMetadata objects.
      */
-    load: () => Effect.Effect<{ providers: ImportedType<ProviderMetadata>[], name: string, description: string }, never>;
+    load: () => Effect.Effect<{ providers: ProviderMetadata[]; name: string; description: string }, never>;
 
     /**
      * Gets a provider client by name.
      * @param providerName The name of the provider to get.
      * @returns An Effect resolving to the provider client.
      */
-    getProviderClient: (providerName: string) => Effect.Effect<ImportedType<ProviderClientApi>, never>;
+    getProviderClient: (providerName: string) => Effect.Effect<ProviderClientApi, never>;
 };
 
 /**
@@ -88,19 +90,19 @@ export interface ProviderClientApi {
     ) => Effect.Effect<unknown, ProviderToolError>;
 
 
-    chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderConfigError>;
+    chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderServiceConfigError>;
     /**
      * Set a Vercel AI SDK provider for this client.
      * @param vercelProvider The Vercel AI SDK provider instance with provider name as discriminator
-     * @returns An Effect that resolves to void on success or fails with ProviderConfigError
+     * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
      */
     setVercelProvider(
         vercelProvider: EffectiveProviderApi
-    ): Effect.Effect<void, ProviderConfigError>;
+    ): Effect.Effect<void, ProviderServiceConfigError>;
 
     readonly getProvider: () => Effect.Effect<
         EffectiveProviderApi,
-        ProviderConfigError
+        ProviderServiceConfigError
     >;
 
     readonly generateText: (
@@ -108,7 +110,7 @@ export interface ProviderClientApi {
         options: ProviderGenerateTextOptions,
     ) => Effect.Effect<
         EffectiveResponse<GenerateTextResult>,
-        ProviderOperationError | ProviderConfigError | ProviderMissingCapabilityError
+        ProviderOperationError | ProviderServiceConfigError | ProviderMissingCapabilityError
     >;
 
     readonly generateObject: <T = unknown>(
@@ -116,7 +118,7 @@ export interface ProviderClientApi {
         options: ProviderGenerateObjectOptions<T>,
     ) => Effect.Effect<
         EffectiveResponse<GenerateObjectResult<T>>,
-        ProviderOperationError | ProviderConfigError
+        ProviderOperationError | ProviderServiceConfigError
     >;
 
     readonly generateSpeech: (
@@ -124,7 +126,7 @@ export interface ProviderClientApi {
         options: ProviderGenerateSpeechOptions,
     ) => Effect.Effect<
         EffectiveResponse<GenerateSpeechResult>,
-        ProviderOperationError | ProviderConfigError
+        ProviderOperationError | ProviderServiceConfigError
     >;
 
     readonly transcribe: (
@@ -132,7 +134,7 @@ export interface ProviderClientApi {
         options: ProviderTranscribeOptions,
     ) => Effect.Effect<
         EffectiveResponse<TranscribeResult>,
-        ProviderOperationError | ProviderConfigError
+        ProviderOperationError | ProviderServiceConfigError
     >;
 
     readonly generateEmbeddings: (
@@ -140,7 +142,7 @@ export interface ProviderClientApi {
         options: ProviderGenerateEmbeddingsOptions,
     ) => Effect.Effect<
         EffectiveResponse<GenerateEmbeddingsResult>,
-        ProviderOperationError | ProviderConfigError
+        ProviderOperationError | ProviderServiceConfigError
     >;
 
     /**
@@ -154,18 +156,18 @@ export interface ProviderClientApi {
         options: ProviderGenerateImageOptions,
     ) => Effect.Effect<
         EffectiveResponse<GenerateImageResult>,
-        ProviderOperationError | ProviderConfigError
+        ProviderOperationError | ProviderServiceConfigError
     >;
 
     readonly getCapabilities: () => Effect.Effect<
         Set<ModelCapability>,
-        ProviderOperationError | ProviderConfigError
+        ProviderOperationError | ProviderServiceConfigError
     >;
 
-    readonly getModels: () => Effect.Effect<LanguageModelV1[], ProviderConfigError, ModelServiceApi>;
+    readonly getModels: () => Effect.Effect<LanguageModelV1[], ProviderServiceConfigError, ModelServiceApi>;
 
     readonly getDefaultModelIdForProvider: (
         providerName: ProvidersType,
         capability: ModelCapability
-    ) => Effect.Effect<string, ProviderConfigError | MissingModelIdError>;
+    ) => Effect.Effect<string, ProviderServiceConfigError | ProviderMissingModelIdError>;
 }

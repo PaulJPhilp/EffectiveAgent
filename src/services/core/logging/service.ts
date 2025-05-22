@@ -3,9 +3,9 @@
  * with file-based logging support.
  */
 
+import { JsonObject } from "@/types.js";
 import { Effect } from "effect";
 import type { LoggingServiceApi } from "./api.js";
-import { JsonObject } from "@/types.js";
 
 /**
  * Compose a LoggingServiceApi from multiple destinations.
@@ -38,3 +38,8 @@ export function makeLoggingService(destinations: readonly LoggingServiceApi[]): 
     }
   };
 }
+
+export class LoggingService extends Effect.Service<LoggingServiceApi>()("LoggingService", {
+  effect: Effect.succeed(makeLoggingService([])), // Provide your real destinations here
+  dependencies: []
+}) { }

@@ -1,4 +1,4 @@
-import type { GenerateBaseOptions, GenerateBaseResult } from "@/services/pipeline/types/base.js";
+import type { GenerateBaseOptions, GenerateBaseResult } from "@/services/pipeline/types.js";
 import { EffectiveResponse } from "@/types.js";
 import type { Effect } from "effect";
 import type { Span } from "effect/Tracer";
@@ -9,6 +9,8 @@ import type { Span } from "effect/Tracer";
 export interface ChatCompletionOptions extends GenerateBaseOptions {
     /** The conversation span for tracing */
     span: Span;
+    /** Optional tool definitions */
+    abortSignal?: AbortSignal;
     /** Optional tool definitions */
     tools?: Array<{
         /** Tool name */

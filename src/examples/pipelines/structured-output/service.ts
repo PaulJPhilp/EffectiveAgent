@@ -54,77 +54,64 @@ export class LocalSchemaValidatorService extends Effect.Service<SchemaValidatorT
  * Implementation of the StructuredOutputPipeline using Effect.Service pattern.
  * This service provides methods for generating and extracting structured data using LLMs.
  */
-export function makeStructuredOutputPipelineService(logger: LoggingServiceApi, objectService: ObjectServiceApi, schemaValidator: SchemaValidatorToolApi): StructuredOutputPipelineApi {
+export function makeStructuredOutputPipelineService(
+    logger: LoggingServiceApi,
+    objectService: ObjectServiceApi,
+    schemaValidator: SchemaValidatorToolApi
+): StructuredOutputPipelineApi {
     return {
         generateStructuredOutput: <A>(
             input: GenerateStructuredOutputPayload<Schema.Schema<A, A>>,
             maxRetries = 3
         ): Effect.Effect<A, StructuredOutputPipelineError, never> =>
-            (
-                Effect.gen(function* () {
-                    yield* logger.info("generateStructuredOutput called", { prompt: input.prompt });
-                    try {
-                        const result = yield* objectService.generate({
-                            prompt: input.prompt,
-                            schema: input.schema,
-                            modelId: "gpt-4"
-                        });
-                        yield* logger.info("Structured output generated", { data: JSON.stringify(result.data) });
-                        return result.data as A;
-                    } catch (error) {
-                        yield* logger.error("Error in generateStructuredOutput", { error: JSON.stringify(error) });
-                        return yield* Effect.fail(new StructuredOutputPipelineError({
-                            message: "Failed to generate structured output",
-                            cause: error instanceof Error ? error : new Error(String(error))
-                        }));
-                    }
-                }).pipe(
-                    Effect.catchAll((error) =>
-                        Effect.fail(
-                            error instanceof StructuredOutputPipelineError
-                                ? error
-                                : new StructuredOutputPipelineError({
-                                    message: "Unexpected error in generateStructuredOutput",
-                                    cause: error instanceof Error ? error : new Error(String(error)),
-                                })
-                        )
+            Effect.gen(function* () {
+                yield* logger.info("generateStructuredOutput called", { prompt: input.prompt });
+                const result = yield* objectService.generate({
+                    prompt: input.prompt,
+                    schema: input.schema,
+                    modelId: "gpt-4o"
+                });
+                yield* logger.info("Structured output generated", { data: JSON.stringify(result.data) });
+                return result.data as A;
+            }).pipe(
+                Effect.catchAll((error) =>
+                    Effect.fail(
+                        error instanceof StructuredOutputPipelineError
+                            ? error
+                            : new StructuredOutputPipelineError({
+                                message: "Unexpected error in generateStructuredOutput",
+                                cause: error instanceof Error ? error : new Error(String(error)),
+                            })
                     )
                 )
             ) as Effect.Effect<A, StructuredOutputPipelineError, never>,
         extractStructured: <A>(
             text: string,
             schema: Schema.Schema<A, A>,
-            maxRetries = 3
+            options?: { maxRetries?: number; modelId?: string }
         ): Effect.Effect<A, StructuredOutputPipelineError, never> =>
-            (
-                Effect.gen(function* () {
-                    yield* logger.info("extractStructured called", { text });
-                    try {
-                        const result = yield* objectService.generate({
-                            prompt: `Extract structured data from this text: ${text}`,
-                            schema: schema,
-                            modelId: "gpt-4"
-                        });
-                        yield* logger.info("Structured data extracted", { data: JSON.stringify(result.data) });
-                        return result.data as A;
-                    } catch (error) {
-                        yield* logger.error("Error in extractStructured", { error: JSON.stringify(error) });
-                        return yield* Effect.fail(new StructuredOutputPipelineError({
-                            message: "Failed to extract structured data",
-                            cause: error instanceof Error ? error : new Error(String(error))
-                        }));
-                    }
-                }).pipe(
-                    Effect.catchAll((error) =>
-                        Effect.fail(
+            Effect.gen(function* () {
+                yield* logger.info("extractStructured called", { text });
+                const result = yield* objectService.generate({
+                    prompt: `Extract structured data from this text: ${text}`,
+                    schema: schema,
+                    modelId: options?.modelId ?? "gpt-4o"
+                });
+                yield* logger.info("Structured data extracted", { data: JSON.stringify(result.data) });
+                return result.data as A;
+            }).pipe(
+                Effect.catchAll((error) =>
+                    Effect.gen(function* () {
+                        yield* logger.error("extractStructured failed", { error: error instanceof Error ? error.stack ?? error.message : String(error) });
+                        return yield* Effect.fail(
                             error instanceof StructuredOutputPipelineError
                                 ? error
                                 : new StructuredOutputPipelineError({
                                     message: "Unexpected error in extractStructured",
                                     cause: error instanceof Error ? error : new Error(String(error)),
                                 })
-                        )
-                    )
+                        );
+                    })
                 )
             ) as Effect.Effect<A, StructuredOutputPipelineError, never>,
     };

@@ -1,4 +1,0 @@
-{"timestamp":"2025-05-19T03:18:40.777Z","level":"INFO","message":"Starting extractStructured test"}
-{"timestamp":"2025-05-19T03:18:40.777Z","level":"INFO","message":"extractStructured called","text":"Product: XYZ, Price: 99.99, Stock: Yes"}
-{"timestamp":"2025-05-19T03:18:40.777Z","level":"ERROR","message":"Error in extractStructured","error":"{\"error\":\"{}\"}"}
-{"timestamp":"2025-05-19T03:18:40.777Z","level":"INFO","message":"extractStructured result","result":"{\"_id\":\"Either\",\"_tag\":\"Left\",\"left\":{\"message\":\"Failed to extract structured data\",\"cause\":{},\"_tag\":\"StructuredOutputPipelineError\"}}"}

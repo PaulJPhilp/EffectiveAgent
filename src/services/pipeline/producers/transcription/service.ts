@@ -67,121 +67,117 @@ export interface TranscriptionOptions {
 /**
  * TranscriptionService provides methods for transcribing audio using AI providers.
  */
-export class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()("TranscriptionService", {
-    effect: Effect.gen(function* () {
-        // Get services
-        const providerService = yield* ProviderService;
-        const modelService: ModelServiceApi = yield* ModelService;
+export class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
+    "TranscriptionService",
+    {
+        effect: Effect.gen(function* () {
+            // Get services
+            const providerService = yield* ProviderService;
+            const modelService: ModelServiceApi = yield* ModelService;
 
-        return {
-            transcribe: (options: TranscriptionOptions) =>
-                Effect.gen(function* () {
-                    // Validate audio data
-                    if (!options.audioData) {
-                        return yield* Effect.fail(new TranscriptionAudioError({
-                            description: "Audio data is required",
-                            module: "TranscriptionService",
-                            method: "transcribe"
-                        }));
-                    }
-
-                    // Get model ID or fail
-                    const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-                        Effect.mapError(() => new TranscriptionModelError({
-                            description: "Model ID must be provided",
-                            module: "TranscriptionService",
-                            method: "transcribe"
-                        }))
-                    );
-
-                    // Get provider name from model service
-                    const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new TranscriptionProviderError({
-                            description: "Failed to get provider name for model",
-                            module: "TranscriptionService",
-                            method: "transcribe",
-                            cause: error
-                        }))
-                    );
-                    // Get provider client
-                    const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new TranscriptionProviderError({
-                            description: "Failed to get provider client",
-                            module: "TranscriptionService",
-                            method: "transcribe",
-                            cause: error
-                        }))
-                    );
-
-                    yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
-                    yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
-
-                    // Get model from the provider
-                    const models = yield* providerClient.getModels().pipe(
-                        Effect.provide(ModelService.Default)
-                    );
-                    const matchingModel = models.find((m) => m.modelId === modelId);
-                    if (!matchingModel) {
-                        return yield* Effect.fail(new TranscriptionModelError({
-                            description: `Model ${modelId} not found`,
-                            module: "TranscriptionService",
-                            method: "transcribe"
-                        }));
-                    }
-                    const model = matchingModel;
-
-                    // Transcribe the audio using the provider's transcribe method
-                    let inputBuffer: ArrayBuffer;
-                    if (typeof options.audioData === "string") {
-                        inputBuffer = Buffer.from(options.audioData, "base64").buffer;
-                    } else if (options.audioData instanceof Uint8Array) {
-                        // Ensure we get a true ArrayBuffer, not SharedArrayBuffer
-                        if (options.audioData.buffer instanceof ArrayBuffer) {
-                            inputBuffer = options.audioData.buffer.slice(
-                                options.audioData.byteOffset,
-                                options.audioData.byteOffset + options.audioData.byteLength
-                            );
-                        } else {
-                            inputBuffer = new Uint8Array(options.audioData).buffer;
+            return {
+                transcribe: (options: TranscriptionOptions) =>
+                    Effect.gen(function* () {
+                        // Validate audio data
+                        if (!options.audioData) {
+                            return yield* Effect.fail(new TranscriptionAudioError({
+                                description: "Audio data is required",
+                                module: "TranscriptionService",
+                                method: "transcribe"
+                            }));
                         }
-                    } else {
-                        inputBuffer = options.audioData as ArrayBuffer;
-                    }
 
-                    const response: EffectiveResponse<TranscriptionResult> = yield* Effect.tryPromise({
-                        try: async () => {
-                            return await Effect.runPromise(providerClient.transcribe(
-                                inputBuffer,
-                                {
-                                    modelId: modelId,
-                                    ...options.parameters
-                                }
-                            ));
-                        },
-                        catch: (error) => new TranscriptionError({
-                            description: "Transcription failed",
-                            module: "TranscriptionService",
-                            method: "transcribe",
-                            cause: error
-                        })
-                    });
+                        // Get model ID or fail
+                        const modelId = yield* Effect.fromNullable(options.modelId).pipe(
+                            Effect.mapError(() => new TranscriptionModelError({
+                                description: "Model ID must be provided",
+                                module: "TranscriptionService",
+                                method: "transcribe"
+                            }))
+                        );
 
-                    // Return the result directly
-                    return {
-                        data: response.data,
-                        metadata: response.metadata
-                    };
-                }).pipe(
-                    Effect.withSpan("TranscriptionService.transcribe")
-                )
-        };
-    })
-}) { }
+                        // Get provider name from model service
+                        const providerName = yield* modelService.getProviderName(modelId).pipe(
+                            Effect.mapError((error) => new TranscriptionProviderError({
+                                description: "Failed to get provider name for model",
+                                module: "TranscriptionService",
+                                method: "transcribe",
+                                cause: error
+                            }))
+                        );
+                        // Get provider client
+                        const providerClient = yield* providerService.getProviderClient(providerName).pipe(
+                            Effect.mapError((error) => new TranscriptionProviderError({
+                                description: "Failed to get provider client",
+                                module: "TranscriptionService",
+                                method: "transcribe",
+                                cause: error
+                            }))
+                        );
 
-/**
- * Default Layer for TranscriptionService
- */
-export const TranscriptionServiceLive = Layer.effect(
-    TranscriptionService,
-    TranscriptionService
-); 
+                        yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
+                        yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
+
+                        // Get model from the provider
+                        const models = yield* providerClient.getModels().pipe(
+                            Effect.provide(ModelService.Default)
+                        );
+                        const matchingModel = models.find((m) => m.modelId === modelId);
+                        if (!matchingModel) {
+                            return yield* Effect.fail(new TranscriptionModelError({
+                                description: `Model ${modelId} not found`,
+                                module: "TranscriptionService",
+                                method: "transcribe"
+                            }));
+                        }
+                        const model = matchingModel;
+
+                        // Transcribe the audio using the provider's transcribe method
+                        let inputBuffer: ArrayBuffer;
+                        if (typeof options.audioData === "string") {
+                            inputBuffer = Buffer.from(options.audioData, "base64").buffer;
+                        } else if (options.audioData instanceof Uint8Array) {
+                            // Ensure we get a true ArrayBuffer, not SharedArrayBuffer
+                            if (options.audioData.buffer instanceof ArrayBuffer) {
+                                inputBuffer = options.audioData.buffer.slice(
+                                    options.audioData.byteOffset,
+                                    options.audioData.byteOffset + options.audioData.byteLength
+                                );
+                            } else {
+                                inputBuffer = new Uint8Array(options.audioData).buffer;
+                            }
+                        } else {
+                            inputBuffer = options.audioData as ArrayBuffer;
+                        }
+
+                        const response: EffectiveResponse<TranscriptionResult> = yield* Effect.tryPromise({
+                            try: async () => {
+                                return await Effect.runPromise(providerClient.transcribe(
+                                    inputBuffer,
+                                    {
+                                        modelId: modelId,
+                                        ...options.parameters
+                                    }
+                                ));
+                            },
+                            catch: (error) => new TranscriptionError({
+                                description: "Transcription failed",
+                                module: "TranscriptionService",
+                                method: "transcribe",
+                                cause: error
+                            })
+                        });
+
+                        // Return the result directly
+                        return {
+                            data: response.data,
+                            metadata: response.metadata
+                        };
+                    }).pipe(
+                        Effect.withSpan("TranscriptionService.transcribe")
+                    )
+            };
+        }),
+        dependencies: [ModelService.Default, ProviderService.Default]
+    }
+) { }

@@ -18,6 +18,7 @@ export class Prompt extends S.Class<Prompt>("Prompt")({
 // Export this directly - this is what PromptConfigLiveLayer will validate against
 export class PromptFile extends S.Class<PromptFile>("PromptFile")({
     name: Name,
+    version: S.String, // Changed to required String
     prompts: S.Array(Prompt).pipe(S.minItems(1)),
     metadata: S.optional(Metadata),
     description: S.optional(Description)

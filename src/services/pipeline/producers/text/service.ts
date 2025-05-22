@@ -12,7 +12,9 @@ import { TestHarnessApi } from "@/services/core/test-harness/api.js";
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "@/services/pipeline/producers/text/errors.js";
 import type { TextGenerationOptions } from "@/services/pipeline/producers/text/types.js";
-import { EffectiveInput, EffectiveMessage, EffectiveUsage } from "@/types.js";
+import type { GenerateBaseResult as SharedApiGenerateBaseResult } from "@/services/pipeline/types.js"; // Added alias
+import type { GenerateTextResult as ProviderGenerateTextResult } from "@/services/ai/provider/types.js"; // Added alias
+import { EffectiveInput, EffectiveMessage, EffectiveUsage, EffectiveResponse } from "@/types.js"; // Added EffectiveResponse
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
 import * as Option from "effect/Option";
@@ -167,8 +169,42 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
             }))
           );
 
-          // Return the Effect directly
-          return yield* generationEffect;
+          // Transform the provider's GenerateTextResult to the API's EffectiveResponse<GenerateBaseResult>
+          return yield* generationEffect.pipe(
+            // Assuming providerOutput is EffectiveResponse<ProviderGenerateTextResult> based on lint errors
+            Effect.map((providerWrappedOutput: EffectiveResponse<ProviderGenerateTextResult>) => {
+              const providerOutputData = providerWrappedOutput.data; // This is ProviderGenerateTextResult
+
+              // 1. Create the 'data' part for the final EffectiveResponse, this is SharedApiGenerateBaseResult
+              const sharedApiData: SharedApiGenerateBaseResult = {
+                output: providerOutputData.text,
+                usage: providerOutputData.usage, // providerOutputData has usage from its GenerateBaseResult parent
+                finishReason: providerOutputData.finishReason as SharedApiGenerateBaseResult['finishReason'],
+                providerMetadata: providerOutputData.providerMetadata as Record<string, unknown> | undefined // Cast added here
+              };
+
+              // 2. Create the final EffectiveResponse<SharedApiGenerateBaseResult>
+              const finalResponse: EffectiveResponse<SharedApiGenerateBaseResult> = {
+                data: sharedApiData,
+                // Populate metadata for the outer EffectiveResponse from the provider's wrapped response or providerOutputData
+                metadata: {
+                  // providerWrappedOutput.metadata might be one source if it exists and is structured
+                  // providerOutputData (ProviderGenerateTextResult) also has id, model, timestamp from its base
+                  id: providerOutputData.id,
+                  model: providerOutputData.model,
+                  timestamp: providerOutputData.timestamp,
+                  providerName: providerName // Captured earlier
+                },
+                // Populate top-level fields of the final EffectiveResponse
+                // These might be sourced from providerWrappedOutput or sharedApiData
+                usage: providerWrappedOutput.usage ?? sharedApiData.usage, // Prefer top-level from wrapper if available
+                finishReason: (providerWrappedOutput.finishReason ?? sharedApiData.finishReason) as SharedApiGenerateBaseResult['finishReason'],
+                providerMetadata: (providerWrappedOutput.providerMetadata as Record<string, unknown> | undefined) ?? sharedApiData.providerMetadata
+                // messages: providerWrappedOutput.messages, // If applicable
+              };
+              return finalResponse;
+            })
+          );
 
         }).pipe(
           Effect.withSpan("TextService.generate")

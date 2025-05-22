@@ -1,4 +1,4 @@
-import type { GenerateTextResult } from "@/services/ai/provider/types.js";
+import type { GenerateBaseResult } from "@/services/pipeline/types.js";
 import { Effect, Either, Option } from "effect";
 import { Span } from "effect/Tracer";
 import { describe, expect, it } from "vitest";
@@ -44,8 +44,9 @@ describe("TextService with Test Harness", () => {
         });
 
         expect(result).toBeDefined();
-        expect((result.data as unknown as GenerateTextResult).text).toBeDefined();
-        expect(typeof (result.data as unknown as GenerateTextResult).text).toBe("string");
+        expect(result.data).toBeDefined(); // result.data is GenerateBaseResult
+        expect(result.data.output).toBeDefined();
+        expect(typeof result.data.output).toBe("string");
       }).pipe(
         Effect.provide(TextService.Default)
       )
@@ -62,8 +63,9 @@ describe("TextService with Test Harness", () => {
         });
 
         expect(result).toBeDefined();
-        expect((result.data as unknown as GenerateTextResult).text).toBeDefined();
-        expect(typeof (result.data as unknown as GenerateTextResult).text).toBe("string");
+        expect(result.data).toBeDefined(); // result.data is GenerateBaseResult
+        expect(result.data.output).toBeDefined();
+        expect(typeof result.data.output).toBe("string");
       }).pipe(
         Effect.provide(TextService.Default)
       )

@@ -77,6 +77,6 @@ export class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
                 })
             };
         }),
-        dependencies: [ModelService, ProviderService]
+        dependencies: [ModelService.Default, ProviderService.Default]
     }
 ) { }

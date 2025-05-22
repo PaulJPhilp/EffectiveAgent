@@ -5,7 +5,7 @@ import { EffectiveResponse } from "@/types.js";
 import { Effect } from "effect";
 import { ModelServiceApi } from "../model/api.js";
 import { ModelService } from "../model/service.js";
-import { ProviderConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "./errors.js";
+import { ProviderServiceConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "./errors.js";
 import { ProvidersType } from "./schema.js";
 import { GenerateBaseResult } from "./types.js";
 
@@ -18,10 +18,10 @@ import { GenerateBaseResult } from "./types.js";
 export const loadConfigString = (
   configService: ConfigurationServiceApi,
   method: string
-): Effect.Effect<string, ProviderConfigError> => {
-  return configService.loadConfig<string>({ filePath: "providersConfigJsonString", schema: undefined as any }).pipe(
+): Effect.Effect<string, ProviderServiceConfigError> => {
+  return configService.loadConfig({ filePath: "providersConfigJsonString", schema: undefined as any }).pipe(Effect.map(config => String(config)),
     Effect.mapError((cause) =>
-      new ProviderConfigError({
+      new ProviderServiceConfigError({
         description: "Failed to load provider config string",
         module: "ProviderService",
         method,
@@ -40,11 +40,11 @@ export const loadConfigString = (
 export const parseConfigJson = (
   rawConfig: string,
   method: string
-): Effect.Effect<any, ProviderConfigError> => {
+): Effect.Effect<any, ProviderServiceConfigError> => {
   return Effect.try({
     try: () => JSON.parse(rawConfig),
-    catch: (error): ProviderConfigError =>
-      new ProviderConfigError({
+    catch: (error): ProviderServiceConfigError =>
+      new ProviderServiceConfigError({
         description: "Failed to parse provider config",
         module: "ProviderService",
         method,
@@ -91,7 +91,7 @@ export function getProviderName(params: {
   modelId: string;
   logger: LoggingServiceApi;
   method: string;
-}): Effect.Effect<string, ProviderConfigError> {
+}): Effect.Effect<string, ProviderServiceConfigError> {
   const { modelService, modelId, logger, method } = params;
   return modelService.getProviderName(modelId).pipe(
     Effect.tapError((err: unknown) =>
@@ -101,7 +101,7 @@ export function getProviderName(params: {
     ),
     Effect.mapError(
       (err: unknown) =>
-        new ProviderConfigError({
+        new ProviderServiceConfigError({
           description: `Provider lookup failed for modelId ${modelId}: ${err instanceof Error ? err.message : String(err)}`,
           module: "ProviderClient",
           method
@@ -119,7 +119,7 @@ export function getProviderName(params: {
 export const validateModelId = ({ options, method }: {
   options: { modelId?: string },
   method: string,
-}): Effect.Effect<string, ProviderConfigError, ModelServiceApi> => Effect.gen(function* () {
+}): Effect.Effect<string, ProviderServiceConfigError, ModelServiceApi> => Effect.gen(function* () {
   if (!options.modelId) {
     yield* Effect.logDebug(`[ProviderClient:${method}] No modelId provided, using default model`);
     const defaultId = yield* Effect.mapError(
@@ -127,7 +127,7 @@ export const validateModelId = ({ options, method }: {
         const modelService = yield* ModelService;
         return yield* modelService.getDefaultModelId();
       }),
-      (err: unknown) => new ProviderConfigError({
+      (err: unknown) => new ProviderServiceConfigError({
         description: `Failed to get default model ID: ${err instanceof Error ? err.message : String(err)}`,
         module: "ProviderClient",
         method
@@ -142,7 +142,7 @@ export const validateModelId = ({ options, method }: {
       const modelService = yield* ModelService;
       return yield* modelService.exists(modelId);
     }),
-    (err: unknown) => new ProviderConfigError({
+    (err: unknown) => new ProviderServiceConfigError({
       description: `Failed to check if model ${modelId} exists: ${err instanceof Error ? err.message : String(err)}`,
       module: "ProviderClient",
       method
@@ -150,7 +150,7 @@ export const validateModelId = ({ options, method }: {
   );
 
   if (!exists) {
-    return yield* Effect.fail(new ProviderConfigError({
+    return yield* Effect.fail(new ProviderServiceConfigError({
       description: `Model ${modelId} not found`,
       module: "ProviderClient",
       method
@@ -161,21 +161,21 @@ export const validateModelId = ({ options, method }: {
 });
 
 /**
- * Converts an unknown error to a ProviderOperationError or ProviderConfigError.
+ * Converts an unknown error to a ProviderOperationError or ProviderServiceConfigError.
  * @param operation - The operation being performed (e.g., 'generateText')
  * @param err - The unknown error thrown
  * @param providerName - Optional provider name for context
- * @returns ProviderOperationError | ProviderConfigError
+ * @returns ProviderOperationError | ProviderServiceConfigError
  */
 /**
- * Converts an unknown error to a ProviderOperationError or ProviderConfigError (RO-RO style).
+ * Converts an unknown error to a ProviderOperationError or ProviderServiceConfigError (RO-RO style).
  * @param params - Object containing operation, err, and providerName
- * @returns ProviderOperationError | ProviderConfigError
+ * @returns ProviderOperationError | ProviderServiceConfigError
  */
 /**
- * Converts an unknown error to a ProviderOperationError or ProviderConfigError (RO-RO style).
+ * Converts an unknown error to a ProviderOperationError or ProviderServiceConfigError (RO-RO style).
  * @param params - Object containing operation, err, providerName, module, and method
- * @returns ProviderOperationError | ProviderConfigError
+ * @returns ProviderOperationError | ProviderServiceConfigError
  */
 export function handleProviderError(params: {
   operation: string;
@@ -183,10 +183,10 @@ export function handleProviderError(params: {
   providerName?: string;
   module: string;
   method: string;
-}): ProviderOperationError | ProviderConfigError {
+}): ProviderOperationError | ProviderServiceConfigError {
 
   const { operation, err, providerName, module, method } = params;
-  if (err instanceof ProviderOperationError || err instanceof ProviderConfigError) {
+  if (err instanceof ProviderOperationError || err instanceof ProviderServiceConfigError) {
     return err;
   }
   const message: string = err instanceof Error ? err.message : String(err);
