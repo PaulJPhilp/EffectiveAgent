@@ -1,0 +1,15 @@
+{"timestamp":"2025-05-23T18:10:36.315Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T18:10:36.851Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T18:10:36.960Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T18:19:36.932Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T18:19:37.472Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T18:19:37.581Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T18:21:40.235Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T18:21:40.794Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T18:21:40.906Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T18:26:12.687Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T18:26:15.257Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T18:26:15.781Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T18:26:55.196Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T18:26:57.760Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T18:26:58.276Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}

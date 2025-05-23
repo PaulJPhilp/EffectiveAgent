@@ -1,0 +1,135 @@
+{"timestamp":"2025-05-23T17:26:02.332Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T17:26:02.334Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T17:26:02.335Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T17:26:02.335Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T17:26:02.337Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T17:26:02.342Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T17:26:02.344Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T17:26:02.348Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:26:02.352Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T17:26:02.354Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T17:26:02.356Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T17:26:02.358Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:194:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:196:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:197:26)"}}
+{"timestamp":"2025-05-23T17:26:02.361Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:26:02.362Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T17:26:02.363Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T17:28:43.282Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T17:28:43.283Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T17:28:43.283Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T17:28:43.283Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T17:28:43.285Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T17:28:43.287Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T17:28:43.289Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T17:28:43.294Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:28:43.300Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T17:28:43.303Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T17:28:43.304Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T17:28:43.305Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:197:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:199:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:200:26)"}}
+{"timestamp":"2025-05-23T17:28:43.306Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:28:43.308Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T17:28:43.309Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T17:32:56.476Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T17:32:56.476Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T17:32:56.477Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T17:32:56.477Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T17:32:56.479Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T17:32:56.481Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T17:32:56.485Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T17:32:56.592Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:32:56.594Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T17:32:56.596Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T17:32:56.598Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T17:32:56.599Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:201:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:203:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:204:26)"}}
+{"timestamp":"2025-05-23T17:32:56.600Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:32:56.601Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T17:32:56.601Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T17:33:30.836Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T17:33:30.837Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T17:33:30.837Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T17:33:30.838Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T17:33:30.840Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T17:33:30.842Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T17:33:30.846Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T17:33:30.988Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:33:31.003Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T17:33:31.006Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T17:33:31.019Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T17:33:31.020Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:211:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:213:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:214:26)"}}
+{"timestamp":"2025-05-23T17:33:31.021Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:33:31.022Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T17:33:31.022Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T17:34:58.469Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T17:34:58.471Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T17:34:58.475Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T17:34:58.475Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T17:34:58.479Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T17:34:58.482Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T17:34:58.484Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T17:34:58.997Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:34:59.003Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T17:34:59.005Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T17:34:59.013Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T17:34:59.017Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:218:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:220:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:221:26)"}}
+{"timestamp":"2025-05-23T17:34:59.019Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:34:59.022Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T17:34:59.022Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T17:53:35.571Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T17:53:35.572Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T17:53:35.573Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T17:53:35.573Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T17:53:35.577Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T17:53:35.580Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T17:53:35.584Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T17:53:36.091Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:53:36.094Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T17:53:36.097Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T17:53:36.099Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T17:53:36.101Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:221:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:223:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:224:26)"}}
+{"timestamp":"2025-05-23T17:53:36.102Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:53:36.104Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T17:53:36.104Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T17:57:51.893Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T17:57:51.905Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T17:57:51.907Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T17:57:51.908Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T17:57:51.938Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T17:57:51.965Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T17:57:51.988Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T17:57:52.505Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:57:52.510Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T17:57:52.518Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T17:57:52.521Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T17:57:52.523Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:244:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:246:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:247:26)"}}
+{"timestamp":"2025-05-23T17:57:52.525Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T17:57:52.527Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T17:57:52.528Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T18:03:24.973Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T18:03:24.974Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T18:03:24.974Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T18:03:24.974Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T18:03:24.978Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T18:03:24.983Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T18:03:24.986Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T18:03:24.988Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T18:03:24.990Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T18:03:24.992Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T18:03:24.995Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T18:03:24.997Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:258:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:260:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:261:26)"}}
+{"timestamp":"2025-05-23T18:03:24.998Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T18:03:25.000Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T18:03:25.000Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-23T18:05:43.842Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"debug message"}
+{"timestamp":"2025-05-23T18:05:43.843Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T18:05:43.855Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
+{"timestamp":"2025-05-23T18:05:43.856Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error message","data":{"message":"test error"}}
+{"timestamp":"2025-05-23T18:05:43.980Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T18:05:44.089Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with cause","data":{"message":"Test error"}}
+{"timestamp":"2025-05-23T18:05:44.193Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T18:05:44.200Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"error with data","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T18:05:44.202Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}},"metadata":{"timestamp":"2025-05-02T00:33:30-04:00","source":"test"}}}
+{"timestamp":"2025-05-23T18:05:44.307Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":"Array data log","data":{"items":[1,2,3],"tags":["test","logging"],"nested":[{"id":1},{"id":2}]}}
+{"timestamp":"2025-05-23T18:05:44.482Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Custom error log","data":{"message":"Custom error occurred"}}
+{"timestamp":"2025-05-23T18:05:44.545Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error cause","data":{"cause":"Error: Inner error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:282:24)\nError: Parallel error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:284:26)\nError: Final error\n    at <anonymous> (/Users/paul/Projects/EffectiveAgent/src/services/core/logging/__tests__/service.test.ts:285:26)"}}
+{"timestamp":"2025-05-23T18:05:44.560Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
+{"timestamp":"2025-05-23T18:05:44.605Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T18:05:44.611Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}

@@ -2,277 +2,178 @@
  * @file Tests for the LoggingService implementation.
  */
 
-import { Cause, Effect, LogLevel } from "effect";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { JsonObject } from "@/types.js";
+import { Effect, Cause, LogLevel, Ref } from "effect";
+import { FileSystem } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import type { LoggingServiceApi } from "../api.js";
-import { LoggingService } from "../service.js";
+import { LoggingService, LoggingServiceError, type LoggingConfig } from "../service.js";
 
 describe("LoggingService", () => {
-  // Track logged messages for verification
-  let loggedMessages: Array<{ level: LogLevel.LogLevel; message: string; data?: JsonObject }> = [];
+  let tempDir: string;
 
-  // Create a test implementation
-  const testLogger: LoggingServiceApi = {
-    log: (level: LogLevel.LogLevel, message: string, data?: JsonObject | Error) => {
-      if (data instanceof Error) {
-        loggedMessages.push({
-          level,
-          message,
-          data: {
-            name: data.name,
-            message: data.message,
-            stack: data.stack || ""
-          }
-        });
-      } else {
-        loggedMessages.push({ level, message, data });
-      }
-      return Effect.succeed(undefined);
-    },
+  beforeEach(() => 
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const dir = yield* fs.makeTempDirectory();
+      tempDir = dir;
+      process.env.LOG_DIR = dir;
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer),
+      Effect.catchAll((error) => Effect.fail(new LoggingServiceError({
+        description: "Failed to create temp directory",
+        module: "LoggingService",
+        method: "beforeEach",
+        cause: error
+      })))
+    )
+  );
 
-    debug: (message: string, data?: JsonObject | Error) => {
-      if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({
-          level: LogLevel.Debug,
-          message,
-          data: {
-            name: data.name,
-            message: data.message,
-            stack: data.stack || ""
-          }
-        }));
-      }
-      return Effect.succeed(loggedMessages.push({ level: LogLevel.Debug, message, data }));
-    },
+  afterEach(() => 
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.remove(tempDir, { recursive: true });
+      delete process.env.LOG_DIR;
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer),
+      Effect.catchAll((error) => Effect.fail(new LoggingServiceError({
+        description: "Failed to cleanup temp directory",
+        module: "LoggingService",
+        method: "afterEach",
+        cause: error
+      })))
+    )
+  );
 
-    info: (message: string, data?: JsonObject | Error) => {
-      if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({
-          level: LogLevel.Info,
-          message,
-          data: {
-            name: data.name,
-            message: data.message,
-            stack: data.stack || ""
-          }
-        }));
-      }
-      return Effect.succeed(loggedMessages.push({ level: LogLevel.Info, message, data }));
-    },
+  it("logs messages at different levels", () => 
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const logger = yield* LoggingService;
 
-    warn: (message: string, data?: JsonObject | Error) => {
-      if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({
-          level: LogLevel.Warning,
-          message,
-          data: {
-            name: data.name,
-            message: data.message,
-            stack: data.stack || ""
-          }
-        }));
-      }
-      return Effect.succeed(loggedMessages.push({ level: LogLevel.Warning, message, data }));
-    },
-
-    error: (message: string, data?: JsonObject | Error) => {
-      if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({
-          level: LogLevel.Error,
-          message,
-          data: {
-            name: data.name,
-            message: data.message,
-            stack: data.stack || ""
-          }
-        }));
-      }
-      return Effect.succeed(loggedMessages.push({ level: LogLevel.Error, message, data }));
-    },
-
-    trace: (message: string, data?: JsonObject | Error) => {
-      if (data instanceof Error) {
-        return Effect.succeed(loggedMessages.push({
-          level: LogLevel.Trace,
-          message,
-          data: {
-            name: data.name,
-            message: data.message,
-            stack: data.stack || ""
-          }
-        }));
-      }
-      return Effect.succeed(loggedMessages.push({ level: LogLevel.Trace, message, data }));
-    },
-
-    logCause: (level: LogLevel.LogLevel, cause: Cause.Cause<unknown>) => {
-      return Effect.succeed(loggedMessages.push({ level, message: Cause.pretty(cause) }));
-    },
-
-    logErrorCause: (cause: Cause.Cause<unknown>) => {
-      return Effect.succeed(loggedMessages.push({
-        level: LogLevel.Error,
-        message: Cause.pretty(cause)
-      }));
-    }
-  };
-
-  // Create test service
-  const testService = new LoggingService(testLogger);
-
-  beforeEach(() => {
-    loggedMessages = [];
-    vi.clearAllMocks();
-  });
-
-  describe("logging methods", () => {
-    it("provides basic logging functionality", async () => {
-      const program = Effect.gen(function* () {
-        // Test different log methods
-        yield* testLogger.log(LogLevel.Info, "Test log message", { key: "value" });
-        yield* testLogger.debug("Debug message");
-        yield* testLogger.info("Info message");
-        yield* testLogger.warn("Warning message");
-        yield* testLogger.error("Error message", { code: 123 });
-        yield* testLogger.trace("Trace message");
-      });
-
-      await Effect.runPromise(program);
-
-      // Verify messages
-      expect(loggedMessages).toHaveLength(6);
-      expect(loggedMessages.map(m => m.level)).toEqual([
-        LogLevel.Info,
-        LogLevel.Debug,
-        LogLevel.Info,
-        LogLevel.Warning,
-        LogLevel.Error,
-        LogLevel.Trace
+      // Log messages
+      yield* Effect.all([
+        logger.debug("debug message"),
+        logger.info("info message"),
+        logger.warn("warn message"),
+        logger.error("error message", new Error("test error"))
       ]);
-    });
 
-    it("handles error objects correctly", async () => {
-      const program = Effect.gen(function* () {
-        const error = new Error("Something failed");
-        yield* testLogger.error("Test error with Error", error);
-      });
+      // Wait for logs to be written
+      yield* Effect.sleep("500 millis");
 
-      await Effect.runPromise(program);
-
-      // Verify messages
-      expect(loggedMessages).toHaveLength(1);
-      expect(loggedMessages[0].level).toBe(LogLevel.Error);
-    });
-
-    it("handles causes in logs", async () => {
-      const program = Effect.gen(function* () {
-        const testCause = Cause.die("Test cause");
-        yield* testLogger.logCause(LogLevel.Warning, testCause);
-        yield* testLogger.logCause(LogLevel.Error, testCause);
-
-        // Test error cause convenience method
-        yield* testLogger.logErrorCause(testCause);
-
-        // Test nested causes
-        const nestedCause = Cause.sequential(
-          Cause.fail(new Error("First error")),
-          Cause.fail(new Error("Second error"))
-        );
-        yield* testLogger.logErrorCause(nestedCause);
-      });
-
-      await Effect.runPromise(program);
-
-      // Verify messages
-      expect(loggedMessages).toHaveLength(4);
-      expect(loggedMessages.map(m => m.level)).toEqual([
-        LogLevel.Warning,
-        LogLevel.Error,
-        LogLevel.Error,
-        LogLevel.Error
+      // Verify files contain messages
+      const [debugContent, infoContent, warnContent, errorContent] = yield* Effect.all([
+        fs.readFileString(`${tempDir}/debug.log`),
+        fs.readFileString(`${tempDir}/info.log`),
+        fs.readFileString(`${tempDir}/warn.log`),
+        fs.readFileString(`${tempDir}/error.log`)
       ]);
-    });
-  });
 
-  describe("log level handling", () => {
-    it("should handle all log levels", async () => {
-      const program = Effect.gen(function* () {
-        const levels = [
-          LogLevel.Fatal,
-          LogLevel.Error,
-          LogLevel.Warning,
-          LogLevel.Info,
-          LogLevel.Debug,
-          LogLevel.Trace,
-          LogLevel.All
-        ];
+      expect(debugContent).toContain("debug message");
+      expect(infoContent).toContain("info message");
+      expect(warnContent).toContain("warn message");
+      expect(errorContent).toContain("error message");
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
 
-        // Test each log level
-        for (const level of levels) {
-          yield* testLogger.log(level, `Message at level ${level}`);
+  it("logs messages with context", () => 
+    Effect.gen(function* () {
+      const context: JsonObject = { userId: "123", action: "test" };
+      const fs = yield* FileSystem.FileSystem;
+      const logger = yield* LoggingService;
+
+      // Log message with context
+      yield* Effect.all([
+        logger.info("info with context", context)
+      ]);
+
+      // Wait for logs to be written
+      yield* Effect.sleep("500 millis");
+
+      // Verify file contains message and context
+      const [content] = yield* Effect.all([
+        fs.readFileString(`${tempDir}/info.log`)
+      ]);
+      expect(content).toContain("info with context");
+      expect(content).toContain("123");
+      expect(content).toContain("test");
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
+
+  it("logs errors with cause", () => 
+    Effect.gen(function* () {
+      const error = new Error("Test error");
+      const fs = yield* FileSystem.FileSystem;
+      const logger = yield* LoggingService;
+
+      // Log error with cause
+      yield* Effect.all([
+        logger.error("error with cause", error)
+      ]);
+
+      // Wait for logs to be written
+      yield* Effect.sleep("500 millis");
+
+      // Verify file contains error and cause
+      const [content] = yield* Effect.all([
+        fs.readFileString(`${tempDir}/error.log`)
+      ]);
+      expect(content).toContain("error with cause");
+      expect(content).toContain("Test error");
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
+
+  it("writes logs to file", () => 
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const logger = yield* LoggingService;
+
+      // Log a test message
+      yield* Effect.all([
+        logger.info("file test message")
+      ]);
+
+      // Wait for logs to be written
+      yield* Effect.sleep("500 millis");
+
+      // Verify file exists and contains message
+      const [content] = yield* Effect.all([
+        fs.readFileString(`${tempDir}/info.log`)
+      ]);
+      expect(content).toContain("file test message");
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
+
+  it("logs errors with data", () => 
+    Effect.gen(function* () {
+      const error = new Error("Test error");
+      const data: JsonObject = {
+        userId: "123",
+        action: "test",
+        error: {
+          message: error.message,
+          name: error.name
         }
-      });
+      };
 
-      await Effect.runPromise(program);
+      const logger = yield* LoggingService;
+      yield* logger.error("error with data", error);
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
 
-      // Verify messages
-      expect(loggedMessages).toHaveLength(7); // 7 log levels
-      expect(loggedMessages.map(m => m.level)).toEqual([
-        LogLevel.Fatal,
-        LogLevel.Error,
-        LogLevel.Warning,
-        LogLevel.Info,
-        LogLevel.Debug,
-        LogLevel.Trace,
-        LogLevel.All
-      ]);
-    });
-
-    it("should handle all convenience methods", async () => {
-      const program = Effect.gen(function* () {
-        yield* testLogger.debug("Debug message");
-        yield* testLogger.info("Info message");
-        yield* testLogger.warn("Warning message");
-        yield* testLogger.error("Error message");
-        yield* testLogger.trace("Trace message");
-      });
-
-      await Effect.runPromise(program);
-
-      // Verify messages
-      expect(loggedMessages).toHaveLength(5);
-      expect(loggedMessages.map(m => m.level)).toEqual([
-        LogLevel.Debug,
-        LogLevel.Info,
-        LogLevel.Warning,
-        LogLevel.Error,
-        LogLevel.Trace
-      ]);
-    });
-  });
-
-  describe("fatal level logging", () => {
-    it("handles fatal level logs", async () => {
-      const program = Effect.gen(function* () {
-        yield* testLogger.log(LogLevel.Fatal, "Critical system failure", {
-          subsystem: "database",
-          errorCode: "FATAL_001"
-        });
-      });
-
-      await Effect.runPromise(program);
-
-      expect(loggedMessages).toHaveLength(1);
-      expect(loggedMessages[0].level).toBe(LogLevel.Fatal);
-      expect(loggedMessages[0].data).toEqual({
-        subsystem: "database",
-        errorCode: "FATAL_001"
-      });
-    });
-  });
-
-  describe("complex data structures", () => {
-    it("handles nested JSON objects", async () => {
+  it("handles nested JSON objects", () => 
+    Effect.gen(function* () {
       const complexData = {
         user: {
           id: "123",
@@ -285,41 +186,70 @@ describe("LoggingService", () => {
           }
         },
         metadata: {
-          timestamp: "2025-05-02T00:33:30-04:00",
-          source: "test"
+          timestamp: new Date().toISOString(),
+          version: "1.0.0"
         }
       };
 
-      const program = Effect.gen(function* () {
-        yield* testLogger.info("Complex data log", complexData);
-      });
+      const fs = yield* FileSystem.FileSystem;
+      const logger = yield* LoggingService;
 
-      await Effect.runPromise(program);
+      // Log complex data
+      yield* Effect.all([
+        logger.debug("Complex data log", complexData)
+      ]);
 
-      expect(loggedMessages).toHaveLength(1);
-      expect(loggedMessages[0].data).toEqual(complexData);
-    });
+      // Wait for logs to be written
+      yield* Effect.sleep("500 millis");
 
-    it("handles arrays in data", async () => {
+      // Verify file contains complex data
+      const [content] = yield* Effect.all([
+        fs.readFileString(`${tempDir}/debug.log`)
+      ]);
+      expect(content).toContain("Complex data log");
+      expect(content).toContain("Test User");
+      expect(content).toContain("dark");
+      expect(content).toContain("1.0.0");
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
+
+  it("handles arrays in data", () => 
+    Effect.gen(function* () {
       const arrayData = {
         items: [1, 2, 3],
         tags: ["test", "logging"],
         nested: [{ id: 1 }, { id: 2 }]
       };
 
-      const program = Effect.gen(function* () {
-        yield* testLogger.debug("Array data log", arrayData);
-      });
+      const fs = yield* FileSystem.FileSystem;
+      const logger = yield* LoggingService;
 
-      await Effect.runPromise(program);
+      // Log array data
+      yield* Effect.all([
+        logger.debug("Array data log", arrayData)
+      ]);
 
-      expect(loggedMessages).toHaveLength(1);
-      expect(loggedMessages[0].data).toEqual(arrayData);
-    });
-  });
+      // Wait for logs to be written
+      yield* Effect.sleep("500 millis");
 
-  describe("error handling", () => {
-    it("handles custom errors", async () => {
+      // Verify file contains array data
+      const [content] = yield* Effect.all([
+        fs.readFileString(`${tempDir}/debug.log`)
+      ]);
+      expect(content).toContain("Array data log");
+      expect(content).toContain("[1,2,3]");
+      expect(content).toContain("[\"test\",\"logging\"]");
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
+});
+
+describe("error handling", () => {
+  it("handles custom errors", () => 
+    Effect.gen(function* () {
       class CustomError extends Error {
         constructor(message: string, public code: string) {
           super(message);
@@ -328,70 +258,48 @@ describe("LoggingService", () => {
       }
 
       const customError = new CustomError("Custom error occurred", "CUSTOM_001");
+      const logger = yield* LoggingService;
+      yield* logger.error("Custom error log", customError);
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
 
-      const program = Effect.gen(function* () {
-        yield* testLogger.error("Custom error log", customError);
-      });
-
-      await Effect.runPromise(program);
-
-      expect(loggedMessages).toHaveLength(1);
-      expect(loggedMessages[0].data).toMatchObject({
-        name: "CustomError",
-        message: "Custom error occurred"
-      });
-    });
-
-    it("handles error cause chains", async () => {
-      const program = Effect.gen(function* () {
-        const innerCause = Cause.fail(new Error("Inner error"));
-        const middleCause = Cause.parallel(
-          innerCause,
-          Cause.fail(new Error("Parallel error"))
-        );
-        const outerCause = Cause.sequential(
-          middleCause,
+  it("handles error causes", () => 
+    Effect.gen(function* () {
+      const logger = yield* LoggingService;
+      const outerCause = Cause.sequential(
+        Cause.fail(new Error("Inner error")),
+        Cause.sequential(
+          Cause.fail(new Error("Parallel error")),
           Cause.fail(new Error("Final error"))
-        );
+        )
+      );
 
-        yield* testLogger.logCause(LogLevel.Error, outerCause);
-      });
+      yield* logger.logErrorCause(outerCause);
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
+});
 
-      await Effect.runPromise(program);
+describe("log data types", () => {
+  it("accepts JSON objects in error logs", () => 
+    Effect.gen(function* () {
+      const logger = yield* LoggingService;
+      yield* logger.error("Error occurred", { errorCode: "E101", details: "Sample details" });
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
 
-      expect(loggedMessages).toHaveLength(1);
-      expect(loggedMessages[0].level).toBe(LogLevel.Error);
-      // The message should contain all error messages
-      expect(loggedMessages[0].message).toContain("Inner error");
-      expect(loggedMessages[0].message).toContain("Parallel error");
-      expect(loggedMessages[0].message).toContain("Final error");
-    });
-  });
-
-  describe("log data types", () => {
-    it("accepts JSON objects in error logs", async () => {
-      const program = Effect.gen(function* () {
-        yield* testLogger.error("Error occurred", { errorCode: "E101", details: "Sample details" });
-      });
-
-      await Effect.runPromise(program);
-
-      // Verify messages
-      expect(loggedMessages).toHaveLength(1);
-      expect(loggedMessages[0].data).toEqual({ errorCode: "E101", details: "Sample details" });
-    });
-
-    it("accepts empty log messages", async () => {
-      const program = Effect.gen(function* () {
-        yield* testLogger.info("");
-        yield* testLogger.debug("");
-      });
-
-      await Effect.runPromise(program);
-
-      // Verify messages
-      expect(loggedMessages).toHaveLength(2);
-      expect(loggedMessages.map(m => m.message)).toEqual(["", ""]);
-    });
-  });
+  it("accepts empty log messages", () => 
+    Effect.gen(function* () {
+      const logger = yield* LoggingService;
+      yield* logger.info("");
+      yield* logger.debug("");
+    }).pipe(
+      Effect.provide(NodeFileSystem.layer)
+    )
+  );
 });

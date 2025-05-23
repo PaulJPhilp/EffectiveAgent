@@ -1,14 +1,22 @@
-import type { ImportedType } from "@core/repository/api.js";
-import { EntityNotFoundError, RepositoryError } from "@core/repository/errors.js";
-import { BaseEntity, FindOptions } from "@core/repository/types.js";
-import { Context, Effect, Layer, Option } from "effect";
+import { BaseEntity, JsonObject } from "@/types.js";
+import { Context, Effect, Layer } from "effect";
+import { RepositoryServiceApi } from "./api.js";
+import { RepositoryError } from "./errors.js";
+import { FindOptions } from "./types.js";
+
+/**
+ * Base entity type with required data property
+ */
+interface BaseEntityWithData<T extends JsonObject = JsonObject> extends BaseEntity {
+  readonly data: T;
+}
 
 /**
  * Repository service implementation using Context.Tag pattern.
  * This is an approved exception to the architectural rule against using Context.Tag,
  * as it's required for generic service implementation.
  */
-export const RepositoryService = <TEntity extends BaseEntity>() => {
+export const RepositoryService = <TEntity extends BaseEntityWithData>() => {
   const Tag = Context.GenericTag<"RepositoryService", RepositoryServiceApi<TEntity>>("RepositoryService");
 
   const make = () => Effect.gen(function* () {

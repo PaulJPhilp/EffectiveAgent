@@ -11,7 +11,7 @@ import {
     ProviderMissingCapabilityError,
     ProviderOperationError
 } from "./errors.js";
-import { ProviderToolError } from "./errors/tool.js";
+import { ProviderToolError } from "./errors.js";
 import { ProvidersType } from "./schema.js";
 import {
     EffectiveProviderApi,

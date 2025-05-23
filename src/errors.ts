@@ -12,6 +12,8 @@ export class BaseError extends Error {
   constructor(message: string) {
     super(message)
     this.name = this.constructor.name
+    // Ensure proper prototype chain for instanceof checks
+    Object.setPrototypeOf(this, BaseError.prototype)
   }
 }
 

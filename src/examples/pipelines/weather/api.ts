@@ -96,20 +96,3 @@ export interface WeatherServiceApi {
         input: WeatherPipelineInput
     ) => Effect.Effect<string, WeatherPipelineError>;
 }
-
-/**
- * WeatherService defines the service for accessing weather data
- */
-export class WeatherService extends Effect.Service<WeatherServiceApi>()
-    ("WeatherService", {
-        effect: Effect.gen(function* () {
-            return {
-                getWeather: () => Effect.fail(new WeatherPipelineError({ message: "Not implemented" })),
-                getWeatherSummary: () => Effect.fail(new WeatherPipelineError({ message: "Not implemented" }))
-            };
-        }),
-        dependencies: []
-    }) {}
-
-// For accessing WeatherService as a dependency
-export const WeatherServiceLive = WeatherService.Default;

@@ -1,322 +1,181 @@
 /**
- * @file Weather Service implementation.
+ * @file Weather Service implementation
  * @module ea/pipelines/weather/service
  */
 
-import type { LoggingServiceApi } from "@/services/core/logging/api.js";
-import { PlatformLogger } from "@effect/platform";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Layer, Logger } from "effect";
-import * as NodePath from "node:path";
-import {
-    WeatherData,
-    WeatherPipelineConfig,
-    WeatherPipelineInput,
-    WeatherServiceApi
-} from "./api.js";
+import { Effect, Logger, Option } from "effect";
 import { WeatherPipelineError } from "./errors.js";
-
-const defaultConfig: WeatherPipelineConfig = {
-    apiKey: "YOUR_API_KEY_HERE",
-    baseUrl: "https://api.example.com/weather",
-    defaultUnits: "celsius",
-    timeoutMs: 5000
-};
-
-function makeLogger(name: string) {
-    const fmtLogger = Logger.logfmtLogger
-    const fileLogger = fmtLogger.pipe(
-        PlatformLogger.toFile(NodePath.join(process.cwd(), "test-logs", `${name}.log`))
-    )
-    return Logger.replaceScoped(Logger.defaultLogger, fileLogger).pipe(Layer.provide(NodeFileSystem.layer))
-}
-
-function convertTemperature(temp: number, toUnit: "celsius" | "fahrenheit"): number {
-    if (toUnit === "celsius") {
-        return Math.round((temp - 32) * 5 / 9);
-    }
-    return Math.round((temp * 9 / 5) + 32);
-}
+import {
+    WeatherServiceApi,
+    WeatherPipelineInput,
+    WeatherData,
+    WeatherCondition,
+    defaultConfig
+} from "./api.js";
+import TextService from "@/services/pipeline/producers/text/service.js";
 
 /**
- * Concrete implementation of WeatherService following the Effect.Service pattern
+ * Implementation of the WeatherService for generating simulated weather data
  */
 export class WeatherService extends Effect.Service<WeatherServiceApi>()(
-    "WeatherService", {
-    effect: Effect.gen(function* () {
-        // Define the service object for self-reference
-        const self = {
-            getWeather: (input: WeatherPipelineInput): Effect.Effect<WeatherData, WeatherPipelineError> =>
-                Effect.gen(function* () {
-                    const logger = {
-                        info: async (..._args: unknown[]) => { },
-                        debug: async (..._args: unknown[]) => { },
-                        error: async (..._args: unknown[]) => { }
-                    };
-                    yield* Effect.tryPromise(() => logger.info("getWeather called", { input }));
-                    const units = input.units || defaultConfig.defaultUnits;
-                    yield* Effect.tryPromise(() => logger.debug("Units selected", { units }));
-                    const temperatureBase = units === "celsius" ? 20 : 68;
-                    const temperature = Math.round((temperatureBase + (Math.random() * 5 - 2.5)) * 10) / 10;
-                    const temperatureFeelsLike = Math.round((temperature - 1 + (Math.random() * 2 - 1)) * 10) / 10;
-                    const humidity = Math.round(55 + (Math.random() * 20 - 10));
-                    const windSpeed = Math.round((units === "celsius" ? 3 : 6.71) * (1 + (Math.random() * 0.4 - 0.2)) * 10) / 10;
-                    const windDirection = Math.round(Math.random() * 360);
+    "WeatherService",
+    {
+        effect: Effect.gen(function* () {
+            // Get text service for generating weather data
+            const textService = yield* TextService;
 
-                    yield* Effect.tryPromise(() => logger.debug("Generated weather values", {
-                        temperature,
-                        temperatureFeelsLike,
-                        humidity,
-                        windSpeed,
-                        windDirection
-                    }));
-
-                    const possibleConditions = [
-                        { condition: "Clear", description: "clear sky", icon: "01d" },
-                        { condition: "Clouds", description: "scattered clouds", icon: "03d" },
-                        { condition: "Rain", description: "light rain", icon: "10d" },
-                        { condition: "Snow", description: "light snow", icon: "13d" },
-                    ];
-                    const mainCondition = possibleConditions[Math.floor(Math.random() * possibleConditions.length)];
-
-                    yield* Effect.tryPromise(() => logger.debug("Selected main condition", { mainCondition }));
-
-                    if (!mainCondition) {
-                        yield* Effect.tryPromise(() => logger.error("No main condition generated", { input }));
-                        return yield* Effect.fail<WeatherPipelineError>(new WeatherPipelineError({
-                            message: "Failed to generate weather condition",
-                            cause: new Error("Invalid condition index")
-                        }));
-                    }
-
-                    const result: WeatherData = {
-                        location: {
-                            name: input.location,
-                            country: "Demo",
-                            coordinates: { latitude: 0, longitude: 0 },
-                        },
-                        temperature,
-                        temperatureFeelsLike,
-                        humidity,
-                        windSpeed,
-                        windDirection,
-                        conditions: [mainCondition],
-                        timestamp: new Date().toISOString(),
-                        units,
-                        forecast: input.includeForecast ? [{
-                            date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0] ?? "",
-                            highTemperature: Math.round((temperature + 3 + (Math.random() * 2)) * 10) / 10,
-                            lowTemperature: Math.round((temperature - 5 - (Math.random() * 3)) * 10) / 10,
-                            conditions: {
-                                condition: mainCondition.condition,
-                                description: mainCondition.description,
-                                icon: mainCondition.icon,
-                            }
-                        }] : undefined
-                    };
-                    yield* Effect.tryPromise(() => logger.info("Returning weather data", { result }));
-                    return result;
-                }).pipe(
-                    Effect.catchAll((error) =>
-                        Effect.fail<WeatherPipelineError>(
-                            error instanceof WeatherPipelineError
-                                ? error
-                                : new WeatherPipelineError({
-                                    message: `Failed to fetch weather data for ${input.location}`,
-                                    cause: error instanceof Error ? error : new Error(String(error))
-                                })
-                        )
-                    )
-                ),
-            getWeatherSummary: (input: WeatherPipelineInput): Effect.Effect<string, WeatherPipelineError> =>
-                Effect.gen(function* () {
-                    const logger = {
-                        info: async (..._args: unknown[]) => { },
-                        debug: async (..._args: unknown[]) => { },
-                        error: async (..._args: unknown[]) => { }
-                    };
-                    yield* Effect.tryPromise(() => logger.info("getWeatherSummary called", { input }));
-                    const data: WeatherData = yield* self.getWeather(input);
-                    yield* Effect.tryPromise(() => logger.debug("Weather data for summary", { data }));
-                    const mainCondition = data.conditions[0];
-                    if (!mainCondition) {
-                        yield* Effect.tryPromise(() => logger.error("No main condition in summary", { data }));
-                        return yield* Effect.fail<WeatherPipelineError>(new WeatherPipelineError({
-                            message: "Failed to generate weather condition",
-                            cause: new Error("Missing condition in weather data")
-                        }));
-                    }
-
-                    const tempUnit = data.units === "celsius" ? "°C" : "°F";
-                    let summary = `Current weather in ${data.location.name}: ${mainCondition.description}, ${data.temperature}${tempUnit}. Feels like ${data.temperatureFeelsLike}${tempUnit}.`;
-
-                    if (data.forecast?.[0]) {
-                        const tomorrow = data.forecast[0];
-                        summary += ` Tomorrow will be ${tomorrow.conditions.description}, with a high of ${tomorrow.highTemperature}${tempUnit} and a low of ${tomorrow.lowTemperature}${tempUnit}.`;
-                    }
-
-                    yield* Effect.tryPromise(() => logger.info("Returning weather summary", { summary }));
-                    return summary;
-                }).pipe(
-                    Effect.catchAll((error) =>
-                        Effect.fail<WeatherPipelineError>(
-                            error instanceof WeatherPipelineError
-                                ? error
-                                : new WeatherPipelineError({
-                                    message: `Failed to get weather summary for ${input.location}`,
-                                    cause: error instanceof Error ? error : new Error(String(error))
-                                })
-                        )
-                    )
-                ),
-        };
-        return self;
-    }),
-    dependencies: []
-}
-) { }
-
-export function makeWeatherService(logger: LoggingServiceApi) {
-    const service = {
-        getWeather: (input: WeatherPipelineInput): Effect.Effect<WeatherData, WeatherPipelineError> =>
-            Effect.gen(function* () {
-                // Use a local logger or remove if not available
-                // const logger = (yield* LoggingService).withContext({ service: "WeatherService" });
-                // For now, just use a no-op logger
-                const logger = {
-                    info: async (..._args: unknown[]) => { },
-                    debug: async (..._args: unknown[]) => { },
-                    error: async (..._args: unknown[]) => { }
-                };
-                yield* Effect.tryPromise(() => logger.info("getWeather called", { input: JSON.stringify(input) }));
-                const units = input.units || defaultConfig.defaultUnits;
-                yield* Effect.tryPromise(() => logger.debug("Units selected", { units }));
-                const temperatureBase = units === "celsius" ? 20 : 68;
-                const temperature = Math.round((temperatureBase + (Math.random() * 5 - 2.5)) * 10) / 10;
-                const temperatureFeelsLike = Math.round((temperature - 1 + (Math.random() * 2 - 1)) * 10) / 10;
-                const humidity = Math.round(55 + (Math.random() * 20 - 10));
-                const windSpeed = Math.round((units === "celsius" ? 3 : 6.71) * (1 + (Math.random() * 0.4 - 0.2)) * 10) / 10;
-                const windDirection = Math.round(Math.random() * 360);
-
-                yield* Effect.tryPromise(() => logger.debug("Generated weather values", {
-                    temperature,
-                    temperatureFeelsLike,
-                    humidity,
-                    windSpeed,
-                    windDirection
-                }));
-
-                const possibleConditions = [
-                    { condition: "Clear", description: "clear sky", icon: "01d" },
-                    { condition: "Clouds", description: "scattered clouds", icon: "03d" },
-                    { condition: "Rain", description: "light rain", icon: "10d" },
-                    { condition: "Snow", description: "light snow", icon: "13d" },
-                ];
-                const mainCondition = possibleConditions[Math.floor(Math.random() * possibleConditions.length)];
-
-                yield* Effect.tryPromise(() => logger.debug("Selected main condition", { mainCondition: JSON.stringify(mainCondition) }));
-
-                if (!mainCondition) {
-                    yield* Effect.tryPromise(() => logger.error("No main condition generated", { input: JSON.stringify(input) }));
-                    return yield* Effect.fail<WeatherPipelineError>(new WeatherPipelineError({
-                        message: "Failed to generate weather condition",
-                        cause: new Error("Invalid condition index")
-                    }));
-                }
-
-                const result: WeatherData = {
-                    location: {
-                        name: input.location,
-                        country: "Demo",
-                        coordinates: { latitude: 0, longitude: 0 },
-                    },
-                    temperature,
-                    temperatureFeelsLike,
-                    humidity,
-                    windSpeed,
-                    windDirection,
-                    conditions: [mainCondition],
-                    timestamp: new Date().toISOString(),
-                    units,
-                    forecast: input.includeForecast ? [{
-                        date: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString().split("T")[0] ?? "",
-                        highTemperature: Math.round((temperature + 3 + (Math.random() * 2)) * 10) / 10,
-                        lowTemperature: Math.round((temperature - 5 - (Math.random() * 3)) * 10) / 10,
-                        conditions: {
-                            condition: mainCondition.condition,
-                            description: mainCondition.description,
-                            icon: mainCondition.icon,
+            return {
+                getWeather: (input: WeatherPipelineInput): Effect.Effect<WeatherData, WeatherPipelineError, never> =>
+                    Effect.gen(function* () {
+                        // Log request details
+                        yield* Effect.logInfo("Weather request received", { 
+                            location: input.location,
+                            units: input.units,
+                            includeForecast: input.includeForecast 
+                        });
+                        
+                        // Validate input
+                        if (!input.location) {
+                            const error = new WeatherPipelineError({ 
+                                message: "Location is required" 
+                            });
+                            yield* Effect.logError("Weather request failed", { error });
+                            return yield* Effect.fail(error);
                         }
-                    }] : undefined
-                };
-                yield* Effect.tryPromise(() => logger.info("Returning weather data", { result: JSON.stringify(result) }));
-                return result;
-            }).pipe(
-                Effect.catchAll((error) =>
-                    Effect.fail<WeatherPipelineError>(
-                        error instanceof WeatherPipelineError
-                            ? error
-                            : new WeatherPipelineError({
-                                message: "Unexpected error in getWeather",
-                                cause: error instanceof Error ? error : new Error(String(error)),
-                            })
-                    )
-                )
-            ),
 
-        getWeatherSummary: (input: WeatherPipelineInput): Effect.Effect<string, WeatherPipelineError> =>
-            Effect.gen(function* () {
-                // Use a local logger or remove if not available
-                const logger = {
-                    info: async (..._args: unknown[]) => { },
-                    debug: async (..._args: unknown[]) => { },
-                    error: async (..._args: unknown[]) => { }
-                };
-                yield* Effect.tryPromise(() => logger.info("getWeatherSummary called", { input: JSON.stringify(input) }));
-                try {
-                    // Call getWeather directly
-                    const data: WeatherData = yield* (yield* Effect.succeed({
-                        getWeather: (input: WeatherPipelineInput) => Effect.fail<WeatherPipelineError>(new WeatherPipelineError({ message: "Not implemented" }))
-                    })).getWeather(input);
-                    yield* Effect.tryPromise(() => logger.debug("Weather data for summary", { data: JSON.stringify(data) }));
-                    const mainCondition = data.conditions?.[0]; // Use optional chaining
-                    if (!mainCondition) {
-                        yield* Effect.tryPromise(() => logger.error("No main condition in summary", { data: JSON.stringify(data) }));
-                        return yield* Effect.fail<WeatherPipelineError>(new WeatherPipelineError({
-                            message: "Failed to generate weather condition",
-                            cause: new Error("Missing condition in weather data")
-                        }));
-                    }
+                        yield* Effect.logDebug("Generating weather data", { input });
+                        
+                        const units = input.units || defaultConfig.defaultUnits;
+                        const prompt = `Generate current weather data for ${input.location} in ${units}. Include temperature, feels like temperature, humidity, wind speed, wind direction, and conditions. ${input.includeForecast ? 'Also include a 5-day forecast.' : ''}`;
 
-                    const tempUnit = data.units === "celsius" ? "°C" : "°F";
-                    let summary = `Current weather in ${data.location.name}: ${mainCondition.description}, ${data.temperature}${tempUnit}. Feels like ${data.temperatureFeelsLike}${tempUnit}.`;
+                        // Generate weather data using text service
+                        const result = yield* textService.generate({
+                            prompt,
+                            system: Option.some("You are a weather data provider. Return data in a structured format with numeric values and descriptions."),
+                            modelId: "gpt-4", // Use a capable model for structured data
+                            parameters: {
+                                temperature: 0.7,
+                                maxSteps: 500
+                            },
+                            span: undefined as any // TODO: Add proper span
+                        }).pipe(
+                            Effect.mapError(error => new WeatherPipelineError({
+                                message: "Failed to generate weather data",
+                                cause: error
+                            }))
+                        );
 
-                    if (data.forecast?.[0]) {
-                        const tomorrow = data.forecast[0];
-                        summary += ` Tomorrow will be ${tomorrow.conditions.description}, with a high of ${tomorrow.highTemperature}${tempUnit} and a low of ${tomorrow.lowTemperature}${tempUnit}.`;
-                    }
+                        // Parse the generated text into weather data
+                        try {
+                            const generatedData = JSON.parse(result.data.output);
+                            const mainCondition: WeatherCondition = {
+                                condition: generatedData.condition || "unknown",
+                                description: generatedData.description || "Weather conditions unavailable",
+                                icon: "sun" // TODO: Map conditions to icons
+                            };
 
-                    yield* Effect.tryPromise(() => logger.info("Returning weather summary", { summary }));
-                    return summary;
-                } catch (error) {
-                    yield* Effect.tryPromise(() => logger.error("Error in getWeatherSummary", { error: JSON.stringify(error), input: JSON.stringify(input) }));
-                    return yield* Effect.fail<WeatherPipelineError>(new WeatherPipelineError({
-                        message: `Failed to get weather summary for ${input.location}`,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    }));
-                }
-            }).pipe(
-                Effect.catchAll((error) =>
-                    Effect.fail<WeatherPipelineError>(
-                        error instanceof WeatherPipelineError
-                            ? error
-                            : new WeatherPipelineError({
-                                message: "Unexpected error in getWeatherSummary",
-                                cause: error instanceof Error ? error : new Error(String(error)),
-                            })
-                    )
-                )
-            ),
-    };
-    return service;
-}
+                            const forecast = input.includeForecast && generatedData.forecast
+                                ? generatedData.forecast.map((day: any) => ({
+                                    date: day.date,
+                                    highTemperature: day.highTemp,
+                                    lowTemperature: day.lowTemp,
+                                    conditions: {
+                                        condition: day.condition || "unknown",
+                                        description: day.description || "Forecast unavailable",
+                                        icon: "sun" // TODO: Map conditions to icons
+                                    }
+                                })) as ReadonlyArray<{
+                                    readonly date: string;
+                                    readonly highTemperature: number;
+                                    readonly lowTemperature: number;
+                                    readonly conditions: WeatherCondition;
+                                }>
+                                : undefined;
+
+                            const weatherData: WeatherData = {
+                                location: {
+                                    name: input.location,
+                                    country: generatedData.country || "Unknown Country",
+                                    coordinates: generatedData.coordinates || {
+                                        latitude: 0,
+                                        longitude: 0
+                                    }
+                                },
+                                temperature: generatedData.temperature || 20,
+                                temperatureFeelsLike: generatedData.feelsLike || generatedData.temperature || 20,
+                                humidity: generatedData.humidity || 50,
+                                windSpeed: generatedData.windSpeed || 0,
+                                windDirection: generatedData.windDirection || 0,
+                                conditions: [mainCondition],
+                                forecast,
+                                timestamp: new Date().toISOString(),
+                                units
+                            };
+
+                            yield* Effect.logInfo("Weather data generated successfully", { 
+                                location: weatherData.location.name,
+                                temperature: weatherData.temperature,
+                                conditions: weatherData.conditions[0]?.description ?? "unknown",
+                                hasForecast: !!weatherData.forecast
+                            });
+                            
+                            return weatherData;
+                        } catch (error) {
+                            const parseError = new WeatherPipelineError({
+                                message: "Failed to parse generated weather data",
+                                cause: error
+                            });
+                            yield* Effect.logError("Weather data parsing failed", { error: parseError });
+                            return yield* Effect.fail(parseError);
+                        }
+                    }),
+
+                getWeatherSummary: (input: WeatherPipelineInput): Effect.Effect<string, WeatherPipelineError> =>
+                    Effect.gen(function* (this: WeatherService) {
+                        yield* Effect.logInfo("Weather summary request received", { 
+                            location: input.location,
+                            units: input.units
+                        });
+
+                        // Validate input
+                        if (!input.location) {
+                            const error = new WeatherPipelineError({ 
+                                message: "Location is required" 
+                            });
+                            yield* Effect.logError("Weather summary request failed", { error });
+                            return yield* Effect.fail(error);
+                        }
+
+                        yield* Effect.logDebug("Fetching weather data for summary", { input });
+                        const data = yield* this.getWeather(input);
+
+                        const tempUnit = data.units === "celsius" ? "°C" : "°F";
+                        const mainCondition = data.conditions[0] ?? {
+                            condition: "unknown",
+                            description: "No weather data available",
+                            icon: "unknown"
+                        };
+
+                        let summary = `Current weather in ${data.location.name}: ${mainCondition.description}, ${data.temperature}${tempUnit}`;
+
+                        // Add forecast if available
+                        const forecast = data.forecast;
+                        if (forecast && forecast.length > 0) {
+                            const tomorrow = forecast[0];
+                            if (tomorrow) {
+                                summary += ` Tomorrow's forecast: High ${tomorrow.highTemperature}${tempUnit}, Low ${tomorrow.lowTemperature}${tempUnit}.`;
+                            }
+                        }
+
+                        yield* Effect.logInfo("Weather summary generated", { 
+                            location: data.location.name,
+                            summary
+                        });
+
+                        return summary;
+                    })
+            };
+        }),
+        dependencies: []
+    }
+) {}

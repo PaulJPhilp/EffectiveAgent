@@ -70,25 +70,25 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
           return currentProvider.capabilities;
         }),
 
-        chat: (input: any[], options: ProviderChatOptions) => Effect.gen(function* () {
+        chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function* () {
           const currentProvider = yield* getProviderHelper();
           const modelId = yield* validateModelId({ options, method: "chat" });
           yield* validateCapabilities({ providerName: currentProvider.name, required: "chat", actual: currentProvider.capabilities, method: "chat" });
-          return yield* currentProvider.provider.chat(input, { ...options, modelId, toolService: options.toolService, tools: options.tools });
+          return yield* currentProvider.provider.chat({ text: input.text, messages: input.messages }, { ...options, modelId, toolService: options.toolService, tools: options.tools });
         }),
 
         generateText: (input: EffectiveInput, options: ProviderGenerateTextOptions) => Effect.gen(function* () {
           const currentProvider = yield* getProviderHelper();
           const modelId = yield* validateModelId({ options, method: "generateText" });
           yield* validateCapabilities({ providerName: currentProvider.name, required: "text-generation", actual: currentProvider.capabilities, method: "generateText" });
-          return yield* currentProvider.provider.generateText(input.toString(), { ...options, modelId });
+          return yield* currentProvider.provider.generateText(input, { ...options, modelId });
         }),
 
         generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) => Effect.gen(function* () {
           const currentProvider = yield* getProviderHelper();
           const modelId = yield* validateModelId({ options, method: "generateObject" });
           yield* validateCapabilities({ providerName: currentProvider.name, required: "generate-object" as ModelCapability, actual: currentProvider.capabilities, method: "generateObject" });
-          return yield* currentProvider.provider.generateObject(input.toString(), { ...options, modelId });
+          return yield* currentProvider.provider.generateObject(input, { ...options, modelId });
         }),
 
         generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) => Effect.gen(function* () {
@@ -102,7 +102,11 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
           const currentProvider = yield* getProviderHelper();
           const modelId = yield* validateModelId({ options, method: "transcribe" });
           yield* validateCapabilities({ providerName: currentProvider.name, required: "audio", actual: currentProvider.capabilities, method: "transcribe" });
-          return yield* currentProvider.provider.transcribe(input, { ...options, modelId });
+          // Convert Buffer to ArrayBuffer using a new ArrayBuffer copy
+          const arrayBuffer = input.buffer.slice(input.byteOffset, input.byteOffset + input.byteLength);
+          const copy = new ArrayBuffer(arrayBuffer.byteLength);
+          new Uint8Array(copy).set(new Uint8Array(arrayBuffer));
+          return yield* currentProvider.provider.transcribe(copy, { ...options, modelId });
         }),
 
         generateEmbeddings: (input: string[], options: ProviderGenerateEmbeddingsOptions) => Effect.gen(function* () {
@@ -117,10 +121,10 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
           return yield* currentProvider.provider.getModels();
         }),
 
-        validateToolInputs: (toolInput: unknown) => Effect.gen(function* () {
+        validateToolInputs: (toolName: string, input: unknown) => Effect.gen(function* () {
           const currentProvider = yield* getProviderHelper();
           yield* validateCapabilities({ providerName: currentProvider.name, required: "tool-use", actual: currentProvider.capabilities, method: "validateToolInputs" });
-          return yield* currentProvider.provider.validateToolInputs(toolInput as ToolDefinition[]);
+          return yield* currentProvider.provider.validateToolInput(toolName, input);
         }),
       };
     }),

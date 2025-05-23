@@ -4,50 +4,23 @@
 
 ### Core Pattern
 ```typescript
-// types.ts
-export interface IMyService {
+// api.ts
+export interface MyServiceApi {
   readonly doSomething: (input: string) => Effect.Effect<never, MyError, string>
 }
 
-export const MyServiceTag = Context.GenericTag<IMyService>("MyService")
-export type MyServiceType = typeof MyServiceTag
-
-// live.ts
-export class MyServiceLive implements IMyService {
-  readonly doSomething = (input: string) => Effect.succeed(`Processed: ${input}`)
+// service.ts
+export const MyService extends EffectService<MyServiceApi>() {
+  effect: MyServiceApi
+  dependencies: []
 }
 
-export const make = () => new MyServiceLive()
-export type MyService = ReturnType<typeof make>
-
-export const MyServiceLive = Layer.succeed(MyServiceTag, make())
-```
-
-### With Dependencies
+### Service Usage
 ```typescript
-// types.ts
-export interface IMyService {
-  readonly processWithLogger: (input: string) => Effect.Effect<never, MyError, string>
-}
-
-// live.ts
-export class MyServiceLive implements IMyService {
-  constructor(private readonly logger: LoggerService) {}
-
-  readonly processWithLogger = (input: string) =>
-    Effect.gen(function* (_) {
-      yield* _.logger.log(`Processing: ${input}`)
-      return `Processed: ${input}`
-    })
-}
-
-export const make = (logger: LoggerService) => new MyServiceLive(logger)
-export type MyService = ReturnType<typeof make>
-
-export const MyServiceLive = Layer.effect(
-  MyServiceTag,
-  Effect.map(LoggerServiceTag, make)
-)
+const sequentialOps = Effect.gen(function* () {
+  const service = yield* MyService
+  return third
+})
 ```
 
 ## Error Handling
@@ -109,7 +82,7 @@ const handleMultipleErrors = (input: string) =>
 
 ### Sequential Operations
 ```typescript
-const sequentialOps = Effect.gen(function* (_) {
+const sequentialOps = Effect.gen(function* () {
   const first = yield* firstOperation()
   const second = yield* secondOperation(first)
   const third = yield* thirdOperation(second)

@@ -1,0 +1,25 @@
+{"timestamp":"2025-05-23T18:10:36.316Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T18:10:36.427Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T18:10:36.637Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T18:10:36.747Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}}}}
+{"timestamp":"2025-05-23T18:10:36.960Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T18:19:36.934Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T18:19:37.048Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T18:19:37.259Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T18:19:37.366Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}}}}
+{"timestamp":"2025-05-23T18:19:37.581Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T18:21:40.236Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T18:21:40.369Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T18:21:40.582Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T18:21:40.689Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}}}}
+{"timestamp":"2025-05-23T18:21:40.902Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T18:26:12.689Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T18:26:13.204Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T18:26:14.230Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T18:26:14.744Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}}}}
+{"timestamp":"2025-05-23T18:26:15.778Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
+{"timestamp":"2025-05-23T18:26:55.200Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info message"}
+{"timestamp":"2025-05-23T18:26:55.718Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"info with context","data":{"userId":"123","action":"test"}}
+{"timestamp":"2025-05-23T18:26:56.739Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"file test message"}
+{"timestamp":"2025-05-23T18:26:57.253Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":"Complex data log","data":{"user":{"id":"123","profile":{"name":"Test User","settings":{"theme":"dark","notifications":true}}}}}
+{"timestamp":"2025-05-23T18:26:58.275Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
