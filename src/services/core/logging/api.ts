@@ -42,6 +42,111 @@ import { Cause, Effect, LogLevel } from "effect";
  * }
  * ```
  */
+/**
+ * Logger interface for pluggable loggers (file, console, remote, etc).
+ * Each logger implementation should handle its own log level filtering.
+ */
+import type { LoggingServiceError } from "./errors.js";
+
+/**
+ * API for file-based logging with support for all log levels and structured data.
+ */
+export interface FileLoggerApi {
+  /** Log a message at a specific log level. */
+  readonly log: (
+    level: LogLevel.LogLevel,
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, LoggingServiceError>;
+
+  /** Log a debug-level message. */
+  readonly debug: (
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, LoggingServiceError>;
+
+  /** Log an info-level message. */
+  readonly info: (
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, LoggingServiceError>;
+
+  /** Log a warning-level message. */
+  readonly warn: (
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, LoggingServiceError>;
+
+  /** Log an error-level message with optional error details. */
+  readonly error: (
+    message: string,
+    error?: unknown
+  ) => Effect.Effect<void, LoggingServiceError>;
+
+  /** Log a trace-level message. */
+  readonly trace: (
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, LoggingServiceError>;
+
+  /** Log a message with a Cause at a given level. */
+  readonly logCause: (
+    level: LogLevel.LogLevel,
+    cause: Cause.Cause<unknown>,
+    data?: JsonObject
+  ) => Effect.Effect<void, LoggingServiceError>;
+
+  /** Log an error-level message with a Cause. */
+  readonly logErrorCause: (
+    cause: Cause.Cause<unknown>,
+    data?: JsonObject
+  ) => Effect.Effect<void, LoggingServiceError>;
+
+  /** Return a logger with additional context (no-op for stateless logger). */
+  readonly withContext: (additionalContext: JsonObject) => FileLoggerApi;
+}
+
+/**
+ * API for the ConsoleLogger service.
+ */
+export interface ConsoleLoggerApi {
+  /** Log a message at a specific log level. */
+  readonly log: (
+    level: LogLevel.LogLevel,
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, never>;
+
+  /** Log a debug-level message. */
+  readonly debug: (
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, never>;
+
+  /** Log an info-level message. */
+  readonly info: (
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, never>;
+
+  /** Log a warning-level message. */
+  readonly warn: (
+    message: string,
+    data?: JsonObject
+  ) => Effect.Effect<void, never>;
+
+  /** Log an error-level message with optional error details. */
+  readonly error: (
+    message: string,
+    error?: unknown
+  ) => Effect.Effect<void, never>;
+}
+
+/**
+ * API for the FileLogger service.
+ */
+export interface FileLoggerApi {}
+
 export interface LoggingServiceApi {
   /**
    * Log a message with the specified log level.

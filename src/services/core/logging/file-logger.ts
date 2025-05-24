@@ -4,10 +4,11 @@
  */
 
 import type { JsonObject } from "@/types.js";
-import { Cause, Effect, LogLevel, Ref } from 'effect';
+import { Cause, Effect, LogLevel, Ref, Layer } from 'effect';
 import * as NodeFs from 'node:fs/promises';
 import * as NodePath from 'node:path';
-import type { LoggingServiceApi } from './api.js';
+import type { FileLoggerApi } from "./api.js";
+import  { LoggingServiceError } from "./errors.js";
 
 type FileHandle = Awaited<ReturnType<typeof NodeFs.open>>;
 
@@ -36,203 +37,274 @@ const DEFAULT_FILE_LOGGER_CONFIG: FileLoggerConfig = {
   minLogLevel: LogLevel.Info
 };
 
-/**
- * A logger that writes logs to a file with rotation support.
- */
-export class FileLogger {
-  private fileHandle: FileHandle | null = null;
-  private isInitialized = false;
-  private readonly logFilePath: string;
-  private readonly writeLock: Ref.Ref<boolean>;
-  private readonly rotationLock: Ref.Ref<boolean>;
+interface FileLoggerConfig {
+  readonly logDir: string;
+  readonly logFileBaseName: string;
+  readonly maxFileSize: number;
+  readonly maxBackups: number;
+  readonly minLogLevel: LogLevel.LogLevel;
+}
 
-  constructor(config: Partial<FileLoggerConfig> = {}) {
-    this.config = { ...DEFAULT_FILE_LOGGER_CONFIG, ...config };
-    this.logFilePath = NodePath.join(this.config.logDir, `${this.config.logFileBaseName}.log`);
-    this.writeLock = Ref.unsafeMake(false);
-    this.rotationLock = Ref.unsafeMake(false);
-    console.log(`[FileLogger] logFilePath:`, this.logFilePath);
+function logLevelToString(level: LogLevel.LogLevel): string {
+  switch (level) {
+    case LogLevel.All: return "All";
+    case LogLevel.Fatal: return "Fatal";
+    case LogLevel.Error: return "Error";
+    case LogLevel.Warning: return "Warning";
+    case LogLevel.Info: return "Info";
+    case LogLevel.Debug: return "Debug";
+    case LogLevel.Trace: return "Trace";
+    case LogLevel.None: return "None";
+    default: return "Unknown";
   }
+}
 
-  private readonly config: FileLoggerConfig;
+function FileLoggerImpl(config: FileLoggerConfig): Effect.Effect<FileLoggerApi, never> {
+  return Effect.gen(function* () {
+    let fileHandle: FileHandle | null = null;
+    let isInitialized = false;
+    const logFilePath = NodePath.join(config.logDir, `${config.logFileBaseName}.log`);
+    const writeLock = Ref.unsafeMake(false);
 
-  /**
-   * Initializes the logger by creating the log directory and opening the log file.
-   */
-  public initialize(): Effect.Effect<void, Error> {
-    const self = this;
-    return Effect.gen(function* () {
-      if (self.isInitialized) {
-        return Effect.succeed(void 0);
-      }
-
-      // Create log directory if it doesn't exist
+    const initialize = Effect.gen(function* () {
+      if (isInitialized) return;
       yield* Effect.tryPromise({
-        try: () => NodeFs.mkdir(self.config.logDir, { recursive: true }),
-        catch: (error) => new Error(`Failed to create log directory: ${error}`)
+        try: () => NodeFs.mkdir(config.logDir, { recursive: true }),
+        catch: (error) => new LoggingServiceError({
+          description: `Failed to create log directory: ${error}`,
+          module: "FileLogger",
+          method: "initialize",
+          cause: error
+        })
       });
-
-      // Ensure directory is writable
       yield* Effect.tryPromise({
-        try: () => NodeFs.access(self.config.logDir, NodeFs.constants.W_OK),
-        catch: (error) => new Error(`Log directory is not writable: ${error}`)
+        try: () => NodeFs.access(config.logDir, NodeFs.constants.W_OK),
+        catch: (error) => new LoggingServiceError({
+          description: `Log directory is not writable: ${error}`,
+          module: "FileLogger",
+          method: "initialize",
+          cause: error
+        })
       });
-
-      // Open the log file
-      self.fileHandle = yield* Effect.tryPromise({
-        try: () => NodeFs.open(self.logFilePath, 'a+'),
-        catch: (error) => new Error(`Failed to open log file: ${error}`)
+      fileHandle = yield* Effect.tryPromise({
+        try: () => NodeFs.open(logFilePath, "a+"),
+        catch: (error) => new LoggingServiceError({
+          description: `Failed to open log file: ${error}`,
+          module: "FileLogger",
+          method: "initialize",
+          cause: error
+        })
       });
-
-      self.isInitialized = true;
-      return Effect.succeed(void 0);
+      isInitialized = true;
     });
-  }
 
-  /**
-   * Writes a log entry to the log file.
-   */
-  private writeToFile(level: LogLevel.LogLevel, message: string, data?: JsonObject): Effect.Effect<void, Error> {
-    const self = this;
-    return Effect.gen(function* () {
-      if (!self.fileHandle) {
-        yield* Effect.fail(new Error('Log file not open'));
-        return;
-      }
-
-      const timestamp = new Date().toISOString();
-      const logEntry = JSON.stringify({
-        timestamp,
-        level: level.label,
-        message,
-        service: data?.service,
-        ...data
-      }) + '\n';
-
-      // Debug: print to console before writing to file
-      console.log("[FileLogger] writeToFile:", logEntry);
-
-      // Acquire write lock
-      while (yield* Ref.get(self.writeLock)) {
-        yield* Effect.sleep('10 millis');
-      }
-      yield* Ref.set(self.writeLock, true);
-
-      try {
-        // Write the log entry
-        yield* Effect.tryPromise({
-          try: () => self.fileHandle!.write(logEntry),
-          catch: (error) => {
-            console.error("[FileLogger] writeToFile error:", error);
-            return new Error(`Failed to write log entry: ${error}`);
+    const writeToFile = (
+      level: LogLevel.LogLevel,
+      message: string,
+      data?: JsonObject
+    ): Effect.Effect<void, LoggingServiceError, never> =>
+      Effect.gen(function* () {
+        yield* initialize;
+        if (!fileHandle) {
+          yield* Effect.fail(
+            new LoggingServiceError({
+              description: "Log file not open",
+              module: "FileLogger",
+              method: "writeToFile"
+            })
+          );
+          return;
+        }
+        const timestamp = new Date().toISOString();
+        const logEntry = JSON.stringify({
+          timestamp,
+          level: logLevelToString(level),
+          message,
+          ...data
+        }) + "\n";
+        while (yield* Ref.get(writeLock)) {
+          yield* Effect.sleep("10 millis");
+        }
+        yield* Ref.set(writeLock, true);
+        try {
+          yield* Effect.tryPromise({
+            try: () => fileHandle!.write(logEntry),
+            catch: (error) => new LoggingServiceError({
+              description: `Failed to write log entry: ${error}`,
+              module: "FileLogger",
+              method: "writeToFile",
+              cause: error
+            })
+          });
+          yield* Effect.tryPromise({
+            try: () => fileHandle!.sync(),
+            catch: (error) => new LoggingServiceError({
+              description: `Failed to sync log file: ${error}`,
+              module: "FileLogger",
+              method: "writeToFile",
+              cause: error
+            })
+          });
+          const stats = yield* Effect.tryPromise({
+            try: () => fileHandle!.stat(),
+            catch: (error) => new LoggingServiceError({
+              description: `Failed to get file stats: ${error}`,
+              module: "FileLogger",
+              method: "writeToFile",
+              cause: error
+            })
+          });
+          if (stats.size >= config.maxFileSize) {
+            // --- Begin log rotation ---
+            yield* Effect.tryPromise({
+              try: () => fileHandle!.close(),
+              catch: (error) => new LoggingServiceError({
+                description: `Failed to close log file before rotation: ${error}`,
+                module: "FileLogger",
+                method: "writeToFile",
+                cause: error
+              })
+            });
+            // Rotate backups (n-1 -> n, ..., .log -> .1.log)
+            for (let i = config.maxBackups - 1; i >= 1; i--) {
+              const src = NodePath.join(config.logDir, `${config.logFileBaseName}.${i}.log`);
+              const dest = NodePath.join(config.logDir, `${config.logFileBaseName}.${i+1}.log`);
+              const exists = yield* Effect.tryPromise({
+                try: () => NodeFs.stat(src),
+                catch: () => undefined
+              }).pipe(
+                Effect.match({
+                  onSuccess: () => true,
+                  onFailure: () => false
+                })
+              );
+              if (exists) {
+                yield* Effect.tryPromise({
+                  try: () => NodeFs.rename(src, dest),
+                  catch: (error) => new LoggingServiceError({
+                    description: `Failed to rotate backup file: ${error}`,
+                    module: "FileLogger",
+                    method: "writeToFile",
+                    cause: error
+                  })
+                });
+              }
+            }
+            // Rotate main log file to .1.log
+            const mainLog = NodePath.join(config.logDir, `${config.logFileBaseName}.log`);
+            const firstBackup = NodePath.join(config.logDir, `${config.logFileBaseName}.1.log`);
+            const mainExists = yield* Effect.tryPromise({
+              try: () => NodeFs.stat(mainLog),
+              catch: () => undefined
+            }).pipe(
+              Effect.match({
+                onSuccess: () => true,
+                onFailure: () => false
+              })
+            );
+            if (mainExists) {
+              yield* Effect.tryPromise({
+                try: () => NodeFs.rename(mainLog, firstBackup),
+                catch: (error) => new LoggingServiceError({
+                  description: `Failed to rotate main log: ${error}`,
+                  module: "FileLogger",
+                  method: "writeToFile",
+                  cause: error
+                })
+              });
+            }
+            // Open new log file for writing
+            fileHandle = yield* Effect.tryPromise({
+              try: () => NodeFs.open(mainLog, "w"),
+              catch: (error) => new LoggingServiceError({
+                description: `Failed to open new log file after rotation: ${error}`,
+                module: "FileLogger",
+                method: "writeToFile",
+                cause: error
+              })
+            });
           }
-        });
-
-        // Check if rotation is needed
-        const stats = yield* Effect.tryPromise({
-          try: () => self.fileHandle!.stat(),
-          catch: (error) => new Error(`Failed to get file stats: ${error}`)
-        });
-
-        if (stats.size >= self.config.maxFileSize) {
-          // Rotation is no longer supported; do nothing here.
+        } finally {
+          yield* Ref.set(writeLock, false);
         }
-      } finally {
-        yield* Ref.set(self.writeLock, false);
-      }
+        return;
+      });
 
-      return void 0;
-    });
-  }
+    const logger: FileLoggerApi = {
+      log: (
+        level: LogLevel.LogLevel,
+        message: string,
+        data?: JsonObject
+      ) =>
+        LogLevel.greaterThanEqual(level, config.minLogLevel)
+          ? writeToFile(level, message, data)
+          : Effect.void,
 
-  /**
-   * Creates a LoggingServiceApi implementation that writes to the file.
-   */
-  public createLoggingService(): LoggingServiceApi {
-    const self = this;
+      debug: (message: string, data?: JsonObject) =>
+        LogLevel.greaterThanEqual(LogLevel.Debug, config.minLogLevel)
+          ? writeToFile(LogLevel.Debug, message, data)
+          : Effect.void,
 
-    const createLogMethod = (level: LogLevel.LogLevel) =>
-      (message: string, data?: JsonObject): Effect.Effect<void, Error> => {
-        console.log(`[FileLogger] ${level.label} called:`, { message, data });
-        return LogLevel.greaterThanEqual(level, self.config.minLogLevel)
-          ? self.writeToFile(level, message, data)
-          : Effect.succeed(void 0) as Effect.Effect<void, Error>;
-      };
+      info: (message: string, data?: JsonObject) =>
+        LogLevel.greaterThanEqual(LogLevel.Info, config.minLogLevel)
+          ? writeToFile(LogLevel.Info, message, data)
+          : Effect.void,
 
-    const service: LoggingServiceApi = {
-      debug: createLogMethod(LogLevel.Debug),
-      info: createLogMethod(LogLevel.Info),
-      warn: createLogMethod(LogLevel.Warning),
-      trace: createLogMethod(LogLevel.Trace),
+      warn: (message: string, data?: JsonObject) =>
+        LogLevel.greaterThanEqual(LogLevel.Warning, config.minLogLevel)
+          ? writeToFile(LogLevel.Warning, message, data)
+          : Effect.void,
 
-      error: (message: string, error?: Error | unknown): Effect.Effect<void, Error> => {
-        console.log(`[FileLogger] ERROR called:`, { message, error });
-        if (!LogLevel.greaterThanEqual(LogLevel.Error, self.config.minLogLevel)) {
-          return Effect.succeed(void 0);
+      error: (message: string, error?: unknown) => {
+        if (!LogLevel.greaterThanEqual(LogLevel.Error, config.minLogLevel)) {
+          return Effect.void;
         }
-
         const errorData: JsonObject = {};
         if (error instanceof Error) {
           errorData.error = error.message;
-          if (error.stack) {
-            errorData.stack = error.stack;
-          }
-          if (error.cause) {
-            errorData.cause = String(error.cause);
-          }
+          if (error.stack) errorData.stack = error.stack;
+          if (error.cause) errorData.cause = String(error.cause);
         } else if (error !== undefined) {
-          errorData.error = typeof error === 'object' ? JSON.stringify(error) : String(error);
+          errorData.error = typeof error === "object" ? JSON.stringify(error) : String(error);
         }
-
-        return self.writeToFile(LogLevel.Error, message, errorData);
+        return writeToFile(LogLevel.Error, message, errorData);
       },
 
-      log: (level: LogLevel.LogLevel, message: string, data?: JsonObject) => {
-        console.log(`[FileLogger] log called:`, { level: level.label, message, data });
-        return LogLevel.greaterThanEqual(level, self.config.minLogLevel)
-          ? self.writeToFile(level, message, data)
-          : Effect.succeed(void 0);
-      },
+      trace: (message: string, data?: JsonObject) =>
+        LogLevel.greaterThanEqual(LogLevel.Trace, config.minLogLevel)
+          ? writeToFile(LogLevel.Trace, message, data)
+          : Effect.void,
 
-      logCause: (level: LogLevel.LogLevel, cause: Cause.Cause<unknown>, data?: JsonObject) => {
-        console.log(`[FileLogger] logCause called:`, { level: level.label, cause, data });
-        return LogLevel.greaterThanEqual(level, self.config.minLogLevel)
-          ? self.writeToFile(level, Cause.pretty(cause), data)
-          : Effect.succeed(void 0);
-      },
+      logCause: (level: LogLevel.LogLevel, cause: Cause.Cause<unknown>, data?: JsonObject) =>
+        LogLevel.greaterThanEqual(level, config.minLogLevel)
+          ? writeToFile(level, Cause.pretty(cause), data)
+          : Effect.void,
 
-      logErrorCause: (cause: Cause.Cause<unknown>, data?: JsonObject) => {
-        console.log(`[FileLogger] logErrorCause called:`, { cause, data });
-        return LogLevel.greaterThanEqual(LogLevel.Error, self.config.minLogLevel)
-          ? self.writeToFile(LogLevel.Error, Cause.pretty(cause), data)
-          : Effect.succeed(void 0);
-      },
+      logErrorCause: (cause: Cause.Cause<unknown>, data?: JsonObject) =>
+        LogLevel.greaterThanEqual(LogLevel.Error, config.minLogLevel)
+          ? writeToFile(LogLevel.Error, Cause.pretty(cause), data)
+          : Effect.void,
 
-      withContext: (additionalContext: JsonObject) => {
-        console.log(`[FileLogger] withContext called:`, { additionalContext });
-        // TODO: Implement a simpler withContext that just merges context with data
-        return service;
-      }
+      withContext: (additionalContext: JsonObject) => logger
     };
+    return logger;
+  });
+}
 
-    return service;
+export class FileLogger extends Effect.Service<FileLoggerApi>()(
+  "FileLogger",
+  {
+    effect: Effect.sync(() => {
+      throw new Error("FileLogger must be provided via FileLogger.layer(config)");
+      // This cast is required for Effect.Service to typecheck
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return {} as unknown as FileLoggerApi;
+    })
   }
+) {}
 
-  /**
-   * Closes the file logger and releases resources.
-   */
-  public close(): Effect.Effect<void, Error> {
-    const self = this;
-    return Effect.gen(function* () {
-      if (self.fileHandle) {
-        yield* Effect.tryPromise({
-          try: () => self.fileHandle!.close(),
-          catch: (error) => new Error(`Failed to close log file: ${error}`)
-        });
-        self.fileHandle = null;
-      }
-      self.isInitialized = false;
-      return Effect.succeed(void 0);
-    });
+export namespace FileLogger {
+  export function layer(config: FileLoggerConfig): Layer.Layer<FileLoggerApi> {
+    return Layer.effect(FileLogger, FileLoggerImpl(config));
   }
 }
