@@ -7,11 +7,12 @@ import { FileSystem } from "@effect/platform";
 import { Effect, Schema } from "effect";
 import { ConfigurationServiceApi, LoadConfigOptions } from "./api.js";
 import {
-    ConfigParseError,
     ConfigReadError,
+    ConfigParseError,
     ConfigValidationError
 } from "./errors.js";
-import type { BaseConfig } from "./schema.js";
+import { BaseConfig, BaseConfigSchema } from "./schema.js";
+import { NodeFileSystem } from "@effect/platform-node";
 
 export const configurationServiceEffect = Effect.gen(function* () {
     // Get dependencies
@@ -37,12 +38,12 @@ export const configurationServiceEffect = Effect.gen(function* () {
         });
 
     // Helper to validate with schema
-    const validateWithSchema = <T>(
+    const validateWithSchema = <T extends BaseConfig>(
         data: unknown,
         schema: Schema.Schema<T, T>,
         filePath: string
     ): Effect.Effect<T, ConfigValidationError> =>
-        Schema.decode(schema)(data as T).pipe(
+        Schema.decode(Schema.extend(schema, BaseConfigSchema))(data as T).pipe(
             Effect.mapError(error => new ConfigValidationError({
                 filePath,
                 validationError: error
@@ -76,6 +77,7 @@ export const configurationServiceEffect = Effect.gen(function* () {
 export class ConfigurationService extends Effect.Service<ConfigurationServiceApi>()(
     "ConfigurationService",
     {
-        effect: configurationServiceEffect
+        effect: configurationServiceEffect,
+        dependencies: [NodeFileSystem.layer]
     }
 ) { } 

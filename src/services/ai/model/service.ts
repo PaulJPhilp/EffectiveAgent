@@ -139,5 +139,5 @@ export class ModelService extends Effect.Service<ModelServiceApi>()(
                     ),
             };
         }),
-        dependencies: []
+        dependencies: [ConfigurationService.Default]
     }) { }

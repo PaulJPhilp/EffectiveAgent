@@ -33,7 +33,7 @@ export interface TextGenerationOptions {
         stop?: string[];
     };
     /** Tracing span for observability */
-    readonly span: Span;
+    readonly span?: Span;
     /** Optional signal to abort the operation */
     readonly signal?: AbortSignal;
 } 

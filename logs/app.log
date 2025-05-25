@@ -133,3 +133,4 @@
 {"timestamp":"2025-05-23T18:05:44.560Z","level":{"_tag":"Error","syslog":3,"label":"ERROR","ordinal":40000},"message":"Error occurred","data":{"message":"[object Object]"}}
 {"timestamp":"2025-05-23T18:05:44.605Z","level":{"_tag":"Info","syslog":6,"label":"INFO","ordinal":20000},"message":""}
 {"timestamp":"2025-05-23T18:05:44.611Z","level":{"_tag":"Debug","syslog":7,"label":"DEBUG","ordinal":10000},"message":""}
+{"timestamp":"2025-05-25T19:15:14.289Z","level":"[object Object]","message":"Test message"}

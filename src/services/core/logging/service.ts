@@ -105,7 +105,7 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
           level === LogLevel.Info ? "info" :
           level === LogLevel.Debug ? "debug" :
           "trace";
-        const logPath: string = `${config.logDir}/${levelStr}.log`;
+        const logPath: string = `${config.logDir}/${config.logFileBaseName}.log`;
         yield* Effect.logDebug(`Writing to log file: ${logPath}`);
         // Platform FileSystem has no appendFileString; emulate append
         const exists = yield* fs.exists(logPath).pipe(

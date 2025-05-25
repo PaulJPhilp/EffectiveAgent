@@ -6,6 +6,15 @@
  * Base result type for all pipeline operations
  */
 export interface GenerateBaseResult {
+    location: any;
+    temperature: any;
+    temperatureFeelsLike: any;
+    humidity: any;
+    windSpeed: any;
+    windDirection: any;
+    conditions: any;
+    timestamp: any;
+    text(text: any): unknown;
     /** The generated output */
     output: string;
     /** Usage statistics */
@@ -51,7 +60,7 @@ export interface GenerateBaseOptions {
         /** Stop sequences */
         stop?: string[];
     };
-} 
+}
 
 // Schemas previously in shared/schema.ts
 import { Schema as S } from "effect";
@@ -74,7 +83,7 @@ export class ProducerResponse extends S.Class<ProducerResponse>("ProducerRespons
     model: S.String.pipe(S.minLength(1)),     // ID of the model used
     id: S.UUID,            // Response ID must be a UUID
     usage: S.optional(S.instanceOf(UsageStatistics))
-}) { 
+}) {
     // This allows us to type the 'data' property when we instantiate or use ProducerResponse
     // For example: const response = yield* S.decode(ProducerResponse(MySpecificDataSchema))(unknownInput)
     // then response.data would be typed according to MySpecificDataSchema

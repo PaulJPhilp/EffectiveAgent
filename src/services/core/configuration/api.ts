@@ -9,7 +9,7 @@ import type {
     ConfigReadError,
     ConfigValidationError
 } from "./errors.js";
-import type { BaseConfig } from "@/types.ts";
+import type { BaseConfig } from "./schema.js";
 
 /**
  * Options for loading a configuration file
@@ -46,7 +46,7 @@ export interface ConfigurationServiceApi {
      * @param filePath Original file path for error context
      * @returns Effect yielding the validated data
      */
-    readonly validateWithSchema: <T>(
+    readonly validateWithSchema: <T extends BaseConfig>(
         data: unknown,
         schema: Schema.Schema<T, T>,
         filePath: string
@@ -60,4 +60,4 @@ export interface ConfigurationServiceApi {
     readonly loadConfig: <T extends BaseConfig>(
         options: LoadConfigOptions<T>
     ) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
-} 
+}

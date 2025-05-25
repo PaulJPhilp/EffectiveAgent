@@ -1,0 +1,11 @@
+[2025-05-25T01:39:31.956Z] App started
+{
+  "version": "1.0.0"
+}
+
+[2025-05-25T01:39:31.956Z] User action
+{
+  "userId": 123,
+  "action": "login"
+}
+

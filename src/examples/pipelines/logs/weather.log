@@ -1,0 +1,11 @@
+[2025-05-25T01:39:31.953Z] This is a test log message
+[2025-05-25T01:39:31.955Z] Test with data
+{
+  "timestamp": "2025-05-25T01:39:31.955Z",
+  "status": "success",
+  "data": {
+    "key": "value",
+    "number": 42
+  }
+}
+

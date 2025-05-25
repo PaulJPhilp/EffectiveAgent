@@ -212,7 +212,7 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
       }
     };
   }),
-  dependencies: [] as const
+  dependencies: [ModelService.Default, ProviderService.Default] as const
 }) { }
 
 // Export the TextService as default
