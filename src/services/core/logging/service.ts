@@ -4,43 +4,29 @@
  */
 
 import { JsonObject } from "@/types.js";
-import { Cause, Effect, LogLevel } from "effect";
 import { FileSystem } from "@effect/platform";
-import { EffectiveError } from "@/errors.js";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Cause, Effect, LogLevel, Ref } from "effect";
 import type { LoggingServiceApi } from "./api.js";
+import { LoggingServiceError } from "./errors.js";
 
 type LogEffect = Effect.Effect<void, Error | LoggingServiceError, never>;
 type LogData = JsonObject & { message?: string; cause?: string; };
 
-const logToConsole = (message: string): LogEffect => 
+const logToConsole = (message: string): LogEffect =>
   Effect.sync(() => console.log(message)).pipe(Effect.mapError(e => new Error(String(e))));
 
-const logErrorToConsole = (message: string): LogEffect => 
+const logErrorToConsole = (message: string): LogEffect =>
   Effect.sync(() => console.error(message)).pipe(Effect.mapError(e => new Error(String(e))));
 
-const logDebugToConsole = (message: string): LogEffect => 
+const logDebugToConsole = (message: string): LogEffect =>
   Effect.sync(() => console.debug(message)).pipe(Effect.mapError(e => new Error(String(e))));
 
-const logInfoToConsole = (message: string): LogEffect => 
+const logInfoToConsole = (message: string): LogEffect =>
   Effect.sync(() => console.info(message)).pipe(Effect.mapError(e => new Error(String(e))));
 
-const logWarnToConsole = (message: string): LogEffect => 
+const logWarnToConsole = (message: string): LogEffect =>
   Effect.sync(() => console.warn(message)).pipe(Effect.mapError(e => new Error(String(e))));
-
-
-/**
- * Error thrown by the LoggingService.
- */
-export class LoggingServiceError extends EffectiveError {
-  constructor(params: {
-    description: string;
-    module: string;
-    method: string;
-    cause?: unknown;
-  }) {
-    super(params);
-  }
-}
 
 /**
  * Configuration for the LoggingService.
@@ -65,12 +51,16 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
   {
     effect: Effect.gen(function* () {
       yield* Effect.logDebug('Initializing LoggingService...');
-      const config = getConfig();
-      yield* Effect.logDebug(`Got config: ${JSON.stringify(config)}`);
 
-      // Ensure log directory exists using Effect Platform FileSystem
-      const fs = yield* FileSystem.FileSystem;
-      const ensureLogDir = Effect.gen(function* () {
+      // Create mutable config state
+      const configRef = yield* Ref.make(getConfig());
+
+      // Helper to get current config
+      const getCurrentConfig = Ref.get(configRef);
+
+      // Helper to ensure log directory exists
+      const ensureLogDir = (config: LoggingConfig) => Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
         const exists = yield* fs.exists(config.logDir);
         if (!exists) {
           yield* fs.makeDirectory(config.logDir, { recursive: true }).pipe(
@@ -84,7 +74,10 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
         }
         yield* Effect.logDebug('Log directory created');
       });
-      yield* ensureLogDir;
+
+      // Initial directory setup
+      const initialConfig = yield* getCurrentConfig;
+      yield* ensureLogDir(initialConfig);
 
       // Helper to log to file using Effect Platform FileSystem
       const logToFile = (
@@ -92,6 +85,8 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
         message: string,
         data?: LogData
       ): LogEffect => Effect.gen(function* () {
+        const config = yield* getCurrentConfig;
+        const fs = yield* FileSystem.FileSystem;
         const timestamp: string = new Date().toISOString();
         const logEntry: string = JSON.stringify({
           timestamp,
@@ -99,12 +94,6 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
           message,
           data
         });
-        const levelStr: string =
-          level === LogLevel.Error ? "error" :
-          level === LogLevel.Warning ? "warn" :
-          level === LogLevel.Info ? "info" :
-          level === LogLevel.Debug ? "debug" :
-          "trace";
         const logPath: string = `${config.logDir}/${config.logFileBaseName}.log`;
         yield* Effect.logDebug(`Writing to log file: ${logPath}`);
         // Platform FileSystem has no appendFileString; emulate append
@@ -138,8 +127,10 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
             cause: error
           }))
         );
-        return Effect.void;
-      });
+      }).pipe(
+        Effect.provide(NodeFileSystem.layer),
+        Effect.as(void 0)
+      );
 
       // Helper to log messages
       const logMessage = (level: LogLevel.LogLevel, message: string, data?: LogData): LogEffect =>
@@ -148,6 +139,36 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
           Effect.log(message, level)
         ]).pipe(
           Effect.map(() => void 0)
+        );
+
+      // Helper to update logging configuration
+      const updateConfig = (newConfig: { logDir: string; logFileBase: string }): Effect.Effect<void, LoggingServiceError, never> =>
+        Effect.gen(function* () {
+          const currentConfig = yield* getCurrentConfig;
+          const updatedConfig: LoggingConfig = {
+            ...currentConfig,
+            logDir: newConfig.logDir,
+            logFileBaseName: newConfig.logFileBase
+          };
+          yield* Ref.set(configRef, updatedConfig);
+
+          // Create the directory ensuring Effect
+          const fs = yield* FileSystem.FileSystem;
+          const exists = yield* fs.exists(updatedConfig.logDir);
+          if (!exists) {
+            yield* fs.makeDirectory(updatedConfig.logDir, { recursive: true });
+          }
+        }).pipe(
+          Effect.provide(NodeFileSystem.layer),
+          Effect.mapError((error): LoggingServiceError =>
+            new LoggingServiceError({
+              description: "Failed to update logging configuration",
+              module: "LoggingService",
+              method: "setConfig",
+              cause: error
+            })
+          ),
+          Effect.as(void 0)
         );
 
       // Create logger implementation
@@ -159,8 +180,8 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
         warn: (message: string, data?: LogData) =>
           logMessage(LogLevel.Warning, message, data),
         error: (message: string, error: unknown) => {
-          const errorData = error instanceof Error 
-            ? { message: error.message } 
+          const errorData = error instanceof Error
+            ? { message: error.message }
             : { message: String(error) };
           return logMessage(LogLevel.Error, message, errorData);
         },
@@ -176,6 +197,7 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
           const causeData = { cause: Cause.pretty(cause), ...data };
           return logMessage(LogLevel.Error, "Error cause", causeData);
         },
+        setConfig: updateConfig,
         withContext: <T extends JsonObject>(additionalContext: T): LoggingServiceApi => {
           const newContext = { ...additionalContext };
           return {
@@ -186,8 +208,8 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
             warn: (message: string, data?: LogData) =>
               logMessage(LogLevel.Warning, message, { ...data, ...newContext }),
             error: (message: string, error: unknown) => {
-              const errorData = error instanceof Error 
-                ? { message: error.message } 
+              const errorData = error instanceof Error
+                ? { message: error.message }
                 : { message: String(error) };
               return logMessage(LogLevel.Error, message, { ...errorData, ...newContext });
             },
@@ -203,10 +225,9 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
               const causeData = { cause: Cause.pretty(cause), ...data };
               return logMessage(LogLevel.Error, "Error cause", { ...causeData, ...newContext });
             },
-            withContext: <U extends JsonObject>(moreContext: U): LoggingServiceApi => {
-              const combinedContext = { ...newContext, ...moreContext };
-              return logger.withContext(combinedContext);
-            }
+            setConfig: updateConfig,
+            withContext: <U extends JsonObject>(moreContext: U) =>
+              logger.withContext({ ...newContext, ...moreContext })
           };
         }
       };

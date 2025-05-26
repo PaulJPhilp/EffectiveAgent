@@ -31,8 +31,8 @@ export type TemperatureUnit = "celsius" | "fahrenheit" | "kelvin";
 export type WindSpeedUnit = "mps" | "mph" | "kph";
 
 export type WeatherUnits = {
-  type: TemperatureUnit;
-  windSpeedUnit: WindSpeedUnit;
+  type: TemperatureUnit;  // "celsius" | "fahrenheit" | "kelvin"
+  windSpeedUnit: WindSpeedUnit;  // "mps" | "mph" | "kph"
 };
 
 /**

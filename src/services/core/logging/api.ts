@@ -18,7 +18,6 @@
 import type { JsonObject } from "@/types.js";
 import { Cause, Effect, LogLevel } from "effect";
 
-
 /**
  * Service interface for logging messages and structured data.
  *
@@ -145,9 +144,11 @@ export interface ConsoleLoggerApi {
 /**
  * API for the FileLogger service.
  */
-export interface FileLoggerApi {}
+export interface FileLoggerApi { }
 
 export interface LoggingServiceApi {
+  setConfig(config: { logDir: string; logFileBase: string }): Effect.Effect<void, LoggingServiceError>;
+
   /**
    * Log a message with the specified log level.
    *
@@ -323,4 +324,3 @@ export interface LoggingServiceApi {
 
 // Re-export LogLevel for convenience
 export type { LogLevel } from "effect";
-
