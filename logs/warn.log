@@ -1,5 +1,0 @@
-{"timestamp":"2025-05-23T18:10:36.317Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
-{"timestamp":"2025-05-23T18:19:36.935Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
-{"timestamp":"2025-05-23T18:21:40.236Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
-{"timestamp":"2025-05-23T18:26:12.689Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}
-{"timestamp":"2025-05-23T18:26:55.204Z","level":{"_tag":"Warning","syslog":4,"label":"WARN","ordinal":30000},"message":"warn message"}

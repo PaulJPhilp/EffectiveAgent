@@ -54,6 +54,7 @@ export type WeatherPipelineConfig = {
 export type WeatherPipelineInput = {
   location: string;
   units?: WeatherUnits;
+  includeForecast?: boolean;
 };
 
 /**

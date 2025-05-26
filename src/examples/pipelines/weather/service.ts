@@ -4,7 +4,6 @@
  */
 
 import { LoggingServiceApi } from "@/services/core/logging/api.js";
-import { FileLogger } from "@/services/core/logging/file-logger.js";
 import TextService from "@/services/pipeline/producers/text/service.js";
 import type { JsonObject } from "@/types.js";
 import { Effect, Option } from "effect";
@@ -107,6 +106,14 @@ export class WeatherService extends Effect.Service<WeatherServiceApi>()(
     effect: Effect.gen(function* () {
       const textService = yield* TextService;
       const logger = yield* FileLogger;
+
+      // Configure logger with test settings if in test environment
+      if (process.env.NODE_ENV === 'test') {
+        yield* logger.setConfig({
+          logDir: process.env.LOG_DIR || 'logs',
+          logFileBase: process.env.LOG_FILE_BASE || 'weather'
+        });
+      }
 
       yield* logger.info("Weather service initialized", {
         config: defaultConfig

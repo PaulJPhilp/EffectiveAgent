@@ -233,6 +233,7 @@ export class LoggingService extends Effect.Service<LoggingServiceApi>()(
       };
 
       return logger;
-    })
+    }),
+    dependencies: [NodeFileSystem.layer]
   }
 ) { }
