@@ -38,12 +38,12 @@ export const configurationServiceEffect = Effect.gen(function* () {
         });
 
     // Helper to validate with schema
-    const validateWithSchema = <T extends BaseConfig>(
+    const validateWithSchema = <T>(
         data: unknown,
         schema: Schema.Schema<T, T>,
         filePath: string
     ): Effect.Effect<T, ConfigValidationError> =>
-        Schema.decode(Schema.extend(schema, BaseConfigSchema))(data as T).pipe(
+        Schema.decode(schema)(data as T).pipe(
             Effect.mapError(error => new ConfigValidationError({
                 filePath,
                 validationError: error
@@ -51,7 +51,7 @@ export const configurationServiceEffect = Effect.gen(function* () {
         );
 
     // Main load config function
-    const loadConfig = <T extends BaseConfig>({
+    const loadConfig = <T>({
         filePath,
         schema
     }: LoadConfigOptions<T>): Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError> =>

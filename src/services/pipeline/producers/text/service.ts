@@ -8,6 +8,7 @@ import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import type { ProviderMetadata } from "@/services/ai/provider/types.js";
 import { TestHarnessApi } from "@/services/core/test-harness/api.js";
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "@/services/pipeline/producers/text/errors.js";
@@ -16,6 +17,7 @@ import type { GenerateBaseResult as SharedApiGenerateBaseResult } from "@/servic
 import type { GenerateTextResult as ProviderGenerateTextResult } from "@/services/ai/provider/types.js"; // Added alias
 import { EffectiveInput, EffectiveMessage, EffectiveUsage, EffectiveResponse } from "@/types.js"; // Added EffectiveResponse
 import { Effect } from "effect";
+import * as Logger from "effect/Logger";
 import * as Chunk from "effect/Chunk";
 import * as Option from "effect/Option";
 
@@ -73,8 +75,15 @@ export interface TextServiceDeps {
 class TextService extends Effect.Service<TextServiceApi>()("TextService", {
   effect: Effect.gen(function* () {
     // Get services
-    const modelService = yield* ModelService;
+    yield* Effect.logDebug("TextService initializing");
+    
+    // Get provider service
     const providerService = yield* ProviderService;
+    yield* Effect.logDebug("Got provider service");
+    
+    // Get model service
+    const modelService = yield* ModelService;
+    yield* Effect.logDebug("TextService initialized");
 
     return {
       /**
@@ -82,8 +91,15 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
        */
       generate: (options: TextGenerationOptions) => {
         return Effect.gen(function* () {
+          // Log start of text generation
+          yield* Effect.logInfo("Starting text generation", {
+            modelId: options.modelId,
+            promptLength: options.prompt?.length ?? 0
+          });
+
           // Validate prompt
           if (!options.prompt || options.prompt.trim() === "") {
+            yield* Effect.logError("Empty prompt provided");
             return yield* Effect.fail(new TextInputError({
               description: "Prompt cannot be empty",
               module: "TextService",
@@ -101,7 +117,10 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
           );
 
           // Get provider name from model service
+          yield* Effect.logDebug("Getting provider name for model", { modelId });
           const providerName = yield* modelService.getProviderName(modelId).pipe(
+            Effect.tap(() => Effect.logDebug("Retrieved provider name")),
+            Effect.tapError((error) => Effect.logError("Failed to get provider name", { modelId, error })),
             Effect.mapError((error) => new TextProviderError({
               description: "Failed to get provider name for model",
               module: "TextService",
@@ -111,7 +130,10 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
           );
 
           // Get provider client
+          yield* Effect.logDebug("Getting provider client", { providerName });
           const providerClient = yield* providerService.getProviderClient(providerName).pipe(
+            Effect.tap(() => Effect.logDebug("Retrieved provider client")),
+            Effect.tapError((error) => Effect.logError("Failed to get provider client", { providerName, error })),
             Effect.mapError((error) => new TextProviderError({
               description: "Failed to get provider client",
               module: "TextService",
@@ -171,6 +193,7 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
 
           // Transform the provider's GenerateTextResult to the API's EffectiveResponse<GenerateBaseResult>
           return yield* generationEffect.pipe(
+            Effect.tap(() => Effect.logInfo("Text generation completed successfully")),
             // Assuming providerOutput is EffectiveResponse<ProviderGenerateTextResult> based on lint errors
             Effect.map((providerWrappedOutput: EffectiveResponse<ProviderGenerateTextResult>) => {
               const providerOutputData = providerWrappedOutput.data; // This is ProviderGenerateTextResult
@@ -181,6 +204,18 @@ class TextService extends Effect.Service<TextServiceApi>()("TextService", {
                 usage: providerOutputData.usage, // providerOutputData has usage from its GenerateBaseResult parent
                 finishReason: providerOutputData.finishReason as SharedApiGenerateBaseResult['finishReason'],
                 providerMetadata: providerOutputData.providerMetadata as Record<string, unknown> | undefined // Cast added here
+                ,
+                location: undefined,
+                temperature: undefined,
+                temperatureFeelsLike: undefined,
+                humidity: undefined,
+                windSpeed: undefined,
+                windDirection: undefined,
+                conditions: undefined,
+                timestamp: undefined,
+                text: function (text: any): unknown {
+                  throw new Error("Function not implemented.");
+                }
               };
 
               // 2. Create the final EffectiveResponse<SharedApiGenerateBaseResult>

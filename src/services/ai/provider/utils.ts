@@ -19,15 +19,15 @@ export const loadConfigString = (
   configService: ConfigurationServiceApi,
   method: string
 ): Effect.Effect<string, ProviderServiceConfigError> => {
-  return configService.loadConfig({ filePath: "providersConfigJsonString", schema: undefined as any }).pipe(Effect.map(config => String(config)),
-    Effect.mapError((cause) =>
-      new ProviderServiceConfigError({
-        description: "Failed to load provider config string",
-        module: "ProviderService",
-        method,
-        cause: cause instanceof Error ? cause : new Error(String(cause))
-      })
-    )
+  const configPath = process.env.PROVIDERS_CONFIG_PATH ?? "./config/providers.json";
+  return configService.readFile(configPath).pipe(
+    Effect.map(String),
+    Effect.mapError(error => new ProviderServiceConfigError({
+      description: "Failed to load provider config string",
+      module: "ProviderService",
+      method,
+      cause: error instanceof Error ? error : new Error(String(error))
+    }))
   );
 };
 
@@ -41,16 +41,14 @@ export const parseConfigJson = (
   rawConfig: string,
   method: string
 ): Effect.Effect<any, ProviderServiceConfigError> => {
-  return Effect.try({
-    try: () => JSON.parse(rawConfig),
-    catch: (error): ProviderServiceConfigError =>
-      new ProviderServiceConfigError({
-        description: "Failed to parse provider config",
-        module: "ProviderService",
-        method,
-        cause: error instanceof Error ? error : new Error(String(error))
-      })
-  });
+  return Effect.try(() => JSON.parse(rawConfig)).pipe(
+    Effect.mapError(error => new ProviderServiceConfigError({
+      description: "Failed to parse provider config",
+      module: "ProviderService",
+      method,
+      cause: error instanceof Error ? error : new Error(String(error))
+    }))
+  );
 };
 
 /**

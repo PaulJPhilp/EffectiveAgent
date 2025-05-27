@@ -67,7 +67,7 @@ export const defaultConfig: WeatherPipelineConfig = {
     type: "celsius",
     windSpeedUnit: "mps"
   },
-  defaultModelId: "claude-3-5-sonnet",
+  defaultModelId: "gpt-4o",
   defaultMaxTokens: 100,
   defaultTemperature: 0.7
 };

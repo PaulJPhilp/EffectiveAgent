@@ -14,6 +14,7 @@ import {
     Version,
 } from "@/schema.js";
 import { Schema as S } from "effect";
+import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
 import { PROVIDER_NAMES } from "../provider/provider-universe.js";
 import { MODEL_IDS } from "./model-universe.js";
 
@@ -34,7 +35,9 @@ export class ModelCapabilityDetail extends S.Class<ModelCapabilityDetail>("Model
     subDimensions: S.Array(SubDimensionProficiency).pipe(S.optional)
 }) { }
 
-export const Provider = S.Literal(...PROVIDER_NAMES);
+export const Provider = S.Class<{ name: string }>("Provider")({
+    name: S.Literal(...PROVIDER_NAMES)
+});
 export type Provider = typeof PROVIDER_NAMES[number];
 
 export class RateLimitSchema extends S.Class<RateLimitSchema>("RateLimitSchema")({
@@ -125,11 +128,8 @@ export type PublicModelInfoDefinition = S.Schema.Type<typeof PublicModelInfo>;
 
 // --- Root Configuration File Schema --- 
 // Updated to contain PublicModelInfo instead of Model
-export class ModelFile extends S.Class<ModelFile>("ModelsFile")({
-    name: Name,
+export class ModelFileSchema extends S.Class<ModelFileSchema>("ModelFileSchema")({
+    ...BaseConfigSchema.fields,
     description: Description.pipe(S.optional),
-    version: Version,
-    models: S.Array(PublicModelInfo).pipe(S.minItems(1)) // Use PublicModelInfo
+    models: S.Array(PublicModelInfo).pipe(S.minItems(1))
 }) { }
-
-export type ModelFileDefinition = S.Schema.Type<typeof ModelFile>;

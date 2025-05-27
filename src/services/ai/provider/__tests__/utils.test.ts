@@ -5,15 +5,21 @@ import { ConfigParseError, ConfigReadError, ConfigValidationError } from "@/serv
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { Effect, Layer } from 'effect';
 import { describe, expect, it } from 'vitest';
+import { ProviderService } from "../service.js";
+
+import { ProviderServiceApi } from "../api.js";
+import { FileSystem } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
+import path from "node:path";
 
 // Mocks
 const mockConfigString = '{"providers": [{"name": "openai"}]}' as const;
 const mockConfigService: ConfigurationServiceApi = {
-  loadConfig: <T>(options: { filePath: string }) =>
-    options.filePath === "providersConfigJsonString"
-      ? Effect.succeed(mockConfigString as unknown as T) as Effect.Effect<T, ConfigReadError, never>
-      : Effect.fail(new ConfigReadError({ filePath: options.filePath })) as Effect.Effect<T, ConfigReadError, never>,
-  readFile: () => Effect.fail(new ConfigReadError({ filePath: "test.json" })),
+  loadConfig: <T>() => Effect.fail(new ConfigReadError({ filePath: "test.json" })) as Effect.Effect<T, ConfigReadError, never>,
+  readFile: (filePath: string) =>
+    filePath === "./config/providers.json"
+      ? Effect.succeed(mockConfigString)
+      : Effect.fail(new ConfigReadError({ filePath })),
   parseJson: () => Effect.fail(new ConfigParseError({ filePath: "test.json" })),
   validateWithSchema: () => Effect.fail(new ConfigValidationError({ filePath: "test.json", validationError: {} as any })),
 };
@@ -30,6 +36,10 @@ function deepFindProviderConfigError(err: unknown, maxDepth = 10): boolean {
   if ('left' in err && err.left) {
     if (deepFindProviderConfigError(err.left, maxDepth - 1)) return true;
   }
+  // Handle Effect errors which have an 'error' property
+  if ('error' in err && err.error) {
+    if (deepFindProviderConfigError(err.error, maxDepth - 1)) return true;
+  }
   // Check all string keys
   for (const key of Object.keys(err)) {
     // @ts-ignore
@@ -43,51 +53,62 @@ function deepFindProviderConfigError(err: unknown, maxDepth = 10): boolean {
   return false;
 }
 
-describe('utils.ts', () => {
-  describe('loadConfigString', () => {
-    it('loads config string successfully', async () => {
-      const mockConfigLayer = Layer.succeed(ConfigurationService, mockConfigService);
-      const effect = loadConfigString(mockConfigService, 'testMethod');
-      const result = await Effect.runPromise(Effect.provide(effect, mockConfigLayer));
-      expect(result).toBe(mockConfigString);
-    });
-
-    it('returns ProviderServiceConfigError if config is missing', async () => {
-      const emptyConfigService: ConfigurationServiceApi = {
-        loadConfig: <T>() => Effect.fail(new ConfigReadError({ filePath: "test.json" })) as Effect.Effect<T, ConfigReadError, never>,
-        readFile: () => Effect.fail(new ConfigReadError({ filePath: "test.json" })),
-        parseJson: () => Effect.fail(new ConfigParseError({ filePath: "test.json" })),
-        validateWithSchema: () => Effect.fail(new ConfigValidationError({ filePath: "test.json", validationError: {} as any })),
-      };
-      const emptyConfigLayer = Layer.succeed(ConfigurationService, emptyConfigService);
-      const effect = loadConfigString(emptyConfigService, 'testMethod');
-      const result = await Effect.runPromiseExit(Effect.provide(effect, emptyConfigLayer));
-      expect(result._tag).toBe('Failure');
-      if (result._tag === 'Failure') {
-        expect(result.cause._tag).toBe('Fail');
-        if (result.cause._tag === 'Fail') {
-          expect(result.cause.error).toBeInstanceOf(ProviderServiceConfigError);
-        }
-      }
-    });
+describe('ProviderService Config Loading', () => {
+  const createTestService = () => Effect.gen(function* () {
+    const service = yield* ProviderService;
+    return service;
   });
 
-  describe('parseConfigJson', () => {
-    it('parses valid JSON', async () => {
-      const effect = parseConfigJson('{"foo":123}', 'testMethod');
-      const result = await Effect.runPromise(effect);
-      expect(result).toEqual({ foo: 123 });
-    });
+  it('initializes successfully with valid config', () =>
+    Effect.gen(function* () {
+      const service = yield* createTestService();
+      const client = yield* service.getProviderClient('openai');
+      expect(client).toBeDefined();
+    }).pipe(
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(NodeFileSystem.layer)
+    ));
 
-    it('returns ProviderServiceConfigError on invalid JSON', async () => {
-      const effect = parseConfigJson('not-json', 'testMethod');
-      const exit = await Effect.runPromiseExit(effect);
-
-      expect(exit._tag).toBe('Failure');
-      if (exit._tag === 'Failure') {
-        // deepFindProviderConfigError can inspect the Cause object directly for ProviderServiceConfigError
-        expect(deepFindProviderConfigError(exit.cause)).toBe(true);
+  it('fails with ProviderServiceConfigError when config file is missing', () =>
+    Effect.gen(function* () {
+      process.env.PROVIDERS_CONFIG_PATH = path.resolve(__dirname, 'nonexistent.json');
+      const service = yield* createTestService();
+      
+      try {
+        yield* service.getProviderClient('openai');
+        throw new Error('Expected error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(ProviderServiceConfigError);
       }
-    });
-  });
+    }).pipe(
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(NodeFileSystem.layer)
+    ));
+
+  it('fails with ProviderServiceConfigError when config is invalid JSON', () =>
+    Effect.gen(function* () {
+      // Create a temporary file with invalid JSON
+      const tempPath = path.resolve(__dirname, 'invalid.json');
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.writeFile(tempPath, new TextEncoder().encode('not-json'));
+
+      process.env.PROVIDERS_CONFIG_PATH = tempPath;
+      const service = yield* createTestService();
+      
+      try {
+        yield* service.getProviderClient('openai');
+        throw new Error('Expected error');
+      } catch (error) {
+        expect(error).toBeInstanceOf(ProviderServiceConfigError);
+      } finally {
+        // Clean up temp file
+        yield* fs.remove(tempPath);
+      }
+    }).pipe(
+      Effect.provide(ProviderService.Default),
+      Effect.provide(ConfigurationService.Default),
+      Effect.provide(NodeFileSystem.layer)
+    ));
 });

@@ -4,7 +4,7 @@ import { EntityParseError } from "@/errors.js";
  * @module services/ai/provider/service
  */
 import { ConfigurationService } from "@/services/core/configuration/service.js";        
-import { Effect, Schema as S } from "effect";
+import { Effect, Schema as S, Ref } from "effect";
 import { ProviderServiceApi, type ProviderClientApi } from "./api.js";
 import { makeAnthropicClient } from "./clients/anthropic-provider-client.js";
 import { makeDeepseekClient } from "./clients/deepseek-provider-client.js";
@@ -23,7 +23,13 @@ import { ProviderFile, ProvidersType } from "./schema.js";
  * @returns An Effect containing the validated ProviderFile or a ProviderServiceConfigError
  */
 const validateProviderConfig = (parsedConfig: any, method: string) => {
-    return S.decode(ProviderFile)(parsedConfig).pipe(
+    return Effect.gen(function* () {
+        yield* Effect.logDebug("Validating provider configuration", { method });
+        const result = yield* S.decode(ProviderFile)(parsedConfig);
+        yield* Effect.logDebug("Provider configuration validated successfully");
+        return result;
+    }).pipe(
+        Effect.tapError((cause) => Effect.logError("Provider configuration validation failed", { method, cause })),
         Effect.mapError(cause => new ProviderServiceConfigError({
             description: "Failed to validate provider config",
             module: "ProviderService",
@@ -47,18 +53,26 @@ const validateProviderConfig = (parsedConfig: any, method: string) => {
 
 export const providerServiceImplEffect = Effect.gen(function* () {
     const configService = yield* ConfigurationService;
+    const configRef = yield* Ref.make<ProvidersType | null>(null);
+
+    // Load config during initialization
+    yield* Effect.logInfo("Starting provider config load");
+    const configPath = process.env.PROVIDERS_CONFIG_PATH ?? "./config/providers.json";
+    yield* Effect.logInfo("Using provider config path", { configPath });
+    
+    const rawConfig = yield* configService.loadConfig({ filePath: configPath, schema: ProviderFile }).pipe(
+        Effect.tapError((error) => Effect.logError("Failed to load provider configuration", { configPath, error }))
+    );
+    yield* Effect.logInfo("Config file loaded", { providers: rawConfig.providers.map(p => p.name) });
+
+    const validConfig = yield* validateProviderConfig(rawConfig, "initialize");
+    yield* Effect.logDebug("Provider configuration loaded and validated successfully");
+
+    yield* Ref.set(configRef, validConfig);
+    yield* Effect.logInfo("Config stored in ref");
 
     return {
-        /**
-         * Loads provider configurations from the config provider
-         * @returns An Effect containing the validated provider configuration or a ProviderServiceConfigError
-         */
-        load: Effect.gen(function* () {
-            const configPath = process.env.PROVIDERS_CONFIG_PATH ?? "./config/providers.json";
-            const rawConfig = yield* configService.loadConfig({ filePath: configPath, schema: ProviderFile });
-            const validConfig = yield* validateProviderConfig(rawConfig, "load");
-            return validConfig;
-        }),
+
         /**
          * Retrieves and configures a provider client for the specified provider
          * @param providerName - The name of the provider to use
@@ -69,14 +83,25 @@ export const providerServiceImplEffect = Effect.gen(function* () {
          */
         getProviderClient: (providerName: ProvidersType) => {
             return Effect.gen(function* () {
-                const configPath = process.env.PROVIDERS_CONFIG_PATH ?? "./config/providers.json";
-                // Get the validated provider configuration
-                const rawConfig = yield* configService.loadConfig({ filePath: configPath, schema: ProviderFile });
-                const validConfig = yield* validateProviderConfig(rawConfig, "getProviderClient");
+                yield* Effect.logInfo("Getting provider client", { providerName });
+
+                // Get config
+                yield* Effect.logInfo("Checking config ref");
+                const config = yield* Ref.get(configRef);
+                if (!config) {
+                    yield* Effect.logError("Provider config not loaded");
+                    return yield* Effect.fail(new ProviderServiceConfigError({
+                        description: "Provider configuration not loaded. Call load() first.",
+                        module: "ProviderService",
+                        method: "getProviderClient"
+                    }));
+                }
+                yield* Effect.logInfo("Config found in ref", { providers: config.providers.map((p: { name: ProvidersType }) => p.name) });
 
                 // Find the provider info
-                const providerInfo = validConfig.providers.find(p => p.name === providerName);
+                const providerInfo = config.providers.find((p: { name: ProvidersType }) => p.name === providerName);
                 if (!providerInfo) {
+                    yield* Effect.logError("Provider not found", { providerName });
                     return yield* Effect.fail(new ProviderNotFoundError({
                         providerName,
                         module: "ProviderService",
@@ -87,6 +112,7 @@ export const providerServiceImplEffect = Effect.gen(function* () {
                 // Check for API key env var
                 const apiKeyEnvVar = providerInfo.apiKeyEnvVar;
                 if (!apiKeyEnvVar) {
+                    yield* Effect.logError("API key environment variable not configured", { providerName });
                     return yield* Effect.fail(new ProviderServiceConfigError({
                         description: `API key environment variable not configured for provider: ${providerName}`,
                         module: "ProviderService",
@@ -97,6 +123,7 @@ export const providerServiceImplEffect = Effect.gen(function* () {
                 // Load the API key directly from process.env
                 const apiKey = process.env[apiKeyEnvVar];
                 if (!apiKey) {
+                    yield* Effect.logError("API key not found in environment", { providerName, apiKeyEnvVar });
                     return yield* Effect.fail(new ProviderServiceConfigError({
                         description: `API key not found in environment: ${apiKeyEnvVar}`,
                         module: "ProviderService",
@@ -104,7 +131,7 @@ export const providerServiceImplEffect = Effect.gen(function* () {
                     }));
                 }
 
-                yield* Effect.log(`Using provider: ${providerName} with API key from env var: ${apiKeyEnvVar}`);
+                yield* Effect.logDebug("Configuring provider client", { providerName, apiKeyEnvVar });
 
                 // Construct the ProviderClientApi directly for each provider
                 switch (providerName) {
@@ -123,6 +150,7 @@ export const providerServiceImplEffect = Effect.gen(function* () {
                     case "deepseek":
                         return yield* makeDeepseekClient(apiKey);
                     default:
+                        yield* Effect.logError("Provider client factory not implemented", { providerName });
                         return yield* Effect.fail(new ProviderServiceConfigError({
                             description: `Provider client factory not implemented for provider: ${providerName}`,
                             module: "ProviderService",

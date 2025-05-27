@@ -14,7 +14,7 @@ import type { BaseConfig } from "./schema.js";
 /**
  * Options for loading a configuration file
  */
-export interface LoadConfigOptions<T extends BaseConfig> {
+export interface LoadConfigOptions<T> {
     readonly filePath: string;
     readonly schema: Schema.Schema<T, T>;
 }
@@ -46,7 +46,7 @@ export interface ConfigurationServiceApi {
      * @param filePath Original file path for error context
      * @returns Effect yielding the validated data
      */
-    readonly validateWithSchema: <T extends BaseConfig>(
+    readonly validateWithSchema: <T>(
         data: unknown,
         schema: Schema.Schema<T, T>,
         filePath: string
@@ -57,7 +57,7 @@ export interface ConfigurationServiceApi {
      * @param options Options containing file path and schema
      * @returns Effect yielding the validated configuration
      */
-    readonly loadConfig: <T extends BaseConfig>(
+    readonly loadConfig: <T>(
         options: LoadConfigOptions<T>
     ) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
 }

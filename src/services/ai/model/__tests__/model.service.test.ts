@@ -6,7 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ModelService } from "../service.js";
 import { ModelNotFoundError } from "../errors.js";
 import { ModelCapability } from "@/schema.js";
-import { PublicModelInfoDefinition, ModelFile } from "../schema.js";
+import { PublicModelInfoDefinition, ModelFileSchema } from "../schema.js";
 import type { ModelServiceApi } from "../api.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import type { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
@@ -294,7 +294,7 @@ describe("ModelService (debug)", () => {
             const configService = yield* ConfigurationService;
             const configPath = process.env.MODELS_CONFIG_PATH ?? "";
             console.log("MODELS_CONFIG_PATH:", configPath);
-            const rawConfig = yield* configService.loadConfig({ filePath: configPath, schema: ModelFile });
+            const rawConfig = yield* configService.loadConfig({ filePath: configPath, schema: ModelFileSchema });
             console.log("Loaded config:", JSON.stringify(rawConfig, null, 2));
             return rawConfig;
         }).pipe(

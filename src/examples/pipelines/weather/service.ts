@@ -3,99 +3,15 @@
  * @module ea/pipelines/weather/service
  */
 
-import { LoggingServiceApi } from "@/services/core/logging/api.js";
 import TextService from "@/services/pipeline/producers/text/service.js";
+import { LoggingService } from "@/services/core/logging/service.js";
+import { Effect, Logger, Option } from "effect";
 import type { JsonObject } from "@/types.js";
-import { Effect, Option } from "effect";
+
 import { WeatherServiceApi } from "./api.js";
 import { WeatherPipelineError } from "./errors.js";
-import type { WeatherData, WeatherPipelineInput } from "./types.js";
+import type { WeatherData, WeatherPipelineInput, WeatherCondition } from "./types.js";
 import { defaultConfig } from "./types.js";
-
-const getWeather = (input: WeatherPipelineInput, logger: LoggingServiceApi): Effect.Effect<WeatherData, WeatherPipelineError, never> =>
-  Effect.gen(function* () {
-    const textService = yield* TextService;
-
-    yield* logger.info("Getting weather data", {
-      location: input.location.toString()
-    } as JsonObject).pipe(
-      Effect.mapError(error => new WeatherPipelineError({ message: "Logger error", cause: error }))
-    );
-
-    // Get weather data from text service
-    const response = yield* textService.generate({
-      prompt: `Get the weather for ${input.location}. Return a JSON object with the current weather data.`,
-      modelId: "claude-3-5-sonnet",
-      system: Option.some("You are a weather service API. Return valid JSON with: location (name, country), temperature, temperatureFeelsLike, humidity, windSpeed, windDirection, conditions, timestamp."),
-      parameters: {
-        temperature: 0.1
-      }
-    }).pipe(
-      Effect.map(response => {
-        const data = response.data
-        return {
-          location: {
-            name: data.location.name,
-            country: data.location.country
-          },
-          temperature: data.temperature,
-          temperatureFeelsLike: data.temperatureFeelsLike,
-          humidity: data.humidity,
-          windSpeed: data.windSpeed,
-          windDirection: data.windDirection,
-          conditions: data.conditions,
-          timestamp: data.timestamp,
-          units: input.units || defaultConfig.defaultUnits
-        };
-      }),
-      Effect.mapError(error => new WeatherPipelineError({ message: "Failed to get weather data", cause: error }))
-    );
-
-    yield* logger.info("Weather data retrieved", {
-      location: response.location as unknown as JsonObject
-    } as JsonObject).pipe(
-      Effect.mapError(error => new WeatherPipelineError({ message: "Logger error", cause: error }))
-    );
-
-    return response;
-  }).pipe(
-    Effect.provide(TextService.Default)
-  );
-
-const getWeatherSummary = (input: WeatherPipelineInput, logger: LoggingServiceApi): Effect.Effect<string, WeatherPipelineError, never> =>
-  Effect.gen(function* () {
-    const textService = yield* TextService;
-    const data = yield* getWeather(input, logger);
-
-    yield* logger.info("Generating weather summary", {
-      location: data.location as unknown as JsonObject
-    } as JsonObject).pipe(
-      Effect.mapError(error => new WeatherPipelineError({ message: "Logger error", cause: error }))
-    );
-
-    const summary = yield* textService.generate({
-      prompt: `Summarize the current weather for ${data.location.name}, ${data.location.country}. Temperature: ${data.temperature}°C, Feels like: ${data.temperatureFeelsLike}°C, Humidity: ${data.humidity}%, Wind: ${data.windSpeed} m/s`,
-      modelId: defaultConfig.defaultModelId,
-      system: Option.some("You are a weather service. Provide a natural, concise summary of the weather conditions."),
-      parameters: {
-        temperature: defaultConfig.defaultTemperature
-      }
-    }).pipe(
-      Effect.map((response): string => response.data.output),
-      Effect.mapError((error): WeatherPipelineError => new WeatherPipelineError({ message: "Failed to generate weather summary", cause: error }))
-    );
-
-    yield* logger.info("Weather summary generated", {
-      location: data.location as unknown as JsonObject,
-      summary
-    } as JsonObject).pipe(
-      Effect.mapError(error => new WeatherPipelineError({ message: "Logger error", cause: error }))
-    );
-
-    return summary;
-  }).pipe(
-    Effect.provide(TextService.Default)
-  );
 
 /**
  * Weather service implementation
@@ -105,37 +21,116 @@ export class WeatherService extends Effect.Service<WeatherServiceApi>()(
   {
     effect: Effect.gen(function* () {
       const textService = yield* TextService;
-      const logger = yield* FileLogger;
-
-      // Configure logger with test settings if in test environment
-      if (process.env.NODE_ENV === 'test') {
-        yield* logger.setConfig({
-          logDir: process.env.LOG_DIR || 'logs',
-          logFileBase: process.env.LOG_FILE_BASE || 'weather'
-        });
-      }
-
-      yield* logger.info("Weather service initialized", {
+      yield* Effect.log("Weather service initialized", {
         config: defaultConfig
       } as JsonObject);
 
+      const getWeather = (input: WeatherPipelineInput): Effect.Effect<WeatherData, WeatherPipelineError, never> =>
+        Effect.gen(function* () {
+          yield* Effect.log("Getting weather data", {
+            location: input.location.toString()
+          } as JsonObject);
+
+          // Get weather data from text service
+          const response = yield* textService.generate({
+            prompt: `Get the weather for ${input.location}. Return a JSON object with the current weather data.`,
+            modelId: "gpt-4o",
+            system: Option.some("You are a weather service API. Return valid JSON with: location (name, country), temperature, temperatureFeelsLike, humidity, windSpeed, windDirection, conditions, timestamp."),
+            parameters: {
+              temperature: 0.1
+            }
+          });
+
+          yield* Effect.log("Raw text service response", { 
+            output: response.data.output
+          } as JsonObject);
+
+          const parsed = JSON.parse(response.data.output) as {
+            location: { name: string; country: string };
+            temperature: number;
+            temperatureFeelsLike: number;
+            humidity: number;
+            windSpeed: number;
+            windDirection: number;
+            conditions: { condition: string; description: string; icon: string };
+            timestamp: string;
+          };
+
+          yield* Effect.log("Parsed weather data", parsed as JsonObject);
+
+          const weatherData: WeatherData = {
+            location: {
+              name: parsed.location.name,
+              country: parsed.location.country
+            },
+            temperature: parsed.temperature,
+            temperatureFeelsLike: parsed.temperatureFeelsLike,
+            humidity: parsed.humidity,
+            windSpeed: parsed.windSpeed,
+            windDirection: parsed.windDirection,
+            conditions: [parsed.conditions] as ReadonlyArray<WeatherCondition>,
+            timestamp: parsed.timestamp,
+            units: input.units || defaultConfig.defaultUnits
+          };
+
+          yield* Effect.log("Weather data transformed", { 
+            location: { name: weatherData.location.name, country: weatherData.location.country },
+            temperature: weatherData.temperature,
+            humidity: weatherData.humidity,
+            windSpeed: weatherData.windSpeed,
+            conditions: weatherData.conditions.map((c: WeatherCondition) => ({ 
+              condition: c.condition,
+              description: c.description,
+              icon: c.icon
+            }))
+          } as JsonObject);
+
+          return weatherData;
+        }).pipe(
+          Effect.mapError((error: unknown) => new WeatherPipelineError({ 
+            message: "Failed to get weather data", 
+            cause: error 
+          }))
+        );
+
+      const getWeatherSummary = (input: WeatherPipelineInput): Effect.Effect<string, WeatherPipelineError, never> =>
+        Effect.gen(function* () {
+          const data = yield* getWeather(input);
+          yield* Effect.log("Generating weather summary", {
+            location: data.location as unknown as JsonObject
+          } as JsonObject);
+
+          const summary = yield* textService.generate({
+            prompt: `Summarize the current weather for ${data.location.name}, ${data.location.country}. Temperature: ${data.temperature}°C, Feels like: ${data.temperatureFeelsLike}°C, Humidity: ${data.humidity}%, Wind: ${data.windSpeed} m/s`,
+            modelId: defaultConfig.defaultModelId,
+            system: Option.some("You are a weather service. Provide a natural, concise summary of the weather conditions."),
+            parameters: {
+              temperature: defaultConfig.defaultTemperature
+            }
+          }).pipe(
+            Effect.map((response): string => response.data.output),
+            Effect.mapError((error): WeatherPipelineError => new WeatherPipelineError({ message: "Failed to generate weather summary", cause: error }))
+          );
+
+          yield* Effect.log("Weather summary generated", {
+            location: data.location as unknown as JsonObject,
+            summary
+          } as JsonObject);
+
+          return summary;
+        }).pipe(
+          Effect.mapError((error): WeatherPipelineError => 
+            error instanceof WeatherPipelineError 
+              ? error 
+              : new WeatherPipelineError({ message: "Unexpected error in weather summary", cause: error })
+          )
+        );
+
       return {
-        getWeather: (input: WeatherPipelineInput) =>
-          Effect.gen(function* () {
-            yield* logger.info("Getting weather data", { input } as JsonObject);
-            const result = yield* getWeather(input, logger);
-            yield* logger.info("Weather data retrieved", { location: input.location } as JsonObject);
-            return result;
-          }),
-        getWeatherSummary: (input: WeatherPipelineInput) =>
-          Effect.gen(function* () {
-            yield* logger.info("Getting weather summary", { input } as JsonObject);
-            const result = yield* getWeatherSummary(input, logger);
-            yield* logger.info("Weather summary generated", { location: input.location } as JsonObject);
-            return result;
-          })
+        getWeather,
+        getWeatherSummary
       };
     }),
-    dependencies: [TextService.Default, FileLogger.Default]
+    dependencies: [TextService.Default]
   }
 ) { } 

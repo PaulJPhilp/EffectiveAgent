@@ -38,12 +38,6 @@ import {
  */
 export type ProviderServiceApi = {
     /**
-     * Loads the provider configuration.
-     * Returns a ProviderFile containing ProviderMetadata objects.
-     */
-    load: () => Effect.Effect<{ providers: ProviderMetadata[]; name: string; description: string }, never>;
-
-    /**
      * Gets a provider client by name.
      * @param providerName The name of the provider to get.
      * @returns An Effect resolving to the provider client.
