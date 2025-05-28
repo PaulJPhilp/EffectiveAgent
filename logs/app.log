@@ -300,3 +300,9 @@ timestamp=2025-05-27T00:50:08.681Z level=INFO fiber=#9 message="Getting weather 
 timestamp=2025-05-27T00:50:08.681Z level=INFO fiber=#9 message="Starting text generation" message="{\"modelId\":\"gpt-4o\",\"promptLength\":81}"
 timestamp=2025-05-27T00:50:08.684Z level=ERROR fiber=#9 message="Provider not found" message={}
 timestamp=2025-05-27T00:50:08.684Z level=ERROR fiber=#9 message="Failed to get provider client" message="{\"error\":{\"name\":\"ProviderNotFoundError\",\"module\":\"ProviderService\",\"method\":\"getProviderClient\",\"description\":\"Provider undefined not found\"}}"
+timestamp=2025-05-27T15:54:31.640Z level=INFO fiber=#3 message="Debug message"
+timestamp=2025-05-27T15:54:31.635Z level=INFO fiber=#1 message="Test with context" userId=123 action=login
+timestamp=2025-05-27T15:54:31.637Z level=INFO fiber=#2 message="Debug message"
+timestamp=2025-05-27T15:54:31.638Z level=INFO fiber=#2 message="Info message"
+timestamp=2025-05-27T20:30:20.486Z level=INFO fiber=#2 message="Global logger initialized. Level: INFO, Path: ./logs/app.log"
+timestamp=2025-05-27T20:33:42.601Z level=INFO fiber=#2 message="Global logger initialized. Level: INFO, Path: ./logs/app.log"

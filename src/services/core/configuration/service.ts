@@ -13,6 +13,9 @@ import {
 } from "./errors.js";
 import { BaseConfig, BaseConfigSchema } from "./schema.js";
 import { NodeFileSystem } from "@effect/platform-node";
+import { ProviderFile } from "@/services/ai/provider/schema.js";
+import { ModelFileSchema } from "@/services/ai/model/schema.js";
+import { PolicyConfigFile } from "@/services/ai/policy/schema.js";
 
 export const configurationServiceEffect = Effect.gen(function* () {
     // Get dependencies
@@ -61,12 +64,25 @@ export const configurationServiceEffect = Effect.gen(function* () {
             return yield* validateWithSchema(parsed, schema, filePath);
         });
 
+    // Load service-specific config files
+    const loadProviderConfig = (filePath: string) =>
+        loadConfig({ filePath, schema: ProviderFile });
+
+    const loadModelConfig = (filePath: string) =>
+        loadConfig({ filePath, schema: ModelFileSchema });
+
+    const loadPolicyConfig = (filePath: string) =>
+        loadConfig({ filePath, schema: PolicyConfigFile });
+
     // Return service implementation
     return {
         readFile,
         parseJson,
         validateWithSchema,
-        loadConfig
+        loadConfig,
+        loadProviderConfig,
+        loadModelConfig,
+        loadPolicyConfig
     };
 });
 

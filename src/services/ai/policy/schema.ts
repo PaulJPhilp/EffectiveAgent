@@ -1,4 +1,5 @@
-import { BaseEntitySchema, RateLimit } from "@/schema.js";
+import { BaseEntitySchema, Description, Name, RateLimit } from "@/schema.js";
+import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
 /**
  * @file Defines the schema for Policy entities.
  */
@@ -16,11 +17,7 @@ export class PolicyRuleData extends S.Class<PolicyRuleData>("PolicyRuleData")({
   priority: S.Number,
   enabled: S.Boolean,
   description: S.optional(S.String),
-  rateLimit: S.optional(S.Class<RateLimit>("RateLimit")({
-    maxRequests: S.Number,
-    windowSeconds: S.Number,
-    scope: S.Literal("user", "global")
-  }))
+  rateLimit: S.optional(RateLimit)
 }) { }
 
 /**
@@ -49,5 +46,16 @@ export class PolicyRuleEntity extends BaseEntitySchema.extend<PolicyRuleEntity>(
 export class PolicyUsageEntity extends BaseEntitySchema.extend<PolicyUsageEntity>("PolicyUsageEntity")({
   data: PolicyUsageData
 }) { }
+
+/**
+ * Schema for the policy configuration file
+ */
+export class PolicyConfigFile extends S.Class<PolicyConfigFile>("PolicyConfigFile")({
+  ...BaseConfigSchema.fields,
+  description: Description.pipe(S.optional),
+  name: Name,
+  policies: S.Array(PolicyRuleData).pipe(S.minItems(1))
+}) { }
+
 
 

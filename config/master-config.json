@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0",
+  "runtimeSettings": {
+    "fileSystemImplementation": "node" 
+  },
+  "logging": {
+    "level": "info",
+    "filePath": "./logs/app.log"
+  },
+  "configPaths": {
+    "providers": "./config/providers.json",
+    "models": "./config/models.json",
+    "policy": "./config/policy.json"
+  }
+}

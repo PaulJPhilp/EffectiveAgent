@@ -70,5 +70,13 @@ export interface PolicyServiceApi {
    */
   deleteRule: (
     ruleId: string
-  ) => Effect.Effect<void, PolicyError>;
+  ) => Effect.Effect<Option.Option<PolicyRuleEntity>, PolicyError>;
+
+  /**
+   * Resets all in-memory state (rules, usage, rate limits).
+   * This method is intended for testing purposes only.
+   * 
+   * @returns Effect with void and never fails
+   */
+  resetAll: () => Effect.Effect<void, never>;
 }

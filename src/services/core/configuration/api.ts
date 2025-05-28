@@ -4,11 +4,10 @@
  */
 
 import { Effect, Schema } from "effect";
-import type {
-    ConfigParseError,
-    ConfigReadError,
-    ConfigValidationError
-} from "./errors.js";
+import { ConfigReadError, ConfigParseError, ConfigValidationError } from "./errors.js";
+import { ProviderFile } from "@/services/ai/provider/schema.js";
+import { ModelFileSchema } from "@/services/ai/model/schema.js";
+import { PolicyConfigFile } from "@/services/ai/policy/config-schema.js";
 import type { BaseConfig } from "./schema.js";
 
 /**
@@ -60,4 +59,25 @@ export interface ConfigurationServiceApi {
     readonly loadConfig: <T>(
         options: LoadConfigOptions<T>
     ) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
+
+    /**
+     * Load and validate provider configuration.
+     */
+    readonly loadProviderConfig: (
+        filePath: string
+    ) => Effect.Effect<Schema.Schema.Type<typeof ProviderFile>, ConfigReadError | ConfigParseError | ConfigValidationError>;
+
+    /**
+     * Load and validate model configuration.
+     */
+    readonly loadModelConfig: (
+        filePath: string
+    ) => Effect.Effect<Schema.Schema.Type<typeof ModelFileSchema>, ConfigReadError | ConfigParseError | ConfigValidationError>;
+
+    /**
+     * Load and validate policy configuration.
+     */
+    readonly loadPolicyConfig: (
+        filePath: string
+    ) => Effect.Effect<Schema.Schema.Type<typeof PolicyConfigFile>, ConfigReadError | ConfigParseError | ConfigValidationError>;
 }

@@ -22,6 +22,9 @@ const mockConfigService: ConfigurationServiceApi = {
       : Effect.fail(new ConfigReadError({ filePath })),
   parseJson: () => Effect.fail(new ConfigParseError({ filePath: "test.json" })),
   validateWithSchema: () => Effect.fail(new ConfigValidationError({ filePath: "test.json", validationError: {} as any })),
+  loadProviderConfig: () => Effect.fail(new ConfigReadError({ filePath: "test.json" })),
+  loadModelConfig: () => Effect.fail(new ConfigReadError({ filePath: "test.json" })),
+  loadPolicyConfig: () => Effect.fail(new ConfigReadError({ filePath: "test.json" })),
 };
 
 // Deeply searches all nested properties for a ProviderServiceConfigError instance
