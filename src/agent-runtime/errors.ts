@@ -1,4 +1,5 @@
 import { EffectiveError } from "@/errors.js"
+import { AgentRuntimeId } from "./types.js"
 
 /**
  * Common interface for agent runtime error properties.
@@ -89,5 +90,21 @@ export class AgentRuntimeProcessingError extends AgentRuntimeError {
         super(props)
         this.activityId = props.activityId
         this.cause = props.cause
+    }
+}
+
+/**
+ * Error thrown when there is an issue initializing the agent runtime.
+ */
+export class AgentRuntimeInitializationError extends EffectiveError {
+    readonly _tag = "AgentRuntimeInitializationError";
+
+    constructor(params: {
+        description: string;
+        module: string;
+        method: string;
+        cause?: unknown;
+    }) {
+        super(params);
     }
 }

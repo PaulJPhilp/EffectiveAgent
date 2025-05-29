@@ -14,7 +14,7 @@ interface RuntimeEntry<S> {
 export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>()(
     "AgentRuntimeService",
     {
-        effect: Effect.gen(function* () {
+        scoped: Effect.gen(function* () {
             const runtimes = yield* Ref.make<Map<AgentRuntimeId, RuntimeEntry<any>>>(new Map())
 
             const create = <S>(id: AgentRuntimeId, initialState: S) =>

@@ -2,8 +2,20 @@
  * @file Defines core Effect schemas used across the application.
  */
 
-import { EffectiveRole } from "@/types.js"; // Added import for EffectiveRole
 import { Schema as S } from "effect";
+
+/**
+ * Schema for model roles.
+ */
+export const EffectiveRole = S.Union(
+  S.Literal("user"),
+  S.Literal("model"),
+  S.Literal("system"),
+  S.Literal("assistant"),
+  S.Literal("tool")
+);
+export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>;
+
 
 /**
  * Text part in a message
@@ -115,10 +127,10 @@ export class MetadataMap extends S.Class<MetadataMap>("MetadataMap")({
 export class BaseEntitySchema extends S.Class<BaseEntitySchema>("BaseEntitySchema")({
   /** Unique identifier for the entity */
   id: S.String,
-  /** When the entity was created (ISO format timestamp) */
-  createdAt: S.String,
-  /** When the entity was last updated (ISO format timestamp) */
-  updatedAt: S.String,
+  /** When the entity was created */
+  createdAt: S.Date,
+  /** When the entity was last updated */
+  updatedAt: S.Date,
 }) { }
 
 /**
@@ -208,3 +220,7 @@ export class Message extends S.Class<Message>("Message")({
   /** Optional metadata */
   metadata: S.optional(Metadata)
 }) { }
+
+// Compatibility exports for legacy imports
+export { Message as EffectiveMessage };
+export type { Part as EffectiveLocalPart };

@@ -1,3 +1,6 @@
+import { ModelServiceApi, ProviderServiceApi } from "@/services/ai/index.js"
+import { PolicyServiceApi } from "@/services/ai/policy/api.js"
+import { ConfigurationServiceApi } from "@/services/core/configuration/api.js"
 import { Brand, Effect, Stream } from "effect"
 
 /**
@@ -236,3 +239,15 @@ export interface AgentRuntimeFactory {
         config?: Partial<AgentRuntimeConfig>
     ) => Effect.Effect<AgentRuntime<S>, Error>
 }
+
+/**
+ * Initializes the AgentRuntime system with the provided master configuration.
+ * This sets up all required services and creates the Effect runtime.
+ */
+// Define the runtime services type
+export type RuntimeServices = {
+  readonly configurationService: ConfigurationServiceApi;
+  readonly providerService: ProviderServiceApi;
+  readonly modelService: ModelServiceApi;
+  readonly policyService: PolicyServiceApi;
+};  

@@ -1,4 +1,4 @@
-import { type EffectiveRole } from "@/types.js";
+import { type EffectiveRole } from "@/schema.js";
 import {
   InvalidInputError,
   InvalidMessageError,

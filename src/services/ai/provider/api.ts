@@ -43,6 +43,18 @@ export type ProviderServiceApi = {
      * @returns An Effect resolving to the provider client.
      */
     getProviderClient: (providerName: string) => Effect.Effect<ProviderClientApi, never>;
+
+    /**
+     * Checks the health of the provider service.
+     * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
+     */
+    healthCheck: () => Effect.Effect<void, ProviderServiceConfigError>;
+
+    /**
+     * Shuts down the provider service and cleans up resources.
+     * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
+     */
+    shutdown: () => Effect.Effect<void, ProviderServiceConfigError>;
 };
 
 /**

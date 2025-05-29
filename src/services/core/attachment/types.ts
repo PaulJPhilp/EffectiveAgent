@@ -13,7 +13,7 @@ export type CreateAttachmentLinkInput = {
     entityB_id: string;
     entityB_type: string;
     linkType?: string;
-    metadata?: Record<string, unknown>;
+    metadata?: { readonly key: string; readonly value: string | number | boolean | null | { readonly [x: string]: unknown } | readonly unknown[] };
     createdBy?: string;
     expiresAt?: number;
 };

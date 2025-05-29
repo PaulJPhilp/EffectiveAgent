@@ -5,6 +5,7 @@
  */
 
 import { Effect, Layer, Option } from "effect";
+import { EntityId } from "@/types.js";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "../repository/errors.js";
 import { RepositoryService } from "../repository/service.js";
 import type { FileServiceApi } from "./api.js";
@@ -194,12 +195,6 @@ export class FileService extends Effect.Service<FileServiceApi>()(
         dependencies: []
     }
 ) { }
-
-/**
- * Live Layer for the FileService.
- * Provides the default file storage and retrieval implementation.
- */
-export const FileServiceLive = Layer.succeed(FileService);
 
 /**
  * Default export for the FileService.

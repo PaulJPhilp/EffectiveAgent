@@ -1,6 +1,5 @@
 import { ModelCapability } from "@/schema.js";
 import { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
-import { LoggingServiceApi } from "@/services/core/logging/api.js";
 import { EffectiveResponse } from "@/types.js";
 import { Effect } from "effect";
 import { ModelServiceApi } from "../model/api.js";
@@ -87,13 +86,12 @@ export const createResponse = <T extends GenerateBaseResult>(result: T): Effect.
 export function getProviderName(params: {
   modelService: ModelServiceApi;
   modelId: string;
-  logger: LoggingServiceApi;
   method: string;
 }): Effect.Effect<string, ProviderServiceConfigError> {
-  const { modelService, modelId, logger, method } = params;
+  const { modelService, modelId, method } = params;
   return modelService.getProviderName(modelId).pipe(
     Effect.tapError((err: unknown) =>
-      logger.error(
+      Effect.logError(
         `Provider lookup failed for modelId ${modelId}: ${err instanceof Error ? err.message : String(err)}`
       )
     ),

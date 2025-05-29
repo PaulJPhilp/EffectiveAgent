@@ -79,4 +79,16 @@ export interface PolicyServiceApi {
    * @returns Effect with void and never fails
    */
   resetAll: () => Effect.Effect<void, never>;
+
+  /**
+   * Checks the health of the policy service.
+   * @returns Effect with void or PolicyError
+   */
+  healthCheck: () => Effect.Effect<void, PolicyError>;
+
+  /**
+   * Shuts down the policy service and cleans up resources.
+   * @returns Effect with void or PolicyError
+   */
+  shutdown: () => Effect.Effect<void, PolicyError>;
 }

@@ -224,22 +224,35 @@ export const MockWeatherServiceTestImplementation: WeatherServiceApi = {
     getForecast: (_city?: string) => Effect.succeed(MOCK_WEATHER_RESPONSE),
 }
 
-// Test Layers: These provide mock implementations for services during tests
-export const WeatherConfigTestLayer: Layer.Layer<WeatherConfigService> = Layer.succeed(
-    WeatherConfigService, // The Tag (service class itself)
-    MockWeatherConfigTestImplementation, // The mock implementation object
-)
+// Test Service Implementations using Effect.Service pattern
+export class TestWeatherConfigService extends Effect.Service<WeatherPipelineConfig>()(
+    "TestWeatherConfigService",
+    {
+        effect: Effect.sync(() => MOCK_WEATHER_PIPELINE_CONFIG)
+    }
+) { }
+
+export class TestWeatherService extends Effect.Service<WeatherServiceApi>()(
+    "TestWeatherService",
+    {
+        effect: Effect.sync(() => ({
+            getForecast: (_city?: string) => Effect.succeed(MOCK_WEATHER_RESPONSE)
+        }))
+    }
+) { }
+
+// Test Layers: These provide the test service implementations
+export const WeatherConfigTestLayer = TestWeatherConfigService.Default
 
 // Provides a mock WeatherService that uses a mock WeatherConfigService
-export const WeatherServiceTestLayer: Layer.Layer<WeatherService> = Layer.provide(
-    Layer.succeed(WeatherService, MockWeatherServiceTestImplementation), // Provides the mock WeatherService implementation
-    WeatherConfigTestLayer, // Provides the WeatherConfigService dependency (which is also mocked)
+export const WeatherServiceTestLayer = Layer.provide(
+    TestWeatherService.Default,
+    WeatherConfigTestLayer
 )
 
 // Alternative Test Layer: Uses the real WeatherService logic but with a mocked WeatherConfigService
 // This is useful for testing the WeatherService's transformation logic without hitting the actual API.
-export const WeatherServiceWithMockConfigTestLayer: Layer.Layer<WeatherService> =
-    Layer.provide(
-        WeatherService.Default, // The real WeatherService.layer
-        WeatherConfigTestLayer, // But with the mocked configuration
-    ) 
+export const WeatherServiceWithMockConfigTestLayer = Layer.provide(
+    WeatherService.Default,
+    WeatherConfigTestLayer
+)

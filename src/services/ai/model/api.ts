@@ -52,4 +52,16 @@ export type ModelServiceApi = {
    * @error ModelValidationError If the model lacks required capabilities.
    */
   validateModel: (modelId: string) => Effect.Effect<boolean, ModelNotFoundError>;
+
+  /**
+   * Checks the health of the model service.
+   * @returns An Effect that resolves to void on success or fails with ModelNotFoundError
+   */
+  healthCheck: () => Effect.Effect<void, ModelNotFoundError>;
+
+  /**
+   * Shuts down the model service and cleans up resources.
+   * @returns An Effect that resolves to void on success or fails with ModelNotFoundError
+   */
+  shutdown: () => Effect.Effect<void, ModelNotFoundError>;
 };

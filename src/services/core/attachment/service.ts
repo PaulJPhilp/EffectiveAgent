@@ -14,7 +14,8 @@ import {
     AttachmentValidationError
 } from "./errors.js";
 import {
-    AttachmentLinkEntity
+    AttachmentLinkEntity,
+    AttachmentLinkEntityData
 } from "./schema.js";
 import { CreateAttachmentLinkInput } from "./types.js";
 
@@ -33,15 +34,15 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                 input: CreateAttachmentLinkInput,
             ): Effect.Effect<AttachmentLinkEntity, AttachmentDbError> => {
                 // Construct the data payload for the repository
-                const dataToCreate = {
+                const dataToCreate: AttachmentLinkEntityData = {
                     entityA_id: input.entityA_id,
                     entityA_type: input.entityA_type,
                     entityB_id: input.entityB_id,
                     entityB_type: input.entityB_type,
-                    linkType: input.linkType, // Pass optional linkType
-                    metadata: input.metadata, // Pass optional metadata
-                    createdBy: input.createdBy, // Pass optional creator info
-                    expiresAt: input.expiresAt, // Pass optional expiration date
+                    metadata: input.metadata ?? { key: "", value: null },
+                    ...(input.linkType ? { linkType: input.linkType } : {}),
+                    ...(input.createdBy ? { createdBy: input.createdBy } : {}),
+                    ...(input.expiresAt ? { expiresAt: input.expiresAt } : {}),
                 };
                 return repo.create(dataToCreate).pipe(
                     Effect.mapError(
@@ -479,12 +480,6 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
         dependencies: [] // No explicit dependencies here as they're provided through the layer system
     }
 ) { }
-
-/**
- * Live Layer for the AttachmentService.
- * Provides the default implementation for attachment link operations.
- */
-export const AttachmentServiceLive = Layer.succeed(AttachmentService);
 
 /**
  * Default export for the AttachmentService.

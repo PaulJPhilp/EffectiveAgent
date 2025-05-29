@@ -2,21 +2,10 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
-import { EffectiveMessage, Part as EffectiveLocalPart } from "@/message-types.js";
+import { EffectiveMessage, Part as EffectiveLocalPart } from "@/schema.js";
 import { Effect, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 
-/**
- * Schema for model roles.
- */
-export const EffectiveRole = S.Union(
-  S.Literal("user"),
-  S.Literal("model"),
-  S.Literal("system"),
-  S.Literal("assistant"),
-  S.Literal("tool")
-);
-export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>;
 
 /**
  * Union type for all valid part types in the input pipeline.

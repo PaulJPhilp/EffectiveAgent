@@ -4,6 +4,8 @@
 
 import { BaseEntitySchema } from "@/schema.js";
 import { Schema as S } from "effect";
+import { JsonObject } from "@/types.js";
+import { BaseEntity, BaseEntityWithData } from "@/services/core/repository/types.js";
 
 // Helper for EntityId schema
 function EntityIdSchema() {
@@ -28,9 +30,8 @@ export const TagEntitySchema = S.extend(
 );
 
 // Inferred types for TagEntity
-export type TagEntityData = S.Schema.Type<typeof TagEntityDataSchema>;
-export type TagEntity = S.Schema.Type<typeof TagEntitySchema>;
-
+export type TagEntityData = S.Schema.Type<typeof TagEntityDataSchema> & JsonObject;
+export interface TagEntity extends BaseEntityWithData<TagEntityData> {}
 
 // --- EntityTagLink Entity ---
 
@@ -54,6 +55,5 @@ export const EntityTagLinkEntitySchema = S.extend(
 );
 
 // Inferred types for EntityTagLinkEntity
-export type EntityTagLinkEntityData =   S.Schema.Type<typeof EntityTagLinkEntityDataSchema>;
-export type EntityTagLinkEntity = S.Schema.Type<typeof EntityTagLinkEntitySchema>;
-
+export type EntityTagLinkEntityData = S.Schema.Type<typeof EntityTagLinkEntityDataSchema> & JsonObject;
+export interface EntityTagLinkEntity extends BaseEntityWithData<EntityTagLinkEntityData> {}

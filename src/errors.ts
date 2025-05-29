@@ -22,22 +22,31 @@ export class BaseError extends Error {
  * Adds module, method, and any additional context needed for debugging.
  */
 export class EffectiveError extends BaseError {
-  public readonly module: string
-  public readonly method: string
-  public readonly cause?: unknown
-  public readonly description: string
+  public readonly module: string;
+  public readonly method: string;
+  public readonly cause?: unknown;
+  public readonly description: string;
 
   constructor(params: {
-    description: string
-    module: string
-    method: string
-    cause?: unknown
+    description: string;
+    module: string;
+    method: string;
+    cause?: unknown;
   }) {
-    super(params.description)
-    this.description = params.description
-    this.module = params.module
-    this.method = params.method
-    this.cause = params.cause
+    super(params.description);
+    this.description = params.description;
+    this.module = params.module;
+    this.method = params.method;
+    this.cause = params.cause;
+  }
+
+  /**
+   * Get a string representation of the error
+   */
+  toString(): string {
+    return `${this.name}: ${this.message} [module: ${this.module}, method: ${this.method}]${
+      this.cause ? `\nCaused by: ${this.cause}` : ""
+    }`;
   }
 }
 

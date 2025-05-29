@@ -7,6 +7,7 @@ import { Layer, Option } from "effect";
 import * as Effect from "effect/Effect";
 import { RepositoryError } from "../repository/errors.js";
 import { RepositoryService } from "../repository/service.js";
+import { BaseEntityWithData } from "../repository/types.js";
 import type { TagServiceApi } from "./api.js";
 import {
   DuplicateTagNameError,
@@ -34,8 +35,8 @@ export class TagService extends Effect.Service<TagServiceApi>()(
   {
     effect: Effect.gen(function* () {
       // Get repository instances
-      const tagRepo = yield* RepositoryService<TagEntity>().Tag;
-      const linkRepo = yield* RepositoryService<EntityTagLinkEntity>().Tag;
+      const tagRepo = yield* RepositoryService<TagEntity & BaseEntityWithData>().make();
+      const linkRepo = yield* RepositoryService<EntityTagLinkEntity & BaseEntityWithData>().make();
 
       return {
         /**
@@ -259,7 +260,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
           entityId: EntityId,
           entityType: string
         ) => {
-          return Effect.gen(function* (): Generator<any, void, any> {
+          return Effect.gen(function* () {
             // Find the specific link to delete
             const linkOption = yield* linkRepo.findOne({
               filter: { tagId, entityId, entityType }
@@ -273,7 +274,8 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             );
 
             // If link doesn't exist, throw error
-            if (Option.isNone(linkOption)) {
+            const link = Option.getOrNull(linkOption);
+            if (!link) {
               return yield* Effect.fail(
                 new LinkNotFoundError({
                   tagId,
@@ -285,7 +287,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             }
 
             // Delete the link
-            yield* linkRepo.delete(linkOption.value.data.id).pipe(
+            return yield* linkRepo.delete(link.id).pipe(
               Effect.mapError((error) => new TagDbError({
                 operation: "untagEntity",
                 message: `Failed to delete link`,
@@ -296,53 +298,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
         },
 
         /**
-         * Gets all tags for an entity.
-         * @param entityId The ID of the entity to get tags for.
-         * @param entityType The type of the entity to get tags for.
-         * @returns An Effect resolving to an array of tags.
-         */
-        getTagsForEntity: (
-          entityId: EntityId,
-          entityType: string
-        ) => {
-          return Effect.gen(function* () {
-            // Find all links for the entity
-            const links = yield* linkRepo.findMany({
-              filter: { entityId, entityType }
-            }).pipe(
-              Effect.mapError((error) => new TagDbError({
-                operation: "getTagsForEntity",
-                message: `Failed to get tags for entity ${entityType}:${entityId}`,
-                cause: error
-              }))
-            );
-
-            // If no links found, return empty array
-            if (links.length === 0) {
-              return [] as ReadonlyArray<TagEntity>;
-            }
-
-            // Extract tagIds and fetch corresponding tags
-            const tagIds = links.map((link: { data: { tagId: any; }; }) => link.data.tagId);
-
-            // Fetch all tags matching the found IDs
-            return yield* tagRepo.findMany({
-              filter: { id: { in: tagIds } },
-            }).pipe(
-              Effect.map(tags => tags as ReadonlyArray<TagEntity>),
-              Effect.mapError(
-                (error) => new TagDbError({
-                  operation: "getTagsForEntity (find tags)",
-                  message: `DB error finding tags for entity ${entityType}:${entityId}`,
-                  cause: error,
-                })
-              )
-            );
-          });
-        },
-
-        /**
-         * Gets all entities for a tag.
+         * Gets all entities tagged with the given tag.
          * @param tagId The ID of the tag to get entities for.
          * @returns An Effect resolving to an array of entity references.
          */
@@ -365,7 +321,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             );
 
             // Map results to the desired { entityId, entityType } shape
-            return links.map((link: { data: { entityId: any; entityType: any; }; }) => ({
+            return links.map((link: EntityTagLinkEntity) => ({
               entityId: link.data.entityId,
               entityType: link.data.entityType,
             })) as ReadonlyArray<TaggedEntityRef>;
@@ -373,11 +329,11 @@ export class TagService extends Effect.Service<TagServiceApi>()(
         }
       };
     }),
-    dependencies: [],
+    dependencies: [
+      RepositoryService<TagEntity>().live,
+      RepositoryService<EntityTagLinkEntity>().live
+    ]
   }
 ) { }
 
-/**
- * Live layer for the TagService.
- */
-export const TagServiceLive = Layer.succeed(TagService);
+// Export the service class directly
