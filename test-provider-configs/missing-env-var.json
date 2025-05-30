@@ -1,0 +1,15 @@
+{
+  "name": "Test Providers Config",
+  "description": "Test configuration for providers",
+  "providers": [
+    {
+      "name": "test-provider",
+      "displayName": "Test Provider",
+      "type": "llm",
+      "baseUrl": "https://api.test.com",
+      "capabilities": [
+        "chat"
+      ]
+    }
+  ]
+}

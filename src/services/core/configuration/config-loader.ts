@@ -3,8 +3,8 @@
  * @module services/core/configuration/config-loader
  */
 
-import * as FileSystem from "@effect/platform/FileSystem"
-import { Effect, Schema } from "effect"
+import { FileSystem } from "@effect/platform"
+import { Effect } from "effect"
 import {
     ConfigParseError,
     ConfigReadError,

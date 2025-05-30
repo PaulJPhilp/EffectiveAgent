@@ -3,19 +3,15 @@
  * @module services/capabilities/helpers
  */
 
-import { Effect, Schema } from "effect";
-// Correct import path for ParseError
 import type { ParseResult } from "effect";
-import type { ImportedType } from "./types.js";
-
-// Generic Input type placeholder
-type CapabilityInput = Record<string, any>;
+import { Effect, Schema } from "effect";
+import type { CapabilityInput, CapabilityService } from "./types.js";
 
 // Helper to create the 'make' function for a given schema and error wrapper
 export const makeCapabilityMake =
 	<Data, E>(
 		schema: Schema.Schema<Data>,
-		errorWrapper: (cause: ParseError) => E, // Receives the error wrapper
+		errorWrapper: (cause: ParseResult.ParseError) => E, // Receives the error wrapper
 	): CapabilityService<Data, any, E>["make"] =>
 		(definition: unknown) =>
 			// Decode and THEN map the ParseError using the provided wrapper
@@ -27,7 +23,7 @@ export const makeCapabilityMake =
 export const makeCapabilityUpdate =
 	<Data, Input extends CapabilityInput, E>(
 		schema: Schema.Schema<Data>, // Schema for the full Data object
-		errorWrapper: (cause: ParseError) => E, // Receives the error wrapper
+		errorWrapper: (cause: ParseResult.ParseError) => E, // Receives the error wrapper
 	): CapabilityService<Data, Input, E>["update"] =>
 		(currentData: Data, updates: Partial<Input>) => {
 			const potentialNewData = { ...currentData, ...updates };

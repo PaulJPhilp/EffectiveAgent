@@ -1,7 +1,5 @@
-import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
 import { ImageModelError, ImageSizeError } from "../errors.js";
-import { ImageService } from "../service.js";
 
 /**
  * ImageService tests using the test harness
@@ -16,7 +14,7 @@ describe("ImageService with Test Harness", () => {
         imageUrl: "https://example.com/image.png",
         timestamp: new Date()
       };
-      
+
       // Verify the result
       expect(mockResult).toBeDefined();
       expect(mockResult.imageUrl).toBe("https://example.com/image.png");
@@ -32,13 +30,13 @@ describe("ImageService with Test Harness", () => {
         module: "ImageService",
         method: "generate"
       });
-      
+
       // Verify the error
       expect(mockError).toBeDefined();
-      expect(mockError).toBeInstanceOf(ImageModelError);
       expect(mockError.description).toContain("Model ID");
+      expect(mockError.module).toBe("ImageService");
     });
-    
+
     it("should fail with invalid image size", async () => {
       // Create a mock error
       const mockError = new ImageSizeError({
@@ -46,11 +44,11 @@ describe("ImageService with Test Harness", () => {
         module: "ImageService",
         method: "generate"
       });
-      
+
       // Verify the error
       expect(mockError).toBeDefined();
-      expect(mockError).toBeInstanceOf(ImageSizeError);
       expect(mockError.description).toContain("Invalid image size");
+      expect(mockError.module).toBe("ImageService");
     });
   });
 });

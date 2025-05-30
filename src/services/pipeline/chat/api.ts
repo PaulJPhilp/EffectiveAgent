@@ -60,7 +60,7 @@ export class ChatHistoryError extends EffectiveError {
 }
 
 /**
- * Service API for managing chat history
+ * Service API for managing chat history with AgentRuntime integration
  */
 export interface ChatHistoryServiceApi {
   /**
@@ -116,4 +116,19 @@ export interface ChatHistoryServiceApi {
     messages: ChatMessage[],
     response: string,
   ): Effect.Effect<void, ChatHistoryError>;
+
+  /**
+   * Get the current agent state for monitoring/debugging
+   */
+  readonly getAgentState: () => Effect.Effect<any>;
+
+  /**
+   * Get the runtime for direct access in tests
+   */
+  readonly getRuntime: () => any;
+
+  /**
+   * Terminate the agent
+   */
+  readonly terminate: () => Effect.Effect<void>;
 }

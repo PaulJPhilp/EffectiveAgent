@@ -2,10 +2,14 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
-import { EffectiveMessage, Part as EffectiveLocalPart } from "@/schema.js";
+import { Part as EffectiveLocalPart, EffectiveMessage } from "@/schema.js";
 import { Effect, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 
+/**
+ * Unified type for operation finish reasons across all services
+ */
+export type FinishReason = "stop" | "length" | "content_filter" | "tool_calls" | "function_call" | "error";
 
 /**
  * Union type for all valid part types in the input pipeline.
@@ -76,7 +80,7 @@ export interface EffectiveResponse<T> {
   /** Usage statistics */
   usage?: EffectiveUsage;
   /** Reason for completion */
-  finishReason?: "stop" | "length" | "content_filter" | "tool_calls" | "function_call";
+  finishReason?: FinishReason;
   /** Provider-specific metadata */
   providerMetadata?: Record<string, unknown>;
   /** Messages in the conversation */

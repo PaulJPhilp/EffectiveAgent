@@ -170,29 +170,21 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                                         Effect.flatMap(currentState => {
                                             const startTime = Date.now()
                                             return workflow(activity, currentState.state).pipe(
-                                                Effect.matchCauseEffect({
-                                                    onFailure: cause =>
-                                                        Ref.update(stateRef, (state: AgentRuntimeState<S>) => ({
+                                                Effect.match({
+                                                    onFailure: error => {
+                                                        return Ref.update(stateRef, (state: AgentRuntimeState<S>) => ({
                                                             ...state,
                                                             status: AgentRuntimeStatus.ERROR,
-                                                            error: cause,
+                                                            error,
                                                             lastUpdated: Date.now(),
                                                             processing: {
                                                                 processed: state.processing?.processed ?? 0,
                                                                 failures: (state.processing?.failures ?? 0) + 1,
                                                                 avgProcessingTime: state.processing?.avgProcessingTime ?? 0,
-                                                                lastError: cause
+                                                                lastError: error
                                                             }
-                                                        })).pipe(
-                                                            Effect.zipRight(
-                                                                Effect.fail(new AgentRuntimeProcessingError({
-                                                                    agentRuntimeId: id,
-                                                                    activityId: activity.id,
-                                                                    message: `Error processing activity ${activity.id} in AgentRuntime ${id}`,
-                                                                    cause
-                                                                }))
-                                                            )
-                                                        ),
+                                                        }))
+                                                    },
                                                     onSuccess: newState => {
                                                         const endTime = Date.now()
                                                         const processingTime = endTime - startTime
@@ -212,7 +204,8 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                                                             }
                                                         }))
                                                     }
-                                                })
+                                                }),
+                                                Effect.flat()
                                             )
                                         })
                                     )

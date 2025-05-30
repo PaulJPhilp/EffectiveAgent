@@ -1,55 +1,168 @@
 /**
- * @file Implements the ObjectService for handling AI structured object generation.
- * @module services/ai/producers/object/service
+ * @file Object Agent implementation using AgentRuntime for AI structured object generation
+ * @module services/pipeline/producers/object/service
  */
 
-import { TextPart } from "@/schema.js";
+import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
+import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
-import type { ProviderClientApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
 import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
-import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
+import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
+import type { ObjectGenerationOptions } from "@/services/pipeline/producers/object/types.js";
 import type { EffectiveResponse } from "@/types.js";
-import { EffectiveInput, EffectiveMessage } from "@/types.js";
-import { JSONSchema, Schema as S } from "effect";
-import * as Chunk from "effect/Chunk";
-import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import { ObjectGenerationOptions } from "./types.js";
+import { Chunk, Effect, Option, Ref, Schema as S } from "effect";
 
 /**
- * Result shape expected from the underlying provider client's generateObject method
+ * Object generation agent state
  */
-export type ProviderObjectGenerationResult<T> = EffectiveResponse<{
-    readonly object: T; // The generated object
-    readonly model: string;
-    readonly timestamp: Date;
-    readonly id: string;
-    readonly usage?: {
-        readonly promptTokens?: number;
-        readonly completionTokens?: number;
-        readonly totalTokens?: number;
-    };
-}>;
+export interface ObjectAgentState {
+    readonly generationCount: number
+    readonly lastGeneration: Option.Option<any>
+    readonly lastUpdate: Option.Option<number>
+    readonly generationHistory: ReadonlyArray<{
+        readonly timestamp: number
+        readonly modelId: string
+        readonly schemaName: string
+        readonly promptLength: number
+        readonly objectSize: number
+        readonly success: boolean
+    }>
+}
+
+/**
+ * Object generation commands
+ */
+interface GenerateObjectCommand {
+    readonly type: "GENERATE_OBJECT"
+    readonly options: ObjectGenerationOptions<any>
+}
+
+interface StateUpdateCommand {
+    readonly type: "UPDATE_STATE"
+    readonly generation: any
+    readonly modelId: string
+    readonly schemaName: string
+    readonly promptLength: number
+    readonly success: boolean
+}
+
+type ObjectActivityPayload = GenerateObjectCommand | StateUpdateCommand
 
 /**
  * ObjectService provides methods for generating structured objects using AI providers.
+ * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
  */
-export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", {
+class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", {
     effect: Effect.gen(function* () {
-        const service = {
-            generate: <S_Schema extends S.Schema<any, any>, T_Output = S.Schema.Type<S_Schema>>(options: ObjectGenerationOptions<S_Schema>): Effect.Effect<EffectiveResponse<T_Output>, Error, any> =>
+        // Get services
+        const agentRuntimeService = yield* AgentRuntimeService;
+        const modelService = yield* ModelService;
+        const providerService = yield* ProviderService;
+
+        const agentId = makeAgentRuntimeId("object-service-agent");
+
+        const initialState: ObjectAgentState = {
+            generationCount: 0,
+            lastGeneration: Option.none(),
+            lastUpdate: Option.none(),
+            generationHistory: []
+        };
+
+        // Create the agent runtime
+        const runtime = yield* agentRuntimeService.create(agentId, initialState);
+
+        // Create internal state management
+        const internalStateRef = yield* Ref.make<ObjectAgentState>(initialState);
+
+        yield* Effect.log("ObjectService agent initialized");
+
+        // Helper function to update internal state
+        const updateState = (generation: {
+            readonly timestamp: number
+            readonly modelId: string
+            readonly schemaName: string
+            readonly promptLength: number
+            readonly objectSize: number
+            readonly success: boolean
+            readonly result?: any
+        }) => Effect.gen(function* () {
+            const currentState = yield* Ref.get(internalStateRef);
+
+            const updatedHistory = [
+                ...currentState.generationHistory,
+                generation
+            ].slice(-20); // Keep last 20 generations
+
+            const newState: ObjectAgentState = {
+                generationCount: currentState.generationCount + 1,
+                lastGeneration: generation.success && generation.result ? Option.some(generation.result) : currentState.lastGeneration,
+                lastUpdate: Option.some(Date.now()),
+                generationHistory: updatedHistory
+            };
+
+            yield* Ref.set(internalStateRef, newState);
+
+            // Also update the AgentRuntime state for consistency
+            const stateUpdateActivity: AgentActivity = {
+                id: `object-update-${Date.now()}`,
+                agentRuntimeId: agentId,
+                timestamp: Date.now(),
+                type: AgentActivityType.STATE_CHANGE,
+                payload: newState,
+                metadata: {},
+                sequence: 0
+            };
+            yield* runtime.send(stateUpdateActivity);
+
+            yield* Effect.log("Updated object generation state", {
+                oldCount: currentState.generationCount,
+                newCount: newState.generationCount
+            });
+        });
+
+        const service: ObjectServiceApi = {
+            /**
+             * Generates a structured object using AI providers based on a prompt and schema
+             */
+            generate: <T>(
+                options: ObjectGenerationOptions<any>
+            ): Effect.Effect<EffectiveResponse<T>, ObjectGenerationError | ObjectInputError | ObjectModelError | ObjectSchemaError> =>
                 Effect.gen(function* () {
-                    yield* Effect.logInfo(`[ObjectService] typeof generate: ${typeof service.generate}`);
-                    yield* Effect.logInfo(`[ObjectService] generate: ${String(service.generate)}`);
-                    // Bring dependencies into scope
-                    const modelService = yield* ModelService;
-                    const providerService = yield* ProviderService;
-                    // Validate prompt
-                    if (!options.prompt || options.prompt.trim() === "") {
+                    // Log start of object generation
+                    yield* Effect.log("Starting object generation", {
+                        modelId: options.modelId,
+                        promptLength: options.prompt?.length ?? 0,
+                        hasSchema: !!options.schema
+                    });
+
+                    // Send command activity to agent
+                    const activity: AgentActivity = {
+                        id: `object-generate-${Date.now()}`,
+                        agentRuntimeId: agentId,
+                        timestamp: Date.now(),
+                        type: AgentActivityType.COMMAND,
+                        payload: { type: "GENERATE_OBJECT", options } satisfies GenerateObjectCommand,
+                        metadata: {},
+                        sequence: 0
+                    };
+
+                    yield* runtime.send(activity);
+
+                    // Validate input
+                    if (!options.prompt || options.prompt.trim().length === 0) {
+                        yield* Effect.logError("No prompt provided");
                         return yield* Effect.fail(new ObjectInputError({
-                            description: "Prompt cannot be empty",
+                            description: "Prompt is required for object generation",
+                            module: "ObjectService",
+                            method: "generate"
+                        }));
+                    }
+
+                    if (!options.schema) {
+                        yield* Effect.logError("No schema provided");
+                        return yield* Effect.fail(new ObjectSchemaError({
+                            description: "Schema is required for object generation",
                             module: "ObjectService",
                             method: "generate"
                         }));
@@ -64,126 +177,125 @@ export class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectSer
                         }))
                     );
 
-                    // Get provider name from model service
-                    const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new ObjectProviderError({
-                            description: "Failed to get provider name for model",
-                            module: "ObjectService",
-                            method: "generate",
-                            cause: error
-                        }))
-                    );
+                    // Get provider for the model
+                    const providerName = yield* modelService.getProviderName(modelId);
+                    const providerClient = yield* providerService.getProviderClient(providerName);
 
-                    // Get provider client
-                    const providerClient: ProviderClientApi = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new ObjectProviderError({
-                            description: "Failed to get provider client",
-                            module: "ObjectService",
-                            method: "generate",
-                            cause: error
-                        }))
-                    );
+                    // Get schema name for tracking
+                    const schemaName = options.schema._ast?.annotations?.title?.toString() ?? "unknown";
 
-                    // If system prompt is provided, prepend it to the prompt
-                    let finalPrompt = options.prompt;
-                    const systemPrompt = options.system ? Option.getOrUndefined(options.system) : undefined;
-                    if (systemPrompt) {
-                        finalPrompt = `${systemPrompt}\n\n${finalPrompt}`;
-                    }
-
-                    // Add schema details to the prompt
-                    const schemaDescription = yield* Effect.try({
-                        try: () => JSON.stringify(JSONSchema.make(options.schema), null, 2),
-                        catch: error => new ObjectSchemaError({
-                            description: "Failed to stringify schema",
-                            module: "ObjectService",
-                            method: "generate",
-                            cause: error,
-                            schema: options.schema
-                        })
-                    });
-
-                    // Enhance prompt with schema information
-                    finalPrompt = `${finalPrompt}\n\nPlease provide an object that conforms to the following schema:\n${schemaDescription}\n\nEnsure that all required properties are included and all values match the specified types.`;
-
-                    yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
-                    yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
-
-                    // Create EffectiveInput from the final prompt
-                    const effectiveInput = new EffectiveInput(
-                        finalPrompt,
-                        Chunk.make(new EffectiveMessage({
-                            role: "user",
-                            parts: Chunk.make(new TextPart({ _tag: "Text", content: finalPrompt }))
-                        }))
-                    );
-
-                    // Create Effect for provider call with its context
-                    const providerCallEffect = providerClient.generateObject<T_Output>(
-                        effectiveInput,
+                    // Call the real AI provider for object generation
+                    const providerResult = yield* providerClient.generateObject(
+                        { text: options.prompt, messages: Chunk.empty() },
                         {
                             modelId,
-                            schema: options.schema as unknown as S.Schema<any, T_Output>,
-                            system: systemPrompt,
-                            signal: options.signal,
-                            ...options.parameters
+                            schema: options.schema,
+                            parameters: {
+                                temperature: options.parameters?.temperature,
+                                topP: options.parameters?.topP,
+                            }
                         }
                     );
 
-                    // Generate the object using the provider's generateObject method
-                    const result = yield* Effect.promise(
-                        (): Promise<ProviderObjectGenerationResult<T_Output>> => Effect.runPromise(providerCallEffect)
-                    ).pipe(
-                        Effect.mapError((error) => new ObjectGenerationError({
-                            description: "Object generation failed",
+                    // Validate the result against the schema
+                    const validatedObject = yield* S.decode(options.schema)(providerResult.data.object).pipe(
+                        Effect.mapError(error => new ObjectSchemaError({
+                            description: "Generated object does not match the provided schema",
                             module: "ObjectService",
                             method: "generate",
                             cause: error
                         }))
                     );
 
-                    // Validate and parse the result with the schema
-                    const parsedObject = yield* S.decode(options.schema)(result.data.object as any).pipe(
-                        Effect.mapError(error => new ObjectSchemaError({
-                            description: "Generated object does not match schema",
-                            module: "ObjectService",
-                            method: "generate",
-                            cause: error,
-                            schema: options.schema,
-                            result: result.data.object,
-                            validationErrors: Array.isArray(error) ? error : [error]
-                        }))
-                    );
+                    const result: EffectiveResponse<T> = {
+                        data: validatedObject as T,
+                        metadata: {
+                            model: modelId,
+                            provider: providerName,
+                            schema: schemaName,
+                            promptLength: options.prompt.length,
+                            objectSize: JSON.stringify(validatedObject).length,
+                            usage: providerResult.usage,
+                            finishReason: providerResult.finishReason
+                        }
+                    };
 
-                    // Map the result to ObjectGenerationResult
-                    return {
-                        metadata: result.metadata,
-                        data: parsedObject,
-                        usage: result.usage,
-                        finishReason: result.finishReason,
-                        providerMetadata: result.providerMetadata,
-                        messages: result.messages
-                    } as EffectiveResponse<T_Output>;
+                    yield* Effect.log("Object generation completed successfully");
+
+                    // Update agent state with generation results
+                    yield* updateState({
+                        timestamp: Date.now(),
+                        modelId,
+                        schemaName,
+                        promptLength: options.prompt.length,
+                        objectSize: JSON.stringify(validatedObject).length,
+                        success: true,
+                        result: validatedObject
+                    });
+
+                    return result;
+
                 }).pipe(
-                    Effect.mapError(error => {
-                        // Ensure all known errors are preserved, otherwise wrap unknown
-                        if (error instanceof ObjectInputError ||
+                    Effect.withSpan("ObjectService.generate"),
+                    Effect.catchAll((error) => {
+                        return Effect.gen(function* () {
+                            yield* Effect.logError("Object generation failed", { error });
+
+                            // Update state with failure
+                            yield* updateState({
+                                timestamp: Date.now(),
+                                modelId: options.modelId ?? "unknown",
+                                schemaName: options.schema?._ast?.annotations?.title?.toString() ?? "unknown",
+                                promptLength: options.prompt?.length ?? 0,
+                                objectSize: 0,
+                                success: false
+                            });
+
+                            return yield* Effect.fail(error);
+                        });
+                    })
+                ).pipe(
+                    Effect.mapError((error) => {
+                        // Convert any remaining Error types to expected error types
+                        if (error instanceof ObjectGenerationError ||
+                            error instanceof ObjectInputError ||
                             error instanceof ObjectModelError ||
-                            error instanceof ObjectProviderError ||
-                            error instanceof ObjectSchemaError ||
-                            error instanceof ObjectGenerationError) {
+                            error instanceof ObjectSchemaError) {
                             return error;
                         }
-                        // Fallback for truly unknown errors, though ideally all paths are typed
-                        return new Error(`An unexpected error occurred: ${String(error)}`);
-                    }),
-                    Effect.withSpan("ObjectService.generate"),
-                    Effect.provide(ConfigurationService.Default)
-                )
+                        // Convert generic errors to ObjectGenerationError
+                        return new ObjectGenerationError({
+                            description: error instanceof Error ? error.message : "Unknown error during object generation",
+                            module: "ObjectService",
+                            method: "generate",
+                            cause: error
+                        });
+                    })
+                ) as Effect.Effect<EffectiveResponse<T>, ObjectGenerationError | ObjectInputError | ObjectModelError | ObjectSchemaError, never>,
+
+            /**
+             * Get the current agent state for monitoring/debugging
+             */
+            getAgentState: () => Ref.get(internalStateRef),
+
+            /**
+             * Get the runtime for direct access in tests
+             */
+            getRuntime: () => ({
+                ...runtime,
+                state: internalStateRef
+            }),
+
+            /**
+             * Terminate the agent
+             */
+            terminate: () => agentRuntimeService.terminate(agentId)
         };
-        yield* Effect.logInfo(`[ObjectService] typeof generate (post-construction): ${typeof service.generate}`);
-        yield* Effect.logInfo(`[ObjectService] generate (post-construction): ${String(service.generate)}`);
+
         return service;
     }),
-    dependencies: [ModelService.Default, ProviderService.Default]
+    dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
 }) { }
+
+export default ObjectService;
+export { ObjectService };

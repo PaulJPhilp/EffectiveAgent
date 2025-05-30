@@ -2,21 +2,27 @@
 
 ## Overview
 
-Effective Agent is a TypeScript library for building robust, scalable, concurrent and maintainable AI agents and agent-based systems. It is designed to reduce the complexity of developing robust agents by providing a modular, effect-based architecture. The library leverages the Effect system for composable async operations and strong type safety, and encourages best practices in code organization, immutability, and service separation.
+Effective Agent is a TypeScript application framework for building robust, scalable, concurrent, and maintainable AI agents and agent-based systems. It is designed to reduce the complexity of developing sophisticated agents by providing a modular, Effect-TS-based architecture. The framework leverages the Effect system for composable asynchronous operations, strong type safety, and powerful dependency management.
+
+At the heart of the application is the **`AgentRuntime`**, which serves as the central orchestrator. It is responsible for:
+- **Application Bootstrapping:** Managing the initial startup sequence.
+- **Service Initialization:** Initializing all core services, including `FileSystem`, `ConfigurationService`, `LoggingService`, `ProviderService`, `ModelService`, and `PolicyService`.
+- **Dependency Management:** Composing and providing the necessary Effect Layers for all services, ensuring correct dependency injection.
+- **Runtime Provision:** Creating and exposing a singleton `Effect.Runtime` instance that includes the context of all initialized services.
+- **Execution Context:** Offering methods to execute Effect-based operations within the application's fully configured runtime.
 
 ### Design Philosophy
-- **Effect-based architecture:** All services and workflows use Effect v3 for composable, type-safe async logic.
-- **Shared services architecture:** Common agent capabilities and utilities are factored into dedicated services.
-- **Immutability & type safety:** Data structures are immutable by default, with clear type contracts and validation.
-- **Agent-centric:** Designed for building multi-capability, multi-modal AI agents with minimal boilerplate.
+- **Effect-TS Architecture:** All services and workflows utilize Effect-TS for composable, type-safe asynchronous logic and dependency management.
+- **Service-Oriented Architecture:** Common agent capabilities and utilities are factored into dedicated, injectable services using the `Effect.Service` pattern.
+- **Immutability & Type Safety:** Data structures are immutable by default, with clear type contracts and schema-based validation.
+- **Agent-Centric:** Designed for building multi-capability, multi-modal AI agents, managed and orchestrated by the `AgentRuntime`.
 
 ### Features
-- Unified agent runtime and mailbox (Actor) system
-- Modular AI model and provider management
-- Tool registry and execution system
-- Pipeline orchestration and input/output handling
-- Persona, skill, and intelligence capability layers
-- Comprehensive error handling and configuration
+- **Centralized `AgentRuntime`:** Manages application lifecycle, services, and provides a unified Effect runtime.
+- **Modular Service Layers:** For AI models, providers, tools, policies, and core functionalities.
+- **Configuration Management:** Centralized configuration loading and validation via `ConfigurationService`.
+- **Advanced Error Handling:** Comprehensive error recovery patterns including circuit breakers and retries.
+- **Performance & Health Monitoring:** Built-in services for metrics, benchmarking, and service health.
 
 ---
 
@@ -73,12 +79,15 @@ Provides the core runtime environment for agents, including mailbox management, 
 
 ### core
 The foundational layer, offering essential infrastructure services:
+- **Configuration (`src/services/core/configuration/`):** Loads, validates, and provides configuration data (from `master-config.json` and other service-specific configs) to all services. Relies on `MasterConfigData` (provided by `AgentRuntime`) and `FileSystem`.
+- **FileSystem (`@effect/platform-node` or `@effect/platform-bun`):** Provides an implementation for file system operations, selected at startup via `master-config.json` and made available by `AgentRuntime`.
+- **Logging (`src/services/core/logging/`):** Centralized logging for service and agent events, configured via `master-config.json`.
+- **ErrorRecovery (`src/services/core/error-recovery/`):** Implements advanced error recovery patterns like circuit breakers, retry mechanisms, and fallback strategies for enhanced application resilience.
+- **PerformanceMonitoring (`src/services/core/performance/`):** Collects performance metrics, supports benchmarking, and provides a dashboard for monitoring application performance.
+- **ServiceHealthMonitoring (`src/services/core/health/`):** Monitors the health of services, supports advanced health checks, and enables graceful degradation strategies.
 - **Attachment:** Handles file and data attachment operations for agents.
 - **Auth:** Manages authentication and authorization contexts for secure agent execution.
-- **Configuration:** Loads, validates, and provides configuration data to all services.
 - **Executive:** Orchestrates Effect-based operations with policy enforcement, retries, and timeouts.
-- **File:** Provides file storage and retrieval abstractions.
-- **Logging:** Centralized logging for service and agent events.
 - **Repository:** Generic CRUD storage for entities, supporting multiple backends.
 - **Tag:** Tagging and metadata management for entities and agent records.
 - **Websocket:** Real-time communication and protocol support for agent interactions.
@@ -86,10 +95,10 @@ The foundational layer, offering essential infrastructure services:
 
 ### ai
 AI-focused services for model, tool, and provider management:
-- **Model:** Loads and manages AI model metadata and capabilities.
-- **Policy:** Defines and enforces rules for agent/model usage, including rate limits and permissions.
+- **Provider (`src/services/ai/provider/`):** Handles AI provider configuration (from `providers.json`), client instantiation, and capability validation. Depends on `ConfigurationService` for its config and API keys.
+- **Model (`src/services/ai/model/`):** Loads and manages AI model metadata and capabilities (from `models.json`). Depends on `ConfigurationService` and `ProviderService`.
+- **Policy (`src/services/ai/policy/`):** Defines and enforces rules for agent/model usage (from `policy.json`), including rate limits and permissions. Depends on `ConfigurationService`.
 - **Prompt:** Manages prompt templates and prompt configuration for AI models.
-- **Provider:** Handles AI provider configuration, client instantiation, and capability validation.
 - **Tool Registry:** Central registry for all available agent tools and toolkits.
 - **Tools:** Executes registered tools with validation and error handling, integrating with the registry.
 
@@ -121,9 +130,20 @@ Defines agent capabilities as composable, validated services:
    ```sh
    bun install
    ```
-2. Set up environment variables using `.env.example` as a template.
-3. Run tests:
+2. Set up `config/master-config.json`. You can use `config/master-config.example.json` as a template. This file is crucial as it dictates paths to other configurations and core runtime settings.
+3. Ensure environment variables for API keys (e.g., `OPENAI_API_KEY`) are set. Refer to `config/providers.example.json` for relevant `apiKeyEnvVar` names.
+   ```sh
+   cp .env.example .env
+   # Edit .env with your API keys
+   ```
+4. Run tests:
    ```sh
    bun test
    ```
-4. Explore the `examples/` directory for usage patterns.
+5. To run the application (example):
+  ```sh
+  bun src/main.ts
+  ```
+  *(Ensure `src/main.ts` calls `AgentRuntime.initialize()`)*
+
+6. Explore the `examples/` directory for usage patterns.

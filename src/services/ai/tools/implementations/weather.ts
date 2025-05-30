@@ -63,91 +63,6 @@ export const WeatherOutputSchema = S.Struct({
 
 export type WeatherOutput = S.Schema.Type<typeof WeatherOutputSchema>;
 
-// --- Mock Data ---
-
-const mockWeatherData = {
-    metric: {
-        current: {
-            temperature: 22,
-            feelsLike: 23,
-            humidity: 65,
-            windSpeed: 12,
-            description: "Partly cloudy"
-        },
-        forecast: [
-            {
-                date: "2024-03-21",
-                conditions: {
-                    temperature: 23,
-                    feelsLike: 24,
-                    humidity: 60,
-                    windSpeed: 10,
-                    description: "Sunny"
-                }
-            },
-            {
-                date: "2024-03-22",
-                conditions: {
-                    temperature: 20,
-                    feelsLike: 19,
-                    humidity: 75,
-                    windSpeed: 15,
-                    description: "Light rain"
-                }
-            }
-        ],
-        alerts: [
-            {
-                type: "Rain",
-                severity: "Moderate",
-                description: "Periods of rain expected",
-                start: "2024-03-22T00:00:00Z",
-                end: "2024-03-22T12:00:00Z"
-            }
-        ]
-    },
-    imperial: {
-        current: {
-            temperature: 72,
-            feelsLike: 73,
-            humidity: 65,
-            windSpeed: 7,
-            description: "Partly cloudy"
-        },
-        forecast: [
-            {
-                date: "2024-03-21",
-                conditions: {
-                    temperature: 73,
-                    feelsLike: 75,
-                    humidity: 60,
-                    windSpeed: 6,
-                    description: "Sunny"
-                }
-            },
-            {
-                date: "2024-03-22",
-                conditions: {
-                    temperature: 68,
-                    feelsLike: 66,
-                    humidity: 75,
-                    windSpeed: 9,
-                    description: "Light rain"
-                }
-            }
-        ],
-        alerts: [
-            {
-                type: "Rain",
-                severity: "Moderate",
-                description: "Periods of rain expected",
-                start: "2024-03-22T00:00:00Z",
-                end: "2024-03-22T12:00:00Z"
-            }
-        ]
-    }
-};
-
 // --- Implementation ---
 
 export const weatherImpl = (input: unknown): Effect.Effect<WeatherOutput, Error> =>
@@ -158,35 +73,12 @@ export const weatherImpl = (input: unknown): Effect.Effect<WeatherOutput, Error>
             Effect.mapError((e): Error => new Error(`Invalid input: ${String(e)}`))
         );
 
-        // Get mock data for the selected unit system
-        const weatherData = mockWeatherData[data.units];
-
-        // Base output with location and units
-        const baseOutput: WeatherOutput = {
-            location: data.location,
-            units: data.units
-        };
-
-        switch (data.operation) {
-            case WeatherOperation.CURRENT:
-                return {
-                    ...baseOutput,
-                    current: weatherData.current
-                };
-
-            case WeatherOperation.FORECAST:
-                return {
-                    ...baseOutput,
-                    forecast: weatherData.forecast.slice(0, data.days)
-                };
-
-            case WeatherOperation.ALERTS:
-                return {
-                    ...baseOutput,
-                    alerts: weatherData.alerts
-                };
-
-            default:
-                return yield* Effect.fail(new Error(`Unsupported operation: ${data.operation}`));
-        }
+        // Weather API integration is not implemented yet
+        // This tool requires a weather service provider (e.g., OpenWeatherMap, WeatherAPI, etc.)
+        // to be integrated with the agent runtime configuration
+        return yield* Effect.fail(new Error(
+            `Weather API integration not available. ` +
+            `Requested ${data.operation} weather for ${data.location} in ${data.units} units. ` +
+            `Please configure a weather service provider in the agent runtime.`
+        ));
     }); 

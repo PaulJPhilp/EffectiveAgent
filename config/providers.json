@@ -6,12 +6,26 @@
     {
       "name": "openai",
       "displayName": "OpenAI",
-      "type": "text",
+      "type": "openai",
       "apiKeyEnvVar": "OPENAI_API_KEY",
       "baseUrl": "https://api.openai.com/v1",
+      "capabilities": [
+        "chat",
+        "text-generation",
+        "vision",
+        "function-calling",
+        "embeddings",
+        "image-generation",
+        "transcription"
+      ],
       "rateLimit": {
         "maxRequests": 100,
         "perSeconds": 60
+      },
+      "configuration": {
+        "timeout": 60000,
+        "retries": 3,
+        "defaultModel": "gpt-4o"
       }
     }
   ]

@@ -55,60 +55,12 @@ export const webSearchImpl = (input: unknown): Effect.Effect<{ result: string },
             Effect.mapError((e): Error => new Error(`Invalid input: ${String(e)}`))
         );
 
-        // For now, return mock data since we don't have search API keys
-        switch (data.operation) {
-            case WebSearchOperation.SEARCH: {
-                const maxResults = data.maxResults ?? 10;
-                const results = Array.from({ length: maxResults }, (_, i) => ({
-                    title: `Search Result ${i + 1} for "${data.query}"`,
-                    url: `https://example.com/result-${i + 1}`,
-                    snippet: `This is a mock search result snippet for "${data.query}"...`,
-                    filter: data.filter ?? WebSearchFilter.RELEVANT
-                }));
-                return {
-                    result: JSON.stringify({
-                        query: data.query,
-                        totalResults: maxResults * 100,
-                        results
-                    })
-                };
-            }
-
-            case WebSearchOperation.NEWS: {
-                const maxResults = data.maxResults ?? 10;
-                const daysAgo = data.daysAgo ?? 7;
-                const results = Array.from({ length: maxResults }, (_, i) => ({
-                    title: `News Article ${i + 1} about "${data.query}"`,
-                    url: `https://news.example.com/article-${i + 1}`,
-                    source: `News Source ${i + 1}`,
-                    publishedAt: new Date(Date.now() - (i * 24 * 60 * 60 * 1000)).toISOString(),
-                    snippet: `This is a mock news article snippet about "${data.query}"...`
-                }));
-                return {
-                    result: JSON.stringify({
-                        query: data.query,
-                        daysAgo,
-                        results
-                    })
-                };
-            }
-
-            case WebSearchOperation.IMAGES: {
-                const maxResults = data.maxResults ?? 10;
-                const results = Array.from({ length: maxResults }, (_, i) => ({
-                    title: `Image ${i + 1} of "${data.query}"`,
-                    url: `https://images.example.com/img-${i + 1}.jpg`,
-                    thumbnailUrl: `https://images.example.com/thumb-${i + 1}.jpg`,
-                    width: 800,
-                    height: 600,
-                    source: `Image Source ${i + 1}`
-                }));
-                return {
-                    result: JSON.stringify({
-                        query: data.query,
-                        results
-                    })
-                };
-            }
-        }
+        // Web search API integration is not implemented yet
+        // This tool requires a search service provider (e.g., Google Custom Search, Bing Search API, etc.)
+        // to be integrated with the agent runtime configuration
+        return yield* Effect.fail(new Error(
+            `Web search API integration not available. ` +
+            `Requested ${data.operation} search for "${data.query}". ` +
+            `Please configure a search service provider in the agent runtime.`
+        ));
     }); 

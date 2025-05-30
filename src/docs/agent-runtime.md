@@ -106,7 +106,7 @@ Services obtain their dependencies via `yield* ServiceName` within their `Effect
 
 The `AgentRuntime` ensures the following services (among others) are initialized and available in the application context:
 
--   **`FileSystem`**: An implementation of `@effect/platform/FileSystem` (Node or Bun).
+-   **`FileSystem`**: An implementation of `@effect/platform` (Node or Bun).
 -   **`MasterConfigData`**: The raw, validated data from `master-config.json`.
 -   **`ConfigurationService`**: For accessing all other application configurations.
 -   **`LoggingService`**: For application-wide logging.

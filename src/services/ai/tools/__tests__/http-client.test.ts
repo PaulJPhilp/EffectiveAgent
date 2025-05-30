@@ -3,16 +3,15 @@
  * This is a temporary file to work out the correct HttpClient implementation pattern
  */
 
-import { Cause, Effect } from "effect";
-import * as S from "@effect/schema/Schema";
 import { ParseError } from "@effect/schema/ParseResult";
+import * as S from "@effect/schema/Schema";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
+import { layer as NodeHttpClientLayer } from "@effect/platform-node/NodeHttpClient"; // Correct live layer provider
 // Import HttpClient and related types
 import { HttpClient } from "@effect/platform/HttpClient";
 import * as HttpClientError from "@effect/platform/HttpClientError";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
-import { layer as NodeHttpClientLayer } from "@effect/platform-node/NodeHttpClient"; // Correct live layer provider
 import * as HttpClientResponse from "@effect/platform/HttpClientResponse";
 
 // Use the live HttpClient layer for integration testing

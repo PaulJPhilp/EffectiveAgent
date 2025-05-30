@@ -147,22 +147,8 @@ export class BridgeService extends Effect.Service<BridgeServiceApi>()("BridgeSer
                         metadata: {}
                     };
 
-                    // Update state with new message
-                    const state = yield* getStateWithCleanup<BridgeState>(id);
-                    const newMessage: BridgeMessage = {
-                        content: message,
-                        timestamp: now,
-                        sequence
-                    };
-                    const newState = {
-                        ...state.state,
-                        messages: [newMessage, ...state.state.messages]
-                    };
-
-                    return yield* Effect.all([
-                        agentRuntimeService.send(id, record),
-                        agentRuntimeService.create(id, newState)
-                    ]).pipe(
+                    // Send the activity to the runtime
+                    return yield* agentRuntimeService.send(id, record).pipe(
                         Effect.catchAll((error) => Effect.fail(new BridgeMessageSendError({
                             runtimeId: id,
                             message,

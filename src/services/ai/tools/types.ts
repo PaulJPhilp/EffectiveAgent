@@ -77,24 +77,6 @@ export class ToolExecutorService extends Effect.Service<{
     }
 ) { }
 
-/**
- * Service for effective tool operations
- */
-export class EffectiveToolService extends Effect.Service<{
-    readonly execute: (input: unknown, toolMetadata: Metadata) => Effect.Effect<EffectiveTool, never>;
-    readonly succeed: (input: unknown, toolMetadata: Metadata) => Effect.Effect<EffectiveTool, never>;
-    readonly fail: (input: unknown, toolMetadata: Metadata) => Effect.Effect<EffectiveTool, never>;
-}>()(
-    "EffectiveToolService",
-    {
-        effect: Effect.succeed({
-            execute: (input: unknown, toolMetadata: Metadata) => Effect.succeed({ name: "", description: "", parameters: {}, execute: () => Effect.fail(new Error()) }),
-            succeed: (input: unknown, toolMetadata: Metadata) => Effect.succeed({ name: "", description: "", parameters: {}, execute: () => Effect.fail(new Error()) }),
-            fail: (input: unknown, toolMetadata: Metadata) => Effect.succeed({ name: "", description: "", parameters: {}, execute: () => Effect.fail(new Error()) })
-        }),
-        dependencies: []
-    }
-) { }
 
 // Export the EffectImplementation type from schema
 export type { EffectImplementation, IEffectImplementation } from "./schema.js";

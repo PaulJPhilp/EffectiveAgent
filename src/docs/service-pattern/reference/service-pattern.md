@@ -497,7 +497,7 @@ The primary benefit is **bringing potentially unsafe synchronous operations into
 ```typescript
 // In service.ts
 import { Effect } from "effect";
-import * as FileSystem from "@effect/platform/FileSystem"; // Assuming usage of FileSystem service
+import * as FileSystem from "@effect/platform"; // Assuming usage of FileSystem service
 
 // ... inside the 'effect' factory ...
 
@@ -1273,7 +1273,7 @@ Effect Platform (`@effect/platform`, `@effect/platform-node`, `@effect/platform-
     *   **Type Safety:** Benefit from Effect's type system directly.
 *   **Example (Using FileSystem):**
     ```typescript
-    import { FileSystem } from "@effect/platform/FileSystem";
+    import { FileSystem } from "@effect/platform";
     import { Effect } from "effect";
 
     const readFileContent = (path: string) => 

@@ -14,7 +14,7 @@ export interface ExecutiveParameters {
 /**
  * The ExecutiveService orchestrates calls to AI models, applying policies,
  * handling retries, and managing overall execution flow based on provided
- * configuration.
+ * configuration. Now includes AgentRuntime integration for activity tracking.
  */
 export interface ExecutiveServiceApi {
   readonly _tag: "ExecutiveService";
@@ -22,4 +22,19 @@ export interface ExecutiveServiceApi {
     effect: Effect.Effect<A, E, R>,
     parameters?: ExecutiveParameters
   ) => Effect.Effect<A, E | ExecutiveServiceError, R>;
+
+  /**
+   * Get the current agent state for monitoring/debugging
+   */
+  readonly getAgentState: () => Effect.Effect<any>;
+
+  /**
+   * Get the runtime for direct access in tests
+   */
+  readonly getRuntime: () => any;
+
+  /**
+   * Terminate the agent
+   */
+  readonly terminate: () => Effect.Effect<void>;
 }

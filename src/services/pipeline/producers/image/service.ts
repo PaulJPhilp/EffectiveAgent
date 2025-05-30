@@ -1,27 +1,16 @@
 /**
- * @file Implements the ImageService for handling AI image generation.
- * @module services/ai/producers/image/service
+ * @file Image Agent implementation using AgentRuntime for AI image generation
+ * @module services/pipeline/producers/image/service
  */
-import { EffectiveError } from "@/errors.js";
-import { ModelServiceApi } from "@/services/ai/index.js";
+
+import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
+import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { GenerateImageResult } from "@/services/ai/provider/types.js";
-import { EffectiveMessage, EffectiveResponse } from "@/types.js";
-
-import { TextPart } from "@/schema.js";
-import { EffectiveInput } from "@/types.js";
-import * as Chunk from "effect/Chunk";
-import * as Effect from "effect/Effect";
-import * as Option from "effect/Option";
-import { Span } from "effect/Tracer";
-import { ImageGenerationError, ImageModelError, ImageProviderError, ImageSizeError } from "./errors.js";
-import { ImageGenerationOptions } from "./types.js";
-
-/**
- * Result shape expected from the underlying provider client's generateImage method
- */
-export type ProviderImageGenerationResult = EffectiveResponse<GenerateImageResult>;
+import { Effect, Option, Ref } from "effect";
+import type { ImageGenerationOptions, ImageServiceApi } from "./api.js";
+import { ImageGenerationError, ImageModelError, ImageSizeError } from "./errors.js";
 
 /**
  * Supported image sizes
@@ -56,47 +45,150 @@ export const ImageStyles = {
 
 export type ImageStyle = typeof ImageStyles[keyof typeof ImageStyles];
 
-
-
 /**
- * ImageService interface for handling AI image generation
+ * Image generation agent state
  */
-export interface ImageServiceApi {
-    readonly generate: (options: ImageGenerationOptions) => Effect.Effect<GenerateImageResult, EffectiveError>;
+export interface ImageAgentState {
+    readonly generationCount: number
+    readonly lastGeneration: Option.Option<GenerateImageResult>
+    readonly lastUpdate: Option.Option<number>
+    readonly generationHistory: ReadonlyArray<{
+        readonly timestamp: number
+        readonly modelId: string
+        readonly size: string
+        readonly promptLength: number
+        readonly success: boolean
+        readonly imageCount: number
+    }>
 }
 
 /**
- * ImageService provides methods for generating images using AI providers.
+ * Image generation commands
  */
-export class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
+interface GenerateImageCommand {
+    readonly type: "GENERATE_IMAGE"
+    readonly options: ImageGenerationOptions
+}
+
+interface StateUpdateCommand {
+    readonly type: "UPDATE_STATE"
+    readonly generation: GenerateImageResult
+    readonly modelId: string
+    readonly size: string
+    readonly promptLength: number
+    readonly success: boolean
+    readonly imageCount: number
+}
+
+type ImageActivityPayload = GenerateImageCommand | StateUpdateCommand
+
+/**
+ * ImageService provides methods for generating images using AI providers.
+ * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
+ */
+class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
     effect: Effect.gen(function* () {
         // Get services
+        const agentRuntimeService = yield* AgentRuntimeService;
+        const modelService = yield* ModelService;
         const providerService = yield* ProviderService;
-        const modelService: ModelServiceApi = yield* ModelService;
 
-        // Validate that the size is supported
-        const validateSize = (size?: string): Effect.Effect<string, ImageSizeError> => {
-            if (!size) {
-                return Effect.succeed(ImageSizes.MEDIUM); // Default size
-            }
+        const agentId = makeAgentRuntimeId("image-service-agent");
 
-            const supportedSizes = Object.values(ImageSizes);
-            if (!supportedSizes.includes(size as ImageSize)) {
-                return Effect.fail(new ImageSizeError({
-                    description: `Unsupported image size: ${size}. Supported sizes are: ${supportedSizes.join(", ")}`,
-                    module: "ImageService",
-                    method: "validateSize",
-                    requestedSize: size,
-                    supportedSizes
-                }));
-            }
-
-            return Effect.succeed(size);
+        const initialState: ImageAgentState = {
+            generationCount: 0,
+            lastGeneration: Option.none(),
+            lastUpdate: Option.none(),
+            generationHistory: []
         };
 
-        return {
-            generate: (options: ImageGenerationOptions) =>
-                Effect.gen(function* () {
+        // Create the agent runtime
+        const runtime = yield* agentRuntimeService.create(agentId, initialState);
+
+        // Create internal state management
+        const internalStateRef = yield* Ref.make<ImageAgentState>(initialState);
+
+        yield* Effect.log("ImageService agent initialized");
+
+        // Helper function to update internal state
+        const updateState = (generation: {
+            readonly timestamp: number
+            readonly modelId: string
+            readonly size: string
+            readonly promptLength: number
+            readonly success: boolean
+            readonly imageCount: number
+        }) => Effect.gen(function* () {
+            const currentState = yield* Ref.get(internalStateRef);
+
+            const updatedHistory = [
+                ...currentState.generationHistory,
+                generation
+            ].slice(-20); // Keep last 20 generations
+
+            const newState: ImageAgentState = {
+                generationCount: currentState.generationCount + 1,
+                lastGeneration: currentState.lastGeneration,
+                lastUpdate: Option.some(Date.now()),
+                generationHistory: updatedHistory
+            };
+
+            yield* Ref.set(internalStateRef, newState);
+
+            // Also update the AgentRuntime state for consistency
+            const stateUpdateActivity: AgentActivity = {
+                id: `image-update-${Date.now()}`,
+                agentRuntimeId: agentId,
+                timestamp: Date.now(),
+                type: AgentActivityType.STATE_CHANGE,
+                payload: newState,
+                metadata: {},
+                sequence: 0
+            };
+            yield* runtime.send(stateUpdateActivity);
+
+            yield* Effect.log("Updated image generation state", {
+                oldCount: currentState.generationCount,
+                newCount: newState.generationCount
+            });
+        });
+
+        const service: ImageServiceApi = {
+            /**
+             * Generates images from the given prompt using the specified model
+             */
+            generate: (options: ImageGenerationOptions) => {
+                return Effect.gen(function* () {
+                    // Log start of image generation
+                    yield* Effect.log("Starting image generation", {
+                        modelId: options.modelId,
+                        promptLength: options.prompt.length,
+                        size: options.size
+                    });
+
+                    // Send command activity to agent
+                    const activity: AgentActivity = {
+                        id: `image-generate-${Date.now()}`,
+                        agentRuntimeId: agentId,
+                        timestamp: Date.now(),
+                        type: AgentActivityType.COMMAND,
+                        payload: { type: "GENERATE_IMAGE", options } satisfies GenerateImageCommand,
+                        metadata: {},
+                        sequence: 0
+                    };
+
+                    yield* runtime.send(activity);
+
+                    // Validate input
+                    if (!options.prompt || options.prompt.trim().length === 0) {
+                        yield* Effect.logError("No prompt provided");
+                        return yield* Effect.fail(new ImageGenerationError({
+                            description: "Prompt is required for image generation",
+                            module: "ImageService",
+                            method: "generate"
+                        }));
+                    }
+
                     // Get model ID or fail
                     const modelId = yield* Effect.fromNullable(options.modelId).pipe(
                         Effect.mapError(() => new ImageModelError({
@@ -106,114 +198,101 @@ export class ImageService extends Effect.Service<ImageServiceApi>()("ImageServic
                         }))
                     );
 
-                    // Get provider name from model service
-                    const providerName = yield* modelService.getProviderName(modelId).pipe(
-                        Effect.mapError((error) => new ImageProviderError({
-                            description: "Failed to get provider name for model",
-                            module: "ImageService",
-                            method: "generate",
-                            cause: error
-                        }))
-                    );
-
-                    // Get provider client
-                    const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                        Effect.mapError((error) => new ImageProviderError({
-                            description: "Failed to get provider client",
-                            module: "ImageService",
-                            method: "generate",
-                            cause: error
-                        }))
-                    );
-
                     // Validate image size
-                    const size = yield* validateSize(options.size);
-
-                    // Prepare final prompt, including system and negative prompt if provided
-                    let finalPrompt = options.prompt;
-                    const systemPrompt = Option.getOrUndefined(options.system);
-
-                    if (systemPrompt) {
-                        finalPrompt = `${systemPrompt}\n\n${finalPrompt}`;
-                    }
-
-                    if (options.negativePrompt) {
-                        finalPrompt = `${finalPrompt}\nDO NOT INCLUDE: ${options.negativePrompt}`;
-                    }
-
-                    yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
-                    yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
-                    yield* Effect.annotateCurrentSpan("ai.image.size", size);
-
-                    if (options.quality) {
-                        yield* Effect.annotateCurrentSpan("ai.image.quality", options.quality);
-                    }
-
-                    if (options.style) {
-                        yield* Effect.annotateCurrentSpan("ai.image.style", options.style);
-                    }
-                    // Create EffectiveInput from the final prompt
-                    const effectiveInput = new EffectiveInput(
-                        finalPrompt,
-                        Chunk.make(new EffectiveMessage({
-                            role: "user",
-                            parts: Chunk.make(new TextPart({ _tag: "Text", content: finalPrompt }))
-                        }))
-                    );
-
-                    // Generate the image using the provider's generateImage method
-                    const result = yield* Effect.promise(
-                        (): Promise<ProviderImageGenerationResult> => Effect.runPromise(providerClient.generateImage(
-                            effectiveInput,
-                            {
-                                modelId,
-                                size,
-                                quality: options.quality,
-                                style: options.style,
-                                n: options.n || 1,
-                                signal: options.signal,
-                                parameters: {
-                                    maxTokens: options.parameters?.maxTokens,
-                                    temperature: options.parameters?.temperature,
-                                    topP: options.parameters?.topP,
-                                    topK: options.parameters?.topK,
-                                    presencePenalty: options.parameters?.presencePenalty,
-                                    frequencyPenalty: options.parameters?.frequencyPenalty,
-                                    seed: options.parameters?.seed,
-                                    stop: options.parameters?.stop
-                                }
-                            }
-                        ))
-                    ).pipe(
-                        Effect.mapError((error) => new ImageGenerationError({
-                            description: "Image generation failed",
+                    const validSizes = ["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"];
+                    if (!validSizes.includes(options.size)) {
+                        yield* Effect.logError("Invalid image size", { size: options.size });
+                        return yield* Effect.fail(new ImageSizeError({
+                            description: `Invalid image size: ${options.size}. Valid sizes: ${validSizes.join(", ")}`,
                             module: "ImageService",
-                            method: "generate",
-                            cause: error
-                        }))
-                    );
+                            method: "generate"
+                        }));
+                    }
 
-                    // Map the result to ImageGenerationResult
-                    return {
-                        imageUrl: result.data.imageUrl,
-                        additionalImages: result.data.additionalImages,
-                        parameters: {
-                            size: result.data.parameters.size,
-                            quality: result.data.parameters.quality,
-                            style: result.data.parameters.style
-                        },
-                        model: result.metadata.model,
-                        timestamp: result.metadata.timestamp,
-                        id: result.metadata.id,
-                        usage: result.metadata.usage ? {
-                            promptTokens: result.metadata.usage.promptTokens || 0,
-                            totalTokens: result.metadata.usage.totalTokens || 0
-                        } : undefined
+                    // Get provider for the model
+                    const providerName = yield* modelService.getProviderName(modelId);
+                    const providerClient = yield* providerService.getProviderClient(providerName);
+
+                    // Prepare the final prompt with system context if provided
+                    const systemPrompt = Option.getOrElse(options.system, () => "");
+                    const finalPrompt = systemPrompt
+                        ? `${systemPrompt}\n\n${options.prompt}`
+                        : options.prompt;
+
+                    // Call the real AI provider
+                    const providerResult = yield* providerClient.generateImage(finalPrompt, {
+                        modelId,
+                        size: options.size,
+                        quality: options.quality,
+                        style: options.style,
+                        n: options.n || 1,
+                        responseFormat: options.responseFormat
+                    });
+
+                    const result: GenerateImageResult = {
+                        images: providerResult.images,
+                        usage: providerResult.usage,
+                        model: modelId,
+                        provider: providerName,
+                        finishReason: providerResult.finishReason
                     };
+
+                    yield* Effect.log("Image generation completed successfully");
+
+                    // Update agent state with generation results
+                    yield* updateState({
+                        timestamp: Date.now(),
+                        modelId,
+                        size: options.size,
+                        promptLength: finalPrompt.length,
+                        success: true,
+                        imageCount: providerResult.images.length
+                    });
+
+                    return result;
+
                 }).pipe(
-                    Effect.withSpan("ImageService.generate")
-                )
+                    Effect.withSpan("ImageService.generate"),
+                    Effect.catchAll((error) => {
+                        return Effect.gen(function* () {
+                            yield* Effect.logError("Image generation failed", { error });
+
+                            // Update state with failure
+                            yield* updateState({
+                                timestamp: Date.now(),
+                                modelId: options.modelId || "unknown",
+                                size: options.size || "unknown",
+                                promptLength: options.prompt?.length || 0,
+                                success: false,
+                                imageCount: 0
+                            });
+
+                            return yield* Effect.fail(error);
+                        });
+                    })
+                );
+            },
+
+            /**
+             * Get the current agent state for monitoring/debugging
+             */
+            getAgentState: () => Ref.get(internalStateRef),
+
+            /**
+             * Get the runtime for direct access in tests
+             */
+            getRuntime: () => runtime,
+
+            /**
+             * Terminate the agent
+             */
+            terminate: () => agentRuntimeService.terminate(agentId)
         };
+
+        return service;
     }),
-    dependencies: [ModelService.Default, ProviderService.Default]
+    dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
 }) { }
+
+export default ImageService;
+export { ImageService };

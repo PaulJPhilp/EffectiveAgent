@@ -29,21 +29,22 @@ export const AttachmentLinkEntityDataSchema = S.Struct({
             S.Boolean,
             S.Null,
             S.Record({ key: S.String, value: S.Unknown }),
-        S.Array(S.Union(
-            S.String,
-            S.Number,
-            S.Boolean,
-            S.Null,
-            S.Record({ key: S.String, value: S.Unknown })
-        )),
-        S.Array(S.Union(
-            S.String,
-            S.Number,
-            S.Boolean,
-            S.Null,
-            S.Record({ key: S.String, value: S.Unknown })
-        ))
-    ))),
+            S.Array(S.Union(
+                S.String,
+                S.Number,
+                S.Boolean,
+                S.Null,
+                S.Record({ key: S.String, value: S.Unknown })
+            )),
+            S.Array(S.Union(
+                S.String,
+                S.Number,
+                S.Boolean,
+                S.Null,
+                S.Record({ key: S.String, value: S.Unknown })
+            ))
+        )
+    })),
     createdBy: S.String.pipe(S.optional),
     expiresAt: S.Number.pipe(S.optional),
 });

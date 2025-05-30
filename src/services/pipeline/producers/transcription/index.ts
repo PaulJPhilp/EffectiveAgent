@@ -1,21 +1,16 @@
 /**
- * @file Index file for exporting the TranscriptionService and related utilities
- * @module services/ai/producers/transcription
+ * @file Index file for Transcription Service
+ * @module services/pipeline/producers/transcription
  */
 
-// Export service implementation
 export {
-    AudioFormats, TranscriptionService,
-    TranscriptionServiceLive,
-    type TranscriptionOptions,
-    type TranscriptionResult,
-    type TranscriptionServiceApi
+    AudioFormats,
+    TranscriptionAgentState,
+    // Transcription Service Agent Implementation
+    default as TranscriptionService
 } from "./service.js";
 
-// Export error types
-export {
-    TranscriptionAudioError,
-    TranscriptionError,
-    TranscriptionModelError,
-    TranscriptionProviderError
-} from "./errors.js";
+export * from "./api.js";
+export * from "./errors.js";
+export * from "./types.js";
+

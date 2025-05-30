@@ -2,21 +2,36 @@
  * API for the Transcription Service.
  * Defines methods for submitting audio and retrieving transcriptions.
  */
+import type { AgentRuntime } from "@/agent-runtime/types.js";
 import { Effect } from "effect";
 import type { TranscriptionResult } from "../../../../types.js";
-import { TranscriptionError } from "./errors.js";
+import type { TranscriptionAgentState, TranscriptionOptions } from "./service.js";
 
 export interface TranscriptionServiceApi {
   /**
-   * Submit audio data for transcription.
-   * @param audio - The audio data (ArrayBuffer)
-   * @returns Effect containing the transcription result or error
+   * Transcribes audio based on the provided options.
+   * @param options Options for audio transcription.
+   * @returns Effect that resolves to a transcription result or fails with a TranscriptionError.
    */
-  transcribe(audio: ArrayBuffer): Effect.Effect<TranscriptionResult, TranscriptionError>;
+  readonly transcribe: (
+    options: TranscriptionOptions
+  ) => Effect.Effect<{ data: TranscriptionResult; metadata: any }, Error>;
 
   /**
-   * Retrieve the last transcription result.
-   * @returns Effect containing the last result or error
+   * Get the current agent state for monitoring/debugging
+   * @returns Effect that resolves to the current TranscriptionAgentState
    */
-  getLastResult(): Effect.Effect<TranscriptionResult | null, never>;
+  readonly getAgentState: () => Effect.Effect<TranscriptionAgentState, Error>;
+
+  /**
+   * Get the agent runtime for advanced operations
+   * @returns The AgentRuntime instance
+   */
+  readonly getRuntime: () => AgentRuntime<TranscriptionAgentState>;
+
+  /**
+   * Terminate the transcription service agent
+   * @returns Effect that resolves when termination is complete
+   */
+  readonly terminate: () => Effect.Effect<void, Error>;
 }

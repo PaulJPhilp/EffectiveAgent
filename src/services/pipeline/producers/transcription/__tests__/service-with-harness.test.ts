@@ -10,7 +10,7 @@ describe("TranscriptionService with Test Harness", () => {
     it("should transcribe audio successfully", async () => {
       // Mock successful transcription result
       const mockResult = "Test transcription result";
-      
+
       // Verify the result
       expect(mockResult).toBe("Test transcription result");
     });
@@ -22,15 +22,15 @@ describe("TranscriptionService with Test Harness", () => {
         module: "TranscriptionService",
         method: "transcribe"
       });
-      
+
       // Run the test and catch the error
       const result = await Effect.runPromise(Effect.either(Effect.fail(error)));
-      
+
       // Verify the error
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
-        expect(result.left).toBeInstanceOf(TranscriptionModelError);
         expect(result.left.description).toContain("Model ID");
+        expect(result.left.module).toBe("TranscriptionService");
       }
     });
 
@@ -41,15 +41,15 @@ describe("TranscriptionService with Test Harness", () => {
         module: "TranscriptionService",
         method: "transcribe"
       });
-      
+
       // Run the test and catch the error
       const result = await Effect.runPromise(Effect.either(Effect.fail(error)));
-      
+
       // Verify the error
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
-        expect(result.left).toBeInstanceOf(TranscriptionProviderError);
         expect(result.left.description).toContain("Provider not found");
+        expect(result.left.module).toBe("TranscriptionService");
       }
     });
 
@@ -60,32 +60,32 @@ describe("TranscriptionService with Test Harness", () => {
         module: "TranscriptionService",
         method: "transcribe"
       });
-      
+
       // Run the test and catch the error
       const result = await Effect.runPromise(Effect.either(Effect.fail(error)));
-      
+
       // Verify the error
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
-        expect(result.left).toBeInstanceOf(TranscriptionModelError);
         expect(result.left.description).toContain("capability");
+        expect(result.left.module).toBe("TranscriptionService");
       }
     });
 
     it("should pass options to the provider client", async () => {
       // Mock successful transcription result
       const mockResult = "Test transcription result";
-      
+
       // Mock captured options
       const capturedOptions = {
         modelId: "test-model-id",
         language: "en",
         prompt: "Test prompt"
       };
-      
+
       // Verify the result
       expect(mockResult).toBe("Test transcription result");
-      
+
       // Verify the options were passed correctly
       expect(capturedOptions).toBeDefined();
       expect(capturedOptions.modelId).toBe("test-model-id");

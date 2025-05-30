@@ -1,6 +1,8 @@
+import type { AgentRuntime } from "@/agent-runtime/types.js";
 import type { GenerateEmbeddingsResult } from "@/services/ai/provider/types.js";
 import { Effect } from "effect";
 import type { EmbeddingGenerationError, EmbeddingInputError, EmbeddingModelError, EmbeddingProviderError } from "./errors.js";
+import type { EmbeddingAgentState } from "./service.js";
 
 export interface EmbeddingGenerationOptions {
     /** Text to generate embeddings for */
@@ -26,4 +28,22 @@ export interface EmbeddingServiceApi {
         GenerateEmbeddingsResult,
         EmbeddingModelError | EmbeddingProviderError | EmbeddingGenerationError | EmbeddingInputError
     >;
+
+    /**
+     * Get the current agent state for monitoring/debugging
+     * @returns Effect that resolves to the current EmbeddingAgentState
+     */
+    getAgentState: () => Effect.Effect<EmbeddingAgentState, Error>;
+
+    /**
+     * Get the agent runtime for advanced operations
+     * @returns The AgentRuntime instance
+     */
+    getRuntime: () => AgentRuntime<EmbeddingAgentState>;
+
+    /**
+     * Terminate the embedding service agent
+     * @returns Effect that resolves when termination is complete
+     */
+    terminate: () => Effect.Effect<void, Error>;
 }

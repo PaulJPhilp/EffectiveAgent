@@ -3,12 +3,11 @@
  * @module services/core/configuration/api
  */
 
-import { Effect, Schema, Config, ConfigError } from "effect"; // Added Config, ConfigError
-import { ConfigReadError, ConfigParseError, ConfigValidationError } from "./errors.js";
-import { ProviderFile } from "@/services/ai/provider/schema.js";
 import { ModelFileSchema } from "@/services/ai/model/schema.js";
 import { PolicyConfigFile } from "@/services/ai/policy/schema.js";
-import type { BaseConfig } from "./schema.js";
+import { ProviderFile } from "@/services/ai/provider/schema.js";
+import { ConfigError, Effect, Schema } from "effect"; // Added Config, ConfigError
+import { ConfigParseError, ConfigReadError, ConfigValidationError } from "./errors.js";
 
 /**
  * Options for loading a configuration file
@@ -71,9 +70,10 @@ export interface ConfigurationServiceApi {
     readonly loadModelConfig: () => Effect.Effect<Schema.Schema.Type<typeof ModelFileSchema>, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
-     * Load and validate policy configuration.
+     * Load and validate the policy configuration file
+     * @returns Effect containing PolicyConfigFile or configuration error
      */
-    readonly loadPolicyConfig: () => Effect.Effect<Schema.Schema.Type<typeof PolicyConfigFile>, ConfigReadError | ConfigParseError | ConfigValidationError>;
+    readonly loadPolicyConfig: () => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Get an API key from environment variables.

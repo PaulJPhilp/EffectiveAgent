@@ -3,9 +3,9 @@ import { EntityParseError } from "@/errors.js";
  * @file Defines the ProviderService for loading, validating, and accessing AI provider configurations and clients.
  * @module services/ai/provider/service
  */
-import { ConfigurationService } from "@/services/core/configuration/service.js";        
-import { Effect, Schema as S, Ref } from "effect";
-import { ProviderServiceApi, type ProviderClientApi } from "./api.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { Effect, Ref, Schema as S } from "effect";
+import { type ProviderClientApi, ProviderServiceApi } from "./api.js";
 import { makeAnthropicClient } from "./clients/anthropic-provider-client.js";
 import { makeDeepseekClient } from "./clients/deepseek-provider-client.js";
 import { makeGoogleClient } from "./clients/google-provider-client.js";
@@ -13,7 +13,7 @@ import { makeGroqClient } from "./clients/groq-provider-client.js";
 import { makeOpenAIClient } from "./clients/openai-provider-client.js";
 import { makePerplexityClient } from "./clients/perplexity-provider-client.js";
 import { makeXaiClient } from "./clients/xai-provider-client.js";
-import { ProviderServiceConfigError, ProviderNotFoundError, ProviderOperationError } from "./errors.js";
+import { ProviderNotFoundError, ProviderOperationError, ProviderServiceConfigError } from "./errors.js";
 import { ProviderFile, ProvidersType } from "./schema.js";
 
 /**
@@ -55,13 +55,12 @@ export const providerServiceImplEffect = Effect.gen(function* () {
     const configService = yield* ConfigurationService;
     const configRef = yield* Ref.make<ProvidersType | null>(null);
 
-    // Load config during initialization
+    // Load config during initialization using the proper ConfigurationService method
     yield* Effect.logInfo("Starting provider config load");
-    const configPath = process.env.PROVIDERS_CONFIG_PATH ?? "./config/providers.json";
-    yield* Effect.logInfo("Using provider config path", { configPath });
-    
-    const rawConfig = yield* configService.loadConfig({ filePath: configPath, schema: ProviderFile }).pipe(
-        Effect.tapError((error) => Effect.logError("Failed to load provider configuration", { configPath, error }))
+
+    // Use the ConfigurationService's loadProviderConfig method instead of manual path loading
+    const rawConfig = yield* configService.loadProviderConfig().pipe(
+        Effect.tapError((error) => Effect.logError("Failed to load provider configuration", { error }))
     );
     yield* Effect.logInfo("Config file loaded", { providers: rawConfig.providers.map(p => p.name) });
 

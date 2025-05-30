@@ -1,254 +1,252 @@
 /**
- * @file Implements the TextService for handling AI text generation using the ProviderService.
- * @module services/ai/producers/text/service
+ * @file Text Agent implementation using AgentRuntime for AI text generation
+ * @module services/pipeline/producers/text/service
  */
 
-import { TextPart } from "@/schema.js";
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
+import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import type { ProviderMetadata } from "@/services/ai/provider/types.js";
-import { TestHarnessApi } from "@/services/core/test-harness/api.js";
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
-import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "@/services/pipeline/producers/text/errors.js";
+import { TextInputError, TextModelError } from "@/services/pipeline/producers/text/errors.js";
 import type { TextGenerationOptions } from "@/services/pipeline/producers/text/types.js";
-import type { GenerateBaseResult as SharedApiGenerateBaseResult } from "@/services/pipeline/types.js"; // Added alias
-import type { GenerateTextResult as ProviderGenerateTextResult } from "@/services/ai/provider/types.js"; // Added alias
-import { EffectiveInput, EffectiveMessage, EffectiveUsage, EffectiveResponse } from "@/types.js"; // Added EffectiveResponse
-import { Effect } from "effect";
-import * as Logger from "effect/Logger";
-import * as Chunk from "effect/Chunk";
-import * as Option from "effect/Option";
+import { EffectiveResponse } from "@/types.js";
+import { Effect, Option, Ref } from "effect";
 
 /**
- * Parameters for text generation
+ * Text generation agent state
  */
-export interface TextGenerationParameters {
-  [key: string]: unknown;
-  maxTokens?: number;
-  maxSteps?: number;
-  maxRetries?: number;
-  temperature?: number;
-  topP?: number;
-  topK?: number;
-  presencePenalty?: number;
-  frequencyPenalty?: number;
-  seed?: number;
-  stop?: string[];
+export interface TextAgentState {
+  readonly generationCount: number
+  readonly lastGeneration: Option.Option<string>
+  readonly lastUpdate: Option.Option<number>
+  readonly generationHistory: ReadonlyArray<{
+    readonly timestamp: number
+    readonly modelId: string
+    readonly promptLength: number
+    readonly outputLength: number
+    readonly success: boolean
+  }>
 }
 
 /**
- * Result shape expected from the underlying provider client's generateText method
+ * Text generation commands
  */
-export interface ProviderTextGenerationResult {
-  readonly data: {
-    readonly text: string;
-    readonly reasoning?: string;
-    readonly reasoningDetails?: unknown;
-    readonly sources?: unknown[];
-    readonly messages?: unknown[];
-    readonly warnings?: unknown[];
-  };
-  readonly metadata: {
-    readonly usage?: EffectiveUsage;
-    readonly finishReason: string;
-    readonly model: string;
-    readonly timestamp: Date;
-    readonly id: string;
-  };
+interface GenerateTextCommand {
+  readonly type: "GENERATE_TEXT"
+  readonly options: TextGenerationOptions
 }
 
-/**
- * Dependencies for TextService.
- */
-
-export interface TextServiceDeps {
-  readonly modelService: ModelServiceApi;
-  readonly providerService: ProviderServiceApi;
-  readonly testHarness: TestHarnessApi;
+interface StateUpdateCommand {
+  readonly type: "UPDATE_STATE"
+  readonly generation: string
+  readonly modelId: string
+  readonly promptLength: number
+  readonly success: boolean
 }
+
+type TextActivityPayload = GenerateTextCommand | StateUpdateCommand
 
 /**
  * TextService provides methods for generating AI text responses using configured providers.
+ * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
  */
-class TextService extends Effect.Service<TextServiceApi>()("TextService", {
-  effect: Effect.gen(function* () {
-    // Get services
-    yield* Effect.logDebug("TextService initializing");
-    
-    // Get provider service
-    const providerService = yield* ProviderService;
-    yield* Effect.logDebug("Got provider service");
-    
-    // Get model service
-    const modelService = yield* ModelService;
-    yield* Effect.logDebug("TextService initialized");
+class TextService extends Effect.Service<TextServiceApi>()(
+  "TextService",
+  {
+    effect: Effect.gen(function* () {
+      // Get services
+      const agentRuntimeService = yield* AgentRuntimeService;
+      const modelService = yield* ModelService;
+      const providerService = yield* ProviderService;
 
-    return {
-      /**
-       * Generates a text completion from the given prompt and model.
-       */
-      generate: (options: TextGenerationOptions) => {
-        return Effect.gen(function* () {
-          // Log start of text generation
-          yield* Effect.logInfo("Starting text generation", {
-            modelId: options.modelId,
-            promptLength: options.prompt?.length ?? 0
-          });
+      const agentId = makeAgentRuntimeId("text-service-agent");
 
-          // Validate prompt
-          if (!options.prompt || options.prompt.trim() === "") {
-            yield* Effect.logError("Empty prompt provided");
-            return yield* Effect.fail(new TextInputError({
-              description: "Prompt cannot be empty",
-              module: "TextService",
-              method: "generate"
-            }));
-          }
+      const initialState: TextAgentState = {
+        generationCount: 0,
+        lastGeneration: Option.none(),
+        lastUpdate: Option.none(),
+        generationHistory: []
+      };
 
-          // Get model ID or fail
-          const modelId = yield* Effect.fromNullable(options.modelId).pipe(
-            Effect.mapError(() => new TextModelError({
-              description: "Model ID must be provided",
-              module: "TextService",
-              method: "generate"
-            }))
-          );
+      // Create the agent runtime
+      const runtime = yield* agentRuntimeService.create(agentId, initialState);
 
-          // Get provider name from model service
-          yield* Effect.logDebug("Getting provider name for model", { modelId });
-          const providerName = yield* modelService.getProviderName(modelId).pipe(
-            Effect.tap(() => Effect.logDebug("Retrieved provider name")),
-            Effect.tapError((error) => Effect.logError("Failed to get provider name", { modelId, error })),
-            Effect.mapError((error) => new TextProviderError({
-              description: "Failed to get provider name for model",
-              module: "TextService",
-              method: "generate",
-              cause: error
-            }))
-          );
+      // Create internal state management
+      const internalStateRef = yield* Ref.make<TextAgentState>(initialState);
 
-          // Get provider client
-          yield* Effect.logDebug("Getting provider client", { providerName });
-          const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-            Effect.tap(() => Effect.logDebug("Retrieved provider client")),
-            Effect.tapError((error) => Effect.logError("Failed to get provider client", { providerName, error })),
-            Effect.mapError((error) => new TextProviderError({
-              description: "Failed to get provider client",
-              module: "TextService",
-              method: "generate",
-              cause: error
-            }))
-          );
+      yield* Effect.log("TextService agent initialized");
 
-          // If system prompt is provided, prepend it to the prompt
-          let finalPrompt = options.prompt;
-          const systemPrompt = Option.getOrUndefined(options.system);
-          if (systemPrompt) {
-            finalPrompt = `${systemPrompt}\n\n${finalPrompt}`;
-          }
+      // Helper function to update internal state
+      const updateState = (generation: {
+        readonly timestamp: number
+        readonly modelId: string
+        readonly promptLength: number
+        readonly outputLength: number
+        readonly success: boolean
+      }) => Effect.gen(function* () {
+        const currentState = yield* Ref.get(internalStateRef);
 
-          yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
-          yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
+        const updatedHistory = [
+          ...currentState.generationHistory,
+          generation
+        ].slice(-20); // Keep last 20 generations
 
-          // Create EffectiveInput from the final prompt
-          const textPart = new TextPart({ _tag: "Text", content: finalPrompt });
-          const message = new EffectiveMessage({
-            role: "user",
-            parts: Chunk.make(textPart)
-          });
-          const effectiveInput = new EffectiveInput(
-            finalPrompt,
-            Chunk.make(message)
-          );
+        const newState: TextAgentState = {
+          generationCount: currentState.generationCount + 1,
+          lastGeneration: generation.success ? Option.some(generation.modelId) : currentState.lastGeneration,
+          lastUpdate: Option.some(Date.now()),
+          generationHistory: updatedHistory
+        };
 
-          // Call the provider client and map the error
-          const generationEffect = providerClient.generateText(
-            effectiveInput,
-            {
-              modelId,
-              system: systemPrompt,
-              parameters: {
+        yield* Ref.set(internalStateRef, newState);
 
-                temperature: options.parameters?.temperature,
-                topP: options.parameters?.topP,
-                topK: options.parameters?.topK,
-                presencePenalty: options.parameters?.presencePenalty,
-                frequencyPenalty: options.parameters?.['frequencyPenalty'],
-                seed: options.parameters?.['seed'],
-                stop: options.parameters?.['stop']
-              },
-              signal: options.signal
+        // Also update the AgentRuntime state for consistency
+        const stateUpdateActivity: AgentActivity = {
+          id: `text-update-${Date.now()}`,
+          agentRuntimeId: agentId,
+          timestamp: Date.now(),
+          type: AgentActivityType.STATE_CHANGE,
+          payload: newState,
+          metadata: {},
+          sequence: 0
+        };
+        yield* runtime.send(stateUpdateActivity);
+
+        yield* Effect.log("Updated text generation state", {
+          oldCount: currentState.generationCount,
+          newCount: newState.generationCount
+        });
+      });
+
+      const service: TextServiceApi = {
+        generate: (options: TextGenerationOptions) => {
+          return Effect.gen(function* () {
+            // Log start of text generation
+            yield* Effect.log("Starting text generation", {
+              modelId: options.modelId,
+              promptLength: options.prompt?.length ?? 0,
+              hasSystemPrompt: Option.isSome(options.system)
+            });
+
+            // Send command activity to agent
+            const activity: AgentActivity = {
+              id: `text-generate-${Date.now()}`,
+              agentRuntimeId: agentId,
+              timestamp: Date.now(),
+              type: AgentActivityType.COMMAND,
+              payload: { type: "GENERATE_TEXT", options } satisfies GenerateTextCommand,
+              metadata: {},
+              sequence: 0
+            };
+
+            yield* runtime.send(activity);
+
+            // Validate input
+            if (!options.prompt || options.prompt.trim().length === 0) {
+              yield* Effect.logError("No prompt provided");
+              return yield* Effect.fail(new TextInputError({
+                description: "Prompt is required for text generation",
+                module: "TextService",
+                method: "generate"
+              }));
             }
-          ).pipe(
-            // Map only the error, keeping the success type as EffectiveResponse<GenerateTextResult>
-            Effect.mapError((error) => new TextGenerationError({
-              description: "Text generation failed",
-              module: "TextService",
-              method: "generate",
-              cause: error
-            }))
-          );
 
-          // Transform the provider's GenerateTextResult to the API's EffectiveResponse<GenerateBaseResult>
-          return yield* generationEffect.pipe(
-            Effect.tap(() => Effect.logInfo("Text generation completed successfully")),
-            // Assuming providerOutput is EffectiveResponse<ProviderGenerateTextResult> based on lint errors
-            Effect.map((providerWrappedOutput: EffectiveResponse<ProviderGenerateTextResult>) => {
-              const providerOutputData = providerWrappedOutput.data; // This is ProviderGenerateTextResult
+            // Get model ID or fail
+            const modelId = yield* Effect.fromNullable(options.modelId).pipe(
+              Effect.mapError(() => new TextModelError({
+                description: "Model ID must be provided",
+                module: "TextService",
+                method: "generate"
+              }))
+            );
 
-              // 1. Create the 'data' part for the final EffectiveResponse, this is SharedApiGenerateBaseResult
-              const sharedApiData: SharedApiGenerateBaseResult = {
-                output: providerOutputData.text,
-                usage: providerOutputData.usage, // providerOutputData has usage from its GenerateBaseResult parent
-                finishReason: providerOutputData.finishReason as SharedApiGenerateBaseResult['finishReason'],
-                providerMetadata: providerOutputData.providerMetadata as Record<string, unknown> | undefined // Cast added here
-                ,
-                location: undefined,
-                temperature: undefined,
-                temperatureFeelsLike: undefined,
-                humidity: undefined,
-                windSpeed: undefined,
-                windDirection: undefined,
-                conditions: undefined,
-                timestamp: undefined,
-                text: function (text: any): unknown {
-                  throw new Error("Function not implemented.");
-                }
-              };
+            // Get provider for the model
+            const providerName = yield* modelService.getProviderName(modelId);
+            const providerClient = yield* providerService.getProviderClient(providerName);
 
-              // 2. Create the final EffectiveResponse<SharedApiGenerateBaseResult>
-              const finalResponse: EffectiveResponse<SharedApiGenerateBaseResult> = {
-                data: sharedApiData,
-                // Populate metadata for the outer EffectiveResponse from the provider's wrapped response or providerOutputData
-                metadata: {
-                  // providerWrappedOutput.metadata might be one source if it exists and is structured
-                  // providerOutputData (ProviderGenerateTextResult) also has id, model, timestamp from its base
-                  id: providerOutputData.id,
-                  model: providerOutputData.model,
-                  timestamp: providerOutputData.timestamp,
-                  providerName: providerName // Captured earlier
-                },
-                // Populate top-level fields of the final EffectiveResponse
-                // These might be sourced from providerWrappedOutput or sharedApiData
-                usage: providerWrappedOutput.usage ?? sharedApiData.usage, // Prefer top-level from wrapper if available
-                finishReason: (providerWrappedOutput.finishReason ?? sharedApiData.finishReason) as SharedApiGenerateBaseResult['finishReason'],
-                providerMetadata: (providerWrappedOutput.providerMetadata as Record<string, unknown> | undefined) ?? sharedApiData.providerMetadata
-                // messages: providerWrappedOutput.messages, // If applicable
-              };
-              return finalResponse;
+            // Prepare the final prompt
+            const systemPrompt = Option.getOrElse(options.system, () => "");
+            const finalPrompt = systemPrompt
+              ? `${systemPrompt}\n\n${options.prompt}`
+              : options.prompt;
+
+            // Call the real AI provider
+            const providerResult = yield* providerClient.generateText(finalPrompt, {
+              modelId,
+              temperature: options.parameters?.temperature,
+              maxTokens: options.parameters?.maxTokens,
+              topP: options.parameters?.topP,
+              frequencyPenalty: options.parameters?.frequencyPenalty,
+              presencePenalty: options.parameters?.presencePenalty,
+              stop: options.parameters?.stop
+            });
+
+            const response: EffectiveResponse<string> = {
+              data: providerResult.text,
+              metadata: {
+                model: modelId,
+                provider: providerName,
+                promptLength: finalPrompt.length,
+                outputLength: providerResult.text.length,
+                usage: providerResult.usage
+              }
+            };
+
+            yield* Effect.log("Text generation completed successfully");
+
+            // Update agent state with generation results
+            yield* updateState({
+              timestamp: Date.now(),
+              modelId,
+              promptLength: finalPrompt.length,
+              outputLength: response.data.length,
+              success: true
+            });
+
+            return response;
+
+          }).pipe(
+            Effect.withSpan("TextService.generate"),
+            Effect.catchAll((error) => {
+              return Effect.gen(function* () {
+                yield* Effect.logError("Text generation failed", { error });
+
+                // Update state with failure
+                yield* updateState({
+                  timestamp: Date.now(),
+                  modelId: options.modelId || "unknown",
+                  promptLength: options.prompt?.length || 0,
+                  outputLength: 0,
+                  success: false
+                });
+
+                return yield* Effect.fail(error);
+              });
             })
           );
+        },
 
-        }).pipe(
-          Effect.withSpan("TextService.generate")
-        );
-      }
-    };
-  }),
-  dependencies: [ModelService.Default, ProviderService.Default] as const
-}) { }
+        /**
+         * Get the current agent state for monitoring/debugging
+         */
+        getAgentState: () => Ref.get(internalStateRef),
 
-// Export the TextService as default
+        /**
+         * Get the runtime for direct access in tests
+         */
+        getRuntime: () => runtime,
+
+        /**
+         * Terminate the agent
+         */
+        terminate: () => agentRuntimeService.terminate(agentId)
+      };
+
+      return service;
+    }),
+    dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
+  }
+) { }
+
 export default TextService;

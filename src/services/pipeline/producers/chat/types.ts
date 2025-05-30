@@ -3,9 +3,10 @@
  */
 
 import { Message } from "@/schema.js";
-import { Span } from "@opentelemetry/api";
+import { FinishReason } from "@/types.js";
 import { Effect } from "effect";
 import { Option } from "effect/Option";
+import { Span } from "effect/Tracer";
 import { CoreMessage } from "./utils.js";
 
 import { ModelService } from "@/services/ai/model/service.js";
@@ -66,7 +67,7 @@ export interface ChatCompletionResult {
         readonly completionTokens: number;
         readonly totalTokens: number;
     };
-    readonly finishReason: string;
+    readonly finishReason: FinishReason;
     readonly providerMetadata: ProviderMetadata;
     readonly toolCalls: ToolCall[];
 }

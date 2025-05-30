@@ -2,6 +2,8 @@
  * @file Shared types for generation-related pipeline operations
  */
 
+import { FinishReason } from "@/types.js";
+
 /**
  * Base result type for all pipeline operations
  */
@@ -24,7 +26,7 @@ export interface GenerateBaseResult {
         totalTokens: number;
     };
     /** Reason for completion */
-    finishReason?: "stop" | "length" | "content_filter" | "tool_calls" | "function_call";
+    finishReason?: FinishReason;
     /** Provider-specific metadata */
     providerMetadata?: Record<string, unknown>;
 }

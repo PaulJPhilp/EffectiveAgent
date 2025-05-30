@@ -8,14 +8,12 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
 
+import { ModelCapability } from "@/schema.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { Effect, Schema } from "effect";
-import * as Logger from "effect/Logger";
 import type { ModelServiceApi } from "./api.js";
 import { ModelNotFoundError } from "./errors.js";
-import { MODEL_UNIVERSE } from "./model-universe.js";
 import { ModelFileSchema, PublicModelInfoDefinition } from "./schema.js";
-import { ModelCapability } from "@/schema.js";
 
 /**
  * Implementation of the ModelService using Effect.Service pattern.
@@ -110,7 +108,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()(
                                 description: `Model ${modelId} not found`
                             });
                         }
-                        return model.provider;
+                        return model.provider.name;
                     }),
 
                 exists: (modelId: string) =>

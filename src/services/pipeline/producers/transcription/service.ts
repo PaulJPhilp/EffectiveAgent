@@ -1,18 +1,16 @@
 /**
- * @file Implements the TranscriptionService for handling AI audio transcription.
- * @module services/ai/producers/transcription/service
+ * @file Transcription Agent implementation using AgentRuntime for AI audio transcription
+ * @module services/pipeline/producers/transcription/service
  */
 
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
+import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { EffectiveResponse } from "@/types.js";
-import { Layer } from "effect";
-import * as Effect from "effect/Effect";
-import { Span } from "effect/Tracer";
-import type { TranscriptionServiceApi } from "./api.js";
-import { TranscriptionAudioError, TranscriptionError, TranscriptionModelError, TranscriptionProviderError } from "./errors.js";
-import type { TranscriptionResult } from "./types.js";
+import { TranscribeResult } from "@/services/ai/provider/types.js";
+import { Effect, Option, Ref } from "effect";
+import type { TranscriptionGenerationOptions, TranscriptionServiceApi } from "./api.js";
+import { TranscriptionInputError, TranscriptionModelError } from "./errors.js";
 
 /**
  * Supported audio formats for transcription
@@ -55,33 +53,146 @@ export interface TranscriptionOptions {
 }
 
 /**
- * Result of the transcription process
+ * Transcription agent state
  */
+export interface TranscriptionAgentState {
+    readonly transcriptionCount: number
+    readonly lastTranscription: Option.Option<TranscriptionResult>
+    readonly lastUpdate: Option.Option<number>
+    readonly transcriptionHistory: ReadonlyArray<{
+        readonly timestamp: number
+        readonly modelId: string
+        readonly audioSize: number
+        readonly transcriptionLength: number
+        readonly duration?: number
+        readonly language?: string
+        readonly success: boolean
+    }>
+}
 
 /**
- * TranscriptionService interface for handling AI audio transcription
+ * Transcription commands
  */
-// TranscriptionServiceApi is now imported from './api.js'
+interface TranscribeCommand {
+    readonly type: "TRANSCRIBE_AUDIO"
+    readonly options: TranscriptionOptions
+}
 
+interface StateUpdateCommand {
+    readonly type: "UPDATE_STATE"
+    readonly transcription: TranscriptionResult
+    readonly modelId: string
+    readonly audioSize: number
+    readonly success: boolean
+}
+
+type TranscriptionActivityPayload = TranscribeCommand | StateUpdateCommand
 
 /**
  * TranscriptionService provides methods for transcribing audio using AI providers.
+ * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
  */
-export class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
+class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
     "TranscriptionService",
     {
         effect: Effect.gen(function* () {
             // Get services
+            const agentRuntimeService = yield* AgentRuntimeService;
+            const modelService = yield* ModelService;
             const providerService = yield* ProviderService;
-            const modelService: ModelServiceApi = yield* ModelService;
 
-            return {
-                transcribe: (options: TranscriptionOptions) =>
-                    Effect.gen(function* () {
-                        // Validate audio data
-                        if (!options.audioData) {
-                            return yield* Effect.fail(new TranscriptionAudioError({
-                                description: "Audio data is required",
+            const agentId = makeAgentRuntimeId("transcription-service-agent");
+
+            const initialState: TranscriptionAgentState = {
+                transcriptionCount: 0,
+                lastTranscription: Option.none(),
+                lastUpdate: Option.none(),
+                transcriptionHistory: []
+            };
+
+            // Create the agent runtime
+            const runtime = yield* agentRuntimeService.create(agentId, initialState);
+
+            // Create internal state management
+            const internalStateRef = yield* Ref.make<TranscriptionAgentState>(initialState);
+
+            yield* Effect.log("TranscriptionService agent initialized");
+
+            // Helper function to update internal state
+            const updateState = (transcription: {
+                readonly timestamp: number
+                readonly modelId: string
+                readonly audioLength: number
+                readonly transcriptionLength: number
+                readonly success: boolean
+                readonly audioFormat: string
+                readonly language?: string
+            }) => Effect.gen(function* () {
+                const currentState = yield* Ref.get(internalStateRef);
+
+                const updatedHistory = [
+                    ...currentState.transcriptionHistory,
+                    transcription
+                ].slice(-20); // Keep last 20 transcriptions
+
+                const newState: TranscriptionAgentState = {
+                    transcriptionCount: currentState.transcriptionCount + 1,
+                    lastTranscription: currentState.lastTranscription,
+                    lastUpdate: Option.some(Date.now()),
+                    transcriptionHistory: updatedHistory
+                };
+
+                yield* Ref.set(internalStateRef, newState);
+
+                // Also update the AgentRuntime state for consistency
+                const stateUpdateActivity: AgentActivity = {
+                    id: `transcription-update-${Date.now()}`,
+                    agentRuntimeId: agentId,
+                    timestamp: Date.now(),
+                    type: AgentActivityType.STATE_CHANGE,
+                    payload: newState,
+                    metadata: {},
+                    sequence: 0
+                };
+                yield* runtime.send(stateUpdateActivity);
+
+                yield* Effect.log("Updated transcription state", {
+                    oldCount: currentState.transcriptionCount,
+                    newCount: newState.transcriptionCount
+                });
+            });
+
+            const service: TranscriptionServiceApi = {
+                /**
+                 * Transcribes audio data using the specified model
+                 */
+                transcribe: (options: TranscriptionGenerationOptions) => {
+                    return Effect.gen(function* () {
+                        // Log start of transcription
+                        yield* Effect.log("Starting audio transcription", {
+                            modelId: options.modelId,
+                            audioLength: options.audioData.length,
+                            audioFormat: options.audioFormat
+                        });
+
+                        // Send command activity to agent
+                        const activity: AgentActivity = {
+                            id: `transcription-transcribe-${Date.now()}`,
+                            agentRuntimeId: agentId,
+                            timestamp: Date.now(),
+                            type: AgentActivityType.COMMAND,
+                            payload: { type: "TRANSCRIBE_AUDIO", options } satisfies TranscribeAudioCommand,
+                            metadata: {},
+                            sequence: 0
+                        };
+
+                        yield* runtime.send(activity);
+
+                        // Validate input
+                        if (!options.audioData || options.audioData.length === 0) {
+                            yield* Effect.logError("No audio data provided");
+                            return yield* Effect.fail(new TranscriptionInputError({
+                                description: "Audio data is required for transcription",
                                 module: "TranscriptionService",
                                 method: "transcribe"
                             }));
@@ -96,88 +207,92 @@ export class TranscriptionService extends Effect.Service<TranscriptionServiceApi
                             }))
                         );
 
-                        // Get provider name from model service
-                        const providerName = yield* modelService.getProviderName(modelId).pipe(
-                            Effect.mapError((error) => new TranscriptionProviderError({
-                                description: "Failed to get provider name for model",
-                                module: "TranscriptionService",
-                                method: "transcribe",
-                                cause: error
-                            }))
-                        );
-                        // Get provider client
-                        const providerClient = yield* providerService.getProviderClient(providerName).pipe(
-                            Effect.mapError((error) => new TranscriptionProviderError({
-                                description: "Failed to get provider client",
-                                module: "TranscriptionService",
-                                method: "transcribe",
-                                cause: error
-                            }))
-                        );
+                        // Get provider for the model
+                        const providerName = yield* modelService.getProviderName(modelId);
+                        const providerClient = yield* providerService.getProviderClient(providerName);
 
-                        yield* Effect.annotateCurrentSpan("ai.provider.name", providerName);
-                        yield* Effect.annotateCurrentSpan("ai.model.name", modelId);
+                        // Convert Uint8Array to Buffer for provider compatibility
+                        const audioBuffer = Buffer.from(options.audioData);
 
-                        // Get model from the provider
-                        const models = yield* providerClient.getModels().pipe(
-                            Effect.provide(ModelService.Default)
-                        );
-                        const matchingModel = models.find((m) => m.modelId === modelId);
-                        if (!matchingModel) {
-                            return yield* Effect.fail(new TranscriptionModelError({
-                                description: `Model ${modelId} not found`,
-                                module: "TranscriptionService",
-                                method: "transcribe"
-                            }));
-                        }
-                        const model = matchingModel;
-
-                        // Transcribe the audio using the provider's transcribe method
-                        let inputBuffer: ArrayBuffer;
-                        if (typeof options.audioData === "string") {
-                            inputBuffer = Buffer.from(options.audioData, "base64").buffer;
-                        } else if (options.audioData instanceof Uint8Array) {
-                            // Ensure we get a true ArrayBuffer, not SharedArrayBuffer
-                            if (options.audioData.buffer instanceof ArrayBuffer) {
-                                inputBuffer = options.audioData.buffer.slice(
-                                    options.audioData.byteOffset,
-                                    options.audioData.byteOffset + options.audioData.byteLength
-                                );
-                            } else {
-                                inputBuffer = new Uint8Array(options.audioData).buffer;
-                            }
-                        } else {
-                            inputBuffer = options.audioData as ArrayBuffer;
-                        }
-
-                        const response: EffectiveResponse<TranscriptionResult> = yield* Effect.tryPromise({
-                            try: async () => {
-                                return await Effect.runPromise(providerClient.transcribe(
-                                    inputBuffer,
-                                    {
-                                        modelId: modelId,
-                                        ...options.parameters
-                                    }
-                                ));
-                            },
-                            catch: (error) => new TranscriptionError({
-                                description: "Transcription failed",
-                                module: "TranscriptionService",
-                                method: "transcribe",
-                                cause: error
-                            })
+                        // Call the real AI provider
+                        const providerResult = yield* providerClient.transcribe(audioBuffer, {
+                            modelId,
+                            language: options.language,
+                            prompt: options.prompt,
+                            responseFormat: options.responseFormat,
+                            temperature: options.temperature,
+                            timestamp_granularities: options.timestamp_granularities
                         });
 
-                        // Return the result directly
-                        return {
-                            data: response.data,
-                            metadata: response.metadata
+                        const result: TranscribeResult = {
+                            text: providerResult.text,
+                            language: providerResult.language,
+                            duration: providerResult.duration,
+                            segments: providerResult.segments,
+                            words: providerResult.words,
+                            usage: providerResult.usage,
+                            model: modelId,
+                            provider: providerName
                         };
+
+                        yield* Effect.log("Audio transcription completed successfully");
+
+                        // Update agent state with transcription results
+                        yield* updateState({
+                            timestamp: Date.now(),
+                            modelId,
+                            audioLength: options.audioData.length,
+                            transcriptionLength: result.text.length,
+                            success: true,
+                            audioFormat: options.audioFormat,
+                            language: result.language
+                        });
+
+                        return result;
+
                     }).pipe(
-                        Effect.withSpan("TranscriptionService.transcribe")
-                    )
+                        Effect.withSpan("TranscriptionService.transcribe"),
+                        Effect.catchAll((error) => {
+                            return Effect.gen(function* () {
+                                yield* Effect.logError("Audio transcription failed", { error });
+
+                                // Update state with failure
+                                yield* updateState({
+                                    timestamp: Date.now(),
+                                    modelId: options.modelId || "unknown",
+                                    audioLength: options.audioData?.length || 0,
+                                    transcriptionLength: 0,
+                                    success: false,
+                                    audioFormat: options.audioFormat || "unknown"
+                                });
+
+                                return yield* Effect.fail(error);
+                            });
+                        })
+                    );
+                },
+
+                /**
+                 * Get the current agent state for monitoring/debugging
+                 */
+                getAgentState: () => Ref.get(internalStateRef),
+
+                /**
+                 * Get the runtime for direct access in tests
+                 */
+                getRuntime: () => runtime,
+
+                /**
+                 * Terminate the agent
+                 */
+                terminate: () => agentRuntimeService.terminate(agentId)
             };
+
+            return service;
         }),
-        dependencies: [ModelService.Default, ProviderService.Default]
+        dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
     }
 ) { }
+
+export default TranscriptionService;
+export { TranscriptionService };

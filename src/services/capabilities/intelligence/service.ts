@@ -3,47 +3,79 @@
  * @module services/capabilities/intelligence/service
  */
 
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { Effect } from "effect";
+import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
+import { Effect, Option, Ref } from "effect";
 import type { IntelligenceServiceApi } from "./api.js";
 import { IntelligenceConfigError } from "./errors.js";
 import { IntelligenceFile, type IntelligenceType } from "./schema.js";
 
 /**
- * Service implementation for managing intelligence configurations.
+ * Intelligence service agent state
+ */
+export interface IntelligenceAgentState {
+  readonly loadCount: number
+  readonly lastLoad: Option.Option<number>
+  readonly intelligences: ReadonlyArray<IntelligenceType>
+}
+
+/**
+ * Service implementation for managing intelligence configurations with AgentRuntime integration.
  */
 export class IntelligenceService extends Effect.Service<IntelligenceServiceApi>()(
   "IntelligenceService",
   {
     effect: Effect.gen(function* () {
-      // Get dependencies
-      const configService = yield* ConfigurationService;
+      const agentRuntimeService = yield* AgentRuntimeService;
+      const agentId = makeAgentRuntimeId("intelligence-service-agent");
 
-      // Prepare service methods
-      const loadConfig = () =>
-        Effect.gen(function* () {
-          // 1. Load and validate the config object
-          const config = yield* configService.loadConfig({ filePath: "intelligence", schema: IntelligenceFile }).pipe(
-            Effect.mapError(error => new IntelligenceConfigError({
-              description: "Failed to load intelligence configuration",
-              module: "IntelligenceService",
-              method: "load",
-              cause: error
-            }))
-          );
-          return config;
-        });
+      const initialState: IntelligenceAgentState = {
+        loadCount: 0,
+        lastLoad: Option.none(),
+        intelligences: []
+      };
 
-      // Return the service implementation object
-      return {
-        // Load method implementation
-        load: () => loadConfig(),
+      // Create internal state and agent runtime
+      const internalStateRef = yield* Ref.make<IntelligenceAgentState>(initialState);
+      const runtime = yield* agentRuntimeService.create(agentId, initialState);
+
+      yield* Effect.log("IntelligenceService agent initialized");
+
+      const service: IntelligenceServiceApi = {
+        load: () => Effect.gen(function* () {
+          // Get intelligences from AgentRuntime state
+          const runtimeState = yield* runtime.getState();
+
+          // Load intelligences from the agent runtime configuration
+          const intelligences = runtimeState.state.intelligences || [];
+
+          // Update internal state to track load
+          const currentState = yield* Ref.get(internalStateRef);
+          const newState: IntelligenceAgentState = {
+            ...currentState,
+            loadCount: currentState.loadCount + 1,
+            lastLoad: Option.some(Date.now()),
+            intelligences
+          };
+          yield* Ref.set(internalStateRef, newState);
+
+          const intelligenceFile: IntelligenceFile = {
+            name: "agent-intelligences",
+            version: "1.0.0",
+            intelligences
+          };
+
+          yield* Effect.log("IntelligenceService: loaded intelligences from agent runtime", {
+            intelligenceCount: intelligences.length
+          });
+
+          return intelligenceFile;
+        }),
 
         // GetProfile method implementation
         getProfile: (name: string) =>
           Effect.gen(function* () {
             // First load the configuration
-            const config = yield* loadConfig();
+            const config = yield* service.load();
 
             // Find the profile by name
             const profile = config.intelligences.find((p: IntelligenceType) => p.name === name);
@@ -61,6 +93,9 @@ export class IntelligenceService extends Effect.Service<IntelligenceServiceApi>(
             return profile;
           })
       };
-    })
+
+      return service;
+    }),
+    dependencies: [AgentRuntimeService.Default]
   }
 ) { }

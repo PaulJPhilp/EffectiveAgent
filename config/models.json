@@ -1,1 +1,26 @@
-{"name":"ModelConfig","version":"1.0.0","models":[{"id":"gpt-4o","name":"gpt-4o","version":"1.0.0","provider":{"name":"openai"},"modelName":"gpt-4o","displayName":"gpt-4o","vendorCapabilities":["chat","text-generation"],"responseFormat":{"type":"text","supportedFormats":["text/plain","text/markdown"]}}]}
+{
+  "name": "ModelConfig",
+  "version": "1.0.0",
+  "models": [
+    {
+      "id": "gpt-4o",
+      "name": "gpt-4o",
+      "version": "1.0.0",
+      "provider": {
+        "name": "openai"
+      },
+      "modelName": "gpt-4o",
+      "displayName": "GPT-4o",
+      "vendorCapabilities": [
+        "chat",
+        "text-generation",
+        "vision",
+        "function-calling"
+      ],
+      "responseFormat": {
+        "type": "text",
+        "supportedFormats": ["text/plain", "text/markdown", "application/json"]
+      }
+    }
+  ]
+}

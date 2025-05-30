@@ -3,7 +3,7 @@
  * @module services/tools/implementations/hackernews
  */
 
-import { PlatformError } from "@effect/platform/Error.js"; // Keep for potential broader errors
+import { PlatformError } from "@effect/platform/Error.js";
 import * as HttpBody from "@effect/platform/HttpBody.js";
 // Import HttpClient related modules from @effect/platform
 import { HttpClient } from "@effect/platform/HttpClient.js";

@@ -20,16 +20,14 @@
  * ```
  */
 
+import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { Effect, HashMap, Option, Ref, pipe } from "effect";
 import { v4 as uuidv4 } from "uuid";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { MasterConfig } from "@/core/config/types.js";
-import type { MasterConfigData } from "@/core/config/master-config-schema.js";
-import { PolicyError } from "./errors.js";
-import { PolicyRuleData, PolicyRuleEntity, PolicyUsageData, PolicyUsageEntity, PolicyConfigFile } from "./schema.js";
 import { PolicyServiceApi } from "./api.js";
-import { POLICY_RULE_DENY, POLICY_SCOPE_GLOBAL, POLICY_SCOPE_USER } from "./types.js";
+import { PolicyError } from "./errors.js";
+import { PolicyRuleData, PolicyRuleEntity, PolicyUsageData, PolicyUsageEntity } from "./schema.js";
 import type { PolicyCheckContext, PolicyCheckResult, PolicyRecordContext } from "./types.js";
+import { POLICY_RULE_DENY } from "./types.js";
 
 /**
  * PolicyService provides policy rule management, rate limiting, and policy outcome
@@ -76,11 +74,10 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
     effect: Effect.gen(function* () {
       // Get dependencies
       const configService = yield* ConfigurationService;
-      const masterConfig = yield* MasterConfig;
 
       // Load policy configuration
       const config = yield* pipe(
-        configService.loadPolicyConfig(masterConfig.configPaths.policy),
+        configService.loadPolicyConfig(),
         Effect.mapError((error) => new PolicyError({
           method: "initialize",
           description: "Failed to load policy configuration",
@@ -93,8 +90,8 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
         config.policies.map((rule: { id: any; }) => [rule.id, {
           id: rule.id,
           data: rule,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
+          createdAt: new Date(),
+          updatedAt: new Date()
         }])
       ));
       const usageRepo = yield* Ref.make(HashMap.empty<string, PolicyUsageEntity>());
@@ -152,7 +149,7 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
             }
 
             const matchingRules = Array.from(HashMap.values(rules))
-              .filter(rule => {
+              .filter((rule: unknown) => {
                 const entityRule = rule as PolicyRuleEntity;
                 const ruleData = entityRule.data;
 
@@ -256,8 +253,8 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
             const usageEntity: PolicyUsageEntity = {
               id: uuidv4(),
               data: usageData,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
+              createdAt: new Date(),
+              updatedAt: new Date()
             };
 
             yield* Effect.try({
@@ -326,8 +323,8 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
             const ruleEntity: PolicyRuleEntity = {
               id: ruleData.id,
               data: ruleData,
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
+              createdAt: new Date(),
+              updatedAt: new Date()
             };
 
             yield* Effect.try({
@@ -417,7 +414,7 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()(
               id: existingRuleEntity.id,
               data: updatedData,
               createdAt: existingRuleEntity.createdAt,
-              updatedAt: new Date().toISOString()
+              updatedAt: new Date()
             };
 
             // Update the rule in the repository

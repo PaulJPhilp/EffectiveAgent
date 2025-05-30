@@ -49,6 +49,19 @@ export class TranscriptionError extends EffectiveError {
 }
 
 /**
+ * Error thrown when transcription input validation fails
+ */
+/**
+ * Error thrown when transcription input validation fails.
+ * @extends EffectiveError
+ */
+export class TranscriptionInputError extends EffectiveError {
+    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
+        super(params);
+    }
+}
+
+/**
  * Error thrown when the audio file validation or processing fails
  */
 /**

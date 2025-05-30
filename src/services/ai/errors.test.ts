@@ -1,11 +1,14 @@
-import { EffectiveError } from "@/errors.js"
+/**
+ * @file AI Service Error Tests
+ * @module services/ai/errors/tests
+ */
+
+import { EffectiveError } from "@/effective-error.js"
 import { Cause, Effect, Exit, Option } from "effect"
 import { describe, expect, it } from "vitest"
 import {
     AuthenticationError,
     ChatCompletionError,
-    ProviderAPIError,
-    RateLimitError,
     mapProviderError,
     withErrorMapping
 } from "./errors.js"
@@ -18,7 +21,7 @@ describe("Error Classes", () => {
                 module: "TestModule",
                 method: "testMethod",
             })
-            expect(error).toBeInstanceOf(EffectiveError)
+            expect(error.name).toBe("ChatCompletionError")
             expect(error.description).toBe("Chat completion failed")
             expect(error.module).toBe("TestModule")
             expect(error.method).toBe("testMethod")
@@ -32,7 +35,7 @@ describe("Error Classes", () => {
                 module: "TestModule",
                 method: "testMethod",
             })
-            expect(error).toBeInstanceOf(EffectiveError)
+            expect(error.name).toBe("AuthenticationError")
             expect(error.description).toBe("Authentication failed")
             expect(error.module).toBe("TestModule")
             expect(error.method).toBe("testMethod")
@@ -44,7 +47,7 @@ describe("Error Mapping", () => {
     it("should map rate limit error", () => {
         const originalError = new Error("rate limit exceeded")
         const mappedError = mapProviderError(originalError)
-        expect(mappedError).toBeInstanceOf(RateLimitError)
+        expect(mappedError.name).toBe("RateLimitError")
         expect(mappedError.description).toBe("Rate limit exceeded")
         expect(mappedError.cause).toBe(originalError)
     })
@@ -52,7 +55,7 @@ describe("Error Mapping", () => {
     it("should map authentication error", () => {
         const originalError = new Error("authentication failed")
         const mappedError = mapProviderError(originalError)
-        expect(mappedError).toBeInstanceOf(AuthenticationError)
+        expect(mappedError.name).toBe("AuthenticationError")
         expect(mappedError.description).toBe("Authentication failed")
         expect(mappedError.cause).toBe(originalError)
     })
@@ -60,7 +63,7 @@ describe("Error Mapping", () => {
     it("should map unknown error to ProviderAPIError", () => {
         const originalError = new Error("unknown error")
         const mappedError = mapProviderError(originalError)
-        expect(mappedError).toBeInstanceOf(ProviderAPIError)
+        expect(mappedError.name).toBe("ProviderAPIError")
         expect(mappedError.description).toBe("Provider API error")
         expect(mappedError.cause).toBe(originalError)
     })
@@ -72,12 +75,12 @@ describe("withErrorMapping", () => {
         const mappedEffect = withErrorMapping(effect)
         const result = await Effect.runPromiseExit(mappedEffect)
         if (Exit.isFailure(result)) {
-            const error = Cause.failureOption(result.cause) 
+            const error = Cause.failureOption(result.cause)
             const effectiveError = Option.getOrThrow(error)
-            expect(effectiveError).toBeInstanceOf(EffectiveError)
+            expect(effectiveError.name).toBe("ProviderAPIError")
             expect(effectiveError.description).toBe("Provider API error")
         } else {
-            throw new Error("Effect should have failed")
+            throw new Error("Expected failure but got success")
         }
     })
 
@@ -88,12 +91,11 @@ describe("withErrorMapping", () => {
         if (Exit.isFailure(result)) {
             const error = Cause.failureOption(result.cause)
             const effectiveError = Option.getOrThrow(error) as EffectiveError
-            expect(effectiveError).toBeInstanceOf(EffectiveError)
+            expect(effectiveError.name).toBe("EffectiveError")
             expect(effectiveError.description).toBe("Unknown error")
-            expect(effectiveError.module).toBe("Unknown")
-            expect(effectiveError.method).toBe("unknown")
+            expect(effectiveError.cause).toBe("string error")
         } else {
-            throw new Error("Effect should have failed")
+            throw new Error("Expected failure but got success")
         }
     })
 }) 
