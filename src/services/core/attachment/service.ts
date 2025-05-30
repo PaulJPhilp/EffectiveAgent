@@ -3,7 +3,7 @@
  */
 
 import { EntityId } from "@/types.js";
-import { Effect, Layer, Option, Ref } from "effect";
+import { Effect, Option, Ref } from "effect";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "../repository/errors.js";
 import { RepositoryService } from "../repository/service.js";
 import { AttachmentServiceApi } from "./api.js";
@@ -27,50 +27,73 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
     "AttachmentService",
     {
         effect: Effect.gen(function* (_) {
+            yield* Effect.logDebug("Initializing AttachmentService");
+
             // Get repository instance for AttachmentLinkEntity
             const repo = yield* RepositoryService<AttachmentLinkEntity>().Tag;
 
             const createLink = (
                 input: CreateAttachmentLinkInput,
             ): Effect.Effect<AttachmentLinkEntity, AttachmentDbError> => {
-                // Construct the data payload for the repository
-                const dataToCreate: AttachmentLinkEntityData = {
-                    entityA_id: input.entityA_id,
-                    entityA_type: input.entityA_type,
-                    entityB_id: input.entityB_id,
-                    entityB_type: input.entityB_type,
-                    metadata: input.metadata ?? { key: "", value: null },
-                    ...(input.linkType ? { linkType: input.linkType } : {}),
-                    ...(input.createdBy ? { createdBy: input.createdBy } : {}),
-                    ...(input.expiresAt ? { expiresAt: input.expiresAt } : {}),
-                };
-                return repo.create(dataToCreate).pipe(
-                    Effect.mapError(
-                        (cause) =>
-                            new AttachmentDbError({
-                                operation: "createLink",
-                                message: "Failed to create attachment link",
-                                cause,
-                            }),
-                    ),
-                );
+                return Effect.gen(function* () {
+                    yield* Effect.logDebug("Creating attachment link", {
+                        entityA_type: input.entityA_type,
+                        entityB_type: input.entityB_type
+                    });
+
+                    // Construct the data payload for the repository
+                    const dataToCreate = {
+                        entityA_id: input.entityA_id,
+                        entityA_type: input.entityA_type,
+                        entityB_id: input.entityB_id,
+                        entityB_type: input.entityB_type,
+                        metadata: input.metadata ?? {},
+                        ...(input.linkType ? { linkType: input.linkType } : {}),
+                        ...(input.createdBy ? { createdBy: input.createdBy } : {}),
+                        ...(input.expiresAt ? { expiresAt: input.expiresAt } : {}),
+                    } as AttachmentLinkEntityData;
+
+                    const result = yield* repo.create(dataToCreate).pipe(
+                        Effect.mapError(
+                            (cause) =>
+                                new AttachmentDbError({
+                                    operation: "createLink",
+                                    message: "Failed to create attachment link",
+                                    cause,
+                                }),
+                        ),
+                    );
+
+                    yield* Effect.logDebug("Attachment link created successfully", {
+                        linkId: result.id
+                    });
+
+                    return result;
+                });
             };
 
             const deleteLink = (
                 linkId: EntityId,
             ): Effect.Effect<void, AttachmentLinkNotFoundError | AttachmentDbError> =>
-                repo.delete(linkId).pipe(
-                    Effect.mapError((repoError) => {
-                        if (repoError instanceof RepoEntityNotFoundError) {
-                            return new AttachmentLinkNotFoundError({ linkId });
-                        }
-                        return new AttachmentDbError({
-                            operation: "deleteLink",
-                            message: `Failed to delete link ID ${linkId}`,
-                            cause: repoError,
-                        });
-                    }),
-                );
+                Effect.gen(function* () {
+                    yield* Effect.logDebug("Deleting attachment link", { linkId });
+
+                    const result = yield* repo.delete(linkId).pipe(
+                        Effect.mapError((repoError) => {
+                            if (repoError instanceof RepoEntityNotFoundError) {
+                                return new AttachmentLinkNotFoundError({ linkId });
+                            }
+                            return new AttachmentDbError({
+                                operation: "deleteLink",
+                                message: `Failed to delete link ID ${linkId}`,
+                                cause: repoError,
+                            });
+                        }),
+                    );
+
+                    yield* Effect.logDebug("Attachment link deleted successfully", { linkId });
+                    return result;
+                });
 
             const findLinksFrom = (
                 entityA_id: EntityId,
@@ -347,7 +370,7 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                                         entityB_id: linkToRestore.data.entityB_id,
                                         entityB_type: linkToRestore.data.entityB_type,
                                         linkType: linkToRestore.data.linkType,
-                                        metadata: linkToRestore.data.metadata,
+                                        metadata: (linkToRestore.data.metadata || {}) as any,
                                         createdBy: linkToRestore.data.createdBy,
                                         expiresAt: linkToRestore.data.expiresAt
                                     })),
@@ -438,7 +461,7 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                                         entityB_id: linkToRestore.data.entityB_id,
                                         entityB_type: linkToRestore.data.entityB_type,
                                         linkType: linkToRestore.data.linkType,
-                                        metadata: linkToRestore.data.metadata,
+                                        metadata: (linkToRestore.data.metadata || {}) as any,
                                         createdBy: linkToRestore.data.createdBy,
                                         expiresAt: linkToRestore.data.expiresAt
                                     })),

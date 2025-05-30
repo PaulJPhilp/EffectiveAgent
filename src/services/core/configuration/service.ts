@@ -183,4 +183,9 @@ export class ConfigurationService extends Effect.Service<ConfigurationServiceApi
             };
         })
     }
-) { } 
+) { }
+
+/**
+ * Default export for the ConfigurationService.
+ */
+export default ConfigurationService;

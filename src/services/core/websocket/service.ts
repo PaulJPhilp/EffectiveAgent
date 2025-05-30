@@ -1,7 +1,7 @@
-import { Effect, Queue, Scope, Stream } from "effect"
-import { WebSocket } from "ws"
-import { WebSocketServiceApi } from "./api.js"
-import { WebSocketConnectionError, WebSocketError, WebSocketSendError, WebSocketSerializationError } from "./errors.js"
+import { Effect, Queue, Scope, Stream } from "effect";
+import { WebSocket } from "ws";
+import { WebSocketServiceApi } from "./api.js";
+import { WebSocketConnectionError, WebSocketError, WebSocketSendError, WebSocketSerializationError } from "./errors.js";
 
 /**
  * Canonical Effect.Service implementation for WebSocketService.
@@ -11,14 +11,17 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
     "WebSocketService",
     {
         effect: Effect.gen(function* () {
+            yield* Effect.logDebug("Initializing WebSocketService");
+
             const scope = yield* Scope.Scope
             const receiveQueue = yield* Queue.unbounded<unknown>()
             const errorQueue = yield* Queue.unbounded<WebSocketError>()
             let socket: WebSocket | null = null
             let connectionEffect: Effect.Effect<void, WebSocketConnectionError> | null = null
 
-            const closeSocket = Effect.sync(() => {
+            const closeSocket = Effect.gen(function* () {
                 if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)) {
+                    yield* Effect.logDebug("Closing WebSocket connection", { url: socket.url });
                     socket.close()
                 }
                 socket = null
@@ -27,13 +30,18 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
 
             const connect = (url: string): Effect.Effect<void, WebSocketConnectionError> => {
                 return Effect.gen(function* () {
+                    yield* Effect.logDebug("Attempting WebSocket connection", { url });
+
                     if (connectionEffect) {
+                        yield* Effect.logDebug("Using existing connection effect");
                         return yield* connectionEffect
                     }
                     if (socket && socket.readyState === WebSocket.OPEN && socket.url === url) {
+                        yield* Effect.logDebug("WebSocket already connected to this URL");
                         return
                     }
                     if (socket) {
+                        yield* Effect.logDebug("Closing existing WebSocket before new connection");
                         yield* closeSocket
                     }
                     connectionEffect = Effect.async<void, WebSocketConnectionError>((resume) => {
@@ -49,6 +57,7 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                             Effect.map(ws => {
                                 socket = ws
                                 ws.onopen = () => {
+                                    Effect.runFork(Effect.logInfo("WebSocket connected successfully", { url }));
                                     connectionEffect = null
                                     resume(Effect.succeed(undefined))
                                 }
@@ -58,12 +67,14 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                                         message: "WebSocket connection error",
                                         cause: event
                                     })
+                                    Effect.runFork(Effect.logError("WebSocket connection error", { url, error }));
                                     socket = null
                                     connectionEffect = null
                                     Effect.runFork(Queue.offer(errorQueue, error))
                                     resume(Effect.fail(error))
                                 }
                                 ws.onmessage = (event) => {
+                                    Effect.runFork(Effect.logDebug("WebSocket message received", { dataLength: event.data.length }));
                                     Effect.runFork(
                                         Effect.try({
                                             try: () => JSON.parse(event.data.toString()),
@@ -74,7 +85,10 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                                             })
                                         }).pipe(
                                             Effect.flatMap(data => Queue.offer(receiveQueue, data)),
-                                            Effect.catchAll(error => Queue.offer(errorQueue, error))
+                                            Effect.catchAll(error => {
+                                                Effect.runFork(Effect.logError("WebSocket message parsing failed", { error }));
+                                                return Queue.offer(errorQueue, error);
+                                            })
                                         )
                                     )
                                 }
@@ -84,6 +98,7 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                                             message: "WebSocket closed unexpectedly",
                                             _tag: "WebSocketError"
                                         })
+                                        Effect.runFork(Effect.logWarning("WebSocket closed unexpectedly", { url }));
                                         Effect.runFork(Queue.offer(errorQueue, error))
                                     }
                                     socket = null
@@ -91,6 +106,7 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                                 }
                             }),
                             Effect.catchAll(error => {
+                                Effect.runFork(Effect.logError("WebSocket creation failed", { url, error }));
                                 socket = null
                                 connectionEffect = null
                                 Effect.runFork(Queue.offer(errorQueue, error))
@@ -105,28 +121,39 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                 })
             }
 
-            const disconnect = (): Effect.Effect<void, never> => closeSocket
+            const disconnect = (): Effect.Effect<void, never> =>
+                Effect.gen(function* () {
+                    yield* Effect.logDebug("Disconnecting WebSocket");
+                    yield* closeSocket;
+                    yield* Effect.logDebug("WebSocket disconnected");
+                });
 
             const send = <T = unknown>(message: T): Effect.Effect<void, WebSocketSendError | WebSocketSerializationError> =>
-                Effect.try({
-                    try: () => {
-                        if (!socket || socket.readyState !== WebSocket.OPEN) {
-                            throw new WebSocketSendError({
-                                message: "WebSocket not open"
+                Effect.gen(function* () {
+                    yield* Effect.logDebug("Sending WebSocket message");
+
+                    yield* Effect.try({
+                        try: () => {
+                            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                                throw new WebSocketSendError({
+                                    message: "WebSocket not open"
+                                })
+                            }
+                            const serialized = JSON.stringify(message)
+                            socket.send(serialized)
+                        },
+                        catch: (e) => {
+                            if (e instanceof WebSocketSendError) return e
+                            return new WebSocketSerializationError({
+                                message: "Failed to serialize message",
+                                data: message,
+                                cause: e
                             })
                         }
-                        const serialized = JSON.stringify(message)
-                        socket.send(serialized)
-                    },
-                    catch: (e) => {
-                        if (e instanceof WebSocketSendError) return e
-                        return new WebSocketSerializationError({
-                            message: "Failed to serialize message",
-                            data: message,
-                            cause: e
-                        })
-                    }
-                })
+                    });
+
+                    yield* Effect.logDebug("WebSocket message sent successfully");
+                });
 
             function isWebSocketErrorType(e: unknown): e is WebSocketError | WebSocketSerializationError {
                 return typeof e === "object" && e !== null &&

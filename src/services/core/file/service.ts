@@ -4,8 +4,8 @@
  * Handles Base64 encoding/decoding for file content.
  */
 
-import { Effect, Layer, Option } from "effect";
 import { EntityId } from "@/types.js";
+import { Effect, Option } from "effect";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "../repository/errors.js";
 import { RepositoryService } from "../repository/service.js";
 import type { FileServiceApi } from "./api.js";
@@ -21,81 +21,105 @@ export class FileService extends Effect.Service<FileServiceApi>()(
     "FileService",
     {
         effect: Effect.gen(function* (_) {
+            yield* Effect.logDebug("Initializing FileService");
+
             // Get repository instance for FileEntity
             const repo = yield* RepositoryService<FileEntity>().Tag;
 
             const storeFile = (
                 input: FileInput,
             ): Effect.Effect<FileEntity, FileDbError> => {
-                const contentBase64 = input.content.toString("base64");
-                const entityDataToCreate: FileEntityData = {
-                    filename: input.filename,
-                    mimeType: input.mimeType,
-                    sizeBytes: input.sizeBytes,
-                    ownerId: input.ownerId,
-                    contentBase64: contentBase64,
-                };
+                return Effect.gen(function* () {
+                    yield* Effect.logDebug("Storing file", {
+                        filename: input.filename,
+                        mimeType: input.mimeType,
+                        sizeBytes: input.sizeBytes
+                    });
 
-                return repo.create(entityDataToCreate).pipe(
-                    // First log the error as a side effect
-                    Effect.tapError(
-                        (repoError) => Effect.logError("Error from repo.create", repoError)
-                    ),
-                    // Then transform the error
-                    Effect.mapError(
-                        (repoError) => new FileDbError({
-                            operation: "storeFile",
-                            message: "Failed to store file in repository",
-                            cause: repoError,
-                        })
-                    ),
-                );
+                    const contentBase64 = input.content.toString("base64");
+                    const entityDataToCreate: FileEntityData = {
+                        filename: input.filename,
+                        mimeType: input.mimeType,
+                        sizeBytes: input.sizeBytes,
+                        ownerId: input.ownerId,
+                        contentBase64: contentBase64,
+                    };
+
+                    const result = yield* repo.create(entityDataToCreate).pipe(
+                        // First log the error as a side effect
+                        Effect.tapError(
+                            (repoError) => Effect.logError("Error from repo.create", repoError)
+                        ),
+                        // Then transform the error
+                        Effect.mapError(
+                            (repoError) => new FileDbError({
+                                operation: "storeFile",
+                                message: "Failed to store file in repository",
+                                cause: repoError,
+                            })
+                        ),
+                    );
+
+                    yield* Effect.logDebug("File stored successfully", {
+                        fileId: result.id,
+                        filename: input.filename
+                    });
+
+                    return result;
+                });
             };
 
             const retrieveFileContent = (
                 id: EntityId,
             ): Effect.Effect<Buffer, FileNotFoundError | FileDbError> =>
-                repo.findById(id).pipe(
-                    Effect.mapError((repoError) => { // Map findById error first
-                        if (repoError instanceof RepoEntityNotFoundError) {
-                            return new FileNotFoundError({
+                Effect.gen(function* () {
+                    yield* Effect.logDebug("Retrieving file content", { fileId: id });
+
+                    const result = yield* repo.findById(id).pipe(
+                        Effect.mapError((repoError) => { // Map findById error first
+                            if (repoError instanceof RepoEntityNotFoundError) {
+                                return new FileNotFoundError({
+                                    fileId: id,
+                                    message: "File not found via repository"
+                                });
+                            }
+                            return new FileDbError({
+                                operation: "retrieveFileContent",
                                 fileId: id,
-                                message: "File not found via repository"
+                                message: "Repository error during findById for content retrieval",
+                                cause: repoError,
                             });
-                        }
-                        return new FileDbError({
-                            operation: "retrieveFileContent",
-                            fileId: id,
-                            message: "Repository error during findById for content retrieval",
-                            cause: repoError,
-                        });
-                    }),
-                    // Now flatMap over Effect<Option<FileEntity>, FileNotFoundError | FileDbError, ...>
-                    Effect.flatMap(
-                        // Explicitly annotate the return type of this function
-                        (
-                            option: Option.Option<FileEntity>,
-                        ): Effect.Effect<Buffer, FileNotFoundError | FileDbError, never> => // Combined errors
-                            Option.match(option, {
-                                // This case should technically be unreachable if findById already failed with FileNotFoundError,
-                                // but we handle it defensively.
-                                onNone: () => Effect.fail(new FileNotFoundError({ fileId: id })),
-                                // If found, decode Base64 string back to Buffer
-                                onSome: (fileEntity) =>
-                                    Effect.try({
-                                        try: () => Buffer.from(fileEntity.data.contentBase64, "base64"),
-                                        // Catch decoding errors
-                                        catch: (error) =>
-                                            new FileDbError({
-                                                operation: "retrieveFileContent",
-                                                fileId: id,
-                                                message: "Base64 decoding error",
-                                                cause: error,
-                                            }),
-                                    }),
-                            }),
-                    ),
-                );
+                        }),
+                        // Now flatMap over Effect<Option<FileEntity>, FileNotFoundError | FileDbError, ...>
+                        Effect.flatMap(
+                            // Explicitly annotate the return type of this function
+                            (
+                                option: Option.Option<FileEntity>,
+                            ): Effect.Effect<Buffer, FileNotFoundError | FileDbError, never> => // Combined errors
+                                Option.match(option, {
+                                    // This case should technically be unreachable if findById already failed with FileNotFoundError,
+                                    // but we handle it defensively.
+                                    onNone: () => Effect.fail(new FileNotFoundError({ fileId: id })),
+                                    // If found, decode Base64 string back to Buffer
+                                    onSome: (fileEntity) =>
+                                        Effect.try({
+                                            try: () => Buffer.from(fileEntity.data.contentBase64, "base64"),
+                                            // Catch decoding errors
+                                            catch: (error) =>
+                                                new FileDbError({
+                                                    operation: "retrieveFileContent",
+                                                    fileId: id,
+                                                    message: "Base64 decoding error",
+                                                    cause: error,
+                                                }),
+                                        }),
+                                }),
+                        ),
+                    );
+
+                    yield* Effect.logDebug("File content retrieved successfully", { fileId: id });
+                    return result;
+                });
 
             const retrieveFileMetadata = (
                 id: EntityId,
@@ -142,22 +166,29 @@ export class FileService extends Effect.Service<FileServiceApi>()(
             const deleteFile = (
                 id: EntityId,
             ): Effect.Effect<void, FileNotFoundError | FileDbError> =>
-                repo.delete(id).pipe(
-                    Effect.mapError((repoError) => {
-                        if (repoError instanceof RepoEntityNotFoundError) {
-                            return new FileNotFoundError({
+                Effect.gen(function* () {
+                    yield* Effect.logDebug("Deleting file", { fileId: id });
+
+                    const result = yield* repo.delete(id).pipe(
+                        Effect.mapError((repoError) => {
+                            if (repoError instanceof RepoEntityNotFoundError) {
+                                return new FileNotFoundError({
+                                    fileId: id,
+                                    message: "File to delete not found via repository"
+                                });
+                            }
+                            return new FileDbError({
+                                operation: "deleteFile",
                                 fileId: id,
-                                message: "File to delete not found via repository"
+                                message: "Failed to delete file from repository",
+                                cause: repoError,
                             });
-                        }
-                        return new FileDbError({
-                            operation: "deleteFile",
-                            fileId: id,
-                            message: "Failed to delete file from repository",
-                            cause: repoError,
-                        });
-                    }),
-                );
+                        }),
+                    );
+
+                    yield* Effect.logDebug("File deleted successfully", { fileId: id });
+                    return result;
+                });
 
             const findFilesByOwner = (
                 ownerId: EntityId,

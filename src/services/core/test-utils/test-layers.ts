@@ -3,14 +3,13 @@
  * @module services/core/test-utils/test-layers
  */
 
-import { NodeContext } from "@effect/platform-node";
+import { NodeContext, NodeFileSystem } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 
 import { AgentRuntimeService } from "@/agent-runtime/service.js";
 import { IntelligenceService } from "@/services/capabilities/intelligence/service.js";
 import { PersonaService } from "@/services/capabilities/persona/service.js";
 import { SkillService } from "@/services/capabilities/skill/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { SequenceGenerator } from "@/services/core/sequence/sequence-generator.js";
 import { BridgeService } from "@/services/pipeline/bridge/service.js";
 import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
@@ -45,8 +44,9 @@ export const PipelineTestLayer = Layer.mergeAll(
     IntelligenceService.Default,
     SkillService.Default,
     SequenceGenerator.Default,
-    ConfigurationService.Default,
-    NodeContext.layer
+    // ConfigurationService.Default, // Temporarily removed - causes FileSystem issues in tests
+    NodeContext.layer,
+    NodeFileSystem.layer
 );
 
 /**
@@ -58,7 +58,8 @@ export const CapabilitiesTestLayer = Layer.mergeAll(
     IntelligenceService.Default,
     SkillService.Default,
     AgentRuntimeService.Default,
-    NodeContext.layer
+    NodeContext.layer,
+    NodeFileSystem.layer
 );
 
 /**

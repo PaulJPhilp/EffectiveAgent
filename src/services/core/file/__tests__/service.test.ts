@@ -11,7 +11,7 @@ import { EntityNotFoundError, RepositoryError } from "../../repository/errors.js
 import { RepositoryService } from "../../repository/service.js";
 import { FileNotFoundError } from "../errors.js";
 import type { FileEntity } from "../schema.js";
-import { FileService, FileServiceLive } from "../service.js";
+import { FileService } from "../service.js";
 import type { FileInput } from "../types.js";
 
 
@@ -84,7 +84,7 @@ describe("FileService", () => {
   // Combine repository layer with the FileService layer
   // Use a cast to bypass TypeScript's complex layer type checking
   const TestLayer = Layer.provide(
-    FileServiceLive as unknown as Layer.Layer<unknown>,
+    FileService.Default as unknown as Layer.Layer<unknown>,
     RepoLayer
   ) as Layer.Layer<FileServiceApi>;
 

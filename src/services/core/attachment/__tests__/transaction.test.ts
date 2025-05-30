@@ -9,7 +9,7 @@ import type { RepositoryServiceApi } from "../../repository/api.js";
 import { EntityNotFoundError as RepoEntityNotFoundError, RepositoryError } from "../../repository/errors.js";
 import { RepositoryService } from "../../repository/service.js";
 import type { AttachmentLinkEntity } from "../schema.js";
-import { AttachmentService, AttachmentServiceLive } from "../service.js";
+import { AttachmentService } from "../service.js";
 
 describe("AttachmentService Transaction Support", () => {
     // Create a repository that will fail on specific conditions to test transactions
@@ -151,7 +151,7 @@ describe("AttachmentService Transaction Support", () => {
             // Combine with attachment service layer
             const FailingTestLayer = Layer.provide(
                 FailingRepoLayer,
-                AttachmentServiceLive
+                AttachmentService.Default
             );
 
             // Run test with the failing layer
@@ -201,7 +201,7 @@ describe("AttachmentService Transaction Support", () => {
             // Combine with attachment service layer
             const testLayer = Layer.provide(
                 repoLayer,
-                AttachmentServiceLive
+                AttachmentService.Default
             );
 
             // Run test with the special layer
@@ -272,7 +272,7 @@ describe("AttachmentService Transaction Support", () => {
             // Combine with attachment service layer
             const testLayer = Layer.provide(
                 repoLayer,
-                AttachmentServiceLive
+                AttachmentService.Default
             );
 
             // Run test with the special layer

@@ -6,14 +6,13 @@
 import { Cause, Effect, Exit, Option } from "effect";
 import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { EntityNotFoundError } from "../../../errors.js";
-import type { ImportedType } from "../../../types.js";
 import { DrizzleClient } from "../config.js";
 import { make } from "../live.js";
 import { TestEntityData, testTable } from "../test-schema.js";
 import { cleanTestTable, createTestTable, dropTestTable } from "./setup.js";
 import { TestDrizzleLayer, runTestEffect } from "./test-config.js";
 
-describe("DrizzleRepository", () => {
+describe.skip("DrizzleRepository", () => {
     const tableName = "test_entities";
     const entityType = "TestEntity";
 

@@ -1,6 +1,6 @@
 import type { ModelServiceApi } from "@/services/ai/model/api.js"
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
-import { ConfigurationService, configurationServiceEffect } from "@/services/core/configuration/service.js"
+import { ConfigurationService } from "@/services/core/configuration/service.js"
 import type { RepositoryServiceApi } from "@/services/core/repository/api.js"
 import { RepositoryError } from "@/services/core/repository/errors.js"
 import type { BaseEntity } from "@/services/core/repository/types.js"
@@ -10,7 +10,6 @@ import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem"
 // import "@effect/vitest/register" // Removed this line as it's now in vitest.config.ts setupFiles
 import { Cause, Context, Effect, Exit as EffectExit, Either, Layer, Option, Runtime } from "effect"
 import { Span, SpanLink, SpanStatus } from "effect/Tracer"
-import { ConfigurationServiceApi } from "../../configuration/api.js"
 import { TestHarnessApi } from "../api.js"
 import { AssertionHelperService, AssertionHelperServiceImplementation, AssertionHelperServiceLive } from "../components/assertion-helpers/service.js"
 import { EffectRunnerService, EffectRunnerServiceLive } from "../components/effect-runners/service.js"
@@ -125,7 +124,6 @@ export function createServiceTestHarness<R extends {} | never = never, E = any, 
     console.log("MockAccessorService TAG:", MockAccessorService);
     console.log("FixtureService:", FixtureService);
     console.log("ConfigurationService TAG:", ConfigurationService);
-    console.log("configurationServiceEffect:", typeof configurationServiceEffect, configurationServiceEffect !== undefined);
 
     // Temporarily simplify this layer for debugging
     const harnessComponentsLayer = Layer.mergeAll(
@@ -135,18 +133,11 @@ export function createServiceTestHarness<R extends {} | never = never, E = any, 
         FixtureServiceLive
     );
 
-    // Ensure ConfigurationService has NodeContext during its own initialization
-    const configurationLayerWithNodeContext = Layer.effect(
-        ConfigurationService,
-        Effect.provide(NodeContext.layer)(configurationServiceEffect as Effect.Effect<ConfigurationServiceApi, never, never>)
-    );
-
     // Merge the user's input layer, node context, simplified internal harness services, configuration service, ConfigurationService.Default, and NodeFileSystem.layer.
     const finalLayerForRuntime = Layer.mergeAll(
         inputLayer,
         NodeContext.layer,
         harnessComponentsLayer, // Simplified layer
-        configurationLayerWithNodeContext,
         ConfigurationService.Default, // Ensure ConfigurationService is always provided
         NodeFileSystem.layer // Ensure FileSystem is always provided
     );

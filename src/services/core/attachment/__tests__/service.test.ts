@@ -11,7 +11,7 @@ import { RepositoryService } from "../../repository/service.js";
 import type { AttachmentServiceApi } from "../api.js";
 import { AttachmentLinkNotFoundError } from "../errors.js";
 import type { AttachmentLinkEntity } from "../schema.js";
-import { AttachmentService, AttachmentServiceLive } from "../service.js";
+import { AttachmentService } from "../service.js";
 import type { CreateAttachmentLinkInput } from "../types.js";
 
 
@@ -173,7 +173,7 @@ describe("AttachmentService", () => {
 
   // Combine repository layer with the AttachmentService layer
   const TestLayer = Layer.provide(
-    AttachmentServiceLive as unknown as Layer.Layer<unknown>,
+    AttachmentService.Default as unknown as Layer.Layer<unknown>,
     RepoLayer
   ) as Layer.Layer<AttachmentServiceApi>;
 
@@ -477,13 +477,13 @@ describe("AttachmentService", () => {
 
           // Layer with the failing repo
           const FailingTestLayer = Layer.provide(
-            AttachmentServiceLive as unknown as Layer.Layer<unknown>,
+            AttachmentService.Default as unknown as Layer.Layer<unknown>,
             FailingRepoLayer
           ) as Layer.Layer<AttachmentServiceApi>;
 
           // Create service with failing repo
           const service: AttachmentServiceApi = yield* Effect.provide(
-           AttachmentService,
+            AttachmentService,
             FailingTestLayer
           );
 

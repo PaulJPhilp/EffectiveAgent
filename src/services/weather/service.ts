@@ -72,7 +72,7 @@ export interface WeatherServiceApi {
 export class WeatherService extends Effect.Service<WeatherServiceApi>()(
     "WeatherService", // Service name used as a tag identifier
     {
-  
+
         effect: Effect.gen(function* ($) {
             const config = yield* $(WeatherConfigService) // Yield the Tag to get the WeatherConfigService instance
 
@@ -224,35 +224,21 @@ export const MockWeatherServiceTestImplementation: WeatherServiceApi = {
     getForecast: (_city?: string) => Effect.succeed(MOCK_WEATHER_RESPONSE),
 }
 
-// Test Service Implementations using Effect.Service pattern
-export class TestWeatherConfigService extends Effect.Service<WeatherPipelineConfig>()(
-    "TestWeatherConfigService",
-    {
-        effect: Effect.sync(() => MOCK_WEATHER_PIPELINE_CONFIG)
-    }
-) { }
-
-export class TestWeatherService extends Effect.Service<WeatherServiceApi>()(
-    "TestWeatherService",
-    {
-        effect: Effect.sync(() => ({
-            getForecast: (_city?: string) => Effect.succeed(MOCK_WEATHER_RESPONSE)
-        }))
-    }
-) { }
-
 // Test Layers: These provide the test service implementations
-export const WeatherConfigTestLayer = TestWeatherConfigService.Default
+export const WeatherConfigTestLayer = Layer.succeed(
+    WeatherConfigService,
+    MOCK_WEATHER_PIPELINE_CONFIG
+);
 
-// Provides a mock WeatherService that uses a mock WeatherConfigService
-export const WeatherServiceTestLayer = Layer.provide(
-    TestWeatherService.Default,
-    WeatherConfigTestLayer
-)
+// Provides a mock WeatherService implementation
+export const WeatherServiceTestLayer = Layer.succeed(
+    WeatherService,
+    MockWeatherServiceTestImplementation
+);
 
 // Alternative Test Layer: Uses the real WeatherService logic but with a mocked WeatherConfigService
 // This is useful for testing the WeatherService's transformation logic without hitting the actual API.
 export const WeatherServiceWithMockConfigTestLayer = Layer.provide(
     WeatherService.Default,
     WeatherConfigTestLayer
-)
+);

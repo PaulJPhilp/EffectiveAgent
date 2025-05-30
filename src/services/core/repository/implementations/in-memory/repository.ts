@@ -1,3 +1,4 @@
+import type { EntityId } from "@/types.js";
 import { Context, Effect, Layer, Option, Ref } from "effect";
 import * as Arr from "effect/Array";
 import { v4 as uuidv4 } from "uuid";

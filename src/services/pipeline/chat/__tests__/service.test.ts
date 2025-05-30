@@ -3,12 +3,30 @@
  * @module services/pipeline/chat/tests
  */
 
-import { Effect, Either } from "effect";
+import { NodeContext, NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer } from "effect";
 import { describe, expect, it } from "vitest";
 
-import { runPipelineTest } from "@/services/core/test-utils/index.js";
+import { AgentRuntimeService } from "@/agent-runtime/service.js";
 import { ChatHistory, ChatMessage } from "@/services/pipeline/chat/api.js";
 import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
+
+// Minimal test layer for ChatHistoryService
+const ChatHistoryTestLayer = Layer.mergeAll(
+  AgentRuntimeService.Default,
+  ChatHistoryService.Default,
+  NodeContext.layer,
+  NodeFileSystem.layer
+);
+
+// Simple test runner for minimal ChatHistory tests
+const runChatHistoryTest = <A, E, R>(
+  effect: Effect.Effect<A, E, R>
+): Promise<A> => {
+  return Effect.runPromise(
+    effect.pipe(Effect.provide(ChatHistoryTestLayer)) as Effect.Effect<A, E, never>
+  );
+};
 
 describe("ChatHistoryService", () => {
   // Test data
@@ -23,7 +41,7 @@ describe("ChatHistoryService", () => {
 
   describe("loadHistory", () => {
     it("should return null for non-existent history", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
 
@@ -43,7 +61,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid history ID", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidId = "";
@@ -65,7 +83,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should successfully load existing history", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         yield* service.saveHistory(validHistoryId, validHistory);
@@ -92,7 +110,7 @@ describe("ChatHistoryService", () => {
 
   describe("saveHistory", () => {
     it("should successfully save valid history", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
 
@@ -117,7 +135,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid history ID", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidId = "";
@@ -141,7 +159,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid history format", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidHistory = { messages: null } as unknown as ChatHistory;
@@ -165,7 +183,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid message role", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidMessage = {
@@ -189,7 +207,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid message content", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidMessage = {
@@ -209,58 +227,72 @@ describe("ChatHistoryService", () => {
           expect(result.left.name).toBe("ChatHistoryError");
           expect(result.left.description).toContain("invalid message format");
         }
+
+        // Check that agent state shows failed activity
+        const state = yield* service.getAgentState();
+        expect(state.activityHistory.length).toBe(1);
+        expect(state.activityHistory[0]?.action).toBe("SAVE");
+        expect(state.activityHistory[0]?.success).toBe(false);
       }));
     });
 
     it("should update existing history", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
+        yield* service.saveHistory(validHistoryId, validHistory);
+
+        const updatedMessage: ChatMessage = {
+          role: "assistant",
+          content: "response message",
+        };
         const updatedHistory: ChatHistory = {
-          messages: [
-            validMessage,
-            { role: "assistant", content: "response" },
-          ],
+          messages: [validMessage, updatedMessage],
         };
 
         // Act
-        yield* service.saveHistory(validHistoryId, validHistory);
         yield* service.saveHistory(validHistoryId, updatedHistory);
-        const result = yield* service.loadHistory(validHistoryId);
+        const saved = yield* service.loadHistory(validHistoryId);
 
         // Assert
-        expect(result).toEqual(updatedHistory);
+        expect(saved).toEqual(updatedHistory);
+        expect(saved?.messages).toHaveLength(2);
 
-        // Check that agent state reflects the update
+        // Check that agent state was updated
         const state = yield* service.getAgentState();
-        expect(state.historyCount).toBe(1); // Still only 1 history, but updated
+        expect(state.historyCount).toBe(1); // Still one history, just updated
         expect(state.activityHistory.length).toBe(3); // Save + Save + Load
 
         const updateActivity = state.activityHistory[1]!;
         expect(updateActivity.action).toBe("SAVE");
         expect(updateActivity.success).toBe(true);
-        expect(updateActivity.messageCount).toBe(2); // Updated with 2 messages
+        expect(updateActivity.messageCount).toBe(2);
       }));
     });
   });
 
   describe("loadAndAppendMessage", () => {
     it("should append message to new conversation", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
-        const userMessage = "Hello there!";
+        const newConversationId = "new-conversation";
+        const message = "Hello, new conversation!";
 
         // Act
-        const result = yield* service.loadAndAppendMessage(undefined, userMessage);
+        const result = yield* service.loadAndAppendMessage(
+          newConversationId,
+          message
+        );
 
         // Assert
         expect(result).toHaveLength(1);
         expect(result[0]?.role).toBe("user");
-        expect(result[0]?.content).toBe(userMessage);
+        expect(result[0]?.content).toBe(message);
 
-        // Check that agent state was updated
+        // Check agent state
         const state = yield* service.getAgentState();
+        expect(state.historyCount).toBe(0); // loadAndAppendMessage doesn't save automatically
         expect(state.activityHistory.length).toBe(1);
         expect(state.activityHistory[0]?.action).toBe("APPEND_MESSAGE");
         expect(state.activityHistory[0]?.success).toBe(true);
@@ -268,76 +300,82 @@ describe("ChatHistoryService", () => {
     });
 
     it("should append message to existing conversation", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
-        const userMessage = "How are you?";
         yield* service.saveHistory(validHistoryId, validHistory);
+        const newMessage = "Another message";
 
         // Act
-        const result = yield* service.loadAndAppendMessage(validHistoryId, userMessage);
+        const result = yield* service.loadAndAppendMessage(
+          validHistoryId,
+          newMessage
+        );
 
         // Assert
         expect(result).toHaveLength(2);
         expect(result[0]).toEqual(validMessage);
         expect(result[1]?.role).toBe("user");
-        expect(result[1]?.content).toBe(userMessage);
+        expect(result[1]?.content).toBe(newMessage);
 
-        // Check that agent state was updated
+        // Check agent state
         const state = yield* service.getAgentState();
-        expect(state.activityHistory.length).toBe(2); // Save + Append
-
-        const appendActivity = state.activityHistory[1]!;
-        expect(appendActivity.action).toBe("APPEND_MESSAGE");
-        expect(appendActivity.success).toBe(true);
-        expect(appendActivity.messageCount).toBe(2);
+        expect(state.activityHistory.length).toBe(2); // Save + AppendMessage
+        expect(state.activityHistory[1]?.action).toBe("APPEND_MESSAGE");
+        expect(state.activityHistory[1]?.success).toBe(true);
       }));
     });
   });
 
   describe("appendAndSaveResponse", () => {
     it("should handle missing historyId gracefully", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const messages = [validMessage];
-        const response = "I'm doing well, thank you!";
+        const response = "AI response";
 
-        // Act
-        yield* service.appendAndSaveResponse(undefined, messages, response);
+        // Act (should succeed without error when historyId is undefined)
+        yield* service.appendAndSaveResponse(
+          undefined,
+          messages,
+          response
+        );
 
-        // Assert - no error should occur, operation should be a no-op
+        // Assert - should complete successfully (returns void)
         const state = yield* service.getAgentState();
-        expect(state.historyCount).toBe(0);
+        expect(state.historyCount).toBe(0); // No history saved when historyId is undefined
       }));
     });
 
     it("should append response and save to history", async () => {
-      await runPipelineTest(Effect.gen(function* () {
+      await runChatHistoryTest(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
+        yield* service.saveHistory(validHistoryId, validHistory);
         const messages = [validMessage];
-        const response = "I'm doing well, thank you!";
+        const response = "AI response to the user";
 
         // Act
-        yield* service.appendAndSaveResponse(validHistoryId, messages, response);
-        const savedHistory = yield* service.loadHistory(validHistoryId);
+        yield* service.appendAndSaveResponse(
+          validHistoryId,
+          messages,
+          response
+        );
 
-        // Assert
-        expect(savedHistory?.messages).toHaveLength(2);
-        expect(savedHistory?.messages[0]).toEqual(validMessage);
-        expect(savedHistory?.messages[1]?.role).toBe("assistant");
-        expect(savedHistory?.messages[1]?.content).toBe(response);
+        // Assert - appendAndSaveResponse returns void, so check the saved history
+        const saved = yield* service.loadHistory(validHistoryId);
+        expect(saved?.messages).toHaveLength(2);
+        expect(saved?.messages[0]).toEqual(validMessage);
+        expect(saved?.messages[1]?.role).toBe("assistant");
+        expect(saved?.messages[1]?.content).toBe(response);
 
-        // Check that agent state was updated
+        // Check agent state
         const state = yield* service.getAgentState();
-        expect(state.historyCount).toBe(1);
-        expect(state.activityHistory.length).toBe(2); // Append + Load
-
-        const appendActivity = state.activityHistory[0]!;
-        expect(appendActivity.action).toBe("APPEND_RESPONSE");
-        expect(appendActivity.success).toBe(true);
-        expect(appendActivity.messageCount).toBe(2);
+        expect(state.activityHistory.length).toBe(3); // Save + AppendResponse + Load
+        const responseActivity = state.activityHistory[1];
+        expect(responseActivity?.action).toBe("APPEND_RESPONSE");
+        expect(responseActivity?.success).toBe(true);
       }));
     });
   });
