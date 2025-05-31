@@ -2,8 +2,8 @@
  * @file Defines the schema for the AttachmentLink entity.
  */
 
-import { BaseEntitySchema, Metadata } from "@/schema.js";
-import { Schema as S } from "@effect/schema";
+import { BaseEntitySchema } from "@/schema.js";
+import { Schema as S } from "effect";
 import { JsonObject } from "@/types.js";
 import { BaseEntityWithData } from "../repository/types.js";
 

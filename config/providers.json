@@ -27,6 +27,23 @@
         "retries": 3,
         "defaultModel": "gpt-4o"
       }
+    },
+    {
+      "name": "anthropic",
+      "displayName": "Anthropic",
+      "type": "anthropic",
+      "apiKeyEnvVar": "ANTHROPIC_API_KEY",
+      "baseUrl": "https://api.anthropic.com",
+      "capabilities": ["chat", "text-generation", "function-calling"],
+      "rateLimit": {
+        "maxRequests": 50,
+        "perSeconds": 60
+      },
+      "configuration": {
+        "timeout": 60000,
+        "retries": 3,
+        "defaultModel": "claude-3-5-sonnet"
+      }
     }
   ]
 }

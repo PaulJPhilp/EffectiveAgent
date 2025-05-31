@@ -3,7 +3,7 @@ import { EntityParseError } from "@/errors.js";
  * @file Defines the ProviderService for loading, validating, and accessing AI provider configurations and clients.
  * @module services/ai/provider/service
  */
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+// ConfigurationService is no longer needed - configuration is provided by AgentRuntime
 import { Effect, Ref, Schema as S } from "effect";
 import { type ProviderClientApi, ProviderServiceApi } from "./api.js";
 import { makeAnthropicClient } from "./clients/anthropic-provider-client.js";
@@ -15,6 +15,7 @@ import { makePerplexityClient } from "./clients/perplexity-provider-client.js";
 import { makeXaiClient } from "./clients/xai-provider-client.js";
 import { ProviderNotFoundError, ProviderOperationError, ProviderServiceConfigError } from "./errors.js";
 import { ProviderFile, ProvidersType } from "./schema.js";
+import ConfigurationService from "@/services/core/configuration/service.js";
 
 /**
  * Validates the parsed configuration against the ProviderFile schema
@@ -45,30 +46,19 @@ const validateProviderConfig = (parsedConfig: any, method: string) => {
     );
 };
 
-// Define the implementation
-/**
- * Implementation of the ProviderService using the Effect.Service pattern
- * Manages AI provider configurations and client access with proper error handling
- */
-
-export const providerServiceImplEffect = Effect.gen(function* () {
+// Implementation effect for ProviderService
+export const providerServiceEffect = Effect.gen(function* () {
     const configService = yield* ConfigurationService;
     const configRef = yield* Ref.make<ProvidersType | null>(null);
 
-    // Load config during initialization using the proper ConfigurationService method
-    yield* Effect.logInfo("Starting provider config load");
-
-    // Use the ConfigurationService's loadProviderConfig method instead of manual path loading
-    const rawConfig = yield* configService.loadProviderConfig().pipe(
+    // Load configuration during service initialization 
+    const providerConfigPath = process.env.PROVIDERS_CONFIG_PATH || "./config/providers.json";
+    const rawConfig = yield* configService.loadProviderConfig(providerConfigPath).pipe(
         Effect.tapError((error) => Effect.logError("Failed to load provider configuration", { error }))
     );
-    yield* Effect.logInfo("Config file loaded", { providers: rawConfig.providers.map(p => p.name) });
-
     const validConfig = yield* validateProviderConfig(rawConfig, "initialize");
-    yield* Effect.logDebug("Provider configuration loaded and validated successfully");
-
     yield* Ref.set(configRef, validConfig);
-    yield* Effect.logInfo("Config stored in ref");
+    yield* Effect.logInfo("Provider configuration loaded", { providers: validConfig.providers.map(p => p.name) });
 
     return {
 
@@ -80,7 +70,7 @@ export const providerServiceImplEffect = Effect.gen(function* () {
          * @throws ProviderNotFoundError - If the specified provider is not found in the configuration
          * @throws ProviderOperationError - If there is an error configuring the provider
          */
-        getProviderClient: (providerName: ProvidersType) => {
+        getProviderClient: (providerName: string) => {
             return Effect.gen(function* () {
                 yield* Effect.logInfo("Getting provider client", { providerName });
 
@@ -157,14 +147,38 @@ export const providerServiceImplEffect = Effect.gen(function* () {
                         }));
                 }
             }) as Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError>;
-        }
+        },
+
+        /**
+         * Checks the health of the provider service
+         */
+        healthCheck: () => Effect.gen(function* () {
+            // Verify configuration is loaded
+            const config = yield* Ref.get(configRef);
+            if (!config) {
+                return yield* Effect.fail(new ProviderServiceConfigError({
+                    description: "Provider service not properly initialized - configuration not loaded",
+                    module: "ProviderService",
+                    method: "healthCheck"
+                }));
+            }
+            yield* Effect.logDebug("Provider service health check passed");
+        }),
+
+        /**
+         * Shuts down the provider service and cleans up resources
+         */
+        shutdown: () => Effect.gen(function* () {
+            yield* Ref.set(configRef, null);
+            yield* Effect.logInfo("Provider service shutdown completed");
+        })
     };
 });
 
 export class ProviderService extends Effect.Service<ProviderServiceApi>()(
     "ProviderService",
     {
-        effect: providerServiceImplEffect,
+        effect: providerServiceEffect,
         dependencies: [ConfigurationService.Default]
     }
 ) { }

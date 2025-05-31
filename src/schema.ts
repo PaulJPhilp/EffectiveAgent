@@ -118,20 +118,19 @@ export class MetadataMap extends S.Class<MetadataMap>("MetadataMap")({
   entries: S.Record({ key: S.String, value: MetadataRecord })
 }) { }
 
-// --- Core Entity Schemas ---
 
 /**
  * Base schema for database entities with standard metadata fields.
  * Used as the foundation for entity schemas across services.
  */
-export class BaseEntitySchema extends S.Class<BaseEntitySchema>("BaseEntitySchema")({
+export const BaseEntitySchema = S.Struct({
   /** Unique identifier for the entity */
   id: S.String,
   /** When the entity was created */
   createdAt: S.Date,
   /** When the entity was last updated */
   updatedAt: S.Date,
-}) { }
+});
 
 /**
  * Type for the base entity structure.

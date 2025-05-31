@@ -10,8 +10,9 @@ import { ProviderService } from "@/services/ai/provider/service.js";
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
 import { TextInputError, TextModelError } from "@/services/pipeline/producers/text/errors.js";
 import type { TextGenerationOptions } from "@/services/pipeline/producers/text/types.js";
+import { GenerateBaseResult } from "@/services/pipeline/types.js";
 import { EffectiveResponse } from "@/types.js";
-import { Effect, Option, Ref } from "effect";
+import { Chunk, Effect, Option, Ref } from "effect";
 
 /**
  * Text generation agent state
@@ -172,23 +173,42 @@ class TextService extends Effect.Service<TextServiceApi>()(
               : options.prompt;
 
             // Call the real AI provider
-            const providerResult = yield* providerClient.generateText(finalPrompt, {
+            const providerResult = yield* providerClient.generateText({
+              text: finalPrompt,
+              messages: Chunk.empty()
+            }, {
               modelId,
-              temperature: options.parameters?.temperature,
-              maxTokens: options.parameters?.maxTokens,
-              topP: options.parameters?.topP,
-              frequencyPenalty: options.parameters?.frequencyPenalty,
-              presencePenalty: options.parameters?.presencePenalty,
-              stop: options.parameters?.stop
+              parameters: {
+                temperature: options.parameters?.temperature,
+                maxTokens: options.parameters?.maxSteps,
+                topP: options.parameters?.topP,
+                frequencyPenalty: options.parameters?.frequencyPenalty,
+                presencePenalty: options.parameters?.presencePenalty,
+                stop: options.parameters?.stop
+              }
             });
 
-            const response: EffectiveResponse<string> = {
-              data: providerResult.text,
+            const response: EffectiveResponse<GenerateBaseResult> = {
+              data: {
+                output: providerResult.data.text,
+                usage: providerResult.usage,
+                finishReason: providerResult.finishReason,
+                // Dummy fields for the pipeline GenerateBaseResult interface
+                location: null,
+                temperature: null,
+                temperatureFeelsLike: null,
+                humidity: null,
+                windSpeed: null,
+                windDirection: null,
+                conditions: null,
+                timestamp: null,
+                text: () => providerResult.data.text
+              },
               metadata: {
                 model: modelId,
                 provider: providerName,
                 promptLength: finalPrompt.length,
-                outputLength: providerResult.text.length,
+                outputLength: providerResult.data.text.length,
                 usage: providerResult.usage
               }
             };
@@ -200,7 +220,7 @@ class TextService extends Effect.Service<TextServiceApi>()(
               timestamp: Date.now(),
               modelId,
               promptLength: finalPrompt.length,
-              outputLength: response.data.length,
+              outputLength: response.data.output.length,
               success: true
             });
 

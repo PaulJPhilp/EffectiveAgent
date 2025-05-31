@@ -12,7 +12,7 @@ import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import ObjectService from "@/services/pipeline/producers/object/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Option, Schema } from "effect";
+import { Effect, LogLevel, Logger, Option, Schema } from "effect";
 import { beforeAll, describe, expect, it } from "vitest";
 
 // Test schemas
@@ -33,9 +33,12 @@ type Product = Schema.Schema.Type<typeof ProductSchema>;
 
 describe("StructuredOutputAgent E2E Tests", () => {
     beforeAll(() => {
-        // Set up config paths for real testing
-        process.env.PROVIDERS_CONFIG_PATH = process.env.PROVIDERS_CONFIG_PATH || "config/providers.json";
-        process.env.MODELS_CONFIG_PATH = process.env.MODELS_CONFIG_PATH || "config/models.json";
+        // Set up environment for master config system
+        process.env.MASTER_CONFIG_PATH = "./config/master-config.json";
+        process.env.OPENAI_API_KEY = "test-key-for-mock";
+        // Temporary until services use master config
+        process.env.MODELS_CONFIG_PATH = "./config/models.json";
+        process.env.PROVIDERS_CONFIG_PATH = "./config/providers.json";
     });
 
     it("should generate structured output through agent runtime", async () => {
@@ -77,6 +80,10 @@ describe("StructuredOutputAgent E2E Tests", () => {
 
             return { result, agentState, updatedState };
         }).pipe(
+            // Set up logging
+            Effect.provide(Logger.pretty),
+            Logger.withMinimumLogLevel(LogLevel.Info),
+            // Provide services
             Effect.provide(StructuredOutputAgent.Default),
             Effect.provide(AgentRuntimeService.Default),
             Effect.provide(ObjectService.Default),
@@ -126,6 +133,10 @@ describe("StructuredOutputAgent E2E Tests", () => {
 
             return { result, agentState };
         }).pipe(
+            // Set up logging
+            Effect.provide(Logger.pretty),
+            Logger.withMinimumLogLevel(LogLevel.Info),
+            // Provide services
             Effect.provide(StructuredOutputAgent.Default),
             Effect.provide(AgentRuntimeService.Default),
             Effect.provide(ObjectService.Default),
@@ -183,6 +194,10 @@ describe("StructuredOutputAgent E2E Tests", () => {
 
             return [...userResults, productResult];
         }).pipe(
+            // Set up logging
+            Effect.provide(Logger.pretty),
+            Logger.withMinimumLogLevel(LogLevel.Info),
+            // Provide services
             Effect.provide(StructuredOutputAgent.Default),
             Effect.provide(AgentRuntimeService.Default),
             Effect.provide(ObjectService.Default),
@@ -223,6 +238,10 @@ describe("StructuredOutputAgent E2E Tests", () => {
 
             return updatedRuntimeState;
         }).pipe(
+            // Set up logging
+            Effect.provide(Logger.pretty),
+            Logger.withMinimumLogLevel(LogLevel.Info),
+            // Provide services
             Effect.provide(StructuredOutputAgent.Default),
             Effect.provide(AgentRuntimeService.Default),
             Effect.provide(ObjectService.Default),

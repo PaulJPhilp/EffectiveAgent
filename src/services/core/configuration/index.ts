@@ -15,4 +15,4 @@ export type {
 export * from "./errors.js";
 
 // Export the properly implemented ConfigLoader service
-export * from "./config-loader-new-impl.js";
+export * from "./service.js";

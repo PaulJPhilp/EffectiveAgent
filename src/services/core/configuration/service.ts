@@ -6,169 +6,79 @@
 import { PolicyConfigFile } from "@/services/ai/policy/schema.js";
 import { ProviderFile } from "@/services/ai/provider/schema.js";
 import { FileSystem } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Schema } from "effect";
+import { ConfigurationServiceApi, LoadConfigOptions } from "./api.js";
 import { ConfigParseError, ConfigReadError, ConfigValidationError } from "./errors.js";
-import { MasterConfig, MasterConfigSchema } from "./master-schema.js";
 
-/**
- * Configuration service API
- */
-export interface ConfigurationServiceApi {
-    readonly readFile: (filePath: string) => Effect.Effect<string, ConfigReadError>;
-    readonly parseJson: (content: string, filePath: string) => Effect.Effect<unknown, ConfigParseError>;
-    readonly validateWithSchema: <T>(
-        data: unknown,
-        schema: Schema.Schema<T, T>,
-        filePath: string
-    ) => Effect.Effect<T, ConfigValidationError>;
-    readonly loadConfig: <T>(options: LoadConfigOptions<T>) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
-    readonly loadProviderConfig: () => Effect.Effect<ProviderFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
-    readonly loadModelConfig: () => Effect.Effect<unknown, ConfigReadError | ConfigParseError>;
-    readonly loadPolicyConfig: () => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
-    readonly getApiKey: (provider: string) => Effect.Effect<string>;
-    readonly getEnvVariable: (name: string) => Effect.Effect<string>;
-}
+const readFile: (filePath: string) => Effect.Effect<string, ConfigReadError> = (filePath: string) => Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    return yield* fs.readFileString(filePath, "utf8").pipe(
+        Effect.mapError(error => new ConfigReadError({
+            filePath,
+            cause: error
+        }))
+    );
+}).pipe(Effect.provide(NodeFileSystem.layer))
 
-/**
- * Options for loading a configuration file
- */
-export interface LoadConfigOptions<T> {
-    readonly filePath: string;
-    readonly schema: Schema.Schema<T, T>;
-}
+const parseJson = (content: string, filePath: string) =>
+    Effect.try({
+        try: () => JSON.parse(content),
+        catch: error => new ConfigParseError({
+            filePath,
+            cause: error
+        })
+    })
+
+
+const validateWithSchema = <T>(
+    data: unknown,
+    schema: Schema.Schema<T, T>,
+    filePath: string
+) =>
+    Schema.decode(schema)(data as T).pipe(
+        Effect.mapError(error => new ConfigValidationError({
+            filePath,
+            validationError: error
+        }))
+    )
 
 export class ConfigurationService extends Effect.Service<ConfigurationServiceApi>()(
     "ConfigurationService",
     {
-        effect: Effect.gen(function* (): Generator<any, ConfigurationServiceApi> {
-            const fs = yield* FileSystem.FileSystem;
 
-            // Load master config file path from environment
-            const masterConfigPath = yield* Effect.sync(() =>
-                process.env["MASTER_CONFIG_PATH"] ?? ""
-            );
-
-            // Load and validate master config
-            const masterConfig = yield* Effect.gen(function* (): Generator<any, MasterConfig> {
-                const content = yield* fs.readFileString(masterConfigPath).pipe(
-                    Effect.mapError(error => new ConfigReadError({
-                        filePath: masterConfigPath,
-                        cause: error
-                    }))
-                );
-                const parsed = yield* Effect.try({
-                    try: () => JSON.parse(content),
-                    catch: error => new ConfigParseError({
-                        filePath: masterConfigPath,
-                        cause: error
-                    })
-                });
-                return yield* Schema.decode(MasterConfigSchema)(parsed).pipe(
-                    Effect.mapError(error => new ConfigValidationError({
-                        filePath: masterConfigPath,
-                        validationError: error
-                    }))
-                );
-            });
+        scoped: Effect.gen(function* (): Generator<any, ConfigurationServiceApi> {
 
             return {
-                readFile: (filePath: string) =>
-                    fs.readFileString(filePath).pipe(
-                        Effect.mapError(error => new ConfigReadError({
-                            filePath,
-                            cause: error
-                        }))
-                    ),
-
-                parseJson: (content: string, filePath: string) =>
-                    Effect.try({
-                        try: () => JSON.parse(content),
-                        catch: error => new ConfigParseError({
-                            filePath,
-                            cause: error
-                        })
-                    }),
-
-                validateWithSchema: <T>(
-                    data: unknown,
-                    schema: Schema.Schema<T, T>,
-                    filePath: string
-                ) =>
-                    Schema.decode(schema)(data as T).pipe(
-                        Effect.mapError(error => new ConfigValidationError({
-                            filePath,
-                            validationError: error
-                        }))
-                    ),
 
                 loadConfig: <T>({
                     filePath,
                     schema
                 }: LoadConfigOptions<T>) =>
                     Effect.gen(function* () {
-                        const content = yield* fs.readFileString(filePath).pipe(
-                            Effect.mapError(error => new ConfigReadError({ filePath, cause: error }))
-                        );
-                        const parsed = yield* Effect.try({
-                            try: () => JSON.parse(content),
-                            catch: error => new ConfigParseError({ filePath, cause: error })
-                        });
-                        return yield* Schema.decode(schema)(parsed).pipe(
-                            Effect.mapError(error => new ConfigValidationError({
-                                filePath,
-                                validationError: error
-                            }))
-                        );
+                        const content = yield* readFile(filePath);
+                        const parsed = yield* parseJson(content, filePath);
+                        return yield* validateWithSchema(parsed, schema, filePath);
                     }),
 
-                loadProviderConfig: () =>
+                loadProviderConfig: (filePath: string) =>
                     Effect.gen(function* () {
-                        const filePath = masterConfig.configPaths.providers;
-                        const content = yield* fs.readFileString(filePath).pipe(
-                            Effect.mapError(error => new ConfigReadError({ filePath, cause: error }))
-                        );
-                        const parsed = yield* Effect.try({
-                            try: () => JSON.parse(content),
-                            catch: error => new ConfigParseError({ filePath, cause: error })
-                        });
-                        return yield* Schema.decode(ProviderFile)(parsed).pipe(
-                            Effect.mapError(error => new ConfigValidationError({
-                                filePath,
-                                validationError: error
-                            }))
-                        );
+                        const content = yield* readFile(filePath);
+                        const parsed = yield* parseJson(content, filePath);
+                        return yield* validateWithSchema(parsed, ProviderFile, filePath);
                     }),
 
-                loadModelConfig: () =>
+                loadModelConfig: (filePath: string) =>
                     Effect.gen(function* () {
-                        const filePath = masterConfig.configPaths.models;
-                        const content = yield* fs.readFileString(filePath).pipe(
-                            Effect.mapError(error => new ConfigReadError({ filePath, cause: error }))
-                        );
-                        const parsed = yield* Effect.try({
-                            try: () => JSON.parse(content),
-                            catch: error => new ConfigParseError({ filePath, cause: error })
-                        });
-                        // Note: Will need to import ModelFileSchema
-                        return parsed; // For now return parsed data, proper schema validation to be added
+                        const content = yield* readFile(filePath);
+                        return yield* parseJson(content, filePath);
                     }),
 
-                loadPolicyConfig: () =>
+                loadPolicyConfig: (filePath: string) =>
                     Effect.gen(function* () {
-                        const filePath = masterConfig.configPaths.policy;
-                        const content = yield* fs.readFileString(filePath).pipe(
-                            Effect.mapError(error => new ConfigReadError({ filePath, cause: error }))
-                        );
-                        const parsed = yield* Effect.try({
-                            try: () => JSON.parse(content),
-                            catch: error => new ConfigParseError({ filePath, cause: error })
-                        });
-                        return yield* Schema.decode(PolicyConfigFile)(parsed).pipe(
-                            Effect.mapError(error => new ConfigValidationError({
-                                filePath,
-                                validationError: error
-                            }))
-                        );
+                        const content = yield* readFile(filePath);
+                        const parsed = yield* parseJson(content, filePath);
+                        return yield* validateWithSchema(parsed, PolicyConfigFile, filePath);
                     }),
 
                 getApiKey: (provider: string) =>
@@ -181,7 +91,8 @@ export class ConfigurationService extends Effect.Service<ConfigurationServiceApi
                         process.env[name] ?? ""
                     )
             };
-        })
+        }),
+        dependencies: [NodeFileSystem.layer]
     }
 ) { }
 

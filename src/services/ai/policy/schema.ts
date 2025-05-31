@@ -36,14 +36,16 @@ export class PolicyUsageData extends S.Class<PolicyUsageData>("PolicyUsageData")
 /**
  * Schema for the policy rule entity
  */
-export class PolicyRuleEntity extends BaseEntitySchema.extend<PolicyRuleEntity>("PolicyRuleEntity")({
+export class PolicyRuleEntity extends S.Class<PolicyRuleEntity>("PolicyRuleEntity")({
+  ...BaseEntitySchema.fields,
   data: PolicyRuleData
 }) { }
 
 /**
  * Schema for the policy usage entity
  */
-export class PolicyUsageEntity extends BaseEntitySchema.extend<PolicyUsageEntity>("PolicyUsageEntity")({
+export class PolicyUsageEntity extends S.Class<PolicyUsageEntity>("PolicyUsageEntity")({
+  ...BaseEntitySchema.fields,
   data: PolicyUsageData
 }) { }
 

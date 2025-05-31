@@ -1,4 +1,4 @@
-import type { AgentRuntime } from "@/agent-runtime/types.js";
+import type { AgentRuntime } from "@/agent-runtime/api.js";
 import type { GenerateBaseResult } from "@/services/pipeline/types.js";
 import type { EffectiveResponse } from "@/types.js";
 import type { Effect } from "effect";

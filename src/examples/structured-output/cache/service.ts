@@ -3,7 +3,7 @@
  * @module ea/pipelines/structured-output/cache/service
  */
 
-import * as S from "@effect/schema/Schema";
+import { Schema as S } from "effect";
 import { createHash } from "crypto";
 import { Effect, Layer } from "effect";
 import { CacheService, type CacheServiceApi } from "./contract.js";
@@ -27,7 +27,7 @@ export function makeInMemoryCacheServiceImpl(): CacheServiceApi {
             Effect.sync(() => {
                 const hash = createHash("sha256");
                 hash.update(prompt);
-                hash.update(JSON.stringify(S.AST.toJSON(schema.ast)));
+                hash.update(JSON.stringify(schema.ast));
                 return hash.digest("hex");
             }),
 

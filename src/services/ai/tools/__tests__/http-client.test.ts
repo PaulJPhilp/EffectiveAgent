@@ -3,8 +3,8 @@
  * This is a temporary file to work out the correct HttpClient implementation pattern
  */
 
-import { ParseError } from "@effect/schema/ParseResult";
-import * as S from "@effect/schema/Schema";
+// ParseError import removed: use Effect Schema error types if needed
+import { Schema as S } from "effect";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
@@ -13,6 +13,7 @@ import { layer as NodeHttpClientLayer } from "@effect/platform-node/NodeHttpClie
 import { HttpClient } from "@effect/platform/HttpClient";
 import * as HttpClientError from "@effect/platform/HttpClientError";
 import * as HttpClientResponse from "@effect/platform/HttpClientResponse";
+import { ParseError } from "effect/ParseResult";
 
 // Use the live HttpClient layer for integration testing
 const liveHttpClientLayer = NodeHttpClientLayer;

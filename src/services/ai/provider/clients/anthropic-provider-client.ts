@@ -1,7 +1,9 @@
 import { Effect } from "effect";
 import { ModelCapability } from "@/schema.js";
-import type { EffectiveInput, EffectiveResponse } from "@/types.js";
-import { ModelServiceApi } from "../../model/api.js";
+import type { EffectiveInput, EffectiveResponse, FinishReason } from "@/types.js";
+import { ModelService } from "../../model/service.js";
+import type { ModelServiceApi } from "../../model/api.js";
+import { generateText, type LanguageModelV1 } from "ai";
 import {
   ProviderMissingCapabilityError,
   ProviderMissingModelIdError,
@@ -28,6 +30,21 @@ import type {
   TranscribeResult
 } from "../types.js";
 import type { ProviderClientApi } from "../api.js";
+
+type Message = { role: "system" | "user"; content: string };
+type GenerateTextResponse = {
+  text: string;
+  response?: {
+    id?: string;
+    modelId?: string;
+  };
+  finishReason?: string;
+  usage?: {
+    promptTokens?: number;
+    completionTokens?: number;
+    totalTokens?: number;
+  };
+};
 
 // Internal factory for ProviderService only
 function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError> {
@@ -65,13 +82,69 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
     
     // Core generation methods
     generateText: (input: EffectiveInput, options: ProviderGenerateTextOptions) => 
-      Effect.fail(new ProviderOperationError({ 
-        providerName: "anthropic", 
-        operation: "generateText", 
-        message: "Not implemented", 
-        module: "anthropic", 
-        method: "generateText" 
-      })),
+      Effect.gen(function* () {
+        const modelId = options.modelId;
+        if (!modelId) {
+          return yield* Effect.fail(new ProviderMissingModelIdError({
+            providerName: "anthropic",
+            capability: "text-generation",
+            module: "anthropic",
+            method: "generateText"
+          }));
+        }
+
+        const messages: Message[] = [];
+        if (options.system) {
+          messages.push({ role: "system", content: options.system });
+        }
+        messages.push({ role: "user", content: input.text });
+
+        const result = yield* Effect.tryPromise({
+          try: () => generateText({
+            messages,
+            model: modelId as unknown as LanguageModelV1,
+            temperature: options.parameters?.temperature,
+            maxTokens: options.parameters?.maxTokens,
+            topP: options.parameters?.topP,
+            frequencyPenalty: options.parameters?.frequencyPenalty,
+            presencePenalty: options.parameters?.presencePenalty
+          }) as Promise<GenerateTextResponse>,
+          catch: error => new ProviderOperationError({
+            providerName: "anthropic",
+            operation: "generateText",
+            message: error instanceof Error ? error.message : "Unknown error",
+            module: "anthropic",
+            method: "generateText",
+            cause: error
+          })
+        });
+
+        const textResult: GenerateTextResult = {
+          text: result.text || "",
+          id: result.response?.id || `anthropic-text-${Date.now()}`,
+          model: result.response?.modelId || modelId,
+          timestamp: new Date(),
+          finishReason: (result.finishReason || "stop") as FinishReason,
+          usage: {
+            promptTokens: result.usage?.promptTokens || 0,
+            completionTokens: result.usage?.completionTokens || 0,
+            totalTokens: result.usage?.totalTokens || 0
+          }
+        };
+
+        return {
+          data: textResult,
+          metadata: {
+            model: modelId,
+            provider: "anthropic",
+            requestId: result.response?.id || `anthropic-text-${Date.now()}`,
+            messageCount: messages.length,
+            hasSystemPrompt: !!options.system
+          },
+          usage: textResult.usage,
+          finishReason: textResult.finishReason
+        };
+      }),
       
     generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) => 
       Effect.fail(new ProviderOperationError({ 
@@ -129,14 +202,18 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
       })),
       
     // Model management
-    getModels: () => 
-      Effect.fail(new ProviderOperationError({ 
-        providerName: "anthropic", 
-        operation: "getModels", 
-        message: "Not implemented", 
-        module: "anthropic", 
-        method: "getModels" 
-      })),
+    getModels: (): Effect.Effect<LanguageModelV1[], ProviderServiceConfigError, ModelServiceApi> =>
+      Effect.gen(function* () {
+        const modelService = yield* ModelService;
+        const anthropicModels = yield* modelService.getModelsForProvider("anthropic");
+        return [...anthropicModels] as LanguageModelV1[];
+      }).pipe(
+        Effect.mapError(error => new ProviderServiceConfigError({
+          description: `Failed to get Anthropic models: ${String(error)}`,
+          module: "anthropic",
+          method: "getModels"
+        }))
+      ),
       
     getDefaultModelIdForProvider: (providerName: ProvidersType, capability: ModelCapability) => 
       Effect.fail(new ProviderMissingModelIdError({ 

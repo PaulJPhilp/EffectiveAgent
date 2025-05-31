@@ -170,7 +170,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                                         Effect.flatMap(currentState => {
                                             const startTime = Date.now()
                                             return workflow(activity, currentState.state).pipe(
-                                                Effect.match({
+                                                Effect.matchEffect({
                                                     onFailure: error => {
                                                         return Ref.update(stateRef, (state: AgentRuntimeState<S>) => ({
                                                             ...state,
@@ -204,8 +204,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                                                             }
                                                         }))
                                                     }
-                                                }),
-                                                Effect.flat()
+                                                })
                                             )
                                         })
                                     )

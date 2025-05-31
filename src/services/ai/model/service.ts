@@ -10,7 +10,7 @@
 
 import { ModelCapability } from "@/schema.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { Effect, Schema } from "effect";
+import { Effect, Schema as S } from "effect";
 import type { ModelServiceApi } from "./api.js";
 import { ModelNotFoundError } from "./errors.js";
 import { ModelFileSchema, PublicModelInfoDefinition } from "./schema.js";
@@ -29,17 +29,22 @@ export class ModelService extends Effect.Service<ModelServiceApi>()(
         effect: Effect.gen(function* () {
             yield* Effect.logDebug("Initializing ModelService");
             const configService = yield* ConfigurationService;
-            const configPath = process.env.MODELS_CONFIG_PATH ?? "";
-            yield* Effect.logDebug("Using models config path", { configPath });
 
             const readConfig = Effect.gen(function* () {
-                yield* Effect.logDebug("Loading models configuration", { configPath });
-                return yield* configService.loadConfig({
-                    filePath: configPath,
-                    schema: ModelFileSchema
-                });
+                yield* Effect.logDebug("Loading models configuration from master config");
+                // Use the ConfigurationService's loadModelConfig with path from environment
+                const modelConfigPath = process.env.MODELS_CONFIG_PATH || "./config/models.json";
+                const modelConfigData = yield* configService.loadModelConfig(modelConfigPath);
+                // Now validate it with our schema using Effect Schema decode
+                return yield* S.decode(ModelFileSchema)(modelConfigData as any).pipe(
+                    Effect.mapError((parseError) => new ModelNotFoundError({
+                        modelId: "unknown",
+                        method: "readConfig",
+                        description: "Failed to parse models config with schema"
+                    }))
+                );
             }).pipe(
-                Effect.tapError((error) => Effect.logError("Failed to load models configuration", { configPath, error })),
+                Effect.tapError((error) => Effect.logError("Failed to load models configuration", { error })),
                 Effect.mapError((error) => new ModelNotFoundError({
                     modelId: "unknown",
                     method: "readConfig",
@@ -57,7 +62,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()(
                         return isValid;
                     }),
 
-                findModelsByCapability: (capability: Schema.Schema.Type<typeof ModelCapability>) =>
+                findModelsByCapability: (capability: S.Schema.Type<typeof ModelCapability>) =>
                     Effect.gen(function* () {
                         yield* Effect.logDebug("Finding models by capability", { capability });
                         const config = yield* readConfig;
@@ -75,7 +80,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()(
                         return models;
                     }),
 
-                findModelsByCapabilities: (capabilities: readonly Schema.Schema.Type<typeof ModelCapability>[]) =>
+                findModelsByCapabilities: (capabilities: readonly S.Schema.Type<typeof ModelCapability>[]) =>
                     Effect.gen(function* () {
                         yield* Effect.logDebug("Finding models by capabilities", { capabilities });
                         const config = yield* readConfig;

@@ -1,9 +1,9 @@
 import { BunFileSystem } from '@effect/platform-bun';
 import { NodeFileSystem } from '@effect/platform-node';
-import { Effect, Runtime } from "effect";
+import { Effect, Layer, Runtime } from "effect";
 
 import { ConfigurationError } from '@/services/core/configuration/errors.js';
-import { MasterConfig } from '@/services/core/configuration/master-schema.js';
+import { MasterConfig } from './schema.js';
 
 import { ModelService } from '@/services/ai/model/service.js';
 import { PolicyService } from '@/services/ai/policy/service.js';
@@ -30,14 +30,17 @@ export class InitializationService extends Effect.Service<{
     return {
       initialize: (masterConfig: MasterConfig) =>
         Effect.gen(function* () {
-          // Perform health checks
-          yield* Effect.all([
-            provider.healthCheck(),
-            model.healthCheck(),
-            policy.healthCheck()
+          // Load all configurations using the ConfigurationService
+          const configService = yield* ConfigurationService;
+
+          // Load all service configurations from master config paths
+          const [providerConfig, modelConfig, policyConfig] = yield* Effect.all([
+            configService.loadProviderConfig(masterConfig.agents.providersConfigPath),
+            configService.loadModelConfig(masterConfig.agents.modelsConfigPath),
+            configService.loadPolicyConfig(masterConfig.agents.policiesConfigPath)
           ]).pipe(
             Effect.mapError(error => new AgentRuntimeInitializationError({
-              description: 'Service health check failed',
+              description: 'Failed to load service configurations from master config',
               module: 'AgentRuntime',
               method: 'initialize',
               cause: error
@@ -49,16 +52,32 @@ export class InitializationService extends Effect.Service<{
             ? BunFileSystem.layer
             : NodeFileSystem.layer;
 
-          return yield* Effect.runtime<RuntimeServices>().pipe(
-            Effect.provide(fileSystemLayer)
+          // Set environment variables for services to find their configurations
+          yield* Effect.sync(() => {
+            process.env.PROVIDERS_CONFIG_PATH = masterConfig.agents.providersConfigPath;
+            process.env.MODELS_CONFIG_PATH = masterConfig.agents.modelsConfigPath;
+            process.env.POLICY_CONFIG_PATH = masterConfig.agents.policiesConfigPath;
+          });
+
+          // Compose the complete application layer with all services
+          const appLayer = Layer.mergeAll(
+            fileSystemLayer,
+            ProviderService.Default,
+            ModelService.Default,
+            PolicyService.Default,
+            ConfigurationService.Default
+          );
+
+          return yield* Effect.runtime<any>().pipe(
+            Effect.provide(appLayer)
           );
         }).pipe(
-          Effect.mapError(error => {
-            if (error instanceof ConfigurationError) {
-              return error;
+          Effect.mapError((error: unknown) => {
+            if (error && typeof error === 'object' && '_tag' in error && error._tag === 'ConfigurationError') {
+              return error as ConfigurationError;
             }
             return new AgentRuntimeInitializationError({
-              description: 'AgentRuntime initialization failed',
+              description: 'Failed to initialize AgentRuntime',
               module: 'AgentRuntime',
               method: 'initialize',
               cause: error
@@ -71,8 +90,9 @@ export class InitializationService extends Effect.Service<{
     ProviderService.Default,
     ModelService.Default,
     PolicyService.Default,
-    ConfigurationService.Default
+    ConfigurationService.Default,
+    NodeFileSystem.layer
   ]
-}) {}
+}) { }
 
 export default InitializationService;

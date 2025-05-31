@@ -92,3 +92,24 @@ export interface WeatherData {
   readonly timestamp: string;
   readonly units: WeatherUnits;
 }
+
+/**
+ * Agent state for weather pipeline runtime
+ */
+export interface WeatherAgentState {
+  readonly currentWeather: import("effect").Option.Option<WeatherData>;
+  readonly requestCount: number;
+  readonly lastUpdate: import("effect").Option.Option<number>;
+}
+
+interface WeatherCommand {
+  readonly type: "GET_WEATHER"
+  readonly input: WeatherPipelineInput
+}
+
+interface WeatherStateChange {
+  readonly type: "SET_WEATHER"
+  readonly weather: WeatherData
+}
+
+type WeatherActivityPayload = WeatherCommand | WeatherStateChange

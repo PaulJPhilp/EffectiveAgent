@@ -3,26 +3,26 @@
  */
 
 import { BaseEntitySchema } from "@/schema.js"; // Use path alias
-import { Schema as S } from "@effect/schema.js";
+import { Schema as S } from "effect";
 
 // Helper for EntityId schema
 function EntityIdSchema() {
-    return Schema.String.pipe(Schema.annotations({ identifier: "EntityId" }));
+    return S.String.pipe(S.annotations({ identifier: "EntityId" }));
 }
 
 // Define the schema for the 'data' part of the FileEntity
-const FileEntityDataSchema = Schema.Struct({
+const FileEntityDataSchema = S.Struct({
     /** The original filename provided by the user or agent. */
-    filename: Schema.String.pipe(Schema.minLength(1)),
+    filename: S.String.pipe(S.minLength(1)),
 
     /** The IANA media type (MIME type) of the file (e.g., "text/plain", "image/png"). */
-    mimeType: Schema.String.pipe(Schema.minLength(1)),
+    mimeType: S.String.pipe(S.minLength(1)),
 
     /** The size of the file content in bytes (before encoding). */
-    sizeBytes: Schema.Number.pipe(Schema.nonNegative()),
+    sizeBytes: S.Number.pipe(S.nonNegative()),
 
     /** The Base64 encoded content of the file. */
-    contentBase64: Schema.String, // Store content as Base64 string
+    contentBase64: S.String, // Store content as Base64 string
 
     /** The ID of the agent or user who owns/uploaded this file. */
     ownerId: EntityIdSchema(),
@@ -32,9 +32,9 @@ const FileEntityDataSchema = Schema.Struct({
  * Schema definition for a File entity.
  * Extends BaseEntitySchema and nests file-specific fields under 'data'.
  */
-export const FileEntitySchema = Schema.extend(
+export const FileEntitySchema = S.extend(
     BaseEntitySchema,
-    Schema.Struct({
+    S.Struct({
         data: FileEntityDataSchema,
     }),
 );
@@ -42,9 +42,9 @@ export const FileEntitySchema = Schema.extend(
 /**
  * Inferred TypeScript type for the File entity data payload.
  */
-export type FileEntityData = Schema.Schema.Type<typeof FileEntityDataSchema>;
+export type FileEntityData = S.Schema.Type<typeof FileEntityDataSchema>;
 
 /**
  * Inferred TypeScript type for the complete File entity.
  */
-export type FileEntity = Schema.Schema.Type<typeof FileEntitySchema>;
+export type FileEntity = S.Schema.Type<typeof FileEntitySchema>;

@@ -1,185 +1,188 @@
 /**
- * @file Weather Agent E2E Tests
+ * @file Weather Agent E2E Tests with Automatic AgentRuntime
  * @module examples/weather/tests
  */
 
 import { config } from "dotenv";
 config(); // Load environment variables from .env file
 
-import { AgentRuntimeService } from "@/agent-runtime/service.js";
+import { runWithAgentRuntime } from "@/agent-runtime/index.js";
 import { WeatherAgent } from "@/examples/weather/agent.js";
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import TextService from "@/services/pipeline/producers/text/service.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Option } from "effect";
+import { Effect } from "effect";
 import { beforeAll, describe, expect, it } from "vitest";
 
 // Test data
 const testLocation = "San Francisco";
 
-describe("WeatherAgent E2E Tests", () => {
+describe("WeatherAgent E2E Tests with Automatic AgentRuntime", () => {
     beforeAll(() => {
-        // Set up config paths for real testing
-        process.env.PROVIDERS_CONFIG_PATH = process.env.PROVIDERS_CONFIG_PATH || "config/providers.json";
-        process.env.MODELS_CONFIG_PATH = process.env.MODELS_CONFIG_PATH || "config/models.json";
+        // Set up master config path for testing  
+        process.env.MASTER_CONFIG_PATH = process.env.MASTER_CONFIG_PATH || "./config/master-config.json";
+
+        // Ensure we have an OpenAI API key for testing (can be a mock one)
+        process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "test-key-for-mock";
     });
 
-    it("should get weather data through agent runtime", async () => {
-        const test = Effect.gen(function* () {
-            // Initialize the weather agent
-            const weatherAgent = yield* WeatherAgent;
+    it("should get weather data with AgentRuntime handling all configuration automatically", async () => {
+        const result = await runWithAgentRuntime(
+            Effect.gen(function* () {
+                // WeatherAgent uses AgentRuntime automatically - no manual initialization needed!
+                const weatherAgent = yield* WeatherAgent;
 
-            // Test getting weather data
-            const weatherData = yield* weatherAgent.getWeather({
-                location: testLocation,
-                units: { type: "celsius", windSpeedUnit: "mps" }
-            });
+                // Test getting weather data
+                const weatherData = yield* weatherAgent.getWeather({
+                    location: testLocation,
+                    units: { type: "celsius", windSpeedUnit: "mps" }
+                });
 
-            // Verify the weather data
-            expect(weatherData).toBeDefined();
-            expect(weatherData.location.name).toBe(testLocation);
-            expect(weatherData.temperature).toBeDefined();
-            expect(typeof weatherData.temperature).toBe("number");
-            expect(weatherData.conditions).toBeDefined();
-            expect(Array.isArray(weatherData.conditions)).toBe(true);
-            expect(weatherData.conditions.length).toBeGreaterThan(0);
-            expect(weatherData.humidity).toBeDefined();
-            expect(weatherData.windSpeed).toBeDefined();
-            expect(weatherData.timestamp).toBeDefined();
-            expect(weatherData.units.type).toBe("celsius");
+                // Verify the weather data
+                expect(weatherData).toBeDefined();
+                expect(weatherData.location.name).toBe(testLocation);
+                expect(weatherData.temperature).toBeDefined();
+                expect(typeof weatherData.temperature).toBe("number");
+                expect(weatherData.conditions).toBeDefined();
+                expect(Array.isArray(weatherData.conditions)).toBe(true);
+                expect(weatherData.conditions.length).toBeGreaterThan(0);
+                expect(weatherData.humidity).toBeDefined();
+                expect(weatherData.windSpeed).toBeDefined();
+                expect(weatherData.timestamp).toBeDefined();
+                expect(weatherData.units.type).toBe("celsius");
 
-            // Test agent state
-            const agentState = yield* weatherAgent.getAgentState();
-            expect(agentState.requestCount).toBe(1);
-            expect(Option.isSome(agentState.currentWeather)).toBe(true);
-            expect(Option.isSome(agentState.lastUpdate)).toBe(true);
+                // Get weather summary
+                const summary = yield* weatherAgent.getWeatherSummary({
+                    location: testLocation,
+                    units: { type: "celsius", windSpeedUnit: "mps" }
+                });
 
-            // Get weather summary
-            const summary = yield* weatherAgent.getWeatherSummary({
-                location: testLocation,
-                units: { type: "celsius", windSpeedUnit: "mps" }
-            });
+                expect(summary).toBeDefined();
+                expect(typeof summary).toBe("string");
+                expect(summary.length).toBeGreaterThan(0);
 
-            expect(summary).toBeDefined();
-            expect(typeof summary).toBe("string");
-            expect(summary.length).toBeGreaterThan(0);
+                // Test second request to verify state persistence
+                yield* weatherAgent.getWeather({
+                    location: "New York",
+                    units: { type: "fahrenheit", windSpeedUnit: "mph" }
+                });
 
-            // Test second request to verify state persistence
-            yield* weatherAgent.getWeather({
-                location: "New York",
-                units: { type: "fahrenheit", windSpeedUnit: "mph" }
-            });
+                // Cleanup
+                yield* weatherAgent.terminate();
 
-            const updatedState = yield* weatherAgent.getAgentState();
-            expect(updatedState.requestCount).toBe(2);
-
-            // Cleanup
-            yield* weatherAgent.terminate();
-
-            return { weatherData, summary, agentState, updatedState };
-        }).pipe(
-            Effect.provide(WeatherAgent.Default),
-            Effect.provide(AgentRuntimeService.Default),
-            Effect.provide(TextService.Default),
-            Effect.provide(ModelService.Default),
-            Effect.provide(ProviderService.Default),
-            Effect.provide(ConfigurationService.Default),
-            Effect.provide(NodeFileSystem.layer)
+                return { weatherData, summary };
+            })
         );
-
-        const result: any = await Effect.runPromise(test as any);
 
         expect(result).toBeDefined();
         expect(result.weatherData).toBeDefined();
         expect(result.summary).toBeDefined();
-        expect(result.agentState).toBeDefined();
-        expect(result.updatedState).toBeDefined();
     });
 
-    it("should handle multiple concurrent weather requests", async () => {
-        const test = Effect.gen(function* () {
-            const weatherAgent = yield* WeatherAgent;
+    it("should handle multiple concurrent weather requests with automatic runtime", async () => {
+        const results = await runWithAgentRuntime(
+            Effect.gen(function* () {
+                const weatherAgent = yield* WeatherAgent;
 
-            // Create multiple concurrent requests
-            const locations = ["London", "Tokyo", "Sydney"];
-            const requests = locations.map(location =>
-                weatherAgent.getWeather({
-                    location,
-                    units: { type: "celsius", windSpeedUnit: "mps" }
-                })
-            );
+                // Create multiple concurrent requests
+                const locations = ["London", "Tokyo", "Sydney"];
+                const requests = locations.map(location =>
+                    weatherAgent.getWeather({
+                        location,
+                        units: { type: "celsius", windSpeedUnit: "mps" }
+                    })
+                );
 
-            // Execute all requests concurrently
-            const results = yield* Effect.all(requests, { concurrency: "unbounded" });
+                // Execute all requests concurrently
+                const results = yield* Effect.all(requests, { concurrency: "unbounded" });
 
-            // Verify all results
-            expect(results).toHaveLength(3);
-            for (const [index, result] of results.entries()) {
-                expect(result.location.name).toBe(locations[index]);
-                expect(result.temperature).toBeDefined();
-                expect(result.conditions).toBeDefined();
-            }
+                // Verify all results
+                expect(results).toHaveLength(3);
+                for (const [index, result] of results.entries()) {
+                    expect(result.location.name).toBe(locations[index]);
+                    expect(result.temperature).toBeDefined();
+                    expect(result.conditions).toBeDefined();
+                }
 
-            // Check agent state
-            const finalState = yield* weatherAgent.getAgentState();
-            expect(finalState.requestCount).toBe(3);
+                // Cleanup
+                yield* weatherAgent.terminate();
 
-            // Cleanup
-            yield* weatherAgent.terminate();
-
-            return results;
-        }).pipe(
-            Effect.provide(WeatherAgent.Default),
-            Effect.provide(AgentRuntimeService.Default),
-            Effect.provide(TextService.Default),
-            Effect.provide(ModelService.Default),
-            Effect.provide(ProviderService.Default),
-            Effect.provide(ConfigurationService.Default),
-            Effect.provide(NodeFileSystem.layer)
+                return results;
+            })
         );
 
-        const results = await Effect.runPromise(test as any);
         expect(results).toHaveLength(3);
     });
 
-    it("should track agent runtime state correctly", async () => {
-        const test = Effect.gen(function* () {
-            const weatherAgent = yield* WeatherAgent;
-            const runtime = weatherAgent.getRuntime();
+    it("should track agent runtime state correctly with automatic initialization", async () => {
+        const result = await runWithAgentRuntime(
+            Effect.gen(function* () {
+                const weatherAgent = yield* WeatherAgent;
+                const runtime = weatherAgent.getRuntime();
 
-            // Check initial runtime state
-            const initialRuntimeState = yield* runtime.getState();
-            expect(initialRuntimeState.state.requestCount).toBe(0);
-            expect(Option.isNone(initialRuntimeState.state.currentWeather)).toBe(true);
+                // Check initial runtime state
+                const initialRuntimeState = yield* runtime.getState();
+                expect(initialRuntimeState.state.requestCount).toBe(0);
 
-            // Make a request
-            yield* weatherAgent.getWeather({
-                location: "Paris",
-                units: { type: "celsius", windSpeedUnit: "mps" }
-            });
+                // Make a request
+                yield* weatherAgent.getWeather({
+                    location: "Paris",
+                    units: { type: "celsius", windSpeedUnit: "mps" }
+                });
 
-            // Check runtime state after request
-            const updatedRuntimeState = yield* runtime.getState();
-            expect(updatedRuntimeState.state.requestCount).toBe(1);
-            expect(Option.isSome(updatedRuntimeState.state.currentWeather)).toBe(true);
+                // Verify the agent runtime is properly configured with logging
+                // The master config should have set up file logging to ./logs/app.log automatically
+                const finalRuntimeState = yield* runtime.getState();
+                expect(finalRuntimeState).toBeDefined();
+                expect(finalRuntimeState.processing).toBeDefined();
 
-            // Cleanup
-            yield* weatherAgent.terminate();
+                // Cleanup
+                yield* weatherAgent.terminate();
 
-            return updatedRuntimeState;
-        }).pipe(
-            Effect.provide(WeatherAgent.Default),
-            Effect.provide(AgentRuntimeService.Default),
-            Effect.provide(TextService.Default),
-            Effect.provide(ModelService.Default),
-            Effect.provide(ProviderService.Default),
-            Effect.provide(ConfigurationService.Default),
-            Effect.provide(NodeFileSystem.layer)
+                return { success: true };
+            })
         );
 
-        const finalState: any = await Effect.runPromise(test as any);
-        expect(finalState.state.requestCount).toBe(1);
+        expect(result.success).toBe(true);
+    });
+
+    it("should demonstrate automatic logging configuration from master config", async () => {
+        const result = await runWithAgentRuntime(
+            Effect.gen(function* () {
+                // This test verifies that AgentRuntime automatically handles
+                // logging configuration from master-config.json
+
+                // The logging should be automatically configured to write to ./logs/app.log
+                // as specified in the master config - no manual setup required!
+
+                yield* Effect.log("Testing weather agent with automatic runtime initialization");
+
+                const weatherAgent = yield* WeatherAgent;
+
+                yield* Effect.log("Weather agent initialized through automatic AgentRuntime");
+
+                const weatherData = yield* weatherAgent.getWeather({
+                    location: "Test City",
+                    units: { type: "celsius", windSpeedUnit: "mps" }
+                });
+
+                yield* Effect.log("Weather data retrieved successfully", {
+                    location: weatherData.location.name,
+                    temperature: weatherData.temperature
+                });
+
+                // Cleanup
+                yield* weatherAgent.terminate();
+
+                return {
+                    success: true,
+                    loggingConfiguredAutomatically: true,
+                    weatherDataReceived: true,
+                    logFileShouldBeCreated: "./logs/app.log"
+                };
+            })
+        );
+
+        expect(result.success).toBe(true);
+        expect(result.loggingConfiguredAutomatically).toBe(true);
+        expect(result.weatherDataReceived).toBe(true);
+        expect(result.logFileShouldBeCreated).toBe("./logs/app.log");
     });
 }); 

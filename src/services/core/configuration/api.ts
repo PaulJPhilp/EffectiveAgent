@@ -3,10 +3,9 @@
  * @module services/core/configuration/api
  */
 
-import { ModelFileSchema } from "@/services/ai/model/schema.js";
 import { PolicyConfigFile } from "@/services/ai/policy/schema.js";
 import { ProviderFile } from "@/services/ai/provider/schema.js";
-import { ConfigError, Effect, Schema } from "effect"; // Added Config, ConfigError
+import { Effect, Schema } from "effect"; // Added Config, ConfigError
 import { ConfigParseError, ConfigReadError, ConfigValidationError } from "./errors.js";
 
 /**
@@ -22,70 +21,39 @@ export interface LoadConfigOptions<T> {
  * Provides functionality for loading and validating configuration files.
  */
 export interface ConfigurationServiceApi {
-    /**
-     * Read a configuration file as a string
-     * @param filePath Path to the configuration file
-     * @returns Effect yielding the file contents
-     */
-    readonly readFile: (filePath: string) => Effect.Effect<string, ConfigReadError>;
 
-    /**
-     * Parse JSON content from a string
-     * @param content JSON content to parse
-     * @param filePath Original file path for error context
-     * @returns Effect yielding the parsed unknown object
-     */
-    readonly parseJson: (content: string, filePath: string) => Effect.Effect<unknown, ConfigParseError>;
-
-    /**
-     * Validate data against a schema
-     * @param data Data to validate
-     * @param schema Schema to validate against
-     * @param filePath Original file path for error context
-     * @returns Effect yielding the validated data
-     */
-    readonly validateWithSchema: <T>(
-        data: unknown,
-        schema: Schema.Schema<T, T>,
-        filePath: string
-    ) => Effect.Effect<T, ConfigValidationError>;
-
-    /**
-     * Load and validate a configuration file
-     * @param options Options containing file path and schema
-     * @returns Effect yielding the validated configuration
-     */
-    readonly loadConfig: <T>(
-        options: LoadConfigOptions<T>
-    ) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
+    readonly loadConfig: <T>({
+        filePath,
+        schema
+    }: LoadConfigOptions<T>) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Load and validate provider configuration.
      */
-    readonly loadProviderConfig: () => Effect.Effect<Schema.Schema.Type<typeof ProviderFile>, ConfigReadError | ConfigParseError | ConfigValidationError>;
+    readonly loadProviderConfig: (filePath: string) => Effect.Effect<ProviderFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Load and validate model configuration.
      */
-    readonly loadModelConfig: () => Effect.Effect<Schema.Schema.Type<typeof ModelFileSchema>, ConfigReadError | ConfigParseError | ConfigValidationError>;
+    readonly loadModelConfig: (filePath: string) => Effect.Effect<unknown, ConfigReadError | ConfigParseError>;
 
     /**
      * Load and validate the policy configuration file
      * @returns Effect containing PolicyConfigFile or configuration error
      */
-    readonly loadPolicyConfig: () => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
+    readonly loadPolicyConfig: (filePath: string) => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Get an API key from environment variables.
-     * @param envVarName The name of the environment variable.
-     * @returns Effect yielding the API key string, or an error if not found.
+     * @param provider The provider name to get the API key for.
+     * @returns Effect yielding the API key string.
      */
-    readonly getApiKey: (envVarName: string) => Effect.Effect<string, ConfigError.MissingData>;
+    readonly getApiKey: (provider: string) => Effect.Effect<string>;
 
     /**
      * Get an environment variable.
-     * @param envVarName The name of the environment variable.
-     * @returns Effect yielding the environment variable string, or an error if not found.
+     * @param name The name of the environment variable.
+     * @returns Effect yielding the environment variable string.
      */
-    readonly getEnvVariable: (envVarName: string) => Effect.Effect<string, ConfigError.MissingData>;
+    readonly getEnvVariable: (name: string) => Effect.Effect<string>;
 }

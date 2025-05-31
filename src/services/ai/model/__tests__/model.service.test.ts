@@ -1,4 +1,4 @@
-import { Effect, Exit, Cause, Schema, Either } from "effect";
+import { Effect, Exit, Cause, Schema as S, Either } from "effect";
 import { PublicModelInfo } from "../schema.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -11,8 +11,8 @@ import type { ModelServiceApi } from "../api.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import type { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
 
-const chatCapability = Schema.decodeSync(ModelCapability)("chat");
-const functionCallingCapability = Schema.decodeSync(ModelCapability)("function-calling");
+const chatCapability = S.decodeSync(ModelCapability)("chat");
+const functionCallingCapability = S.decodeSync(ModelCapability)("function-calling");
 const BAD_PATH = "/non/existent/path.json";
 
 process.env.MODELS_CONFIG_PATH = "/Users/paul/Projects/EffectiveAgent/src/services/ai/model/__tests__/config/models.json";
@@ -49,13 +49,13 @@ describe("ModelService", () => {
     });
 
     describe("findModelsByCapability", () => {
-        const chatCapability = "chat" as const satisfies Schema.Schema.Type<typeof ModelCapability>;
-        const invalidCapability = "invalid-capability" as unknown as Schema.Schema.Type<typeof ModelCapability>;
+        const chatCapability = "chat" as const satisfies S.Schema.Type<typeof ModelCapability>;
+        const invalidCapability = "invalid-capability" as unknown as S.Schema.Type<typeof ModelCapability>;
         
         it("should find models with chat capability", () =>
             Effect.gen(function* () {
                 const service = yield* ModelService;
-                const models: readonly Schema.Schema.Type<typeof PublicModelInfo>[] = 
+                const models: readonly S.Schema.Type<typeof PublicModelInfo>[] = 
                     yield* service.findModelsByCapability(chatCapability);
                 expect(models.length).toBeGreaterThan(0);
                 models.forEach((model) => {
@@ -85,8 +85,8 @@ describe("ModelService", () => {
     });
 
     describe("findModelsByCapabilities", () => {
-        const validCapabilities = ["chat", "text-generation"] as Schema.Schema.Type<typeof ModelCapability>[];
-        const invalidCapabilities = [Schema.decodeSync(ModelCapability)("text-generation")];
+        const validCapabilities = ["chat", "text-generation"] as S.Schema.Type<typeof ModelCapability>[];
+        const invalidCapabilities = [S.decodeSync(ModelCapability)("text-generation")];
         it("should return all models with chat capability", () =>
             Effect.gen(function* () {
                 const service = yield* ModelService;
@@ -122,7 +122,7 @@ describe("ModelService", () => {
         it("should return ModelNotFoundError for non-existent capabilities", () =>
             Effect.gen(function* () {
                 const service = yield* ModelService;
-                const invalidCapability = Schema.decodeSync(ModelCapability)("text-generation");
+                const invalidCapability = S.decodeSync(ModelCapability)("text-generation");
                 const result = yield* Effect.either(service.findModelsByCapabilities([invalidCapability]));
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {

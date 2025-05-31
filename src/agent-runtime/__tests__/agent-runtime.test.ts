@@ -1,5 +1,5 @@
-import { describe, expect, test } from "vitest"
 import { Effect } from "effect"
+import { describe, expect, test } from "vitest"
 import { AgentRecordType, AgentRuntimeService, makeAgentRuntimeId } from "../index.js"
 
 describe("AgentRuntime", () => {
@@ -36,16 +36,9 @@ describe("AgentRuntime", () => {
                     // Terminate
                     yield* service.terminate(id)
 
-                    // Verify terminated
-                    yield* Effect.tryPromise({
-                        try: async () => {
-                            await Effect.runPromise(service.getState(id))
-                        },
-                        catch: (e) => {
-                            expect(e).toBeDefined()
-                            return e
-                        }
-                    })
+                    // Verify terminated - should fail when trying to get state
+                    const stateResult = yield* Effect.either(service.getState(id))
+                    expect(stateResult._tag).toBe("Left")
                 }),
                 AgentRuntimeService.Default
             )

@@ -9,7 +9,7 @@ import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { AgentRuntimeInitializationError } from "../errors.js";
-import InitializationService from "../initialization.js";
+import InitializationService from "../test-runtime.js";
 
 describe("AgentRuntime Initialization Integration Tests", () => {
     const testDir = join(process.cwd(), "test-runtime-configs");
@@ -19,24 +19,25 @@ describe("AgentRuntime Initialization Integration Tests", () => {
     const policyConfigPath = join(testDir, "policy.json");
 
     const validMasterConfig = {
-        name: "Test Agent Runtime",
-        version: "1.0.0",
         runtimeSettings: {
-            fileSystemImplementation: "node",
-            logging: {
-                level: "info",
-                filePath: "./logs/test.log"
-            }
+            fileSystemImplementation: "node" as const
         },
-        configPaths: {
-            providers: providersConfigPath,
-            models: modelsConfigPath,
-            policy: policyConfigPath
+        logging: {
+            level: "info" as const,
+            filePath: "./logs/test.log",
+            enableConsole: true
+        },
+        agents: {
+            agentsDirectory: "./agents",
+            modelsConfigPath: modelsConfigPath,
+            providersConfigPath: providersConfigPath,
+            policiesConfigPath: policyConfigPath
         }
     };
 
     const validProviderConfig = {
-        name: "Test Providers Config",
+        name: "Test-Providers-Config",
+        version: "1.0.0",
         description: "Test providers",
         providers: [
             {
@@ -69,17 +70,17 @@ describe("AgentRuntime Initialization Integration Tests", () => {
     };
 
     const validPolicyConfig = {
-        name: "Test Policy Config",
+        name: "Test-Policy-Config",
         version: "1.0.0",
-        rules: [
+        policies: [
             {
                 id: "test-rule",
                 name: "Test Rule",
-                description: "A test policy rule",
+                type: "allow",
+                resource: "*",
+                priority: 100,
                 enabled: true,
-                action: "allow",
-                conditions: {},
-                priority: 100
+                description: "A test policy rule"
             }
         ]
     };
@@ -140,7 +141,6 @@ describe("AgentRuntime Initialization Integration Tests", () => {
             const bunMasterConfig = {
                 ...validMasterConfig,
                 runtimeSettings: {
-                    ...validMasterConfig.runtimeSettings,
                     fileSystemImplementation: "bun" as const
                 }
             };
@@ -342,7 +342,7 @@ describe("AgentRuntime Initialization Integration Tests", () => {
     describe("environment and path scenarios", () => {
         it("should handle missing environment variables gracefully", () => {
             // Remove API key
-            delete process.env.OPENAI_API_KEY;
+            process.env.OPENAI_API_KEY = undefined;
 
             return Effect.gen(function* () {
                 const initService = yield* InitializationService;
@@ -365,9 +365,9 @@ describe("AgentRuntime Initialization Integration Tests", () => {
         it("should handle missing config paths gracefully", () => {
             const configWithMissingPath = {
                 ...validMasterConfig,
-                configPaths: {
-                    ...validMasterConfig.configPaths,
-                    providers: join(testDir, "nonexistent.json")
+                agents: {
+                    ...validMasterConfig.agents,
+                    providersConfigPath: join(testDir, "nonexistent.json")
                 }
             };
 
@@ -392,17 +392,15 @@ describe("AgentRuntime Initialization Integration Tests", () => {
 
     describe("logging configuration scenarios", () => {
         it("should initialize with different log levels", async () => {
-            const logLevels = ["fatal", "error", "warn", "info", "debug", "trace", "all"] as const;
+            const logLevels = ["error", "warn", "info", "debug", "trace"] as const;
 
             for (const level of logLevels) {
                 const configWithLogLevel = {
                     ...validMasterConfig,
-                    runtimeSettings: {
-                        ...validMasterConfig.runtimeSettings,
-                        logging: {
-                            level,
-                            filePath: `./logs/test-${level}.log`
-                        }
+                    logging: {
+                        level,
+                        filePath: `./logs/test-${level}.log`,
+                        enableConsole: true
                     }
                 };
 
@@ -418,7 +416,7 @@ describe("AgentRuntime Initialization Integration Tests", () => {
                         Effect.provide(PolicyService.Default),
                         Effect.provide(ConfigurationService.Default),
                         Effect.provide(NodeFileSystem.layer)
-                    )
+                    ) as Effect.Effect<unknown, unknown, never>
                 );
             }
         });
@@ -426,12 +424,10 @@ describe("AgentRuntime Initialization Integration Tests", () => {
         it("should validate log file path extensions", () => {
             const invalidConfig = {
                 ...validMasterConfig,
-                runtimeSettings: {
-                    ...validMasterConfig.runtimeSettings,
-                    logging: {
-                        level: "info" as const,
-                        filePath: "./logs/test.invalid"
-                    }
+                logging: {
+                    level: "info" as const,
+                    filePath: "./logs/test.invalid",
+                    enableConsole: true
                 }
             };
 

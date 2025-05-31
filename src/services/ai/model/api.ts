@@ -1,4 +1,4 @@
-import type { Effect, Schema } from "effect";
+import { Effect, Schema as S } from "effect";
 import type {
   ModelNotFoundError
 } from "./errors.js";
@@ -14,7 +14,7 @@ export type ModelServiceApi = {
    * Loads the model configuration.
    * Returns a ModelFile containing PublicModelInfoDefinition objects.
    */
-  load: () => Effect.Effect<{ models: Schema.Schema.Type<PublicModelInfoDefinition>[], name: string, version: string }, ModelNotFoundError>;
+  load: () => Effect.Effect<{ models: S.Schema.Type<PublicModelInfoDefinition>[], name: string, version: string }, ModelNotFoundError>;
 
   /**
    * Gets the provider name for a given model ID.
@@ -25,13 +25,13 @@ export type ModelServiceApi = {
    * Finds all models that include the specified capability (based on vendorCapabilities).
    * Returns PublicModelInfoDefinition objects.
    */
-  readonly findModelsByCapability: (capability: Schema.Schema.Type<typeof ModelCapability>) => Effect.Effect<readonly Schema.Schema.Type<PublicModelInfoDefinition>[], ModelNotFoundError, never>;
+  readonly findModelsByCapability: (capability: S.Schema.Type<typeof ModelCapability>) => Effect.Effect<readonly S.Schema.Type<PublicModelInfoDefinition>[], ModelNotFoundError, never>;
 
   /**
    * Finds all models that include ALL of the specified capabilities (based on vendorCapabilities).
    * Returns PublicModelInfoDefinition objects.
    */
-  readonly findModelsByCapabilities: (capabilities: readonly Schema.Schema.Type<typeof ModelCapability>[]) => Effect.Effect<readonly Schema.Schema.Type<PublicModelInfoDefinition>[], ModelNotFoundError, never>;
+  readonly findModelsByCapabilities: (capabilities: readonly S.Schema.Type<typeof ModelCapability>[]) => Effect.Effect<readonly S.Schema.Type<PublicModelInfoDefinition>[], ModelNotFoundError, never>;
 
   /**
    * Gets the default model ID for a given provider and capability.
@@ -41,7 +41,7 @@ export type ModelServiceApi = {
   /**
    * Gets metadata for all models associated with a specific provider.
    */
-  readonly getModelsForProvider: (providerName: string) => Effect.Effect<readonly Schema.Schema.Type<PublicModelInfoDefinition>[], ModelNotFoundError, never>;
+  readonly getModelsForProvider: (providerName: string) => Effect.Effect<readonly S.Schema.Type<PublicModelInfoDefinition>[], ModelNotFoundError, never>;
 
   /**
    * Validates if a model has all the specified capabilities (based on vendorCapabilities).

@@ -9,25 +9,9 @@ import TextService from "@/services/pipeline/producers/text/service.js";
 import type { JsonObject } from "@/types.js";
 import { Effect, Option } from "effect";
 import { WeatherPipelineError } from "./errors.js";
-import { WeatherCondition, WeatherData, WeatherPipelineInput, defaultConfig } from "./types.js";
+import { WeatherAgentState, WeatherCondition, WeatherData, WeatherPipelineInput, defaultConfig } from "./types.js";
 
-export interface WeatherAgentState {
-    readonly currentWeather: Option.Option<WeatherData>
-    readonly requestCount: number
-    readonly lastUpdate: Option.Option<number>
-}
 
-interface WeatherCommand {
-    readonly type: "GET_WEATHER"
-    readonly input: WeatherPipelineInput
-}
-
-interface WeatherStateChange {
-    readonly type: "SET_WEATHER"
-    readonly weather: WeatherData
-}
-
-type WeatherActivityPayload = WeatherCommand | WeatherStateChange
 
 /**
  * Weather Agent implementation using AgentRuntime
@@ -60,18 +44,7 @@ export class WeatherAgent extends Effect.Service<WeatherAgent>()(
                         location: input.location.toString()
                     } as JsonObject);
 
-                    // Send weather request command to agent
-                    const activity: AgentActivity = {
-                        id: `weather-request-${Date.now()}`,
-                        agentRuntimeId: agentId,
-                        timestamp: Date.now(),
-                        type: AgentActivityType.COMMAND,
-                        payload: { type: "GET_WEATHER", input } satisfies WeatherCommand,
-                        metadata: {},
-                        sequence: 0
-                    };
-
-                    yield* runtime.send(activity);
+                    // Note: Removed COMMAND activity as it's not supported by the agent runtime
 
                     // Get weather data from text service
                     const response = yield* textService.generate({
@@ -87,14 +60,21 @@ export class WeatherAgent extends Effect.Service<WeatherAgent>()(
                         output: response.data.output
                     } as JsonObject);
 
-                    const parsed = JSON.parse(response.data.output) as {
+                    // Extract JSON from markdown code blocks if present
+                    const extractJsonFromMarkdown = (text: string): string => {
+                        const jsonMatch = text.match(/```(?:json)?\s*\n?([\s\S]*?)\n?```/);
+                        return jsonMatch?.[1]?.trim() ?? text.trim();
+                    };
+
+                    const jsonText = extractJsonFromMarkdown(response.data.output);
+                    const parsed = JSON.parse(jsonText) as {
                         location: { name: string; country: string };
                         temperature: number;
                         temperatureFeelsLike: number;
                         humidity: number;
                         windSpeed: number;
-                        windDirection: number;
-                        conditions: { condition: string; description: string; icon: string };
+                        windDirection: string;
+                        conditions: string;
                         timestamp: string;
                     };
 
@@ -109,8 +89,12 @@ export class WeatherAgent extends Effect.Service<WeatherAgent>()(
                         temperatureFeelsLike: parsed.temperatureFeelsLike,
                         humidity: parsed.humidity,
                         windSpeed: parsed.windSpeed,
-                        windDirection: parsed.windDirection,
-                        conditions: [parsed.conditions] as ReadonlyArray<WeatherCondition>,
+                        windDirection: Number(parsed.windDirection),
+                        conditions: [{
+                            condition: parsed.conditions,
+                            description: parsed.conditions,
+                            icon: "default"
+                        }] as ReadonlyArray<WeatherCondition>,
                         timestamp: parsed.timestamp,
                         units: input.units || defaultConfig.defaultUnits
                     };
@@ -128,21 +112,40 @@ export class WeatherAgent extends Effect.Service<WeatherAgent>()(
                     } as JsonObject);
 
                     // Update agent state with the weather data
+                    const currentState = yield* runtime.getState();
+
+                    yield* Effect.log("Current state before update", {
+                        requestCount: currentState.state.requestCount,
+                        hasCurrentWeather: Option.isSome(currentState.state.currentWeather)
+                    } as JsonObject);
+
+                    const newState: WeatherAgentState = {
+                        requestCount: currentState.state.requestCount + 1,
+                        currentWeather: Option.some(weatherData),
+                        lastUpdate: Option.some(Date.now())
+                    };
+
                     const stateChangeActivity: AgentActivity = {
                         id: `weather-update-${Date.now()}`,
                         agentRuntimeId: agentId,
                         timestamp: Date.now(),
                         type: AgentActivityType.STATE_CHANGE,
-                        payload: {
-                            currentWeather: Option.some(weatherData),
-                            requestCount: (yield* runtime.getState()).state.requestCount + 1,
-                            lastUpdate: Option.some(Date.now())
-                        },
+                        payload: newState,
                         metadata: {},
                         sequence: 0
                     };
 
                     yield* runtime.send(stateChangeActivity);
+
+                    // Wait a bit for processing
+                    yield* Effect.sleep(100);
+
+                    const updatedState = yield* runtime.getState();
+                    yield* Effect.log("State after update", {
+                        requestCount: updatedState.state.requestCount,
+                        processedCount: updatedState.processing?.processed,
+                        failuresCount: updatedState.processing?.failures
+                    } as JsonObject);
 
                     return weatherData;
                 }).pipe(

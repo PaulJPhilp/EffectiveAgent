@@ -21,6 +21,36 @@
         "type": "text",
         "supportedFormats": ["text/plain", "text/markdown", "application/json"]
       }
+    },
+    {
+      "id": "claude-3-5-sonnet",
+      "name": "claude-3-5",
+      "version": "1.0.0",
+      "provider": {
+        "name": "anthropic"
+      },
+      "modelName": "claude-3-5",
+      "displayName": "Claude-3-5-Sonnet",
+      "vendorCapabilities": ["chat", "text-generation", "function-calling"],
+      "responseFormat": {
+        "type": "text",
+        "supportedFormats": ["text/plain", "text/markdown", "application/json"]
+      }
+    },
+    {
+      "id": "claude-3-opus",
+      "name": "claude-3-opus",
+      "version": "1.0.0",
+      "provider": {
+        "name": "anthropic"
+      },
+      "modelName": "claude-3-opus",
+      "displayName": "Claude-3-Opus",
+      "vendorCapabilities": ["chat", "text-generation", "function-calling"],
+      "responseFormat": {
+        "type": "text",
+        "supportedFormats": ["text/plain", "text/markdown", "application/json"]
+      }
     }
   ]
 }

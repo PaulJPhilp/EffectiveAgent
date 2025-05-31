@@ -1,5 +1,5 @@
 {
-  "name": "Test Main Application",
+  "name": "Default Config",
   "version": "1.0.0",
   "runtimeSettings": {
     "fileSystemImplementation": "node",

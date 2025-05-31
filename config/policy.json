@@ -12,26 +12,30 @@
       "description": "Default rule to allow all operations"
     },
     {
-      "id": "rate-limit-gpt4",
-      "name": "GPT-4 Rate Limit",
+      "id": "rate-limit-gpt4o",
+      "name": "GPT-4o Rate Limit",
       "type": "allow",
-      "resource": "gpt-4",
+      "resource": "gpt-4o",
       "priority": 50,
       "enabled": true,
-      "description": "Rate limit GPT-4 usage",
+      "description": "Rate limit GPT-4o usage",
       "rateLimit": {
         "limit": 10,
         "window": 60
       }
     },
     {
-      "id": "block-claude",
-      "name": "Block Claude Models",
-      "type": "deny",
+      "id": "rate-limit-claude",
+      "name": "Claude Models Rate Limit",
+      "type": "allow",
       "resource": "claude*",
-      "priority": 10,
+      "priority": 50,
       "enabled": true,
-      "description": "Block access to Claude models"
+      "description": "Rate limit Claude model usage",
+      "rateLimit": {
+        "limit": 5,
+        "window": 60
+      }
     }
   ]
 }
