@@ -20,14 +20,23 @@
  * ```
  */
 
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { Effect, HashMap, Option, Ref } from "effect";
 import { v4 as uuidv4 } from "uuid";
-import { PolicyServiceApi } from "./api.js";
+import type { PolicyServiceApi } from "./api.js";
 import { PolicyError } from "./errors.js";
 import { PolicyRuleData, PolicyRuleEntity, PolicyUsageData, PolicyUsageEntity } from "./schema.js";
-import type { PolicyCheckContext, PolicyCheckResult, PolicyRecordContext } from "./types.js";
+import type {
+  PolicyCheckContext,
+  PolicyCheckResult,
+  PolicyRecordContext
+} from "./types.js";
 import { POLICY_RULE_DENY } from "./types.js";
+
+import { PolicyConfigFile } from "./schema.js";
+
+type PolicyConfigData = typeof PolicyConfigFile.Type;
 
 /**
  * PolicyService provides policy rule management, rate limiting, and policy outcome
@@ -72,8 +81,8 @@ import { POLICY_RULE_DENY } from "./types.js";
 export const policyServiceEffect = Effect.gen(function* () {
   const configService = yield* ConfigurationService;
 
-  // Load policy configuration
-  const policyConfigPath = process.env.POLICY_CONFIG_PATH || "./config/policy.json";
+  // Load policy config from environment variable
+  const policyConfigPath = process.env.POLICY_CONFIG_PATH || "./config/policies.json";
   const config = yield* configService.loadPolicyConfig(policyConfigPath).pipe(
     Effect.mapError((error) => new PolicyError({
       method: "initialize",

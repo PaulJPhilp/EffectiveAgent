@@ -9,7 +9,7 @@ import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { AgentRuntimeInitializationError } from "../errors.js";
-import InitializationService from "../test-runtime.js";
+import InitializationService from "../initialization.js";
 
 describe("AgentRuntime Initialization Integration Tests", () => {
     const testDir = join(process.cwd(), "test-runtime-configs");

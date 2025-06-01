@@ -1,23 +1,26 @@
-import { Effect, Exit, Cause, Schema as S, Either } from "effect";
-import { PublicModelInfo } from "../schema.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { Effect, Either, Layer, Schema as S } from "effect";
+import { beforeEach, describe, expect, it } from "vitest";
+import { PublicModelInfo } from "../schema.js";
 
-import { ModelService } from "../service.js";
-import { ModelNotFoundError } from "../errors.js";
 import { ModelCapability } from "@/schema.js";
-import { PublicModelInfoDefinition, ModelFileSchema } from "../schema.js";
-import type { ModelServiceApi } from "../api.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import type { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { ModelNotFoundError } from "../errors.js";
+import { ModelFileSchema } from "../schema.js";
+import { ModelService } from "../service.js";
 
 const chatCapability = S.decodeSync(ModelCapability)("chat");
 const functionCallingCapability = S.decodeSync(ModelCapability)("function-calling");
 const BAD_PATH = "/non/existent/path.json";
 
-process.env.MODELS_CONFIG_PATH = "/Users/paul/Projects/EffectiveAgent/src/services/ai/model/__tests__/config/models.json";
-
 describe("ModelService", () => {
+    const chatCapability = "chat" as const satisfies S.Schema.Type<typeof ModelCapability>;
+    const functionCallingCapability = "function-calling" as const satisfies S.Schema.Type<typeof ModelCapability>;
+
+    beforeEach(() => {
+        process.env.MODELS_CONFIG_PATH = "/Users/paul/Projects/EffectiveAgent/src/services/ai/model/__tests__/config/models.json";
+    });
+
     describe("validation", () => {
         it("should validate existing model", () =>
             Effect.gen(function* () {
@@ -25,9 +28,11 @@ describe("ModelService", () => {
                 const result = yield* service.validateModel("gpt-4o");
                 expect(result).toBe(true);
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
 
@@ -41,9 +46,11 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("invalid-model");
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
     });
@@ -51,20 +58,22 @@ describe("ModelService", () => {
     describe("findModelsByCapability", () => {
         const chatCapability = "chat" as const satisfies S.Schema.Type<typeof ModelCapability>;
         const invalidCapability = "invalid-capability" as unknown as S.Schema.Type<typeof ModelCapability>;
-        
+
         it("should find models with chat capability", () =>
             Effect.gen(function* () {
                 const service = yield* ModelService;
-                const models: readonly S.Schema.Type<typeof PublicModelInfo>[] = 
+                const models: readonly S.Schema.Type<typeof PublicModelInfo>[] =
                     yield* service.findModelsByCapability(chatCapability);
                 expect(models.length).toBeGreaterThan(0);
                 models.forEach((model) => {
                     expect(model.vendorCapabilities).toContain("chat");
                 });
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
 
@@ -77,9 +86,11 @@ describe("ModelService", () => {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
     });
@@ -92,13 +103,15 @@ describe("ModelService", () => {
                 const service = yield* ModelService;
                 const models = yield* service.findModelsByCapability(chatCapability);
                 expect(models.length).toBeGreaterThan(0);
-                models.forEach((model: PublicModelInfo) => 
+                models.forEach((model: PublicModelInfo) =>
                     expect(model.vendorCapabilities).toContain("chat")
                 );
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
 
@@ -113,9 +126,11 @@ describe("ModelService", () => {
                     expect(model.vendorCapabilities).toContain("function-calling");
                 });
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
 
@@ -129,9 +144,11 @@ describe("ModelService", () => {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
     });
@@ -143,9 +160,11 @@ describe("ModelService", () => {
                 const providerName = yield* service.getProviderName("gpt-4o");
                 expect(providerName).toBe("openai");
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
 
@@ -155,9 +174,11 @@ describe("ModelService", () => {
                 const providerName = yield* service.getProviderName("invalid-model");
                 expect(providerName).toBe("openai");
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
     });
@@ -169,9 +190,8 @@ describe("ModelService", () => {
             process.env.MODELS_CONFIG_PATH = "/Users/paul/Projects/EffectiveAgent/src/services/ai/model/__tests__/config/models.json";
         });
 
-        it("should return ModelNotFoundError for exists on config error", () => {
-            process.env.MODELS_CONFIG_PATH = BAD_PATH;
-            return Effect.gen(function* () {
+        it("should return ModelNotFoundError for exists on config error", () =>
+            Effect.gen(function* () {
                 const service = yield* ModelService;
                 const result = yield* Effect.either(service.exists("gpt-4o"));
                 expect(Either.isLeft(result)).toBe(true);
@@ -180,11 +200,13 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("gpt-4o");
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            );
-        });
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
+            )
+        );
 
         it("should return ModelNotFoundError for findModelsByCapability on config error", () =>
             Effect.gen(function* () {
@@ -196,9 +218,11 @@ describe("ModelService", () => {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             )
         );
 
@@ -212,9 +236,11 @@ describe("ModelService", () => {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             );
         });
 
@@ -229,9 +255,11 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("gpt-4o");
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             );
         });
 
@@ -246,9 +274,11 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("unknown");
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             );
         });
 
@@ -263,9 +293,11 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("unknown");
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             );
         });
 
@@ -280,9 +312,11 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("gpt-4o");
                 }
             }).pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
             );
         });
     });
@@ -298,9 +332,11 @@ describe("ModelService (debug)", () => {
             console.log("Loaded config:", JSON.stringify(rawConfig, null, 2));
             return rawConfig;
         }).pipe(
-            Effect.provide(ModelService.Default),
-            Effect.provide(ConfigurationService.Default),
-            Effect.provide(NodeFileSystem.layer)
+            Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default
+                ))
         )
     );
 }); 

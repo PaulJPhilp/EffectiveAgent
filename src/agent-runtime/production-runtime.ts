@@ -5,41 +5,9 @@
 
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, LogLevel, Logger, Runtime } from "effect";
-import { readFileSync } from "fs";
-import { AgentRuntimeInitializationError } from "./errors.js";
+import { bootstrap } from "./bootstrap.js";
+import InitializationService from "./initialization.js";
 import { MasterConfig } from "./schema.js";
-import InitializationService from "./test-runtime.js";
-
-/**
- * Bootstrap function: Pure TypeScript function that loads master config and starts AgentRuntime
- * This is the entry point for initializing the entire system
- */
-export function bootstrap(): MasterConfig {
-    try {
-        // Step 1: Determine Master Configuration Path
-        const masterConfigPath = process.env.MASTER_CONFIG_PATH ||
-            process.env.EFFECTIVE_AGENT_MASTER_CONFIG ||
-            "./config/master-config.json";
-
-        // Step 2: Load and Parse Master Configuration  
-        const masterConfigContent = readFileSync(masterConfigPath, "utf8");
-        const masterConfig = JSON.parse(masterConfigContent) as MasterConfig;
-
-        // Step 3: Basic validation
-        if (!masterConfig.runtimeSettings) {
-            throw new Error("Master config missing runtimeSettings");
-        }
-
-        return masterConfig;
-    } catch (error) {
-        throw new AgentRuntimeInitializationError({
-            description: "Failed to load master configuration during bootstrap",
-            module: "AgentRuntime",
-            method: "bootstrap",
-            cause: error
-        });
-    }
-}
 
 /**
  * Main AgentRuntime class that provides automatic initialization and configuration

@@ -1,20 +1,29 @@
-import { Effect, Fiber, Ref, Stream, pipe } from "effect"
+import { ModelService } from "@/services/ai/model/index.js"
+import { PolicyService } from "@/services/ai/policy/index.js"
+import { ProviderService } from "@/services/ai/provider/index.js"
+import { Effect, Fiber, Ref, Stream } from "effect"
 import { AgentRuntimeServiceApi } from "./api.js"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeProcessingError } from "./errors.js"
 import { PrioritizedMailbox } from "./mailbox/prioritized-mailbox.js"
-import { AgentActivity, AgentActivityType, AgentRuntimeId, AgentRuntimeState, AgentRuntimeStatus } from "./types.js"
+import { AgentActivity, AgentRuntimeId, AgentRuntimeState, AgentRuntimeStatus } from "./types.js"
 
 interface RuntimeEntry<S> {
     state: Ref.Ref<AgentRuntimeState<S>>
     mailbox: PrioritizedMailbox
-    fiber: Fiber.RuntimeFiber<void, never>
+    fiber: Fiber.RuntimeFiber<void, any>
     workflow: (activity: AgentActivity, state: S) => Effect.Effect<S, AgentRuntimeProcessingError>
 }
 
 export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>()(
     "AgentRuntimeService",
     {
-        scoped: Effect.gen(function* () {
+        effect: Effect.gen(function* () {
+            // Get the configured services
+            const modelService = yield* ModelService
+            const providerService = yield* ProviderService
+            const policyService = yield* PolicyService
+
+            // Agent management state
             const runtimes = yield* Ref.make<Map<AgentRuntimeId, RuntimeEntry<any>>>(new Map())
 
             const create = <S>(id: AgentRuntimeId, initialState: S) =>
@@ -41,37 +50,9 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                         priorityQueueSize: 100
                     })
 
-                    const workflow = (activity: AgentActivity, state: S): Effect.Effect<S, AgentRuntimeProcessingError> => {
-                        switch (activity.type) {
-                            case AgentActivityType.STATE_CHANGE:
-                                return Effect.try({
-                                    try: () => {
-                                        if (typeof activity.payload !== "object" || activity.payload === null) {
-                                            throw new Error("State change payload must be an object")
-                                        }
-                                        return { ...state, ...activity.payload as object }
-                                    },
-                                    catch: error => new AgentRuntimeProcessingError({
-                                        agentRuntimeId: id,
-                                        activityId: activity.id,
-                                        message: "Failed to apply state change",
-                                        cause: error
-                                    })
-                                })
-                            case AgentActivityType.COMMAND:
-                                return Effect.fail(new AgentRuntimeProcessingError({
-                                    agentRuntimeId: id,
-                                    activityId: activity.id,
-                                    message: "Command activities not implemented"
-                                }))
-                            default:
-                                return Effect.fail(new AgentRuntimeProcessingError({
-                                    agentRuntimeId: id,
-                                    activityId: activity.id,
-                                    message: `Unknown activity type: ${activity.type}`
-                                }))
-                        }
-                    }
+                    // Default workflow - just updates state
+                    const workflow = (activity: AgentActivity, state: S) =>
+                        Effect.succeed(state)
 
                     const fiber = yield* startProcessing(id, stateRef, mailbox, workflow)
                     yield* Ref.update(runtimes, map => {
@@ -146,104 +127,70 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                     })
                 )
 
-            function startProcessing<S>(
-                id: AgentRuntimeId,
-                stateRef: Ref.Ref<AgentRuntimeState<S>>,
-                mailbox: PrioritizedMailbox,
-                workflow: (activity: AgentActivity, state: S) => Effect.Effect<S, AgentRuntimeProcessingError>
-            ): Effect.Effect<Fiber.RuntimeFiber<void, never>> {
-                return Effect.fork(
-                    Effect.gen(function* () {
-                        yield* updateStatus(stateRef, AgentRuntimeStatus.IDLE)
-                        while (true) {
-                            yield* pipe(
-                                mailbox.take(),
-                                Effect.tap(() => updateStatus(stateRef, AgentRuntimeStatus.PROCESSING)),
-                                Effect.mapError(error => new AgentRuntimeProcessingError({
-                                    agentRuntimeId: id,
-                                    activityId: "unknown",
-                                    message: `Failed to take message from mailbox: ${error instanceof Error ? error.message : String(error)}`,
-                                    cause: error
-                                })),
-                                Effect.flatMap(activity =>
-                                    Ref.get(stateRef).pipe(
-                                        Effect.flatMap(currentState => {
-                                            const startTime = Date.now()
-                                            return workflow(activity, currentState.state).pipe(
-                                                Effect.matchEffect({
-                                                    onFailure: error => {
-                                                        return Ref.update(stateRef, (state: AgentRuntimeState<S>) => ({
-                                                            ...state,
-                                                            status: AgentRuntimeStatus.ERROR,
-                                                            error,
-                                                            lastUpdated: Date.now(),
-                                                            processing: {
-                                                                processed: state.processing?.processed ?? 0,
-                                                                failures: (state.processing?.failures ?? 0) + 1,
-                                                                avgProcessingTime: state.processing?.avgProcessingTime ?? 0,
-                                                                lastError: error
-                                                            }
-                                                        }))
-                                                    },
-                                                    onSuccess: newState => {
-                                                        const endTime = Date.now()
-                                                        const processingTime = endTime - startTime
-                                                        return Ref.update(stateRef, (state: AgentRuntimeState<S>) => ({
-                                                            ...state,
-                                                            state: newState,
-                                                            status: AgentRuntimeStatus.IDLE,
-                                                            lastUpdated: endTime,
-                                                            processing: {
-                                                                processed: (state.processing?.processed ?? 0) + 1,
-                                                                failures: state.processing?.failures ?? 0,
-                                                                avgProcessingTime: calculateAvgTime(
-                                                                    state.processing?.avgProcessingTime ?? 0,
-                                                                    state.processing?.processed ?? 0,
-                                                                    processingTime
-                                                                )
-                                                            }
-                                                        }))
-                                                    }
-                                                })
-                                            )
-                                        })
-                                    )
-                                ),
-                                Effect.catchAll(error =>
-                                    Ref.update(stateRef, (state: AgentRuntimeState<S>) => ({
-                                        ...state,
-                                        status: AgentRuntimeStatus.ERROR,
-                                        error,
-                                        lastUpdated: Date.now()
-                                    }))
-                                )
-                            )
-                        }
-                    }).pipe(
-                        Effect.catchAll(() => Effect.succeed<void>(void 0))
-                    )
-                )
-            }
-
-            function updateStatus<S>(stateRef: Ref.Ref<AgentRuntimeState<S>>, status: typeof AgentRuntimeStatus[keyof typeof AgentRuntimeStatus]) {
-                return Ref.update(stateRef, state => ({
-                    ...state,
-                    status,
-                    lastUpdated: Date.now()
-                }))
-            }
-
-            function calculateAvgTime(currentAvg: number, processed: number, newTime: number): number {
-                return ((currentAvg * processed) + newTime) / (processed + 1)
-            }
-
             return {
+                // Agent management
                 create,
                 terminate,
                 send,
                 getState,
-                subscribe
+                subscribe,
+                // Service access (provide configured services)
+                getModelService: () => Effect.succeed(modelService),
+                getProviderService: () => Effect.succeed(providerService),
+                getPolicyService: () => Effect.succeed(policyService)
             }
-        })
+        }),
+        dependencies: [ModelService.Default, ProviderService.Default, PolicyService.Default]
     }
 ) { }
+
+// Helper function for starting agent processing
+const startProcessing = <S>(
+    id: AgentRuntimeId,
+    stateRef: Ref.Ref<AgentRuntimeState<S>>,
+    mailbox: PrioritizedMailbox,
+    workflow: (activity: AgentActivity, state: S) => Effect.Effect<S, AgentRuntimeProcessingError>
+) =>
+    Effect.gen(function* () {
+        return yield* Effect.forkDaemon(
+            mailbox.subscribe().pipe(
+                Stream.runForEach((activity: AgentActivity) =>
+                    Effect.gen(function* () {
+                        yield* Ref.update(stateRef, state => ({
+                            ...state,
+                            status: AgentRuntimeStatus.PROCESSING,
+                            lastUpdated: Date.now()
+                        }))
+
+                        const currentState = yield* Ref.get(stateRef)
+                        const newState = yield* workflow(activity, currentState.state)
+
+                        yield* Ref.update(stateRef, state => ({
+                            ...state,
+                            state: newState,
+                            status: AgentRuntimeStatus.IDLE,
+                            lastUpdated: Date.now(),
+                            processing: {
+                                processed: (state.processing?.processed ?? 0) + 1,
+                                failures: state.processing?.failures ?? 0,
+                                avgProcessingTime: state.processing?.avgProcessingTime ?? 0
+                            }
+                        }))
+                    }).pipe(
+                        Effect.catchAll((error: AgentRuntimeProcessingError) =>
+                            Ref.update(stateRef, state => ({
+                                ...state,
+                                status: AgentRuntimeStatus.ERROR,
+                                lastUpdated: Date.now(),
+                                processing: {
+                                    processed: state.processing?.processed ?? 0,
+                                    failures: (state.processing?.failures ?? 0) + 1,
+                                    avgProcessingTime: state.processing?.avgProcessingTime ?? 0
+                                }
+                            }))
+                        )
+                    )
+                )
+            )
+        )
+    })

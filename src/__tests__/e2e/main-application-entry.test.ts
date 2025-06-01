@@ -5,7 +5,7 @@ import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { AgentRuntimeInitializationError } from "@/agent-runtime/errors.js";
-import InitializationService from "@/agent-runtime/test-runtime.js";
+import InitializationService from "@/agent-runtime/initialization.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";

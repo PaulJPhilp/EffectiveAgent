@@ -1,7 +1,9 @@
+import type { ModelServiceApi } from "@/services/ai/model/api.js"
+import type { PolicyServiceApi } from "@/services/ai/policy/api.js"
+import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
 import { Effect, Stream } from "effect"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
-import { AgentActivity, AgentRuntimeState } from "./types.js"
-import { AgentRuntimeId } from "./types.js"
+import { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
 
 /**
  * Core interface for an individual AgentRuntime instance.
@@ -38,7 +40,8 @@ export interface AgentRuntime<S = unknown> {
 
 /**
  * The main AgentRuntime service API.
- * Provides capabilities for creating and managing AgentRuntime instances.
+ * Provides capabilities for creating and managing AgentRuntime instances,
+ * as well as accessing configured services.
  */
 export interface AgentRuntimeServiceApi {
     /**
@@ -98,4 +101,27 @@ export interface AgentRuntimeServiceApi {
     readonly subscribe: (
         id: AgentRuntimeId
     ) => Stream.Stream<AgentActivity, Error>
+
+    // Service access methods
+
+    /**
+     * Gets the configured ModelService instance.
+     * 
+     * @returns Effect<ModelServiceApi> containing the configured ModelService
+     */
+    readonly getModelService: () => Effect.Effect<ModelServiceApi, never>
+
+    /**
+     * Gets the configured ProviderService instance.
+     * 
+     * @returns Effect<ProviderServiceApi> containing the configured ProviderService
+     */
+    readonly getProviderService: () => Effect.Effect<ProviderServiceApi, never>
+
+    /**
+     * Gets the configured PolicyService instance.
+     * 
+     * @returns Effect<PolicyServiceApi> containing the configured PolicyService
+     */
+    readonly getPolicyService: () => Effect.Effect<PolicyServiceApi, never>
 }

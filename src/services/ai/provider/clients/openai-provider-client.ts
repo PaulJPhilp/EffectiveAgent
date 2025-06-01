@@ -603,7 +603,8 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
             Effect.gen(function* () {
                 const modelService = yield* ModelService;
                 const openaiModels = yield* modelService.getModelsForProvider("openai");
-                return [...openaiModels];
+                // Convert PublicModelInfo to LanguageModelV1 format
+                return openaiModels.map(model => openai(model.id));
             }).pipe(
                 Effect.mapError(error => new ProviderServiceConfigError({
                     description: `Failed to get OpenAI models: ${error instanceof Error ? error.message : String(error)}`,
