@@ -8,8 +8,7 @@ import { Effect, Stream } from "effect"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
 import { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
 
-// TODO: Replace with proper import once SDK is created
-type LangGraphAgentState = { readonly agentRuntime: AgentRuntimeServiceApi }
+import type { LangGraphAgentState } from "./langgraph-support/types.js"
 
 /**
  * Core interface for an individual AgentRuntime instance.

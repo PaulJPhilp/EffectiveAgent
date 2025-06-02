@@ -274,7 +274,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             );
 
             // If link doesn't exist, throw error
-            const link = Option.getOrNull(linkOption);
+            const link = Option.getOrNull(linkOption) as (EntityTagLinkEntity & BaseEntityWithData) | null;
             if (!link) {
               return yield* Effect.fail(
                 new LinkNotFoundError({
@@ -310,6 +310,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             const links = yield* linkRepo.findMany({
               filter: { tagId }
             }).pipe(
+              Effect.map((results: Array<EntityTagLinkEntity & BaseEntityWithData>) => results),
               Effect.mapError(
                 (cause) =>
                   new TagDbError({
@@ -321,7 +322,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             );
 
             // Map results to the desired { entityId, entityType } shape
-            return links.map((link: EntityTagLinkEntity) => ({
+            return links.map((link) => ({
               entityId: link.data.entityId,
               entityType: link.data.entityType,
             })) as ReadonlyArray<TaggedEntityRef>;

@@ -4,7 +4,7 @@
  * @description Tests using the Effect.Service class pattern (v3.16+)
  */
 
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 
 // Define a simple service interface
@@ -12,12 +12,6 @@ interface CounterServiceInterface {
     readonly increment: () => Effect.Effect<number>;
     readonly getCount: () => Effect.Effect<number>;
 }
-
-// Define the service tag using the class-based approach
-class CounterService extends Context.Tag("CounterService")<
-    CounterService,
-    CounterServiceInterface
->() { }
 
 // Create a live implementation
 const createCounterLive = () => {
@@ -29,11 +23,13 @@ const createCounterLive = () => {
     } satisfies CounterServiceInterface;
 };
 
-// Create a layer for the service
-const CounterServiceLive = Layer.succeed(
-    CounterService,
-    createCounterLive()
-);
+// Define the service using Effect.Service pattern
+class CounterService extends Effect.Service<CounterServiceInterface>()("CounterService", {
+    effect: Effect.succeed(createCounterLive()),
+    dependencies: []
+}) { }
+
+// No need for separate layer - using .Default from Effect.Service
 
 describe("Effect v3.16 Tag & Service pattern", () => {
     it("should access the service correctly", async () => {
@@ -52,7 +48,9 @@ describe("Effect v3.16 Tag & Service pattern", () => {
         });
 
         const result = await Effect.runPromise(
-            Effect.provide(program, CounterServiceLive)
+            program.pipe(
+                Effect.provide(CounterService.Default)
+            )
         );
 
         expect(result).toBe(1);

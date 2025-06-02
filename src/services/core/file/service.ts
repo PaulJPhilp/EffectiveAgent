@@ -153,8 +153,8 @@ export class FileService extends Effect.Service<FileServiceApi>()(
                                     const { contentBase64, ...metadataData } = fileEntity.data;
                                     const result: FileInfo = {
                                         id: fileEntity.id,
-                                        createdAt: fileEntity.createdAt,
-                                        updatedAt: fileEntity.updatedAt,
+                                        createdAt: fileEntity.createdAt.getTime(),
+                                        updatedAt: fileEntity.updatedAt.getTime(),
                                         data: metadataData,
                                     };
                                     return Effect.succeed(result);
@@ -199,8 +199,8 @@ export class FileService extends Effect.Service<FileServiceApi>()(
                             const { contentBase64, ...metadataData } = fileEntity.data;
                             return {
                                 id: fileEntity.id,
-                                createdAt: fileEntity.createdAt,
-                                updatedAt: fileEntity.updatedAt,
+                                createdAt: fileEntity.createdAt.getTime(),
+                                updatedAt: fileEntity.updatedAt.getTime(),
                                 data: metadataData,
                             };
                         }),
