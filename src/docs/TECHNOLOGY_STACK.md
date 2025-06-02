@@ -66,7 +66,7 @@ These represent the primary way developers configure agent behavior:
 
 - **Runtime:** Bun (Node.js compatible)
 - **Language:** TypeScript (v5.x, strict)
-- **Core Framework:** Effect (v3.14.6) — concurrency, async, error handling, DI
+- **Core Framework:** Effect (v3.16.x) — concurrency, async, error handling, DI
 - **Schema/Validation:** @effect/schema — config and entity validation
 - **Templating:** LiquidJS — prompt templating
 - **Persistence:** PostgreSQL (production), SQLite/In-Memory (dev/test)
@@ -75,6 +75,8 @@ These represent the primary way developers configure agent behavior:
 - **Agent Workflow:** LangGraph, LangGraph SDK — graph-based workflow execution
 - **Platform Services:** @effect/platform-bun, @effect/platform-node — filesystem, platform abstractions
 - **Other:** rxjs, xstate, pdf-parse — streaming, state machines, PDF parsing
+- **Docker:** Containerized deployment and development environments.
+- **Build Tool:** Bun — fast package manager and bundler.
 
 ### Development Stack (Additional)
 

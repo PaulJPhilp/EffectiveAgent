@@ -1,9 +1,38 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
 # Service Pattern Check Rule
+
+## Overview
+The agent MUST verify the user is following the correct Effect.Service pattern before providing service implementation advice.
+
+## Required Steps
+1. MUST check if codebase context shows existing services follow the pattern
+2. MUST understand the current Effect.Service pattern (v3.16+)
+3. MUST verify pattern compliance before suggesting alternatives
+
+## Current Pattern (Effect v3.16+)
+```typescript
+// This is the ONLY acceptable pattern
+export class MyService extends Effect.Service<MyServiceInterface>()("MyService", {
+  effect: Effect.gen(function* () {
+    // Implementation
+  })
+}) {}
+```
+
+## Forbidden Patterns
+- DO NOT suggest Context.Tag usage
+- DO NOT suggest class-based tag patterns  
+- DO NOT suggest Layer.succeed patterns for services
+
+## Response Protocol
+If user asks about service patterns:
+1. Confirm they want Effect.Service class pattern
+2. Provide example using the correct pattern only
+3. Explain why other patterns are deprecated
 
 **IMPORTANT**: Before making ANY changes to services or starting ANY commands related to services:
 

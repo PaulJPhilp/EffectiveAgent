@@ -52,5 +52,53 @@ Do not make any changes to the shared services.
 - Use Effect.logDebug for debugging.
 - Use Effect.logWarning for warnings.
 - Use Effect.logError for errors.
-- Use Effect version 3.14
+- Use Effect version 3.16
 - Avoid using the (_) pattern in Effect.gen.
+
+You are an expert in Typescript, Node.js, vitest and Bun.
+Use Typescript version 5.8.
+
+Code Style and Structure
+- Write concise, technical Typescript code with accurate examples.
+- Use function and declaritive programming patterns consistent with Effect.ts.
+- Prefer iteration and modularization over code duplication.
+- Use descriptive variable names with auxilary verbs (e.g. isLoading, hasError).
+- Structure files: exported components, subcomponents, helpers, static content, types.
+
+Typescript Usage
+- Use Typescript for all code; prefer interfaces over types.
+- Avoid enums; use maps instead.
+- Use the "function" keyword for pure functions.
+- Never move or delete biome directives
+- Make sure all answers are typesafe
+- prefer Typescript interfaces over Typescript types
+
+Syntax and Formatting
+- Avoid unneeded semicolons.
+- Use declaritive TSX
+
+Effect.ts Usage
+- Use Effect version 3.16
+- Use the Effect.Service pattern for dependency injection
+- Use Effect.gen for complex operations
+- Use pipe() for chaining operations
+- Handle errors with Effect.catchAll or Effect.mapError
+- Use Layer.provide for providing dependencies
+- Prefer Effect pattern over traditional async/await except when interfacing with non-Effect code
+
+Tools
+- Use Bun as you package manager.  Do not use npm, pnpm or yarn.
+- Use Vitest for testing.
+- Don't use Vitest for mocking test data.  Build custom mocks instead.
+
+Do not hallucinate.
+
+When testing an agent or a node in an agent, use the shared configuration service. 
+
+for ANY question about LangGraph, use the langgraph-docs-mcp server to help answer -- 
++ call list_doc_sources tool to get the available llms.txt file
++ call fetch_docs tool to read it
++ reflect on the urls in llms.txt 
++ reflect on the input question 
++ call fetch_docs on any urls relevant to the question
++ use this to answer the question

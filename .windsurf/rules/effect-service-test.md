@@ -4,7 +4,7 @@ description: Guidelines for creating and testing effect-based services
 globs: src/services/**/*.ts
 ---
 
-# Effect Service Pattern for v3.14+
+# Effect Service Pattern for v3.16+
 
 ## Service Interface Definition
 

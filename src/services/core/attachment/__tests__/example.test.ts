@@ -1,5 +1,7 @@
 /**
- * Simple test for demonstrating correct Effect v3.14 tag usage
+ * Simple test for demonstrating correct Effect v3.16 tag usage
+ * @file Simple test for demonstrating current Effect.Service pattern
+ * @description Tests using the Effect.Service class pattern (v3.16+)
  */
 
 import { Context, Effect, Layer } from "effect";
@@ -33,7 +35,7 @@ const CounterServiceLive = Layer.succeed(
     createCounterLive()
 );
 
-describe("Effect v3.14 Tag & Service pattern", () => {
+describe("Effect v3.16 Tag & Service pattern", () => {
     it("should access the service correctly", async () => {
         const program = Effect.gen(function* () {
             // Access service by directly yielding the Tag

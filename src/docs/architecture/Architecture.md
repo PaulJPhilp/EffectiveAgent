@@ -82,32 +82,5 @@ The framework is organized into three main components:
 
 *   **Runtime:** Bun
 *   **Language:** TypeScript (v5.x, strict)
-*   **Core Framework:** Effect-TS (v3.14+)
+*   **Core Framework:** Effect-TS (v3.16+)
 *   **Schema/Validation:** `@effect/schema`
-*   **Static Configuration:** `effect/Config`
-*   **Actor Implementation:** Effect primitives
-*   **Workflow Execution:** LangGraph with Effect integration
-*   **AI Interaction:** `@effect/ai`
-*   **Persistence:** PostgreSQL (Neon) / In-Memory
-*   **Service Pattern:** Effect.Service with Layers
-
-## 7. Current Status
-
-*   **Phase 1 (Core Services):** Complete
-    - Foundational services implemented and tested
-    - Service pattern examples documented
-*   **Phase 2 (Capability Definitions):** Complete
-    - Schemas and services implemented
-    - Static data loading configured
-*   **Phase 3 (Agent Integration):** In Progress
-    - Implementing SkillApi with @effect/ai
-    - Adding LangGraph workflow execution
-    - Building agent orchestration layer
-
-## 8. Next Steps
-
-1. Complete LangGraph integration
-2. Implement agent orchestration patterns
-3. Add human-in-the-loop capabilities
-4. Enhance testing and documentation
-5. Build example agent workflows

@@ -98,7 +98,7 @@
 
 ## Backend Effect-TS Patterns (`/rules/effect-patterns.md`)
 
-*   **Core:** Use Effect-TS v3.14 for all asynchronous, concurrent, and potentially fallible operations. Leverage its core features: `Effect`, `Layer`, `Context`, `Cause`, `Exit`, `Option`, `Either`, `Stream`, `Schedule`, `Ref`, `Queue`, `Config`, `Schema`.
+*   **Core:** Use Effect-TS v3.16 for all asynchronous, concurrent, and potentially fallible operations. Leverage its core features: `Effect`, `Layer`, `Context`, `Cause`, `Exit`, `Option`, `Either`, `Stream`, `Schedule`, `Ref`, `Queue`, `Config`, `Schema`.
 *   **Service Definition:** Use the **`make + typeof make`** pattern:
     *   Define service implementation logic within an Effectful `make` constant in `live.ts` or `configuration.ts`.
     *   Define the service `Tag` in `types.ts` using `Context.GenericTag<ServiceNameApi>(...)`.

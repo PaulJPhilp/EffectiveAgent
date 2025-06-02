@@ -4,8 +4,12 @@
  */
 
 import { AgentRuntimeService } from "@/agent-runtime/service.js";
+import { FileEntity } from "@/services/core/file/schema.js";
+import type { RepositoryServiceApi } from "@/services/core/repository/api.js";
+import { EntityNotFoundError, RepositoryError } from "@/services/core/repository/errors.js";
+import { RepositoryService } from "@/services/core/repository/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Option, Schema } from "effect";
+import { Effect, Either, Layer, Option, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
 // Corrected imports for ExecutiveService components
@@ -14,6 +18,59 @@ import { ExecutiveServiceError } from "../../executive-service/errors.js";
 import { ExecutiveService } from "../../executive-service/service.js";
 
 import { PipelineService } from "../service.js";
+
+// Create a mock repository for FileEntity that the FileService needs
+const makeFileRepo = (): RepositoryServiceApi<FileEntity> => ({
+    create: (data: FileEntity["data"]) => Effect.succeed({
+        id: crypto.randomUUID(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        data: data
+    } as FileEntity),
+
+    findById: (id: string) => {
+        if (id === "non-existent-id") {
+            return Effect.fail(new EntityNotFoundError({
+                entityId: id,
+                entityType: "FileEntity"
+            }) as unknown as RepositoryError);
+        }
+        return Effect.succeed(Option.none<FileEntity>());
+    },
+
+    findOne: () => Effect.succeed(Option.none()),
+    findMany: () => Effect.succeed([]),
+    update: () => Effect.succeed({
+        id: "test-id",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        data: {
+            filename: "test.txt",
+            mimeType: "text/plain",
+            sizeBytes: 0,
+            contentBase64: "",
+            ownerId: "test-owner"
+        }
+    } as FileEntity),
+    delete: () => Effect.succeed(undefined),
+    count: () => Effect.succeed(0)
+});
+
+// Create the repository layer for FileEntity
+const FileRepositoryLayer = Layer.succeed(
+    RepositoryService<FileEntity>().Tag,
+    makeFileRepo()
+);
+
+// Complete test layer with all dependencies
+const TestLayer = Layer.mergeAll(
+    PipelineService.Default,
+    AgentRuntimeService.Default,
+    ExecutiveService.Default,
+    NodeFileSystem.layer
+).pipe(
+    Layer.provide(FileRepositoryLayer)
+);
 
 /**
  * PipelineService Agent tests with AgentRuntime integration
@@ -70,10 +127,7 @@ describe("PipelineService Agent", () => {
 
                 return result;
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);
@@ -107,10 +161,7 @@ describe("PipelineService Agent", () => {
 
                 return results;
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);
@@ -142,10 +193,7 @@ describe("PipelineService Agent", () => {
 
                 return result;
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);
@@ -179,10 +227,7 @@ describe("PipelineService Agent", () => {
 
                 return result;
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);
@@ -222,10 +267,7 @@ describe("PipelineService Agent", () => {
 
                 return result;
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);
@@ -267,10 +309,7 @@ describe("PipelineService Agent", () => {
 
                 return state;
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);
@@ -302,10 +341,7 @@ describe("PipelineService Agent", () => {
 
                 return { serviceState, runtimeState: updatedRuntimeState };
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);
@@ -332,10 +368,7 @@ describe("PipelineService Agent", () => {
 
                 return state;
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);
@@ -355,10 +388,7 @@ describe("PipelineService Agent", () => {
 
                 return true;
             }).pipe(
-                Effect.provide(PipelineService.Default),
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ExecutiveService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(TestLayer)
             );
 
             await Effect.runPromise(test as any);

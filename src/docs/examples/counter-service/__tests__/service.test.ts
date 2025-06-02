@@ -13,7 +13,7 @@ describe("CounterService", () => {
                 expect(value).toBe(1)
             })
 
-            await Effect.runPromise(program.pipe(Effect.provide(CounterService)))
+            await Effect.runPromise(program.pipe(Effect.provide(CounterService.Default)))
         })
 
         it("should increment by specified amount", async () => {
@@ -24,7 +24,7 @@ describe("CounterService", () => {
                 expect(value).toBe(5)
             })
 
-            await Effect.runPromise(program.pipe(Effect.provide(CounterService)))
+            await Effect.runPromise(program.pipe(Effect.provide(CounterService.Default)))
         })
 
         it("should fail with InvalidAmountError for negative amount", async () => {
@@ -39,7 +39,7 @@ describe("CounterService", () => {
                 }
             })
 
-            await Effect.runPromise(program.pipe(Effect.provide(CounterService)))
+            await Effect.runPromise(program.pipe(Effect.provide(CounterService.Default)))
         })
     })
 
@@ -53,7 +53,7 @@ describe("CounterService", () => {
                 expect(value).toBe(4)
             })
 
-            await Effect.runPromise(program.pipe(Effect.provide(CounterService)))
+            await Effect.runPromise(program.pipe(Effect.provide(CounterService.Default)))
         })
 
         it("should fail when decrementing below zero", async () => {
@@ -70,7 +70,7 @@ describe("CounterService", () => {
                 }
             })
 
-            await Effect.runPromise(program.pipe(Effect.provide(CounterService)))
+            await Effect.runPromise(program.pipe(Effect.provide(CounterService.Default)))
         })
     })
 
@@ -84,7 +84,7 @@ describe("CounterService", () => {
                 expect(value).toBe(0)
             })
 
-            await Effect.runPromise(program.pipe(Effect.provide(CounterService)))
+            await Effect.runPromise(program.pipe(Effect.provide(CounterService.Default)))
         })
 
         it("should reset to specified value", async () => {
@@ -95,7 +95,7 @@ describe("CounterService", () => {
                 expect(value).toBe(10)
             })
 
-            await Effect.runPromise(program.pipe(Effect.provide(CounterService)))
+            await Effect.runPromise(program.pipe(Effect.provide(CounterService.Default)))
         })
 
         it("should fail with InvalidAmountError for negative reset value", async () => {
@@ -110,7 +110,7 @@ describe("CounterService", () => {
                 }
             })
 
-            await Effect.runPromise(program.pipe(Effect.provide(CounterService)))
+            await Effect.runPromise(program.pipe(Effect.provide(CounterService.Default)))
         })
     })
 }) 

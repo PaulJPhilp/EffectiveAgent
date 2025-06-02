@@ -5,7 +5,7 @@ This guide provides step-by-step instructions for implementing services using th
 ## Prerequisites
 
 - TypeScript 5.8+
-- Effect 3.14+
+- Effect 3.16+
 - Understanding of basic Effect concepts
 
 ## Implementation Steps

@@ -9,7 +9,7 @@
 **Assumptions:**
 
 *   Starting with the fresh, standardized directory structure (with `intelligence` and `persona` under `capabilities`).
-*   Using Bun, Effect v3.14, Vitest (standard runner), Temporal (via polyfill types), Drizzle (setup deferred), `@effect/ai` (v0.13.x pattern), LangGraph (deferred), LiquidJS.
+*   Using Bun, Effect v3.16, Vitest (standard runner), Temporal (via polyfill types), Drizzle (setup deferred), `@effect/ai` (v0.13.x pattern), LangGraph (deferred), LiquidJS.
 *   Testing against live services (using temp files/dirs and real AI calls with API keys) where feasible.
 *   Using the `make + typeof make` pattern for service implementations.
 

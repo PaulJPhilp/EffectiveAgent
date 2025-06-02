@@ -6,10 +6,11 @@ protection: reference_implementation
 do_not_modify: true
 ---
 
-```markdown
-# Standard Service Pattern (Effect‑TS)
+# Creating Clean Services with Effect-TS (v3.16+)
 
-This document outlines the standard pattern for creating services within this project using Effect‑TS (version 3.14+). Adhering to this pattern ensures consistency, maintainability, and leverages the power of Effect for dependency management, error handling, and composition.
+## Introduction
+
+This document outlines the standard pattern for creating services within this project using Effect‑TS (version 3.16+). Adhering to this pattern ensures consistency, maintainability, and leverages the power of Effect for dependency management, error handling, and composition.
 
 ---
 

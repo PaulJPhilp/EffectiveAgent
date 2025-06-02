@@ -6,7 +6,7 @@ protection: reference_implementation
 do_not_modify: true
 ---
 
-# Service Pattern Checklist (Effect-TS v3.14+)
+# Service Pattern Checklist (Effect-TS v3.16+)
 
 **MANDATORY:** Before creating or modifying any service, you MUST:
 
@@ -82,3 +82,8 @@ export class ExampleService extends Effect.Service<ExampleServiceApi>()(
 - [ ] Verify no Context.Tag usage
 - [ ] Plan changes to match correct pattern
 - [ ] Consider impact on dependent code 
+
+## Required Steps
+1. MUST check if codebase context shows existing services follow the pattern
+2. MUST understand the current Effect.Service pattern (v3.16+)
+3. MUST verify pattern compliance before suggesting alternatives 

@@ -6,9 +6,9 @@ protection: reference_implementation
 do_not_modify: true
 ---
 
-# Standard Service Pattern (Effect-TS)
+# Service Pattern Reference (Effect-TS v3.16+)
 
-This document describes the **current, canonical pattern** for defining services using Effect-TS (v3.14+) in this codebase. All new and refactored services must follow this approach for maintainability, type safety, and composability.
+This document describes the **current, canonical pattern** for defining services using Effect-TS (v3.16+) in this codebase. All new and refactored services must follow this approach for maintainability, type safety, and composability.
 
 ## Core Components
 

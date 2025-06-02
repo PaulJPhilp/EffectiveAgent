@@ -1,22 +1,71 @@
 /**
  * @file ChatHistoryService Agent Tests
- * @module services/pipeline/chat/tests
+ * @description Tests for the ChatHistoryService, focusing on agent activity tracking,
+ * conversation history management, and error handling.
  */
 
-import { NodeContext, NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Layer } from "effect";
-import { describe, expect, it } from "vitest";
-
 import { AgentRuntimeService } from "@/agent-runtime/service.js";
+import { FileEntity } from "@/services/core/file/schema.js";
+import type { RepositoryServiceApi } from "@/services/core/repository/api.js";
+import { EntityNotFoundError, RepositoryError } from "@/services/core/repository/errors.js";
+import { RepositoryService } from "@/services/core/repository/service.js";
 import { ChatHistory, ChatMessage } from "@/services/pipeline/chat/api.js";
 import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
+import { NodeContext, NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer, Option } from "effect";
+import { describe, expect, it } from "vitest";
 
-// Minimal test layer for ChatHistoryService
+// Create a mock repository for FileEntity that the FileService needs
+const makeFileRepo = (): RepositoryServiceApi<FileEntity> => ({
+  create: (data: FileEntity["data"]) => Effect.succeed({
+    id: crypto.randomUUID(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    data: data
+  } as FileEntity),
+
+  findById: (id: string) => {
+    if (id === "non-existent-id") {
+      return Effect.fail(new EntityNotFoundError({
+        entityId: id,
+        entityType: "FileEntity"
+      }) as unknown as RepositoryError);
+    }
+    return Effect.succeed(Option.none<FileEntity>());
+  },
+
+  findOne: () => Effect.succeed(Option.none()),
+  findMany: () => Effect.succeed([]),
+  update: () => Effect.succeed({
+    id: "test-id",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    data: {
+      filename: "test.txt",
+      mimeType: "text/plain",
+      sizeBytes: 0,
+      contentBase64: "",
+      ownerId: "test-owner"
+    }
+  } as FileEntity),
+  delete: () => Effect.succeed(undefined),
+  count: () => Effect.succeed(0)
+});
+
+// Create the repository layer for FileEntity
+const FileRepositoryLayer = Layer.succeed(
+  RepositoryService<FileEntity>().Tag,
+  makeFileRepo()
+);
+
+// Complete test layer for ChatHistoryService with all dependencies
 const ChatHistoryTestLayer = Layer.mergeAll(
   AgentRuntimeService.Default,
   ChatHistoryService.Default,
   NodeContext.layer,
   NodeFileSystem.layer
+).pipe(
+  Layer.provide(FileRepositoryLayer)
 );
 
 // Simple test runner for minimal ChatHistory tests
