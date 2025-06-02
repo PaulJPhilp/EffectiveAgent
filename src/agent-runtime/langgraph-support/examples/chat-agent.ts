@@ -141,7 +141,8 @@ export class ChatAgent {
             ], { nodeId: "process-user-message" })
 
             // Get the last message (should be from user)
-            const lastMessage = getStateProperty(state, "messages.-1", null) as any
+            const messages = getStateProperty(state, "messages", []) as any[]
+            const lastMessage = messages[messages.length - 1]
             if (!lastMessage || lastMessage.role !== "user") {
                 throw new Error("No user message to process")
             }
@@ -206,13 +207,13 @@ export class ChatAgent {
                             .join("\n")
 
                         const prompt = `
-You are a helpful assistant. Respond in a ${(userPreferences as any).tone || "friendly"} tone.
+                            You are a helpful assistant. Respond in a ${(userPreferences as any).tone || "friendly"} tone.
 
-Conversation history:
-${conversationHistory}
+                            Conversation history:
+                            ${conversationHistory}
 
-Please provide a helpful response to the user's latest message.
-                        `.trim()
+                            Please provide a helpful response to the user's latest message.
+                            `.trim()
 
                         const response = yield* providerClient.generateText({ messages: [{ role: "user", content: prompt }] } as any, { modelId: "gpt-4" })
                         return response.data.text

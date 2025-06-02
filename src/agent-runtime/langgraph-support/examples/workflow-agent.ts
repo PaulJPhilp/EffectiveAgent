@@ -401,36 +401,48 @@ export class WorkflowAgent {
         state: WorkflowAgentState,
         context: { operation: string; nodeId: string; agentId: string }
     ): Promise<Record<string, unknown>> {
-        const operation = task.input?.operation as string
-        const filePath = task.input?.filePath as string
-
-        const result = await runEffect(
+        return await runEffect(
             state.agentRuntime,
-            Effect.succeed((() => {
+            Effect.gen(function* () {
+                const fileService = yield* state.agentRuntime.getFileService()
+                const operation = task.input?.operation as string
+                const filePath = task.input?.filePath as string
+
                 switch (operation) {
                     case "read": {
-                        // Simulate file read
-                        const content = `Content of ${filePath}`
-                        return { content, filePath, operation: "read" }
+                        const fileId = task.input?.fileId as string
+                        const content = yield* fileService.retrieveFileContent(fileId)
+                        return { content: content.toString(), filePath, operation: "read" }
                     }
                     case "write": {
                         const data = task.input?.data as string
-                        // Simulate file write
-                        return { filePath, operation: "write", success: true }
+                        const filename = task.input?.filename as string || "workflow-file.txt"
+                        const ownerId = task.input?.ownerId as string || "workflow-agent"
+                        const content = Buffer.from(data)
+                        const file = yield* fileService.storeFile({
+                            content,
+                            filename,
+                            ownerId,
+                            mimeType: "text/plain",
+                            sizeBytes: content.length
+                        })
+                        return { filePath, operation: "write", success: true, fileId: file.id }
                     }
                     case "exists": {
-                        // Simulate file exists check
-                        const exists = true
-                        return { filePath, exists, operation: "exists" }
+                        const fileId = task.input?.fileId as string
+                        try {
+                            yield* fileService.retrieveFileMetadata(fileId)
+                            return { filePath, exists: true, operation: "exists" }
+                        } catch {
+                            return { filePath, exists: false, operation: "exists" }
+                        }
                     }
                     default:
                         throw new Error(`Unknown file operation: ${operation}`)
                 }
-            })()) as Effect.Effect<Record<string, unknown>, unknown, never>,
+            }) as Effect.Effect<Record<string, unknown>, unknown, never>,
             context
         )
-
-        return result
     }
 
     /**
@@ -508,7 +520,7 @@ export class WorkflowAgent {
 
         // Simulate validation logic
         const isValid = validationType === "schema" ?
-            typeof dataToValidate === "object" :
+            (typeof dataToValidate === "object" && dataToValidate !== null) :
             dataToValidate !== null && dataToValidate !== undefined
 
         if (!isValid) {
