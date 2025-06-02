@@ -2,11 +2,11 @@
  * @file Tests for the MODEL_UNIVERSE implementation in the ModelService
  */
 
-import { NodeContext } from "@effect/platform-node";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { ModelService } from "../service.js";
+import { NodeContext } from "@effect/platform-node";
 import type { ModelServiceApi } from "../api.js";
-import type { PublicModelInfoDefinition, ModelFileDefinition } from "../schema.js";
+import type { ModelFileDefinition, PublicModelInfoDefinition } from "../schema.js";
+import { ModelService } from "../service.js";
 
 // Set up environment before imports
 process.env.MODELS_CONFIG_PATH = process.cwd() + "/src/services/ai/model/__tests__/config/models.json";

@@ -1,5 +1,5 @@
-import { Duration, Effect } from "effect";
 import { EffectiveError } from "@/errors.js";
+import { Duration, Effect } from "effect";
 
 /**
  * Health check status

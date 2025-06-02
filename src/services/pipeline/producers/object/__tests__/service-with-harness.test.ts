@@ -1,11 +1,10 @@
-import { Effect, Option, Either, Schema, pipe } from "effect";
-import { describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
+import type { EffectiveResponse } from "@/types.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { ObjectService } from "../service.js";
-import type { ObjectGenerationOptions } from "../types.js";
+import { Effect, Either, Option, Schema, pipe } from "effect";
+import { describe, expect, it } from "vitest";
 import {
   ObjectGenerationError,
   ObjectInputError,
@@ -13,7 +12,8 @@ import {
   ObjectProviderError,
   ObjectSchemaError,
 } from "../errors.js";
-import type { EffectiveResponse } from "@/types.js";
+import { ObjectService } from "../service.js";
+import type { ObjectGenerationOptions } from "../types.js";
 
 // Define Person type and schema
 interface Person {

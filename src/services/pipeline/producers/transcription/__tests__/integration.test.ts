@@ -3,22 +3,22 @@
  * @module services/pipeline/producers/transcription/__tests__/integration.test
  */
 
-import { Effect, Either } from "effect";
-import { Span } from "effect/Tracer";
-import { TranscriptionService } from "../service.js";
+import { randomBytes } from "crypto";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { describe, it, expect } from "vitest";
+import { Effect, Either } from "effect";
+import { Span } from "effect/Tracer";
+import { describe, expect, it } from "vitest";
 import { 
-  TranscriptionError, 
   TranscriptionAudioError, 
+  TranscriptionError, 
   TranscriptionModelError, 
   TranscriptionProviderError 
 } from "../errors.js";
+import { TranscriptionService } from "../service.js";
 import { AudioFormats, type TranscriptionOptions } from "../service.js";
-import { randomBytes } from "crypto";
 
 // Import the actual types from the service
 import type { TranscriptionResult } from "../types.js";

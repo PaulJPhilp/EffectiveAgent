@@ -2,13 +2,13 @@
  * @file Provider service integration tests
  */
 
-import { Effect, Either } from "effect";
 import path from "path";
+import { Effect, Either } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { FileSystem, Path } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
 import {
   ProviderNotFoundError,
   ProviderServiceConfigError

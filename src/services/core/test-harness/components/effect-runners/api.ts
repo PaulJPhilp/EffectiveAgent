@@ -1,6 +1,6 @@
 import { Effect } from "effect";
-import { Exit } from "effect/Exit";
 import { Either } from "effect/Either";
+import { Exit } from "effect/Exit";
 
 /**
  * Defines the API for a service that can run Effects in various ways,

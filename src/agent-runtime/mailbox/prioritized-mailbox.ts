@@ -3,8 +3,8 @@
  */
 
 import { Effect, Queue, Ref, Schedule, Stream, pipe } from "effect"
-import { AgentActivity, MessagePriority as Priority } from "../types.js"
 import { MailboxError } from "../errors.js"
+import { AgentActivity, MessagePriority as Priority } from "../types.js"
 import { Mailbox } from "./mailbox.js"
 
 /**

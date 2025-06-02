@@ -3,8 +3,8 @@
  */
 
 import { BaseEntitySchema } from "@/schema.js";
-import { Schema as S } from "effect";
 import { JsonObject } from "@/types.js";
+import { Schema as S } from "effect";
 import { BaseEntityWithData } from "../repository/types.js";
 
 // Helper for EntityId schema

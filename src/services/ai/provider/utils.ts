@@ -4,7 +4,7 @@ import { EffectiveResponse } from "@/types.js";
 import { Effect } from "effect";
 import { ModelServiceApi } from "../model/api.js";
 import { ModelService } from "../model/service.js";
-import { ProviderServiceConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "./errors.js";
+import { ProviderMissingCapabilityError, ProviderOperationError, ProviderServiceConfigError } from "./errors.js";
 import { ProvidersType } from "./schema.js";
 import { GenerateBaseResult } from "./types.js";
 

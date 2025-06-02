@@ -13,8 +13,8 @@ import {
     SubDimensionProficiency,
     Version,
 } from "@/schema.js";
-import { Schema as S } from "effect";
 import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
+import { Schema as S } from "effect";
 import { PROVIDER_NAMES } from "../provider/provider-universe.js";
 import { MODEL_IDS } from "./model-universe.js";
 

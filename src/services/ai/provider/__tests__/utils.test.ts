@@ -1,12 +1,12 @@
+import path from "node:path";
 import { ProviderServiceConfigError } from "@/services/ai/provider/errors.js";
 import { loadConfigString, parseConfigJson } from "@/services/ai/provider/utils.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { FileSystem } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
 import { Effect } from 'effect';
 import { describe, expect, it } from 'vitest';
 import { ProviderService } from "../service.js";
-import { FileSystem } from "@effect/platform";
-import { NodeFileSystem } from "@effect/platform-node";
-import path from "node:path";
 
 
 describe('ProviderService Config Loading', () => {

@@ -3,20 +3,20 @@
  * @module services/pipeline/producers/text/__tests__/integration.test
  */
 
-import { Effect, Option, Either } from "effect";
-import { describe, expect, it } from "vitest";
-import { Span } from "effect/Tracer";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import TextService from "../service.js";
+import { Effect, Either, Option } from "effect";
+import { Span } from "effect/Tracer";
+import { describe, expect, it } from "vitest";
 import { 
   TextGenerationError, 
   TextInputError, 
   TextModelError, 
   TextProviderError 
 } from "../errors.js";
+import TextService from "../service.js";
 
 // Mock span for testing
 const testSpan = {

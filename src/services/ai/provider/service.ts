@@ -1,4 +1,5 @@
 import { EntityParseError } from "@/errors.js";
+import ConfigurationService from "@/services/core/configuration/service.js";
 /**
  * @file Defines the ProviderService for loading, validating, and accessing AI provider configurations and clients.
  * @module services/ai/provider/service
@@ -15,7 +16,6 @@ import { makePerplexityClient } from "./clients/perplexity-provider-client.js";
 import { makeXaiClient } from "./clients/xai-provider-client.js";
 import { ProviderNotFoundError, ProviderOperationError, ProviderServiceConfigError } from "./errors.js";
 import { ProviderFile, ProvidersType } from "./schema.js";
-import ConfigurationService from "@/services/core/configuration/service.js";
 
 /**
  * Validates the parsed configuration against the ProviderFile schema

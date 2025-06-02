@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest"
 import { Effect, Queue, Stream } from "effect"
-import { Mailbox } from "../mailbox.js"
-import { AgentActivity, MessagePriority, makeAgentRuntimeId } from "../../types.js"
+import { describe, expect, it } from "vitest"
 import { MailboxError } from "../../errors.js"
+import { AgentActivity, MessagePriority, makeAgentRuntimeId } from "../../types.js"
+import { Mailbox } from "../mailbox.js"
 
 describe("Mailbox", () => {
   const createTestActivity = (priority?: MessagePriority): AgentActivity => ({

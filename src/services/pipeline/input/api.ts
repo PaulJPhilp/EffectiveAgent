@@ -1,6 +1,6 @@
+import type { EffectiveRole, Message } from "@/schema.js";
 import { InvalidInputError, InvalidMessageError, NoAudioFileError } from "@/services/pipeline/input/errors.js";
 import type { EffectivePartType } from "@/types.js";
-import type { EffectiveRole, Message } from "@/schema.js";
 import { Effect } from "effect";
 import * as Chunk from "effect/Chunk";
 

@@ -1,8 +1,8 @@
+import { join } from "path";
 import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
 import { FileSystem } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import { Effect, Either, Schema } from "effect";
-import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { ConfigParseError, ConfigReadError, ConfigValidationError } from "../errors.js";

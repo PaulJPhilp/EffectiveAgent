@@ -1,9 +1,15 @@
+import { EffectiveError } from "@/errors.js"
 import type { ModelServiceApi } from "@/services/ai/model/api.js"
 import type { PolicyServiceApi } from "@/services/ai/policy/api.js"
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
+import type { ToolRegistry } from "@/services/ai/tool-registry/api.js"
+import type { FileServiceApi } from "@/services/core/file/api.js"
 import { Effect, Stream } from "effect"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
 import { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
+
+// TODO: Replace with proper import once SDK is created
+type LangGraphAgentState = { readonly agentRuntime: AgentRuntimeServiceApi }
 
 /**
  * Core interface for an individual AgentRuntime instance.
@@ -124,4 +130,54 @@ export interface AgentRuntimeServiceApi {
      * @returns Effect<PolicyServiceApi> containing the configured PolicyService
      */
     readonly getPolicyService: () => Effect.Effect<PolicyServiceApi, never>
+
+    /**
+     * Gets the configured ToolRegistryService instance.
+     * 
+     * @returns Effect<ToolRegistry> containing the configured ToolRegistryService
+     */
+    readonly getToolRegistryService: () => Effect.Effect<ToolRegistry, never>
+
+    /**
+     * Gets the configured FileService instance.
+     * 
+     * @returns Effect<FileServiceApi> containing the configured FileService
+     */
+    readonly getFileService: () => Effect.Effect<FileServiceApi, never>
+
+    /**
+     * Creates a new LangGraph-based AgentRuntime instance.
+     * 
+     * @template TState The type of state for the LangGraph agent, must extend LangGraphAgentState
+     * @param compiledGraph - The compiled LangGraph object with an invoke method
+     * @param initialState - The initial state for the LangGraph agent
+     * @param langGraphRunOptions - Optional parameters for LangGraph invoke calls
+     * @returns Effect containing the new AgentRuntime instance and its ID
+     */
+    readonly createLangGraphAgent: <TState extends LangGraphAgentState>(
+        compiledGraph: {
+            invoke: (
+                state: TState,
+                options?: { configurable?: Record<string, any>;[key: string]: any }
+            ) => Promise<TState | AsyncIterable<TState>>
+        },
+        initialState: TState,
+        langGraphRunOptions?: { recursionLimit?: number;[key: string]: any }
+    ) => Effect.Effect<
+        { agentRuntime: AgentRuntime<TState>; agentRuntimeId: AgentRuntimeId },
+        AgentRuntimeError
+    >
+
+    /**
+     * Executes an Effect and returns a Promise of its result.
+     * Primary bridge for LangGraph nodes to execute Effect-based logic.
+     * 
+     * @template Output The expected output type of the Effect
+     * @template LogicError The error type of the Effect, defaults to EffectiveError
+     * @param logicToRun The Effect to execute
+     * @returns Promise that resolves with the Effect's output or rejects with EffectiveError
+     */
+    readonly run: <Output, LogicError = EffectiveError>(
+        logicToRun: Effect.Effect<Output, LogicError, any>
+    ) => Promise<Output>
 }

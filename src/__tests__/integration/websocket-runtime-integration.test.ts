@@ -6,8 +6,8 @@
  * Uses the TestHarnessService for proper test setup and assertions.
  */
 
-import { AgentRuntimeService } from "@/agent-runtime/service.js"
 import type { AgentRuntimeServiceApi } from "@/agent-runtime/api.js"
+import { AgentRuntimeService } from "@/agent-runtime/service.js"
 import { createServiceTestHarness } from "@/services/core/test-harness/utils/effect-test-harness.js"
 import { Brand, Effect, Layer, Stream } from "effect"
 import { WebSocket } from "mock-socket"

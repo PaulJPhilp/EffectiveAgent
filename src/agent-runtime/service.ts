@@ -1,18 +1,82 @@
-import { ModelService } from "@/services/ai/model/index.js"
-import { PolicyService } from "@/services/ai/policy/index.js"
-import { ProviderService } from "@/services/ai/provider/index.js"
+import { EffectiveError } from "@/errors.js"
+import { ModelService, ProviderService } from "@/services/ai/index.js"
+import { PolicyService } from "@/services/ai/policy/service.js"
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
+import { FileService } from "@/services/core/file/service.js"
 import { Effect, Fiber, Ref, Stream } from "effect"
-import { AgentRuntimeServiceApi } from "./api.js"
-import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeProcessingError } from "./errors.js"
+import type { AgentRuntimeServiceApi } from "./api.js"
+import {
+    AgentRuntimeError,
+    AgentRuntimeNotFoundError,
+    AgentRuntimeProcessingError
+} from "./errors.js"
 import { PrioritizedMailbox } from "./mailbox/prioritized-mailbox.js"
-import { AgentActivity, AgentRuntimeId, AgentRuntimeState, AgentRuntimeStatus } from "./types.js"
+import {
+    AgentActivity,
+    AgentRuntimeId,
+    AgentRuntimeState,
+    AgentRuntimeStatus,
+    CompiledLangGraph,
+    LangGraphAgentRuntimeState,
+    LangGraphRunOptions
+} from "./types.js"
 
 interface RuntimeEntry<S> {
-    state: Ref.Ref<AgentRuntimeState<S>>
+    stateRef: Ref.Ref<AgentRuntimeState<S>>
     mailbox: PrioritizedMailbox
-    fiber: Fiber.RuntimeFiber<void, any>
+    fiber: Fiber.RuntimeFiber<void, never>
     workflow: (activity: AgentActivity, state: S) => Effect.Effect<S, AgentRuntimeProcessingError>
 }
+
+const startProcessing = <S>(
+    id: AgentRuntimeId,
+    stateRef: Ref.Ref<AgentRuntimeState<S>>,
+    mailbox: PrioritizedMailbox,
+    workflow: (activity: AgentActivity, state: S) => Effect.Effect<S, AgentRuntimeProcessingError>
+): Effect.Effect<Fiber.RuntimeFiber<void, never>, never> =>
+    Effect.forkDaemon(
+        mailbox.subscribe().pipe(
+            Stream.catchAll(error => Stream.empty),
+            Stream.runForEach((activity: AgentActivity) =>
+                Effect.gen(function* () {
+                    yield* Ref.update(stateRef, state => ({
+                        ...state,
+                        status: AgentRuntimeStatus.PROCESSING,
+                        lastUpdated: Date.now()
+                    }))
+
+                    const currentState = yield* Ref.get(stateRef)
+                    const newState = yield* workflow(activity, currentState.state)
+
+                    yield* Ref.update(stateRef, state => ({
+                        ...state,
+                        state: newState,
+                        status: AgentRuntimeStatus.IDLE,
+                        lastUpdated: Date.now(),
+                        processing: {
+                            processed: (state.processing?.processed ?? 0) + 1,
+                            failures: state.processing?.failures ?? 0,
+                            avgProcessingTime: state.processing?.avgProcessingTime ?? 0
+                        }
+                    }))
+                }).pipe(
+                    Effect.catchAll((error: AgentRuntimeProcessingError) =>
+                        Ref.update(stateRef, state => ({
+                            ...state,
+                            status: AgentRuntimeStatus.ERROR,
+                            lastUpdated: Date.now(),
+                            error,
+                            processing: {
+                                processed: state.processing?.processed ?? 0,
+                                failures: (state.processing?.failures ?? 0) + 1,
+                                avgProcessingTime: state.processing?.avgProcessingTime ?? 0
+                            }
+                        }))
+                    )
+                )
+            )
+        )
+    )
 
 export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>()(
     "AgentRuntimeService",
@@ -22,6 +86,8 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
             const modelService = yield* ModelService
             const providerService = yield* ProviderService
             const policyService = yield* PolicyService
+            const toolRegistryService = yield* ToolRegistryService
+            const fileService = yield* FileService
 
             // Agent management state
             const runtimes = yield* Ref.make<Map<AgentRuntimeId, RuntimeEntry<any>>>(new Map())
@@ -56,7 +122,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
 
                     const fiber = yield* startProcessing(id, stateRef, mailbox, workflow)
                     yield* Ref.update(runtimes, map => {
-                        map.set(id, { state: stateRef, mailbox, fiber, workflow })
+                        map.set(id, { stateRef, mailbox, fiber, workflow })
                         return map
                     })
 
@@ -99,7 +165,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                     return yield* entry.mailbox.offer(activity)
                 })
 
-            const getState = (id: AgentRuntimeId) =>
+            const getState = <S>(id: AgentRuntimeId) =>
                 Effect.gen(function* () {
                     const map = yield* Ref.get(runtimes)
                     const entry = map.get(id)
@@ -109,7 +175,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                             message: `AgentRuntime ${id} not found`
                         }))
                     }
-                    return yield* Ref.get(entry.state)
+                    return yield* Ref.get(entry.stateRef)
                 })
 
             const subscribe = (id: AgentRuntimeId) =>
@@ -127,70 +193,125 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                     })
                 )
 
+            // Service access methods
+            const getModelService = () => Effect.succeed(modelService)
+            const getProviderService = () => Effect.succeed(providerService)
+            const getPolicyService = () => Effect.succeed(policyService)
+            const getToolRegistryService = () => Effect.succeed(toolRegistryService)
+            const getFileService = () => Effect.succeed(fileService)
+
+            // LangGraph support
+            const createLangGraphAgent = <TState extends { readonly agentRuntime: AgentRuntimeServiceApi }>(
+                compiledGraph: CompiledLangGraph<TState>,
+                initialState: TState,
+                langGraphRunOptions?: LangGraphRunOptions
+            ) => Effect.gen(function* () {
+                // Generate a unique ID for this LangGraph agent
+                const id = `langgraph-${Date.now()}-${Math.random().toString(36).slice(2)}` as AgentRuntimeId
+
+                // Initialize state with LangGraph stats
+                const stateRef = yield* Ref.make<LangGraphAgentRuntimeState<TState>>({
+                    id,
+                    state: initialState,
+                    status: AgentRuntimeStatus.IDLE,
+                    lastUpdated: Date.now(),
+                    processing: { processed: 0, failures: 0, avgProcessingTime: 0 },
+                    langGraph: { invocations: 0, avgInvokeTime: 0, recursionLimitHits: 0 }
+                })
+
+                const mailbox = yield* PrioritizedMailbox.create({
+                    size: 1000,
+                    enablePrioritization: true,
+                    priorityQueueSize: 100
+                })
+
+                // LangGraph workflow that invokes the graph with activity payload
+                const workflow = (activity: AgentActivity, state: TState): Effect.Effect<TState, AgentRuntimeProcessingError> =>
+                    Effect.gen(function* () {
+                        const startTime = Date.now()
+                        const result = yield* Effect.tryPromise(() =>
+                            compiledGraph.invoke(state, {
+                                configurable: {
+                                    ea_activity_payload: activity.payload,
+                                    ...langGraphRunOptions
+                                }
+                            })
+                        ).pipe(
+                            Effect.mapError(error => new AgentRuntimeProcessingError({
+                                activityId: activity.id,
+                                agentRuntimeId: id,
+                                message: "Failed to execute LangGraph workflow",
+                                cause: error
+                            }))
+                        )
+
+                        // Update LangGraph stats
+                        yield* Ref.update(stateRef, state => ({
+                            ...state,
+                            langGraph: {
+                                invocations: (state.langGraph?.invocations ?? 0) + 1,
+                                avgInvokeTime: (
+                                    ((state.langGraph?.avgInvokeTime ?? 0) * (state.langGraph?.invocations ?? 0) +
+                                        (Date.now() - startTime)) /
+                                    ((state.langGraph?.invocations ?? 0) + 1)
+                                ),
+                                recursionLimitHits: state.langGraph?.recursionLimitHits ?? 0
+                            }
+                        }))
+
+                        // Handle AsyncIterable result
+                        if (Symbol.asyncIterator in (result as any)) {
+                            const asyncResult = result as AsyncIterable<TState>
+                            let lastState = state
+                            // Convert for-await loop to synchronous processing within Effect
+                            return yield* Effect.promise(async () => {
+                                for await (const newState of asyncResult) {
+                                    lastState = newState
+                                }
+                                return lastState
+                            })
+                        }
+
+                        return result as TState
+                    })
+
+                const fiber = yield* startProcessing(id, stateRef, mailbox, workflow)
+                yield* Ref.update(runtimes, map => {
+                    map.set(id, { stateRef, mailbox, fiber, workflow })
+                    return map
+                })
+
+                return {
+                    agentRuntime: {
+                        id,
+                        send: (activity: AgentActivity) => mailbox.offer(activity),
+                        getState: () => Ref.get(stateRef),
+                        subscribe: () => mailbox.subscribe()
+                    },
+                    agentRuntimeId: id
+                }
+            })
+
+            // Effect execution bridge
+            const run = <Output, LogicError = EffectiveError>(
+                logicToRun: Effect.Effect<Output, LogicError, any>
+            ): Promise<Output> => Effect.runPromise(logicToRun as Effect.Effect<Output, LogicError, never>)
+
             return {
-                // Agent management
                 create,
                 terminate,
                 send,
                 getState,
                 subscribe,
-                // Service access (provide configured services)
-                getModelService: () => Effect.succeed(modelService),
-                getProviderService: () => Effect.succeed(providerService),
-                getPolicyService: () => Effect.succeed(policyService)
-            }
+                getModelService,
+                getProviderService,
+                getPolicyService,
+                getToolRegistryService,
+                getFileService,
+                createLangGraphAgent,
+                run
+            } satisfies AgentRuntimeServiceApi
         }),
-        dependencies: [ModelService.Default, ProviderService.Default, PolicyService.Default]
+        dependencies: [ModelService.Default, ProviderService.Default, PolicyService.Default, ToolRegistryService.Default, FileService.Default]
     }
 ) { }
-
-// Helper function for starting agent processing
-const startProcessing = <S>(
-    id: AgentRuntimeId,
-    stateRef: Ref.Ref<AgentRuntimeState<S>>,
-    mailbox: PrioritizedMailbox,
-    workflow: (activity: AgentActivity, state: S) => Effect.Effect<S, AgentRuntimeProcessingError>
-) =>
-    Effect.gen(function* () {
-        return yield* Effect.forkDaemon(
-            mailbox.subscribe().pipe(
-                Stream.runForEach((activity: AgentActivity) =>
-                    Effect.gen(function* () {
-                        yield* Ref.update(stateRef, state => ({
-                            ...state,
-                            status: AgentRuntimeStatus.PROCESSING,
-                            lastUpdated: Date.now()
-                        }))
-
-                        const currentState = yield* Ref.get(stateRef)
-                        const newState = yield* workflow(activity, currentState.state)
-
-                        yield* Ref.update(stateRef, state => ({
-                            ...state,
-                            state: newState,
-                            status: AgentRuntimeStatus.IDLE,
-                            lastUpdated: Date.now(),
-                            processing: {
-                                processed: (state.processing?.processed ?? 0) + 1,
-                                failures: state.processing?.failures ?? 0,
-                                avgProcessingTime: state.processing?.avgProcessingTime ?? 0
-                            }
-                        }))
-                    }).pipe(
-                        Effect.catchAll((error: AgentRuntimeProcessingError) =>
-                            Ref.update(stateRef, state => ({
-                                ...state,
-                                status: AgentRuntimeStatus.ERROR,
-                                lastUpdated: Date.now(),
-                                processing: {
-                                    processed: state.processing?.processed ?? 0,
-                                    failures: (state.processing?.failures ?? 0) + 1,
-                                    avgProcessingTime: state.processing?.avgProcessingTime ?? 0
-                                }
-                            }))
-                        )
-                    )
-                )
-            )
-        )
-    })

@@ -1,6 +1,6 @@
+import * as NodeFs from "node:fs/promises";
 // This file is required by vitest to setup the test environment
 import * as NodePath from "node:path";
-import * as NodeFs from "node:fs/promises";
 
 // Test configuration
 const TEST_LOG_DIR = NodePath.join(process.cwd(), "test-logs");

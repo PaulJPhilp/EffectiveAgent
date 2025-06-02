@@ -250,4 +250,55 @@ export type RuntimeServices = {
   readonly providerService: ProviderServiceApi;
   readonly modelService: ModelServiceApi;
   readonly policyService: PolicyServiceApi;
-};  
+};
+
+/**
+ * Configuration options for LangGraph agent execution.
+ */
+export interface LangGraphRunOptions {
+  /** Maximum recursion depth for LangGraph execution */
+  readonly recursionLimit?: number;
+  /** Additional options passed to LangGraph invoke */
+  readonly [key: string]: any;
+}
+
+/**
+ * Interface for a compiled LangGraph that can be executed by AgentRuntime.
+ * Matches the LangGraph framework's compiled graph interface.
+ */
+export interface CompiledLangGraph<TState> {
+  /**
+   * Invokes the LangGraph with the current state and options.
+   * 
+   * @param state - Current agent state
+   * @param options - Optional configuration for this invocation
+   * @returns Promise resolving to the new state or an AsyncIterable of states
+   */
+  invoke: (
+    state: TState,
+    options?: { configurable?: Record<string, any>; [key: string]: any }
+  ) => Promise<TState | AsyncIterable<TState>>;
+}
+
+/**
+ * Statistics about LangGraph agent execution.
+ */
+export interface LangGraphStats {
+  /** Total number of graph invocations */
+  readonly invocations: number;
+  /** Average time per invocation in milliseconds */
+  readonly avgInvokeTime: number;
+  /** Number of times recursion limit was hit */
+  readonly recursionLimitHits: number;
+  /** Last error encountered during graph execution */
+  readonly lastError?: unknown;
+}
+
+/**
+ * Extension of AgentRuntimeState for LangGraph agents.
+ * Adds LangGraph-specific statistics.
+ */
+export interface LangGraphAgentRuntimeState<S> extends AgentRuntimeState<S> {
+  /** LangGraph execution statistics */
+  readonly langGraph?: LangGraphStats;
+}

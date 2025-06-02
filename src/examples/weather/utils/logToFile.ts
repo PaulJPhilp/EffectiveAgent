@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, appendFileSync } from "fs";
+import { appendFileSync, existsSync, mkdirSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 

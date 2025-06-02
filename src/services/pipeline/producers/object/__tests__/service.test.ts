@@ -3,24 +3,24 @@
  * @module services/pipeline/producers/object/__tests__/service.test
  */
 
-import { Effect, Option, pipe, Either, Exit } from "effect";
-import { describe, expect, it } from "vitest";
-import { Schema } from "effect";
+import { randomUUID } from "node:crypto";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
+import type { EffectiveResponse } from "@/types.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { ObjectService } from "../service.js";
+import { Effect, Either, Exit, Option, pipe } from "effect";
+import { Schema } from "effect";
+import { describe, expect, it } from "vitest";
 import { 
+  ObjectGenerationError,
   ObjectInputError, 
   ObjectModelError,
   ObjectProviderError,
-  ObjectSchemaError,
-  ObjectGenerationError
+  ObjectSchemaError
 } from "../errors.js";
+import { ObjectService } from "../service.js";
 import type { ObjectGenerationOptions } from "../types.js";
-import type { EffectiveResponse } from "@/types.js";
-import { randomUUID } from "node:crypto";
 
 type SchemaType<S> = S extends Schema.Schema<infer A> ? A : never;
 

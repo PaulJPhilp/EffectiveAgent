@@ -1,6 +1,6 @@
 #!/usr/bin/env -S node --no-warnings
 
-import { logToFile, createLogger } from "../utils/logToFile.js";
+import { createLogger, logToFile } from "../utils/logToFile.js";
 
 // Test basic logging
 console.log("Testing basic logging...");

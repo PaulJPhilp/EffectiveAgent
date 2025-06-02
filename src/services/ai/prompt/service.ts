@@ -4,7 +4,7 @@
  */
 
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { Effect, HashMap, Ref, Schema as S, Config, ConfigProvider } from "effect";
+import { Config, ConfigProvider, Effect, HashMap, Ref, Schema as S } from "effect";
 import { Liquid } from "liquidjs";
 import {
     PromptConfigError,

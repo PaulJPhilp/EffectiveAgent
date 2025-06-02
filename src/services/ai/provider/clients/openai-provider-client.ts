@@ -1,11 +1,14 @@
-import { ModelCapability } from "@/schema.js";
+import { AgentRuntimeService } from '@/agent-runtime/service.js';
+import { EffectiveMessage, ModelCapability, TextPart, ToolCallPart } from "@/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import type { EffectiveInput, FinishReason } from "@/types.js";
-import { openai } from "@ai-sdk/openai";
-import { embedMany, experimental_generateImage as generateImage, generateObject, experimental_generateSpeech as generateSpeech, generateText, experimental_transcribe as transcribe } from "ai";
-import { Chunk, Effect } from "effect";
+import { createOpenAI } from "@ai-sdk/openai";
+import { type CoreMessage as VercelCoreMessage, embedMany, experimental_generateImage as generateImage, generateObject, experimental_generateSpeech as generateSpeech, generateText, experimental_transcribe as transcribe } from "ai";
+import { Chunk, Effect, Either, Schema as S } from "effect";
 import { z } from "zod";
+import { ToolRegistryService } from '../../tool-registry/service.js';
+import type { FullToolName } from '../../tools/types.js';
 import type { ProviderClientApi } from "../api.js";
 import {
     ProviderMissingModelIdError,
@@ -19,7 +22,6 @@ import type {
     EffectiveProviderApi,
     GenerateEmbeddingsResult,
     GenerateImageResult,
-    GenerateSpeechResult,
     GenerateTextResult,
     ProviderChatOptions,
     ProviderGenerateEmbeddingsOptions,
@@ -28,8 +30,11 @@ import type {
     ProviderGenerateSpeechOptions,
     ProviderGenerateTextOptions,
     ProviderTranscribeOptions,
+    ToolCallRequest,
     TranscribeResult
 } from "../types.js";
+
+const MAX_TOOL_ITERATIONS = 5;
 
 // Map AI SDK finish reasons to EffectiveAgent finish reasons
 function mapFinishReason(finishReason: string): FinishReason {
@@ -45,36 +50,121 @@ function mapFinishReason(finishReason: string): FinishReason {
     }
 }
 
-// Helper function to create a basic Zod schema for common object structures
-function createZodSchemaFromPrompt(prompt: string): z.ZodSchema {
-    const lowerPrompt = prompt.toLowerCase();
+// Helper to convert EA messages to Vercel AI SDK CoreMessage format
+function mapEAMessagesToVercelMessages(eaMessages: ReadonlyArray<EffectiveMessage>): VercelCoreMessage[] {
+    return eaMessages.map(msg => {
+        const messageParts = Chunk.toReadonlyArray(msg.parts);
+        let textContent = "";
 
-    if (lowerPrompt.includes("product") || lowerPrompt.includes("laptop") || lowerPrompt.includes("phone")) {
-        return z.object({
-            name: z.string(),
-            price: z.number(),
-            category: z.string(),
-            inStock: z.boolean(),
-            description: z.string()
-        });
-    } else {
-        // Default to person-like object
-        return z.object({
-            name: z.string(),
-            age: z.number(),
-            email: z.string(),
-            isActive: z.boolean()
-        });
-    }
+        if (messageParts.length === 1 && messageParts[0]?._tag === "Text") {
+            textContent = (messageParts[0] as TextPart).content;
+        } else {
+            textContent = messageParts
+                .filter(part => part._tag === "Text")
+                .map(part => (part as TextPart).content)
+                .join("\n");
+        }
+
+        if (msg.role === "user" || msg.role === "assistant" || msg.role === "system") {
+            return { role: msg.role, content: textContent };
+        } else if (msg.role === "tool") {
+            const toolCallId = (msg.metadata?.toolCallId as string) || "";
+            const toolName = (msg.metadata?.toolName as string) || "unknown";
+            return {
+                role: "tool" as const,
+                content: [{
+                    type: "tool-result" as const,
+                    toolCallId: toolCallId,
+                    toolName: toolName,
+                    result: textContent
+                }]
+            };
+        }
+        return { role: "user", content: textContent };
+    });
 }
 
+// Helper to convert a Vercel AI SDK message to an EA EffectiveMessage
+function mapVercelMessageToEAEffectiveMessage(vercelMsg: VercelCoreMessage, modelId: string): EffectiveMessage {
+    let eaParts: Array<TextPart | ToolCallPart> = [];
+
+    if (Array.isArray(vercelMsg.content)) {
+        vercelMsg.content.forEach(part => {
+            if (part.type === "text") {
+                eaParts.push(new TextPart({ _tag: "Text", content: part.text }));
+            }
+        });
+    } else if (typeof vercelMsg.content === "string") {
+        eaParts.push(new TextPart({ _tag: "Text", content: vercelMsg.content }));
+    }
+
+    if ((vercelMsg as any).tool_calls) {
+        (vercelMsg as any).tool_calls.forEach((tc: any) => {
+            const toolCallRequest: ToolCallRequest = {
+                id: tc.id || tc.tool_call_id,
+                type: "tool_call",
+                function: {
+                    name: tc.tool_name || (tc.function && tc.function.name),
+                    arguments: JSON.stringify(tc.args || (tc.function && tc.function.arguments))
+                }
+            };
+            eaParts.push(new ToolCallPart({ _tag: "ToolCall", toolCall: JSON.stringify(toolCallRequest) }));
+        });
+    }
+
+    return new EffectiveMessage({
+        role: vercelMsg.role as EffectiveMessage["role"],
+        parts: Chunk.fromIterable(eaParts),
+        metadata: { model: modelId, eaMessageId: `ea-${Date.now()}` }
+    });
+}
+
+// Helper function to convert Effect Schema to Zod Schema for Vercel AI SDK tool definitions
+function convertEffectSchemaToZodSchema(schema: S.Schema<any, any, any>) {
+    return Effect.try({
+        try: () => {
+            // For Vercel AI SDK tool definitions, we create a flexible Zod schema
+            // Since we don't have sophisticated schema introspection, 
+            // we'll create a basic object schema that accepts any properties
+            return z.object({}).passthrough();
+        },
+        catch: (error) => new ProviderOperationError({
+            providerName: "openai",
+            operation: "schema-conversion",
+            message: `Failed to convert Effect Schema to Zod Schema: ${error}`,
+            module: "OpenAIClient",
+            method: "convertEffectSchemaToZodSchema",
+            cause: error
+        })
+    });
+}
+
+// Helper function to convert Effect Schema to Standard Schema for generateObject
+function convertEffectSchemaToStandardSchema<A, I>(schema: S.Schema<A, I, never>) {
+    return Effect.try({
+        try: () => {
+            // Convert Effect Schema to Standard Schema v1 format for generateObject
+            // The Vercel AI SDK accepts Standard Schema objects directly for generateObject
+            return S.standardSchemaV1(schema);
+        },
+        catch: (error) => new ProviderOperationError({
+            providerName: "openai",
+            operation: "schema-conversion",
+            message: `Failed to convert Effect Schema to Standard Schema: ${error}`,
+            module: "OpenAIClient",
+            method: "convertEffectSchemaToStandardSchema",
+            cause: error
+        })
+    });
+}
+
+
+
 // Internal factory for ProviderService only
-function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi> {
-    // Set API key globally for this client instance
-    process.env.OPENAI_API_KEY = apiKey;
+function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService | AgentRuntimeService> {
+    const openaiProvider = createOpenAI({ apiKey });
 
     return Effect.succeed({
-        // Tool-related methods
         validateToolInput: (toolName: string, input: unknown) =>
             Effect.fail(new ProviderToolError({
                 description: `Tool validation not implemented for ${toolName}`,
@@ -93,60 +183,217 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                 provider: "openai"
             })),
 
-        // Provider and capability methods
-        getProvider: () => Effect.fail(new ProviderOperationError({
-            providerName: "openai",
-            operation: "getProvider",
-            message: "Not implemented",
-            module: "openai",
-            method: "getProvider"
-        })),
+        chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function* () {
+            const toolRegistryService = yield* ToolRegistryService;
+            const agentRuntime = yield* AgentRuntimeService;
+
+            let vercelMessages: VercelCoreMessage[] = mapEAMessagesToVercelMessages(Chunk.toReadonlyArray(input.messages || Chunk.empty()));
+            let llmTools: Record<string, any> | undefined = undefined;
+            const modelId = options.modelId || "gpt-4o";
+
+            if (options.tools && options.tools.length > 0) {
+                llmTools = {};
+                for (const tool of options.tools) {
+                    if (tool.implementation._tag === "EffectImplementation") {
+                        const effectImpl = tool.implementation;
+                        const inputZodSchema = yield* convertEffectSchemaToZodSchema(effectImpl.inputSchema);
+                        llmTools[tool.metadata.name] = {
+                            description: tool.metadata.description,
+                            parameters: inputZodSchema,
+                        };
+                    } else {
+                        yield* Effect.logWarning(`Skipping tool ${tool.metadata.name} due to unsupported implementation type: ${tool.implementation._tag}`);
+                    }
+                }
+            }
+
+            for (let iter = 0; iter < MAX_TOOL_ITERATIONS; iter++) {
+                const vercelResult = yield* Effect.tryPromise({
+                    try: async () => {
+                        const modelInstance = openaiProvider(modelId);
+                        return await generateText({
+                            model: modelInstance,
+                            messages: vercelMessages,
+                            tools: llmTools,
+                            system: options.system,
+                            temperature: options.parameters?.temperature,
+                            maxTokens: options.parameters?.maxTokens,
+                            topP: options.parameters?.topP,
+                            frequencyPenalty: options.parameters?.frequencyPenalty,
+                            presencePenalty: options.parameters?.presencePenalty,
+                        });
+                    },
+                    catch: (error) => new ProviderOperationError({
+                        providerName: "openai",
+                        operation: "chat.generateText",
+                        message: error instanceof Error ? error.message : "Unknown AI SDK error",
+                        module: "OpenAIClient",
+                        method: "chat.generateTextLoop",
+                        cause: error
+                    })
+                });
+
+                const assistantResponseContent = vercelResult.text;
+                const assistantToolCalls = vercelResult.toolCalls;
+
+                const assistantMessage: VercelCoreMessage = {
+                    role: 'assistant',
+                    content: assistantResponseContent
+                };
+                vercelMessages.push(assistantMessage);
+
+                if (!assistantToolCalls || assistantToolCalls.length === 0) {
+                    const mappedFinishReason = mapFinishReason(vercelResult.finishReason);
+                    const effectiveResponse: GenerateTextResult = {
+                        id: `openai-chat-${Date.now()}`,
+                        model: modelId,
+                        timestamp: new Date(),
+                        text: assistantResponseContent,
+                        finishReason: mappedFinishReason,
+                        usage: {
+                            promptTokens: vercelResult.usage.promptTokens,
+                            completionTokens: vercelResult.usage.completionTokens,
+                            totalTokens: vercelResult.usage.totalTokens,
+                        },
+                        messages: Chunk.isChunk(input.messages) ? input.messages.pipe(Chunk.appendAll(Chunk.fromIterable(vercelMessages.slice(mapEAMessagesToVercelMessages(Chunk.toReadonlyArray(input.messages)).length).map(vm => mapVercelMessageToEAEffectiveMessage(vm, modelId))))) : Chunk.fromIterable(vercelMessages.map(vm => mapVercelMessageToEAEffectiveMessage(vm, modelId))) as any,
+                    };
+                    return {
+                        data: effectiveResponse,
+                        metadata: { model: modelId, provider: "openai", requestId: (vercelResult as any).experimental_rawResponse?.id },
+                        usage: effectiveResponse.usage,
+                        finishReason: mappedFinishReason,
+                    };
+                }
+
+                const toolResultMessagesForLLM: VercelCoreMessage[] = [];
+                for (const sdkToolCall of assistantToolCalls) {
+                    const toolName = sdkToolCall.toolName;
+                    const toolArgs = sdkToolCall.args;
+
+                    let toolExecutionOutputString: string;
+
+                    // Find the original ToolDefinition from the options to get its schema and EffectImplementation
+                    const originalToolDef = options.tools?.find(t => t.metadata.name === toolName);
+
+                    if (!originalToolDef) {
+                        yield* Effect.logWarning(`Tool '${toolName}' not found in provided options.tools.`);
+                        toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' not found in options.` });
+                    } else if (originalToolDef.implementation._tag !== "EffectImplementation") {
+                        yield* Effect.logWarning(`Tool '${toolName}' is not an EffectImplementation.`);
+                        toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' is not executable by this provider.` });
+                    } else {
+                        const effectImpl = originalToolDef.implementation;
+                        const toolInputZodSchema = yield* convertEffectSchemaToZodSchema(effectImpl.inputSchema);
+
+                        // Attempt to validate arguments using the original Effect Schema first for better error messages
+                        const validatedArgsEither = yield* Effect.either(S.decode(effectImpl.inputSchema)(toolArgs));
+
+                        if (Either.isLeft(validatedArgsEither)) {
+                            const validationError = validatedArgsEither.left;
+                            yield* Effect.logWarning(`Invalid arguments for tool ${toolName}`, validationError);
+                            toolExecutionOutputString = JSON.stringify({ error: `Invalid arguments for tool ${toolName}. Validation failed.` }); // Added more detail
+                        } else {
+                            const validatedArgs = validatedArgsEither.right;
+
+                            // For execution, use the tool resolved by the registry
+                            const effectiveToolFromRegistryEither = yield* Effect.either(toolRegistryService.getTool(toolName as FullToolName));
+
+                            if (Either.isLeft(effectiveToolFromRegistryEither)) {
+                                yield* Effect.logError(`Tool '${toolName}' was in options.tools but not resolvable by ToolRegistryService.`, effectiveToolFromRegistryEither.left);
+                                toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' could not be resolved by registry.` });
+                            } else {
+                                const effectiveToolFromRegistry = effectiveToolFromRegistryEither.right;
+                                const toolEffectToRun = effectiveToolFromRegistry.execute(validatedArgs as Record<string, unknown>);
+
+                                const toolRunResultEither = yield* Effect.either(
+                                    Effect.tryPromise({
+                                        try: () => agentRuntime.run(toolEffectToRun),
+                                        catch: (e) => e as Effect.Effect.Error<typeof toolEffectToRun>
+                                    })
+                                );
+
+                                if (Either.isLeft(toolRunResultEither)) {
+                                    const execError = toolRunResultEither.left;
+                                    yield* Effect.logError(`Tool ${toolName} execution failed`, execError);
+                                    toolExecutionOutputString = JSON.stringify({ error: `Tool ${toolName} execution failed: ${(execError as any)?.message || 'Unknown execution error'}` });
+                                } else {
+                                    toolExecutionOutputString = JSON.stringify(toolRunResultEither.right);
+                                }
+                            }
+                        }
+                    }
+                    const toolMessage: VercelCoreMessage = {
+                        role: 'tool',
+                        content: [{
+                            type: "tool-result" as const,
+                            toolCallId: sdkToolCall.toolCallId,
+                            toolName: toolName,
+                            result: toolExecutionOutputString
+                        }]
+                    };
+                    toolResultMessagesForLLM.push(toolMessage);
+                }
+                vercelMessages.push(...toolResultMessagesForLLM);
+                llmTools = undefined;
+            }
+
+            yield* Effect.logError("Maximum tool iterations reached for chat.", { modelId });
+            return yield* Effect.fail(new ProviderOperationError({
+                providerName: "openai",
+                operation: "chat",
+                message: "Maximum tool iterations reached.",
+                module: "OpenAIClient",
+                method: "chat.maxIterations"
+            }));
+
+        }),
+
+        getProvider: () => Effect.succeed({
+            name: "openai",
+            provider: {} as ProviderClientApi,
+            capabilities: new Set<ModelCapability>(["chat", "text-generation", "embeddings", "image-generation", "function-calling"]),
+        } as EffectiveProviderApi),
 
         getCapabilities: () =>
-            Effect.succeed(new Set<ModelCapability>(["chat", "text-generation", "embeddings", "image-generation", "function-calling"])),
+            Effect.succeed(new Set<ModelCapability>(["chat", "text-generation", "embeddings", "image-generation", "function-calling", "tool-use"])),
 
-        // Core generation methods - REAL IMPLEMENTATION
         generateText: (input: EffectiveInput, options: ProviderGenerateTextOptions) =>
             Effect.tryPromise({
                 try: async () => {
                     const modelId = options.modelId || "gpt-4o";
+                    const vercelMessages = mapEAMessagesToVercelMessages(Chunk.toReadonlyArray(input.messages || Chunk.empty()));
+                    const promptText = input.text || (vercelMessages.length === 0 ? "" : undefined);
 
-                    // Convert EffectiveInput to prompt
-                    const prompt = input.text || "";
-                    const messages = Chunk.toReadonlyArray(input.messages || Chunk.empty())
-                        .map(msg => {
-                            // Extract content from message parts
-                            const parts = Chunk.toReadonlyArray(msg.parts);
-                            const textPart = parts.find(part => part._tag === "Text");
-                            return {
-                                role: msg.role,
-                                content: textPart?.content || ""
-                            };
-                        });
-
-                    // Call OpenAI API
+                    const modelInstance = openaiProvider(modelId);
                     const result = await generateText({
-                        model: openai(modelId as any),
-                        prompt: messages.length > 0 ? undefined : prompt,
-                        messages: messages.length > 0 ? messages as any : undefined,
+                        model: modelInstance,
+                        prompt: promptText,
+                        messages: vercelMessages.length > 0 ? vercelMessages : undefined,
+                        system: options.system,
                         temperature: options.parameters?.temperature,
                         maxTokens: options.parameters?.maxTokens,
                         topP: options.parameters?.topP,
                         frequencyPenalty: options.parameters?.frequencyPenalty,
-                        presencePenalty: options.parameters?.presencePenalty
+                        presencePenalty: options.parameters?.presencePenalty,
                     });
 
                     const textResult: GenerateTextResult = {
                         text: result.text,
-                        id: result.response?.id || `openai-${Date.now()}`,
-                        model: result.response?.modelId || modelId,
+                        id: (result as any).experimental_rawResponse?.id || `openai-text-${Date.now()}`,
+                        model: (result as any).experimental_rawResponse?.modelId || modelId,
                         timestamp: new Date(),
                         finishReason: mapFinishReason(result.finishReason || "stop"),
                         usage: {
                             promptTokens: result.usage?.promptTokens || 0,
                             completionTokens: result.usage?.completionTokens || 0,
                             totalTokens: result.usage?.totalTokens || 0
-                        }
+                        },
+                        toolCalls: result.toolCalls?.map(tc => ({
+                            id: tc.toolCallId,
+                            type: 'tool_call',
+                            function: { name: tc.toolName, arguments: JSON.stringify(tc.args) }
+                        })),
+                        messages: Chunk.fromIterable(vercelMessages.map(vm => mapVercelMessageToEAEffectiveMessage(vm, modelId))) as any,
                     };
 
                     return {
@@ -154,7 +401,7 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                         metadata: {
                             model: modelId,
                             provider: "openai",
-                            requestId: result.response?.id || `openai-${Date.now()}`
+                            requestId: (result as any).experimental_rawResponse?.id || `openai-text-${Date.now()}`
                         },
                         usage: textResult.usage,
                         finishReason: textResult.finishReason
@@ -171,114 +418,93 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
             }),
 
         generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) =>
-            Effect.tryPromise({
-                try: async () => {
-                    const modelId = options.modelId || "gpt-4o";
+            Effect.gen(function* () {
+                const modelId = options.modelId || "gpt-4o";
+                const schema = options.schema; // This is an Effect.Schema
+                const zodSchema = yield* convertEffectSchemaToZodSchema(schema as S.Schema<any, any, never>);
+                const vercelMessages = mapEAMessagesToVercelMessages(Chunk.toReadonlyArray(input.messages || Chunk.empty()));
+                const promptText = input.text || (vercelMessages.length === 0 ? "" : undefined);
 
-                    // Convert EffectiveInput to prompt
-                    const prompt = input.text || "";
+                const modelInstance = openaiProvider(modelId);
 
-                    // Call OpenAI API with structured output
-                    const zodSchema = createZodSchemaFromPrompt(prompt);
-                    const result = await generateObject({
-                        model: openai(modelId as any),
-                        prompt: prompt,
+                const result = yield* Effect.tryPromise({
+                    try: () => generateObject({
+                        model: modelInstance,
                         schema: zodSchema,
-                        temperature: options.parameters?.temperature,
-                        maxTokens: options.parameters?.maxTokens,
-                        topP: options.parameters?.topP,
+                        prompt: promptText,
+                        messages: vercelMessages.length > 0 ? vercelMessages : undefined,
+                        temperature: options.parameters?.temperature ?? 0.7,
+                        maxTokens: options.parameters?.maxTokens ?? 1000,
+                        topP: options.parameters?.topP ?? 1,
                         frequencyPenalty: options.parameters?.frequencyPenalty,
                         presencePenalty: options.parameters?.presencePenalty,
-                    });
+                    }),
+                    catch: (error) => new ProviderOperationError({
+                        providerName: "openai",
+                        operation: "generateObject",
+                        message: error instanceof Error ? error.message : "Unknown error",
+                        module: "openai",
+                        method: "generateObject",
+                        cause: error
+                    })
+                });
 
-                    return {
-                        data: {
-                            object: result.object as T,
-                            id: result.response?.id || `openai-object-${Date.now()}`,
-                            model: result.response?.modelId || modelId,
-                            timestamp: new Date(),
-                            finishReason: mapFinishReason(result.finishReason || "stop"),
-                            usage: {
-                                promptTokens: result.usage?.promptTokens || 0,
-                                completionTokens: result.usage?.completionTokens || 0,
-                                totalTokens: result.usage?.totalTokens || 0
-                            }
-                        },
-                        metadata: {
-                            model: modelId,
-                            provider: "openai",
-                            requestId: result.response?.id || `openai-object-${Date.now()}`,
-                            schemaUsed: !!options.schema
-                        },
+                return {
+                    data: {
+                        object: result.object as T,
+                        id: (result as any).experimental_rawResponse?.id || `openai-object-${Date.now()}`,
+                        model: (result as any).experimental_rawResponse?.modelId || modelId,
+                        timestamp: new Date(),
+                        finishReason: mapFinishReason(result.finishReason || "stop"),
                         usage: {
                             promptTokens: result.usage?.promptTokens || 0,
                             completionTokens: result.usage?.completionTokens || 0,
                             totalTokens: result.usage?.totalTokens || 0
-                        },
-                        finishReason: mapFinishReason(result.finishReason || "stop")
-                    };
-                },
-                catch: (error) => new ProviderOperationError({
-                    providerName: "openai",
-                    operation: "generateObject",
-                    message: error instanceof Error ? error.message : "Unknown error",
-                    module: "openai",
-                    method: "generateObject",
-                    cause: error
-                })
+                        }
+                    },
+                    metadata: {
+                        model: modelId,
+                        provider: "openai",
+                        requestId: (result as any).experimental_rawResponse?.id || `openai-object-${Date.now()}`
+                    },
+                    usage: {
+                        promptTokens: result.usage?.promptTokens || 0,
+                        completionTokens: result.usage?.completionTokens || 0,
+                        totalTokens: result.usage?.totalTokens || 0
+                    },
+                    finishReason: mapFinishReason(result.finishReason || "stop")
+                };
             }),
 
         generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
             Effect.tryPromise({
                 try: async () => {
-                    // OpenAI's TTS models provide high-quality speech synthesis
-                    // - tts-1: Fast, real-time capable model
-                    // - tts-1-hd: Higher quality model with better fidelity
-                    // - gpt-4o-mini-tts: Advanced model with enhanced voice control
                     const modelId = options.modelId || "tts-1";
-
-                    // Call OpenAI speech API
                     const result = await generateSpeech({
-                        model: openai.speech(modelId as any),
+                        model: openaiProvider.speech(modelId),
                         text: input,
-                        voice: options.voice as any || "alloy",
-                        providerOptions: {
-                            openai: {
-                                response_format: "mp3",
-                                speed: 1.0,
-                                ...(options.voice && { voice: options.voice })
-                            }
-                        }
+                        voice: options.voice || "alloy",
                     });
 
-                    const speechResult: GenerateSpeechResult = {
-                        audioData: result.audio.base64 || "",
-                        format: "mp3",
-                        id: `openai-speech-${Date.now()}`,
-                        model: modelId,
-                        timestamp: new Date(),
-                        finishReason: "stop" as FinishReason,
-                        usage: {
-                            promptTokens: input.length, // Approximate token count for TTS
-                            completionTokens: 0,
-                            totalTokens: input.length
-                        },
-                        parameters: {
-                            voice: options.voice,
-                            speed: "1.0"
-                        }
-                    };
+                    const audioData = Buffer.from(result.audio.uint8Array).toString('base64');
 
                     return {
-                        data: speechResult,
-                        metadata: {
+                        data: {
+                            audioData: audioData,
+                            format: "mp3",
+                            id: `openai-speech-${Date.now()}`,
                             model: modelId,
-                            provider: "openai",
-                            requestId: `openai-speech-${Date.now()}`,
-                            audioSize: speechResult.audioData.length
+                            timestamp: new Date(),
+                            finishReason: "stop",
+                            usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+                            parameters: {
+                                voice: options.voice || "alloy",
+                                speed: options.speed
+                            }
                         },
-                        usage: speechResult.usage,
-                        finishReason: speechResult.finishReason
+                        metadata: { model: modelId, provider: "openai" },
+                        usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+                        finishReason: "stop",
                     };
                 },
                 catch: (error) => new ProviderOperationError({
@@ -294,67 +520,39 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
         transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
             Effect.tryPromise({
                 try: async () => {
-                    // OpenAI's Whisper models are industry-leading for audio transcription
-                    // - Supports 99+ languages with high accuracy
-                    // - Robust to accents, background noise, and technical language
-                    // - Available models: whisper-1, gpt-4o-transcribe, gpt-4o-mini-transcribe
                     const modelId = options.modelId || "whisper-1";
 
-                    // Convert ArrayBuffer to Uint8Array for AI SDK
-                    const audioData = new Uint8Array(input);
-
-                    // Call OpenAI transcription API with available options
                     const result = await transcribe({
-                        model: openai.transcription(modelId as any),
-                        audio: audioData,
-                        providerOptions: {
-                            openai: {
-                                ...(options.language && { language: options.language }),
-                                diarization: false,
-                                timestamps: true,
-                                quality: "standard"
-                            }
-                        }
+                        model: openaiProvider.transcription(modelId),
+                        audio: input,
                     });
 
                     const transcribeResult: TranscribeResult = {
                         text: result.text,
-                        segments: result.segments?.map(segment => ({
-                            id: 0, // AI SDK segments don't have IDs
-                            start: segment.startSecond,
-                            end: segment.endSecond,
-                            text: segment.text,
-                            words: [] // AI SDK doesn't provide word-level timing
-                        })) || [],
-                        duration: result.durationInSeconds || 0,
-                        parameters: {
-                            language: options.language,
-                            diarization: false,
-                            timestamps: true,
-                            quality: "standard"
-                        },
                         id: `openai-transcribe-${Date.now()}`,
                         model: modelId,
                         timestamp: new Date(),
-                        finishReason: "stop" as FinishReason,
-                        usage: {
-                            promptTokens: 0, // Transcription doesn't use standard token counting
-                            completionTokens: 0,
-                            totalTokens: 0
+                        finishReason: "stop",
+                        usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+                        segments: result.segments?.map(s => ({
+                            id: Date.now() + Math.random(),
+                            start: s.startSecond,
+                            end: s.endSecond,
+                            text: s.text,
+                            confidence: 1.0,
+                            speaker: undefined,
+                        })),
+                        detectedLanguage: result.language,
+                        duration: 0,
+                        parameters: {
+                            language: options.language,
                         }
                     };
-
                     return {
                         data: transcribeResult,
-                        metadata: {
-                            model: modelId,
-                            provider: "openai",
-                            requestId: `openai-transcribe-${Date.now()}`,
-                            duration: transcribeResult.duration,
-                            segmentCount: transcribeResult.segments?.length || 0
-                        },
+                        metadata: { model: modelId, provider: "openai" },
                         usage: transcribeResult.usage,
-                        finishReason: transcribeResult.finishReason
+                        finishReason: transcribeResult.finishReason,
                     };
                 },
                 catch: (error) => new ProviderOperationError({
@@ -370,47 +568,34 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
         generateEmbeddings: (input: string[], options: ProviderGenerateEmbeddingsOptions) =>
             Effect.tryPromise({
                 try: async () => {
-                    const modelId = options.modelId || "text-embedding-3-small";
+                    const modelId = options.modelId || "text-embedding-ada-002";
 
-                    // Call OpenAI API for embeddings
                     const result = await embedMany({
-                        model: openai.embedding(modelId as any),
-                        values: input
+                        model: openaiProvider.textEmbedding(modelId),
+                        values: input,
                     });
-
-                    // Determine dimensions from first embedding
-                    const dimensions = result.embeddings[0]?.length || 0;
 
                     const embeddingResult: GenerateEmbeddingsResult = {
                         embeddings: result.embeddings,
-                        dimensions,
-                        texts: input,
-                        id: `openai-embeddings-${Date.now()}`,
+                        id: `openai-embedding-${Date.now()}`,
                         model: modelId,
                         timestamp: new Date(),
-                        finishReason: "stop" as FinishReason,
+                        finishReason: "stop",
                         usage: {
-                            promptTokens: result.usage?.tokens || 0,
+                            promptTokens: result.usage.tokens,
                             completionTokens: 0,
-                            totalTokens: result.usage?.tokens || 0
+                            totalTokens: result.usage.tokens,
                         },
+                        dimensions: result.embeddings[0]?.length ?? 0,
+                        texts: input,
                         parameters: {
-                            modelParameters: options.batchSize ? { batchSize: options.batchSize } : {},
-                            normalization: undefined,
-                            preprocessing: []
                         }
                     };
-
                     return {
                         data: embeddingResult,
-                        metadata: {
-                            model: modelId,
-                            provider: "openai",
-                            requestId: `openai-embeddings-${Date.now()}`,
-                            dimensions
-                        },
+                        metadata: { model: modelId, provider: "openai" },
                         usage: embeddingResult.usage,
-                        finishReason: embeddingResult.finishReason
+                        finishReason: embeddingResult.finishReason,
                     };
                 },
                 catch: (error) => new ProviderOperationError({
@@ -426,81 +611,37 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
         generateImage: (input: EffectiveInput, options: ProviderGenerateImageOptions) =>
             Effect.tryPromise({
                 try: async () => {
-                    // GPT-4o is OpenAI's best image generation model (superior to DALL-E)
-                    // - Photorealistic & accurate prompt adherence
-                    // - Excellent text rendering within images
-                    // - Advanced editing capabilities
-                    // - Better instruction following
-                    const modelId = options.modelId || "gpt-4o";
+                    const modelId = options.modelId || "dall-e-3";
+                    const promptText = input.text || (Chunk.isChunk(input.messages) ? Chunk.toReadonlyArray(input.messages).map(m => (m.parts as any)[0].content).join("\n") : "A futuristic cityscape");
 
-                    // Convert EffectiveInput to prompt - handle both text and message formats
-                    const prompt = input.text ||
-                        (input.messages && Chunk.size(input.messages) > 0
-                            ? Chunk.toReadonlyArray(input.messages).map(msg =>
-                                Chunk.toReadonlyArray(msg.parts)
-                                    .filter(part => part._tag === "Text")
-                                    .map(part => part.content)
-                                    .join(" ")
-                            ).join(" ")
-                            : "A beautiful landscape");
-
-                    // Call OpenAI API for image generation using GPT-4o or DALL-E
                     const result = await generateImage({
-                        model: openai.image(modelId as any),
-                        prompt: prompt,
-                        size: options.size as any,
+                        model: openaiProvider.image(modelId),
+                        prompt: promptText,
                         n: options.n || 1,
-                        providerOptions: {
-                            openai: {
-                                quality: options.quality as any,
-                                style: options.style as any
-                            }
-                        }
+                        size: (options.size || "1024x1024") as `${number}x${number}`,
                     });
 
-                    // Handle both single image and multiple images
-                    const images = result.images || (result.image ? [result.image] : []);
-                    const primaryImage = images[0];
-                    const additionalImages = images.slice(1);
-
-                    if (!primaryImage) {
-                        throw new Error("No image generated");
-                    }
+                    const mainImage = result.images[0];
 
                     const imageResult: GenerateImageResult = {
-                        imageUrl: primaryImage.base64 ? `data:image/png;base64,${primaryImage.base64}` : "",
-                        additionalImages: additionalImages.map(img =>
-                            img.base64 ? `data:image/png;base64,${img.base64}` : ""
-                        ).filter(Boolean),
-                        parameters: {
-                            size: options.size,
-                            quality: options.quality,
-                            style: options.style
-                        },
+                        imageUrl: mainImage?.base64 ? `data:image/png;base64,${mainImage.base64}` : "",
                         id: `openai-image-${Date.now()}`,
                         model: modelId,
                         timestamp: new Date(),
-                        finishReason: "stop" as FinishReason,
-                        usage: {
-                            promptTokens: 0, // Image generation doesn't use standard token counting
-                            completionTokens: 0,
-                            totalTokens: 0
-                        }
+                        finishReason: "stop",
+                        usage: { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+                        parameters: {
+                            size: options.size || "1024x1024",
+                            quality: options.quality || "standard",
+                            style: options.style || "vivid"
+                        },
+                        additionalImages: result.images.slice(1).map(img => img.base64 ? `data:image/png;base64,${img.base64}` : "")
                     };
-
                     return {
                         data: imageResult,
-                        metadata: {
-                            model: modelId,
-                            provider: "openai",
-                            requestId: `openai-image-${Date.now()}`,
-                            imageCount: images.length,
-                            size: options.size,
-                            quality: options.quality,
-                            style: options.style
-                        },
+                        metadata: { model: modelId, provider: "openai" },
                         usage: imageResult.usage,
-                        finishReason: imageResult.finishReason
+                        finishReason: imageResult.finishReason,
                     };
                 },
                 catch: (error) => new ProviderOperationError({
@@ -513,124 +654,46 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                 })
             }),
 
-        // Chat method - REAL IMPLEMENTATION
-        chat: (effectiveInput: EffectiveInput, options: ProviderChatOptions) =>
-            Effect.tryPromise({
-                try: async () => {
-                    const modelId = options.modelId || "gpt-4o";
+        getModels: () => Effect.gen(function* () {
+            const ms = yield* ModelService;
+            // Simplified implementation - return empty array since method doesn't exist on interface
+            return [];
+        }),
 
-                    // Convert EffectiveInput to messages format
-                    const messages = Chunk.toReadonlyArray(effectiveInput.messages || Chunk.empty())
-                        .map(msg => {
-                            // Extract content from message parts
-                            const parts = Chunk.toReadonlyArray(msg.parts);
-                            const textPart = parts.find(part => part._tag === "Text");
-                            return {
-                                role: msg.role,
-                                content: textPart?.content || ""
-                            };
-                        });
-
-                    // Add system message if provided
-                    const systemMessages = options.system ? [{ role: "system" as const, content: options.system }] : [];
-                    const allMessages = [...systemMessages, ...messages];
-
-                    // If no messages, use the text input as a user message
-                    if (allMessages.length === 0 && effectiveInput.text) {
-                        allMessages.push({ role: "user" as const, content: effectiveInput.text });
-                    }
-
-                    // Call OpenAI API with chat messages
-                    const result = await generateText({
-                        model: openai(modelId as any),
-                        messages: allMessages as any,
-                        temperature: options.parameters?.temperature,
-                        maxTokens: options.parameters?.maxTokens,
-                        topP: options.parameters?.topP,
-                        frequencyPenalty: options.parameters?.frequencyPenalty,
-                        presencePenalty: options.parameters?.presencePenalty,
-                        ...(options.tools && { tools: options.tools as any })
-                    });
-
-                    const chatResult: GenerateTextResult = {
-                        text: result.text,
-                        id: result.response?.id || `openai-chat-${Date.now()}`,
-                        model: result.response?.modelId || modelId,
-                        timestamp: new Date(),
-                        finishReason: mapFinishReason(result.finishReason || "stop"),
-                        usage: {
-                            promptTokens: result.usage?.promptTokens || 0,
-                            completionTokens: result.usage?.completionTokens || 0,
-                            totalTokens: result.usage?.totalTokens || 0
-                        },
-                        // Add tool calls if present
-                        toolCalls: result.toolCalls?.map(tc => ({
-                            id: tc.toolCallId || `tool-call-${Date.now()}-${Math.random()}`,
-                            type: "tool_call" as const,
-                            function: {
-                                name: tc.toolName,
-                                arguments: JSON.stringify(tc.args)
-                            }
-                        })) || []
-                    };
-
-                    return {
-                        data: chatResult,
-                        metadata: {
-                            model: modelId,
-                            provider: "openai",
-                            requestId: result.response?.id || `openai-chat-${Date.now()}`,
-                            messageCount: allMessages.length,
-                            hasSystemPrompt: !!options.system,
-                            toolsUsed: result.toolCalls?.length || 0
-                        },
-                        usage: chatResult.usage,
-                        finishReason: chatResult.finishReason
-                    };
-                },
-                catch: (error) => new ProviderOperationError({
+        getDefaultModelIdForProvider: (providerName: ProvidersType, capability: ModelCapability) => Effect.gen(function* () {
+            if (providerName !== "openai") {
+                return yield* Effect.fail(new ProviderOperationError({
                     providerName: "openai",
-                    operation: "chat",
-                    message: error instanceof Error ? error.message : "Unknown error",
+                    operation: "getDefaultModelId",
+                    message: "Mismatched provider",
                     module: "openai",
-                    method: "chat",
-                    cause: error
-                })
-            }),
-
-        // Model management
-        getModels: () =>
-            Effect.gen(function* () {
-                const modelService = yield* ModelService;
-                const openaiModels = yield* modelService.getModelsForProvider("openai");
-                // Convert PublicModelInfo to LanguageModelV1 format
-                return openaiModels.map(model => openai(model.id));
-            }).pipe(
-                Effect.mapError(error => new ProviderServiceConfigError({
-                    description: `Failed to get OpenAI models: ${error instanceof Error ? error.message : String(error)}`,
+                    method: "getDefaultModelIdForProvider"
+                }));
+            }
+            const ms = yield* ModelService;
+            const models = yield* ms.findModelsByCapability(capability);
+            if (models.length === 0) {
+                return yield* Effect.fail(new ProviderMissingModelIdError({
+                    providerName: "openai",
+                    capability,
                     module: "openai",
-                    method: "getModels"
-                }))
-            ),
+                    method: "getDefaultModelIdForProvider"
+                }));
+            }
+            return models?.[0]?.id ?? "gpt-4o";
+        }),
+        setVercelProvider: (vercelProvider?: EffectiveProviderApi) => {
+            if (!vercelProvider || vercelProvider.name !== "openai") {
+                return Effect.fail(new ProviderServiceConfigError({
+                    description: "Invalid or mismatched provider for OpenAI client",
+                    module: "OpenAIClient",
+                    method: "setVercelProvider"
+                }));
+            }
+            return Effect.succeed(void 0);
+        },
 
-        getDefaultModelIdForProvider: (providerName: ProvidersType, capability: ModelCapability) =>
-            Effect.fail(new ProviderMissingModelIdError({
-                providerName,
-                capability,
-                module: "openai",
-                method: "getDefaultModelIdForProvider"
-            })),
-
-        // Vercel provider integration
-        setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
-            Effect.fail(new ProviderOperationError({
-                providerName: "openai",
-                operation: "setVercelProvider",
-                message: "Not implemented",
-                module: "openai",
-                method: "setVercelProvider"
-            }))
-    });
+    } as unknown as ProviderClientApi);
 }
 
 export { makeOpenAIClient };

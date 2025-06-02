@@ -2,16 +2,16 @@ import { Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
 
 import { ModelService } from "@/services/ai/model/service.js";
-import type { GenerateEmbeddingsResult } from "@/services/ai/provider/types.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
 import { ProviderOperationError } from "@/services/ai/provider/errors.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import type { GenerateEmbeddingsResult } from "@/services/ai/provider/types.js";
 
 import type { EmbeddingServiceApi } from "../api.js";
-import { EmbeddingService } from "../service.js";
 import {
     EmbeddingGenerationError,
     EmbeddingInputError,
 } from "../errors.js";
+import { EmbeddingService } from "../service.js";
 
 describe("EmbeddingService", () => {
     let embeddingService: EmbeddingServiceApi;

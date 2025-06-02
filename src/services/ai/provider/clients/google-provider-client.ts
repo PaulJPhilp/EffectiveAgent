@@ -1,8 +1,9 @@
-import { Effect } from "effect";
 import { ModelCapability } from "@/schema.js";
 import type { EffectiveInput, EffectiveResponse, FinishReason } from "@/types.js";
+import { type LanguageModelV1, type SpeechModel, experimental_generateSpeech as generateSpeech, generateText } from "ai";
+import { Effect } from "effect";
 import { ModelService } from "../../model/service.js";
-import { generateText, experimental_generateSpeech as generateSpeech, type LanguageModelV1, type SpeechModel } from "ai";
+import type { ProviderClientApi } from "../api.js";
 import {
   ProviderMissingCapabilityError,
   ProviderMissingModelIdError,
@@ -28,7 +29,6 @@ import type {
   ProviderTranscribeOptions,
   TranscribeResult
 } from "../types.js";
-import type { ProviderClientApi } from "../api.js";
 
 type Message = { role: "system" | "user"; content: string };
 type GenerateTextResponse = {

@@ -7,11 +7,11 @@ import { Effect } from "effect";
 
 import OpenAI from "openai";
 import {
-    type LlmConfig,
-    type LlmServiceApi,
     LlmCallError,
+    type LlmConfig,
     LlmResponseParseError,
-    LlmService
+    LlmService,
+    type LlmServiceApi
 } from "./contract.js";
 
 const DEFAULT_CONFIG: LlmConfig = {

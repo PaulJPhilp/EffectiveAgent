@@ -1,7 +1,8 @@
-import { Effect } from "effect";
 import { ModelCapability } from "@/schema.js";
 import type { EffectiveInput, EffectiveResponse } from "@/types.js";
+import { Effect } from "effect";
 import { ModelServiceApi } from "../../model/api.js";
+import type { ProviderClientApi } from "../api.js";
 import {
   ProviderMissingCapabilityError,
   ProviderMissingModelIdError,
@@ -27,7 +28,6 @@ import type {
   ProviderTranscribeOptions,
   TranscribeResult
 } from "../types.js";
-import type { ProviderClientApi } from "../api.js";
 
 // Internal factory for ProviderService only
 function makeGroqClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError> {

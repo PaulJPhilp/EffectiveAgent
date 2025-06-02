@@ -2,7 +2,7 @@ import { createServiceTestHarness } from "@/services/core/test-harness/utils/ser
 import { Effect } from "effect"
 import { describe, expect, it } from "vitest"
 import { AuthServiceApi } from "../api.js"
-import { AuthenticationError, AuthError, AuthorizationError, InvalidAuthContextError } from "../errors.js"
+import { AuthError, AuthenticationError, AuthorizationError, InvalidAuthContextError } from "../errors.js"
 import { AuthService } from "../service.js"
 import type { AuthContext } from "../types.js"
 

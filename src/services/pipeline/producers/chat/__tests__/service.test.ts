@@ -4,18 +4,18 @@
  */
 
 import { Message, TextPart } from "@/schema.js";
-import { Span } from "@opentelemetry/api";
-import { Effect, Either } from "effect";
-import * as Chunk from "effect/Chunk";
-import { describe, expect, it } from "vitest";
-import { ChatParameterError, ChatModelError } from "../errors.js";
-import { ChatService } from "../service.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import * as Option from "effect/Option";
 import { FixtureService } from "@/services/core/test-harness/components/fixtures/service.js";
 import { MockAccessorService } from "@/services/core/test-harness/components/mock-accessors/service.js";
+import { Span } from "@opentelemetry/api";
+import { Effect, Either } from "effect";
+import * as Chunk from "effect/Chunk";
+import * as Option from "effect/Option";
+import { describe, expect, it } from "vitest";
+import { ChatModelError, ChatParameterError } from "../errors.js";
+import { ChatService } from "../service.js";
 
 describe("ChatService Integration Tests", () => {
   // createTestService and createBaseRequest removed as they were mock-dependent

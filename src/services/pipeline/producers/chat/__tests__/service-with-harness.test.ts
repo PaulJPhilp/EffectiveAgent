@@ -1,12 +1,12 @@
 import { ChatService } from "@/services/pipeline/producers/chat/service.js";
-import { Effect } from "effect";
 import { NodeFileSystem } from "@effect/platform-node";
+import { Effect } from "effect";
 
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { type ChatCompletionOptions } from "@/services/pipeline/producers/chat/types.js";
 import { ChatInputError } from "@/services/pipeline/producers/chat/errors.js";
+import { type ChatCompletionOptions } from "@/services/pipeline/producers/chat/types.js";
 import { describe, expect, it } from "vitest";
 
 describe("ChatService (Integration)", () => {

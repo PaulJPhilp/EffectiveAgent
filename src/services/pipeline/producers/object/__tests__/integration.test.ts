@@ -3,18 +3,18 @@
  * @module services/pipeline/producers/object/__tests__/integration.test
  */
 
-import { Effect, Option, pipe } from "effect";
-import { describe, expect, it } from "vitest";
-import { Schema } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { ObjectService } from "../service.js";
+import { Effect, Option, pipe } from "effect";
+import { Schema } from "effect";
+import { describe, expect, it } from "vitest";
 import { 
   ObjectInputError, 
   ObjectModelError
 } from "../errors.js";
+import { ObjectService } from "../service.js";
 import { ObjectGenerationOptions } from "../types.js";
 
 // Import EffectiveResponse type
