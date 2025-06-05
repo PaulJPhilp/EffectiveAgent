@@ -1,10 +1,8 @@
 /**
- * @file Text Agent implementation using AgentRuntime for AI text generation
+ * @file Text Agent implementation for AI text generation
  * @module services/pipeline/producers/text/service
  */
 
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
@@ -15,7 +13,7 @@ import { EffectiveResponse } from "@/types.js";
 import { Chunk, Effect, Option, Ref } from "effect";
 
 /**
- * Text generation agent state
+ * Text generation agent state (simplified without AgentRuntime)
  */
 export interface TextAgentState {
   readonly generationCount: number
@@ -31,38 +29,18 @@ export interface TextAgentState {
 }
 
 /**
- * Text generation commands
- */
-interface GenerateTextCommand {
-  readonly type: "GENERATE_TEXT"
-  readonly options: TextGenerationOptions
-}
-
-interface StateUpdateCommand {
-  readonly type: "UPDATE_STATE"
-  readonly generation: string
-  readonly modelId: string
-  readonly promptLength: number
-  readonly success: boolean
-}
-
-type TextActivityPayload = GenerateTextCommand | StateUpdateCommand
-
-/**
  * TextService provides methods for generating AI text responses using configured providers.
- * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
+ * Simplified implementation without AgentRuntime dependency.
  */
 class TextService extends Effect.Service<TextServiceApi>()(
   "TextService",
   {
     effect: Effect.gen(function* () {
-      // Get services
-      const agentRuntimeService = yield* AgentRuntimeService;
+      // Get services directly
       const modelService = yield* ModelService;
       const providerService = yield* ProviderService;
 
-      const agentId = makeAgentRuntimeId("text-service-agent");
-
+      // Create internal state management
       const initialState: TextAgentState = {
         generationCount: 0,
         lastGeneration: Option.none(),
@@ -70,13 +48,9 @@ class TextService extends Effect.Service<TextServiceApi>()(
         generationHistory: []
       };
 
-      // Create the agent runtime
-      const runtime = yield* agentRuntimeService.create(agentId, initialState);
-
-      // Create internal state management
       const internalStateRef = yield* Ref.make<TextAgentState>(initialState);
 
-      yield* Effect.log("TextService agent initialized");
+      yield* Effect.log("TextService initialized");
 
       // Helper function to update internal state
       const updateState = (generation: {
@@ -102,18 +76,6 @@ class TextService extends Effect.Service<TextServiceApi>()(
 
         yield* Ref.set(internalStateRef, newState);
 
-        // Also update the AgentRuntime state for consistency
-        const stateUpdateActivity: AgentActivity = {
-          id: `text-update-${Date.now()}`,
-          agentRuntimeId: agentId,
-          timestamp: Date.now(),
-          type: AgentActivityType.STATE_CHANGE,
-          payload: newState,
-          metadata: {},
-          sequence: 0
-        };
-        yield* runtime.send(stateUpdateActivity);
-
         yield* Effect.log("Updated text generation state", {
           oldCount: currentState.generationCount,
           newCount: newState.generationCount
@@ -129,19 +91,6 @@ class TextService extends Effect.Service<TextServiceApi>()(
               promptLength: options.prompt?.length ?? 0,
               hasSystemPrompt: Option.isSome(options.system)
             });
-
-            // Send command activity to agent
-            const activity: AgentActivity = {
-              id: `text-generate-${Date.now()}`,
-              agentRuntimeId: agentId,
-              timestamp: Date.now(),
-              type: AgentActivityType.COMMAND,
-              payload: { type: "GENERATE_TEXT", options } satisfies GenerateTextCommand,
-              metadata: {},
-              sequence: 0
-            };
-
-            yield* runtime.send(activity);
 
             // Validate input
             if (!options.prompt || options.prompt.trim().length === 0) {
@@ -215,7 +164,7 @@ class TextService extends Effect.Service<TextServiceApi>()(
 
             yield* Effect.log("Text generation completed successfully");
 
-            // Update agent state with generation results
+            // Update internal state with generation results
             yield* updateState({
               timestamp: Date.now(),
               modelId,
@@ -253,20 +202,23 @@ class TextService extends Effect.Service<TextServiceApi>()(
         getAgentState: () => Ref.get(internalStateRef),
 
         /**
-         * Get the runtime for direct access in tests
+         * Get the runtime for direct access in tests (no-op without AgentRuntime)
          */
-        getRuntime: () => runtime,
+        getRuntime: () => Effect.fail(new Error("Runtime not available in simplified TextService")),
 
         /**
-         * Terminate the agent
+         * Terminate the service (simplified - just reset state)
          */
-        terminate: () => agentRuntimeService.terminate(agentId)
+        terminate: () => Effect.gen(function* () {
+          yield* Ref.set(internalStateRef, initialState);
+          yield* Effect.log("TextService terminated");
+        })
       };
 
       return service;
     }),
-    dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
+    dependencies: [ModelService.Default, ProviderService.Default]
   }
 ) { }
 
-export default TextService;
+export { TextService };

@@ -3,14 +3,8 @@
  * @module services/pipeline/producers/transcription
  */
 
-export {
-    AudioFormats,
-    TranscriptionAgentState,
-    // Transcription Service Agent Implementation
-    default as TranscriptionService
-} from "./service.js";
-
-export * from "./api.js";
-export * from "./errors.js";
-export * from "./types.js";
+export type { TranscriptionServiceApi } from "./api.js";
+export { TranscriptionError } from "./errors.js";
+export { TranscriptionService, type TranscriptionAgentState } from "./service.js";
+export type { TranscriptionOptions, TranscriptionResult } from "./types.js";
 

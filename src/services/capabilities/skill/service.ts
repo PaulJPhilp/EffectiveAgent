@@ -2,7 +2,6 @@
  * @file Implements the Skill service for managing skill configurations and execution.
  */
 
-import { AgentActivity, AgentActivityType, AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
 import { Effect, HashMap, Option, Ref, Schema as S } from "effect";
 import type { SkillServiceApi } from "./api.js";
 import {
@@ -20,9 +19,9 @@ import type {
 } from "./types.js";
 
 /**
- * Skill service agent state
+ * Skill service internal state
  */
-export interface SkillAgentState {
+export interface SkillServiceState {
   readonly registeredSkills: ReadonlyArray<string>
   readonly executionCount: number
   readonly lastExecution: Option.Option<{
@@ -33,45 +32,23 @@ export interface SkillAgentState {
 }
 
 /**
- * Default implementation of the SkillService with AgentRuntime integration.
+ * Default implementation of the SkillService.
  */
 export class SkillService extends Effect.Service<SkillServiceApi>()("SkillService", {
   effect: Effect.gen(function* () {
-    const agentRuntimeService = yield* AgentRuntimeService;
-    const agentId = makeAgentRuntimeId("skill-service-agent");
-
     // Store for registered skills
     const skillsRef = yield* Ref.make<HashMap.HashMap<SkillName, RegisteredSkill>>(HashMap.empty());
 
-    const initialState: SkillAgentState = {
+    const initialState: SkillServiceState = {
       registeredSkills: [],
       executionCount: 0,
       lastExecution: Option.none()
     };
 
-    // Create internal state and agent runtime
-    const internalStateRef = yield* Ref.make<SkillAgentState>(initialState);
-    const runtime = yield* agentRuntimeService.create(agentId, initialState);
+    // Create internal state
+    const stateRef = yield* Ref.make<SkillServiceState>(initialState);
 
-    // Load skills from AgentRuntime state
-    const runtimeState = yield* runtime.getState();
-    const runtimeSkills = runtimeState.state.skills || [];
-
-    // Register skills from runtime state
-    yield* Effect.forEach(runtimeSkills, (skill: RegisteredSkill) =>
-      Ref.update(skillsRef, HashMap.set(skill.name, skill))
-    );
-
-    // Update initial state with loaded skills
-    const updatedInitialState: SkillAgentState = {
-      ...initialState,
-      registeredSkills: runtimeSkills.map((skill: RegisteredSkill) => skill.name)
-    };
-    yield* Ref.set(internalStateRef, updatedInitialState);
-
-    yield* Effect.log("SkillService agent initialized", {
-      skillCount: runtimeSkills.length
-    });
+    yield* Effect.log("SkillService initialized");
 
     const service: SkillServiceApi = {
       make: (definition: unknown) => Effect.mapError(
@@ -125,37 +102,14 @@ export class SkillService extends Effect.Service<SkillServiceApi>()("SkillServic
           })
         );
 
-        // 3. Execute the skill using real execution logic
+        // 3. Execute the skill using simplified execution logic
         const rawOutput = yield* Effect.gen(function* () {
-          // Get execution context from runtime
-          const runtimeState = yield* runtime.getState();
-          const skillConfig = skill.config || {};
-
-          // Send execution activity to runtime
-          const executionActivity: AgentActivity = {
-            id: `skill-execute-${Date.now()}`,
-            agentRuntimeId: agentId,
-            timestamp: Date.now(),
-            type: AgentActivityType.COMMAND,
-            payload: {
-              type: "EXECUTE_SKILL",
-              skillName,
-              input: validatedInput,
-              config: skillConfig
-            },
-            metadata: { skillName, inputSize: JSON.stringify(validatedInput).length },
-            sequence: 0
-          };
-          yield* runtime.send(executionActivity);
-
           // Execute the skill based on its configuration and input schema
-          // This would normally invoke the actual skill implementation
-          // For now, we'll generate a minimal valid output that matches the output schema
+          // Generate a minimal valid output that matches the output schema
 
           const outputSchema = skill.outputSchema;
           const generatedOutput = yield* Effect.gen(function* () {
             // Generate a minimal valid output based on the output schema
-            // This is a placeholder for actual skill execution logic
             const ast = outputSchema.ast;
 
             if (ast._tag === "TypeLiteral" && ast.propertySignatures) {
@@ -202,8 +156,8 @@ export class SkillService extends Effect.Service<SkillServiceApi>()("SkillServic
         );
 
         // 5. Update state
-        const currentState = yield* Ref.get(internalStateRef);
-        const newState: SkillAgentState = {
+        const currentState = yield* Ref.get(stateRef);
+        const newState: SkillServiceState = {
           ...currentState,
           executionCount: currentState.executionCount + 1,
           lastExecution: Option.some({
@@ -212,7 +166,7 @@ export class SkillService extends Effect.Service<SkillServiceApi>()("SkillServic
             success: true
           })
         };
-        yield* Ref.set(internalStateRef, newState);
+        yield* Ref.set(stateRef, newState);
 
         yield* Effect.log(`SkillService: executed skill ${skillName} successfully`);
 
@@ -221,6 +175,5 @@ export class SkillService extends Effect.Service<SkillServiceApi>()("SkillServic
     };
 
     return service;
-  }),
-  dependencies: [AgentRuntimeService.Default]
+  })
 }) { }

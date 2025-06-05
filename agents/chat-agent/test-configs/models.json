@@ -1,0 +1,12 @@
+{
+  "models": [
+    {
+      "id": "gpt-4",
+      "provider": "openai",
+      "capabilities": [
+        "chat",
+        "text"
+      ]
+    }
+  ]
+}

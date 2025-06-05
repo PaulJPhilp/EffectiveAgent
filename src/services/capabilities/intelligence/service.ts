@@ -3,60 +3,52 @@
  * @module services/capabilities/intelligence/service
  */
 
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
 import { Effect, Option, Ref } from "effect";
 import type { IntelligenceServiceApi } from "./api.js";
 import { IntelligenceConfigError } from "./errors.js";
 import { IntelligenceFile, type IntelligenceType } from "./schema.js";
 
 /**
- * Intelligence service agent state
+ * Intelligence service internal state
  */
-export interface IntelligenceAgentState {
+export interface IntelligenceServiceState {
   readonly loadCount: number
   readonly lastLoad: Option.Option<number>
   readonly intelligences: ReadonlyArray<IntelligenceType>
 }
 
 /**
- * Service implementation for managing intelligence configurations with AgentRuntime integration.
+ * Service implementation for managing intelligence configurations.
  */
 export class IntelligenceService extends Effect.Service<IntelligenceServiceApi>()(
   "IntelligenceService",
   {
     effect: Effect.gen(function* () {
-      const agentRuntimeService = yield* AgentRuntimeService;
-      const agentId = makeAgentRuntimeId("intelligence-service-agent");
-
-      const initialState: IntelligenceAgentState = {
+      const initialState: IntelligenceServiceState = {
         loadCount: 0,
         lastLoad: Option.none(),
         intelligences: []
       };
 
-      // Create internal state and agent runtime
-      const internalStateRef = yield* Ref.make<IntelligenceAgentState>(initialState);
-      const runtime = yield* agentRuntimeService.create(agentId, initialState);
+      // Create internal state
+      const stateRef = yield* Ref.make<IntelligenceServiceState>(initialState);
 
-      yield* Effect.log("IntelligenceService agent initialized");
+      yield* Effect.log("IntelligenceService initialized");
 
       const service: IntelligenceServiceApi = {
         load: () => Effect.gen(function* () {
-          // Get intelligences from AgentRuntime state
-          const runtimeState = yield* runtime.getState();
-
-          // Load intelligences from the agent runtime configuration
-          const intelligences = runtimeState.state.intelligences || [];
+          // For now, return empty intelligences array since we don't have external configuration loading
+          const intelligences: ReadonlyArray<IntelligenceType> = [];
 
           // Update internal state to track load
-          const currentState = yield* Ref.get(internalStateRef);
-          const newState: IntelligenceAgentState = {
+          const currentState = yield* Ref.get(stateRef);
+          const newState: IntelligenceServiceState = {
             ...currentState,
             loadCount: currentState.loadCount + 1,
             lastLoad: Option.some(Date.now()),
             intelligences
           };
-          yield* Ref.set(internalStateRef, newState);
+          yield* Ref.set(stateRef, newState);
 
           const intelligenceFile: IntelligenceFile = {
             name: "agent-intelligences",
@@ -64,7 +56,7 @@ export class IntelligenceService extends Effect.Service<IntelligenceServiceApi>(
             intelligences
           };
 
-          yield* Effect.log("IntelligenceService: loaded intelligences from agent runtime", {
+          yield* Effect.log("IntelligenceService: loaded intelligences", {
             intelligenceCount: intelligences.length
           });
 
@@ -95,7 +87,6 @@ export class IntelligenceService extends Effect.Service<IntelligenceServiceApi>(
       };
 
       return service;
-    }),
-    dependencies: [AgentRuntimeService.Default]
+    })
   }
 ) { }

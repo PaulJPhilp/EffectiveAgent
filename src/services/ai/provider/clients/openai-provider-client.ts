@@ -1,4 +1,3 @@
-import { AgentRuntimeService } from '@/agent-runtime/service.js';
 import { EffectiveMessage, ModelCapability, TextPart, ToolCallPart } from "@/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
@@ -161,7 +160,7 @@ function convertEffectSchemaToStandardSchema<A, I>(schema: S.Schema<A, I, never>
 
 
 // Internal factory for ProviderService only
-function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService | AgentRuntimeService> {
+function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService> {
     const openaiProvider = createOpenAI({ apiKey });
 
     return Effect.succeed({
@@ -185,7 +184,6 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
 
         chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function* () {
             const toolRegistryService = yield* ToolRegistryService;
-            const agentRuntime = yield* AgentRuntimeService;
 
             let vercelMessages: VercelCoreMessage[] = mapEAMessagesToVercelMessages(Chunk.toReadonlyArray(input.messages || Chunk.empty()));
             let llmTools: Record<string, any> | undefined = undefined;
@@ -305,12 +303,7 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                                 const effectiveToolFromRegistry = effectiveToolFromRegistryEither.right;
                                 const toolEffectToRun = effectiveToolFromRegistry.execute(validatedArgs as Record<string, unknown>);
 
-                                const toolRunResultEither = yield* Effect.either(
-                                    Effect.tryPromise({
-                                        try: () => agentRuntime.run(toolEffectToRun),
-                                        catch: (e) => e as Effect.Effect.Error<typeof toolEffectToRun>
-                                    })
-                                );
+                                const toolRunResultEither = yield* Effect.either(toolEffectToRun);
 
                                 if (Either.isLeft(toolRunResultEither)) {
                                     const execError = toolRunResultEither.left;

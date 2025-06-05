@@ -1,10 +1,7 @@
 /**
- * @file Embedding Agent implementation using AgentRuntime for AI embedding generation
+ * @file Embedding Service implementation for AI embedding generation
  * @module services/pipeline/producers/embedding/service
  */
-
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import type { GenerateEmbeddingsResult } from "@/services/ai/provider/types.js";
@@ -28,38 +25,19 @@ export interface EmbeddingAgentState {
     }>
 }
 
-/**
- * Embedding generation commands
- */
-interface GenerateEmbeddingCommand {
-    readonly type: "GENERATE_EMBEDDING"
-    readonly options: EmbeddingGenerationOptions
-}
 
-interface StateUpdateCommand {
-    readonly type: "UPDATE_STATE"
-    readonly generation: GenerateEmbeddingsResult
-    readonly modelId: string
-    readonly textLength: number
-    readonly success: boolean
-}
-
-type EmbeddingActivityPayload = GenerateEmbeddingCommand | StateUpdateCommand
 
 /**
  * EmbeddingService provides methods for generating embeddings using AI providers.
- * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
+ * Simplified implementation without AgentRuntime dependency.
  */
 class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
     "EmbeddingService",
     {
         effect: Effect.gen(function* () {
-            // Get services
-            const agentRuntimeService = yield* AgentRuntimeService;
+            // Get services directly
             const modelService = yield* ModelService;
             const providerService = yield* ProviderService;
-
-            const agentId = makeAgentRuntimeId("embedding-service-agent");
 
             const initialState: EmbeddingAgentState = {
                 generationCount: 0,
@@ -68,13 +46,10 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
                 generationHistory: []
             };
 
-            // Create the agent runtime
-            const runtime = yield* agentRuntimeService.create(agentId, initialState);
-
             // Create internal state management
             const internalStateRef = yield* Ref.make<EmbeddingAgentState>(initialState);
 
-            yield* Effect.log("EmbeddingService agent initialized");
+            yield* Effect.log("EmbeddingService initialized");
 
             // Helper function to update internal state
             const updateState = (generation: {
@@ -100,18 +75,6 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
 
                 yield* Ref.set(internalStateRef, newState);
 
-                // Also update the AgentRuntime state for consistency
-                const stateUpdateActivity: AgentActivity = {
-                    id: `embedding-update-${Date.now()}`,
-                    agentRuntimeId: agentId,
-                    timestamp: Date.now(),
-                    type: AgentActivityType.STATE_CHANGE,
-                    payload: newState,
-                    metadata: {},
-                    sequence: 0
-                };
-                yield* runtime.send(stateUpdateActivity);
-
                 yield* Effect.log("Updated embedding generation state", {
                     oldCount: currentState.generationCount,
                     newCount: newState.generationCount
@@ -130,18 +93,7 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
                             textLength: options.text.length
                         });
 
-                        // Send command activity to agent
-                        const activity: AgentActivity = {
-                            id: `embedding-generate-${Date.now()}`,
-                            agentRuntimeId: agentId,
-                            timestamp: Date.now(),
-                            type: AgentActivityType.COMMAND,
-                            payload: { type: "GENERATE_EMBEDDING", options } satisfies GenerateEmbeddingCommand,
-                            metadata: {},
-                            sequence: 0
-                        };
 
-                        yield* runtime.send(activity);
 
                         // Validate input
                         if (!options.text || options.text.trim().length === 0) {
@@ -168,15 +120,19 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
 
                         // Call the real AI provider
                         const providerResult = yield* providerClient.generateEmbeddings([options.text], {
-                            modelId,
-                            ...options.parameters
+                            modelId
                         });
 
                         const result: GenerateEmbeddingsResult = {
-                            embeddings: providerResult.embeddings,
-                            usage: providerResult.usage,
+                            embeddings: providerResult.data.embeddings,
+                            usage: providerResult.data.usage,
                             model: modelId,
-                            provider: providerName
+                            dimensions: providerResult.data.embeddings[0]?.length ?? 0,
+                            texts: [options.text],
+                            parameters: {},
+                            id: "",
+                            timestamp: new Date(),
+                            finishReason: "length"
                         };
 
                         yield* Effect.log("Embedding generation completed successfully");
@@ -186,11 +142,20 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
                             timestamp: Date.now(),
                             modelId,
                             textLength: options.text.length,
-                            dimensions: providerResult.embeddings[0]?.length || 0,
+                            dimensions: providerResult.data.embeddings[0]?.length || 0,
                             success: true
                         });
 
-                        return result;
+                        return yield* Effect.succeed({
+                            data: {
+                                embeddings: result.embeddings,
+                                model: result.model,
+                                usage: result.usage
+                            },
+                            metadata: {
+                                provider: providerName
+                            }
+                        });
 
                     }).pipe(
                         Effect.withSpan("EmbeddingService.generate"),
@@ -218,20 +183,16 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
                  */
                 getAgentState: () => Ref.get(internalStateRef),
 
-                /**
-                 * Get the runtime for direct access in tests
-                 */
-                getRuntime: () => runtime,
 
                 /**
-                 * Terminate the agent
+                 * Terminate the service (no-op since we don't have external runtime)
                  */
-                terminate: () => agentRuntimeService.terminate(agentId)
+                terminate: () => Effect.succeed(void 0)
             };
 
             return service;
         }),
-        dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
+        dependencies: [ModelService.Default, ProviderService.Default]
     }
 ) { }
 

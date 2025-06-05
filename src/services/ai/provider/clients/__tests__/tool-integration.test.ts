@@ -1,5 +1,9 @@
 import { EffectiveMessage, TextPart } from "@/schema.js";
-import { Chunk, Effect, Either, Schema as S } from "effect";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Chunk, Effect, Either, Layer, Schema as S } from "effect";
 import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -278,64 +282,76 @@ describe("Tool Integration Tests - End-to-End", () => {
     });
 
     describe("Provider Client Integration", () => {
-        it("should verify client creation and basic structure", () => {
-            // Test the factory functions directly without Effect layers
-            // This verifies the client creation logic and structure
-            expect(typeof makeOpenAIClient).toBe("function");
-            expect(typeof makeAnthropicClient).toBe("function");
-            expect(typeof makeGoogleClient).toBe("function");
+        it("should verify client creation and basic structure", () =>
+            Effect.gen(function* () {
+                // Create and verify each client
+                const openaiClient = yield* makeOpenAIClient("test-key");
+                const anthropicClient = yield* makeAnthropicClient("test-key");
+                const googleClient = yield* makeGoogleClient("test-key");
 
-            // These are Effect factories that require dependencies
-            // We'll test them in a simpler way by checking their types
-            const openAIEffect = makeOpenAIClient("test-key");
-            const anthropicEffect = makeAnthropicClient("test-key");
-            const googleEffect = makeGoogleClient("test-key");
+                // Verify client structure
+                expect(openaiClient).toBeDefined();
+                expect(typeof openaiClient.generateText).toBe("function");
+                expect(typeof openaiClient.chat).toBe("function");
 
-            expect(openAIEffect).toBeDefined();
-            expect(anthropicEffect).toBeDefined();
-            expect(googleEffect).toBeDefined();
-        });
+                expect(anthropicClient).toBeDefined();
+                expect(typeof anthropicClient.generateText).toBe("function");
+                expect(typeof anthropicClient.chat).toBe("function");
+
+                expect(googleClient).toBeDefined();
+                expect(typeof googleClient.generateText).toBe("function");
+                expect(typeof googleClient.chat).toBe("function");
+            }).pipe(
+                Effect.provide(Layer.mergeAll(
+                    NodeFileSystem.layer,
+                    ConfigurationService.Default,
+                    ModelService.Default,
+                    ToolRegistryService.Default
+                ))
+            )
+        );
     });
 
     describe("Error Handling Integration", () => {
-        it("should verify error handling method signatures", () => {
-            // Test that all client factory functions exist and can handle error scenarios
-            const testTools = [{
-                metadata: {
-                    name: "test-tool",
-                    description: "A test tool"
-                },
-                implementation: {
-                    _tag: "EffectImplementation" as const,
-                    inputSchema: CalculatorInputSchema,
-                    execute: (input: any) => Effect.succeed({ result: "success" })
+        it("should verify error handling method signatures", () =>
+            Effect.gen(function* () {
+                // Test that all client factory functions exist and can handle error scenarios
+                const testTools = [{
+                    metadata: {
+                        name: "test-tool",
+                        description: "A test tool"
+                    },
+                    implementation: {
+                        _tag: "EffectImplementation" as const,
+                        inputSchema: CalculatorInputSchema,
+                        execute: (input: any) => Effect.succeed({ result: "success" })
+                    }
+                }];
+
+                const invalidInput = {
+                    text: "Use the test tool",
+                    messages: Chunk.of(new EffectiveMessage({
+                        role: "user",
+                        parts: Chunk.of(new TextPart({ _tag: "Text", content: "Test message" })),
+                        metadata: {}
+                    }))
+                };
+
+                // Verify that the factory functions exist and are callable
+                const providers = [
+                    { name: "OpenAI", factory: makeOpenAIClient, key: "test-openai-key" },
+                    { name: "Anthropic", factory: makeAnthropicClient, key: "test-anthropic-key" },
+                    { name: "Google", factory: makeGoogleClient, key: "test-google-key" }
+                ];
+
+                for (const provider of providers) {
+                    expect(typeof provider.factory).toBe("function");
+                    const effect = provider.factory(provider.key);
+                    expect(effect).toBeDefined();
+                    // The effect should be an Effect type with proper structure
+                    expect(effect.pipe).toBeDefined();
                 }
-            }];
-
-            const invalidInput = {
-                text: "Use the test tool",
-                messages: Chunk.of(new EffectiveMessage({
-                    role: "user",
-                    parts: Chunk.of(new TextPart({ _tag: "Text", content: "Test message" })),
-                    metadata: {}
-                }))
-            };
-
-            // Verify that the factory functions exist and are callable
-            const providers = [
-                { name: "OpenAI", factory: makeOpenAIClient, key: "test-openai-key" },
-                { name: "Anthropic", factory: makeAnthropicClient, key: "test-anthropic-key" },
-                { name: "Google", factory: makeGoogleClient, key: "test-google-key" }
-            ];
-
-            for (const provider of providers) {
-                expect(typeof provider.factory).toBe("function");
-                const effect = provider.factory(provider.key);
-                expect(effect).toBeDefined();
-                // The effect should be an Effect type with proper structure
-                expect(effect.pipe).toBeDefined();
-            }
-        });
+            }));
     });
 
     describe("Tool Lifecycle Simulation", () => {

@@ -3,50 +3,65 @@
  * @module services/core/test-utils/test-layers
  */
 
-import { NodeContext, NodeFileSystem } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 
-import { AgentRuntimeService } from "@/agent-runtime/service.js";
+import { ModelService } from "@/services/ai/model/service.js";
+import { PolicyService } from "@/services/ai/policy/service.js";
+import { PromptService } from "@/services/ai/prompt/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
+import { ToolService } from "@/services/ai/tools/service.js";
 import { IntelligenceService } from "@/services/capabilities/intelligence/service.js";
 import { PersonaService } from "@/services/capabilities/persona/service.js";
-import { SkillService } from "@/services/capabilities/skill/service.js";
-import { SequenceGenerator } from "@/services/core/sequence/sequence-generator.js";
-import { BridgeService } from "@/services/pipeline/bridge/service.js";
-import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
-import { ExecutiveService } from "@/services/pipeline/executive-service/service.js";
-import { InputService } from "@/services/pipeline/input/service.js";
-import { PipelineService } from "@/services/pipeline/pipeline/service.js";
-import ChatService from "@/services/pipeline/producers/chat/service.js";
-import EmbeddingService from "@/services/pipeline/producers/embedding/service.js";
-import ImageService from "@/services/pipeline/producers/image/service.js";
-import ObjectService from "@/services/pipeline/producers/object/service.js";
-import TextService from "@/services/pipeline/producers/text/service.js";
-import TranscriptionService from "@/services/pipeline/producers/transcription/service.js";
+import { AttachmentService } from "@/services/core/attachment/service.js";
+import { AuthService } from "@/services/core/auth/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ErrorRecoveryService } from "@/services/core/error-recovery/service.js";
+import { FileService } from "@/services/core/file/service.js";
+import { RepositoryService } from "@/services/core/repository/service.js";
+import { TagService } from "@/services/core/tag/service.js";
+import { WebSocketService } from "@/services/core/websocket/service.js";
+import { ChatService } from "@/services/pipeline/producers/chat/service.js";
+import { EmbeddingService } from "@/services/pipeline/producers/embedding/service.js";
+import { ImageService } from "@/services/pipeline/producers/image/service.js";
+import { ObjectService } from "@/services/pipeline/producers/object/service.js";
+import { TextService } from "@/services/pipeline/producers/text/service.js";
+import { TranscriptionService } from "@/services/pipeline/producers/transcription/service.js";
 
 /**
- * Combined test layer for all pipeline services with AgentRuntime integration.
- * Includes all producer services, core pipeline services, capabilities services, and utilities.
+ * Test layer that provides all services for integration testing
+ * Note: Does not include AgentRuntimeService to maintain service independence
  */
-export const PipelineTestLayer = Layer.mergeAll(
-    PipelineService.Default,
-    AgentRuntimeService.Default,
-    ExecutiveService.Default,
-    InputService.Default,
-    ChatHistoryService.Default,
-    BridgeService.Default,
+export const TestServiceLayers = Layer.mergeAll(
+    // Core services
+    ConfigurationService.Default,
+    FileService.Default,
+    RepositoryService.Default,
+    AuthService.Default,
+    TagService.Default,
+    AttachmentService.Default,
+    WebSocketService.Default,
+    ErrorRecoveryService.Default,
+
+    // AI services
+    ProviderService.Default,
+    ModelService.Default,
+    PolicyService.Default,
+    PromptService.Default,
+    ToolRegistryService.Default,
+    ToolService.Default,
+
+    // Pipeline producer services
     ChatService.Default,
-    EmbeddingService.Default,
+    TextService.Default,
     ImageService.Default,
     ObjectService.Default,
-    TextService.Default,
+    EmbeddingService.Default,
     TranscriptionService.Default,
-    PersonaService.Default,
+
+    // Capability services
     IntelligenceService.Default,
-    SkillService.Default,
-    SequenceGenerator.Default,
-    // ConfigurationService.Default, // Temporarily removed - causes FileSystem issues in tests
-    NodeContext.layer,
-    NodeFileSystem.layer
+    PersonaService.Default
 );
 
 /**
@@ -56,8 +71,6 @@ export const PipelineTestLayer = Layer.mergeAll(
 export const CapabilitiesTestLayer = Layer.mergeAll(
     PersonaService.Default,
     IntelligenceService.Default,
-    SkillService.Default,
-    AgentRuntimeService.Default,
     NodeContext.layer,
     NodeFileSystem.layer
 );

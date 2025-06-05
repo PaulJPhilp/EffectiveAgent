@@ -1,9 +1,8 @@
-import type { GenerateBaseResult } from "@/services/pipeline/types.js";
 import { Effect, Either, Option } from "effect";
 import { Span } from "effect/Tracer";
 import { describe, expect, it } from "vitest";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "../errors.js";
-import TextService from "../service.js";
+import { TextService } from "../service.js";
 
 /**
  * Simplified TextService tests

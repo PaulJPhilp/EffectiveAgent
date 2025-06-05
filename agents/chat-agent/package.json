@@ -1,0 +1,26 @@
+{
+  "name": "chat-agent",
+  "version": "1.0.0",
+  "description": "Chat agent built with Effective Agent and LangGraph",
+  "type": "module",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "bun src/main.ts",
+    "dev": "bun --watch src/main.ts",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/core": "^0.3.0",
+    "langchain": "^0.3.0",
+    "effect": "^3.16.3"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.8.0",
+    "vitest": "latest"
+  }
+}

@@ -1,4 +1,3 @@
-import { AgentRuntimeService } from '@/agent-runtime/service.js';
 import { EffectiveMessage, ModelCapability, TextPart, ToolCallPart } from "@/schema.js";
 import type { EffectiveInput, FinishReason } from "@/types.js";
 import { type LanguageModelV1, type SpeechModel, experimental_generateSpeech as generateSpeech, generateText } from "ai";
@@ -129,10 +128,9 @@ type GenerateTextResponse = {
 };
 
 // Internal factory for ProviderService only
-function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService | AgentRuntimeService> {
+function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService> {
   return Effect.gen(function* () {
     const toolRegistryService = yield* ToolRegistryService;
-    const agentRuntime = yield* AgentRuntimeService;
     const modelService = yield* ModelService;
 
     return {
@@ -666,7 +664,7 @@ function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
 
       // Chat method with tool calling support
       chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function* () {
-
+        const toolRegistryService = yield* ToolRegistryService;
         let googleMessages: Message[] = mapEAMessagesToGoogleMessages(Chunk.toReadonlyArray(input.messages || Chunk.empty()));
         let toolDescriptions: string[] = [];
         const modelId = options.modelId || "gemini-pro";
@@ -808,12 +806,7 @@ function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                 const effectiveToolFromRegistry = effectiveToolFromRegistryEither.right;
                 const toolEffectToRun = effectiveToolFromRegistry.execute(validatedArgs as Record<string, unknown>);
 
-                const toolRunResultEither = yield* Effect.either(
-                  Effect.tryPromise({
-                    try: () => agentRuntime.run(toolEffectToRun),
-                    catch: (e) => e as Effect.Effect.Error<typeof toolEffectToRun>
-                  })
-                );
+                const toolRunResultEither = yield* Effect.either(toolEffectToRun);
 
                 if (Either.isLeft(toolRunResultEither)) {
                   const execError = toolRunResultEither.left;
@@ -862,7 +855,7 @@ function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
           method: "setVercelProvider"
         }))
     } as unknown as ProviderClientApi;
-  }) as Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService | AgentRuntimeService>;
+  }) as Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService>;
 }
 
 export { makeGoogleClient };

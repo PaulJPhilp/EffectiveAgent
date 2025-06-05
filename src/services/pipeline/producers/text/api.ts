@@ -1,7 +1,6 @@
-import type { AgentRuntime } from "@/agent-runtime/api.js";
 import type { GenerateBaseResult } from "@/services/pipeline/types.js";
 import type { EffectiveResponse } from "@/types.js";
-import type { Effect } from "effect";
+import type { Effect, Ref } from "effect";
 import type { TextAgentState } from "./service.js";
 import type { TextGenerationOptions } from "./types.js";
 
@@ -18,19 +17,19 @@ export interface TextServiceApi {
   ) => Effect.Effect<EffectiveResponse<GenerateBaseResult>, Error>;
 
   /**
-   * Get the current agent state for monitoring/debugging
+   * Get the current service state for monitoring/debugging
    * @returns Effect that resolves to the current TextAgentState
    */
   readonly getAgentState: () => Effect.Effect<TextAgentState, Error>;
 
   /**
-   * Get the agent runtime for advanced operations
-   * @returns The AgentRuntime instance
+   * Get the runtime status (returns state information since runtime is not available in simplified service)
+   * @returns Effect that resolves to state information
    */
-  readonly getRuntime: () => AgentRuntime<TextAgentState>;
+  readonly getRuntime: () => Effect.Effect<{ state: Ref.Ref<TextAgentState> }, Error>;
 
   /**
-   * Terminate the text service agent
+   * Terminate the text service (resets internal state)
    * @returns Effect that resolves when termination is complete
    */
   readonly terminate: () => Effect.Effect<void, Error>;

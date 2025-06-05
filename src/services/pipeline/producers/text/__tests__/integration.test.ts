@@ -10,24 +10,22 @@ import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Option } from "effect";
 import { Span } from "effect/Tracer";
 import { describe, expect, it } from "vitest";
-import { 
-  TextGenerationError, 
-  TextInputError, 
-  TextModelError, 
-  TextProviderError 
+import {
+  TextInputError,
+  TextModelError
 } from "../errors.js";
-import TextService from "../service.js";
+import { TextService } from "../service.js";
 
 // Mock span for testing
 const testSpan = {
-  attribute: () => {},
-  end: () => {},
-  event: () => {},
+  attribute: () => { },
+  end: () => { },
+  event: () => { },
   isRecording: () => true,
-  recordException: () => {},
-  setAttribute: () => {},
-  setAttributes: () => {},
-  setStatus: () => {},
+  recordException: () => { },
+  setAttribute: () => { },
+  setAttributes: () => { },
+  setStatus: () => { },
   spanContext: () => ({
     spanId: "test-span-id",
     traceId: "test-trace-id",
@@ -36,13 +34,13 @@ const testSpan = {
     traceState: undefined
   }),
   startSpan: () => ({
-    end: () => {},
-    setAttribute: () => {},
-    setAttributes: () => {},
-    setStatus: () => {},
-    recordException: () => {}
+    end: () => { },
+    setAttribute: () => { },
+    setAttributes: () => { },
+    setStatus: () => { },
+    recordException: () => { }
   }),
-  updateName: () => {}
+  updateName: () => { }
 } as unknown as Span;
 
 describe("TextService Integration Tests", () => {
@@ -63,7 +61,7 @@ describe("TextService Integration Tests", () => {
   it("should generate text for a valid prompt", () =>
     Effect.gen(function* () {
       const service = yield* TextService;
-      
+
       const response = yield* service.generate(
         createTestOptions()
       );
@@ -74,12 +72,12 @@ describe("TextService Integration Tests", () => {
       expect(response.data.output).toBeDefined();
       expect(typeof response.data.output).toBe("string");
       expect(response.data.output.length).toBeGreaterThan(0);
-      
+
       // Check metadata
       expect(response.metadata).toBeDefined();
       expect(response.metadata.model).toBe(testModelId);
       expect(response.metadata.id).toBeDefined();
-      
+
       // Check usage if present
       if (response.usage) {
         expect(response.usage).toMatchObject({
@@ -100,7 +98,7 @@ describe("TextService Integration Tests", () => {
   it("should handle empty prompt error", () =>
     Effect.gen(function* () {
       const service = yield* TextService;
-      
+
       const result = yield* Effect.either(
         service.generate(
           createTestOptions({
@@ -127,7 +125,7 @@ describe("TextService Integration Tests", () => {
   it("should handle missing model ID error", () =>
     Effect.gen(function* () {
       const service = yield* TextService;
-      
+
       const result = yield* Effect.either(
         service.generate(
           createTestOptions({
@@ -154,7 +152,7 @@ describe("TextService Integration Tests", () => {
   it("should handle invalid model ID error", () =>
     Effect.gen(function* () {
       const service = yield* TextService;
-      
+
       const result = yield* Effect.either(
         service.generate(
           createTestOptions({
@@ -181,7 +179,7 @@ describe("TextService Integration Tests", () => {
     Effect.gen(function* () {
       const controller = new AbortController();
       const service = yield* TextService;
-      
+
       // Abort after a short delay
       setTimeout(() => controller.abort(), 100);
 
@@ -212,7 +210,7 @@ describe("TextService Integration Tests", () => {
   it("should handle generation parameters", () =>
     Effect.gen(function* () {
       const service = yield* TextService;
-      
+
       const response = yield* service.generate(
         createTestOptions({
           parameters: {
@@ -232,7 +230,7 @@ describe("TextService Integration Tests", () => {
       expect(response.data).toBeDefined();
       expect(response.data.output).toBeDefined();
       expect(typeof response.data.output).toBe("string");
-      
+
       // Check that the output doesn't contain any of the stop sequences
       expect(response.data.output).not.toContain("\n");
     }).pipe(

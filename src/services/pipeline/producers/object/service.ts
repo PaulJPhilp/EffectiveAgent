@@ -1,10 +1,8 @@
 /**
- * @file Object Agent implementation using AgentRuntime for AI structured object generation
+ * @file Object Service implementation for AI structured object generation
  * @module services/pipeline/producers/object/service
  */
 
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
@@ -30,37 +28,17 @@ export interface ObjectAgentState {
     }>
 }
 
-/**
- * Object generation commands
- */
-interface GenerateObjectCommand {
-    readonly type: "GENERATE_OBJECT"
-    readonly options: ObjectGenerationOptions<any>
-}
 
-interface StateUpdateCommand {
-    readonly type: "UPDATE_STATE"
-    readonly generation: any
-    readonly modelId: string
-    readonly schemaName: string
-    readonly promptLength: number
-    readonly success: boolean
-}
-
-type ObjectActivityPayload = GenerateObjectCommand | StateUpdateCommand
 
 /**
  * ObjectService provides methods for generating structured objects using AI providers.
- * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
+ * Simplified implementation without AgentRuntime dependency.
  */
 class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", {
     effect: Effect.gen(function* () {
-        // Get services
-        const agentRuntimeService = yield* AgentRuntimeService;
+        // Get services directly
         const modelService = yield* ModelService;
         const providerService = yield* ProviderService;
-
-        const agentId = makeAgentRuntimeId("object-service-agent");
 
         const initialState: ObjectAgentState = {
             generationCount: 0,
@@ -69,13 +47,10 @@ class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", 
             generationHistory: []
         };
 
-        // Create the agent runtime
-        const runtime = yield* agentRuntimeService.create(agentId, initialState);
-
         // Create internal state management
         const internalStateRef = yield* Ref.make<ObjectAgentState>(initialState);
 
-        yield* Effect.log("ObjectService agent initialized");
+        yield* Effect.log("ObjectService initialized");
 
         // Helper function to update internal state
         const updateState = (generation: {
@@ -103,18 +78,6 @@ class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", 
 
             yield* Ref.set(internalStateRef, newState);
 
-            // Also update the AgentRuntime state for consistency
-            const stateUpdateActivity: AgentActivity = {
-                id: `object-update-${Date.now()}`,
-                agentRuntimeId: agentId,
-                timestamp: Date.now(),
-                type: AgentActivityType.STATE_CHANGE,
-                payload: newState,
-                metadata: {},
-                sequence: 0
-            };
-            yield* runtime.send(stateUpdateActivity);
-
             yield* Effect.log("Updated object generation state", {
                 oldCount: currentState.generationCount,
                 newCount: newState.generationCount
@@ -136,18 +99,7 @@ class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", 
                         hasSchema: !!options.schema
                     });
 
-                    // Send command activity to agent
-                    const activity: AgentActivity = {
-                        id: `object-generate-${Date.now()}`,
-                        agentRuntimeId: agentId,
-                        timestamp: Date.now(),
-                        type: AgentActivityType.COMMAND,
-                        payload: { type: "GENERATE_OBJECT", options } satisfies GenerateObjectCommand,
-                        metadata: {},
-                        sequence: 0
-                    };
 
-                    yield* runtime.send(activity);
 
                     // Validate input
                     if (!options.prompt || options.prompt.trim().length === 0) {
@@ -281,20 +233,19 @@ class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", 
             /**
              * Get the runtime for direct access in tests
              */
-            getRuntime: () => ({
-                ...runtime,
+            getRuntime: () => Effect.succeed({
                 state: internalStateRef
             }),
 
             /**
-             * Terminate the agent
+             * Terminate the service (no-op since we don't have external runtime)
              */
-            terminate: () => agentRuntimeService.terminate(agentId)
+            terminate: () => Effect.succeed(void 0)
         };
 
         return service;
     }),
-    dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
+    dependencies: [ModelService.Default, ProviderService.Default]
 }) { }
 
 export default ObjectService;

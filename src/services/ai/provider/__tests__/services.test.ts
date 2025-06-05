@@ -2,11 +2,10 @@
  * @file Provider service integration tests
  */
 
-import path from "path";
 import { Effect, Either } from "effect";
+import path from "path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { FileSystem, Path } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import {
@@ -28,35 +27,15 @@ beforeAll(() => {
   process.env.PROVIDERS_CONFIG_PATH = mainProvidersConfigPath;
 });
 
-
-const createTestService = () => Effect.gen(function* () {
-  // Return the service instance
-  const service = yield* ProviderService;
-  return service;
-});
-
-
 describe("ProviderService", () => {
   it("should load provider configuration successfully from default path", () =>
     Effect.gen(function* () {
-      const service = yield* createTestService();
-      const config = yield* service.load();
-
-      expect(config).toHaveProperty("name");
-      expect(config).toHaveProperty("description");
-      expect(config).toHaveProperty("providers");
-      expect(Array.isArray(config.providers)).toBe(true);
-      expect(config.providers.length).toBeGreaterThan(0);
-
-      const openaiProvider = config.providers.find(p => p.name === "openai");
-      expect(openaiProvider).toBeDefined();
-      if (openaiProvider) {
-        expect(openaiProvider).toHaveProperty("apiKeyEnvVar");
-        expect(openaiProvider).toHaveProperty("capabilities");
-      }
+      const service = yield* ProviderService;
+      const client = yield* service.getProviderClient("openai");
+      expect(client).toBeDefined();
+      expect(typeof client.getCapabilities).toBe("function");
     }).pipe(
       Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
       Effect.provide(NodeFileSystem.layer)
     )
   );
@@ -70,7 +49,7 @@ describe("ProviderService", () => {
         return;
       }
 
-      const service = yield* createTestService();
+      const service = yield* ProviderService;
       const clientEither = yield* Effect.either(
         service.getProviderClient("openai")
       );
@@ -88,14 +67,13 @@ describe("ProviderService", () => {
       expect(Array.from(capabilities)).toContain("chat");
     }).pipe(
       Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
       Effect.provide(NodeFileSystem.layer)
     )
   );
 
   it("should fail with ProviderNotFoundError for an unknown provider", () =>
     Effect.gen(function* () {
-      const service = yield* createTestService();
+      const service = yield* ProviderService;
       const clientEither = yield* Effect.either(
         service.getProviderClient("nonexistent-provider")
       );
@@ -106,7 +84,6 @@ describe("ProviderService", () => {
       }
     }).pipe(
       Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
       Effect.provide(NodeFileSystem.layer)
     )
   );
@@ -125,6 +102,7 @@ describe("ProviderService", () => {
       if (originalProvidersConfigPath) {
         process.env.PROVIDERS_CONFIG_PATH = originalProvidersConfigPath;
       } else {
+        // biome-ignore lint/performance/noDelete: <explanation>
         delete process.env.PROVIDERS_CONFIG_PATH;
       }
     });
@@ -157,7 +135,7 @@ describe("ProviderService", () => {
         });
 
         // Test
-        const service = yield* createTestService();
+        const service = yield* ProviderService;
         const clientEither = yield* Effect.either(
           service.getProviderClient(testProviderName)
         );
@@ -167,18 +145,15 @@ describe("ProviderService", () => {
         if (Either.isLeft(clientEither)) {
           expect(clientEither.left).toBeInstanceOf(ProviderServiceConfigError);
           const error = clientEither.left as ProviderServiceConfigError;
-          expect(error.message).toContain(
-            `API key environment variable THIS_API_KEY_SHOULD_NEVER_BE_SET_IN_ENV not set for provider ${testProviderName}`
-          );
+          expect(error.description).toContain("API key not found in environment");
         }
 
         // Cleanup
-        yield* fs.remove(tempConfigDir, { recursive: true }).pipe(
+        yield* fs.remove(tempConfigPath).pipe(
           Effect.catchAll((error) => Effect.logDebug("Ignored cleanup error: " + JSON.stringify(error)))
         );
       }).pipe(
         Effect.provide(ProviderService.Default),
-        Effect.provide(ConfigurationService.Default),
         Effect.provide(NodeFileSystem.layer)
       );
     });

@@ -1,14 +1,12 @@
 /**
- * @file Chat Agent implementation using AgentRuntime for AI chat completion
+ * @file Chat Service implementation for AI chat completion
  * @module services/pipeline/producers/chat/service
  */
-
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
+import { TextPart } from "@/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { EffectiveInput, EffectiveMessage, EffectiveResponse } from "@/types.js";
-import { Effect, Option, Ref } from "effect";
+import { Chunk, Effect, Option, Ref } from "effect";
 import type { ChatServiceApi } from "./api.js";
 import { ChatInputError, ChatModelError } from "./errors.js";
 import type { ChatCompletionOptions, ChatCompletionResult } from "./types.js";
@@ -31,38 +29,19 @@ export interface ChatAgentState {
     }>
 }
 
-/**
- * Chat generation commands
- */
-interface GenerateChatCommand {
-    readonly type: "GENERATE_CHAT"
-    readonly options: ChatCompletionOptions
-}
 
-interface StateUpdateCommand {
-    readonly type: "UPDATE_STATE"
-    readonly completion: ChatCompletionResult
-    readonly modelId: string
-    readonly inputLength: number
-    readonly success: boolean
-}
-
-type ChatActivityPayload = GenerateChatCommand | StateUpdateCommand
 
 /**
  * ChatService provides methods for generating chat completions using AI providers.
- * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
+ * Simplified implementation without AgentRuntime dependency.
  */
 export class ChatService extends Effect.Service<ChatServiceApi>()(
     "ChatService",
     {
         effect: Effect.gen(function* () {
-            // Get services
-            const agentRuntimeService = yield* AgentRuntimeService;
+            // Get services directly
             const modelService = yield* ModelService;
             const providerService = yield* ProviderService;
-
-            const agentId = makeAgentRuntimeId("chat-service-agent");
 
             const initialState: ChatAgentState = {
                 completionCount: 0,
@@ -71,13 +50,10 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
                 completionHistory: []
             };
 
-            // Create the agent runtime
-            const runtime = yield* agentRuntimeService.create(agentId, initialState);
-
             // Create internal state management
             const internalStateRef = yield* Ref.make<ChatAgentState>(initialState);
 
-            yield* Effect.log("ChatService agent initialized");
+            yield* Effect.log("ChatService initialized");
 
             // Helper function to update internal state
             const updateState = (completion: {
@@ -104,18 +80,6 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
                 };
 
                 yield* Ref.set(internalStateRef, newState);
-
-                // Also update the AgentRuntime state for consistency
-                const stateUpdateActivity: AgentActivity = {
-                    id: `chat-update-${Date.now()}`,
-                    agentRuntimeId: agentId,
-                    timestamp: Date.now(),
-                    type: AgentActivityType.STATE_CHANGE,
-                    payload: newState,
-                    metadata: {},
-                    sequence: 0
-                };
-                yield* runtime.send(stateUpdateActivity);
 
                 yield* Effect.log("Updated chat completion state", {
                     oldCount: currentState.completionCount,
@@ -146,18 +110,7 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
                             inputLength: options.input?.length ?? 0
                         });
 
-                        // Send command activity to agent
-                        const activity: AgentActivity = {
-                            id: `chat-generate-${Date.now()}`,
-                            agentRuntimeId: agentId,
-                            timestamp: Date.now(),
-                            type: AgentActivityType.COMMAND,
-                            payload: { type: "GENERATE_CHAT", options } satisfies GenerateChatCommand,
-                            metadata: {},
-                            sequence: 0
-                        };
 
-                        yield* runtime.send(activity);
 
                         // Validate input
                         if (!options.input || options.input.length === 0) {
@@ -189,24 +142,26 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
                         }
                         messages.push({ role: "user", content: options.input });
 
-                        // Create EffectiveInput for the provider
-                        const effectiveInput = new EffectiveInput({
-                            text: options.input,
-                            messages: messages.map(msg => new EffectiveMessage({
-                                role: msg.role as "system" | "user" | "assistant",
-                                content: msg.content
-                            }))
-                        });
+                        // Create EffectiveMessages
+                        const effectiveMessages = messages.map(msg => new EffectiveMessage({
+                            role: msg.role as "system" | "user" | "assistant",
+                            parts: Chunk.of(new TextPart({ _tag: "Text", content: msg.content }))
+                        }));
+
+                        // Create EffectiveInput
+                        const effectiveInput = new EffectiveInput(options.input, Chunk.fromIterable(effectiveMessages));
 
                         // Call the real AI provider
                         const providerResult = yield* providerClient.chat(effectiveInput, {
                             modelId,
-                            temperature: options.parameters?.temperature,
-                            maxTokens: options.parameters?.maxTokens,
-                            topP: options.parameters?.topP,
-                            frequencyPenalty: options.parameters?.frequencyPenalty,
-                            presencePenalty: options.parameters?.presencePenalty,
-                            stop: options.parameters?.stop,
+                            parameters: {
+                                temperature: options.parameters?.temperature ?? 0.7,
+                                maxTokens: options.parameters?.maxTokens ?? 1000,
+                                topP: options.parameters?.topP ?? 1,
+                                frequencyPenalty: options.parameters?.frequencyPenalty ?? 0,
+                                presencePenalty: options.parameters?.presencePenalty ?? 0,
+                                stop: options.parameters?.stop
+                            },
                             system: options.system
                         });
 
@@ -214,11 +169,21 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
                             content: providerResult.data.text,
                             finishReason: providerResult.data.finishReason,
                             usage: providerResult.data.usage,
-                            toolCalls: providerResult.data.toolCalls || [],
+                            toolCalls: (providerResult.data.toolCalls || []).map(toolCall => ({
+                                id: toolCall.id,
+                                type: "function" as const,
+                                function: {
+                                    name: toolCall.function.name,
+                                    arguments: JSON.parse(toolCall.function.arguments)
+                                }
+                            })),
                             providerMetadata: {
                                 model: modelId,
                                 provider: providerName,
-                                ...providerResult.data.providerMetadata
+                                ...Object.fromEntries(
+                                    Object.entries(providerResult.data.providerMetadata || {})
+                                        .filter(([key]) => key !== 'capabilities' && key !== 'configSchema')
+                                )
                             }
                         };
 
@@ -276,19 +241,14 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
                 getAgentState: () => Ref.get(internalStateRef),
 
                 /**
-                 * Get the runtime for direct access in tests
+                 * Terminate the service (no-op since we don't have external runtime)
                  */
-                getRuntime: () => runtime,
-
-                /**
-                 * Terminate the agent
-                 */
-                terminate: () => agentRuntimeService.terminate(agentId)
+                terminate: () => Effect.succeed(void 0)
             };
 
             return service;
         }),
-        dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
+        dependencies: [ModelService.Default, ProviderService.Default]
     }
 ) { }
 

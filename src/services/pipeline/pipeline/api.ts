@@ -1,5 +1,4 @@
-import type { AgentRuntime } from "@/agent-runtime/api.js";
-import { Effect } from "effect";
+import { Effect, Ref } from "effect";
 import {
   ExecutiveParameters,
   ExecutiveServiceError,
@@ -17,19 +16,19 @@ export interface PipelineServiceInterface {
   ) => Effect.Effect<A, E | ExecutiveServiceError, R>;
 
   /**
-   * Get the current agent state for monitoring/debugging
+   * Get the current service state for monitoring/debugging
    * @returns Effect that resolves to the current PipelineAgentState
    */
   readonly getAgentState: () => Effect.Effect<PipelineAgentState, Error>;
 
   /**
-   * Get the agent runtime for advanced operations
-   * @returns The AgentRuntime instance
+   * Get the runtime status (returns error as runtime is not available in simplified state)
+   * @returns Effect that resolves to state information
    */
-  readonly getRuntime: () => AgentRuntime<PipelineAgentState>;
+  readonly getRuntime: () => Effect.Effect<{ state: Ref.Ref<PipelineAgentState> }, Error>;
 
   /**
-   * Terminate the pipeline service agent
+   * Terminate the pipeline service (resets internal state)
    * @returns Effect that resolves when termination is complete
    */
   readonly terminate: () => Effect.Effect<void, Error>;

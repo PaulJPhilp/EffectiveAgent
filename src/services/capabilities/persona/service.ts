@@ -3,7 +3,6 @@
  * @module services/capabilities/persona/service
  */
 
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
 import { Effect, Option, Ref, Schema as S } from "effect";
 import type { PersonaServiceApi } from "./api.js";
 import { PersonaConfigError } from "./errors.js";
@@ -11,51 +10,44 @@ import { Persona, PersonasFile } from "./schema.js";
 import type { PersonaDefinition, PersonaDefinitionInput } from "./types.js";
 
 /**
- * Persona service agent state
+ * Persona service internal state
  */
-export interface PersonaAgentState {
+export interface PersonaServiceState {
   readonly loadCount: number
   readonly lastLoad: Option.Option<number>
   readonly personas: ReadonlyArray<PersonaDefinition>
 }
 
 /**
- * Default implementation of the PersonaService with AgentRuntime integration.
+ * Default implementation of the PersonaService.
  */
 export class PersonaService extends Effect.Service<PersonaServiceApi>()("PersonaService", {
   effect: Effect.gen(function* () {
-    const agentRuntimeService = yield* AgentRuntimeService;
-    const agentId = makeAgentRuntimeId("persona-service-agent");
-
-    const initialState: PersonaAgentState = {
+    const initialState: PersonaServiceState = {
       loadCount: 0,
       lastLoad: Option.none(),
       personas: []
     };
 
-    // Create internal state and agent runtime
-    const internalStateRef = yield* Ref.make<PersonaAgentState>(initialState);
-    const runtime = yield* agentRuntimeService.create(agentId, initialState);
+    // Create internal state
+    const stateRef = yield* Ref.make<PersonaServiceState>(initialState);
 
-    yield* Effect.log("PersonaService agent initialized");
+    yield* Effect.log("PersonaService initialized");
 
     const service: PersonaServiceApi = {
       load: () => Effect.gen(function* () {
-        // Get personas from AgentRuntime state
-        const runtimeState = yield* runtime.getState();
-
-        // Load personas from the agent runtime configuration
-        const personas = runtimeState.state.personas || [];
+        // For now, return empty personas array since we don't have external configuration loading
+        const personas: ReadonlyArray<PersonaDefinition> = [];
 
         // Update internal state to track load
-        const currentState = yield* Ref.get(internalStateRef);
-        const newState: PersonaAgentState = {
+        const currentState = yield* Ref.get(stateRef);
+        const newState: PersonaServiceState = {
           ...currentState,
           loadCount: currentState.loadCount + 1,
           lastLoad: Option.some(Date.now()),
           personas
         };
-        yield* Ref.set(internalStateRef, newState);
+        yield* Ref.set(stateRef, newState);
 
         const personasFile: PersonasFile = {
           name: "agent-personas",
@@ -63,7 +55,7 @@ export class PersonaService extends Effect.Service<PersonaServiceApi>()("Persona
           personas
         };
 
-        yield* Effect.log("PersonaService: loaded personas from agent runtime", {
+        yield* Effect.log("PersonaService: loaded personas", {
           personaCount: personas.length
         });
 
@@ -88,6 +80,5 @@ export class PersonaService extends Effect.Service<PersonaServiceApi>()("Persona
     };
 
     return service;
-  }),
-  dependencies: [AgentRuntimeService.Default]
+  })
 }) { }

@@ -3,10 +3,12 @@
  * @module services/core/configuration/api
  */
 
+import { ModelConfigData } from "@/services/ai/model/types.js";
 import { PolicyConfigFile } from "@/services/ai/policy/schema.js";
 import { ProviderFile } from "@/services/ai/provider/schema.js";
 import { Effect, Schema } from "effect"; // Added Config, ConfigError
 import { ConfigParseError, ConfigReadError, ConfigValidationError } from "./errors.js";
+import { MasterConfig } from "./schema.js";
 
 /**
  * Options for loading a configuration file
@@ -22,26 +24,30 @@ export interface LoadConfigOptions<T> {
  */
 export interface ConfigurationServiceApi {
 
-    readonly loadConfig: <T>({
-        filePath,
-        schema
-    }: LoadConfigOptions<T>) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
+    readonly loadConfig: <T>(filePath: string, schema: Schema.Schema<T, any>) => Effect.Effect<T, ConfigReadError | ConfigValidationError>;
+
+    /**
+     * Load and parse a raw configuration file without schema validation
+     * @param filePath - Path to the configuration file
+     * @returns Effect containing the parsed JSON object or configuration error
+     */
+    readonly loadRawConfig: (filePath: string) => Effect.Effect<unknown, ConfigReadError | ConfigParseError>;
 
     /**
      * Load and validate provider configuration.
      */
-    readonly loadProviderConfig: (filePath: string) => Effect.Effect<ProviderFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
+    readonly loadProviderConfig: (filePath: string) => Effect.Effect<ProviderFile, ConfigReadError | ConfigValidationError>;
 
     /**
      * Load and validate model configuration.
      */
-    readonly loadModelConfig: (filePath: string) => Effect.Effect<unknown, ConfigReadError | ConfigParseError>;
+    readonly loadModelConfig: (filePath: string) => Effect.Effect<ModelConfigData, ConfigReadError | ConfigValidationError>;
 
     /**
      * Load and validate the policy configuration file
      * @returns Effect containing PolicyConfigFile or configuration error
      */
-    readonly loadPolicyConfig: (filePath: string) => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
+    readonly loadPolicyConfig: (filePath: string) => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigValidationError>;
 
     /**
      * Get an API key from environment variables.
@@ -56,4 +62,6 @@ export interface ConfigurationServiceApi {
      * @returns Effect yielding the environment variable string.
      */
     readonly getEnvVariable: (name: string) => Effect.Effect<string>;
+
+    readonly getMasterConfig: () => Effect.Effect<MasterConfig, ConfigReadError | ConfigValidationError>;
 }

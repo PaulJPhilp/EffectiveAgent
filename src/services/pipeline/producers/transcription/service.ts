@@ -1,10 +1,7 @@
 /**
- * @file Transcription Agent implementation using AgentRuntime for AI audio transcription
+ * @file Transcription Service implementation for AI audio transcription
  * @module services/pipeline/producers/transcription/service
  */
-
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { TranscribeResult } from "@/services/ai/provider/types.js";
@@ -70,38 +67,19 @@ export interface TranscriptionAgentState {
     }>
 }
 
-/**
- * Transcription commands
- */
-interface TranscribeCommand {
-    readonly type: "TRANSCRIBE_AUDIO"
-    readonly options: TranscriptionOptions
-}
 
-interface StateUpdateCommand {
-    readonly type: "UPDATE_STATE"
-    readonly transcription: TranscriptionResult
-    readonly modelId: string
-    readonly audioSize: number
-    readonly success: boolean
-}
-
-type TranscriptionActivityPayload = TranscribeCommand | StateUpdateCommand
 
 /**
  * TranscriptionService provides methods for transcribing audio using AI providers.
- * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
+ * Simplified implementation without AgentRuntime dependency.
  */
 class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
     "TranscriptionService",
     {
         effect: Effect.gen(function* () {
-            // Get services
-            const agentRuntimeService = yield* AgentRuntimeService;
+            // Get services directly
             const modelService = yield* ModelService;
             const providerService = yield* ProviderService;
-
-            const agentId = makeAgentRuntimeId("transcription-service-agent");
 
             const initialState: TranscriptionAgentState = {
                 transcriptionCount: 0,
@@ -110,13 +88,10 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                 transcriptionHistory: []
             };
 
-            // Create the agent runtime
-            const runtime = yield* agentRuntimeService.create(agentId, initialState);
-
             // Create internal state management
             const internalStateRef = yield* Ref.make<TranscriptionAgentState>(initialState);
 
-            yield* Effect.log("TranscriptionService agent initialized");
+            yield* Effect.log("TranscriptionService initialized");
 
             // Helper function to update internal state
             const updateState = (transcription: {
@@ -144,18 +119,6 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
 
                 yield* Ref.set(internalStateRef, newState);
 
-                // Also update the AgentRuntime state for consistency
-                const stateUpdateActivity: AgentActivity = {
-                    id: `transcription-update-${Date.now()}`,
-                    agentRuntimeId: agentId,
-                    timestamp: Date.now(),
-                    type: AgentActivityType.STATE_CHANGE,
-                    payload: newState,
-                    metadata: {},
-                    sequence: 0
-                };
-                yield* runtime.send(stateUpdateActivity);
-
                 yield* Effect.log("Updated transcription state", {
                     oldCount: currentState.transcriptionCount,
                     newCount: newState.transcriptionCount
@@ -175,18 +138,7 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                             audioFormat: options.audioFormat
                         });
 
-                        // Send command activity to agent
-                        const activity: AgentActivity = {
-                            id: `transcription-transcribe-${Date.now()}`,
-                            agentRuntimeId: agentId,
-                            timestamp: Date.now(),
-                            type: AgentActivityType.COMMAND,
-                            payload: { type: "TRANSCRIBE_AUDIO", options } satisfies TranscribeAudioCommand,
-                            metadata: {},
-                            sequence: 0
-                        };
 
-                        yield* runtime.send(activity);
 
                         // Validate input
                         if (!options.audioData || options.audioData.length === 0) {
@@ -280,17 +232,19 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                 /**
                  * Get the runtime for direct access in tests
                  */
-                getRuntime: () => runtime,
+                getRuntime: () => Effect.succeed({
+                    state: internalStateRef
+                }),
 
                 /**
-                 * Terminate the agent
+                 * Terminate the service (no-op since we don't have external runtime)
                  */
-                terminate: () => agentRuntimeService.terminate(agentId)
+                terminate: () => Effect.succeed(void 0)
             };
 
             return service;
         }),
-        dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
+        dependencies: [ModelService.Default, ProviderService.Default]
     }
 ) { }
 

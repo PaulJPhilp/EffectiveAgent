@@ -1,6 +1,5 @@
 import type { EffectiveInput, EffectiveResponse } from "@/types.js";
 import type { Effect } from "effect";
-import type { ProviderMetadata } from "./types.js";
 
 import { ModelCapability } from "@/schema.js";
 import { LanguageModelV1 } from "@ai-sdk/provider";
@@ -8,10 +7,11 @@ import { ModelServiceApi } from "../model/api.js";
 import {
     ProviderMissingCapabilityError,
     ProviderMissingModelIdError,
+    ProviderNotFoundError,
     ProviderOperationError,
-    ProviderServiceConfigError
+    ProviderServiceConfigError,
+    ProviderToolError
 } from "./errors.js";
-import { ProviderToolError } from "./errors.js";
 import { ProvidersType } from "./schema.js";
 import {
     EffectiveProviderApi,
@@ -42,7 +42,7 @@ export type ProviderServiceApi = {
      * @param providerName The name of the provider to get.
      * @returns An Effect resolving to the provider client.
      */
-    getProviderClient: (providerName: string) => Effect.Effect<ProviderClientApi, never>;
+    getProviderClient: (providerName: string) => Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError>;
 
     /**
      * Checks the health of the provider service.

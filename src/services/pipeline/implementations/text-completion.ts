@@ -4,16 +4,12 @@
  */
 
 import { EffectiveError } from "@/errors.js";
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
 import type { GenerateTextResult } from "@/services/ai/provider/types.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
 import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
-import TextService from "@/services/pipeline/producers/text/service.js";
+import { TextService } from "@/services/pipeline/producers/text/service.js";
 // PipelineService import removed
-import { NodeContext } from "@effect/platform-node";
 import { Effect, Option, Schema, pipe } from "effect";
 
 /**
@@ -54,31 +50,31 @@ export class TextCompletionPipeline extends AiPipeline<
     const generationEffect = Effect.gen(function* () {
       // Now 'service' refers to the instance, not a yielded Tag
       const result = yield* textServiceInstance.generate({ // USE INJECTED SERVICE
-          prompt: input.prompt,
-          modelId: input.modelId,
-          system: Option.fromNullable(input.systemPrompt),
-          span: {} as any, // TODO: Add proper span handling
-          parameters: {
-            maxSteps: input.maxTokens,
-            maxRetries: input.maxRetries,
-            temperature: input.temperature,
-            topP: input.topP,
-            topK: input.topK,
-            presencePenalty: input.presencePenalty,
-            frequencyPenalty: input.frequencyPenalty,
-            seed: input.seed,
-            stop: input.stop ? [...input.stop] : undefined,
-          },
-        });
+        prompt: input.prompt,
+        modelId: input.modelId,
+        system: Option.fromNullable(input.systemPrompt),
+        span: {} as any, // TODO: Add proper span handling
+        parameters: {
+          maxSteps: input.maxTokens,
+          maxRetries: input.maxRetries,
+          temperature: input.temperature,
+          topP: input.topP,
+          topK: input.topK,
+          presencePenalty: input.presencePenalty,
+          frequencyPenalty: input.frequencyPenalty,
+          seed: input.seed,
+          stop: input.stop ? [...input.stop] : undefined,
+        },
+      });
 
-        return {
-          text: (result.data as unknown as GenerateTextResult).text,
-          usage: result.usage ?? {
-            promptTokens: 0,
-            completionTokens: 0,
-            totalTokens: 0
-          }
-        } satisfies TextCompletionOutput;
+      return {
+        text: (result.data as unknown as GenerateTextResult).text,
+        usage: result.usage ?? {
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0
+        }
+      } satisfies TextCompletionOutput;
     });
 
     return pipe(

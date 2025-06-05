@@ -1,12 +1,9 @@
 /**
- * @file Chat History Service implementation using AgentRuntime for conversation management and tracking
+ * @file Chat History Service implementation for conversation management and tracking
  * @module services/pipeline/chat/service
  */
-
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ChatHistory, ChatHistoryError, ChatHistoryServiceApi, ChatMessage } from "@/services/pipeline/chat/api.js";
-import { Effect, Either, Option, Ref, pipe } from "effect";
+import { Effect, Either, Layer, Option, Ref, pipe } from "effect";
 
 /**
  * Chat agent state for tracking conversation activity
@@ -29,33 +26,7 @@ export interface ChatAgentState {
   readonly activeHistories: ReadonlyArray<string>
 }
 
-/**
- * Chat service commands
- */
-interface LoadHistoryCommand {
-  readonly type: "LOAD_HISTORY"
-  readonly historyId: string
-}
 
-interface SaveHistoryCommand {
-  readonly type: "SAVE_HISTORY"
-  readonly historyId: string
-  readonly messageCount: number
-}
-
-interface AppendMessageCommand {
-  readonly type: "APPEND_MESSAGE"
-  readonly historyId?: string
-  readonly messageContent: string
-}
-
-interface AppendResponseCommand {
-  readonly type: "APPEND_RESPONSE"
-  readonly historyId?: string
-  readonly responseContent: string
-}
-
-type ChatActivityPayload = LoadHistoryCommand | SaveHistoryCommand | AppendMessageCommand | AppendResponseCommand
 
 // Validation functions
 const validateHistoryId = (historyId: string): Effect.Effect<string, ChatHistoryError> => {
@@ -88,20 +59,12 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
   "ChatHistoryService",
   {
     effect: Effect.gen(function* () {
-      // Get services
-      const agentRuntimeService = yield* AgentRuntimeService;
-
-      const agentId = makeAgentRuntimeId("chat-history-service-agent");
-
       const initialState: ChatAgentState = {
         historyCount: 0,
         lastActivity: Option.none(),
         activityHistory: [],
         activeHistories: []
       };
-
-      // Create the agent runtime
-      const runtime = yield* agentRuntimeService.create(agentId, initialState);
 
       // Create internal state management
       const internalStateRef = yield* Ref.make<ChatAgentState>(initialState);
@@ -110,7 +73,7 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
       const historyStore: Ref.Ref<Map<string, ChatHistory>> =
         yield* Ref.make(new Map<string, ChatHistory>());
 
-      yield* Effect.log("ChatHistoryService agent initialized");
+      yield* Effect.log("ChatHistoryService initialized");
 
       // Helper function to update internal state
       const updateState = (activity: {
@@ -151,21 +114,6 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
 
         yield* Ref.set(internalStateRef, newState);
 
-        // Also update the AgentRuntime state for consistency
-        const stateUpdateActivity: AgentActivity = {
-          id: `chat-update-${Date.now()}`,
-          agentRuntimeId: agentId,
-          timestamp: Date.now(),
-          type: AgentActivityType.STATE_CHANGE,
-          payload: newState,
-          metadata: {},
-          sequence: 0
-        };
-        yield* runtime.send(stateUpdateActivity);
-
-        // Wait for the AgentRuntime to process the state update
-        yield* Effect.sleep("10 millis");
-
         yield* Effect.log("Updated chat history state", {
           action: activity.action,
           historyId: activity.historyId,
@@ -179,18 +127,7 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
           historyId: string,
         ): Effect.Effect<ChatHistory | null, ChatHistoryError> => {
           return Effect.gen(function* () {
-            // Send command activity to agent
-            const activity: AgentActivity = {
-              id: `chat-load-${Date.now()}`,
-              agentRuntimeId: agentId,
-              timestamp: Date.now(),
-              type: AgentActivityType.COMMAND,
-              payload: { type: "LOAD_HISTORY", historyId } satisfies LoadHistoryCommand,
-              metadata: { historyId },
-              sequence: 0
-            };
 
-            yield* runtime.send(activity);
 
             const result = yield* Effect.either(
               pipe(
@@ -228,22 +165,7 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
           history: ChatHistory,
         ): Effect.Effect<void, ChatHistoryError> => {
           return Effect.gen(function* () {
-            // Send command activity to agent
-            const activity: AgentActivity = {
-              id: `chat-save-${Date.now()}`,
-              agentRuntimeId: agentId,
-              timestamp: Date.now(),
-              type: AgentActivityType.COMMAND,
-              payload: {
-                type: "SAVE_HISTORY",
-                historyId,
-                messageCount: history?.messages?.length || 0
-              } satisfies SaveHistoryCommand,
-              metadata: { historyId, messageCount: history?.messages?.length || 0 },
-              sequence: 0
-            };
 
-            yield* runtime.send(activity);
 
             const result = yield* Effect.either(
               pipe(
@@ -287,22 +209,7 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
           userMessage: string,
         ): Effect.Effect<ChatMessage[], ChatHistoryError> => {
           return Effect.gen(function* () {
-            // Send command activity to agent
-            const activity: AgentActivity = {
-              id: `chat-append-msg-${Date.now()}`,
-              agentRuntimeId: agentId,
-              timestamp: Date.now(),
-              type: AgentActivityType.COMMAND,
-              payload: {
-                type: "APPEND_MESSAGE",
-                historyId,
-                messageContent: userMessage.substring(0, 50) + (userMessage.length > 50 ? "..." : "")
-              } satisfies AppendMessageCommand,
-              metadata: { historyId, messageLength: userMessage.length },
-              sequence: 0
-            };
 
-            yield* runtime.send(activity);
 
             try {
               // Start with empty messages array
@@ -382,22 +289,7 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
               return Effect.succeed(void 0);
             }
 
-            // Send command activity to agent
-            const activity: AgentActivity = {
-              id: `chat-append-resp-${Date.now()}`,
-              agentRuntimeId: agentId,
-              timestamp: Date.now(),
-              type: AgentActivityType.COMMAND,
-              payload: {
-                type: "APPEND_RESPONSE",
-                historyId,
-                responseContent: response.substring(0, 50) + (response.length > 50 ? "..." : "")
-              } satisfies AppendResponseCommand,
-              metadata: { historyId, responseLength: response.length },
-              sequence: 0
-            };
 
-            yield* runtime.send(activity);
 
             try {
               const updatedMessages = [
@@ -468,14 +360,16 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
         /**
          * Get the runtime for direct access in tests
          */
-        getRuntime: () => runtime,
+        getRuntime: () => Effect.succeed({
+          state: internalStateRef
+        }),
 
         /**
-         * Terminate the agent
+         * Terminate the service (no-op since we don't have external runtime)
          */
-        terminate: () => agentRuntimeService.terminate(agentId)
+        terminate: () => Effect.succeed(void 0)
       };
     }),
-    dependencies: [AgentRuntimeService.Default]
-  },
+    dependencies: []
+  }
 ) { }

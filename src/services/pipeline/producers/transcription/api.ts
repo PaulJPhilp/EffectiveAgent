@@ -1,37 +1,43 @@
 /**
- * API for the Transcription Service.
- * Defines methods for submitting audio and retrieving transcriptions.
+ * @file API interface for TranscriptionService (AI speech-to-text producer).
+ * Defines the contract for audio transcription using AI models/providers.
  */
-import type { AgentRuntime } from "@/agent-runtime/types.js";
-import { Effect } from "effect";
-import type { TranscriptionResult } from "../../../../types.js";
-import type { TranscriptionAgentState, TranscriptionOptions } from "./service.js";
 
+import type { EffectiveResponse } from "@/types.js";
+import type { Effect, Ref } from "effect";
+import type { TranscriptionAgentState } from "./service.js";
+import type { TranscriptionOptions, TranscriptionResult } from "./types.js";
+
+export type { TranscriptionOptions, TranscriptionResult };
+
+/**
+ * API contract for the TranscriptionService.
+ */
 export interface TranscriptionServiceApi {
   /**
    * Transcribes audio based on the provided options.
-   * @param options Options for audio transcription.
-   * @returns Effect that resolves to a transcription result or fails with a TranscriptionError.
+   * @param options Options for transcription, including audio data and modelId.
+   * @returns Effect that resolves to an EffectiveResponse or fails with a TranscriptionServiceError.
    */
   readonly transcribe: (
     options: TranscriptionOptions
-  ) => Effect.Effect<{ data: TranscriptionResult; metadata: any }, Error>;
+  ) => Effect.Effect<EffectiveResponse<TranscriptionResult>, Error>;
 
   /**
-   * Get the current agent state for monitoring/debugging
+   * Get the current service state for monitoring/debugging
    * @returns Effect that resolves to the current TranscriptionAgentState
    */
   readonly getAgentState: () => Effect.Effect<TranscriptionAgentState, Error>;
 
   /**
-   * Get the agent runtime for advanced operations
-   * @returns The AgentRuntime instance
+   * Get the runtime status (returns state information since runtime is not available in simplified service)
+   * @returns Effect that resolves to state information
    */
-  readonly getRuntime: () => AgentRuntime<TranscriptionAgentState>;
+  readonly getRuntime: () => Effect.Effect<{ state: Ref.Ref<TranscriptionAgentState> }, Error>;
 
   /**
-   * Terminate the transcription service agent
-   * @returns Effect that resolves when termination is complete
+   * Terminate the service (no-op since we don't have external runtime)
+   * @returns Effect that succeeds
    */
   readonly terminate: () => Effect.Effect<void, Error>;
 }

@@ -3,13 +3,11 @@
  * @module services/pipeline/producers/text
  */
 
+export type { TextServiceApi } from "./api.js";
+export { TextServiceError } from "./errors.js";
+export type { TextCompletionInput, TextCompletionOutput } from "./schema.js";
 export {
-    TextAgentState,
-    // Text Service Agent Implementation
-    default as TextService
+    TextService, type TextAgentState,
+    type TextGenerationOptions
 } from "./service.js";
 
-export * from "./api.js";
-export * from "./errors.js";
-export * from "./schema.js";
-export * from "./types.js";

@@ -30,9 +30,10 @@
     "allowJs": true,
     "checkJs": true,
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@agent-runtime/*": ["src/agent-runtime/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "agents/**/*"],
   "exclude": ["node_modules", "dist"]
 }

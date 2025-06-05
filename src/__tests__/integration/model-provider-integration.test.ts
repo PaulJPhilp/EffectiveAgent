@@ -3,14 +3,14 @@
  * @module tests/integration/model-provider-integration
  */
 
-import path from "path";
-import { fileURLToPath } from "url";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderNotFoundError } from "@/services/ai/provider/errors.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
+import path from "path";
+import { fileURLToPath } from "url";
 import { beforeAll, describe, expect, it } from "vitest";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -93,7 +93,10 @@ describe("ProviderService", () => {
 
         await Effect.runPromise(
             effect.pipe(
-                Effect.provide(ProviderService.Default),
+                Effect.provide(Layer.succeed(ProviderService, {
+                    effect: providerServiceEffect,
+                    dependencies: [ConfigurationService.Default]
+                })),
                 Effect.provide(ConfigurationService.Default),
                 Effect.provide(NodeFileSystem.layer)
             )
@@ -109,7 +112,10 @@ describe("ProviderService", () => {
 
         await Effect.runPromise(
             effect.pipe(
-                Effect.provide(ProviderService.Default),
+                Effect.provide(Layer.succeed(ProviderService, {
+                    effect: providerServiceEffect,
+                    dependencies: [ConfigurationService.Default]
+                })),
                 Effect.provide(ConfigurationService.Default),
                 Effect.provide(NodeFileSystem.layer)
             )
@@ -128,7 +134,10 @@ describe("ProviderService", () => {
 
         await Effect.runPromise(
             effect.pipe(
-                Effect.provide(ProviderService.Default),
+                Effect.provide(Layer.succeed(ProviderService, {
+                    effect: providerServiceEffect,
+                    dependencies: [ConfigurationService.Default]
+                })),
                 Effect.provide(ConfigurationService.Default),
                 Effect.provide(NodeFileSystem.layer)
             )

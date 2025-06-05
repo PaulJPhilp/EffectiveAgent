@@ -1,4 +1,3 @@
-import { AgentRuntimeService } from '@/agent-runtime/service.js';
 import { EffectiveMessage, ModelCapability, TextPart, ToolCallPart } from "@/schema.js";
 import type { EffectiveInput, FinishReason } from "@/types.js";
 import { createAnthropic } from "@ai-sdk/anthropic";
@@ -152,12 +151,11 @@ function convertEffectSchemaToZodSchema(schema: S.Schema<any, any, any>) {
 }
 
 // Internal factory for ProviderService only
-function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService | AgentRuntimeService> {
+function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService> {
   const anthropicProvider = createAnthropic({ apiKey });
 
   return Effect.gen(function* () {
     const toolRegistryService = yield* ToolRegistryService;
-    const agentRuntime = yield* AgentRuntimeService;
     const modelService = yield* ModelService;
 
     return {
@@ -305,7 +303,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
 
       // Chat method with tool support
       chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function* () {
-
+        const toolRegistryService = yield* ToolRegistryService;
         let vercelMessages: VercelCoreMessage[] = mapEAMessagesToVercelMessages(Chunk.toReadonlyArray(input.messages || Chunk.empty()));
         let llmTools: Record<string, any> | undefined = undefined;
         const modelId = options.modelId || "claude-3-5-sonnet-20241022";
@@ -422,12 +420,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
                   const effectiveToolFromRegistry = effectiveToolFromRegistryEither.right;
                   const toolEffectToRun = effectiveToolFromRegistry.execute(validatedArgs as Record<string, unknown>);
 
-                  const toolRunResultEither = yield* Effect.either(
-                    Effect.tryPromise({
-                      try: () => agentRuntime.run(toolEffectToRun),
-                      catch: (e) => e as Effect.Effect.Error<typeof toolEffectToRun>
-                    })
-                  );
+                  const toolRunResultEither = yield* Effect.either(toolEffectToRun);
 
                   if (Either.isLeft(toolRunResultEither)) {
                     const execError = toolRunResultEither.left;
@@ -486,7 +479,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           method: "setVercelProvider"
         }))
     } as unknown as ProviderClientApi;
-  }) as Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService | AgentRuntimeService>;
+  }) as Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService>;
 }
 
 export { makeAnthropicClient };

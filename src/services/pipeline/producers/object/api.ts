@@ -3,7 +3,6 @@
  * Defines the contract for object generation using AI models/providers.
  */
 
-import type { AgentRuntime } from "@/agent-runtime/types.js";
 import type { EffectiveResponse } from "@/types.js";
 import { type Effect, Schema as S } from "effect";
 import type { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError } from "./errors.js";
@@ -33,19 +32,19 @@ export interface ObjectServiceApi<S_Schema extends S.Schema<any, any> = S.Schema
   ) => Effect.Effect<EffectiveResponse<T>, Error>;
 
   /**
-   * Get the current agent state for monitoring/debugging
+   * Get the current service state for monitoring/debugging
    * @returns Effect that resolves to the current ObjectAgentState
    */
   readonly getAgentState: () => Effect.Effect<ObjectAgentState, Error>;
 
   /**
-   * Get the agent runtime for advanced operations
-   * @returns The AgentRuntime instance
+   * Get the runtime status (returns state information since runtime is not available in simplified service)
+   * @returns Effect that resolves to state information
    */
-  readonly getRuntime: () => AgentRuntime<ObjectAgentState>;
+  readonly getRuntime: () => Effect.Effect<{ state: Ref.Ref<ObjectAgentState> }, Error>;
 
   /**
-   * Terminate the object service agent
+   * Terminate the object service (resets internal state)
    * @returns Effect that resolves when termination is complete
    */
   readonly terminate: () => Effect.Effect<void, Error>;

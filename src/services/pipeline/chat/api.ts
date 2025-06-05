@@ -1,6 +1,6 @@
 import { EffectiveError } from "@/errors.js";
 // src/services/pipeline/chat/api.ts
-import { Effect } from "effect";
+import { Effect, Ref } from "effect";
 
 /**
  * Represents a message in a chat conversation
@@ -123,9 +123,10 @@ export interface ChatHistoryServiceApi {
   readonly getAgentState: () => Effect.Effect<any>;
 
   /**
-   * Get the runtime for direct access in tests
+   * Get the runtime status (returns error as runtime is not available in simplified state)
+   * @returns Effect that resolves to state information
    */
-  readonly getRuntime: () => any;
+  readonly getRuntime: () => Effect.Effect<{ state: Ref.Ref<ChatAgentState> }, Error>;
 
   /**
    * Terminate the agent

@@ -1,5 +1,18 @@
-import { AgentActivity, AgentRuntimeId } from "@/agent-runtime/types.js"
+// Local type definitions to avoid dependency on agent runtime
+export type AgentRuntimeId = string
 
+export interface AgentActivity {
+    readonly id: string
+    readonly agentRuntimeId: AgentRuntimeId
+    readonly type: string
+    readonly payload: unknown
+    readonly metadata: {
+        readonly priority?: number
+        readonly timeout?: number
+        readonly retries?: number
+    }
+    readonly timestamp: number
+}
 
 /**
  * Valid message types for incoming messages
@@ -134,5 +147,3 @@ export const ProtocolErrorCodes = {
 } as const
 
 export type ProtocolErrorCode = typeof ProtocolErrorCodes[keyof typeof ProtocolErrorCodes]
-
-export type { AgentActivity, AgentRuntimeId } from "@/agent-runtime/types.js"

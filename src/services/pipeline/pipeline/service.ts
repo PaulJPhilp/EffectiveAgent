@@ -1,4 +1,4 @@
-import { AgentActivity, AgentActivityType, AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
+
 import { Effect, Option, Ref } from "effect";
 import {
   ExecutiveParameters,
@@ -24,55 +24,33 @@ export interface PipelineAgentState {
     readonly parameters?: ExecutiveParameters
     readonly durationMs?: number
   }>
+  readonly isTerminated: boolean
 }
+
+
 
 /**
- * Pipeline execution commands
- */
-interface ExecutePipelineCommand {
-  readonly type: "EXECUTE_PIPELINE"
-  readonly parameters?: ExecutiveParameters
-}
-
-interface StateUpdateCommand {
-  readonly type: "UPDATE_STATE"
-  readonly execution: {
-    readonly timestamp: number
-    readonly parameters?: ExecutiveParameters
-    readonly success: boolean
-    readonly durationMs?: number
-  }
-}
-
-type PipelineActivityPayload = ExecutePipelineCommand | StateUpdateCommand
-
-/**
- * Implementation of the Pipeline Service using Effect.Service pattern with AgentRuntime
- * Gets singleton ExecutiveService from AgentRuntime through dependency injection.
+ * Implementation of the Pipeline Service using Effect.Service pattern with simplified state management
+ * Gets ExecutiveService through dependency injection.
  */
 export class PipelineService
   extends Effect.Service<PipelineServiceInterface>()("PipelineService", {
     effect: Effect.gen(function* () {
-      // Get singleton services from AgentRuntime through dependency injection
-      const agentRuntimeService = yield* AgentRuntimeService;
+      // Get ExecutiveService through dependency injection
       const executiveService = yield* ExecutiveService;
-
-      const agentId = makeAgentRuntimeId("pipeline-service-agent");
 
       const initialState: PipelineAgentState = {
         executionCount: 0,
         lastExecution: Option.none(),
         lastUpdate: Option.none(),
-        executionHistory: []
+        executionHistory: [],
+        isTerminated: false
       };
 
       // Create internal state management
       const internalStateRef = yield* Ref.make<PipelineAgentState>(initialState);
 
-      // Create the agent runtime (for testing/debugging)
-      const runtime = yield* agentRuntimeService.create(agentId, initialState);
-
-      yield* Effect.log("PipelineService agent initialized with singleton services");
+      yield* Effect.log("PipelineService initialized with ExecutiveService");
 
       // Helper function to update internal state
       const updateState = (execution: {
@@ -96,25 +74,11 @@ export class PipelineService
             success: execution.success
           }),
           lastUpdate: Option.some(Date.now()),
-          executionHistory: updatedHistory
+          executionHistory: updatedHistory,
+          isTerminated: currentState.isTerminated
         };
 
         yield* Ref.set(internalStateRef, newState);
-
-        // Send state update activity to AgentRuntime
-        const stateUpdateActivity: AgentActivity = {
-          id: `pipeline-update-${Date.now()}`,
-          agentRuntimeId: agentId,
-          timestamp: Date.now(),
-          type: AgentActivityType.STATE_CHANGE,
-          payload: {
-            type: "UPDATE_STATE",
-            execution
-          } as StateUpdateCommand,
-          metadata: {},
-          sequence: 0
-        };
-        yield* agentRuntimeService.send(agentId, stateUpdateActivity);
 
         yield* Effect.log("Updated pipeline state", {
           oldCount: currentState.executionCount,
@@ -185,22 +149,21 @@ export class PipelineService
         getAgentState: () => Ref.get(internalStateRef),
 
         /**
-         * Get the agent runtime for advanced operations
+         * Get the runtime for direct access in tests
          */
-        getRuntime: () => ({
-          id: agentId,
-          getState: () => agentRuntimeService.getState<PipelineAgentState>(agentId),
-          send: (activity: AgentActivity) => agentRuntimeService.send(agentId, activity),
-          subscribe: () => agentRuntimeService.subscribe(agentId)
+        getRuntime: () => Effect.succeed({
+          state: internalStateRef
         }),
 
         /**
-         * Terminate the pipeline service agent
+         * Terminate the service (no-op since we don't have external runtime)
          */
-        terminate: () => agentRuntimeService.terminate(agentId)
+        terminate: () => Effect.gen(function* () {
+          yield* Ref.update(internalStateRef, state => ({ ...state, isTerminated: true }));
+        })
       };
 
       return service;
     }),
-    dependencies: [AgentRuntimeService.Default, ExecutiveService.Default],
+    dependencies: [ExecutiveService.Default],
   }) { }

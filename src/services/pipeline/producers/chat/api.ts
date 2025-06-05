@@ -1,4 +1,3 @@
-import type { AgentRuntime } from "@/agent-runtime/api.js";
 import { EffectiveResponse } from "@/types.js";
 import type { Effect } from "effect";
 import type { ChatAgentState } from "./service.js";
@@ -19,19 +18,14 @@ export interface ChatServiceApi {
     ) => Effect.Effect<ChatCompletionResult, Error>;
 
     /**
-     * Get the current agent state for monitoring/debugging
+     * Get the current service state for monitoring/debugging
      * @returns Effect that resolves to the current ChatAgentState
      */
     readonly getAgentState: () => Effect.Effect<ChatAgentState, Error>;
 
-    /**
-     * Get the agent runtime for advanced operations
-     * @returns The AgentRuntime instance
-     */
-    readonly getRuntime: () => AgentRuntime<ChatAgentState>;
 
     /**
-     * Terminate the chat service agent
+     * Terminate the chat service (resets internal state)
      * @returns Effect that resolves when termination is complete
      */
     readonly terminate: () => Effect.Effect<void, Error>;

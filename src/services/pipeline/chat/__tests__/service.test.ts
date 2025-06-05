@@ -4,80 +4,155 @@
  * conversation history management, and error handling.
  */
 
-import { AgentRuntimeService } from "@/agent-runtime/service.js";
-import { FileEntity } from "@/services/core/file/schema.js";
-import type { RepositoryServiceApi } from "@/services/core/repository/api.js";
-import { EntityNotFoundError, RepositoryError } from "@/services/core/repository/errors.js";
-import { RepositoryService } from "@/services/core/repository/service.js";
-import { ChatHistory, ChatMessage } from "@/services/pipeline/chat/api.js";
+import { PolicyService } from "@/services/ai/policy/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ChatHistory, ChatMessage } from "@/services/pipeline/chat/schema.js";
 import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
-import { NodeContext, NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Layer, Option } from "effect";
-import { describe, expect, it } from "vitest";
-
-// Create a mock repository for FileEntity that the FileService needs
-const makeFileRepo = (): RepositoryServiceApi<FileEntity> => ({
-  create: (data: FileEntity["data"]) => Effect.succeed({
-    id: crypto.randomUUID(),
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    data: data
-  } as FileEntity),
-
-  findById: (id: string) => {
-    if (id === "non-existent-id") {
-      return Effect.fail(new EntityNotFoundError({
-        entityId: id,
-        entityType: "FileEntity"
-      }) as unknown as RepositoryError);
-    }
-    return Effect.succeed(Option.none<FileEntity>());
-  },
-
-  findOne: () => Effect.succeed(Option.none()),
-  findMany: () => Effect.succeed([]),
-  update: () => Effect.succeed({
-    id: "test-id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    data: {
-      filename: "test.txt",
-      mimeType: "text/plain",
-      sizeBytes: 0,
-      contentBase64: "",
-      ownerId: "test-owner"
-    }
-  } as FileEntity),
-  delete: () => Effect.succeed(undefined),
-  count: () => Effect.succeed(0)
-});
-
-// Create the repository layer for FileEntity
-const FileRepositoryLayer = Layer.succeed(
-  RepositoryService<FileEntity>().Tag,
-  makeFileRepo()
-);
-
-// Complete test layer for ChatHistoryService with all dependencies
-const ChatHistoryTestLayer = Layer.mergeAll(
-  AgentRuntimeService.Default,
-  ChatHistoryService.Default,
-  NodeContext.layer,
-  NodeFileSystem.layer
-).pipe(
-  Layer.provide(FileRepositoryLayer)
-);
-
-// Simple test runner for minimal ChatHistory tests
-const runChatHistoryTest = <A, E, R>(
-  effect: Effect.Effect<A, E, R>
-): Promise<A> => {
-  return Effect.runPromise(
-    effect.pipe(Effect.provide(ChatHistoryTestLayer)) as Effect.Effect<A, E, never>
-  );
-};
+import { FileSystem } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer } from "effect";
+import { join } from "path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 describe("ChatHistoryService", () => {
+  const testDir = join(process.cwd(), "test-policy-configs", "chat");
+  const validPolicyConfig = join(testDir, "valid-policy.json");
+  const modelsConfigPath = join(testDir, "models.json");
+  const providersConfigPath = join(testDir, "providers.json");
+  const masterConfigPath = join(testDir, "master-config.json");
+
+  const validPolicyConfigData = {
+    name: "Test Policy Config",
+    version: "1.0.0",
+    description: "Test policy configuration",
+    policies: [
+      {
+        id: "default-allow",
+        name: "Default Allow Rule",
+        description: "Default rule to allow all operations",
+        type: "allow",
+        resource: "*",
+        priority: 100,
+        enabled: true,
+        rateLimit: {
+          limit: 100,
+          window: 60
+        }
+      }
+    ]
+  };
+
+  const validModelsConfig = {
+    name: "Test Models Config",
+    version: "1.0.0",
+    description: "Test models configuration",
+    models: [
+      {
+        id: "gpt-4",
+        provider: "openai",
+        capabilities: ["chat", "completion"],
+        maxTokens: 8192,
+        temperature: 0.7,
+        topP: 1.0,
+        frequencyPenalty: 0.0,
+        presencePenalty: 0.0
+      }
+    ]
+  };
+
+  const validProvidersConfig = {
+    name: "Test Providers Config",
+    version: "1.0.0",
+    description: "Test providers configuration",
+    providers: [
+      {
+        id: "openai",
+        name: "OpenAI",
+        apiKeyEnvVar: "OPENAI_API_KEY",
+        baseUrl: "https://api.openai.com/v1",
+        capabilities: ["chat", "completion"]
+      }
+    ]
+  };
+
+  const validMasterConfig = {
+    name: "Test Master Config",
+    version: "1.0.0",
+    description: "Test master configuration",
+    runtimeSettings: {
+      fileSystemImplementation: "node" as const
+    },
+    logging: {
+      level: "info" as const,
+      filePath: "./logs/test.log",
+      enableConsole: true
+    },
+    configPaths: {
+      policy: validPolicyConfig,
+      models: modelsConfigPath,
+      providers: providersConfigPath
+    }
+  };
+
+  // Store original env vars
+  const originalEnv = { ...process.env };
+
+  beforeEach(async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+
+        // Create test directory and files
+        yield* fs.makeDirectory(testDir, { recursive: true });
+        yield* fs.writeFileString(validPolicyConfig, JSON.stringify(validPolicyConfigData, null, 2));
+        yield* fs.writeFileString(modelsConfigPath, JSON.stringify(validModelsConfig, null, 2));
+        yield* fs.writeFileString(providersConfigPath, JSON.stringify(validProvidersConfig, null, 2));
+        yield* fs.writeFileString(masterConfigPath, JSON.stringify(validMasterConfig, null, 2));
+
+        // Set up environment with test config paths
+        process.env.MASTER_CONFIG_PATH = masterConfigPath;
+        process.env.OPENAI_API_KEY = "test-key";
+      }).pipe(
+        Effect.provide(NodeFileSystem.layer)
+      )
+    );
+  });
+
+  afterEach(async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+
+        // Clean up test files
+        try {
+          yield* fs.remove(validPolicyConfig);
+          yield* fs.remove(modelsConfigPath);
+          yield* fs.remove(providersConfigPath);
+          yield* fs.remove(masterConfigPath);
+          yield* fs.remove(testDir, { recursive: true });
+        } catch (error) {
+          // Ignore cleanup errors
+        }
+
+        // Reset environment
+        process.env = { ...originalEnv };
+      }).pipe(
+        Effect.provide(NodeFileSystem.layer)
+      )
+    );
+  });
+
+  // Helper function to provide common layers
+  const withLayers = <T, E, R>(effect: Effect.Effect<T, E, R>) =>
+    effect.pipe(
+      Effect.provide(Layer.mergeAll(
+        ChatHistoryService.Default,
+        PolicyService.Default,
+        ConfigurationService.Default,
+        NodeFileSystem.layer
+      ))
+    ) as Effect.Effect<T, E, never>;
+
   // Test data
   const validHistoryId = "test-history-id";
   const validMessage: ChatMessage = {
@@ -90,7 +165,7 @@ describe("ChatHistoryService", () => {
 
   describe("loadHistory", () => {
     it("should return null for non-existent history", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
 
@@ -110,7 +185,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid history ID", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidId = "";
@@ -132,7 +207,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should successfully load existing history", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         yield* service.saveHistory(validHistoryId, validHistory);
@@ -159,7 +234,7 @@ describe("ChatHistoryService", () => {
 
   describe("saveHistory", () => {
     it("should successfully save valid history", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
 
@@ -184,7 +259,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid history ID", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidId = "";
@@ -208,7 +283,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid history format", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidHistory = { messages: null } as unknown as ChatHistory;
@@ -232,7 +307,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid message role", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidMessage = {
@@ -256,7 +331,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should fail with invalid message content", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const invalidMessage = {
@@ -286,7 +361,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should update existing history", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         yield* service.saveHistory(validHistoryId, validHistory);
@@ -322,7 +397,7 @@ describe("ChatHistoryService", () => {
 
   describe("loadAndAppendMessage", () => {
     it("should append message to new conversation", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const newConversationId = "new-conversation";
@@ -349,7 +424,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should append message to existing conversation", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         yield* service.saveHistory(validHistoryId, validHistory);
@@ -378,7 +453,7 @@ describe("ChatHistoryService", () => {
 
   describe("appendAndSaveResponse", () => {
     it("should handle missing historyId gracefully", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         const messages = [validMessage];
@@ -398,7 +473,7 @@ describe("ChatHistoryService", () => {
     });
 
     it("should append response and save to history", async () => {
-      await runChatHistoryTest(Effect.gen(function* () {
+      await withLayers(Effect.gen(function* () {
         // Arrange
         const service = yield* ChatHistoryService;
         yield* service.saveHistory(validHistoryId, validHistory);

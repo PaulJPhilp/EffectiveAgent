@@ -9,9 +9,11 @@ import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { PipelineExecutionError } from "@/services/pipeline/pipeline/errors.js";
+import { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
 import { ObjectService } from "@/services/pipeline/producers/object/service.js";
-import { type Usage } from "@/types.js";
+import { TextGenerationOptions } from "@/services/pipeline/producers/text/types.js";
 import { Effect, Option, Schema as S } from "effect";
+import { ExecutiveServiceError } from "../executive-service/index.js";
 
 /**
  * Input schema for the structured output pipeline
@@ -36,7 +38,7 @@ export class StructuredOutputInput extends S.Class<StructuredOutputInput>("Struc
 export const makeOutputSchema = <T>(schema: S.Schema<T>) =>
     S.Class<StructuredOutputOutput<T>>("StructuredOutputOutput")({
         data: schema,
-        usage: S.Class<Usage>("Usage")({
+        usage: S.Class<{ promptTokens: number; completionTokens: number; totalTokens: number }>("Usage")({
             promptTokens: S.Number,
             completionTokens: S.Number,
             totalTokens: S.Number,
@@ -45,8 +47,83 @@ export const makeOutputSchema = <T>(schema: S.Schema<T>) =>
 
 export type StructuredOutputOutput<T> = {
     data: T;
-    usage: Usage;
+    usage: { promptTokens: number; completionTokens: number; totalTokens: number };
 };
+
+export interface StructuredOutputOptions<T extends S.Schema<any, any>> {
+    readonly input: string;
+    readonly responseSchema: T;
+    readonly textOptions?: Partial<TextGenerationOptions>;
+    readonly span?: any;
+    readonly modelId?: string;
+}
+
+// Update StructuredOutputResult to properly extend EffectiveResponse structure
+export interface StructuredOutputResult<T> {
+    readonly result: T;
+    readonly metadata: {
+        readonly executiveParameters: {
+            readonly retryPolicy: "standard" | "aggressive" | "conservative";
+            readonly timeoutMs: number;
+            readonly enableLogging: boolean;
+        };
+    };
+    readonly usage?: {
+        readonly promptTokens: number;
+        readonly completionTokens: number;
+        readonly totalTokens: number;
+    };
+}
+
+export function executeStructuredOutput<
+    T,
+    S extends S.Schema<any, any>
+>(
+    objectService: ObjectServiceApi<S>,
+    options: StructuredOutputOptions<S>
+): Effect.Effect<StructuredOutputResult<T>, ExecutiveServiceError> {
+    return Effect.gen(function* () {
+        try {
+            yield* Effect.logInfo("Executing structured output generation", {
+                modelId: options.modelId,
+                hasSchema: !!options.responseSchema
+            });
+
+            // Generate the structured object
+            const result = yield* objectService.generate({
+                prompt: options.input,
+                schema: options.responseSchema,
+                modelId: options.modelId || "gpt-4o-mini",
+                span: options.span,
+                ...options.textOptions
+            });
+
+            yield* Effect.logInfo("Structured output generated successfully");
+
+            return {
+                result: result.data as T,
+                metadata: {
+                    executiveParameters: {
+                        retryPolicy: "standard" as const,
+                        timeoutMs: 30000,
+                        enableLogging: true
+                    }
+                },
+                usage: result.usage
+            };
+
+        } catch (error) {
+            yield* Effect.logError("Structured output generation failed", { error });
+
+            // Create a new error with the required properties
+            const pipelineError = new PipelineExecutionError(
+                `module=structured-output method=executeProducer error=${String(error)}`
+            );
+
+            return yield* Effect.fail(pipelineError);
+        }
+    });
+}
 
 export class StructuredOutputPipeline<T> extends AiPipeline<
     StructuredOutputInput,
@@ -73,25 +150,19 @@ export class StructuredOutputPipeline<T> extends AiPipeline<
         const self = this;
         return Effect.gen(function* () {
             const objectService = yield* ObjectService;
-            const result = yield* objectService.generate<T>({
+            const result = yield* objectService.generate({
                 prompt: input.prompt,
                 modelId: input.modelId,
                 system: Option.fromNullable(input.systemPrompt),
                 schema: self.schema,
                 span: {} as any, // TODO: Add proper span handling
                 parameters: {
-                    maxSteps: input.maxTokens,
                     temperature: input.temperature,
-                    topP: input.topP,
-                    topK: input.topK,
-                    presencePenalty: input.presencePenalty,
-                    frequencyPenalty: input.frequencyPenalty,
-                    seed: input.seed,
-                    stop: [...(input.stop || [])]
+                    topP: input.topP
                 },
             });
             return {
-                data: result.object,
+                data: result.data as T,
                 usage: result.usage ?? {
                     promptTokens: 0,
                     completionTokens: 0,
@@ -107,10 +178,7 @@ export class StructuredOutputPipeline<T> extends AiPipeline<
                 if (error instanceof EffectiveError) {
                     return error;
                 }
-                const pipelineError = new PipelineExecutionError("Failed to generate structured output");
-                pipelineError.module = "structured-output"
-                pipelineError.method = "executeProducer"
-                pipelineError.description = String(error)
+                const pipelineError = new PipelineExecutionError(String(error));
                 return pipelineError as EffectiveError
             })
         );

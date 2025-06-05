@@ -3,14 +3,15 @@
  * @module services/core/configuration/errors
  */
 
-import { Data, ParseResult } from "effect";
+import { ParseError } from "effect/ParseResult";
+import { Data } from "effect";
 
 /**
  * Error thrown when reading a configuration file fails.
  */
 export class ConfigReadError extends Data.TaggedError("ConfigReadError")<{
     readonly filePath: string;
-    readonly cause?: unknown;
+    readonly cause: unknown;
 }> { }
 
 /**
@@ -18,7 +19,7 @@ export class ConfigReadError extends Data.TaggedError("ConfigReadError")<{
  */
 export class ConfigParseError extends Data.TaggedError("ConfigParseError")<{
     readonly filePath: string;
-    readonly cause?: unknown;
+    readonly cause: unknown;
 }> { }
 
 /**
@@ -26,7 +27,7 @@ export class ConfigParseError extends Data.TaggedError("ConfigParseError")<{
  */
 export class ConfigValidationError extends Data.TaggedError("ConfigValidationError")<{
     readonly filePath: string;
-    readonly validationError: ParseResult.ParseError;
+    readonly validationError: ParseError;
 }> { }
 
 /**

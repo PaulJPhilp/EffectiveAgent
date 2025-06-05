@@ -1,14 +1,12 @@
 /**
- * @file Image Agent implementation using AgentRuntime for AI image generation
+ * @file Image Service implementation for AI image generation
  * @module services/pipeline/producers/image/service
  */
-
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { GenerateImageResult } from "@/services/ai/provider/types.js";
-import { Effect, Option, Ref } from "effect";
+import { EffectiveInput } from "@/types.js";
+import { Chunk, Effect, Option, Ref } from "effect";
 import type { ImageGenerationOptions, ImageServiceApi } from "./api.js";
 import { ImageGenerationError, ImageModelError, ImageSizeError } from "./errors.js";
 
@@ -62,38 +60,17 @@ export interface ImageAgentState {
     }>
 }
 
-/**
- * Image generation commands
- */
-interface GenerateImageCommand {
-    readonly type: "GENERATE_IMAGE"
-    readonly options: ImageGenerationOptions
-}
 
-interface StateUpdateCommand {
-    readonly type: "UPDATE_STATE"
-    readonly generation: GenerateImageResult
-    readonly modelId: string
-    readonly size: string
-    readonly promptLength: number
-    readonly success: boolean
-    readonly imageCount: number
-}
-
-type ImageActivityPayload = GenerateImageCommand | StateUpdateCommand
 
 /**
  * ImageService provides methods for generating images using AI providers.
- * Now implemented as an Agent using AgentRuntime for state management and activity tracking.
+ * Simplified implementation without AgentRuntime dependency.
  */
 class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
     effect: Effect.gen(function* () {
-        // Get services
-        const agentRuntimeService = yield* AgentRuntimeService;
+        // Get services directly
         const modelService = yield* ModelService;
         const providerService = yield* ProviderService;
-
-        const agentId = makeAgentRuntimeId("image-service-agent");
 
         const initialState: ImageAgentState = {
             generationCount: 0,
@@ -102,13 +79,10 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
             generationHistory: []
         };
 
-        // Create the agent runtime
-        const runtime = yield* agentRuntimeService.create(agentId, initialState);
-
         // Create internal state management
         const internalStateRef = yield* Ref.make<ImageAgentState>(initialState);
 
-        yield* Effect.log("ImageService agent initialized");
+        yield* Effect.log("ImageService initialized");
 
         // Helper function to update internal state
         const updateState = (generation: {
@@ -135,18 +109,6 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
 
             yield* Ref.set(internalStateRef, newState);
 
-            // Also update the AgentRuntime state for consistency
-            const stateUpdateActivity: AgentActivity = {
-                id: `image-update-${Date.now()}`,
-                agentRuntimeId: agentId,
-                timestamp: Date.now(),
-                type: AgentActivityType.STATE_CHANGE,
-                payload: newState,
-                metadata: {},
-                sequence: 0
-            };
-            yield* runtime.send(stateUpdateActivity);
-
             yield* Effect.log("Updated image generation state", {
                 oldCount: currentState.generationCount,
                 newCount: newState.generationCount
@@ -166,18 +128,7 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
                         size: options.size
                     });
 
-                    // Send command activity to agent
-                    const activity: AgentActivity = {
-                        id: `image-generate-${Date.now()}`,
-                        agentRuntimeId: agentId,
-                        timestamp: Date.now(),
-                        type: AgentActivityType.COMMAND,
-                        payload: { type: "GENERATE_IMAGE", options } satisfies GenerateImageCommand,
-                        metadata: {},
-                        sequence: 0
-                    };
 
-                    yield* runtime.send(activity);
 
                     // Validate input
                     if (!options.prompt || options.prompt.trim().length === 0) {
@@ -200,7 +151,7 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
 
                     // Validate image size
                     const validSizes = ["256x256", "512x512", "1024x1024", "1792x1024", "1024x1792"];
-                    if (!validSizes.includes(options.size)) {
+                    if (!options.size || !validSizes.includes(options.size)) {
                         yield* Effect.logError("Invalid image size", { size: options.size });
                         return yield* Effect.fail(new ImageSizeError({
                             description: `Invalid image size: ${options.size}. Valid sizes: ${validSizes.join(", ")}`,
@@ -220,22 +171,20 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
                         : options.prompt;
 
                     // Call the real AI provider
-                    const providerResult = yield* providerClient.generateImage(finalPrompt, {
-                        modelId,
-                        size: options.size,
-                        quality: options.quality,
-                        style: options.style,
-                        n: options.n || 1,
-                        responseFormat: options.responseFormat
-                    });
+                    const effectiveInput = new EffectiveInput(finalPrompt, Chunk.empty());
+                    const providerResult = yield* providerClient.generateImage(
+                        effectiveInput,
+                        {
+                            modelId,
+                            size: options.size,
+                            quality: options.quality,
+                            style: options.style,
+                            n: options.n || 1,
+                        }
+                    );
 
-                    const result: GenerateImageResult = {
-                        images: providerResult.images,
-                        usage: providerResult.usage,
-                        model: modelId,
-                        provider: providerName,
-                        finishReason: providerResult.finishReason
-                    };
+                    // Use providerResult.data directly as the result
+                    const result = providerResult.data;
 
                     yield* Effect.log("Image generation completed successfully");
 
@@ -246,10 +195,22 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
                         size: options.size,
                         promptLength: finalPrompt.length,
                         success: true,
-                        imageCount: providerResult.images.length
+                        imageCount: result.additionalImages ? 1 + result.additionalImages.length : 1
                     });
 
-                    return result;
+                    return yield* Effect.succeed({
+                        data: {
+                            imageUrl: result.imageUrl,
+                            additionalImages: result.additionalImages,
+                            model: result.model,
+                            usage: result.usage,
+                            finishReason: result.finishReason,
+                            parameters: result.parameters,
+                            timestamp: result.timestamp,
+                            id: result.id
+                        },
+                        metadata: {}
+                    });
 
                 }).pipe(
                     Effect.withSpan("ImageService.generate"),
@@ -279,19 +240,14 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
             getAgentState: () => Ref.get(internalStateRef),
 
             /**
-             * Get the runtime for direct access in tests
+             * Terminate the service (no-op since we don't have external runtime)
              */
-            getRuntime: () => runtime,
-
-            /**
-             * Terminate the agent
-             */
-            terminate: () => agentRuntimeService.terminate(agentId)
+            terminate: () => Effect.succeed(void 0)
         };
 
         return service;
     }),
-    dependencies: [AgentRuntimeService.Default, ModelService.Default, ProviderService.Default]
+    dependencies: [ModelService.Default, ProviderService.Default]
 }) { }
 
 export default ImageService;

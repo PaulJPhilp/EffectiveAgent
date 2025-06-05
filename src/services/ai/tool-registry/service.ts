@@ -5,7 +5,7 @@ import { FullToolName, SimpleToolName } from "../tools/schema.js";
 import { ToolImplementation, ToolkitName } from "../tools/types.js";
 import { ToolRegistry } from "./api.js";
 import { ToolNotFoundErrorInRegistry, ToolkitNotFoundErrorInRegistry } from "./errors.js";
-import { ToolRegistrySchema, ToolkitSchema } from "./schema.js";
+import { ToolkitSchema } from "./schema.js";
 
 /**
  * Service implementation for managing and providing access to the tool registry.
@@ -21,10 +21,8 @@ export class ToolRegistryService extends Effect.Service<ToolRegistry>()(
 
             // Helper to read tool registry
             const readToolRegistry = (path: string) => Effect.gen(function* () {
-                const content = yield* configuration.readFile(path);
-                const data = yield* configuration.parseJson(content, path);
-                // First validate the toolkit schema
-                const toolkit = yield* configuration.validateWithSchema(data, ToolkitSchema, path);
+                // First load and validate the toolkit schema
+                const toolkit = yield* configuration.loadConfig(path, ToolkitSchema);
 
                 // Then construct and validate the registry schema
                 const registry = {
@@ -32,7 +30,7 @@ export class ToolRegistryService extends Effect.Service<ToolRegistry>()(
                         [path]: toolkit
                     }
                 };
-                return yield* configuration.validateWithSchema(registry, ToolRegistrySchema, path);
+                return yield* Effect.succeed(registry);
             });
 
             // Return implementation object with all API methods

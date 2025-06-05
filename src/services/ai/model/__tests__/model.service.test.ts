@@ -4,9 +4,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { PublicModelInfo } from "../schema.js";
 
 import { ModelCapability } from "@/schema.js";
-import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { ModelNotFoundError } from "../errors.js";
-import { ModelFileSchema } from "../schema.js";
 import { ModelService } from "../service.js";
 
 const chatCapability = S.decodeSync(ModelCapability)("chat");
@@ -184,8 +183,6 @@ describe("ModelService", () => {
     });
 
     describe("error handling", () => {
-        const BAD_PATH = "/non/existent/path.json";
-
         beforeEach(() => {
             process.env.MODELS_CONFIG_PATH = "/Users/paul/Projects/EffectiveAgent/src/services/ai/model/__tests__/config/models.json";
         });
@@ -320,6 +317,21 @@ describe("ModelService", () => {
             );
         });
     });
+
+    it("should load model configuration", () =>
+        Effect.gen(function* () {
+            const configService = yield* ConfigurationService;
+            const masterConfig = yield* configService.getMasterConfig();
+            const modelConfig = yield* configService.loadModelConfig(masterConfig.configPaths?.models || "./config/models.json");
+            expect(modelConfig).toBeDefined();
+        }).pipe(
+            Effect.provide(Layer.mergeAll(
+                NodeFileSystem.layer,
+                ConfigurationService.Default,
+                ModelService.Default
+            ))
+        )
+    );
 });
 
 describe("ModelService (debug)", () => {
@@ -328,15 +340,15 @@ describe("ModelService (debug)", () => {
             const configService = yield* ConfigurationService;
             const configPath = process.env.MODELS_CONFIG_PATH ?? "";
             console.log("MODELS_CONFIG_PATH:", configPath);
-            const rawConfig = yield* configService.loadConfig({ filePath: configPath, schema: ModelFileSchema });
+            const rawConfig = yield* configService.loadConfig({ filePath: configPath });
             console.log("Loaded config:", JSON.stringify(rawConfig, null, 2));
             return rawConfig;
         }).pipe(
             Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                NodeFileSystem.layer,
+                ConfigurationService.Default,
+                ModelService.Default
+            ))
         )
     );
 }); 

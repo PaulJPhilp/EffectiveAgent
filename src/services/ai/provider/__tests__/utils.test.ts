@@ -1,23 +1,16 @@
-import path from "node:path";
 import { ProviderServiceConfigError } from "@/services/ai/provider/errors.js";
-import { loadConfigString, parseConfigJson } from "@/services/ai/provider/utils.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect } from 'effect';
+import path from "node:path";
 import { describe, expect, it } from 'vitest';
 import { ProviderService } from "../service.js";
 
-
 describe('ProviderService Config Loading', () => {
-  const createTestService = () => Effect.gen(function* () {
-    const service = yield* ProviderService;
-    return service;
-  });
-
   it('initializes successfully with valid config', () =>
     Effect.gen(function* () {
-      const service = yield* createTestService();
+      const service = yield* ProviderService;
       const client = yield* service.getProviderClient('openai');
       expect(client).toBeDefined();
     }).pipe(
@@ -29,8 +22,8 @@ describe('ProviderService Config Loading', () => {
   it('fails with ProviderServiceConfigError when config file is missing', () =>
     Effect.gen(function* () {
       process.env.PROVIDERS_CONFIG_PATH = path.resolve(__dirname, 'nonexistent.json');
-      const service = yield* createTestService();
-      
+      const service = yield* ProviderService;
+
       try {
         yield* service.getProviderClient('openai');
         throw new Error('Expected error');
@@ -51,8 +44,8 @@ describe('ProviderService Config Loading', () => {
       yield* fs.writeFile(tempPath, new TextEncoder().encode('not-json'));
 
       process.env.PROVIDERS_CONFIG_PATH = tempPath;
-      const service = yield* createTestService();
-      
+      const service = yield* ProviderService;
+
       try {
         yield* service.getProviderClient('openai');
         throw new Error('Expected error');

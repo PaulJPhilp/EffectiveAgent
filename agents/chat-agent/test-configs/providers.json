@@ -1,0 +1,8 @@
+{
+  "providers": [
+    {
+      "name": "openai",
+      "apiKeyEnvVar": "OPENAI_API_KEY"
+    }
+  ]
+}

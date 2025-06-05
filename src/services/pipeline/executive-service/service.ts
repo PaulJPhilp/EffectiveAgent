@@ -1,10 +1,7 @@
 /**
- * @file Executive Service implementation using AgentRuntime for execution orchestration and tracking
+ * @file Executive Service implementation for execution orchestration and tracking
  * @module services/pipeline/executive-service/service
  */
-
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
 import { Duration, Effect, Option, Ref, Schedule } from "effect";
 import { ExecutiveParameters, ExecutiveServiceApi } from "./api.js";
 import { ExecutiveServiceError } from "./errors.js";
@@ -29,52 +26,25 @@ export interface ExecutiveAgentState {
   }>
 }
 
-/**
- * Executive service commands
- */
-interface ExecuteCommand {
-  readonly type: "EXECUTE"
-  readonly parameters?: ExecutiveParameters
-}
 
-interface StateUpdateCommand {
-  readonly type: "UPDATE_STATE"
-  readonly execution: {
-    readonly timestamp: number
-    readonly success: boolean
-    readonly parameters?: ExecutiveParameters
-    readonly durationMs: number
-    readonly operationName?: string
-  }
-}
-
-type ExecutiveActivityPayload = ExecuteCommand | StateUpdateCommand
 
 /**
- * Implementation of the ExecutiveService following the Effect.Service pattern with AgentRuntime integration.
+ * Implementation of the ExecutiveService following the Effect.Service pattern with simplified state management.
  */
 export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
   "ExecutiveService",
   {
     effect: Effect.gen(function* () {
-      // Get services
-      const agentRuntimeService = yield* AgentRuntimeService;
-
-      const agentId = makeAgentRuntimeId("executive-service-agent");
-
       const initialState: ExecutiveAgentState = {
         executionCount: 0,
         lastExecution: Option.none(),
         executionHistory: []
       };
 
-      // Create the agent runtime
-      const runtime = yield* agentRuntimeService.create(agentId, initialState);
-
       // Create internal state management
       const internalStateRef = yield* Ref.make<ExecutiveAgentState>(initialState);
 
-      yield* Effect.log("ExecutiveService agent initialized");
+      yield* Effect.log("ExecutiveService initialized");
 
       // Helper function to update internal state
       const updateState = (execution: {
@@ -107,21 +77,6 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
 
         yield* Ref.set(internalStateRef, newState);
 
-        // Also update the AgentRuntime state for consistency
-        const stateUpdateActivity: AgentActivity = {
-          id: `executive-update-${Date.now()}`,
-          agentRuntimeId: agentId,
-          timestamp: Date.now(),
-          type: AgentActivityType.STATE_CHANGE,
-          payload: newState,
-          metadata: {},
-          sequence: 0
-        };
-        yield* runtime.send(stateUpdateActivity);
-
-        // Wait for the AgentRuntime to process the state update
-        yield* Effect.sleep("10 millis");
-
         yield* Effect.log("Updated executive state", {
           oldCount: currentState.executionCount,
           newCount: newState.executionCount,
@@ -147,18 +102,7 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
               } : { operationName }
             );
 
-            // Send command activity to agent
-            const activity: AgentActivity = {
-              id: `executive-execute-${Date.now()}`,
-              agentRuntimeId: agentId,
-              timestamp: Date.now(),
-              type: AgentActivityType.COMMAND,
-              payload: { type: "EXECUTE", parameters } satisfies ExecuteCommand,
-              metadata: { operationName },
-              sequence: 0
-            };
 
-            yield* runtime.send(activity);
 
             const effectWithRetries = parameters?.maxRetries
               ? Effect.retry(effect, {
@@ -229,14 +173,16 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
         /**
          * Get the runtime for direct access in tests
          */
-        getRuntime: () => runtime,
+        getRuntime: () => Effect.succeed({
+          state: internalStateRef
+        }),
 
         /**
-         * Terminate the agent
+         * Terminate the service (no-op since we don't have external runtime)
          */
-        terminate: () => agentRuntimeService.terminate(agentId)
+        terminate: () => Effect.succeed(void 0)
       };
     }),
-    dependencies: [AgentRuntimeService.Default]
+    dependencies: []
   }
 ) { } // Empty class body
