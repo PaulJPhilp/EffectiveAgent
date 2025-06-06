@@ -3,7 +3,7 @@
  * @file Provides Promise-based API for EA service interactions
  */
 
-import type { AgentRuntimeServiceApi } from "@/agent-runtime/api.js";
+import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js";
 import { runEffect } from "@/ea-langgraph-sdk/helpers.js";
 import {
     generateAiResponseEffect,

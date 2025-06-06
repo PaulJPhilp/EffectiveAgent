@@ -3,7 +3,7 @@
  * @file Main agent class with StateGraph definition and compilation using current patterns
  */
 
-import type { AgentRuntimeServiceApi } from "@/agent-runtime/api.js"
+import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 import { createStateTransformer } from "@/ea-langgraph-sdk/helpers.js"
 import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages"
 import { Annotation, END, START, StateGraph } from "@langchain/langgraph"

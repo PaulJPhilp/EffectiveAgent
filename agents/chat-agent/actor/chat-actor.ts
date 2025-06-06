@@ -1,11 +1,10 @@
-import { AgentRuntimeProcessingError } from "@/agent-runtime/errors.js"
+import { AgentRuntimeProcessingError } from "@/ea-actor-runtime/errors.js"
+import { ActorRuntimeManager } from "@/ea-actor-runtime/index.js"
 import type {
     AgentActivity,
-    AgentActivityType,
     AgentRuntimeId,
-    AgentWorkflow,
-} from "@/agent-runtime/types.js"
-import { ActorRuntimeManager } from "@/ea-actor-runtime/index.js"
+    AgentWorkflow
+} from "@/ea-actor-runtime/types.js"
 import { Effect, Stream } from "effect"
 import type { ChatAgentState } from "../agent/agent.js"
 import { ChatAgent } from "../agent/agent.js"
@@ -28,7 +27,7 @@ export interface ChatActorHandle {
 }
 
 export async function startChatActor(params: {
-    readonly runtimeSvc: import("@/agent-runtime/api.js").AgentRuntimeServiceApi
+    readonly runtimeSvc: import("@/ea-agent-runtime/api.js").AgentRuntimeServiceApi
     readonly userId: string
     readonly sessionId: string
     readonly config?: Partial<ChatAgentConfig>
@@ -50,7 +49,7 @@ export async function startChatActor(params: {
         state
     ) =>
         Effect.gen(function* () {
-            if (activity.type !== ("STATE_CHANGE" as AgentActivityType)) return state
+            if (activity.type !== "STATE_CHANGE") return state
 
             const updatedState = chatAgentInner.addMessage(
                 activity.payload as ChatMessagePayload,
@@ -66,7 +65,7 @@ export async function startChatActor(params: {
                     (cause) =>
                         new AgentRuntimeProcessingError({
                             agentRuntimeId: activity.agentRuntimeId,
-                            activityId: activity.id,
+                            activityId: `${activity.agentRuntimeId}-${activity.sequence}`,
                             message: "LangGraph execution failed",
                             cause
                         })
@@ -77,7 +76,7 @@ export async function startChatActor(params: {
         })
 
     // 3. Spin up actor runtime
-    const actorId = ("chat-" + crypto.randomUUID()) as AgentRuntimeId;
+    const actorId = "chat-" + crypto.randomUUID();
     const actor = await Effect.runPromise(
         ActorRuntimeManager.create<ChatAgentState>(actorId, initialState, workflow)
     )
@@ -85,10 +84,9 @@ export async function startChatActor(params: {
     // 4. Helper methods
     const postUserMessage = async (content: string) => {
         const activity: AgentActivity = {
-            id: crypto.randomUUID(),
             agentRuntimeId: actor.id,
             timestamp: Date.now(),
-            type: "STATE_CHANGE" as AgentActivityType,
+            type: "STATE_CHANGE",
             payload: { role: "user", content } satisfies ChatMessagePayload,
             metadata: { priority: 1 },
             sequence: 0

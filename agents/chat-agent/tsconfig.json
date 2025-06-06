@@ -4,8 +4,7 @@
     "outDir": "./dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["../../src/*"],
-      "@/agent-runtime/*": ["../../src/agent-runtime/*"]
+      "@/*": ["../../src/*"]
     }
   },
   "include": [

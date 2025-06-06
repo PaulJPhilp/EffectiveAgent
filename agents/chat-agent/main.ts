@@ -3,7 +3,7 @@
  * @file Demonstrates how to create and run a LangGraph agent with EA SDK using current patterns
  */
 
-import type { AgentRuntimeServiceApi } from "@/agent-runtime/api.js"
+import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 import { createChatAgent } from "./agent/agent.js"
 
 /**
