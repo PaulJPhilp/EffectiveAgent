@@ -1,4 +1,4 @@
-import { Effect, Fiber, Ref, Stream } from "effect"
+import { Effect, Fiber, Queue, Ref, Sink, Stream } from "effect"
 import { AgentRuntimeError, AgentRuntimeProcessingError } from "./errors.js"
 import { PrioritizedMailbox } from "./prioritized-mailbox.js"
 import {
@@ -18,6 +18,11 @@ interface RuntimeEntry<S> {
     readonly fiber: Fiber.RuntimeFiber<void, never>
     readonly workflow: AgentWorkflow<S, AgentRuntimeProcessingError>
 }
+
+/**
+ * Registry for agent workflows.
+ */
+type WorkflowRegistry = Map<string, AgentWorkflow<any, AgentRuntimeProcessingError>>
 
 const startProcessing = <S>(
     id: AgentRuntimeId,
@@ -76,9 +81,26 @@ const startProcessing = <S>(
  */
 export const ActorRuntimeManager = Effect.gen(function* () {
     const runtimes = yield* Ref.make<Map<AgentRuntimeId, RuntimeEntry<any>>>(new Map())
+    const workflowRegistry = yield* Ref.make<WorkflowRegistry>(new Map())
 
-    const create = <S>(id: AgentRuntimeId, initialState: S, workflow: AgentWorkflow<S, AgentRuntimeProcessingError> = (_a: AgentActivity, state: S) => Effect.succeed(state)) =>
+    /**
+     * Registers a new agent workflow by name.
+     */
+    const register = <S>(agentType: string, workflow: AgentWorkflow<S, AgentRuntimeProcessingError>) =>
+        Ref.update(workflowRegistry, map => map.set(agentType, workflow))
+
+    const create = <S>(id: AgentRuntimeId, agentType: string, initialState: S) =>
         Effect.gen(function* () {
+            const workflows = yield* Ref.get(workflowRegistry)
+            const workflow = workflows.get(agentType) as AgentWorkflow<S, AgentRuntimeProcessingError> | undefined
+
+            if (!workflow) {
+                return yield* Effect.fail(new AgentRuntimeError({
+                    agentRuntimeId: id,
+                    message: `Agent type "${agentType}" not registered.`
+                }))
+            }
+
             const map = yield* Ref.get(runtimes)
             if (map.has(id)) {
                 return yield* Effect.fail(new AgentRuntimeError({
@@ -108,7 +130,15 @@ export const ActorRuntimeManager = Effect.gen(function* () {
                 id,
                 send: (activity: AgentActivity) => mailbox.offer(activity),
                 getState: () => Ref.get(stateRef),
-                subscribe: () => mailbox.subscribe(),
+                subscribe: (queue: Queue.Queue<AgentActivity>) => Effect.gen(function* () {
+                    const hub = mailbox.subscribe()
+                    const fiber = yield* hub.pipe(
+                        Stream.run(Sink.fromQueue(queue)),
+                        Effect.fork,
+                    )
+                    // Return a finalizer to unsubscribe
+                    return () => Fiber.interrupt(fiber)
+                }),
                 terminate: () => terminate(id)
             }
         })
@@ -157,26 +187,11 @@ export const ActorRuntimeManager = Effect.gen(function* () {
             return yield* Ref.get(entry.stateRef)
         })
 
-    const subscribe = (id: AgentRuntimeId) =>
-        Stream.unwrap(
-            Effect.gen(function* () {
-                const map = yield* Ref.get(runtimes)
-                const entry = map.get(id)
-                if (!entry) {
-                    return Stream.fail(new AgentRuntimeError({
-                        agentRuntimeId: id,
-                        message: `ActorRuntime ${id} not found`
-                    }))
-                }
-                return entry.mailbox.subscribe()
-            })
-        )
-
     return {
+        register,
         create,
         terminate,
         send,
         getState,
-        subscribe
     }
 }).pipe(Effect.runSync) 

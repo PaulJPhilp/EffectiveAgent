@@ -10,22 +10,22 @@ import { makeOpenAIClient } from "./clients/openai-provider-client.js";
 import { makePerplexityClient } from "./clients/perplexity-provider-client.js";
 import { makeXaiClient } from "./clients/xai-provider-client.js";
 import { ProviderNotFoundError, ProviderServiceConfigError } from "./errors.js";
-import { ProvidersType } from "./schema.js";
+import { ProviderFile } from "./schema.js";
 
 // Then define the implementation
 const makeProviderService = Effect.gen(function* () {
     const configService = yield* ConfigurationService;
-    const configRef = yield* Ref.make<ProvidersType | null>(null);
+    const configRef = yield* Ref.make<ProviderFile | null>(null);
 
     // Load configuration during service initialization
     const masterConfig = yield* configService.getMasterConfig();
     const providerConfigPath = masterConfig.configPaths?.providers || "./config/providers.json";
-    const validConfig = yield* configService.loadProviderConfig(providerConfigPath).pipe(
+    const providerFile = yield* configService.loadProviderConfig(providerConfigPath).pipe(
         Effect.tapError((error) => Effect.logError("Failed to load provider configuration", { error }))
     );
 
-    yield* Ref.set(configRef, validConfig);
-    yield* Effect.logInfo("Provider configuration loaded", { providers: validConfig.providers.map(p => p.name) });
+    yield* Ref.set(configRef, providerFile);
+    yield* Effect.logInfo("Provider configuration loaded", { providers: providerFile.providers.map(p => p.name) });
 
     return {
         getProviderClient: (providerName: string) => Effect.gen(function* () {
