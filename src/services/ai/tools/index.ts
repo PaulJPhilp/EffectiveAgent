@@ -11,14 +11,8 @@ export * from "./errors.js";
 
 // Export schemas
 export {
-    SimpleToolName,
-    FullToolName,
-    ToolMetadata,
-    SEffectiveTool,
-    SEffectImplementation,
-    SHttpImplementation,
-    SMcpImplementation,
-    SToolImplementation
+    EffectImplementation, EffectiveTool, FullToolName, HttpImplementation,
+    McpImplementation, SimpleToolName, ToolImplementation, ToolMetadata
 } from "./schema.js";
 
 // Export schema types

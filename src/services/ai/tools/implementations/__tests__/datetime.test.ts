@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
 import { DateTimeFormat, DateTimeOperation, DateTimeUnit, dateTimeImpl } from "../datetime.js";
 
@@ -51,7 +51,7 @@ describe("DateTime Tool", () => {
                 operation: DateTimeOperation.PARSE,
                 dateString: "invalid"
             }));
-            expect(Effect.isLeft(result)).toBe(true);
+            expect(Either.isLeft(result)).toBe(true);
         }));
     });
 
@@ -159,7 +159,7 @@ describe("DateTime Tool", () => {
             const result = yield* Effect.either(dateTimeImpl({
                 operation: "INVALID" as any
             }));
-            expect(Effect.isLeft(result)).toBe(true);
+            expect(Either.isLeft(result)).toBe(true);
         }));
 
         it("should handle invalid dates", () => Effect.gen(function* () {
@@ -168,7 +168,7 @@ describe("DateTime Tool", () => {
                 date: "invalid",
                 format: DateTimeFormat.ISO
             }));
-            expect(Effect.isLeft(result)).toBe(true);
+            expect(Either.isLeft(result)).toBe(true);
         }));
 
         it("should handle invalid operation", () => Effect.gen(function* () {
@@ -176,7 +176,7 @@ describe("DateTime Tool", () => {
                 operation: "UNKNOWN" as any,
                 date: "2024-03-20T12:00:00[UTC]"
             }));
-            expect(Effect.isLeft(result)).toBe(true);
+            expect(Either.isLeft(result)).toBe(true);
         }));
     });
 }); 

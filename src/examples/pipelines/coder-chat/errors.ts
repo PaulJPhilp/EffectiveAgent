@@ -6,6 +6,19 @@
 import { PipelineError } from "../common/errors.js";
 
 /**
+ * General error for the CoderChatPipeline
+ */
+export class CoderChatPipelineError extends PipelineError {
+    constructor(params: { message: string; cause?: unknown }) {
+        super({
+            message: params.message,
+            pipelineName: "CoderChatPipeline",
+            cause: params.cause
+        });
+    }
+}
+
+/**
  * Error specific to the CoderChatPipeline when code generation fails
  */
 export class CodeGenerationError extends PipelineError {
@@ -50,7 +63,8 @@ export class DocumentationError extends PipelineError {
 /**
  * Union type of all CoderChatPipeline error types
  */
-export type CoderChatPipelineError =
+export type CoderChatPipelineErrorUnion =
+    | CoderChatPipelineError
     | CodeGenerationError
     | CodeAnalysisError
     | DocumentationError; 

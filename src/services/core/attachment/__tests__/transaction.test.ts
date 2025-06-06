@@ -29,8 +29,8 @@ describe("AttachmentService Transaction Support", () => {
 
                 const newEntity = {
                     id: `entity-${crypto.randomUUID()}`,
-                    createdAt: new Date(Date.now()).toISOString(),
-                    updatedAt: new Date(Date.now()).toISOString(),
+                    createdAt: new Date(Date.now()),
+                    updatedAt: new Date(Date.now()),
                     data
                 } as AttachmentLinkEntity;
 
@@ -104,8 +104,8 @@ describe("AttachmentService Transaction Support", () => {
 
             update: () => Effect.succeed({
                 id: "test-id",
-                createdAt: new Date(Date.now()).toISOString(),
-                updatedAt: new Date(Date.now()).toISOString(),
+                createdAt: new Date(Date.now()),
+                updatedAt: new Date(Date.now()),
                 data: {
                     entityA_id: "source-id",
                     entityA_type: "SourceType",
@@ -191,8 +191,8 @@ describe("AttachmentService Transaction Support", () => {
                     ...specialRepo,
                     create: (data) => Effect.succeed({
                         id: data.entityA_id === "source-2" ? "fail-on-delete" : `entity-${crypto.randomUUID()}`,
-                        createdAt: new Date(Date.now()).toISOString(),
-                        updatedAt: new Date(Date.now()).toISOString(),
+                        createdAt: new Date(Date.now()),
+                        updatedAt: new Date(Date.now()),
                         data
                     } as AttachmentLinkEntity),
                 }
@@ -262,8 +262,8 @@ describe("AttachmentService Transaction Support", () => {
                     ...specialRepo,
                     create: (data: AttachmentLinkEntity["data"]): Effect.Effect<never, RepositoryError, AttachmentLinkEntity> => Effect.succeed({
                         id: data.entityB_id === "target-2" ? "fail-on-delete" : `entity-${crypto.randomUUID()}`,
-                        createdAt: new Date(Date.now()).toISOString(),
-                        updatedAt: new Date(Date.now()).toISOString(),
+                        createdAt: new Date(Date.now()),
+                        updatedAt: new Date(Date.now()),
                         data
                     } as AttachmentLinkEntity),
                 } as ModifiedRepositoryConfig

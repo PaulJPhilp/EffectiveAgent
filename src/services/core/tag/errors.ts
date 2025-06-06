@@ -2,7 +2,7 @@
  * @file Defines specific error types for the Tag service.
  */
 
-import type { ImportedType } from "@/types.js";
+import type { EntityId } from "@/types.js";
 import { Data } from "effect";
 
 /** Error indicating a tag was not found by ID or name. */

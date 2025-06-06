@@ -1,6 +1,6 @@
-import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
-import type { AgentRuntimeError } from "@/ea-agent-runtime/errors.js"
 import { Effect } from "effect"
+import type { AgentRuntimeServiceApi } from "../ea-agent-runtime/api.js"
+import type { AgentRuntimeError } from "../ea-agent-runtime/errors.js"
 import type {
     EASdkAgentCreationError,
     EASdkCompatibilityError,
@@ -252,4 +252,7 @@ export interface EASdkApi {
         (error: unknown) => Effect.Effect<never, EASdkOperationError>,
         never
     >
-} 
+}
+
+// Re-export for consumers
+export type { AgentRuntimeServiceApi } from "../ea-agent-runtime/api.js"

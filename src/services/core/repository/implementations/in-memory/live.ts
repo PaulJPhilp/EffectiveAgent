@@ -48,12 +48,12 @@ export const make = <TEntity extends BaseEntity>(
         entityData: TEntity["data"],
     ): Effect.Effect<TEntity, RepositoryError> => // No Clock requirement
         Effect.gen(function* () {
-            const now = Date.now(); // Use Date.now() as placeholder
+            const now = new Date(); // Use new Date() for proper Date objects
             const newId = uuidv4();
             const newEntity = {
                 id: newId,
-                createdAt: now, // Placeholder timestamp
-                updatedAt: now, // Placeholder timestamp
+                createdAt: now, // Date object
+                updatedAt: now, // Date object
                 data: entityData,
             } as TEntity; // Cast needed
             yield* Ref.update(store, (map) => map.set(newId, newEntity));
@@ -139,11 +139,11 @@ export const make = <TEntity extends BaseEntity>(
                     Option.match(option, {
                         onNone: () => Effect.fail(new EntityNotFoundError({ entityType, entityId: id })),
                         onSome: (existing) => Effect.gen(function* () {
-                            const now = Date.now(); // Use Date.now() as placeholder
+                            const now = new Date(); // Use new Date() for proper Date objects
                             const updatedData = { ...existing.data, ...entityData };
                             const updatedEntity = {
                                 ...existing,
-                                updatedAt: now, // Placeholder timestamp
+                                updatedAt: now, // Date object
                                 data: updatedData,
                             } as TEntity;
                             yield* Ref.update(store, (map) => map.set(id, updatedEntity)).pipe(

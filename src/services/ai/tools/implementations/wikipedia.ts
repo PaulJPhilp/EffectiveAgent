@@ -18,18 +18,18 @@ export const WikiInputSchema = S.Union(
     S.Struct({
         operation: S.Literal(WikiOperation.SEARCH),
         query: S.String,
-        limit: S.optional(S.Number, { default: 5 })
+        limit: S.optional(S.Number).pipe(S.withDefaults({ constructor: () => 5, decoding: () => 5 }))
     }),
     // SUMMARY operation
     S.Struct({
         operation: S.Literal(WikiOperation.SUMMARY),
         title: S.String,
-        sentences: S.optional(S.Number, { default: 3 })
+        sentences: S.optional(S.Number).pipe(S.withDefaults({ constructor: () => 3, decoding: () => 3 }))
     }),
     // RANDOM operation
     S.Struct({
         operation: S.Literal(WikiOperation.RANDOM),
-        count: S.optional(S.Number, { default: 1 })
+        count: S.optional(S.Number).pipe(S.withDefaults({ constructor: () => 1, decoding: () => 1 }))
     })
 );
 
@@ -93,7 +93,7 @@ export const wikiImpl = (input: unknown): Effect.Effect<WikiOutput, Error> =>
 
                 const response = yield* Effect.tryPromise({
                     try: () => fetchWikiApi(params),
-                    catch: error => new Error("Failed to fetch search results", { cause: error })
+                    catch: error => new Error(`Failed to fetch search results: ${String(error)}`)
                 });
 
                 const results = ((response as any).query?.search || []).map((item: any) => ({
@@ -122,7 +122,7 @@ export const wikiImpl = (input: unknown): Effect.Effect<WikiOutput, Error> =>
 
                 const response = yield* Effect.tryPromise({
                     try: () => fetchWikiApi(params),
-                    catch: error => new Error("Failed to fetch article summary", { cause: error })
+                    catch: error => new Error(`Failed to fetch article summary: ${String(error)}`)
                 });
 
                 const page = Object.values((response as any).query?.pages || {})[0] as any;
@@ -147,7 +147,7 @@ export const wikiImpl = (input: unknown): Effect.Effect<WikiOutput, Error> =>
 
                 const response = yield* Effect.tryPromise({
                     try: () => fetchWikiApi(params),
-                    catch: error => new Error("Failed to fetch random articles", { cause: error })
+                    catch: error => new Error(`Failed to fetch random articles: ${String(error)}`)
                 });
 
                 const results = ((response as any).query?.random || []).map((item: any) => ({

@@ -6,6 +6,19 @@
 import { PipelineError } from "../common/errors.js";
 
 /**
+ * General error for the PlanningPipeline
+ */
+export class PlanningPipelineError extends PipelineError {
+    constructor(params: { message: string; cause?: unknown }) {
+        super({
+            message: params.message,
+            pipelineName: "PlanningPipeline",
+            cause: params.cause
+        });
+    }
+}
+
+/**
  * Error specific to the PlanningPipeline when goal analysis fails
  */
 export class GoalAnalysisError extends PipelineError {
@@ -68,7 +81,8 @@ export class PlanValidationError extends PipelineError {
 /**
  * Union type of all PlanningPipeline error types
  */
-export type PlanningPipelineError =
+export type PlanningPipelineErrorUnion =
+    | PlanningPipelineError
     | GoalAnalysisError
     | StepGenerationError
     | DependencyResolutionError

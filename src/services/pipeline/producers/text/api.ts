@@ -1,4 +1,4 @@
-import type { GenerateBaseResult } from "@/services/pipeline/types.js";
+import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import type { EffectiveResponse } from "@/types.js";
 import type { Effect, Ref } from "effect";
 import type { TextAgentState } from "./service.js";
@@ -14,7 +14,7 @@ export interface TextServiceApi {
    */
   readonly generate: (
     options: TextGenerationOptions
-  ) => Effect.Effect<EffectiveResponse<GenerateBaseResult>, Error>;
+  ) => Effect.Effect<EffectiveResponse<GenerateTextResult>, Error>;
 
   /**
    * Get the current service state for monitoring/debugging

@@ -16,7 +16,7 @@ export class SkillExecutionParams extends S.Class<SkillExecutionParams>("SkillEx
 	frequencyPenalty: S.Number.pipe(S.optional),
 }) { }
 
-export type SkillExecutionParamsType = Schema.Schema.Type<typeof SkillExecutionParams>;
+export type SkillExecutionParamsType = S.Schema.Type<typeof SkillExecutionParams>;
 
 /**
  * Schema for the core definition of a Skill.

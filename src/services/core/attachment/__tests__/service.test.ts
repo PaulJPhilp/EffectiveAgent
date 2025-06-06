@@ -23,8 +23,8 @@ describe("AttachmentService", () => {
 
     create: (data: AttachmentLinkEntity["data"]) => Effect.succeed({
       id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       data: data,
     } as AttachmentLinkEntity),
 
@@ -59,8 +59,8 @@ describe("AttachmentService", () => {
         return Effect.succeed([
           {
             id: "link-1",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
             data: {
               entityA_id: "chat-1",
               entityA_type: "ChatMessage",
@@ -71,8 +71,8 @@ describe("AttachmentService", () => {
           },
           {
             id: "link-2",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
             data: {
               entityA_id: "chat-1",
               entityA_type: "ChatMessage",
@@ -88,8 +88,8 @@ describe("AttachmentService", () => {
         return Effect.succeed([
           {
             id: "link-1",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
             data: {
               entityA_id: "chat-1",
               entityA_type: "ChatMessage",
@@ -100,8 +100,8 @@ describe("AttachmentService", () => {
           },
           {
             id: "link-3",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
             data: {
               entityA_id: "exec-5",
               entityA_type: "SkillExecution",
@@ -117,8 +117,8 @@ describe("AttachmentService", () => {
         return Effect.succeed([
           {
             id: "link-3",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
             data: {
               entityA_id: "exec-5",
               entityA_type: "SkillExecution",
@@ -134,8 +134,8 @@ describe("AttachmentService", () => {
         return Effect.succeed([
           {
             id: "link-2",
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
             data: {
               entityA_id: "chat-1",
               entityA_type: "ChatMessage",
@@ -152,8 +152,8 @@ describe("AttachmentService", () => {
 
     update: () => Effect.succeed({
       id: "test-id",
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       data: {
         entityA_id: "source-id",
         entityA_type: "SourceType",
@@ -462,8 +462,8 @@ describe("AttachmentService", () => {
               }
               return Effect.succeed({
                 id: crypto.randomUUID(),
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
                 data
               } as AttachmentLinkEntity);
             }

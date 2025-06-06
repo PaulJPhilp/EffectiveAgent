@@ -6,8 +6,8 @@
 import { config } from "dotenv";
 config(); // Load environment variables from .env file
 
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/agent-runtime/types.js";
+import { AgentRuntimeService, makeAgentRuntimeId } from "@/ea-agent-runtime/index.js";
+import { AgentActivity, AgentActivityType } from "@/ea-agent-runtime/types.js";
 import { StructuredOutputAgent } from "@/examples/structured-output/agent.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";

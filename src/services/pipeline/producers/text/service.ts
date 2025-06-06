@@ -5,10 +5,10 @@
 
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import { GenerateTextResult } from "@/services/ai/provider/types";
 import type { TextServiceApi } from "@/services/pipeline/producers/text/api.js";
 import { TextInputError, TextModelError } from "@/services/pipeline/producers/text/errors.js";
 import type { TextGenerationOptions } from "@/services/pipeline/producers/text/types.js";
-import { GenerateBaseResult } from "@/services/pipeline/types.js";
 import { EffectiveResponse } from "@/types.js";
 import { Chunk, Effect, Option, Ref } from "effect";
 
@@ -137,28 +137,21 @@ class TextService extends Effect.Service<TextServiceApi>()(
               }
             });
 
-            const response: EffectiveResponse<GenerateBaseResult> = {
+            const response: EffectiveResponse<GenerateTextResult> = {
               data: {
-                output: providerResult.data.text,
-                usage: providerResult.usage,
-                finishReason: providerResult.finishReason,
-                // Dummy fields for the pipeline GenerateBaseResult interface
-                location: null,
-                temperature: null,
-                temperatureFeelsLike: null,
-                humidity: null,
-                windSpeed: null,
-                windDirection: null,
-                conditions: null,
-                timestamp: null,
-                text: () => providerResult.data.text
+                id: crypto.randomUUID(),
+                model: modelId,
+                timestamp: new Date(),
+                text: providerResult.data.text,
+                usage: providerResult.usage ?? { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+                finishReason: providerResult.finishReason ?? "stop"
               },
               metadata: {
                 model: modelId,
                 provider: providerName,
                 promptLength: finalPrompt.length,
                 outputLength: providerResult.data.text.length,
-                usage: providerResult.usage
+                usage: providerResult.usage ?? { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
               }
             };
 
@@ -169,7 +162,7 @@ class TextService extends Effect.Service<TextServiceApi>()(
               timestamp: Date.now(),
               modelId,
               promptLength: finalPrompt.length,
-              outputLength: response.data.output.length,
+              outputLength: response.data.text.length,
               success: true
             });
 

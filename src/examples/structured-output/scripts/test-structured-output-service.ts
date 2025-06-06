@@ -7,7 +7,7 @@
 
 import "dotenv/config";
 
-import { AgentRuntimeService } from "@/agent-runtime/service.js";
+import { AgentRuntimeService } from "@/ea-agent-runtime/service.js";
 import { StructuredOutputAgent } from "@/examples/structured-output/agent.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";

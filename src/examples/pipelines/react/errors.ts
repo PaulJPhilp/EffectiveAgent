@@ -6,41 +6,60 @@
 import { PipelineError } from "../common/errors.js";
 
 /**
- * Error specific to the ReActPipeline when a tool execution fails
+ * General error for the ReActPipeline
+ */
+export class ReActPipelineError extends PipelineError {
+    constructor(params: { message: string; cause?: unknown }) {
+        super({
+            message: params.message,
+            pipelineName: "ReActPipeline",
+            cause: params.cause
+        });
+    }
+}
+
+/**
+ * Error specific to the ReActPipeline when reasoning fails
+ */
+export class ReasoningError extends PipelineError {
+    constructor(params: { message: string; cause?: unknown }) {
+        super({
+            message: params.message,
+            pipelineName: "ReActPipeline",
+            cause: params.cause
+        });
+    }
+}
+
+/**
+ * Error specific to the ReActPipeline when tool execution fails
  */
 export class ToolExecutionError extends PipelineError {
     readonly toolId: string;
-    readonly params: Record<string, unknown>;
 
-    constructor(params: {
-        message: string;
-        toolId: string;
-        toolParams: Record<string, unknown>;
-        cause?: unknown
-    }) {
+    constructor(params: { message: string; toolId: string; cause?: unknown }) {
         super({
             message: params.message,
             pipelineName: "ReActPipeline",
             cause: params.cause
         });
         this.toolId = params.toolId;
-        this.params = params.toolParams;
     }
 }
 
 /**
- * Error specific to the ReActPipeline when a reasoning step fails
+ * Error specific to the ReActPipeline when step parsing fails
  */
-export class ReasoningError extends PipelineError {
-    readonly stepNumber: number;
+export class StepParsingError extends PipelineError {
+    readonly rawOutput: string;
 
-    constructor(params: { message: string; stepNumber: number; cause?: unknown }) {
+    constructor(params: { message: string; rawOutput: string; cause?: unknown }) {
         super({
             message: params.message,
             pipelineName: "ReActPipeline",
             cause: params.cause
         });
-        this.stepNumber = params.stepNumber;
+        this.rawOutput = params.rawOutput;
     }
 }
 
@@ -76,8 +95,10 @@ export class ToolSelectionError extends PipelineError {
 /**
  * Union type of all ReActPipeline error types
  */
-export type ReActPipelineError =
-    | ToolExecutionError
+export type ReActPipelineErrorUnion =
+    | ReActPipelineError
     | ReasoningError
+    | ToolExecutionError
+    | StepParsingError
     | MaxStepsExceededError
     | ToolSelectionError; 

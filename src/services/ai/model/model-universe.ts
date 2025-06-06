@@ -17,7 +17,7 @@ export interface ModelMetadata {
   readonly modelName: string;
   readonly displayName: string;
   readonly description?: string;
-  readonly vendorCapabilities: readonly (typeof ModelCapability.literals)[number][];
+  readonly vendorCapabilities: readonly ModelCapability[];
   readonly derivedProficiencies?: readonly ModelCapabilityDetail[];
   readonly contextWindowSize?: number;
   readonly maxTokens?: number;

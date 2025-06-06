@@ -6,7 +6,7 @@
  * To add a new provider, add a new entry to this array and update ProviderMetadata if needed.
  * This file is private to the ProviderService and not exported elsewhere.
  */
-import type { ImportedType } from "./types.js";
+import type { ProviderMetadata } from "./types.js";
 
 export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
   {

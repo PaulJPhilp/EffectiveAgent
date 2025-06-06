@@ -5,7 +5,6 @@
 
 import { Effect } from "effect";
 import {
-    CategorizationPipeline,
     type CategorizationPipelineApi,
     CategorizationPipelineError,
     type CategorizationPipelineInput,
@@ -81,7 +80,7 @@ export class ClusteringService extends Effect.Service<ClusteringServiceApi>()("C
  * Implementation of the CategorizationPipeline service
  */
 export class CategorizationPipelineService extends Effect.Service<CategorizationPipelineApi>()(
-    CategorizationPipeline,
+    "CategorizationPipeline",
     {
         effect: Effect.gen(function* () {
             // Yield dependencies
@@ -94,83 +93,82 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
 
             // Method implementations
             const categorize = (input: CategorizationPipelineInput): Effect.Effect<CategorizationPipelineOutput, CategorizationPipelineError> =>
-                Effect.tryCatchEffect(
-                    Effect.gen(function* () {
-                        yield* Effect.logInfo(`Categorizing ${input.items.length} items into ${input.categories?.length || 'auto-discovered'} categories`);
+                Effect.gen(function* () {
+                    yield* Effect.logInfo(`Categorizing ${input.items.length} items into ${input.categories?.length || 'auto-discovered'} categories`);
 
-                        // Generate embeddings for each item
-                        const itemEmbeddings = yield* Effect.forEach(
-                            input.items,
-                            item => embeddings.generateEmbedding(
-                                typeof item.content === 'string' ?
-                                    item.content :
-                                    JSON.stringify(item.content)
-                            )
-                        );
+                    // Generate embeddings for each item
+                    const itemEmbeddings = yield* Effect.forEach(
+                        input.items,
+                        item => embeddings.generateEmbedding(
+                            typeof item.content === 'string' ?
+                                item.content :
+                                JSON.stringify(item.content)
+                        )
+                    );
 
-                        // Use clustering to group similar items
-                        const clusterResult = yield* clustering.clusterData(itemEmbeddings);
+                    // Use clustering to group similar items
+                    const clusterResult = yield* clustering.clusterData(itemEmbeddings);
 
-                        // Mock categories if none provided
-                        const categories = input.categories || clusterResult.clusters.map((cluster, i) => ({
-                            id: `cat-${i + 1}`,
-                            name: cluster.label
-                        }));
+                    // Mock categories if none provided
+                    const categories = input.categories || clusterResult.clusters.map((cluster, i) => ({
+                        id: `cat-${i + 1}`,
+                        name: cluster.label
+                    }));
 
-                        // Mock categorization results
-                        const results: CategorizationResult[] = input.items.map((item, index) => {
-                            // Randomly assign 1-2 categories
-                            const numCategories = input.allowMultipleCategories ?
-                                Math.floor(Math.random() * 2) + 1 : 1;
+                    // Mock categorization results
+                    const results: CategorizationResult[] = input.items.map((item, index) => {
+                        // Randomly assign 1-2 categories
+                        const numCategories = input.allowMultipleCategories ?
+                            Math.floor(Math.random() * 2) + 1 : 1;
 
-                            // Randomly select categories
-                            const selectedCategories = [...categories]
-                                .sort(() => Math.random() - 0.5)
-                                .slice(0, numCategories)
-                                .map(category => ({
-                                    categoryId: category.id,
-                                    confidence: 0.6 + Math.random() * 0.4, // Random confidence between 0.6 and 1.0
-                                    explanation: input.includeExplanations ?
-                                        `Item "${item.id}" was assigned to ${category.name} based on content similarity` :
-                                        undefined
-                                }));
-
-                            return {
-                                itemId: item.id,
-                                categories: selectedCategories,
-                                originalContent: input.includeOriginalContent ? item.content : undefined
-                            };
-                        });
-
-                        // Generate statistics
-                        const uncategorizedCount = results.filter(r => r.categories.length === 0).length;
-                        const categoryDistribution: Record<string, number> = {};
-                        let totalConfidence = 0;
-                        let totalCategorizations = 0;
-
-                        // Calculate category distribution and average confidence
-                        results.forEach(result => {
-                            result.categories.forEach(cat => {
-                                categoryDistribution[cat.categoryId] = (categoryDistribution[cat.categoryId] || 0) + 1;
-                                totalConfidence += cat.confidence;
-                                totalCategorizations++;
-                            });
-                        });
+                        // Randomly select categories
+                        const selectedCategories = [...categories]
+                            .sort(() => Math.random() - 0.5)
+                            .slice(0, numCategories)
+                            .map(category => ({
+                                categoryId: category.id,
+                                confidence: 0.6 + Math.random() * 0.4, // Random confidence between 0.6 and 1.0
+                                explanation: input.includeExplanations ?
+                                    `Item "${item.id}" was assigned to ${category.name} based on content similarity` :
+                                    undefined
+                            }));
 
                         return {
-                            results,
-                            stats: {
-                                uncategorizedCount,
-                                categoryDistribution,
-                                averageConfidence: totalCategorizations > 0 ?
-                                    totalConfidence / totalCategorizations : 0
-                            }
+                            itemId: item.id,
+                            categories: selectedCategories,
+                            originalContent: input.includeOriginalContent ? item.content : undefined
                         };
-                    }),
-                    (caughtError) => new CategorizationPipelineError({
+                    });
+
+                    // Generate statistics
+                    const uncategorizedCount = results.filter(r => r.categories.length === 0).length;
+                    const categoryDistribution: Record<string, number> = {};
+                    let totalConfidence = 0;
+                    let totalCategorizations = 0;
+
+                    // Calculate category distribution and average confidence
+                    results.forEach(result => {
+                        result.categories.forEach(cat => {
+                            categoryDistribution[cat.categoryId] = (categoryDistribution[cat.categoryId] || 0) + 1;
+                            totalConfidence += cat.confidence;
+                            totalCategorizations++;
+                        });
+                    });
+
+                    return {
+                        results,
+                        stats: {
+                            uncategorizedCount,
+                            categoryDistribution,
+                            averageConfidence: totalCategorizations > 0 ?
+                                totalConfidence / totalCategorizations : 0
+                        }
+                    };
+                }).pipe(
+                    Effect.catchAll((caughtError: unknown) => Effect.fail(new CategorizationPipelineError({
                         message: `Categorization failed: ${caughtError instanceof Error ? caughtError.message : String(caughtError)}`,
                         cause: caughtError
-                    })
+                    })))
                 );
 
             const discoverCategories = (
@@ -181,56 +179,55 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                     includeExplanations?: boolean;
                 }
             ): Effect.Effect<CategorizationPipelineOutput, CategorizationPipelineError> =>
-                Effect.tryCatchEffect(
-                    Effect.gen(function* () {
-                        yield* Effect.logInfo(`Discovering categories from ${items.length} items`);
+                Effect.gen(function* () {
+                    yield* Effect.logInfo(`Discovering categories from ${items.length} items`);
 
-                        // Generate embeddings for items
-                        const itemEmbeddings = yield* Effect.forEach(
-                            items,
-                            item => embeddings.generateEmbedding(
-                                typeof item.content === 'string' ?
-                                    item.content :
-                                    JSON.stringify(item.content)
-                            )
-                        );
+                    // Generate embeddings for items
+                    const itemEmbeddings = yield* Effect.forEach(
+                        items,
+                        item => embeddings.generateEmbedding(
+                            typeof item.content === 'string' ?
+                                item.content :
+                                JSON.stringify(item.content)
+                        )
+                    );
 
-                        // Use clustering to discover categories
-                        const clusterResult = yield* clustering.clusterData(itemEmbeddings);
+                    // Use clustering to discover categories
+                    const clusterResult = yield* clustering.clusterData(itemEmbeddings);
 
-                        // Create categories from clusters
-                        const discoveredCategories: Category[] = clusterResult.clusters.map((cluster, i) => ({
-                            id: generateId("discovered-cat", i),
-                            name: cluster.label,
-                            description: `This category was automatically discovered from content patterns.`,
-                            metadata: {
-                                keyTerms: ["term1", "term2", "term3"],
-                                avgSimilarity: 0.75 + Math.random() * 0.2
-                            }
-                        }));
+                    // Create categories from clusters
+                    const discoveredCategories: Category[] = clusterResult.clusters.map((cluster, i) => ({
+                        id: generateId("discovered-cat", i),
+                        name: cluster.label,
+                        description: `This category was automatically discovered from content patterns.`,
+                        metadata: {
+                            keyTerms: ["term1", "term2", "term3"],
+                            avgSimilarity: 0.75 + Math.random() * 0.2
+                        }
+                    }));
 
-                        // Create input for the categorize method
-                        const categorizationInput: CategorizationPipelineInput = {
-                            items,
-                            categories: discoveredCategories,
-                            allowMultipleCategories: false,
-                            includeExplanations: options?.includeExplanations,
-                            includeOriginalContent: false
-                        };
+                    // Create input for the categorize method
+                    const categorizationInput: CategorizationPipelineInput = {
+                        items,
+                        categories: discoveredCategories,
+                        allowMultipleCategories: false,
+                        includeExplanations: options?.includeExplanations,
+                        includeOriginalContent: false
+                    };
 
-                        // Use the categorize method to assign items to the discovered categories
-                        const result = yield* categorize(categorizationInput);
+                    // Use the categorize method to assign items to the discovered categories
+                    const result = yield* categorize(categorizationInput);
 
-                        // Add discovered categories to the result
-                        return {
-                            ...result,
-                            discoveredCategories
-                        };
-                    }),
-                    (caughtError) => new CategorizationPipelineError({
+                    // Add discovered categories to the result
+                    return {
+                        ...result,
+                        discoveredCategories
+                    };
+                }).pipe(
+                    Effect.catchAll((caughtError: unknown) => Effect.fail(new CategorizationPipelineError({
                         message: `Category discovery failed: ${caughtError instanceof Error ? caughtError.message : String(caughtError)}`,
                         cause: caughtError
-                    })
+                    })))
                 );
 
             // Return implementation of the API

@@ -76,9 +76,10 @@ export const ConfigPathsSchema = Schema.Struct({
  * Master configuration schema
  */
 export class MasterConfigSchema extends Schema.Class<MasterConfigSchema>("MasterConfigSchema")({
+    name: Schema.String,
+    version: Schema.String,
     runtimeSettings: RuntimeSettingsSchema,
     logging: LoggingConfigSchema,
-    agents: AgentConfigSchema,
     configPaths: ConfigPathsSchema
 }) { }
 

@@ -4,7 +4,6 @@
  */
 
 import type { EffectiveUsage } from "@/types.js";
-import { PipelineError } from "../common/errors.js";
 
 /**
  * Error class for structured output pipeline errors

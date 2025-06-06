@@ -1,3 +1,4 @@
+import { MailboxError } from "@/ea-agent-runtime/errors.js"
 import { Effect, Stream } from "effect"
 import { describe, expect, it } from "vitest"
 import { PrioritizedMailbox } from "../prioritized-mailbox.js"

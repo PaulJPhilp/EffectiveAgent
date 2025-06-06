@@ -1,12 +1,11 @@
 import { ModelCapability } from "@/schema.js";
 import { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
-import { EffectiveResponse } from "@/types.js";
+import { EffectiveResponse, GenerateBaseResult } from "@/types.js";
 import { Effect } from "effect";
 import { ModelServiceApi } from "../model/api.js";
 import { ModelService } from "../model/service.js";
 import { ProviderMissingCapabilityError, ProviderOperationError, ProviderServiceConfigError } from "./errors.js";
 import { ProvidersType } from "./schema.js";
-import { GenerateBaseResult } from "./types.js";
 
 /**
  * Loads the provider configuration string from the provided ConfigurationService
@@ -19,7 +18,7 @@ export const loadConfigString = (
   method: string
 ): Effect.Effect<string, ProviderServiceConfigError> => {
   const configPath = process.env.PROVIDERS_CONFIG_PATH ?? "./config/providers.json";
-  return configService.readFile(configPath).pipe(
+  return configService.loadRawConfig(configPath).pipe(
     Effect.map(String),
     Effect.mapError(error => new ProviderServiceConfigError({
       description: "Failed to load provider config string",

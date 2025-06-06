@@ -34,22 +34,22 @@ export const NewsInputSchema = S.Union(
     S.Struct({
         operation: S.Literal(NewsOperation.SEARCH),
         query: S.String,
-        sortBy: S.optional(S.Enums(NewsSortBy), { default: NewsSortBy.PUBLISHED_AT }),
-        limit: S.optional(S.Number, { default: 10 }),
-        language: S.optional(S.String, { default: "en" })
+        sortBy: S.optional(S.Enums(NewsSortBy)).pipe(S.withDefaults({ constructor: () => NewsSortBy.PUBLISHED_AT, decoding: () => NewsSortBy.PUBLISHED_AT })),
+        limit: S.optional(S.Number).pipe(S.withDefaults({ constructor: () => 10, decoding: () => 10 })),
+        language: S.optional(S.String).pipe(S.withDefaults({ constructor: () => "en", decoding: () => "en" }))
     }),
     // TOP_HEADLINES operation
     S.Struct({
         operation: S.Literal(NewsOperation.TOP_HEADLINES),
-        country: S.optional(S.String, { default: "us" }),
-        limit: S.optional(S.Number, { default: 10 })
+        country: S.optional(S.String).pipe(S.withDefaults({ constructor: () => "us", decoding: () => "us" })),
+        limit: S.optional(S.Number).pipe(S.withDefaults({ constructor: () => 10, decoding: () => 10 }))
     }),
     // BY_CATEGORY operation
     S.Struct({
         operation: S.Literal(NewsOperation.BY_CATEGORY),
         category: S.Enums(NewsCategory),
-        country: S.optional(S.String, { default: "us" }),
-        limit: S.optional(S.Number, { default: 10 })
+        country: S.optional(S.String).pipe(S.withDefaults({ constructor: () => "us", decoding: () => "us" })),
+        limit: S.optional(S.Number).pipe(S.withDefaults({ constructor: () => 10, decoding: () => 10 }))
     })
 );
 
@@ -140,7 +140,7 @@ export const newsImpl = (input: unknown): Effect.Effect<NewsOutput, Error> =>
 
                 const response = yield* Effect.tryPromise({
                     try: () => fetchNewsApi("/everything", params),
-                    catch: error => new Error("Failed to fetch news", { cause: error })
+                    catch: error => new Error(`Failed to fetch news: ${String(error)}`)
                 });
 
                 const articles = ((response as any).articles || []).map(mapArticle);
@@ -161,7 +161,7 @@ export const newsImpl = (input: unknown): Effect.Effect<NewsOutput, Error> =>
 
                 const response = yield* Effect.tryPromise({
                     try: () => fetchNewsApi("/top-headlines", params),
-                    catch: error => new Error("Failed to fetch top headlines", { cause: error })
+                    catch: error => new Error(`Failed to fetch top headlines: ${String(error)}`)
                 });
 
                 const articles = ((response as any).articles || []).map(mapArticle);
@@ -182,7 +182,7 @@ export const newsImpl = (input: unknown): Effect.Effect<NewsOutput, Error> =>
 
                 const response = yield* Effect.tryPromise({
                     try: () => fetchNewsApi("/top-headlines", params),
-                    catch: error => new Error("Failed to fetch category news", { cause: error })
+                    catch: error => new Error(`Failed to fetch category news: ${String(error)}`)
                 });
 
                 const articles = ((response as any).articles || []).map(mapArticle);

@@ -5,17 +5,15 @@
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeContext } from "@effect/platform-node";
 import type { ModelServiceApi } from "../api.js";
-import type { ModelFileDefinition, PublicModelInfoDefinition } from "../schema.js";
 import { ModelService } from "../service.js";
 
 // Set up environment before imports
 process.env.MODELS_CONFIG_PATH = process.cwd() + "/src/services/ai/model/__tests__/config/models.json";
 console.log('MODELS_CONFIG_PATH:', process.env.MODELS_CONFIG_PATH);
 
-import { ModelCapability } from "@/schema.js";
-import { Effect, Exit } from "effect";
+import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { MODEL_IDS, MODEL_UNIVERSE, ModelMetadata } from "../model-universe.js";
+import { MODEL_IDS, MODEL_UNIVERSE } from "../model-universe.js";
 
 const provideLayer = <A>(effect: Effect.Effect<A, never, ModelServiceApi>) =>
   Effect.runPromiseExit(
@@ -66,7 +64,7 @@ describe("MODEL_UNIVERSE capabilities", () => {
   it("should find models by capability", () => {
     const chatModels = MODEL_UNIVERSE.filter(m => m.vendorCapabilities.includes("chat"));
     expect(chatModels.length).toBeGreaterThan(0);
-    
+
     const textGenModels = MODEL_UNIVERSE.filter(m => m.vendorCapabilities.includes("text-generation"));
     expect(textGenModels.length).toBeGreaterThan(0);
 
@@ -77,14 +75,14 @@ describe("MODEL_UNIVERSE capabilities", () => {
   it("should have correct provider names for model IDs", () => {
     const gpt4Model = MODEL_UNIVERSE.find(m => m.id === "gpt-4o");
     const claudeModel = MODEL_UNIVERSE.find(m => m.id === "claude-3-opus");
-    
+
     expect(gpt4Model?.provider).toBe("openai");
     expect(claudeModel?.provider).toBe("anthropic");
   });
 
   it("should find models with multiple capabilities", () => {
-    const modelsWithBothCapabilities = MODEL_UNIVERSE.filter(m => 
-      m.vendorCapabilities.includes("chat") && 
+    const modelsWithBothCapabilities = MODEL_UNIVERSE.filter(m =>
+      m.vendorCapabilities.includes("chat") &&
       m.vendorCapabilities.includes("text-generation")
     );
     expect(modelsWithBothCapabilities.length).toBeGreaterThan(0);

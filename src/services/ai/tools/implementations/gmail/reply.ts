@@ -4,7 +4,7 @@
  */
 
 import { Context, Effect, Schema } from "effect";
-import type { OAuth2Client } from "google-auth-library.js";
+import type { OAuth2Client } from "google-auth-library";
 import { google } from 'googleapis';
 import { ToolExecutionError } from "../../errors.js";
 
@@ -15,18 +15,18 @@ export const gmailReplyMessageInputSchema = Schema.Struct({
 	threadId: Schema.String, // Thread ID is usually required for replies
 	body: Schema.String,
 	// Use Schema.Array
-	to: Schema.Array(Schema.String).pipe(S.optional),
-	cc: Schema.Array(Schema.String).pipe(S.optional),
-	bcc: Schema.Array(Schema.String).pipe(S.optional),
-	subject: Schema.String.pipe(S.optional),
+	to: Schema.Array(Schema.String).pipe(Schema.optional),
+	cc: Schema.Array(Schema.String).pipe(Schema.optional),
+	bcc: Schema.Array(Schema.String).pipe(Schema.optional),
+	subject: Schema.String.pipe(Schema.optional),
 });
 export type GmailReplyMessageInput = Schema.Schema.Type<typeof gmailReplyMessageInputSchema>;
 
 // Output schema is the same as send
 export const gmailReplyMessageOutputSchema = Schema.Struct({
 	success: Schema.Boolean,
-	messageId: Schema.String.pipe(S.optional),
-	threadId: Schema.String.pipe(S.optional),
+	messageId: Schema.String.pipe(Schema.optional),
+	threadId: Schema.String.pipe(Schema.optional),
 });
 export type GmailReplyMessageOutput = Schema.Schema.Type<typeof gmailReplyMessageOutputSchema>;
 
@@ -95,7 +95,12 @@ export const gmailReplyMessageImpl = (
 				metadataHeaders: ["Subject", "From", "To", "Cc", "Reply-To", "Message-ID", "References"]
 			}),
 			catch: (error) => new ToolExecutionError({
-				toolName: "gmailReplyMessage", input, cause: `Failed to fetch original message: ${error}`
+
+				toolName: "gmailReplyMessage",
+				input,
+				module: "GmailReplyTool",
+				method: "fetchOriginalMessage",
+				cause: `Failed to fetch original message: ${error}`
 			})
 		});
 
@@ -117,7 +122,12 @@ export const gmailReplyMessageImpl = (
 				}
 			}),
 			catch: (error) => new ToolExecutionError({
-				toolName: "gmailReplyMessage", input, cause: error
+
+				toolName: "gmailReplyMessage",
+				input,
+				module: "GmailReplyTool",
+				method: "sendDraft",
+				cause: error
 			})
 		});
 
@@ -133,6 +143,8 @@ export const gmailReplyMessageImpl = (
 		return yield* Effect.fail(new ToolExecutionError({
 			toolName: "gmailReplyMessage",
 			input,
+			module: "GmailReplyTool",
+			method: "sendDraft",
 			cause: `Gmail API reply failed with status ${response.status}: ${JSON.stringify(response.data)}`
 		}));
 	}).pipe(
@@ -140,6 +152,8 @@ export const gmailReplyMessageImpl = (
 			error instanceof ToolExecutionError ? error : new ToolExecutionError({
 				toolName: "gmailReplyMessage",
 				input,
+				module: "GmailReplyTool",
+				method: "sendDraft",
 				cause: error
 			})
 		))

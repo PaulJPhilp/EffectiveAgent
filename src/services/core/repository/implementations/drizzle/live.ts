@@ -3,12 +3,16 @@
  * @module services/core/repository/implementations/drizzle/live
  */
 
-import { SQL, and, eq, sql } from "drizzle-orm";
+import type { EntityId, JsonObject } from "@/types.js";
+import { SQL, and, count, eq, sql } from "drizzle-orm";
 import { Context, Effect, Layer, Option } from "effect";
 import { v4 as uuidv4 } from "uuid";
-import { DuplicateEntryError, EntityNotFoundError, RepositoryError } from "../../errors.js";
+import type { RepositoryServiceApi } from "../../api.js";
+import { EntityNotFoundError, RepositoryError } from "../../errors.js";
 import type { BaseEntity, FindOptions } from "../../types.js";
+import type { DrizzleClientApi } from "./config.js";
 import { DrizzleClient } from "./config.js";
+import type { BaseModel, BaseTable } from "./schema.js";
 
 /**
  * Creates a drizzle-orm repository implementation
@@ -16,16 +20,17 @@ import { DrizzleClient } from "./config.js";
 export function make<TData extends JsonObject, TEntity extends BaseEntity<TData>>(
     entityType: string,
     table: BaseTable<TData>
-): Effect.Effect<RepositoryApi<TEntity>, never, DrizzleClient> {
+): Effect.Effect<RepositoryServiceApi<TEntity>, never, DrizzleClientApi> {
     return Effect.gen(function* () {
         const client = yield* DrizzleClient;
+        const dbClient = yield* client.getClient();
 
         // Helper to convert drizzle model to entity
         const toEntity = (model: BaseModel<TData>): TEntity => {
             const entity: BaseEntity<TData> = {
                 id: model.id,
-                createdAt: new Date(model.createdAt).getTime(),
-                updatedAt: new Date(model.updatedAt).getTime(),
+                createdAt: new Date(model.createdAt),
+                updatedAt: new Date(model.updatedAt),
                 data: model.data
             };
             return entity as TEntity;
@@ -35,182 +40,159 @@ export function make<TData extends JsonObject, TEntity extends BaseEntity<TData>
         const buildWhere = (options?: FindOptions<TEntity>) => {
             if (!options?.filter) return undefined;
             const conditions = Object.entries(options.filter).map(([key, value]) => {
-                if (key === "id") return eq(table["id"], value);
-                if (key === "createdAt") return eq(table["createdAt"], value);
-                if (key === "updatedAt") return eq(table["updatedAt"], value);
-                // For data fields, we need to check the jsonb data column
-                return eq(sql`${table["data"]}->>${key}`, String(value));
+                if (key === "id") return eq(table.id, value as string);
+                if (key === "createdAt") return eq(table.createdAt, value as Date);
+                if (key === "updatedAt") return eq(table.updatedAt, value as Date);
+                // For data fields, use a raw SQL comparison
+                return sql`${table.data}->>${key} = ${String(value)}`;
             }).filter((condition): condition is SQL<unknown> => condition !== undefined);
             return conditions.length > 1 ? and(...conditions) : conditions[0];
         };
 
         const create = (data: TData): Effect.Effect<TEntity, RepositoryError> =>
-            Effect.gen(function* () {
-                const result = yield* Effect.promise(() =>
-                    client
-                        .insert(table)
-                        .values({
-                            id: uuidv4(),
-                            createdAt: sql`now()`,
-                            updatedAt: sql`now()`,
-                            data: data as any
-                        })
-                        .returning()
-                ).pipe(
-                    Effect.map(([result]) => toEntity(result as unknown as BaseModel<TData>)),
-                    Effect.catchAll((error) => {
-                        if (error instanceof Error && error.message.includes("duplicate")) {
-                            return Effect.fail(new DuplicateEntryError({
-                                entityType,
-                                conflictingField: "id",
-                                conflictingValue: "unknown"
-                            }));
-                        }
-                        return Effect.fail(new RepositoryError({
-                            message: `Failed to create ${entityType}`,
-                            cause: error instanceof Error ? error : new Error(String(error))
-                        }));
-                    })
-                );
-                return result;
-            });
+            Effect.tryPromise({
+                try: (): Promise<BaseModel<TData>[]> => dbClient.insert(table).values({ id: uuidv4(), createdAt: sql`now()`, updatedAt: sql`now()`, data: data as any }).returning({
+                    id: table.id,
+                    createdAt: table.createdAt,
+                    updatedAt: table.updatedAt,
+                    data: table.data
+                }),
+                catch: (error: unknown) => {
+                    if (error instanceof Error && error.message.includes("duplicate")) {
+                        return new RepositoryError({
+                            message: `Failed to create ${entityType}: duplicate entry`,
+                            cause: error
+                        });
+                    }
+                    return new RepositoryError({
+                        message: `Failed to create ${entityType}`,
+                        cause: error instanceof Error ? error : new Error(String(error))
+                    });
+                }
+            }).pipe(Effect.map((results) => toEntity(results[0])));
 
         const findById = (id: EntityId): Effect.Effect<Option.Option<TEntity>, RepositoryError> =>
-            Effect.promise(() =>
-                client.select().from(table).where(eq(table["id"], id)).limit(1)
-            ).pipe(
-                Effect.map(([result]) => Option.fromNullable(result as unknown as BaseModel<TData>).pipe(
-                    Option.map(toEntity)
-                )),
-                Effect.catchAll((error) => Effect.fail(new RepositoryError({
+            Effect.tryPromise({
+                try: (): Promise<BaseModel<TData>[]> => dbClient.select({
+                    id: table.id,
+                    createdAt: table.createdAt,
+                    updatedAt: table.updatedAt,
+                    data: table.data
+                }).from(table).where(eq(table["id"], id)).limit(1),
+                catch: (error: unknown) => new RepositoryError({
                     message: `Failed to find ${entityType} by ID ${id}`,
                     cause: error instanceof Error ? error : new Error(String(error))
-                })))
+                })
+            }).pipe(
+                Effect.map((results) => Option.fromNullable(results[0]).pipe(
+                    Option.map(toEntity)
+                ))
             );
 
         const findOne = (
             options?: FindOptions<TEntity>
         ): Effect.Effect<Option.Option<TEntity>, RepositoryError> =>
-            Effect.gen(function* () {
-                const where = buildWhere(options);
-                return yield* Effect.promise(() =>
-                    client
-                        .select()
-                        .from(table)
-                        .where(where)
-                        .limit(1)
-                        .offset(options?.offset ?? 0)
-                ).pipe(
-                    Effect.map(([result]) => Option.fromNullable(result as unknown as BaseModel<TData>).pipe(
-                        Option.map(toEntity)
-                    )),
-                    Effect.catchAll((error) => Effect.fail(new RepositoryError({
-                        message: `Failed to find ${entityType}`,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    })))
-                );
-            });
+            Effect.tryPromise({
+                try: (): Promise<BaseModel<TData>[]> => dbClient.select({
+                    id: table.id,
+                    createdAt: table.createdAt,
+                    updatedAt: table.updatedAt,
+                    data: table.data
+                }).from(table).where(buildWhere(options)).limit(1).offset(options?.offset ?? 0),
+                catch: (error: unknown) => new RepositoryError({
+                    message: `Failed to find ${entityType}`,
+                    cause: error instanceof Error ? error : new Error(String(error))
+                })
+            }).pipe(
+                Effect.map((results) => Option.fromNullable(results[0]).pipe(
+                    Option.map(toEntity)
+                ))
+            );
 
         const findMany = (
             options?: FindOptions<TEntity>
         ): Effect.Effect<ReadonlyArray<TEntity>, RepositoryError> =>
-            Effect.gen(function* () {
-                const where = buildWhere(options);
-                return yield* Effect.promise(() =>
-                    client
-                        .select()
-                        .from(table)
-                        .where(where)
-                        .limit(options?.limit ?? 100)
-                        .offset(options?.offset ?? 0)
-                ).pipe(
-                    Effect.map((results) => (results as unknown as BaseModel<TData>[]).map(toEntity)),
-                    Effect.catchAll((error) => Effect.fail(new RepositoryError({
-                        message: `Failed to find many ${entityType}`,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    })))
-                );
-            });
+            Effect.tryPromise({
+                try: (): Promise<BaseModel<TData>[]> => dbClient.select({
+                    id: table.id,
+                    createdAt: table.createdAt,
+                    updatedAt: table.updatedAt,
+                    data: table.data
+                }).from(table).where(buildWhere(options)).limit(options?.limit ?? 100).offset(options?.offset ?? 0),
+                catch: (error: unknown) => new RepositoryError({
+                    message: `Failed to find many ${entityType}`,
+                    cause: error instanceof Error ? error : new Error(String(error))
+                })
+            }).pipe(
+                Effect.map((results) => results.map(toEntity))
+            );
 
         const update = (
             id: EntityId,
             data: Partial<TData>
         ): Effect.Effect<TEntity, RepositoryError | EntityNotFoundError> =>
             Effect.gen(function* () {
-                // First check if the entity exists
-                const [result] = yield* Effect.promise(() =>
-                    client
-                        .select({ count: sql`count(*)`.mapWith(Number).as("count") })
-                        .from(table)
-                        .where(eq(table["id"], id))
-                        .execute()
-                ).pipe(
-                    Effect.mapError((error: unknown) => new RepositoryError({
-                        message: `Failed to check existence of ${entityType} with ID ${id}`,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    }))
-                );
-
-                if (result.count === 0) {
+                const existing = yield* findById(id);
+                if (Option.isNone(existing)) {
                     return yield* Effect.fail(new EntityNotFoundError({
                         entityType,
                         entityId: id
                     }));
                 }
 
-                // Then perform the update
-                const [updated] = yield* Effect.promise(() =>
-                    client
-                        .update(table)
-                        .set({
-                            data: sql`${table["data"]} || ${JSON.stringify(data)}::jsonb`,
-                            updatedAt: sql`now()`
-                        })
-                        .where(eq(table["id"], id))
-                        .returning()
-                        .execute()
-                ).pipe(
-                    Effect.mapError((error: unknown) => new RepositoryError({
+                const results = yield* Effect.tryPromise({
+                    try: (): Promise<BaseModel<TData>[]> => dbClient.update(table).set({
+                        data: sql`${table["data"]} || ${JSON.stringify(data)}::jsonb`,
+                        updatedAt: sql`now()`
+                    }).where(eq(table["id"], id)).returning({
+                        id: table.id,
+                        createdAt: table.createdAt,
+                        updatedAt: table.updatedAt,
+                        data: table.data
+                    }),
+                    catch: (error: unknown) => new RepositoryError({
                         message: `Failed to update ${entityType} with ID ${id}`,
                         cause: error instanceof Error ? error : new Error(String(error))
-                    }))
-                );
+                    })
+                });
 
-                return toEntity(updated as unknown as BaseModel<TData>);
+                return toEntity(results[0]);
             });
 
         const del = (id: EntityId): Effect.Effect<void, RepositoryError | EntityNotFoundError> =>
-            Effect.promise(() =>
-                client.delete(table).where(eq(table["id"], id)).returning()
-            ).pipe(
-                Effect.map(([result]) => {
-                    if (!result) {
+            Effect.tryPromise({
+                try: (): Promise<BaseModel<TData>[]> => dbClient.delete(table).where(eq(table["id"], id)).returning({
+                    id: table.id,
+                    createdAt: table.createdAt,
+                    updatedAt: table.updatedAt,
+                    data: table.data
+                }),
+                catch: (error: unknown) => new RepositoryError({
+                    message: `Failed to delete ${entityType} with ID ${id}`,
+                    cause: error instanceof Error ? error : new Error(String(error))
+                })
+            }).pipe(
+                Effect.flatMap((results) => {
+                    if (results.length === 0) {
                         return Effect.fail(new EntityNotFoundError({
                             entityType,
                             entityId: id
                         }));
                     }
                     return Effect.succeed(undefined);
-                }),
-                Effect.catchAll((error) => Effect.fail(new RepositoryError({
-                    message: `Failed to delete ${entityType} with ID ${id}`,
-                    cause: error instanceof Error ? error : new Error(String(error))
-                })))
+                })
             );
 
-        const count = (options?: FindOptions<TEntity>): Effect.Effect<number, RepositoryError> =>
-            Effect.gen(function* () {
-                const where = buildWhere(options);
-                return yield* Effect.promise(() =>
-                    client.select({ count: sql`count(${table["id"]})` }).from(table).where(where)
-                ).pipe(
-                    Effect.map(([result]) => Number(result.count)),
-                    Effect.catchAll((error) => Effect.fail(new RepositoryError({
-                        message: `Failed to count ${entityType}`,
-                        cause: error instanceof Error ? error : new Error(String(error))
-                    })))
-                );
-            });
+        const countEntities = (options?: Pick<FindOptions<TEntity>, "filter">): Effect.Effect<number, RepositoryError> =>
+            Effect.tryPromise({
+                try: (): Promise<any> => dbClient.select({ count: count(table.id) }).from(table).where(buildWhere(options)),
+                catch: (error: unknown) => new RepositoryError({
+                    message: `Failed to count ${entityType}`,
+                    cause: error instanceof Error ? error : new Error(String(error))
+                })
+            }).pipe(
+                Effect.map((results) => Number(results[0]?.count ?? 0))
+            );
 
         return {
             create,
@@ -219,18 +201,18 @@ export function make<TData extends JsonObject, TEntity extends BaseEntity<TData>
             findMany,
             update,
             delete: del,
-            count
-        } as RepositoryApi<TEntity>;
+            count: countEntities
+        };
     });
 }
 
 /**
- * Creates a layer that provides the drizzle-orm repository implementation
+ * Creates a layer for the drizzle repository implementation
  */
 export function DrizzleRepositoryLiveLayer<TData extends JsonObject, TEntity extends BaseEntity<TData>>(
     entityType: string,
     table: BaseTable<TData>,
-    Tag: Context.Tag<RepositoryApi<TEntity>, RepositoryApi<TEntity>>
-): Layer.Layer<RepositoryApi<TEntity>, never, DrizzleClient> {
+    Tag: Context.Tag<RepositoryServiceApi<TEntity>, RepositoryServiceApi<TEntity>>
+): Layer.Layer<RepositoryServiceApi<TEntity>, never, DrizzleClientApi> {
     return Layer.effect(Tag, make(entityType, table));
-} 
+}

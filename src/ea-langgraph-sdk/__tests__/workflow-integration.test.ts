@@ -5,7 +5,7 @@
 
 import { Effect } from "effect"
 import { describe, expect, it } from "vitest"
-import type { AgentRuntimeServiceApi } from "../../api.js"
+import type { AgentRuntimeServiceApi } from "../api.js"
 import { createWorkflowAgent } from "../examples/workflow-agent.js"
 
 // Create a test runtime with real service mocks that work with EA APIs
@@ -51,6 +51,7 @@ const createTestAgentRuntime = (): AgentRuntimeServiceApi => ({
         deleteFile: (id: string) => Effect.succeed(undefined),
         findFilesByOwner: (ownerId: string) => Effect.succeed([])
     } as any),
+    getChatService: () => Effect.succeed({} as any),
     createLangGraphAgent: () => Effect.succeed({
         agentRuntime: {
             id: "test-workflow-agent" as any,

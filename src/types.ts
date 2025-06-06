@@ -278,6 +278,28 @@ export interface EffectiveUsage {
 }
 
 /**
+ * Base result type containing common fields for all AI generation results
+ */
+export interface GenerateBaseResult {
+  /** Unique identifier of the response */
+  id: string;
+  /** Model identifier used for generation */
+  model: string;
+  /** Timestamp of the response */
+  timestamp: Date;
+  /** Reason the generation finished */
+  finishReason: FinishReason;
+  /** Token/compute usage details */
+  usage: EffectiveUsage;
+  /** Provider-specific metadata */
+  providerMetadata?: ProviderMetadata;
+  /** Optional raw response headers */
+  headers?: Record<string, string>;
+  /** Optional raw response body */
+  body?: unknown;
+}
+
+/**
  * Source used during generation (e.g., web search)
  */
 export interface Source {

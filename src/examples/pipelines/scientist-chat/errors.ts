@@ -6,6 +6,19 @@
 import { PipelineError } from "../common/errors.js";
 
 /**
+ * General error for the ScientistChatPipeline
+ */
+export class ScientistChatPipelineError extends PipelineError {
+    constructor(params: { message: string; cause?: unknown }) {
+        super({
+            message: params.message,
+            pipelineName: "ScientistChatPipeline",
+            cause: params.cause
+        });
+    }
+}
+
+/**
  * Error specific to the ScientistChatPipeline when domain knowledge is insufficient
  */
 export class DomainKnowledgeError extends PipelineError {
@@ -47,7 +60,8 @@ export class FactVerificationError extends PipelineError {
 /**
  * Union type of all ScientistChatPipeline error types
  */
-export type ScientistChatPipelineError =
+export type ScientistChatPipelineErrorUnion =
+    | ScientistChatPipelineError
     | DomainKnowledgeError
     | CitationError
     | FactVerificationError; 

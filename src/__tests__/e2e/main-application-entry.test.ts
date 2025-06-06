@@ -1,73 +1,82 @@
+import { FileSystem } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Config, Effect, Either, Layer } from "effect";
 import { existsSync, mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Config, Effect, Either } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { AgentRuntimeInitializationError } from "@/agent-runtime/errors.js";
-import InitializationService from "@/agent-runtime/initialization.js";
+import { AgentRuntimeInitializationError } from "@/ea-agent-runtime/errors.js";
+import InitializationService from "@/ea-agent-runtime/initialization.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
+
+// Comprehensive test layer that includes InitializationService and all service dependencies
+const CompleteTestLayer = Layer.provideMerge(
+    InitializationService.Default,
+    Layer.provideMerge(
+        ModelService.Default,
+        Layer.provideMerge(
+            Layer.merge(ProviderService.Default, PolicyService.Default),
+            Layer.provideMerge(ConfigurationService.Default, NodeFileSystem.layer)
+        )
+    )
+);
 
 /**
  * Simulates the main application entry point following the AgentRuntime design.
  * This demonstrates the complete bootstrap process as outlined in agent-runtime.md
  */
 class MainApplication {
-    private static _runtime: Effect.Runtime.Runtime<any> | undefined;
+    private static _runtime: any | undefined;
 
     /**
      * Main application initialization following the AgentRuntime pattern
      */
-    static async initialize(): Promise<Effect.Runtime.Runtime<any>> {
-        return await Effect.runPromise(
-            Effect.gen(function* () {
-                // Step 1: Determine Master Configuration Path
-                const masterConfigPath = yield* Config.string("EFFECTIVE_AGENT_MASTER_CONFIG").pipe(
-                    Effect.orElse(() => Effect.succeed("./config/master-config.json"))
-                );
+    static async initialize(): Promise<any> {
+        const initLayer = CompleteTestLayer;
 
-                // Step 2: Load and Validate Master Configuration
-                const fs = yield* NodeFileSystem.FileSystem;
-                const masterConfigContent = yield* fs.readFileString(masterConfigPath, "utf8").pipe(
-                    Effect.mapError(error => new AgentRuntimeInitializationError({
-                        description: `Failed to load master config from ${masterConfigPath}`,
-                        module: "MainApplication",
-                        method: "initialize",
-                        cause: error
-                    }))
-                );
+        const effect = Effect.gen(function* () {
+            // Step 1: Determine Master Configuration Path
+            const masterConfigPath = yield* Config.string("EFFECTIVE_AGENT_MASTER_CONFIG").pipe(
+                Effect.orElse(() => Effect.succeed("./config/master-config.json"))
+            );
 
-                const masterConfigData = JSON.parse(masterConfigContent);
+            // Step 2: Load and Validate Master Configuration
+            const fs = yield* FileSystem.FileSystem;
+            const masterConfigContent = yield* fs.readFileString(masterConfigPath, "utf8").pipe(
+                Effect.mapError(error => new AgentRuntimeInitializationError({
+                    description: `Failed to load master config from ${masterConfigPath}`,
+                    module: "MainApplication",
+                    method: "initialize",
+                    cause: error
+                }))
+            );
 
-                // Step 3: Validate against schema
-                const validatedConfig = yield* Effect.try({
-                    try: () => masterConfigData, // In real implementation, use Schema.decode
-                    catch: error => new AgentRuntimeInitializationError({
-                        description: "Master config validation failed",
-                        module: "MainApplication",
-                        method: "initialize",
-                        cause: error
-                    })
-                });
+            const masterConfigData = JSON.parse(masterConfigContent);
 
-                // Step 4: Initialize AgentRuntime with validated config
-                const initService = yield* InitializationService;
-                const runtime = yield* initService.initialize(validatedConfig);
+            // Step 3: Validate against schema
+            const validatedConfig = yield* Effect.try({
+                try: () => masterConfigData, // In real implementation, use Schema.decode
+                catch: error => new AgentRuntimeInitializationError({
+                    description: "Master config validation failed",
+                    module: "MainApplication",
+                    method: "initialize",
+                    cause: error
+                })
+            });
 
-                MainApplication._runtime = runtime;
-                return runtime;
-            }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            )
-        );
+            // Step 4: Initialize AgentRuntime with validated config
+            const initService = yield* InitializationService;
+            const runtime = yield* initService.initialize(validatedConfig);
+
+            MainApplication._runtime = runtime;
+            return runtime;
+        });
+
+        const providedEffect = effect.pipe(Effect.provide(initLayer));
+        return await Effect.runPromise(providedEffect);
     }
 
     /**
@@ -80,9 +89,8 @@ class MainApplication {
             throw new Error("Application not initialized. Call initialize() first.");
         }
 
-        return await Effect.runPromise(
-            Effect.provide(effect, MainApplication._runtime)
-        );
+        const providedEffect = Effect.provide(effect, MainApplication._runtime) as Effect.Effect<A, any, never>;
+        return await Effect.runPromise(providedEffect);
     }
 
     /**
@@ -255,18 +263,17 @@ describe("Main Application Entry Point E2E Tests", () => {
 
                     // Step 2: Check policy allows the operation
                     const policyResult = yield* policyService.checkPolicy({
-                        operation: "chat",
-                        modelId: "gpt-4o",
-                        userId: "main-app-user",
-                        metadata: {}
+                        auth: { userId: "main-app-user" },
+                        requestedModel: "gpt-4o",
+                        operationType: "chat"
                     });
 
                     // Step 3: Get provider client
                     const client = yield* providerService.getProviderClient("openai");
 
                     // Step 4: Verify capabilities
-                    const capabilities = client.getCapabilities();
-                    if (!capabilities.includes("chat")) {
+                    const capabilities = yield* client.getCapabilities();
+                    if (!capabilities.has("chat")) {
                         return { success: false, error: "Chat capability not available" };
                     }
 
@@ -292,7 +299,7 @@ describe("Main Application Entry Point E2E Tests", () => {
 
         it("should handle application errors gracefully", async () => {
             // Remove API key to cause initialization failure
-            delete process.env.OPENAI_API_KEY;
+            process.env.OPENAI_API_KEY = undefined;
 
             try {
                 await MainApplication.initialize();
@@ -335,7 +342,7 @@ describe("Main Application Entry Point E2E Tests", () => {
     describe("Environment Variable Bootstrap", () => {
         it("should load master config from default path when env var not set", async () => {
             // Remove the environment variable
-            delete process.env.EFFECTIVE_AGENT_MASTER_CONFIG;
+            process.env.EFFECTIVE_AGENT_MASTER_CONFIG = undefined;
 
             // Create config at default location
             const defaultConfigPath = join(process.cwd(), "config", "master-config.json");
@@ -479,10 +486,10 @@ describe("Main Application Entry Point E2E Tests", () => {
 
                         // Check policies
                         const policyCheck = yield* policyService.checkPolicy({
-                            operation: "chat",
-                            modelId: "gpt-4o",
-                            userId: "integration-test-user",
-                            metadata: { testRun: true }
+                            auth: { userId: "integration-test-user" },
+                            requestedModel: "gpt-4o",
+                            operationType: "chat",
+                            tags: { testRun: true }
                         });
 
                         return {

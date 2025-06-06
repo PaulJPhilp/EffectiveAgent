@@ -3,43 +3,29 @@
  * @module services/core/repository/implementations/drizzle/config
  */
 
+import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { drizzle } from "drizzle-orm/node-postgres";
-import type { NodePgDatabase } from "drizzle-orm/node-postgres.js";
-import { Effect, Layer } from "effect";
+import { Context, Effect, Layer, Schema } from "effect";
 import { Pool } from "pg";
 
 /**
- * Service for database configuration
+ * Schema for database configuration
  */
-export interface DatabaseConfigApi {
-    readonly getConfig: () => Effect.Effect<DatabaseConfigSchema>;
-}
+export const DatabaseConfigSchema = Schema.Struct({
+    host: Schema.String,
+    port: Schema.Number,
+    database: Schema.String,
+    user: Schema.String,
+    password: Schema.String,
+    ssl: Schema.Boolean
+});
+
+export type DatabaseConfigData = Schema.Schema.Type<typeof DatabaseConfigSchema>;
 
 /**
- * Implementation of the DatabaseConfig service
+ * Tag for the database configuration data.
  */
-export class DatabaseConfig extends Effect.Service<DatabaseConfigApi>() {
-    static readonly Tag = DatabaseConfig.Tag;
-}
-
-/**
- * Factory function for creating DatabaseConfig service instances
- */
-export const make = (config: DatabaseConfigSchema): Effect.Effect<DatabaseConfigApi> =>
-    Effect.gen(function* () {
-        return {
-            getConfig: () => Effect.succeed(config)
-        };
-    });
-
-/**
- * Layer for providing the DatabaseConfig service
- */
-export const DatabaseConfigLive = (config: DatabaseConfigSchema) =>
-    Layer.effect(
-        DatabaseConfig,
-        make(config)
-    );
+export const DatabaseConfig = Context.GenericTag<DatabaseConfigData>("DatabaseConfig");
 
 /**
  * Service for database client
@@ -51,39 +37,36 @@ export interface DrizzleClientApi {
 /**
  * Implementation of the DrizzleClient service
  */
-export class DrizzleClient extends Effect.Service<DrizzleClientApi>() {
-    static readonly Tag = DrizzleClient.Tag;
-}
+export class DrizzleClient extends Effect.Service<DrizzleClientApi>()("DrizzleClient", {
+    effect: Effect.gen(function* () {
+        const config = yield* DatabaseConfig;
+
+        // Create the connection pool
+        const pool = new Pool({
+            host: config.host,
+            port: config.port,
+            database: config.database,
+            user: config.user,
+            password: config.password,
+            ssl: config.ssl
+        });
+
+        // Create the drizzle client
+        const client = drizzle(pool);
+
+        return {
+            getClient: () => Effect.succeed(client)
+        };
+    })
+}) { }
 
 /**
- * Factory function for creating DrizzleClient service instances
+ * Layer for providing the DatabaseConfig service with configuration
  */
-export const makeClient = Effect.gen(function* () {
-    const dbConfig = yield* DatabaseConfig;
-    const config = yield* dbConfig.getConfig();
-
-    // Create the connection pool
-    const pool = new Pool({
-        host: config.host,
-        port: config.port,
-        database: config.database,
-        user: config.user,
-        password: config.password,
-        ssl: config.ssl
-    });
-
-    // Create the drizzle client
-    const client = drizzle(pool);
-
-    return {
-        getClient: () => Effect.succeed(client)
-    };
-});
+export const DatabaseConfigLive = (config: DatabaseConfigData) =>
+    Layer.succeed(DatabaseConfig, config);
 
 /**
  * Layer for providing the DrizzleClient service
  */
-export const DrizzleClientLive = Layer.effect(
-    DrizzleClient,
-    makeClient
-); 
+export const DrizzleClientLive = DrizzleClient.Default; 

@@ -71,8 +71,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
             const id = `entity-${crypto.randomUUID()}`;
             const newEntity = {
                 id,
-                createdAt: new Date(Date.now()).toISOString(),
-                updatedAt: new Date(Date.now()).toISOString(),
+                createdAt: new Date(Date.now()),
+                updatedAt: new Date(Date.now()),
                 data
             } as AttachmentLinkEntity;
 
@@ -137,8 +137,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
             },
             update: () => Effect.succeed({
                 id: "test-id",
-                createdAt: new Date(Date.now()).toISOString(),
-                updatedAt: new Date(Date.now()).toISOString(),
+                createdAt: new Date(Date.now()),
+                updatedAt: new Date(Date.now()),
                 data: {
                     entityA_id: "source-id",
                     entityA_type: "SourceType",
@@ -290,8 +290,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
                             const newEntity = {
                                 id: `entity-${crypto.randomUUID()}`,
-                                createdAt: new Date().toISOString(),
-                                updatedAt: new Date().toISOString(),
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
                                 data
                             } as AttachmentLinkEntity;
 
@@ -365,8 +365,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
                         update: () => Effect.succeed({
                             id: "test-id",
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
+                            createdAt: new Date(),
+                            updatedAt: new Date(),
                             data: {
                                 entityA_id: "source-id",
                                 entityA_type: "SourceType",
@@ -512,8 +512,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                             // Create the entity using the standard implementation
                             const entity = yield* Effect.succeed({
                                 id: `entity-${crypto.randomUUID()}`,
-                                createdAt: new Date(Date.now()).toISOString(),
-                                updatedAt: new Date(Date.now()).toISOString(),
+                                createdAt: new Date(Date.now()),
+                                updatedAt: new Date(Date.now()),
                                 data
                             } as AttachmentLinkEntity);
 

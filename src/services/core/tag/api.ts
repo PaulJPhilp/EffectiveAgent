@@ -15,6 +15,7 @@
  * between entities that may not have explicit relationships otherwise.
  */
 
+import type { EntityId } from "@/types.js";
 import type {
   DuplicateTagNameError,
   LinkAlreadyExistsError,

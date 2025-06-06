@@ -11,7 +11,7 @@
  */
 
 import { Effect } from "effect"
-import type { AgentRuntimeServiceApi } from "../../api.js"
+import type { AgentRuntimeServiceApi } from "../api.js"
 import {
     createActivity,
     createStateTransformer,

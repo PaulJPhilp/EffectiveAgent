@@ -22,8 +22,8 @@ describe("FileService", () => {
   const makeFileRepo = (): RepositoryServiceApi<FileEntity> => ({
     create: (data: FileEntity["data"]) => Effect.succeed({
       id: crypto.randomUUID(),
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       data: data
     } as FileEntity),
 
@@ -44,8 +44,8 @@ describe("FileService", () => {
       if (options?.filter?.ownerId === "agent-456") {
         return Effect.succeed([{
           id: "test-file-id-3",
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
           data: {
             filename: "test3.txt",
             mimeType: "text/plain",
@@ -60,8 +60,8 @@ describe("FileService", () => {
 
     update: () => Effect.succeed({
       id: "test-id",
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       data: { contentBase64: "" }
     } as FileEntity),
 

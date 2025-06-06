@@ -3,7 +3,9 @@
  */
 
 import { Effect } from "effect";
-import type { PersonaDefinitionInput } from "./types.js";
+import type { PersonaConfigError } from "./errors.js";
+import type { PersonasFile } from "./schema.js";
+import type { PersonaDefinition, PersonaDefinitionInput } from "./types.js";
 
 /**
  * Service API for managing persona configurations.

@@ -4,7 +4,7 @@
  */
 
 import { Effect } from "effect";
-import { AnyPipelineError } from "../common/errors.js";
+import { ScientistChatPipelineError } from "./errors.js";
 
 /**
  * Input parameters for the ScientistChatPipeline
@@ -49,19 +49,6 @@ export interface ScientistChatResponse {
 }
 
 /**
- * Error specific to the ScientistChatPipeline
- */
-export class ScientistChatPipelineError extends AnyPipelineError {
-    constructor(params: { message: string; cause?: unknown }) {
-        super({
-            message: params.message,
-            pipelineName: "ScientistChatPipeline",
-            cause: params.cause,
-        });
-    }
-}
-
-/**
  * API contract for the ScientistChatPipeline service
  */
 export interface ScientistChatPipelineApi {
@@ -91,4 +78,6 @@ export interface ScientistChatPipelineApi {
 /**
  * Service tag for the ScientistChatPipeline
  */
-export const ScientistChatPipeline = Effect.GenericTag<ScientistChatPipelineApi>("ScientistChatPipeline"); 
+export class ScientistChatPipeline extends Effect.Service<ScientistChatPipelineApi>()("ScientistChatPipeline", {
+    effect: Effect.succeed({} as ScientistChatPipelineApi)
+}) { } 

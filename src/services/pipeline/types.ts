@@ -2,34 +2,8 @@
  * @file Shared types for generation-related pipeline operations
  */
 
-import { FinishReason } from "@/types.js";
 
-/**
- * Base result type for all pipeline operations
- */
-export interface GenerateBaseResult {
-    location: any;
-    temperature: any;
-    temperatureFeelsLike: any;
-    humidity: any;
-    windSpeed: any;
-    windDirection: any;
-    conditions: any;
-    timestamp: any;
-    text(text: any): unknown;
-    /** The generated output */
-    output: string;
-    /** Usage statistics */
-    usage?: {
-        promptTokens: number;
-        completionTokens: number;
-        totalTokens: number;
-    };
-    /** Reason for completion */
-    finishReason?: FinishReason;
-    /** Provider-specific metadata */
-    providerMetadata?: Record<string, unknown>;
-}
+// GenerateBaseResult moved to @/types.js for centralized access
 
 /**
  * Base options type for all pipeline operations

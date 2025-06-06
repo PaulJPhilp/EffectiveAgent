@@ -1,4 +1,4 @@
-import type { EffectiveUsage, FinishReason, ResponseMessage } from "@/types.js";
+import type { GenerateBaseResult, ResponseMessage } from "@/types.js";
 import type { ToolServiceApi } from "../tools/api.js";
 import { type ToolDefinition } from "../tools/schema.js";
 import type { ToolRegistryData } from "../tools/types.js";
@@ -32,27 +32,7 @@ export interface Warning {
     message: string;
 }
 
-/**
- * Base result type containing common fields for all AI generation results
- */
-export interface GenerateBaseResult {
-    /** Unique identifier of the response */
-    id: string
-    /** Model identifier used for generation */
-    model: string
-    /** Timestamp of the response */
-    timestamp: Date
-    /** Reason the generation finished */
-    finishReason: FinishReason
-    /** Token/compute usage details */
-    usage: EffectiveUsage
-    /** Provider-specific metadata */
-    providerMetadata?: ProviderMetadata
-    /** Optional raw response headers */
-    headers?: Record<string, string>
-    /** Optional raw response body */
-    body?: unknown
-}
+// GenerateBaseResult moved to @/types.js for centralized access
 
 /**
  * Text generation result from a provider

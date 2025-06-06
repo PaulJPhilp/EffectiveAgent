@@ -1,17 +1,31 @@
+import { FileSystem } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer } from "effect";
 import { existsSync, mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
 import { join, resolve } from "path";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { AgentRuntimeInitializationError } from "@/agent-runtime/errors.js";
-import InitializationService from "@/agent-runtime/initialization.js";
+import { AgentRuntimeInitializationError } from "@/ea-agent-runtime/errors.js";
+import InitializationService from "@/ea-agent-runtime/initialization.js";
+import { MasterConfig } from "@/ea-agent-runtime/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 
 describe("End-to-End Application Bootstrap Tests", () => {
+    // Comprehensive test layer that includes InitializationService and all service dependencies
+    const CompleteTestLayer = Layer.provideMerge(
+        InitializationService.Default,
+        Layer.provideMerge(
+            ModelService.Default,
+            Layer.provideMerge(
+                Layer.merge(ProviderService.Default, PolicyService.Default),
+                Layer.provideMerge(ConfigurationService.Default, NodeFileSystem.layer)
+            )
+        )
+    );
+
     const testDir = join(process.cwd(), "test-e2e-configs");
     const masterConfigPath = join(testDir, "master-config.json");
     const providersConfigPath = join(testDir, "providers.json");
@@ -20,15 +34,16 @@ describe("End-to-End Application Bootstrap Tests", () => {
     const logsDir = join(testDir, "logs");
 
     // Production-like configuration based on real config files
-    const productionMasterConfig = {
+    const productionMasterConfig: MasterConfig = {
         name: "Effective Agent",
         version: "1.0.0",
         runtimeSettings: {
-            fileSystemImplementation: "node",
-            logging: {
-                level: "info",
-                filePath: "./logs/app.log"
-            }
+            fileSystemImplementation: "node"
+        },
+        logging: {
+            level: "info",
+            filePath: "./logs/app.log",
+            enableConsole: true
         },
         configPaths: {
             providers: providersConfigPath,
@@ -174,18 +189,15 @@ describe("End-to-End Application Bootstrap Tests", () => {
 
                 expect(runtime).toBeDefined();
             }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(CompleteTestLayer)
             ));
 
-        it("should fail gracefully when EFFECTIVE_AGENT_MASTER_CONFIG points to non-existent file", () => {
+        it("should fail gracefully when EFFECTIVE_AGENT_MASTER_CONFIG points to non-existent file", async () => {
             process.env.EFFECTIVE_AGENT_MASTER_CONFIG = join(testDir, "nonexistent.json");
 
-            return Effect.gen(function* () {
+            const testLayer = CompleteTestLayer;
+
+            const effect = Effect.gen(function* () {
                 const initService = yield* InitializationService;
                 const result = yield* Effect.either(initService.initialize(productionMasterConfig));
 
@@ -193,17 +205,12 @@ describe("End-to-End Application Bootstrap Tests", () => {
                 if (Either.isLeft(result)) {
                     expect(result.left).toBeInstanceOf(AgentRuntimeInitializationError);
                 }
-            }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            );
+            });
+
+            await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
         });
 
-        it("should validate master config schema during bootstrap", () => {
+        it("should validate master config schema during bootstrap", async () => {
             // Create invalid master config (missing required fields)
             const invalidMasterConfig = {
                 version: "1.0.0"
@@ -211,7 +218,9 @@ describe("End-to-End Application Bootstrap Tests", () => {
             };
             writeFileSync(masterConfigPath, JSON.stringify(invalidMasterConfig, null, 2));
 
-            return Effect.gen(function* () {
+            const testLayer = CompleteTestLayer;
+
+            const effect = Effect.gen(function* () {
                 const initService = yield* InitializationService;
                 const result = yield* Effect.either(initService.initialize(invalidMasterConfig as any));
 
@@ -219,20 +228,17 @@ describe("End-to-End Application Bootstrap Tests", () => {
                 if (Either.isLeft(result)) {
                     expect(result.left).toBeInstanceOf(AgentRuntimeInitializationError);
                 }
-            }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            );
+            });
+
+            await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
         });
     });
 
     describe("Complete Application Lifecycle", () => {
-        it("should successfully initialize complete application stack", () =>
-            Effect.gen(function* () {
+        it("should successfully initialize complete application stack", async () => {
+            const testLayer = CompleteTestLayer;
+
+            const effect = Effect.gen(function* () {
                 const initService = yield* InitializationService;
                 const runtime = yield* initService.initialize(productionMasterConfig);
 
@@ -281,17 +287,15 @@ describe("End-to-End Application Bootstrap Tests", () => {
                 expect(result.providersReady).toBe(true);
                 expect(result.modelsValidated).toBe(true);
                 expect(result.policiesLoaded).toBe(true);
-            }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            ));
+            });
 
-        it("should handle realistic agent execution scenario", () =>
-            Effect.gen(function* () {
+            await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
+        });
+
+        it("should handle realistic agent execution scenario", async () => {
+            const testLayer = CompleteTestLayer;
+
+            const effect = Effect.gen(function* () {
                 const initService = yield* InitializationService;
                 const runtime = yield* initService.initialize(productionMasterConfig);
 
@@ -310,10 +314,9 @@ describe("End-to-End Application Bootstrap Tests", () => {
 
                     // Step 3: Check policies allow the operation
                     const policyCheck = yield* policyService.checkPolicy({
-                        operation: "chat",
-                        modelId: "gpt-4o",
-                        userId: "test-user",
-                        metadata: {}
+                        auth: { userId: "test-user" },
+                        requestedModel: "gpt-4o",
+                        operationType: "chat"
                     });
                     expect(policyCheck).toBeDefined();
 
@@ -336,14 +339,10 @@ describe("End-to-End Application Bootstrap Tests", () => {
                 expect(result.policyChecked).toBe(true);
                 expect(result.capabilitiesVerified).toBe(true);
                 expect(result.executionTime).toBeGreaterThan(0);
-            }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            ));
+            });
+
+            await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
+        });
     });
 
     describe("Configuration Error Scenarios", () => {
@@ -370,21 +369,18 @@ describe("End-to-End Application Bootstrap Tests", () => {
                     expect((result.left as AgentRuntimeInitializationError).description).toContain("Service health check failed");
                 }
             }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
+                Effect.provide(CompleteTestLayer)
             );
         });
 
-        it("should handle missing environment variables across all services", () => {
+        it("should handle missing environment variables across all services", async () => {
             // Remove all API keys
-            delete process.env.OPENAI_API_KEY;
-            delete process.env.ANTHROPIC_API_KEY;
+            process.env.OPENAI_API_KEY = undefined;
+            process.env.ANTHROPIC_API_KEY = undefined;
 
-            return Effect.gen(function* () {
+            const testLayer = CompleteTestLayer;
+
+            const effect = Effect.gen(function* () {
                 const initService = yield* InitializationService;
                 const result = yield* Effect.either(initService.initialize(productionMasterConfig));
 
@@ -392,17 +388,12 @@ describe("End-to-End Application Bootstrap Tests", () => {
                 if (Either.isLeft(result)) {
                     expect(result.left).toBeInstanceOf(AgentRuntimeInitializationError);
                 }
-            }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            );
+            });
+
+            await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
         });
 
-        it("should validate config file paths exist before proceeding", () => {
+        it("should validate config file paths exist before proceeding", async () => {
             // Point to non-existent config files
             const configWithMissingFiles = {
                 ...productionMasterConfig,
@@ -413,7 +404,9 @@ describe("End-to-End Application Bootstrap Tests", () => {
                 }
             };
 
-            return Effect.gen(function* () {
+            const testLayer = CompleteTestLayer;
+
+            const effect = Effect.gen(function* () {
                 const initService = yield* InitializationService;
                 const result = yield* Effect.either(initService.initialize(configWithMissingFiles));
 
@@ -421,14 +414,9 @@ describe("End-to-End Application Bootstrap Tests", () => {
                 if (Either.isLeft(result)) {
                     expect(result.left).toBeInstanceOf(AgentRuntimeInitializationError);
                 }
-            }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            );
+            });
+
+            await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
         });
     });
 
@@ -442,50 +430,45 @@ describe("End-to-End Application Bootstrap Tests", () => {
                 // Update environment to point to real configs
                 process.env.EFFECTIVE_AGENT_MASTER_CONFIG = realMasterConfig;
 
-                await Effect.runPromise(
-                    Effect.gen(function* () {
-                        const initService = yield* InitializationService;
+                const testLayer = CompleteTestLayer;
 
-                        // Load the real master config
-                        const fs = yield* NodeFileSystem.FileSystem;
-                        const realConfigContent = yield* fs.readFileString(realMasterConfig, "utf8");
-                        const realConfig = JSON.parse(realConfigContent);
+                const effect = Effect.gen(function* () {
+                    const initService = yield* InitializationService;
 
-                        // Initialize with real config
-                        const runtime = yield* initService.initialize(realConfig);
-                        expect(runtime).toBeDefined();
+                    // Load the real master config
+                    const fs = yield* FileSystem.FileSystem;
+                    const realConfigContent = yield* fs.readFileString(realMasterConfig, "utf8");
+                    const realConfig = JSON.parse(realConfigContent);
 
-                        // Test with real configuration
-                        const realConfigTest = Effect.gen(function* () {
-                            const configService = yield* ConfigurationService;
-                            const providerService = yield* ProviderService;
+                    // Initialize with real config
+                    const runtime = yield* initService.initialize(realConfig);
+                    expect(runtime).toBeDefined();
 
-                            // Test loading real provider configs
-                            const providers = yield* Effect.either(providerService.getProviderClient("openai"));
+                    // Test with real configuration
+                    const realConfigTest = Effect.gen(function* () {
+                        const configService = yield* ConfigurationService;
+                        const providerService = yield* ProviderService;
 
-                            // Should either succeed with real API key or fail gracefully
-                            if (Either.isLeft(providers)) {
-                                // Expected if no real API key is set
-                                expect(providers.left).toBeDefined();
-                            } else {
-                                // If API key exists, provider should be ready
-                                expect(providers.right).toBeDefined();
-                            }
+                        // Test loading real provider configs
+                        const providers = yield* Effect.either(providerService.getProviderClient("openai"));
 
-                            return "real-config-test-complete";
-                        });
+                        // Should either succeed with real API key or fail gracefully
+                        if (Either.isLeft(providers)) {
+                            // Expected if no real API key is set
+                            expect(providers.left).toBeDefined();
+                        } else {
+                            // If API key exists, provider should be ready
+                            expect(providers.right).toBeDefined();
+                        }
 
-                        const result = yield* Effect.provide(realConfigTest, runtime);
-                        expect(result).toBe("real-config-test-complete");
-                    }).pipe(
-                        Effect.provide(InitializationService.Default),
-                        Effect.provide(ProviderService.Default),
-                        Effect.provide(ModelService.Default),
-                        Effect.provide(PolicyService.Default),
-                        Effect.provide(ConfigurationService.Default),
-                        Effect.provide(NodeFileSystem.layer)
-                    )
-                );
+                        return "real-config-test-complete";
+                    });
+
+                    const result = yield* Effect.provide(realConfigTest, runtime);
+                    expect(result).toBe("real-config-test-complete");
+                });
+
+                await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
             } else {
                 // Skip test if real config doesn't exist
                 console.warn("Skipping real config test - /config directory not found");
@@ -497,31 +480,28 @@ describe("End-to-End Application Bootstrap Tests", () => {
         it("should initialize within reasonable time limits", async () => {
             const startTime = Date.now();
 
-            await Effect.runPromise(
-                Effect.gen(function* () {
-                    const initService = yield* InitializationService;
-                    const runtime = yield* initService.initialize(productionMasterConfig);
+            const testLayer = CompleteTestLayer;
 
-                    const endTime = Date.now();
-                    const initializationTime = endTime - startTime;
+            const effect = Effect.gen(function* () {
+                const initService = yield* InitializationService;
+                const runtime = yield* initService.initialize(productionMasterConfig);
 
-                    expect(runtime).toBeDefined();
-                    expect(initializationTime).toBeLessThan(5000); // Should init within 5 seconds
+                const endTime = Date.now();
+                const initializationTime = endTime - startTime;
 
-                    console.log(`Application initialized in ${initializationTime}ms`);
-                }).pipe(
-                    Effect.provide(InitializationService.Default),
-                    Effect.provide(ProviderService.Default),
-                    Effect.provide(ModelService.Default),
-                    Effect.provide(PolicyService.Default),
-                    Effect.provide(ConfigurationService.Default),
-                    Effect.provide(NodeFileSystem.layer)
-                )
-            );
+                expect(runtime).toBeDefined();
+                expect(initializationTime).toBeLessThan(5000); // Should init within 5 seconds
+
+                console.log(`Application initialized in ${initializationTime}ms`);
+            });
+
+            await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
         });
 
-        it("should handle concurrent service access", () =>
-            Effect.gen(function* () {
+        it("should handle concurrent service access", async () => {
+            const testLayer = CompleteTestLayer;
+
+            const effect = Effect.gen(function* () {
                 const initService = yield* InitializationService;
                 const runtime = yield* initService.initialize(productionMasterConfig);
 
@@ -546,13 +526,9 @@ describe("End-to-End Application Bootstrap Tests", () => {
                     expect(result.clientReady).toBe(true);
                     expect(result.modelValid).toBe(true);
                 });
-            }).pipe(
-                Effect.provide(InitializationService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            ));
+            });
+
+            await Effect.runPromise(effect.pipe(Effect.provide(testLayer)));
+        });
     });
 }); 

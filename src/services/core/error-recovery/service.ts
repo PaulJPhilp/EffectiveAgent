@@ -226,7 +226,7 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
 
         // Check if error should be retried
         const shouldRetryError = (error: EffectiveError, policy: RetryPolicy): boolean => {
-            const errorName = error._tag || error.constructor.name;
+            const errorName = error.constructor.name;
 
             // Check non-retryable errors first
             if (policy.nonRetryableErrors.includes(errorName)) {
@@ -419,13 +419,13 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
             getCircuitBreakerMetrics: (name: string) =>
                 Effect.gen(function* () {
                     const breakers = yield* Ref.get(circuitBreakers);
-                    const stateRef = HashMap.get(breakers, name);
+                    const stateRefOpt = HashMap.get(breakers, name);
 
-                    if (!stateRef) {
+                    if (stateRefOpt._tag === "None") {
                         return undefined;
                     }
 
-                    const state = yield* Ref.get(stateRef);
+                    const state = yield* Ref.get(stateRefOpt.value);
                     return {
                         state: state.state,
                         failureCount: state.failureCount,
@@ -440,13 +440,13 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
             getRecoveryMetrics: (operationName: string) =>
                 Effect.gen(function* () {
                     const metrics = yield* Ref.get(recoveryMetrics);
-                    const metricsRef = HashMap.get(metrics, operationName);
+                    const metricsRefOpt = HashMap.get(metrics, operationName);
 
-                    if (!metricsRef) {
+                    if (metricsRefOpt._tag === "None") {
                         return undefined;
                     }
 
-                    const state = yield* Ref.get(metricsRef);
+                    const state = yield* Ref.get(metricsRefOpt.value);
                     return {
                         operationName,
                         attempts: state.attempts,
@@ -461,10 +461,10 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
             resetCircuitBreaker: (name: string) =>
                 Effect.gen(function* () {
                     const breakers = yield* Ref.get(circuitBreakers);
-                    const stateRef = HashMap.get(breakers, name);
+                    const stateRefOpt = HashMap.get(breakers, name);
 
-                    if (stateRef) {
-                        yield* Ref.update(stateRef, state => ({
+                    if (stateRefOpt._tag === "Some") {
+                        yield* Ref.update(stateRefOpt.value, state => ({
                             ...state,
                             state: "CLOSED",
                             failureCount: 0,

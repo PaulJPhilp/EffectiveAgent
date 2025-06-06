@@ -1,6 +1,7 @@
-import { randomUUID } from "node:crypto";
 import { ProviderOperationError } from "@/services/ai/provider/errors";
+import { EffectiveResponse, GenerateBaseResult } from "@/types.js";
 import { Effect as EffectNS } from "effect";
+import { randomUUID } from "node:crypto";
 
 /**
  * Type guard for EffectiveResponse
@@ -17,7 +18,7 @@ export function isEffectiveResponse(obj: unknown): obj is EffectiveResponse<unkn
  */
 export function createResponse<T extends GenerateBaseResult>(
   result: T | EffectiveResponse<T>
-): Effect.Effect<EffectiveResponse<T>, ProviderOperationError> {
+): EffectNS.Effect<EffectiveResponse<T>, ProviderOperationError> {
   if (isEffectiveResponse(result)) {
     return EffectNS.fail(
       new ProviderOperationError({

@@ -43,8 +43,22 @@ function makeFileRepo(): RepositoryServiceApi<FileEntity> {
                 ? Effect.succeed(Option.some(entity))
                 : Effect.succeed(Option.none());
         },
-        findOne: (predicate) => {
-            const entity = Array.from(store.values()).find(predicate);
+        findOne: (options) => {
+            const entities = Array.from(store.values());
+            let entity: FileEntity | undefined;
+
+            if (options?.filter) {
+                entity = entities.find(e => {
+                    const filter = options.filter ?? {};
+                    return Object.entries(filter).every(([key, value]) => {
+                        const entityValue = (e.data as any)[key];
+                        return entityValue === value;
+                    });
+                });
+            } else {
+                entity = entities[0];
+            }
+
             return Effect.succeed(entity ? Option.some(entity) : Option.none());
         },
         findMany: () => Effect.succeed([...store.values()]),
@@ -130,12 +144,18 @@ describe("PipelineService", () => {
     };
 
     const validMasterConfig = {
+        name: "Test Master Config",
+        version: "1.0.0",
+        runtimeSettings: {
+            fileSystemImplementation: "node" as const
+        },
         configPaths: {
             policy: validPolicyConfig,
             models: modelsConfigPath,
             providers: providersConfigPath
         },
         logging: {
+            level: "info" as const,
             filePath: "logs/test.log",
             enableConsole: true
         }
@@ -181,12 +201,11 @@ describe("PipelineService", () => {
             Effect.gen(function* () {
                 const fs = yield* FileSystem.FileSystem;
 
-                // Clean up test files
-                try {
-                    yield* fs.remove(testDir);
-                } catch (error) {
-                    // Ignore cleanup errors
-                }
+                // Clean up test files with better error handling
+                yield* Effect.catchAll(
+                    fs.remove(testDir, { recursive: true }),
+                    () => Effect.void
+                );
 
                 // Reset environment
                 process.env = { ...originalEnv };

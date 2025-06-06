@@ -48,6 +48,6 @@ export {
 } from "./helpers.js"
 
 // Re-export for convenience - commonly used types from parent modules
-export type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
-export type { AgentActivity, AgentRuntimeId } from "@/ea-agent-runtime/types.js"
+export type { AgentRuntimeServiceApi } from "../ea-agent-runtime/api.js"
+export type { AgentActivity, AgentRuntimeId } from "../ea-agent-runtime/types.js"
 

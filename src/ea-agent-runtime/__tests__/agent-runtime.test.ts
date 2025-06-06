@@ -9,7 +9,7 @@ import * as os from "os"
 import { join } from "path"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { AgentRuntimeService } from "../service.js"
-import { makeAgentRuntimeId } from "../types.js"
+import { AgentRecordType, makeAgentRuntimeId } from "../types.js"
 
 describe("AgentRuntime", () => {
     let testDir: string
@@ -27,12 +27,7 @@ describe("AgentRuntime", () => {
             filePath: "./logs/test.log",
             enableConsole: true
         },
-        agents: {
-            agentsDirectory: "./agents",
-            modelsConfigPath: "",
-            providersConfigPath: "",
-            policiesConfigPath: ""
-        },
+
         configPaths: {
             models: "",
             providers: "",
@@ -106,9 +101,6 @@ describe("AgentRuntime", () => {
 
         // Patch config paths on a deep clone
         const masterConfig = JSON.parse(JSON.stringify(validMasterConfig))
-        masterConfig.agents.modelsConfigPath = modelsConfigPath
-        masterConfig.agents.providersConfigPath = providersConfigPath
-        masterConfig.agents.policiesConfigPath = policyConfigPath
         masterConfig.configPaths.models = modelsConfigPath
         masterConfig.configPaths.providers = providersConfigPath
         masterConfig.configPaths.policy = policyConfigPath
@@ -152,9 +144,6 @@ describe("AgentRuntime", () => {
 
     test.skip("basic lifecycle operations", async () => {
         const masterConfig = JSON.parse(JSON.stringify(validMasterConfig))
-        masterConfig.agents.modelsConfigPath = modelsConfigPath
-        masterConfig.agents.providersConfigPath = providersConfigPath
-        masterConfig.agents.policiesConfigPath = policyConfigPath
         masterConfig.configPaths.models = modelsConfigPath
         masterConfig.configPaths.providers = providersConfigPath
         masterConfig.configPaths.policy = policyConfigPath

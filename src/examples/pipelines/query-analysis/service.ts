@@ -9,9 +9,9 @@ import {
     type Intent,
     type QueryAnalysisOutput,
     type QueryAnalysisPipelineApi,
-    QueryAnalysisPipelineError,
     type QueryAnalysisPipelineInput
 } from "./contract.js";
+import { QueryAnalysisPipelineError } from "./errors.js";
 
 /**
  * Service for entity recognition
@@ -137,7 +137,7 @@ export class QueryAnalysisPipelineService extends Effect.Service<QueryAnalysisPi
                     queryType: input.query.endsWith("?") ? "question" as const : "command" as const
                 };
             }).pipe(
-                Effect.catchAll((error) => Effect.fail(
+                Effect.catchAll((error: unknown) => Effect.fail(
                     new QueryAnalysisPipelineError({
                         message: `Failed to analyze query: ${error instanceof Error ? error.message : String(error)}`,
                         cause: error

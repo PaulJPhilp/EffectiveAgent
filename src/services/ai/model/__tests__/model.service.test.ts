@@ -340,7 +340,7 @@ describe("ModelService (debug)", () => {
             const configService = yield* ConfigurationService;
             const configPath = process.env.MODELS_CONFIG_PATH ?? "";
             console.log("MODELS_CONFIG_PATH:", configPath);
-            const rawConfig = yield* configService.loadConfig({ filePath: configPath });
+            const rawConfig = yield* configService.loadRawConfig(configPath);
             console.log("Loaded config:", JSON.stringify(rawConfig, null, 2));
             return rawConfig;
         }).pipe(

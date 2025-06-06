@@ -33,7 +33,7 @@ export const InMemoryRepository = <TEntity extends BaseEntity>() => {
 
     const create = (entityData: TEntity["data"]): Effect.Effect<TEntity, RepositoryError> =>
       Effect.gen(function* () {
-        const now = Date.now();
+        const now = new Date();
         const newId = uuidv4();
         const newEntity = {
           id: newId,
@@ -116,7 +116,7 @@ export const InMemoryRepository = <TEntity extends BaseEntity>() => {
               Effect.fail(new EntityNotFoundError({ entityType, entityId: id })),
             onSome: (existing) =>
               Effect.gen(function* () {
-                const now = Date.now();
+                const now = new Date();
                 const updatedEntity: TEntity = {
                   ...existing,
                   updatedAt: now,

@@ -6,9 +6,9 @@
 import { PlatformError } from "@effect/platform/Error.js";
 import * as HttpBody from "@effect/platform/HttpBody.js";
 // Import HttpClient related modules from @effect/platform
-import { HttpClient } from "@effect/platform/HttpClient.js";
+import { HttpClient, HttpClientError } from "@effect/platform/HttpClient.js";
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest.js";
-import { Effect, Schema } from "effect";
+import { Effect, ParseError, Schema } from "effect";
 // Import base ToolExecutionError
 import { ToolExecutionError } from "../errors.js";
 

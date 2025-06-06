@@ -6,9 +6,22 @@
 import { PipelineError } from "../common/errors.js";
 
 /**
- * Error specific to the QueryAnalysisPipeline when entity recognition fails
+ * General error for the QueryAnalysisPipeline
  */
-export class EntityRecognitionError extends PipelineError {
+export class QueryAnalysisPipelineError extends PipelineError {
+    constructor(params: { message: string; cause?: unknown }) {
+        super({
+            message: params.message,
+            pipelineName: "QueryAnalysisPipeline",
+            cause: params.cause
+        });
+    }
+}
+
+/**
+ * Error specific to the QueryAnalysisPipeline when entity extraction fails
+ */
+export class EntityExtractionError extends PipelineError {
     constructor(params: { message: string; cause?: unknown }) {
         super({
             message: params.message,
@@ -63,8 +76,9 @@ export class QueryParsingError extends PipelineError {
 /**
  * Union type of all QueryAnalysisPipeline error types
  */
-export type QueryAnalysisPipelineError =
-    | EntityRecognitionError
+export type QueryAnalysisPipelineErrorUnion =
+    | QueryAnalysisPipelineError
+    | EntityExtractionError
     | IntentClassificationError
     | SentimentAnalysisError
     | QueryParsingError; 

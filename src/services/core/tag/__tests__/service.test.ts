@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 
 import type { TagServiceApi } from "../api.js";
 import { DuplicateTagNameError } from "../errors.js";
-import type { TagEntity } from "../schema.js";
+import type { EntityTagLinkEntity, TagEntity } from "../schema.js";
 
 
 // --- Test Setup ---
@@ -23,8 +23,8 @@ describe("TagService", () => {
       }
       return Effect.succeed({
         id: crypto.randomUUID(),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         data: { name }
       } as TagEntity);
     },
@@ -38,8 +38,8 @@ describe("TagService", () => {
     tagEntity: (tagId: string, entityId: string, entityType: string) =>
       Effect.succeed({
         id: crypto.randomUUID(),
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
         data: { tagId, entityId, entityType }
       } as EntityTagLinkEntity),
 

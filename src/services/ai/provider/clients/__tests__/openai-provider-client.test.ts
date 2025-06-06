@@ -100,8 +100,7 @@ describe("OpenAI Provider Client", () => {
 
   it("should create OpenAI client with valid config", () =>
     withLayers(Effect.gen(function* () {
-      const runtime = yield* AgentRuntimeService;
-      const client = yield* makeOpenAIClient("test-key", runtime);
+      const client = yield* makeOpenAIClient("test-key");
       expect(client).toBeDefined();
       expect(typeof client.generateText).toBe("function");
       expect(typeof client.chat).toBe("function");
@@ -111,8 +110,7 @@ describe("OpenAI Provider Client", () => {
   describe("getCapabilities", () => {
     it("should return supported capabilities", () =>
       withLayers(Effect.gen(function* () {
-        const runtime = yield* AgentRuntimeService;
-        const client = yield* makeOpenAIClient("test-key", runtime);
+        const client = yield* makeOpenAIClient("test-key");
         const capabilities = yield* client.getCapabilities();
 
         expect(capabilities).toBeInstanceOf(Set);
@@ -129,8 +127,7 @@ describe("OpenAI Provider Client", () => {
   describe("tool methods", () => {
     it("should fail tool validation as expected", () =>
       withLayers(Effect.gen(function* () {
-        const runtime = yield* AgentRuntimeService;
-        const client = yield* makeOpenAIClient("test-key", runtime);
+        const client = yield* makeOpenAIClient("test-key");
         const result = yield* Effect.either(client.validateToolInput("testTool", { param: "value" }));
         expect(result._tag).toBe("Left");
       }))
@@ -140,9 +137,8 @@ describe("OpenAI Provider Client", () => {
   describe("client configuration", () => {
     it("should handle different API keys", () =>
       withLayers(Effect.gen(function* () {
-        const runtime = yield* AgentRuntimeService;
-        const client1 = yield* makeOpenAIClient("key1", runtime);
-        const client2 = yield* makeOpenAIClient("key2", runtime);
+        const client1 = yield* makeOpenAIClient("key1");
+        const client2 = yield* makeOpenAIClient("key2");
 
         expect(client1).toBeDefined();
         expect(client2).toBeDefined();

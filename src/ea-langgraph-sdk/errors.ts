@@ -1,4 +1,4 @@
-import { EffectiveError } from "@/errors.js"
+import { EffectiveError } from "../errors.js"
 
 /**
  * Error thrown when EA SDK validation fails.

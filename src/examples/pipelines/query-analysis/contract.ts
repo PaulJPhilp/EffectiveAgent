@@ -4,7 +4,7 @@
  */
 
 import { Context, Effect } from "effect";
-import { PipelineError } from "../common/errors.js";
+import { QueryAnalysisPipelineError } from "./errors.js";
 
 /**
  * Represents a detected entity in a query
@@ -86,19 +86,6 @@ export interface QueryAnalysisOutput {
     };
     /** Classification of query type */
     queryType: "question" | "command" | "statement" | "ambiguous";
-}
-
-/**
- * Error specific to the QueryAnalysisPipeline
- */
-export class QueryAnalysisPipelineError extends PipelineError {
-    constructor(params: { message: string; cause?: unknown }) {
-        super({
-            message: params.message,
-            pipelineName: "QueryAnalysisPipeline",
-            cause: params.cause,
-        });
-    }
 }
 
 /**

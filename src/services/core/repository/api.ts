@@ -11,7 +11,8 @@
  */
 
 import { Effect, Option } from "effect";
-import type { RepositoryError } from "./errors.js";
+import type { EntityNotFoundError, RepositoryError } from "./errors.js";
+import type { BaseEntity, FindOptions } from "./types.js";
 
 /**
  * Generic interface defining standard CRUD operations for a repository.

@@ -6,7 +6,8 @@ import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { TranscribeResult } from "@/services/ai/provider/types.js";
 import { Effect, Option, Ref } from "effect";
-import type { TranscriptionGenerationOptions, TranscriptionServiceApi } from "./api.js";
+import type { Span } from "effect/Tracer";
+import type { TranscriptionServiceApi } from "./api.js";
 import { TranscriptionInputError, TranscriptionModelError } from "./errors.js";
 
 /**
@@ -46,6 +47,14 @@ export interface TranscriptionOptions {
         timestamps?: boolean;
         /** Audio quality setting (e.g., 'standard', 'high') */
         quality?: string;
+        /** A prompt to guide the model's transcription. */
+        prompt?: string;
+        /** The format of the response. */
+        responseFormat?: "json" | "text" | "verbose_json";
+        /** The sampling temperature, between 0 and 1. */
+        temperature?: number;
+        /** The timestamp granularities to include in the response. */
+        timestamp_granularities?: ("segment" | "word")[];
     };
 }
 
@@ -54,12 +63,12 @@ export interface TranscriptionOptions {
  */
 export interface TranscriptionAgentState {
     readonly transcriptionCount: number
-    readonly lastTranscription: Option.Option<TranscriptionResult>
+    readonly lastTranscription: Option.Option<TranscribeResult>
     readonly lastUpdate: Option.Option<number>
     readonly transcriptionHistory: ReadonlyArray<{
         readonly timestamp: number
         readonly modelId: string
-        readonly audioSize: number
+        readonly audioLength: number
         readonly transcriptionLength: number
         readonly duration?: number
         readonly language?: string
@@ -129,7 +138,7 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                 /**
                  * Transcribes audio data using the specified model
                  */
-                transcribe: (options: TranscriptionGenerationOptions) => {
+                transcribe: (options: TranscriptionOptions) => {
                     return Effect.gen(function* () {
                         // Log start of transcription
                         yield* Effect.log("Starting audio transcription", {
@@ -167,25 +176,9 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                         const audioBuffer = Buffer.from(options.audioData);
 
                         // Call the real AI provider
-                        const providerResult = yield* providerClient.transcribe(audioBuffer, {
-                            modelId,
-                            language: options.language,
-                            prompt: options.prompt,
-                            responseFormat: options.responseFormat,
-                            temperature: options.temperature,
-                            timestamp_granularities: options.timestamp_granularities
+                        const providerResult = yield* providerClient.transcribe(audioBuffer.buffer, {
+                            modelId
                         });
-
-                        const result: TranscribeResult = {
-                            text: providerResult.text,
-                            language: providerResult.language,
-                            duration: providerResult.duration,
-                            segments: providerResult.segments,
-                            words: providerResult.words,
-                            usage: providerResult.usage,
-                            model: modelId,
-                            provider: providerName
-                        };
 
                         yield* Effect.log("Audio transcription completed successfully");
 
@@ -194,13 +187,13 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                             timestamp: Date.now(),
                             modelId,
                             audioLength: options.audioData.length,
-                            transcriptionLength: result.text.length,
+                            transcriptionLength: providerResult.data.text.length,
                             success: true,
-                            audioFormat: options.audioFormat,
-                            language: result.language
+                            audioFormat: options.audioFormat ?? "unknown",
+                            language: providerResult.data.detectedLanguage
                         });
 
-                        return result;
+                        return providerResult;
 
                     }).pipe(
                         Effect.withSpan("TranscriptionService.transcribe"),

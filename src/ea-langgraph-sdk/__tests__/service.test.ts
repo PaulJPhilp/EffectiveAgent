@@ -5,8 +5,7 @@
 
 import { Effect } from "effect"
 import { describe, expect, it } from "vitest"
-import type { AgentRuntimeServiceApi } from "../../api.js"
-import type { EASdkApi } from "../api.js"
+import type { AgentRuntimeServiceApi, EASdkApi } from "../api.js"
 import {
     EASdkConfigurationError,
     EASdkValidationError
@@ -25,6 +24,7 @@ const createMockAgentRuntime = (): AgentRuntimeServiceApi => ({
     getPolicyService: () => Effect.succeed({} as any),
     getToolRegistryService: () => Effect.succeed({} as any),
     getFileService: () => Effect.succeed({} as any),
+    getChatService: () => Effect.succeed({} as any),
     createLangGraphAgent: () => Effect.succeed({
         agentRuntime: {
             id: "test-agent-123" as any,
@@ -40,6 +40,18 @@ const createMockAgentRuntime = (): AgentRuntimeServiceApi => ({
 // Create a test-only EASdk service that doesn't require AgentRuntimeService
 class TestEASdk extends Effect.Service<EASdkApi>()("TestEASdk", {
     effect: Effect.succeed({
+        createLangGraphAgentState: <
+            TContext extends Record<string, unknown> = Record<string, unknown>,
+            TState extends Record<string, unknown> = Record<string, unknown>
+        >(
+            agentRuntime: AgentRuntimeServiceApi,
+            context?: TContext,
+            additionalState?: TState
+        ) => Effect.succeed({
+            agentRuntime,
+            context: context ?? {} as TContext,
+            ...additionalState
+        } as LangGraphAgentState<TContext> & TState),
         createEnhancedLangGraphAgent: () => Effect.succeed({
             agentRuntime: {
                 id: "test-agent-123" as any,

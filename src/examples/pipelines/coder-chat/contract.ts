@@ -4,7 +4,7 @@
  */
 
 import { Context, Effect } from "effect";
-import { PipelineError } from "../common/errors.js";
+import { CoderChatPipelineError } from "./errors.js";
 
 /**
  * Input parameters for the CoderChatPipeline
@@ -61,19 +61,6 @@ export interface CoderChatResponse {
         /** URL if available */
         url?: string;
     }>;
-}
-
-/**
- * Error specific to the CoderChatPipeline
- */
-export class CoderChatPipelineError extends PipelineError {
-    constructor(params: { message: string; cause?: unknown }) {
-        super({
-            message: params.message,
-            pipelineName: "CoderChatPipeline",
-            cause: params.cause,
-        });
-    }
 }
 
 /**

@@ -69,9 +69,9 @@ describe("TextService Integration Tests", () => {
       // Verify the response structure
       expect(response).toBeDefined();
       expect(response.data).toBeDefined();
-      expect(response.data.output).toBeDefined();
-      expect(typeof response.data.output).toBe("string");
-      expect(response.data.output.length).toBeGreaterThan(0);
+      expect(response.data.text).toBeDefined();
+      expect(typeof response.data.text).toBe("string");
+      expect(response.data.text.length).toBeGreaterThan(0);
 
       // Check metadata
       expect(response.metadata).toBeDefined();
@@ -228,11 +228,11 @@ describe("TextService Integration Tests", () => {
       // Verify the response structure
       expect(response).toBeDefined();
       expect(response.data).toBeDefined();
-      expect(response.data.output).toBeDefined();
-      expect(typeof response.data.output).toBe("string");
+      expect(response.data.text).toBeDefined();
+      expect(typeof response.data.text).toBe("string");
 
       // Check that the output doesn't contain any of the stop sequences
-      expect(response.data.output).not.toContain("\n");
+      expect(response.data.text).not.toContain("\n");
     }).pipe(
       Effect.provide(TextService.Default),
       Effect.provide(ModelService.Default),

@@ -4,8 +4,8 @@
  */
 
 import { migrate } from "drizzle-orm/node-postgres/migrator";
-import { Effect, Layer } from "effect";
-import { DatabaseConfig, DrizzleClient, DrizzleClientLive } from "./config.js";
+import { Effect } from "effect";
+import { type DatabaseConfigData, DatabaseConfigLive, DrizzleClient, DrizzleClientLive } from "./config.js";
 
 /**
  * Migration error type
@@ -23,9 +23,10 @@ export class MigrationError extends Error {
  */
 export const runMigrations = Effect.gen(function* () {
     const client = yield* DrizzleClient;
+    const dbClient = yield* client.getClient();
 
     yield* Effect.tryPromise({
-        try: () => migrate(client, {
+        try: () => migrate(dbClient, {
             migrationsFolder: "./migrations"
         }),
         catch: (error) => new MigrationError("Failed to run migrations", error)
@@ -60,15 +61,17 @@ const program = Effect.gen(function* () {
 
 // Only run if this is the main module
 if (import.meta.url === new URL(import.meta.url).href) {
+    const config: DatabaseConfigData = {
+        host: process.env["DB_HOST"] ?? "localhost",
+        port: Number(process.env["DB_PORT"] ?? 5432),
+        database: process.env["DB_NAME"] ?? "postgres",
+        user: process.env["DB_USER"] ?? "postgres",
+        password: process.env["DB_PASSWORD"] ?? "postgres",
+        ssl: process.env["DB_SSL"] === "true"
+    };
+
     Effect.runPromise(program.pipe(
-        Effect.provide(Layer.succeed(DatabaseConfig, {
-            host: process.env["DB_HOST"] ?? "localhost",
-            port: Number(process.env["DB_PORT"] ?? 5432),
-            database: process.env["DB_NAME"] ?? "postgres",
-            user: process.env["DB_USER"] ?? "postgres",
-            password: process.env["DB_PASSWORD"] ?? "postgres",
-            ssl: process.env["DB_SSL"] === "true"
-        })),
+        Effect.provide(DatabaseConfigLive(config)),
         Effect.catchAll((error) => Effect.sync(() => {
             console.error(error);
             process.exit(1);

@@ -3,6 +3,7 @@
  * @module services/core/test-utils/test-layers
  */
 
+import { NodeContext, NodeFileSystem } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 
 import { ModelService } from "@/services/ai/model/service.js";
@@ -18,7 +19,6 @@ import { AuthService } from "@/services/core/auth/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { ErrorRecoveryService } from "@/services/core/error-recovery/service.js";
 import { FileService } from "@/services/core/file/service.js";
-import { RepositoryService } from "@/services/core/repository/service.js";
 import { TagService } from "@/services/core/tag/service.js";
 import { WebSocketService } from "@/services/core/websocket/service.js";
 import { ChatService } from "@/services/pipeline/producers/chat/service.js";
@@ -33,10 +33,13 @@ import { TranscriptionService } from "@/services/pipeline/producers/transcriptio
  * Note: Does not include AgentRuntimeService to maintain service independence
  */
 export const TestServiceLayers = Layer.mergeAll(
+    // Platform layers first
+    NodeContext.layer,
+    NodeFileSystem.layer,
+
     // Core services
     ConfigurationService.Default,
     FileService.Default,
-    RepositoryService.Default,
     AuthService.Default,
     TagService.Default,
     AttachmentService.Default,
@@ -69,11 +72,16 @@ export const TestServiceLayers = Layer.mergeAll(
  * Use this when testing only capabilities services.
  */
 export const CapabilitiesTestLayer = Layer.mergeAll(
-    PersonaService.Default,
-    IntelligenceService.Default,
     NodeContext.layer,
-    NodeFileSystem.layer
+    NodeFileSystem.layer,
+    PersonaService.Default,
+    IntelligenceService.Default
 );
+
+/**
+ * Pipeline test layer with all necessary dependencies
+ */
+export const PipelineTestLayer = TestServiceLayers;
 
 /**
  * Simple test runner for pipeline services that provides all necessary dependencies.

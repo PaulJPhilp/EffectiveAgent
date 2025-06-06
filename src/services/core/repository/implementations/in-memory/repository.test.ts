@@ -5,23 +5,24 @@ import { InMemoryRepository } from "./repository.js";
 
 interface TestEntity {
   id: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
   data: {
     name: string;
     value: number;
   };
+  [key: string]: unknown;
 }
 
 describe("InMemoryRepository", () => {
   const repository = InMemoryRepository<TestEntity>();
 
   // Helper to run repository tests with the real implementation
-  const runTest = <A>(effect: Effect.Effect<A, any, any>): Promise<A> => {
+  const runTest = <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
     return Effect.runPromise(
       effect.pipe(
         Effect.provide(repository.live("TestEntity"))
-      )
+      ) as Effect.Effect<A, E, never>
     );
   };
 
@@ -124,7 +125,7 @@ describe("InMemoryRepository", () => {
           const updated = yield* service.update(created.id, { value: 24 });
           expect(updated.data.name).toBe("test");
           expect(updated.data.value).toBe(24);
-          expect(updated.updatedAt).toBeGreaterThan(created.updatedAt);
+          expect(updated.updatedAt.getTime()).toBeGreaterThan(created.updatedAt.getTime());
         })
       );
     });

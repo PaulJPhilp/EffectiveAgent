@@ -24,10 +24,9 @@ export const WeatherInputSchema = S.Struct({
     ),
     location: S.String,
     units: S.optional(
-        S.Union(...Object.values(UnitSystem).map(unit => S.Literal(unit))),
-        { default: UnitSystem.METRIC }
-    ),
-    days: S.optional(S.Number, { default: 1 }) // For forecast operation
+        S.Union(...Object.values(UnitSystem).map(unit => S.Literal(unit)))
+    ).pipe(S.withDefaults({ constructor: () => UnitSystem.METRIC, decoding: () => UnitSystem.METRIC })),
+    days: S.optional(S.Number).pipe(S.withDefaults({ constructor: () => 1, decoding: () => 1 })) // For forecast operation
 });
 
 export type WeatherInput = S.Schema.Type<typeof WeatherInputSchema>;

@@ -4,7 +4,6 @@
  */
 
 import { Effect, Exit, Layer } from "effect";
-import type { Tracer } from "effect";
 import { describe, expect, it, vi } from "vitest";
 import { TranscriptionService } from "../service.js";
 
@@ -45,7 +44,7 @@ describe("TranscriptionService", () => {
       const options = {
         modelId: "test-transcription-model",
         audioData: "base64audio",
-        span: {} as Span,
+        span: {} as any, // TODO: Use proper Span mock
         signal: controller.signal
       };
 

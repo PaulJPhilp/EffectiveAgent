@@ -1,15 +1,16 @@
-import { Effect, Layer } from "effect";
-import { mkdirSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import * as os from "os";
-import { join } from "path";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { InitializationService } from "../initialization.js";
+import { Effect, Either, Layer } from "effect";
+import { mkdirSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
+import * as os from "os";
+import { join } from "path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { AgentRuntimeInitializationError } from "../errors.js";
+import { InitializationService } from "../initialization.js";
+import { MasterConfig } from "../schema.js";
 
 describe("AgentRuntime Initialization Integration Tests", () => {
     let testDir: string;
@@ -18,20 +19,16 @@ describe("AgentRuntime Initialization Integration Tests", () => {
     let modelsConfigPath: string;
     let policyConfigPath: string;
 
-    const validMasterConfig = {
+    const validMasterConfig: MasterConfig = {
+        name: "Test Agent Runtime",
+        version: "1.0.0",
         runtimeSettings: {
-            fileSystemImplementation: "node" as const
+            fileSystemImplementation: "node"
         },
         logging: {
-            level: "info" as const,
+            level: "info",
             filePath: "./logs/test.log",
             enableConsole: true
-        },
-        agents: {
-            agentsDirectory: "./agents",
-            modelsConfigPath: "",
-            providersConfigPath: "",
-            policiesConfigPath: ""
         },
         configPaths: {
             models: "",
@@ -106,9 +103,6 @@ describe("AgentRuntime Initialization Integration Tests", () => {
 
         // Patch config paths on a deep clone
         const masterConfig = JSON.parse(JSON.stringify(validMasterConfig));
-        masterConfig.agents.modelsConfigPath = modelsConfigPath;
-        masterConfig.agents.providersConfigPath = providersConfigPath;
-        masterConfig.agents.policiesConfigPath = policyConfigPath;
         masterConfig.configPaths.models = modelsConfigPath;
         masterConfig.configPaths.providers = providersConfigPath;
         masterConfig.configPaths.policy = policyConfigPath;
@@ -166,10 +160,10 @@ describe("AgentRuntime Initialization Integration Tests", () => {
             ));
 
         it("should initialize with bun filesystem implementation", () => {
-            const bunMasterConfig = {
+            const bunMasterConfig: MasterConfig = {
                 ...validMasterConfig,
                 runtimeSettings: {
-                    fileSystemImplementation: "bun" as const
+                    fileSystemImplementation: "bun"
                 }
             };
 
@@ -348,9 +342,9 @@ describe("AgentRuntime Initialization Integration Tests", () => {
         it("should handle missing config paths gracefully", () => {
             const configWithMissingPath = {
                 ...validMasterConfig,
-                agents: {
-                    ...validMasterConfig.agents,
-                    providersConfigPath: join(testDir, "nonexistent.json")
+                configPaths: {
+                    ...validMasterConfig.configPaths,
+                    providers: join(testDir, "nonexistent.json")
                 }
             };
 

@@ -4,8 +4,8 @@
  */
 
 import { Context, Effect, Schema } from "effect";
-import type { OAuth2Client } from "google-auth-library.js";
-import { google } from 'googleapis';
+import type { OAuth2Client } from "google-auth-library";
+import { type gmail_v1, google } from 'googleapis';
 import { ToolExecutionError } from "../../errors.js";
 
 // --- Schemas ---
@@ -16,7 +16,7 @@ export const gmailReadMessagesInputSchema = Schema.Struct({
 		Schema.int(),
 		Schema.greaterThan(0), // Assuming positive() was corrected
 		Schema.lessThanOrEqualTo(50),
-		S.optional,
+		Schema.optional,
 		Schema.withDefaults({ constructor: () => 5, decoding: () => 5 }),
 	),
 	// Add other filters like labels, query string etc. if needed
@@ -74,7 +74,11 @@ export const gmailReadMessagesImpl = (
 				maxResults: input.limit,
 			}),
 			catch: (error) => new ToolExecutionError({
-				toolName: "gmailReadMessages", input, cause: error
+				toolName: "gmailReadMessages",
+				input,
+				module: "GmailReadTool",
+				method: "fetchMessageList",
+				cause: error
 			})
 		});
 
@@ -95,7 +99,11 @@ export const gmailReadMessagesImpl = (
 					metadataHeaders: ["Subject", "From", "To", "Date"]
 				}),
 				catch: (error) => new ToolExecutionError({
-					toolName: "gmailReadMessages", input: { messageId: id }, cause: error
+					toolName: "gmailReadMessages",
+					input: { messageId: id },
+					module: "GmailReadTool",
+					method: "fetchMessageContent",
+					cause: error
 				})
 			}).pipe(
 				Effect.map(res => extractSummary(res.data))

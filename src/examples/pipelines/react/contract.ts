@@ -4,7 +4,7 @@
  */
 
 import { Effect } from "effect";
-import { AnyPipelineError } from "../common/errors.js";
+import { ReActPipelineError } from "./errors.js";
 
 /**
  * Represents a tool that can be used within the ReAct reasoning framework
@@ -85,19 +85,6 @@ export interface ReActPipelineOutput {
 }
 
 /**
- * Error specific to the ReActPipeline
- */
-export class ReActPipelineError extends AnyPipelineError {
-    constructor(params: { message: string; cause?: unknown }) {
-        super({
-            message: params.message,
-            pipelineName: "ReActPipeline",
-            cause: params.cause,
-        });
-    }
-}
-
-/**
  * API contract for the ReActPipeline service
  */
 export interface ReActPipelineApi {
@@ -127,4 +114,6 @@ export interface ReActPipelineApi {
 /**
  * Service tag for the ReActPipeline
  */
-export const ReActPipeline = Effect.GenericTag<ReActPipelineApi>("ReActPipeline"); 
+export class ReActPipeline extends Effect.Service<ReActPipelineApi>()("ReActPipeline", {
+    effect: Effect.succeed({} as ReActPipelineApi)
+}) { } 

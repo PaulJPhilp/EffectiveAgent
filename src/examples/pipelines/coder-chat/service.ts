@@ -6,10 +6,10 @@
 import { Cause, Effect } from "effect";
 import {
     type CoderChatPipelineApi,
-    CoderChatPipelineError,
     type CoderChatPipelineInput,
     type CoderChatResponse
 } from "./contract.js";
+import { CoderChatPipelineError } from "./errors.js";
 import { type LanguageAnalysis } from "./types.js";
 
 /**

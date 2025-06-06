@@ -7,12 +7,12 @@ import { Effect } from "effect";
 import {
     ReActPipeline,
     type ReActPipelineApi,
-    ReActPipelineError,
     type ReActPipelineInput,
     type ReActPipelineOutput,
     type ReActStep,
     type ReActTool
 } from "./contract.js";
+import { ReActPipelineError } from "./errors.js";
 import { type Tool } from "./types.js";
 
 /**

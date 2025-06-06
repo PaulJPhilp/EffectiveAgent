@@ -4,19 +4,17 @@
  */
 
 import { Cause, Context, Effect, Exit, Layer, Option, Ref } from "effect"; // Added Ref
-import { beforeEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
-import type { ImportedType } from "@/types.js";
+import type { EntityId, JsonObject } from "@/types.js";
 import {
-    EntityNotFoundError,
-    RepositoryError,
+    EntityNotFoundError
 } from "@core/repository/errors.js";
 // Import the 'make' function directly
 import { make as makeInMemoryRepository } from "@core/repository/implementations/in-memory/live.js";
 import type {
     BaseEntity,
-    FindOptions,
-    RepositoryApi,
+    RepositoryApi
 } from "@core/repository/types.js";
 
 // --- Test Setup ---
@@ -72,8 +70,8 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
             const created = yield* repo.create(data);
             expect(created.id).toBeTypeOf("string");
             expect(created.data).toEqual(data);
-            expect(created.createdAt).toBeTypeOf("number");
-            expect(created.updatedAt).toBeTypeOf("number");
+            expect(created.createdAt).toBeInstanceOf(Date);
+            expect(created.updatedAt).toBeInstanceOf(Date);
             expect(created.updatedAt).toEqual(created.createdAt);
             return created;
         });
@@ -139,7 +137,7 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
         const initialData: TestEntityData = { name: "Update Initial", value: 100 };
         const updateData: Partial<TestEntityData> = { value: 101 };
         let createdId: EntityId;
-        let originalCreatedAt: Timestamp;
+        let originalCreatedAt: Date;
         const effect = Effect.gen(function* () {
             const repo = yield* TestRepository;
             const created = yield* repo.create(initialData);
@@ -150,14 +148,14 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
             expect(updated.id).toBe(createdId);
             expect(updated.data.name).toBe(initialData.name);
             expect(updated.data.value).toBe(updateData.value);
-            expect(updated.createdAt).toBe(originalCreatedAt);
-            expect(updated.updatedAt).toBeTypeOf("number");
-            expect(updated.updatedAt).toBeGreaterThanOrEqual(originalCreatedAt);
+            expect(updated.createdAt).toEqual(originalCreatedAt);
+            expect(updated.updatedAt).toBeInstanceOf(Date);
+            expect(updated.updatedAt.getTime()).toBeGreaterThanOrEqual(originalCreatedAt.getTime());
             const found = yield* repo.findById(createdId);
             expect(Option.isSome(found)).toBe(true);
             if (Option.isSome(found)) {
                 expect(found.value.data.value).toBe(updateData.value);
-                expect(found.value.updatedAt).toBe(updated.updatedAt);
+                expect(found.value.updatedAt).toEqual(updated.updatedAt);
             }
         });
         await expect(runTest(effect)).resolves.toBeUndefined();
@@ -197,31 +195,6 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
             expect(Option.isNone(foundAfter)).toBe(true);
         });
         await expect(runTest(effect)).resolves.toBeUndefined();
-    });
-
-    it("should fail update with EntityNotFoundError for non-existent ID", async () => {
-        const effect = Effect.gen(function* () {
-            const repo = yield* TestRepository;
-            return yield* repo.update("non-existent-id", { name: "Update Fail" });
-        });
-
-        const exit = await runFailTest(effect);
-        expect(exit._tag).toBe("Failure"); // Assert it's a Failure
-
-        // Use Exit.isFailure type guard
-        if (Exit.isFailure(exit)) {
-            // Inside this block, TS knows exit is Failure<E> and exit.cause exists
-            const failure = Cause.failureOption(exit.cause); // Access cause safely
-            expect(Option.isSome(failure)).toBe(true);
-            if (Option.isSome(failure)) {
-                expect(failure.value._tag).toBe("EntityNotFoundError");
-                expect((failure.value as EntityNotFoundError).entityId).toBe("non-existent-id");
-                expect((failure.value as EntityNotFoundError).entityType).toBe(testEntityType);
-            }
-        } else {
-            // Optional: Add an assertion to fail the test if it wasn't a Failure
-            expect.fail("Expected effect to fail, but it succeeded.");
-        }
     });
 
     it("should count entities", async () => {

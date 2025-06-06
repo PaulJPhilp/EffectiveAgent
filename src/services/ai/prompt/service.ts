@@ -4,7 +4,7 @@
  */
 
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { Config, ConfigProvider, Effect, HashMap, Ref, Schema as S } from "effect";
+import { Config, ConfigProvider, Effect, HashMap, Ref } from "effect";
 import { Liquid } from "liquidjs";
 import {
     PromptConfigError,
@@ -40,10 +40,10 @@ export class PromptService extends Effect.Service<PromptService>()("PromptServic
 
         return {
             load: () => Effect.gen(function* () {
-                const loadedConfig = yield* configService.loadConfig({ 
-                    filePath: promptFilePath, 
-                    schema: PromptFile 
-                }).pipe(
+                const loadedConfig = yield* configService.loadConfig(
+                    promptFilePath,
+                    PromptFile
+                ).pipe(
                     Effect.mapError(cause => new PromptConfigError({
                         description: `Failed to load or validate prompts file from path: ${promptFilePath}`,
                         module: "PromptService",

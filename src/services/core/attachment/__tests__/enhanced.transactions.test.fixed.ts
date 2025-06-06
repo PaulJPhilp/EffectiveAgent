@@ -6,12 +6,11 @@ import crypto from 'crypto';
 import { Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
-import type { RepositoryServiceApi } from "../../repository/api.js";
 import { EntityNotFoundError as RepoEntityNotFoundError, RepositoryError } from "../../repository/errors.js";
 import { RepositoryService } from "../../repository/service.js";
 import { AttachmentTransactionError, AttachmentValidationError } from "../errors.js";
 import type { AttachmentLinkEntity } from "../schema.js";
-import { AttachmentService } from "../service.improved.js";
+import { AttachmentService } from "../service.js";
 import type { CreateAttachmentLinkInput } from "../types.js";
 
 describe("Enhanced AttachmentService Transaction Support", () => {
@@ -24,7 +23,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
         failOnDelete?: string[];
         requestsBeforeFailure?: number; // Will fail after this many requests
         simulateNetworkIssue?: boolean;
-    } = {}): RepositoryServiceApi<AttachmentLinkEntity> => {
+    } = {}) => {
         // Track entities to simulate a database
         const entities: Record<string, AttachmentLinkEntity> = {};
         let requestCount = 0;
@@ -63,8 +62,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                 const id = `entity-${crypto.randomUUID()}`;
                 const newEntity: AttachmentLinkEntity = {
                     id,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
                     data
                 };
 
@@ -144,8 +143,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
             update: () => Effect.succeed({
                 id: "test-id",
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                createdAt: new Date(),
+                updatedAt: new Date(),
                 data: {
                     entityA_id: "source-id",
                     entityA_type: "SourceType",
@@ -173,7 +172,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
                 // Combine with attachment service layer
                 const testLayer = Layer.provide(
-                    AttachmentServiceLive,
+                    AttachmentService.Default,
                     repoLayer
                 );
 
@@ -230,7 +229,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
                 // Combine with attachment service layer
                 const testLayer = Layer.provide(
-                    AttachmentServiceLive,
+                    AttachmentService.Default,
                     repoLayer
                 );
 
@@ -286,7 +285,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
         it("should handle rollback failures and report critical errors", () =>
             Effect.gen(function* () {
                 // Create a mock repository factory with custom rollback failure behavior
-                const makeCustomFailingRepo = (): RepositoryServiceApi<AttachmentLinkEntity> => {
+                const makeCustomFailingRepo = () => {
                     // Track entities and delete calls
                     const entities: Record<string, AttachmentLinkEntity> = {};
                     let deleteCount = 0;
@@ -303,8 +302,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
                             const newEntity: AttachmentLinkEntity = {
                                 id: `entity-${crypto.randomUUID()}`,
-                                createdAt: new Date().toISOString(),
-                                updatedAt: new Date().toISOString(),
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
                                 data
                             };
 
@@ -378,8 +377,8 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
                         update: () => Effect.succeed({
                             id: "test-id",
-                            createdAt: new Date().toISOString(),
-                            updatedAt: new Date().toISOString(),
+                            createdAt: new Date(),
+                            updatedAt: new Date(),
                             data: {
                                 entityA_id: "source-id",
                                 entityA_type: "SourceType",
@@ -406,7 +405,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
                 // Combine with attachment service layer
                 const testLayer = Layer.provide(
-                    AttachmentServiceLive,
+                    AttachmentService.Default,
                     repoLayer
                 );
 
@@ -474,7 +473,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                 );
 
                 const testLayer = Layer.provide(
-                    AttachmentServiceLive,
+                    AttachmentService.Default,
                     repoLayer
                 );
 
@@ -555,7 +554,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                 );
 
                 const testLayer = Layer.provide(
-                    AttachmentServiceLive,
+                    AttachmentService.Default,
                     repoLayer
                 );
 
@@ -570,21 +569,21 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                             entityA_type: "Source",
                             entityB_id: `target-1`,
                             entityB_type: "Target",
-                            metadata: { index: 1, batchTest: true }
+                            metadata: { key: "batch-info", value: { index: 1, batchTest: true } }
                         },
                         {
                             entityA_id: `batch-source`,
                             entityA_type: "Source",
                             entityB_id: `target-2`,
                             entityB_type: "Target",
-                            metadata: { index: 2, batchTest: true }
+                            metadata: { key: "batch-info", value: { index: 2, batchTest: true } }
                         },
                         {
                             entityA_id: `batch-source`,
                             entityA_type: "Source",
                             entityB_id: `target-3`,
                             entityB_type: "Target",
-                            metadata: { index: 3, batchTest: true }
+                            metadata: { key: "batch-info", value: { index: 3, batchTest: true } }
                         }
                     ];
 
@@ -634,7 +633,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                 );
 
                 const testLayer = Layer.provide(
-                    AttachmentServiceLive,
+                    AttachmentService.Default,
                     repoLayer
                 );
 
@@ -701,7 +700,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                 );
 
                 const testLayer = Layer.provide(
-                    AttachmentServiceLive,
+                    AttachmentService.Default,
                     repoLayer
                 );
 
@@ -715,7 +714,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                         entityA_type: "Source",
                         entityB_id: `network-target-${i}`,
                         entityB_type: "Target",
-                        metadata: { index: i }
+                        metadata: { key: "index", value: i }
                     }));
 
                     // Attempt to create links - may succeed or fail due to network issue simulation

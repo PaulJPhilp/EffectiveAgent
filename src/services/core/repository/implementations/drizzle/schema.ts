@@ -3,7 +3,7 @@
  * @module services/core/repository/implementations/drizzle/schema
  */
 
-import type { ImportedType } from "@/types.js";
+import type { EntityId, JsonObject, Timestamp } from "@/types.js";
 import { type PgTableWithColumns, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 export interface BaseModel<TData extends JsonObject> {

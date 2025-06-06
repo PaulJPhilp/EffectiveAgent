@@ -54,6 +54,8 @@ export const calculatorImpl = (
 			new ToolExecutionError({
 				toolName: "calculator", // Hardcode tool name for error context
 				input: input, // Include input for debugging
+				module: "CalculatorTool",
+				method: "calculatorImpl",
 				cause: error instanceof Error ? error : new Error(String(error)), // Ensure cause is Error
 			}),
 	});

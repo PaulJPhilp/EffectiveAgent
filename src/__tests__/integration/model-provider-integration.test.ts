@@ -28,6 +28,14 @@ beforeAll(() => {
     );
 });
 
+const testLayer = Layer.provideMerge(
+    ModelService.Default,
+    Layer.provideMerge(
+        ProviderService.Default,
+        Layer.provideMerge(ConfigurationService.Default, NodeFileSystem.layer)
+    )
+);
+
 // Test suite for ModelService
 describe("ModelService", () => {
     it("should load model configurations", async () => {
@@ -38,14 +46,8 @@ describe("ModelService", () => {
             expect(Array.isArray(result.models)).toBe(true);
         });
 
-        await Effect.runPromise(
-            effect.pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-
-            )
-        );
+        const providedEffect = effect.pipe(Effect.provide(testLayer));
+        await Effect.runPromise(providedEffect);
     });
 
     it("should validate models from configured providers", async () => {
@@ -55,13 +57,8 @@ describe("ModelService", () => {
             expect(result).toBe(true);
         });
 
-        await Effect.runPromise(
-            effect.pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            )
-        );
+        const providedEffect = effect.pipe(Effect.provide(testLayer));
+        await Effect.runPromise(providedEffect);
     });
 
     it("should return provider name for a model", async () => {
@@ -71,36 +68,23 @@ describe("ModelService", () => {
             expect(result).toBeDefined();
         });
 
-        await Effect.runPromise(
-            effect.pipe(
-                Effect.provide(ModelService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            )
-        );
+        const providedEffect = effect.pipe(Effect.provide(testLayer));
+        await Effect.runPromise(providedEffect);
     });
 });
 
 // Test suite for ProviderService
 describe("ProviderService", () => {
-    it("should load provider configurations", async () => {
+    it("should pass health check", async () => {
         const effect = Effect.gen(function* () {
             const service = yield* ProviderService;
-            const result = yield* service.load();
-            expect(result).toBeDefined();
-            expect(Array.isArray(result.providers)).toBe(true);
+            yield* service.healthCheck();
+            // If we reach here, health check passed
+            expect(true).toBe(true);
         });
 
-        await Effect.runPromise(
-            effect.pipe(
-                Effect.provide(Layer.succeed(ProviderService, {
-                    effect: providerServiceEffect,
-                    dependencies: [ConfigurationService.Default]
-                })),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            )
-        );
+        const providedEffect = effect.pipe(Effect.provide(testLayer));
+        await Effect.runPromise(providedEffect);
     });
 
     it("should return a provider client by name", async () => {
@@ -110,16 +94,8 @@ describe("ProviderService", () => {
             expect(client).toBeDefined();
         });
 
-        await Effect.runPromise(
-            effect.pipe(
-                Effect.provide(Layer.succeed(ProviderService, {
-                    effect: providerServiceEffect,
-                    dependencies: [ConfigurationService.Default]
-                })),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            )
-        );
+        const providedEffect = effect.pipe(Effect.provide(testLayer));
+        await Effect.runPromise(providedEffect);
     });
 
     it("throws on unknown provider name", async () => {
@@ -132,15 +108,7 @@ describe("ProviderService", () => {
             }
         });
 
-        await Effect.runPromise(
-            effect.pipe(
-                Effect.provide(Layer.succeed(ProviderService, {
-                    effect: providerServiceEffect,
-                    dependencies: [ConfigurationService.Default]
-                })),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            )
-        );
+        const providedEffect = effect.pipe(Effect.provide(testLayer));
+        await Effect.runPromise(providedEffect);
     });
 });

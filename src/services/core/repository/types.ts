@@ -2,7 +2,7 @@
  * @file Defines supporting types for the Repository service.
  */
 
-import type { EntityId, ImportedType, JsonObject } from "@/types.js";
+import type { EntityId, JsonObject } from "@/types.js";
 
 /**
  * Base structure for entities managed by repositories.
@@ -21,7 +21,7 @@ export interface BaseEntity<TData extends JsonObject = JsonObject> {
  * Base entity type with required data property.
  * This is an alias for BaseEntity to maintain compatibility with existing code.
  */
-export interface BaseEntityWithData<T extends JsonObject = JsonObject> extends BaseEntity<T> {}
+export interface BaseEntityWithData<T extends JsonObject = JsonObject> extends BaseEntity<T> { }
 
 /** Options for filtering and pagination in find operations. */
 export interface FindOptions<TEntity extends BaseEntity> {
@@ -29,3 +29,6 @@ export interface FindOptions<TEntity extends BaseEntity> {
     readonly limit?: number;
     readonly offset?: number;
 }
+
+// Re-export the RepositoryServiceApi from api.ts
+export type { RepositoryServiceApi as RepositoryApi } from "./api.js";

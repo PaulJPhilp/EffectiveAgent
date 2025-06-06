@@ -1,8 +1,7 @@
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { FileLogger } from "@/services/core/logging/file-logger.js";
 import { ObjectService } from "@/services/pipeline/producers/object/service.js";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import { Effect, LogLevel, Schema } from "effect";
+import { Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 import { LocalSchemaValidatorService, makeStructuredOutputPipelineService } from "../service.js";
 
@@ -29,23 +28,16 @@ describe("StructuredOutputPipeline Integration Tests", () => {
     it("generateStructuredOutput should produce output (real ObjectService)", async () => {
         await Effect.runPromise(
             (Effect.gen(function* () {
-                const fileLogger = new FileLogger({
-                    logDir: "test-logs",
-                    logFileBaseName: "structured-output-integration-generate",
-                    minLogLevel: LogLevel.Debug
-                });
-                yield* fileLogger.initialize();
-                const logger = fileLogger.createLoggingService();
                 const objectService = yield* ObjectService;
                 const schemaValidator = yield* LocalSchemaValidatorService;
-                const service = makeStructuredOutputPipelineService(logger, objectService, schemaValidator);
+                const service = makeStructuredOutputPipelineService(objectService, schemaValidator);
                 const payload: GenerateStructuredOutputPayload<typeof PersonSchema> = {
                     prompt: "Extract person details: My name is Alice and I am 30.",
                     schema: PersonSchema
                 };
-                yield* logger.info("Starting generateStructuredOutput test", { payload: JSON.stringify(payload) });
+                yield* Effect.log("Starting generateStructuredOutput test", { payload: JSON.stringify(payload) });
                 const result = yield* Effect.either(service.generateStructuredOutput(payload));
-                yield* logger.info("generateStructuredOutput result", { result: JSON.stringify(result) });
+                yield* Effect.log("generateStructuredOutput result", { result: JSON.stringify(result) });
                 // Keep the assertion generic for integration
                 expect(result._tag).toBeDefined();
             }).pipe(
@@ -60,22 +52,15 @@ describe("StructuredOutputPipeline Integration Tests", () => {
     it("extractStructured should attempt to produce output (real ObjectService)", async () => {
         await Effect.runPromise(
             (Effect.gen(function* () {
-                const fileLogger = new FileLogger({
-                    logDir: "test-logs",
-                    logFileBaseName: "structured-output-integration-extract",
-                    minLogLevel: LogLevel.Debug
-                });
-                yield* fileLogger.initialize();
-                const logger = fileLogger.createLoggingService();
                 const objectService = yield* ObjectService;
                 const schemaValidator = yield* LocalSchemaValidatorService;
-                const service = makeStructuredOutputPipelineService(logger, objectService, schemaValidator);
-                yield* logger.info("Starting extractStructured test");
+                const service = makeStructuredOutputPipelineService(objectService, schemaValidator);
+                yield* Effect.log("Starting extractStructured test");
                 const result = yield* Effect.either(service.extractStructured(
                     "Product: XYZ, Price: 99.99, Stock: Yes",
                     PersonSchema
                 ));
-                yield* logger.info("extractStructured result", { result: JSON.stringify(result) });
+                yield* Effect.log("extractStructured result", { result: JSON.stringify(result) });
                 // Keep the assertion generic for integration
                 expect(result._tag).toBeDefined();
             }).pipe(

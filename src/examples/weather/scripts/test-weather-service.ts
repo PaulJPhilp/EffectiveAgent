@@ -1,6 +1,6 @@
 #!/usr/bin/env -S bun run
 
-import { AgentRuntimeService } from "@/agent-runtime/service.js";
+import { AgentRuntimeService } from "@/ea-agent-runtime/service.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";

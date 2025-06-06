@@ -7,10 +7,10 @@ import { Cause, Effect } from "effect";
 import {
     type PlanStep,
     type PlanningPipelineApi,
-    PlanningPipelineError,
     type PlanningPipelineInput,
     type PlanningPipelineOutput
 } from "./contract.js";
+import { PlanningPipelineError } from "./errors.js";
 import { type TaskAnalysisResult } from "./types.js";
 
 /**

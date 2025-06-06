@@ -4,7 +4,7 @@
  */
 
 import { Context, Effect } from "effect";
-import { PipelineError } from "../common/errors.js";
+import { PlanningPipelineError } from "./errors.js";
 
 /**
  * Represents a single step in a plan
@@ -64,19 +64,6 @@ export interface PlanningPipelineOutput {
     }>;
     /** Estimated total completion time in minutes */
     estimatedTotalTimeMinutes?: number;
-}
-
-/**
- * Error specific to the PlanningPipeline
- */
-export class PlanningPipelineError extends PipelineError {
-    constructor(params: { message: string; cause?: unknown }) {
-        super({
-            message: params.message,
-            pipelineName: "PlanningPipeline",
-            cause: params.cause,
-        });
-    }
 }
 
 /**

@@ -24,7 +24,7 @@ export interface LoadConfigOptions<T> {
  */
 export interface ConfigurationServiceApi {
 
-    readonly loadConfig: <T>(filePath: string, schema: Schema.Schema<T, any>) => Effect.Effect<T, ConfigReadError | ConfigValidationError>;
+    readonly loadConfig: <T>(filePath: string, schema: Schema.Schema<T, any>) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Load and parse a raw configuration file without schema validation
@@ -36,18 +36,18 @@ export interface ConfigurationServiceApi {
     /**
      * Load and validate provider configuration.
      */
-    readonly loadProviderConfig: (filePath: string) => Effect.Effect<ProviderFile, ConfigReadError | ConfigValidationError>;
+    readonly loadProviderConfig: (filePath: string) => Effect.Effect<ProviderFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Load and validate model configuration.
      */
-    readonly loadModelConfig: (filePath: string) => Effect.Effect<ModelConfigData, ConfigReadError | ConfigValidationError>;
+    readonly loadModelConfig: (filePath: string) => Effect.Effect<ModelConfigData, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Load and validate the policy configuration file
      * @returns Effect containing PolicyConfigFile or configuration error
      */
-    readonly loadPolicyConfig: (filePath: string) => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigValidationError>;
+    readonly loadPolicyConfig: (filePath: string) => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Get an API key from environment variables.
@@ -63,5 +63,5 @@ export interface ConfigurationServiceApi {
      */
     readonly getEnvVariable: (name: string) => Effect.Effect<string>;
 
-    readonly getMasterConfig: () => Effect.Effect<MasterConfig, ConfigReadError | ConfigValidationError>;
+    readonly getMasterConfig: () => Effect.Effect<MasterConfig, ConfigReadError | ConfigParseError | ConfigValidationError>;
 }

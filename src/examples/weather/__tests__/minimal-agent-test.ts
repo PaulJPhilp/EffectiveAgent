@@ -1,5 +1,5 @@
-import { AgentActivityType, AgentRuntimeService, makeAgentRuntimeId } from "@/agent-runtime/index.js";
-import type { AgentActivity } from "@/agent-runtime/types.js";
+import { AgentActivityType, AgentRuntimeService, makeAgentRuntimeId } from "@/ea-agent-runtime/index.js";
+import type { AgentActivity } from "@/ea-agent-runtime/types.js";
 import { Effect, Option } from "effect";
 import { describe, expect, it } from "vitest";
 import type { WeatherAgentState } from "../types.js";

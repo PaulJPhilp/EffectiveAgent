@@ -5,8 +5,18 @@
  * in tests to isolate the service under test from its dependencies.
  */
 
-import { createMockLayer } from "@/services/core/test-harness/utils/effect-test-harness.js";
+// Test harness removed - using direct Effect.runPromise instead
 import { Context, Layer, Ref } from "effect";
+
+/**
+ * Creates a Layer that provides a mocked service
+ */
+const createMockLayer = <T extends object>(
+    tag: Context.Tag<T, T>,
+    implementation: T
+): Layer.Layer<T, never, never> => {
+    return Layer.succeed(tag, implementation);
+};
 
 /**
  * Creates a mock implementation of a service that records interactions

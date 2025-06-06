@@ -1,8 +1,8 @@
-import { join } from "path";
 import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
 import { FileSystem } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import { Effect, Either, Schema } from "effect";
+import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { ConfigParseError, ConfigReadError, ConfigValidationError } from "../errors.js";
@@ -167,10 +167,10 @@ describe("ConfigurationService", () => {
         it("should successfully load and validate a simple configuration", () =>
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
-                const result = yield* service.loadConfig({
-                    filePath: validConfig,
-                    schema: TestSchema
-                });
+                const result = yield* service.loadConfig(
+                    validConfig,
+                    TestSchema
+                );
                 expect(result).toEqual(validConfigData);
             }).pipe(
                 Effect.provide(ConfigurationService.Default)
@@ -179,10 +179,10 @@ describe("ConfigurationService", () => {
         it("should successfully load and validate a complex configuration", () =>
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
-                const result = yield* service.loadConfig({
-                    filePath: validComplexConfig,
-                    schema: TestComplexSchema
-                });
+                const result = yield* service.loadConfig(
+                    validComplexConfig,
+                    TestComplexSchema
+                );
                 expect(result).toEqual(validComplexConfigData);
             }).pipe(
                 Effect.provide(ConfigurationService.Default)
@@ -192,10 +192,10 @@ describe("ConfigurationService", () => {
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
                 const result = yield* Effect.either(
-                    service.loadConfig({
-                        filePath: invalidConfig,
-                        schema: TestSchema
-                    })
+                    service.loadConfig(
+                        invalidConfig,
+                        TestSchema
+                    )
                 );
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
@@ -210,10 +210,10 @@ describe("ConfigurationService", () => {
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
                 const result = yield* Effect.either(
-                    service.loadConfig({
-                        filePath: malformedConfig,
-                        schema: TestSchema
-                    })
+                    service.loadConfig(
+                        malformedConfig,
+                        TestSchema
+                    )
                 );
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
@@ -228,10 +228,10 @@ describe("ConfigurationService", () => {
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
                 const result = yield* Effect.either(
-                    service.loadConfig({
-                        filePath: nonExistentConfig,
-                        schema: TestSchema
-                    })
+                    service.loadConfig(
+                        nonExistentConfig,
+                        TestSchema
+                    )
                 );
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
@@ -246,10 +246,10 @@ describe("ConfigurationService", () => {
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
                 const result = yield* Effect.either(
-                    service.loadConfig({
-                        filePath: emptyConfig,
-                        schema: TestSchema
-                    })
+                    service.loadConfig(
+                        emptyConfig,
+                        TestSchema
+                    )
                 );
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
@@ -269,10 +269,10 @@ describe("ConfigurationService", () => {
                 const tempConfig = join(testDir, "base-config.json");
                 yield* fs.writeFileString(tempConfig, JSON.stringify(baseConfigData));
 
-                const result = yield* service.loadConfig({
-                    filePath: tempConfig,
-                    schema: BaseConfigSchema
-                });
+                const result = yield* service.loadConfig(
+                    tempConfig,
+                    BaseConfigSchema
+                );
                 expect(result).toEqual(baseConfigData);
 
                 // Clean up
@@ -504,10 +504,7 @@ describe("ConfigurationService", () => {
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
                 const result = yield* Effect.either(
-                    service.loadConfig({
-                        filePath: nonExistentConfig,
-                        schema: TestSchema
-                    })
+                    service.loadConfig(nonExistentConfig, TestSchema)
                 );
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
@@ -523,10 +520,7 @@ describe("ConfigurationService", () => {
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
                 const result = yield* Effect.either(
-                    service.loadConfig({
-                        filePath: malformedConfig,
-                        schema: TestSchema
-                    })
+                    service.loadConfig(malformedConfig, TestSchema)
                 );
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
@@ -542,10 +536,7 @@ describe("ConfigurationService", () => {
             Effect.gen(function* () {
                 const service = yield* ConfigurationService;
                 const result = yield* Effect.either(
-                    service.loadConfig({
-                        filePath: invalidConfig,
-                        schema: TestSchema
-                    })
+                    service.loadConfig(invalidConfig, TestSchema)
                 );
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
@@ -563,8 +554,8 @@ describe("ConfigurationService", () => {
 
                 // Load multiple configurations concurrently
                 const [config1, config2, config3] = yield* Effect.all([
-                    service.loadConfig({ filePath: validConfig, schema: TestSchema }),
-                    service.loadConfig({ filePath: validComplexConfig, schema: TestComplexSchema }),
+                    service.loadConfig(validConfig, TestSchema),
+                    service.loadConfig(validComplexConfig, TestComplexSchema),
                     service.loadProviderConfig(validProviderConfig)
                 ], { concurrency: "unbounded" });
 

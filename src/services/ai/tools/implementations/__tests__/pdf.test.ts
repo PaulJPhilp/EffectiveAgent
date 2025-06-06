@@ -1,6 +1,6 @@
+import { Effect, Either } from "effect";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { Effect, Either } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { PdfOperation, pdfImpl } from "../pdf.js";
 
@@ -52,8 +52,8 @@ startxref
                 filePath: testPdfPath
             });
 
-            expect(result.text).toBeDefined();
-            expect(result.text).toContain("This is a test PDF document");
+            expect(result.content.pages[0].content).toBeDefined();
+            expect(result.content.pages[0].content).toContain("This is a test PDF document");
         }));
 
         it("should handle non-existent file", () => Effect.gen(function* () {
@@ -77,12 +77,12 @@ startxref
                 filePath: testPdfPath
             });
 
-            expect(result.metadata).toBeDefined();
-            expect(result.metadata?.title).toBe("Test PDF");
-            expect(result.metadata?.author).toBe("Test Author");
-            expect(result.metadata?.subject).toBe("Test Subject");
-            expect(result.metadata?.keywords).toBe("test, pdf");
-            expect(result.metadata?.pageCount).toBeGreaterThan(0);
+            expect(result.content.metadata).toBeDefined();
+            expect(result.content.metadata?.title).toBe("Test PDF");
+            expect(result.content.metadata?.author).toBe("Test Author");
+            expect(result.content.metadata?.subject).toBe("Test Subject");
+            expect(result.content.metadata?.keywords).toBe("test, pdf");
+            expect(result.content.metadata?.pageCount).toBeGreaterThan(0);
         }));
 
         it("should handle invalid PDF", () => Effect.gen(function* () {
@@ -113,12 +113,12 @@ startxref
                 includeMetadata: true
             });
 
-            expect(result.pages).toBeDefined();
-            expect(result.pages).toHaveLength(1);
-            expect(result.pages?.[0].pageNumber).toBe(1);
-            expect(result.pages?.[0].content).toContain("Page 1");
-            expect(result.metadata).toBeDefined();
-            expect(result.metadata?.title).toBe("Test PDF");
+            expect(result.content.pages).toBeDefined();
+            expect(result.content.pages).toHaveLength(1);
+            expect(result.content.pages?.[0].pageNumber).toBe(1);
+            expect(result.content.pages?.[0].content).toContain("Page 1");
+            expect(result.content.metadata).toBeDefined();
+            expect(result.content.metadata?.title).toBe("Test PDF");
         }));
 
         it("should handle invalid page numbers", () => Effect.gen(function* () {
@@ -128,9 +128,9 @@ startxref
                 pages: [999]
             });
 
-            expect(result.pages).toBeDefined();
-            expect(result.pages).toHaveLength(1);
-            expect(result.pages?.[0].content).toBe("");
+            expect(result.content.pages).toBeDefined();
+            expect(result.content.pages).toHaveLength(1);
+            expect(result.content.pages?.[0].content).toBe("");
         }));
     });
 

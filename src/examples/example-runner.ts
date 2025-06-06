@@ -5,14 +5,14 @@
 
 import "dotenv/config";
 
-import { AgentRuntimeService } from "@/agent-runtime/service.js";
+import { AgentRuntimeService } from "@/ea-agent-runtime/index.js";
 import { StructuredOutputAgent } from "@/examples/structured-output/agent.js";
 import { WeatherAgent } from "@/examples/weather/agent.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import ObjectService from "@/services/pipeline/producers/object/service.js";
-import TextService from "@/services/pipeline/producers/text/service.js";
+import { ObjectService } from "@/services/pipeline/producers/object/service.js";
+import { TextService } from "@/services/pipeline/producers/text/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Schema } from "effect";
 

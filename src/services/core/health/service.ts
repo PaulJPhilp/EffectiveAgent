@@ -1,6 +1,6 @@
-import { cpus, freemem, loadavg, totalmem, uptime } from "os";
 import { EffectiveError } from "@/errors.js";
-import { Duration, Effect, HashMap, Ref } from "effect";
+import { Duration, Effect, HashMap, Option, Ref } from "effect";
+import { cpus, freemem, loadavg, totalmem, uptime } from "os";
 import {
     DegradationStrategy,
     HealthAlert,
@@ -125,15 +125,21 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                 const serviceMetrics = HashMap.get(currentState.serviceMetrics, serviceName);
                 const lastChecks = HashMap.get(currentState.lastChecks, serviceName) || [];
 
-                if (!serviceMetrics) return;
+                if (Option.isNone(serviceMetrics)) return;
 
                 const overallStatus = calculateOverallStatus(lastChecks);
-                const errorRate = serviceMetrics.requestCount > 0
-                    ? (serviceMetrics.errorCount / serviceMetrics.requestCount) * 100
-                    : 0;
-                const avgResponseTime = serviceMetrics.requestCount > 0
-                    ? serviceMetrics.totalResponseTime / serviceMetrics.requestCount
-                    : 0;
+                const errorRate = Option.match(serviceMetrics, {
+                    onNone: () => 0,
+                    onSome: (metrics) => metrics.requestCount > 0
+                        ? (metrics.errorCount / metrics.requestCount) * 100
+                        : 0
+                });
+                const avgResponseTime = Option.match(serviceMetrics, {
+                    onNone: () => 0,
+                    onSome: (metrics) => metrics.requestCount > 0
+                        ? metrics.totalResponseTime / metrics.requestCount
+                        : 0
+                });
 
                 for (const strategy of strategies) {
                     let shouldActivate = false;
@@ -359,14 +365,15 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                     const dependencies = HashMap.get(currentState.serviceDependencies, serviceName) || [];
                     const lastChecks = HashMap.get(currentState.lastChecks, serviceName) || [];
 
-                    if (!serviceMetrics) {
+                    if (Option.isNone(serviceMetrics)) {
                         return undefined;
                     }
 
+                    const metrics = Option.getOrThrow(serviceMetrics);
                     const overallStatus = calculateOverallStatus(lastChecks);
-                    const uptime = Date.now() - serviceMetrics.startTime;
-                    const avgResponseTime = serviceMetrics.requestCount > 0
-                        ? serviceMetrics.totalResponseTime / serviceMetrics.requestCount
+                    const uptime = Date.now() - metrics.startTime;
+                    const avgResponseTime = metrics.requestCount > 0
+                        ? metrics.totalResponseTime / metrics.requestCount
                         : 0;
 
                     // Get dependency statuses
@@ -387,10 +394,10 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                         checks: lastChecks,
                         dependencies: dependencyStatuses,
                         metrics: {
-                            requestCount: serviceMetrics.requestCount,
-                            errorCount: serviceMetrics.errorCount,
+                            requestCount: metrics.requestCount,
+                            errorCount: metrics.errorCount,
                             averageResponseTime: avgResponseTime,
-                            lastActivity: serviceMetrics.lastActivity
+                            lastActivity: metrics.lastActivity
                         },
                         timestamp: Date.now()
                     };
@@ -486,15 +493,18 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
             recordServiceActivity: (serviceName: string, success: boolean, responseTime: number) =>
                 Effect.gen(function* () {
                     yield* Ref.update(state, s => {
-                        const metrics = HashMap.get(s.serviceMetrics, serviceName) || {
-                            serviceName,
-                            requestCount: 0,
-                            errorCount: 0,
-                            totalResponseTime: 0,
-                            lastActivity: Date.now(),
-                            uptime: 0,
-                            startTime: Date.now()
-                        };
+                        const metrics = Option.getOrElse(
+                            HashMap.get(s.serviceMetrics, serviceName),
+                            () => ({
+                                serviceName,
+                                requestCount: 0,
+                                errorCount: 0,
+                                totalResponseTime: 0,
+                                lastActivity: Date.now(),
+                                uptime: 0,
+                                startTime: Date.now()
+                            })
+                        );
 
                         const updatedMetrics: ServiceActivityMetrics = {
                             ...metrics,

@@ -70,6 +70,8 @@ export const googleDocsGetContentImpl = (
 		},
 		catch: (error) =>
 			new ToolExecutionError({
+                        module: "UnknownTool",
+                        method: "unknownMethod",
 				toolName: "googleDocsGetContent",
 				input: input,
 				cause: error instanceof Error ? error : new Error(String(error)),
