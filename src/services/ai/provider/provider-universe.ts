@@ -20,11 +20,12 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
       "embeddings",
       "vision",
       "audio",
-      "function-calling"
+      "function-calling",
+      "image-generation"
     ],
     configSchema: {
       apiKeyEnvVar: "OPENAI_API_KEY",
-      baseUrl: "https://api.openai.com"
+      baseUrl: "https://api.openai.com/v1"
     }
   },
   {
@@ -32,10 +33,15 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
     displayName: "Anthropic",
     logoUrl: "https://cdn.anthropic.com/logo.svg",
     docsUrl: "https://docs.anthropic.com/claude",
-    capabilities: ["chat", "function-calling"],
+    capabilities: [
+      "chat",
+      "text-generation",
+      "function-calling",
+      "vision"
+    ],
     configSchema: {
       apiKeyEnvVar: "ANTHROPIC_API_KEY",
-      baseUrl: "https://api.anthropic.com"
+      baseUrl: "https://api.anthropic.com/v1"
     }
   },
   {
@@ -43,10 +49,15 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
     displayName: "Google",
     logoUrl: "https://ai.google.dev/static/images/favicon.png",
     docsUrl: "https://ai.google.dev/docs",
-    capabilities: ["text-generation", "chat", "vision"],
+    capabilities: [
+      "text-generation",
+      "chat",
+      "vision",
+      "function-calling"
+    ],
     configSchema: {
-      apiKeyEnvVar: "GOOGLE_API_KEY",
-      baseUrl: "https://generativelanguage.googleapis.com"
+      apiKeyEnvVar: "GOOGLE_GENERATIVE_AI_API_KEY",
+      baseUrl: "https://generativelanguage.googleapis.com/v1"
     }
   },
   {
@@ -54,7 +65,11 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
     displayName: "xAI (Grok)",
     logoUrl: "https://x.ai/favicon.ico",
     docsUrl: "https://docs.x.ai/",
-    capabilities: ["chat"],
+    capabilities: [
+      "chat",
+      "text-generation",
+      "image-generation"
+    ],
     configSchema: {
       apiKeyEnvVar: "XAI_API_KEY",
       baseUrl: "https://api.grok.x.ai"
@@ -65,7 +80,10 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
     displayName: "Perplexity AI",
     logoUrl: "https://www.perplexity.ai/favicon.ico",
     docsUrl: "https://docs.perplexity.ai/",
-    capabilities: ["chat"],
+    capabilities: [
+      "chat",
+      "text-generation"
+    ],
     configSchema: {
       apiKeyEnvVar: "PERPLEXITY_API_KEY",
       baseUrl: "https://api.perplexity.ai"
@@ -76,10 +94,15 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
     displayName: "Groq",
     logoUrl: "https://groq.com/favicon.ico",
     docsUrl: "https://console.groq.com/docs",
-    capabilities: ["text-generation", "chat"],
+    capabilities: [
+      "text-generation",
+      "chat",
+      "function-calling",
+      "audio"
+    ],
     configSchema: {
       apiKeyEnvVar: "GROQ_API_KEY",
-      baseUrl: "https://api.groq.com"
+      baseUrl: "https://api.groq.com/openai/v1"
     }
   },
   {
@@ -87,21 +110,31 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
     displayName: "DeepSeek",
     logoUrl: "https://deepseek.com/favicon.ico",
     docsUrl: "https://platform.deepseek.com/docs",
-    capabilities: ["text-generation", "chat", "code-generation"],
+    capabilities: [
+      "text-generation",
+      "chat",
+      "function-calling",
+      "tool-use"
+    ],
     configSchema: {
       apiKeyEnvVar: "DEEPSEEK_API_KEY",
-      baseUrl: "https://api.deepseek.com"
+      baseUrl: "https://api.deepseek.com/v1"
     }
   },
   {
     name: "qwen",
-    displayName: "Alibaba Qwen",
-    logoUrl: "", // Add logo URL if available
-    docsUrl: "https://help.aliyun.com/document_detail/2510115.html", // Link to Qwen docs
-    capabilities: ["text-generation", "chat", "vision", "function-calling"], // Common Qwen capabilities
+    displayName: "Qwen (Alibaba Cloud)",
+    logoUrl: "https://qianwen.aliyun.com/favicon.ico",
+    docsUrl: "https://help.aliyun.com/zh/dashscope/",
+    capabilities: [
+      "text-generation",
+      "chat",
+      "function-calling",
+      "vision"
+    ],
     configSchema: {
-      apiKeyEnvVar: "QWEN_API_KEY", // Standard convention
-      baseUrl: "https://dashscope.aliyuncs.com/api/v1" // Common base URL, verify if different for Vercel integration
+      apiKeyEnvVar: "QWEN_API_KEY",
+      baseUrl: "https://dashscope.aliyuncs.com/api/v1"
     }
   }
 ] as const;

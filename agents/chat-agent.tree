@@ -1,0 +1,30 @@
+chat-agent
+├── __tests__
+│   └── chat-agent.test.ts
+├── actor
+│   ├── chat-actor.ts
+│   └── index.ts
+├── agent
+│   ├── agent-state.ts
+│   ├── agent.ts
+│   ├── constants.ts
+│   ├── nodes
+│   │   └── index.ts
+│   ├── types.ts
+│   └── utils
+│       ├── actions.ts
+│       ├── effect-definitions.ts
+│       └── index.ts
+├── bun.lock
+├── main.ts
+├── node_modules
+├── package.json
+├── test-configs
+│   ├── master-config.json
+│   ├── models.json
+│   ├── providers.json
+│   └── valid-policy.json
+├── tsconfig.json
+└── vitest.config.ts
+
+8 directories, 20 files

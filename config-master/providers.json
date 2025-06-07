@@ -1,77 +1,102 @@
 {
-	"providers": [
-		{
-			"name": "openai",
-			"displayName": "OpenAI",
-			"type": "openai",
-			"apiKeyEnvVar": "OPENAI_API_KEY",
-			"baseUrl": "https://api.openai.com/v1",
-			"rateLimit": {
-				"requestsPerMinute": 3500,
-				"tokensPerMinute": 180000
-			}
-		},
-		{
-			"name": "anthropic",
-			"displayName": "Anthropic",
-			"type": "anthropic",
-			"apiKeyEnvVar": "ANTHROPIC_API_KEY",
-			"baseUrl": "https://api.anthropic.com/v1",
-			"rateLimit": {
-				"requestsPerMinute": 150,
-				"tokensPerMinute": 100000
-			}
-		},
-		{
-			"name": "google",
-			"displayName": "Google",
-			"type": "google",
-			"apiKeyEnvVar": "GOOGLE_GENERATIVE_AI_API_KEY",
-			"baseUrl": "https://generativelanguage.googleapis.com/v1",
-			"rateLimit": {
-				"requestsPerMinute": 1500,
-				"tokensPerMinute": 300000
-			}
-		},
-		{
-			"name": "groq",
-			"displayName": "GroqCloud",
-			"type": "groq",
-			"apiKeyEnvVar": "GROQ_API_KEY",
-			"baseUrl": "https://api.groq.com/openai/v1",
-			"rateLimit": {
-				"requestsPerMinute": 30000,
-				"tokensPerMinute": 900000
-			}
-		},
-		{
-			"name": "deepseek",
-			"displayName": "DeepSeek",
-			"type": "deepseek",
-			"apiKeyEnvVar": "DEEPSEEK_API_KEY",
-			"baseUrl": "https://api.deepseek.com/v1",
-			"rateLimit": {
-				"requestsPerMinute": 500
-			}
-		},
-		{
-			"name": "grok",
-			"displayName": "xAI Grok",
-			"type": "grok", 
-			"apiKeyEnvVar": "XAI_GROK_API_KEY", 
-			"baseUrl": null, 
-			"rateLimit": null 
-		},
-		{
-			"name": "local",
-			"displayName": "Local LLM",
-			"type": "local",
-			"baseUrl": "http://localhost:8000/v1",
-			"rateLimit": {
-				"requestsPerMinute": 1000,
-				"tokensPerMinute": 200000
-			}
-		}
-	],
-	"defaultProviderName": "openai"
+  "providers": [
+    {
+      "name": "openai",
+      "displayName": "OpenAI",
+      "type": "openai",
+      "apiKeyEnvVar": "OPENAI_API_KEY",
+      "baseUrl": "https://api.openai.com/v1",
+      "rateLimit": {
+        "requestsPerMinute": 3500,
+        "tokensPerMinute": 180000
+      }
+    },
+    {
+      "name": "anthropic",
+      "displayName": "Anthropic",
+      "type": "anthropic",
+      "apiKeyEnvVar": "ANTHROPIC_API_KEY",
+      "baseUrl": "https://api.anthropic.com/v1",
+      "rateLimit": {
+        "requestsPerMinute": 150,
+        "tokensPerMinute": 100000
+      }
+    },
+    {
+      "name": "google",
+      "displayName": "Google",
+      "type": "google",
+      "apiKeyEnvVar": "GOOGLE_GENERATIVE_AI_API_KEY",
+      "baseUrl": "https://generativelanguage.googleapis.com/v1",
+      "rateLimit": {
+        "requestsPerMinute": 1500,
+        "tokensPerMinute": 300000
+      }
+    },
+    {
+      "name": "groq",
+      "displayName": "GroqCloud",
+      "type": "groq",
+      "apiKeyEnvVar": "GROQ_API_KEY",
+      "baseUrl": "https://api.groq.com/openai/v1",
+      "rateLimit": {
+        "requestsPerMinute": 30000,
+        "tokensPerMinute": 900000
+      }
+    },
+    {
+      "name": "deepseek",
+      "displayName": "DeepSeek",
+      "type": "deepseek",
+      "apiKeyEnvVar": "DEEPSEEK_API_KEY",
+      "baseUrl": "https://api.deepseek.com/v1",
+      "rateLimit": {
+        "requestsPerMinute": 500
+      }
+    },
+    {
+      "name": "xai",
+      "displayName": "xAI Grok",
+      "type": "xai",
+      "apiKeyEnvVar": "XAI_API_KEY",
+      "baseUrl": "https://api.grok.x.ai/v1",
+      "rateLimit": {
+        "requestsPerMinute": 1000,
+        "tokensPerMinute": 100000
+      }
+    },
+    {
+      "name": "perplexity",
+      "displayName": "Perplexity AI",
+      "type": "perplexity",
+      "apiKeyEnvVar": "PERPLEXITY_API_KEY",
+      "baseUrl": "https://api.perplexity.ai",
+      "rateLimit": {
+        "requestsPerMinute": 1000,
+        "tokensPerMinute": 100000
+      }
+    },
+    {
+      "name": "qwen",
+      "displayName": "Qwen (Alibaba Cloud)",
+      "type": "qwen",
+      "apiKeyEnvVar": "QWEN_API_KEY",
+      "baseUrl": "https://dashscope.aliyuncs.com/api/v1",
+      "rateLimit": {
+        "requestsPerMinute": 1000,
+        "tokensPerMinute": 100000
+      }
+    },
+    {
+      "name": "local",
+      "displayName": "Local LLM",
+      "type": "local",
+      "baseUrl": "http://localhost:8000/v1",
+      "rateLimit": {
+        "requestsPerMinute": 1000,
+        "tokensPerMinute": 200000
+      }
+    }
+  ],
+  "defaultProviderName": "openai"
 }

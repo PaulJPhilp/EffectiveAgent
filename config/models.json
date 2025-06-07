@@ -1,56 +1,79 @@
 {
-  "name": "ModelConfig",
+  "name": "model-config",
   "version": "1.0.0",
   "models": [
     {
-      "id": "gpt-4o",
-      "name": "gpt-4o",
-      "version": "1.0.0",
-      "provider": {
-        "name": "openai"
-      },
-      "modelName": "gpt-4o",
-      "displayName": "GPT-4o",
-      "vendorCapabilities": [
-        "chat",
-        "text-generation",
-        "vision",
-        "function-calling"
+      "id": "qwen-max",
+      "name": "qwen-max",
+      "provider": "qwen",
+      "version": "2.5.0",
+      "description": "Qwen's most powerful model with advanced reasoning capabilities",
+      "contextWindow": 32768,
+      "capabilities": [
+        {
+          "capability": "chat",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "text-generation",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "function-calling",
+          "proficiency": "expert"
+        }
       ],
-      "responseFormat": {
-        "type": "text",
-        "supportedFormats": ["text/plain", "text/markdown", "application/json"]
-      }
+      "pricing": {
+        "inputTokens": 0.0001,
+        "outputTokens": 0.0002
+      },
+      "enabled": true
     },
     {
-      "id": "claude-3-5-sonnet",
-      "name": "claude-3-5",
-      "version": "1.0.0",
-      "provider": {
-        "name": "anthropic"
+      "id": "qwen-plus",
+      "name": "qwen-plus",
+      "provider": "qwen",
+      "version": "2.5.0",
+      "description": "Balanced model for general use",
+      "contextWindow": 32768,
+      "capabilities": [
+        {
+          "capability": "chat",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "text-generation",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "function-calling",
+          "proficiency": "expert"
+        }
+      ],
+      "pricing": {
+        "inputTokens": 0.001,
+        "outputTokens": 0.005
       },
-      "modelName": "claude-3-5",
-      "displayName": "Claude-3-5-Sonnet",
-      "vendorCapabilities": ["chat", "text-generation", "function-calling"],
-      "responseFormat": {
-        "type": "text",
-        "supportedFormats": ["text/plain", "text/markdown", "application/json"]
-      }
+      "enabled": true
     },
     {
-      "id": "claude-3-opus",
-      "name": "claude-3-opus",
-      "version": "1.0.0",
-      "provider": {
-        "name": "anthropic"
+      "id": "text-embedding-v3",
+      "name": "text-embedding-v3",
+      "provider": "qwen",
+      "version": "3.0.0",
+      "description": "Qwen's text embedding model",
+      "contextWindow": 8192,
+      "capabilities": [
+        {
+          "capability": "embeddings",
+          "proficiency": "expert"
+        }
+      ],
+      "pricing": {
+        "inputTokens": 0.00001,
+        "outputTokens": 0.00001
       },
-      "modelName": "claude-3-opus",
-      "displayName": "Claude-3-Opus",
-      "vendorCapabilities": ["chat", "text-generation", "function-calling"],
-      "responseFormat": {
-        "type": "text",
-        "supportedFormats": ["text/plain", "text/markdown", "application/json"]
-      }
+      "enabled": true
     }
   ]
 }

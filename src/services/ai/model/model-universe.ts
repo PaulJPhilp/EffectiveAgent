@@ -1,5 +1,6 @@
 import { ModelCapability } from "@/schema.js";
-import { ModelCapabilityDetail, Provider } from "./schema.js";
+import { PROVIDER_NAMES } from "../provider/provider-universe.js";
+import { ModelCapabilityDetail } from "./schema.js";
 /**
  * Canonical list of all models supported by the ModelService.
  *
@@ -13,7 +14,7 @@ export interface ModelMetadata {
   readonly id: string;
   readonly name: string;
   readonly version: string;
-  readonly provider: Provider;
+  readonly provider: typeof PROVIDER_NAMES[number];
   readonly modelName: string;
   readonly displayName: string;
   readonly description?: string;
@@ -29,10 +30,267 @@ export interface ModelMetadata {
     readonly type: "text" | "image" | "audio" | "embedding";
     readonly supportedFormats: readonly string[];
   };
+  readonly thinkingBudget?: number;
+  readonly enabled: boolean;
 }
 
 export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
-  // OpenAI models
+  // OpenAI models - Latest Reasoning Models
+  {
+    id: "o4-mini",
+    name: "o4-mini",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "o4-mini",
+    displayName: "o4-mini",
+    description: "Fast, efficient reasoning model with multimodal capabilities and tool integration",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000,
+    maxTokens: 100000,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.00116,
+    costPer1kOutputTokens: 0.00462,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 50000,
+    enabled: true
+  },
+  {
+    id: "o3",
+    name: "o3",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "o3",
+    displayName: "o3",
+    description: "Advanced reasoning model with superior performance on complex tasks",
+    vendorCapabilities: ["text-generation", "chat", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.015,
+    costPer1kOutputTokens: 0.06,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 100000,
+    enabled: true
+  },
+  {
+    id: "o3-mini",
+    name: "o3-mini",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "o3-mini",
+    displayName: "o3-mini",
+    description: "Compact reasoning model balancing performance and cost",
+    vendorCapabilities: ["text-generation", "chat", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.001,
+    costPer1kOutputTokens: 0.004,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 30000,
+    enabled: true
+  },
+  {
+    id: "o1",
+    name: "o1",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "o1",
+    displayName: "o1",
+    description: "Advanced reasoning model for complex problem-solving",
+    vendorCapabilities: ["text-generation", "chat", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.015,
+    costPer1kOutputTokens: 0.06,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 65536,
+    enabled: true
+  },
+  {
+    id: "o1-pro",
+    name: "o1-pro",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "o1-pro",
+    displayName: "o1-pro",
+    description: "Premium reasoning model with enhanced capabilities",
+    vendorCapabilities: ["text-generation", "chat", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.06,
+    costPer1kOutputTokens: 0.24,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 131072,
+    enabled: true
+  },
+  {
+    id: "o1-preview",
+    name: "o1-preview",
+    version: "preview",
+    provider: "openai",
+    modelName: "o1-preview",
+    displayName: "o1-preview",
+    description: "Preview version of o1 reasoning model",
+    vendorCapabilities: ["text-generation", "chat", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.015,
+    costPer1kOutputTokens: 0.06,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 32768,
+    enabled: true
+  },
+  {
+    id: "o1-mini",
+    name: "o1-mini",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "o1-mini",
+    displayName: "o1-mini",
+    description: "Compact reasoning model for cost-effective applications",
+    vendorCapabilities: ["text-generation", "chat", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.003,
+    costPer1kOutputTokens: 0.012,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 16384,
+    enabled: true
+  },
+
+  // GPT-4.1 Series
+  {
+    id: "gpt-4.1",
+    name: "gpt-4.1",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "gpt-4.1",
+    displayName: "GPT-4.1",
+    description: "Latest GPT-4.1 with massive context window and superior coding capabilities",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 1000000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.002,
+    costPer1kOutputTokens: 0.008,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "gpt-4.1-mini",
+    name: "gpt-4.1-mini",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "gpt-4.1-mini",
+    displayName: "GPT-4.1 Mini",
+    description: "Balanced performance and cost with large context window",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 1000000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.0004,
+    costPer1kOutputTokens: 0.0016,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "gpt-4.1-nano",
+    name: "gpt-4.1-nano",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "gpt-4.1-nano",
+    displayName: "GPT-4.1 Nano",
+    description: "Ultra-fast and cost-efficient with large context window",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 1000000,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.0001,
+    costPer1kOutputTokens: 0.0004,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+
+  // GPT-4.5 Preview
+  {
+    id: "gpt-4.5",
+    name: "gpt-4.5",
+    version: "preview",
+    provider: "openai",
+    modelName: "gpt-4.5",
+    displayName: "GPT-4.5 Preview",
+    description: "Preview of next-generation GPT-4.5 model",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 16384,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.003,
+    costPer1kOutputTokens: 0.012,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+
+  // GPT-4o Series
   {
     id: "gpt-4o",
     name: "gpt-4o",
@@ -40,19 +298,86 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "openai",
     modelName: "gpt-4o",
     displayName: "GPT-4o",
-    description: "OpenAI's most advanced model, optimized for chat and multimodal capabilities",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling", "audio"],
+    description: "Flagship multimodal model with vision and generation capabilities",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling", "image-generation"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 16384,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.005,
+    costPer1kOutputTokens: 0.015,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "image/png"]
+    },
+    enabled: true
+  },
+  {
+    id: "gpt-4o-2024-11-20",
+    name: "gpt-4o-2024-11-20",
+    version: "2024-11-20",
+    provider: "openai",
+    modelName: "gpt-4o-2024-11-20",
+    displayName: "GPT-4o (Nov 2024)",
+    description: "November 2024 version of GPT-4o with improved performance",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 16384,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.0025,
+    costPer1kOutputTokens: 0.01,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "gpt-4o-2024-08-06",
+    name: "gpt-4o-2024-08-06",
+    version: "2024-08-06",
+    provider: "openai",
+    modelName: "gpt-4o-2024-08-06",
+    displayName: "GPT-4o (Aug 2024)",
+    description: "August 2024 version of GPT-4o",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 16384,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.0025,
+    costPer1kOutputTokens: 0.01,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "gpt-4o-2024-05-13",
+    name: "gpt-4o-2024-05-13",
+    version: "2024-05-13",
+    provider: "openai",
+    modelName: "gpt-4o-2024-05-13",
+    displayName: "GPT-4o (May 2024)",
+    description: "Original GPT-4o release from May 2024",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
     derivedProficiencies: [],
     contextWindowSize: 128000,
     maxTokens: 4096,
     temperature: 0.7,
     costPer1kInputTokens: 0.005,
     costPer1kOutputTokens: 0.015,
-    supportedLanguages: ["en", "multi"],
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain", "audio/mpeg"]
-    }
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
   },
   {
     id: "gpt-4o-mini",
@@ -61,39 +386,23 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "openai",
     modelName: "gpt-4o-mini",
     displayName: "GPT-4o Mini",
-    description: "OpenAI's compact and fast multimodal model",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling", "audio"],
+    description: "Cost-effective multimodal model with vision capabilities",
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
     derivedProficiencies: [],
     contextWindowSize: 128000,
-    maxTokens: 4096,
+    maxTokens: 16384,
     temperature: 0.7,
     costPer1kInputTokens: 0.00015,
     costPer1kOutputTokens: 0.0006,
-    supportedLanguages: ["en", "multi"],
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain", "audio/mpeg"]
-    }
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
   },
-  {
-    id: "gpt-4o-audio-preview",
-    name: "gpt-4o-audio-preview",
-    version: "preview",
-    provider: "openai",
-    modelName: "gpt-4o-audio-preview",
-    displayName: "GPT-4o Audio (Preview)",
-    description: "Preview version of GPT-4o focused on audio capabilities",
-    vendorCapabilities: ["audio", "chat"],
-    derivedProficiencies: [],
-    contextWindowSize: 128000,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "audio",
-      supportedFormats: ["audio/mpeg", "audio/wav", "text/plain"]
-    }
-  },
+
+  // GPT-4 Turbo Series
   {
     id: "gpt-4-turbo",
     name: "gpt-4-turbo",
@@ -101,7 +410,7 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "openai",
     modelName: "gpt-4-turbo",
     displayName: "GPT-4 Turbo",
-    description: "OpenAI's most advanced model optimized for both cost and capability",
+    description: "Enhanced GPT-4 with larger context window",
     vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
     derivedProficiencies: [],
     contextWindowSize: 128000,
@@ -109,69 +418,37 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     temperature: 0.7,
     costPer1kInputTokens: 0.01,
     costPer1kOutputTokens: 0.03,
-    supportedLanguages: ["en", "multi"],
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
-    id: "gpt-4.1",
-    name: "gpt-4.1",
-    version: "preview",
+    id: "gpt-4-turbo-2024-04-09",
+    name: "gpt-4-turbo-2024-04-09",
+    version: "2024-04-09",
     provider: "openai",
-    modelName: "gpt-4.1",
-    displayName: "GPT-4.1 (Preview)",
-    description: "Next iteration of the GPT-4 family (Preview)",
+    modelName: "gpt-4-turbo-2024-04-09",
+    displayName: "GPT-4 Turbo (Apr 2024)",
+    description: "April 2024 version of GPT-4 Turbo",
     vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
     derivedProficiencies: [],
     contextWindowSize: 128000,
     maxTokens: 4096,
     temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.01,
+    costPer1kOutputTokens: 0.03,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
-  {
-    id: "gpt-4.1-mini",
-    name: "gpt-4.1-mini",
-    version: "preview",
-    provider: "openai",
-    modelName: "gpt-4.1-mini",
-    displayName: "GPT-4.1 Mini (Preview)",
-    description: "Compact version of the GPT-4.1 family (Preview)",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
-    derivedProficiencies: [],
-    contextWindowSize: 128000,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "gpt-4.1-nano",
-    name: "gpt-4.1-nano",
-    version: "preview",
-    provider: "openai",
-    modelName: "gpt-4.1-nano",
-    displayName: "GPT-4.1 Nano (Preview)",
-    description: "Smallest version of the GPT-4.1 family (Preview)",
-    vendorCapabilities: ["text-generation", "chat"],
-    derivedProficiencies: [],
-    contextWindowSize: 32768,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
+
+  // GPT-4 Classic Series
   {
     id: "gpt-4",
     name: "gpt-4",
@@ -179,7 +456,7 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "openai",
     modelName: "gpt-4",
     displayName: "GPT-4",
-    description: "OpenAI's foundational large model",
+    description: "Original GPT-4 model with strong reasoning capabilities",
     vendorCapabilities: ["text-generation", "chat", "function-calling"],
     derivedProficiencies: [],
     contextWindowSize: 8192,
@@ -187,12 +464,37 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     temperature: 0.7,
     costPer1kInputTokens: 0.03,
     costPer1kOutputTokens: 0.06,
-    supportedLanguages: ["en", "multi"],
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
+  {
+    id: "gpt-4-32k",
+    name: "gpt-4-32k",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "gpt-4-32k",
+    displayName: "GPT-4 32K",
+    description: "GPT-4 with extended 32K context window (legacy)",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 32768,
+    maxTokens: 4096,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.06,
+    costPer1kOutputTokens: 0.12,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: false
+  },
+
+  // GPT-3.5 Series
   {
     id: "gpt-3.5-turbo",
     name: "gpt-3.5-turbo",
@@ -200,7 +502,7 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "openai",
     modelName: "gpt-3.5-turbo",
     displayName: "GPT-3.5 Turbo",
-    description: "OpenAI's fast and economical model for chat-based applications",
+    description: "Fast and cost-effective model for most tasks",
     vendorCapabilities: ["text-generation", "chat", "function-calling"],
     derivedProficiencies: [],
     contextWindowSize: 16385,
@@ -208,12 +510,128 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     temperature: 0.7,
     costPer1kInputTokens: 0.0005,
     costPer1kOutputTokens: 0.0015,
-    supportedLanguages: ["en", "multi"],
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
+  {
+    id: "gpt-3.5-turbo-0125",
+    name: "gpt-3.5-turbo-0125",
+    version: "0125",
+    provider: "openai",
+    modelName: "gpt-3.5-turbo-0125",
+    displayName: "GPT-3.5 Turbo (0125)",
+    description: "January 2025 version of GPT-3.5 Turbo",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 16385,
+    maxTokens: 4096,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.0005,
+    costPer1kOutputTokens: 0.0015,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "gpt-3.5-turbo-1106",
+    name: "gpt-3.5-turbo-1106",
+    version: "1106",
+    provider: "openai",
+    modelName: "gpt-3.5-turbo-1106",
+    displayName: "GPT-3.5 Turbo (1106)",
+    description: "November 2023 version of GPT-3.5 Turbo",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 16385,
+    maxTokens: 4096,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.001,
+    costPer1kOutputTokens: 0.002,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "gpt-3.5-turbo-16k",
+    name: "gpt-3.5-turbo-16k",
+    version: "16k",
+    provider: "openai",
+    modelName: "gpt-3.5-turbo-16k",
+    displayName: "GPT-3.5 Turbo 16K",
+    description: "GPT-3.5 Turbo with 16K context window (legacy)",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 16385,
+    maxTokens: 4096,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.003,
+    costPer1kOutputTokens: 0.004,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: false
+  },
+
+  // Realtime Models
+  {
+    id: "gpt-4o-realtime",
+    name: "gpt-4o-realtime",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "gpt-4o-realtime",
+    displayName: "GPT-4o Realtime",
+    description: "Real-time audio and text interaction model",
+    vendorCapabilities: ["text-generation", "chat", "audio"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 4096,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.005,
+    costPer1kOutputTokens: 0.02,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "audio",
+      supportedFormats: ["audio/mpeg", "audio/wav", "text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "gpt-4o-mini-realtime",
+    name: "gpt-4o-mini-realtime",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "gpt-4o-mini-realtime",
+    displayName: "GPT-4o Mini Realtime",
+    description: "Cost-effective real-time audio and text model",
+    vendorCapabilities: ["text-generation", "chat", "audio"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 4096,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.00015,
+    costPer1kOutputTokens: 0.0006,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "audio",
+      supportedFormats: ["audio/mpeg", "audio/wav", "text/plain"]
+    },
+    enabled: true
+  },
+
+
+  // OpenAI Embedding Models
   {
     id: "text-embedding-3-large",
     name: "text-embedding-3-large",
@@ -221,15 +639,17 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "openai",
     modelName: "text-embedding-3-large",
     displayName: "Text Embedding 3 Large",
-    description: "OpenAI's most capable embedding model for text search and similarity tasks",
+    description: "Most capable embedding model for text search and similarity tasks",
     vendorCapabilities: ["embeddings"],
     derivedProficiencies: [],
     contextWindowSize: 8191,
     costPer1kInputTokens: 0.00013,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "embedding",
       supportedFormats: ["application/json"]
-    }
+    },
+    enabled: true
   },
   {
     id: "text-embedding-3-small",
@@ -238,15 +658,17 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "openai",
     modelName: "text-embedding-3-small",
     displayName: "Text Embedding 3 Small",
-    description: "OpenAI's efficient embedding model",
+    description: "Efficient and cost-effective embedding model",
     vendorCapabilities: ["embeddings"],
     derivedProficiencies: [],
     contextWindowSize: 8191,
     costPer1kInputTokens: 0.00002,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "embedding",
       supportedFormats: ["application/json"]
-    }
+    },
+    enabled: true
   },
   {
     id: "text-embedding-ada-002",
@@ -255,227 +677,309 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "openai",
     modelName: "text-embedding-ada-002",
     displayName: "Text Embedding Ada 002",
-    description: "OpenAI's widely used previous generation embedding model",
+    description: "Previous generation embedding model (legacy)",
     vendorCapabilities: ["embeddings"],
     derivedProficiencies: [],
     contextWindowSize: 8191,
     costPer1kInputTokens: 0.0001,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "embedding",
       supportedFormats: ["application/json"]
-    }
+    },
+    enabled: false
   },
 
-  // Placeholder for o1 models - mapping to gpt-4o?
+  // OpenAI Image Generation Models
   {
-    id: "o1",
-    name: "o1",
+    id: "dall-e-3",
+    name: "dall-e-3",
     version: "1.0.0",
     provider: "openai",
-    modelName: "o1",
-    displayName: "OpenAI o1 (GPT-4o Alias?)",
-    description: "Alias or specific version related to GPT-4o",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling", "audio"],
+    modelName: "dall-e-3",
+    displayName: "DALL-E 3",
+    description: "Advanced image generation model with high-quality outputs",
+    vendorCapabilities: ["image-generation"],
     derivedProficiencies: [],
-    contextWindowSize: 128000,
-    maxTokens: 4096,
-    temperature: 0.7,
-    costPer1kInputTokens: 0.005,
-    costPer1kOutputTokens: 0.015,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.04, // $0.040 per image (1024×1024)
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain", "audio/mpeg"]
-    }
+      type: "image",
+      supportedFormats: ["image/png"]
+    },
+    enabled: true
   },
   {
-    id: "o1-mini",
-    name: "o1-mini",
+    id: "dall-e-2",
+    name: "dall-e-2",
     version: "1.0.0",
     provider: "openai",
-    modelName: "o1-mini",
-    displayName: "OpenAI o1 Mini (GPT-4o Mini Alias?)",
-    description: "Alias or specific version related to GPT-4o Mini",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling", "audio"],
+    modelName: "dall-e-2",
+    displayName: "DALL-E 2",
+    description: "Previous generation image generation model (legacy)",
+    vendorCapabilities: ["image-generation"],
     derivedProficiencies: [],
-    contextWindowSize: 128000,
-    maxTokens: 4096,
-    temperature: 0.7,
-    costPer1kInputTokens: 0.00015,
-    costPer1kOutputTokens: 0.0006,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.02, // $0.020 per image (1024×1024)
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain", "audio/mpeg"]
-    }
-  },
-  {
-    id: "o1-preview",
-    name: "o1-preview",
-    version: "preview",
-    provider: "openai",
-    modelName: "o1-preview",
-    displayName: "OpenAI o1 (Preview)",
-    description: "Preview version related to GPT-4o family",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling", "audio"],
-    derivedProficiencies: [],
-    contextWindowSize: 128000,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain", "audio/mpeg"]
-    }
+      type: "image",
+      supportedFormats: ["image/png"]
+    },
+    enabled: false
   },
 
-  // Placeholder for o3 models - mapping to gpt-3.5?
+  // OpenAI Audio Models
   {
-    id: "o3",
-    name: "o3",
+    id: "whisper-1",
+    name: "whisper-1",
     version: "1.0.0",
     provider: "openai",
-    modelName: "o3",
-    displayName: "OpenAI o3",
-    description: "Alias or model from OpenAI (GPT-3.5 family?)",
-    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    modelName: "whisper-1",
+    displayName: "Whisper",
+    description: "Speech-to-text transcription and translation model",
+    vendorCapabilities: ["audio"],
     derivedProficiencies: [],
-    contextWindowSize: 16385,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.006, // $0.006 per minute
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar", "multi"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true
   },
   {
-    id: "o3-mini",
-    name: "o3-mini",
+    id: "tts-1",
+    name: "tts-1",
     version: "1.0.0",
     provider: "openai",
-    modelName: "o3-mini",
-    displayName: "OpenAI o3 Mini",
-    description: "Compact alias or model from OpenAI (GPT-3.5 family?)",
-    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    modelName: "tts-1",
+    displayName: "TTS 1",
+    description: "Text-to-speech model for natural voice synthesis",
+    vendorCapabilities: ["audio"],
     derivedProficiencies: [],
-    contextWindowSize: 16385,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.015, // $0.015 per 1K characters
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      type: "audio",
+      supportedFormats: ["audio/mpeg", "audio/wav", "audio/flac"]
+    },
+    enabled: true
+  },
+  {
+    id: "tts-1-hd",
+    name: "tts-1-hd",
+    version: "1.0.0",
+    provider: "openai",
+    modelName: "tts-1-hd",
+    displayName: "TTS 1 HD",
+    description: "High-definition text-to-speech model for premium voice quality",
+    vendorCapabilities: ["audio"],
+    derivedProficiencies: [],
+    costPer1kInputTokens: 0.03, // $0.030 per 1K characters
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "audio",
+      supportedFormats: ["audio/mpeg", "audio/wav", "audio/flac"]
+    },
+    enabled: true
   },
 
-  // Placeholder for o4 models - mapping to gpt-4?
+  // OpenAI Moderation Models
   {
-    id: "o4-mini",
-    name: "o4-mini",
-    version: "1.0.0",
+    id: "text-moderation-latest",
+    name: "text-moderation-latest",
+    version: "latest",
     provider: "openai",
-    modelName: "o4-mini",
-    displayName: "OpenAI o4 Mini",
-    description: "Compact alias or model from OpenAI (GPT-4 family?)",
-    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    modelName: "text-moderation-latest",
+    displayName: "Text Moderation (Latest)",
+    description: "Content moderation model for detecting harmful content",
+    vendorCapabilities: ["text-generation"],
     derivedProficiencies: [],
     contextWindowSize: 32768,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.0002,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["application/json"]
+    },
+    enabled: true
+  },
+  {
+    id: "text-moderation-stable",
+    name: "text-moderation-stable",
+    version: "stable",
+    provider: "openai",
+    modelName: "text-moderation-stable",
+    displayName: "Text Moderation (Stable)",
+    description: "Stable version of content moderation model",
+    vendorCapabilities: ["text-generation"],
+    derivedProficiencies: [],
+    contextWindowSize: 32768,
+    costPer1kInputTokens: 0.0002,
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["application/json"]
+    },
+    enabled: true
   },
 
-  // Alias for gpt-4o
+  // OpenAI Alias Models
   {
     id: "chatgpt-4o-latest",
     name: "chatgpt-4o-latest",
     version: "alias",
     provider: "openai",
     modelName: "chatgpt-4o-latest",
-    displayName: "ChatGPT 4o (Latest Alias)",
+    displayName: "ChatGPT 4o (Latest)",
     description: "Alias pointing to the latest GPT-4o model",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling", "audio"],
+    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
     derivedProficiencies: [],
     contextWindowSize: 128000,
-    maxTokens: 4096,
+    maxTokens: 16384,
     temperature: 0.7,
     costPer1kInputTokens: 0.005,
     costPer1kOutputTokens: 0.015,
-    supportedLanguages: ["en", "multi"],
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain", "audio/mpeg"]
-    }
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
   },
 
   // Anthropic models
+  {
+    id: "claude-opus-4",
+    name: "claude-opus-4",
+    version: "20250514",
+    provider: "anthropic",
+    modelName: "claude-opus-4-20250514",
+    displayName: "Claude Opus 4",
+    description: "Anthropic's most powerful and capable model for highly complex tasks. Sets new standards in complex reasoning and advanced coding with superior intelligence.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000, // 200K tokens
+    maxTokens: 32000, // 32K tokens max output
+    temperature: 0.7,
+    costPer1kInputTokens: 0.015, // $15/MTok
+    costPer1kOutputTokens: 0.075, // $75/MTok
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
+  },
+  {
+    id: "claude-sonnet-4",
+    name: "claude-sonnet-4",
+    version: "20250514",
+    provider: "anthropic",
+    modelName: "claude-sonnet-4-20250514",
+    displayName: "Claude Sonnet 4",
+    description: "Anthropic's high-performance model with exceptional reasoning capabilities. Optimal balance of intelligence, cost, and speed for production use cases.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000, // 200K tokens
+    maxTokens: 64000, // 64K tokens max output
+    temperature: 0.7,
+    costPer1kInputTokens: 0.003, // $3/MTok
+    costPer1kOutputTokens: 0.015, // $15/MTok
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
+  },
+  {
+    id: "claude-3-7-sonnet",
+    name: "claude-3-7-sonnet",
+    version: "20250219",
+    provider: "anthropic",
+    modelName: "claude-3-7-sonnet-20250219",
+    displayName: "Claude Sonnet 3.7",
+    description: "Anthropic's first hybrid reasoning model with extended thinking capabilities. State-of-the-art for coding and delivers significant improvements in content generation, data analysis, and planning.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000, // 200K tokens
+    maxTokens: 64000, // 64K tokens max output (with beta header: 128K)
+    temperature: 0.7,
+    costPer1kInputTokens: 0.003, // $3/MTok
+    costPer1kOutputTokens: 0.015, // $15/MTok
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
+  },
+  {
+    id: "claude-3-5-sonnet",
+    name: "claude-3-5-sonnet",
+    version: "20241022",
+    provider: "anthropic",
+    modelName: "claude-3-5-sonnet-20241022",
+    displayName: "Claude Sonnet 3.5",
+    description: "Anthropic's intelligent model with strong performance across text generation, reasoning, math, and coding. Upgraded version with improved capabilities.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000, // 200K tokens
+    maxTokens: 8192, // 8K tokens max output
+    temperature: 0.7,
+    costPer1kInputTokens: 0.003, // $3/MTok
+    costPer1kOutputTokens: 0.015, // $15/MTok
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
+  },
+  {
+    id: "claude-3-5-haiku",
+    name: "claude-3-5-haiku",
+    version: "20241022",
+    provider: "anthropic",
+    modelName: "claude-3-5-haiku-20241022",
+    displayName: "Claude Haiku 3.5",
+    description: "Anthropic's fastest and most cost-effective model. Intelligence at blazing speeds with improved instruction following and precise tool use.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000, // 200K tokens
+    maxTokens: 8192, // 8K tokens max output
+    temperature: 0.7,
+    costPer1kInputTokens: 0.0008, // $0.80/MTok
+    costPer1kOutputTokens: 0.004, // $4/MTok
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
+  },
   {
     id: "claude-3-opus",
     name: "claude-3-opus",
     version: "20240229",
     provider: "anthropic",
     modelName: "claude-3-opus-20240229",
-    displayName: "Claude 3 Opus",
-    description: "Anthropic's most capable model for complex tasks requiring deep analysis",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    displayName: "Claude Opus 3",
+    description: "Anthropic's previous flagship model with top-level intelligence, fluency, and understanding. Powerful model for the most complex tasks.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
     derivedProficiencies: [],
-    contextWindowSize: 200000,
-    maxTokens: 4096,
+    contextWindowSize: 200000, // 200K tokens
+    maxTokens: 4096, // 4K tokens max output
     temperature: 0.7,
-    costPer1kInputTokens: 0.015,
-    costPer1kOutputTokens: 0.075,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.015, // $15/MTok
+    costPer1kOutputTokens: 0.075, // $75/MTok
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "claude-3-sonnet",
-    name: "claude-3-sonnet",
-    version: "20240229",
-    provider: "anthropic",
-    modelName: "claude-3-sonnet-20240229",
-    displayName: "Claude 3 Sonnet",
-    description: "Anthropic's balanced model offering high-quality at a lower cost than Opus",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
-    derivedProficiencies: [],
-    contextWindowSize: 200000,
-    maxTokens: 4096,
-    temperature: 0.7,
-    costPer1kInputTokens: 0.003,
-    costPer1kOutputTokens: 0.015,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "claude-3-5-sonnet",
-    name: "claude-3.5-sonnet",
-    version: "20240620",
-    provider: "anthropic",
-    modelName: "claude-3.5-sonnet-20240620",
-    displayName: "Claude 3.5 Sonnet",
-    description: "Anthropic's most intelligent model yet, setting new industry benchmarks across a wide range of evaluations.",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
-    derivedProficiencies: [],
-    contextWindowSize: 200000,
-    maxTokens: 4096,
-    temperature: 0.7,
-    costPer1kInputTokens: 0.003,
-    costPer1kOutputTokens: 0.015,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
   },
   {
     id: "claude-3-haiku",
@@ -483,20 +987,21 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     version: "20240307",
     provider: "anthropic",
     modelName: "claude-3-haiku-20240307",
-    displayName: "Claude 3 Haiku",
-    description: "Anthropic's fastest and most compact model for high-throughput applications",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    displayName: "Claude Haiku 3",
+    description: "Anthropic's fast and compact model for near-instant responsiveness. Quick and accurate targeted performance for simpler tasks.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
     derivedProficiencies: [],
-    contextWindowSize: 200000,
-    maxTokens: 4096,
+    contextWindowSize: 200000, // 200K tokens
+    maxTokens: 4096, // 4K tokens max output
     temperature: 0.7,
-    costPer1kInputTokens: 0.00025,
-    costPer1kOutputTokens: 0.00125,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.00025, // $0.25/MTok
+    costPer1kOutputTokens: 0.00125, // $1.25/MTok
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ja", "ko", "zh"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
   },
   {
     id: "claude-2.1",
@@ -517,7 +1022,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "claude-2.0",
@@ -538,7 +1044,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "claude-instant-1.2",
@@ -559,7 +1066,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
 
   // Future/Preview Anthropic Models (Placeholders)
@@ -580,7 +1088,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "claude-3-5-sonnet-preview",
@@ -599,7 +1108,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "claude-3-5-haiku-preview",
@@ -618,152 +1128,188 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
 
   // Google models
   {
+    id: "gemini-2.5-pro",
+    name: "gemini-2.5-pro",
+    version: "20250514",
+    provider: "google",
+    modelName: "gemini-2.5-pro-preview-06-05",
+    displayName: "Gemini 2.5 Pro",
+    description: "Google's most powerful thinking model with maximum response accuracy and state-of-the-art performance. Excels at complex coding, reasoning, and multimodal understanding.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 1048576, // 1M tokens
+    maxTokens: 65536, // 64K tokens
+    temperature: 0.7,
+    costPer1kInputTokens: 1.25, // $1.25/1M tokens for <= 200K input
+    costPer1kOutputTokens: 10.0, // $10/1M tokens for <= 200K input
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    thinkingBudget: 1000000, // 1M tokens for reasoning
+    enabled: true,
+  },
+  {
+    id: "gemini-2.5-flash",
+    name: "gemini-2.5-flash",
+    version: "20250520",
+    provider: "google",
+    modelName: "gemini-2.5-flash-preview-05-20",
+    displayName: "Gemini 2.5 Flash",
+    description: "Google's first hybrid reasoning model offering well-rounded capabilities with adaptive thinking budgets. Best model in terms of price-performance.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 1048576, // 1M tokens
+    maxTokens: 65536, // 64K tokens
+    temperature: 0.7,
+    costPer1kInputTokens: 0.15, // $0.15/1M tokens
+    costPer1kOutputTokens: 0.60, // $0.60/1M tokens (non-thinking)
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    thinkingBudget: 500000, // 500K tokens for reasoning
+    enabled: true,
+  },
+  {
+    id: "gemini-2.0-flash",
+    name: "gemini-2.0-flash",
+    version: "001",
+    provider: "google",
+    modelName: "gemini-2.0-flash",
+    displayName: "Gemini 2.0 Flash",
+    description: "Google's newest multimodal model with next generation features and improved capabilities. Built for agentic experiences with superior speed and native tool use.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision", "code-generation"],
+    derivedProficiencies: [],
+    contextWindowSize: 1048576, // 1M tokens
+    maxTokens: 8192, // 8K tokens
+    temperature: 0.7,
+    costPer1kInputTokens: 0.10, // $0.10/1M tokens (text/image/video)
+    costPer1kOutputTokens: 0.40, // $0.40/1M tokens
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
+  },
+  {
+    id: "gemini-2.0-flash-lite",
+    name: "gemini-2.0-flash-lite",
+    version: "001",
+    provider: "google",
+    modelName: "gemini-2.0-flash-lite",
+    displayName: "Gemini 2.0 Flash Lite",
+    description: "A Gemini 2.0 Flash model optimized for cost efficiency and low latency. Smallest and most cost effective model for at-scale usage.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 1048576, // 1M tokens
+    maxTokens: 8192, // 8K tokens
+    temperature: 0.7,
+    costPer1kInputTokens: 0.075, // $0.075/1M tokens
+    costPer1kOutputTokens: 0.30, // $0.30/1M tokens
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
+  },
+  {
     id: "gemini-1.5-pro",
     name: "gemini-1.5-pro",
-    version: "1.5",
+    version: "002",
     provider: "google",
     modelName: "gemini-1.5-pro",
     displayName: "Gemini 1.5 Pro",
-    description: "Google's large context multimodal model",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    description: "Google's mid-size multimodal model optimized for complex reasoning tasks. Can process large amounts of data with a breakthrough 2 million token context window.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
     derivedProficiencies: [],
-    contextWindowSize: 1048576,
-    maxTokens: 8192,
+    contextWindowSize: 2097152, // 2M tokens
+    maxTokens: 8192, // 8K tokens
     temperature: 0.7,
-    costPer1kInputTokens: 0.0035,
-    costPer1kOutputTokens: 0.0105,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 1.25, // $1.25/1M tokens for <= 128K input
+    costPer1kOutputTokens: 5.0, // $5/1M tokens for <= 128K input
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "gemini-1.5-pro-latest",
-    name: "gemini-1.5-pro-latest",
-    version: "latest",
-    provider: "google",
-    modelName: "gemini-1.5-pro-latest",
-    displayName: "Gemini 1.5 Pro (Latest)",
-    description: "Pointer to the latest version of Google's Gemini 1.5 Pro model",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
-    derivedProficiencies: [],
-    contextWindowSize: 1048576,
-    maxTokens: 8192,
-    temperature: 0.7,
-    costPer1kInputTokens: 0.0035,
-    costPer1kOutputTokens: 0.0105,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
   },
   {
     id: "gemini-1.5-flash",
     name: "gemini-1.5-flash",
-    version: "1.5",
+    version: "002",
     provider: "google",
     modelName: "gemini-1.5-flash",
     displayName: "Gemini 1.5 Flash",
-    description: "Google's fast and cost-effective large context multimodal model",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    description: "Google's fast and versatile multimodal model for scaling across diverse tasks. Optimized for speed with a 1 million token context window.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
     derivedProficiencies: [],
-    contextWindowSize: 1048576,
-    maxTokens: 8192,
+    contextWindowSize: 1048576, // 1M tokens
+    maxTokens: 8192, // 8K tokens
     temperature: 0.7,
-    costPer1kInputTokens: 0.00035,
-    costPer1kOutputTokens: 0.00105,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.075, // $0.075/1M tokens for <= 128K input
+    costPer1kOutputTokens: 0.30, // $0.30/1M tokens for <= 128K input
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "gemini-1.5-flash-latest",
-    name: "gemini-1.5-flash-latest",
-    version: "latest",
-    provider: "google",
-    modelName: "gemini-1.5-flash-latest",
-    displayName: "Gemini 1.5 Flash (Latest)",
-    description: "Pointer to the latest version of Google's Gemini 1.5 Flash model",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
-    derivedProficiencies: [],
-    contextWindowSize: 1048576,
-    maxTokens: 8192,
-    temperature: 0.7,
-    costPer1kInputTokens: 0.00035,
-    costPer1kOutputTokens: 0.00105,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
   },
   {
     id: "gemini-1.5-flash-8b",
     name: "gemini-1.5-flash-8b",
-    version: "1.5-8b",
+    version: "001",
     provider: "google",
     modelName: "gemini-1.5-flash-8b",
-    displayName: "Gemini 1.5 Flash 8B",
-    description: "8 Billion parameter variant of Gemini 1.5 Flash",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    displayName: "Gemini 1.5 Flash-8B",
+    description: "Google's small model designed for lower intelligence tasks and high volume usage. Cost-effective option with 1 million token context window.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
     derivedProficiencies: [],
-    contextWindowSize: 1048576,
-    maxTokens: 8192,
+    contextWindowSize: 1048576, // 1M tokens
+    maxTokens: 8192, // 8K tokens
     temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.0375, // $0.0375/1M tokens for <= 128K input
+    costPer1kOutputTokens: 0.15, // $0.15/1M tokens for <= 128K input
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true,
   },
   {
-    id: "gemini-1.5-flash-8b-latest",
-    name: "gemini-1.5-flash-8b-latest",
-    version: "1.5-8b-latest",
+    id: "gemini-1.0-pro",
+    name: "gemini-1.0-pro",
+    version: "001",
     provider: "google",
-    modelName: "gemini-1.5-flash-8b-latest",
-    displayName: "Gemini 1.5 Flash 8B (Latest)",
-    description: "Pointer to the latest 8 Billion parameter variant of Gemini 1.5 Flash",
-    vendorCapabilities: ["text-generation", "chat", "vision", "function-calling"],
+    modelName: "gemini-1.0-pro",
+    displayName: "Gemini 1.0 Pro",
+    description: "Google's original Gemini Pro model for text and multimodal tasks. Supports up to 32K context window with competitive performance.",
+    vendorCapabilities: ["text-generation", "chat", "vision"],
     derivedProficiencies: [],
-    contextWindowSize: 1048576,
-    maxTokens: 8192,
+    contextWindowSize: 32768, // 32K tokens
+    maxTokens: 8192, // 8K tokens
     temperature: 0.7,
-    supportedLanguages: ["en", "multi"],
+    costPer1kInputTokens: 0.125, // $0.125/1K characters
+    costPer1kOutputTokens: 0.375, // $0.375/1K characters
+    supportedLanguages: ["en", "es", "fr", "de", "it", "pt", "ru", "ja", "ko", "zh", "hi", "ar"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "gemini-pro",
-    name: "gemini-pro",
-    version: "1.0.0",
-    provider: "google",
-    modelName: "gemini-pro",
-    displayName: "Gemini Pro",
-    description: "Google's general purpose text and chat model",
-    vendorCapabilities: ["text-generation", "chat", "function-calling"],
-    derivedProficiencies: [],
-    contextWindowSize: 32768,
-    maxTokens: 8192,
-    temperature: 0.7,
-    costPer1kInputTokens: 0.000125,
-    costPer1kOutputTokens: 0.000375,
-    supportedLanguages: ["en", "multi"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true,
   },
   {
     id: "gemini-pro-vision",
@@ -784,7 +1330,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "embedding-001",
@@ -801,266 +1348,361 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "embedding",
       supportedFormats: ["application/json"]
-    }
+    },
+    enabled: true
   },
 
   // Groq models
   {
-    id: "llama3-8b-groq",
-    name: "llama3-8b-groq",
+    id: "llama-4-scout-17b-16e-instruct",
+    name: "llama-4-scout-17b-16e-instruct",
     version: "1.0.0",
     provider: "groq",
-    modelName: "llama3-8b-8192",
-    displayName: "Llama 3 8B (Groq)",
-    description: "Meta's Llama 3 8B model served via Groq with extremely fast inference",
-    vendorCapabilities: ["text-generation", "chat"],
+    modelName: "meta-llama/llama-4-scout-17b-16e-instruct",
+    displayName: "Llama 4 Scout (17Bx16E)",
+    description: "Meta's latest Llama 4 Scout model with 17B parameters and 16 experts, optimized for fast inference on Groq hardware.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
     derivedProficiencies: [],
-    contextWindowSize: 8192,
+    contextWindowSize: 131072, // 128K tokens
     maxTokens: 8192,
     temperature: 0.7,
-    costPer1kInputTokens: 0.00005,
-    costPer1kOutputTokens: 0.00008,
+    costPer1kInputTokens: 0.11,
+    costPer1kOutputTokens: 0.34,
     supportedLanguages: ["en", "multi"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
-    id: "llama3-70b-groq",
-    name: "llama3-70b-groq",
+    id: "llama-4-maverick-17b-128e-instruct",
+    name: "llama-4-maverick-17b-128e-instruct",
     version: "1.0.0",
+    provider: "groq",
+    modelName: "meta-llama/llama-4-maverick-17b-128e-instruct",
+    displayName: "Llama 4 Maverick (17Bx128E)",
+    description: "Meta's Llama 4 Maverick model with 17B parameters and 128 experts, designed for complex reasoning tasks.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 131072, // 128K tokens
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.20,
+    costPer1kOutputTokens: 0.60,
+    supportedLanguages: ["en", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "llama-guard-4-12b",
+    name: "llama-guard-4-12b",
+    version: "1.0.0",
+    provider: "groq",
+    modelName: "meta-llama/llama-guard-4-12b",
+    displayName: "Llama Guard 4 12B",
+    description: "Meta's Llama Guard 4 model for content moderation and safety classification with 128K context.",
+    vendorCapabilities: ["text-generation", "chat"],
+    derivedProficiencies: [],
+    contextWindowSize: 131072, // 128K tokens
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.20,
+    costPer1kOutputTokens: 0.20,
+    supportedLanguages: ["en", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "deepseek-r1-distill-llama-70b",
+    name: "deepseek-r1-distill-llama-70b",
+    version: "1.0.0",
+    provider: "groq",
+    modelName: "deepseek-r1-distill-llama-70b",
+    displayName: "DeepSeek R1 Distill Llama 70B",
+    description: "DeepSeek's R1 reasoning model distilled into Llama 70B architecture, optimized for reasoning tasks.",
+    vendorCapabilities: ["text-generation", "chat", "reasoning", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 131072, // 128K tokens
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.75,
+    costPer1kOutputTokens: 0.99,
+    supportedLanguages: ["en", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 150000, // Reasoning model with thinking capability
+    enabled: true
+  },
+  {
+    id: "qwen-qwq-32b",
+    name: "qwen-qwq-32b",
+    version: "1.0.0",
+    provider: "groq",
+    modelName: "qwen-qwq-32b",
+    displayName: "Qwen QwQ 32B (Preview)",
+    description: "Alibaba's Qwen QwQ 32B reasoning model with 128K context, optimized for question-answering and reasoning.",
+    vendorCapabilities: ["text-generation", "chat", "reasoning", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 131072, // 128K tokens
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.29,
+    costPer1kOutputTokens: 0.39,
+    supportedLanguages: ["en", "zh", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    thinkingBudget: 100000, // Reasoning model
+    enabled: true
+  },
+  {
+    id: "mistral-saba-24b",
+    name: "mistral-saba-24b",
+    version: "1.0.0",
+    provider: "groq",
+    modelName: "mistral-saba-24b",
+    displayName: "Mistral Saba 24B",
+    description: "Mistral's Saba 24B model optimized for fast inference on Groq hardware.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 32768,
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.79,
+    costPer1kOutputTokens: 0.79,
+    supportedLanguages: ["en", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "llama-3.3-70b-versatile",
+    name: "llama-3.3-70b-versatile",
+    version: "3.3",
+    provider: "groq",
+    modelName: "llama-3.3-70b-versatile",
+    displayName: "Llama 3.3 70B Versatile",
+    description: "Meta's Llama 3.3 70B model with 128K context, optimized for versatile tasks and fast inference.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 131072, // 128K tokens
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.59,
+    costPer1kOutputTokens: 0.79,
+    supportedLanguages: ["en", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "llama-3.1-8b-instant",
+    name: "llama-3.1-8b-instant",
+    version: "3.1",
+    provider: "groq",
+    modelName: "llama-3.1-8b-instant",
+    displayName: "Llama 3.1 8B Instant",
+    description: "Meta's Llama 3.1 8B model with 128K context, optimized for ultra-fast inference and instant responses.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 131072, // 128K tokens
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.05,
+    costPer1kOutputTokens: 0.08,
+    supportedLanguages: ["en", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "llama3-70b-8192",
+    name: "llama3-70b-8192",
+    version: "3.0",
     provider: "groq",
     modelName: "llama3-70b-8192",
-    displayName: "Llama 3 70B (Groq)",
-    description: "Meta's Llama 3 70B model served via Groq with extremely fast inference",
+    displayName: "Llama 3 70B",
+    description: "Meta's Llama 3 70B model with 8K context, served via Groq with extremely fast inference.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 8192,
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.59,
+    costPer1kOutputTokens: 0.79,
+    supportedLanguages: ["en", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "llama3-8b-8192",
+    name: "llama3-8b-8192",
+    version: "3.0",
+    provider: "groq",
+    modelName: "llama3-8b-8192",
+    displayName: "Llama 3 8B",
+    description: "Meta's Llama 3 8B model with 8K context, served via Groq with extremely fast inference.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 8192,
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.05,
+    costPer1kOutputTokens: 0.08,
+    supportedLanguages: ["en", "multi"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "gemma2-9b-it",
+    name: "gemma2-9b-it",
+    version: "2.0",
+    provider: "groq",
+    modelName: "gemma2-9b-it",
+    displayName: "Gemma 2 9B IT",
+    description: "Google's Gemma 2 9B Instruct model with 8K context, served via Groq for fast inference.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 8192,
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.20,
+    costPer1kOutputTokens: 0.20,
+    supportedLanguages: ["en"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "llama-guard-3-8b",
+    name: "llama-guard-3-8b",
+    version: "3.0",
+    provider: "groq",
+    modelName: "llama-guard-3-8b",
+    displayName: "Llama Guard 3 8B",
+    description: "Meta's Llama Guard 3 8B model for content moderation and safety classification.",
     vendorCapabilities: ["text-generation", "chat"],
     derivedProficiencies: [],
     contextWindowSize: 8192,
     maxTokens: 8192,
     temperature: 0.7,
-    costPer1kInputTokens: 0.00059,
-    costPer1kOutputTokens: 0.00079,
+    costPer1kInputTokens: 0.20,
+    costPer1kOutputTokens: 0.20,
     supportedLanguages: ["en", "multi"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
-    id: "mixtral-8x7b-groq",
-    name: "mixtral-8x7b-groq",
+    id: "mixtral-8x7b-32768",
+    name: "mixtral-8x7b-32768",
     version: "1.0.0",
     provider: "groq",
     modelName: "mixtral-8x7b-32768",
-    displayName: "Mixtral 8x7B (Groq)",
-    description: "Mixtral 8x7B Instruct model served via Groq",
-    vendorCapabilities: ["text-generation", "chat"],
+    displayName: "Mixtral 8x7B",
+    description: "Mixtral 8x7B Instruct model with 32K context, served via Groq for fast inference.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
     derivedProficiencies: [],
     contextWindowSize: 32768,
     maxTokens: 4096,
     temperature: 0.7,
-    costPer1kInputTokens: 0.00024,
-    costPer1kOutputTokens: 0.00024,
+    costPer1kInputTokens: 0.24,
+    costPer1kOutputTokens: 0.24,
     supportedLanguages: ["en", "multi"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
-    id: "gemma-7b-it-groq",
-    name: "gemma-7b-it-groq",
-    version: "1.0.0",
+    id: "whisper-large-v3",
+    name: "whisper-large-v3",
+    version: "3.0",
     provider: "groq",
-    modelName: "gemma-7b-it",
-    displayName: "Gemma 7B IT (Groq)",
-    description: "Google's Gemma 7B Instruct model served via Groq",
-    vendorCapabilities: ["text-generation", "chat"],
+    modelName: "whisper-large-v3",
+    displayName: "Whisper Large V3",
+    description: "OpenAI's Whisper Large V3 model for multilingual speech-to-text transcription, optimized for Groq's fast inference.",
+    vendorCapabilities: ["audio"],
     derivedProficiencies: [],
-    contextWindowSize: 8192,
+    contextWindowSize: 30000, // ~30 seconds of audio context
     maxTokens: 8192,
-    temperature: 0.7,
-    costPer1kInputTokens: 0.00007,
-    costPer1kOutputTokens: 0.00007,
-    supportedLanguages: ["en"],
+    temperature: 0.0,
+    costPer1kInputTokens: 0.111, // Per hour transcribed
+    supportedLanguages: ["en", "multi"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-
-  // xAI models
-  {
-    id: "grok-1",
-    name: "grok-1",
-    version: "1.0.0",
-    provider: "xai",
-    modelName: "grok-1",
-    displayName: "Grok-1",
-    description: "xAI's Grok model",
-    vendorCapabilities: ["chat"],
-    derivedProficiencies: [],
-    contextWindowSize: 8192,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true
   },
   {
-    id: "grok-3",
-    name: "grok-3",
-    version: "1.0.0",
-    provider: "xai",
-    modelName: "grok-3",
-    displayName: "Grok 3",
-    description: "xAI's Grok 3 model",
-    vendorCapabilities: ["chat"],
+    id: "whisper-large-v3-turbo",
+    name: "whisper-large-v3-turbo",
+    version: "3.0-turbo",
+    provider: "groq",
+    modelName: "whisper-large-v3-turbo",
+    displayName: "Whisper Large V3 Turbo",
+    description: "A fine-tuned version of Whisper Large V3 designed for fast, multilingual transcription tasks with improved speed.",
+    vendorCapabilities: ["audio"],
     derivedProficiencies: [],
-    contextWindowSize: 131072,
+    contextWindowSize: 30000, // ~30 seconds of audio context
     maxTokens: 8192,
-    temperature: 0.7,
-    supportedLanguages: ["en"],
+    temperature: 0.0,
+    costPer1kInputTokens: 0.04, // Per hour transcribed
+    supportedLanguages: ["en", "multi"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true
   },
   {
-    id: "grok-3-fast",
-    name: "grok-3-fast",
-    version: "1.0.0",
-    provider: "xai",
-    modelName: "grok-3-fast",
-    displayName: "Grok 3 Fast",
-    description: "xAI's Grok 3 Fast model",
-    vendorCapabilities: ["chat"],
+    id: "distil-whisper-large-v3-en",
+    name: "distil-whisper-large-v3-en",
+    version: "3.0-distil",
+    provider: "groq",
+    modelName: "distil-whisper-large-v3-en",
+    displayName: "Distil-Whisper Large V3 English",
+    description: "A distilled version of Whisper Large V3 optimized for English-only transcription with faster performance and lower cost.",
+    vendorCapabilities: ["audio"],
     derivedProficiencies: [],
-    contextWindowSize: 131072,
+    contextWindowSize: 30000, // ~30 seconds of audio context
     maxTokens: 8192,
-    temperature: 0.7,
+    temperature: 0.0,
+    costPer1kInputTokens: 0.02, // Per hour transcribed
     supportedLanguages: ["en"],
     responseFormat: {
       type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "grok-3-mini",
-    name: "grok-3-mini",
-    version: "1.0.0",
-    provider: "xai",
-    modelName: "grok-3-mini",
-    displayName: "Grok 3 Mini",
-    description: "xAI's Grok 3 Mini model",
-    vendorCapabilities: ["chat"],
-    derivedProficiencies: [],
-    contextWindowSize: 131072,
-    maxTokens: 8192,
-    temperature: 0.7,
-    supportedLanguages: ["en"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "grok-3-mini-fast",
-    name: "grok-3-mini-fast",
-    version: "1.0.0",
-    provider: "xai",
-    modelName: "grok-3-mini-fast",
-    displayName: "Grok 3 Mini Fast",
-    description: "xAI's Grok 3 Mini Fast model",
-    vendorCapabilities: ["chat"],
-    derivedProficiencies: [],
-    contextWindowSize: 131072,
-    maxTokens: 8192,
-    temperature: 0.7,
-    supportedLanguages: ["en"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "grok-2-1212",
-    name: "grok-2-1212",
-    version: "1.0.0",
-    provider: "xai",
-    modelName: "grok-2-1212",
-    displayName: "Grok 2 (1212)",
-    description: "xAI's Grok 2 model (1212 version)",
-    vendorCapabilities: ["chat"],
-    derivedProficiencies: [],
-    contextWindowSize: 8192,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "grok-2-vision-1212",
-    name: "grok-2-vision-1212",
-    version: "1.0.0",
-    provider: "xai",
-    modelName: "grok-2-vision-1212",
-    displayName: "Grok 2 Vision (1212)",
-    description: "xAI's Grok 2 Vision model (1212 version)",
-    vendorCapabilities: ["chat", "vision"],
-    derivedProficiencies: [],
-    contextWindowSize: 8192,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "grok-beta",
-    name: "grok-beta",
-    version: "beta",
-    provider: "xai",
-    modelName: "grok-beta",
-    displayName: "Grok Beta",
-    description: "xAI's Grok Beta model",
-    vendorCapabilities: ["chat"],
-    derivedProficiencies: [],
-    contextWindowSize: 8192,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
-  },
-  {
-    id: "grok-vision-beta",
-    name: "grok-vision-beta",
-    version: "beta",
-    provider: "xai",
-    modelName: "grok-vision-beta",
-    displayName: "Grok Vision Beta",
-    description: "xAI's Grok Vision Beta model",
-    vendorCapabilities: ["chat", "vision"],
-    derivedProficiencies: [],
-    contextWindowSize: 8192,
-    maxTokens: 4096,
-    temperature: 0.7,
-    supportedLanguages: ["en"],
-    responseFormat: {
-      type: "text",
-      supportedFormats: ["text/plain"]
-    }
+      supportedFormats: ["text/plain", "application/json"]
+    },
+    enabled: true
   },
 
   // Perplexity models
@@ -1071,17 +1713,20 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "perplexity",
     modelName: "sonar-pro",
     displayName: "Perplexity Sonar Pro",
-    description: "Perplexity's advanced conversational model with internet access.",
+    description: "Perplexity's premier offering with search grounding, supporting advanced queries and follow-ups.",
     vendorCapabilities: ["chat", "text-generation", "search"],
     derivedProficiencies: [],
-    contextWindowSize: 16384,
+    contextWindowSize: 200000,
     maxTokens: 4096,
     temperature: 0.7,
+    costPer1kInputTokens: 0.003,
+    costPer1kOutputTokens: 0.015,
     supportedLanguages: ["en"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "sonar",
@@ -1090,17 +1735,20 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "perplexity",
     modelName: "sonar",
     displayName: "Perplexity Sonar",
-    description: "Perplexity's standard conversational model with internet access.",
+    description: "Perplexity's lightweight offering with search grounding, quicker and cheaper than Sonar Pro.",
     vendorCapabilities: ["chat", "text-generation", "search"],
     derivedProficiencies: [],
-    contextWindowSize: 16384,
+    contextWindowSize: 127072,
     maxTokens: 4096,
     temperature: 0.7,
+    costPer1kInputTokens: 0.001,
+    costPer1kOutputTokens: 0.001,
     supportedLanguages: ["en"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "sonar-deep-research",
@@ -1109,17 +1757,80 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     provider: "perplexity",
     modelName: "sonar-deep-research",
     displayName: "Perplexity Sonar Deep Research",
-    description: "Perplexity's model optimized for in-depth research tasks.",
+    description: "Perplexity's model optimized for in-depth research tasks with comprehensive analysis.",
     vendorCapabilities: ["chat", "text-generation", "search", "research"],
     derivedProficiencies: [],
-    contextWindowSize: 16384,
+    contextWindowSize: 200000,
+    maxTokens: 8192,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.01,
+    costPer1kOutputTokens: 0.01,
+    supportedLanguages: ["en"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "sonar-reasoning-pro",
+    name: "sonar-reasoning-pro",
+    version: "1.0.0",
+    provider: "perplexity",
+    modelName: "sonar-reasoning-pro",
+    displayName: "Perplexity Sonar Reasoning Pro",
+    description: "Premier reasoning offering powered by DeepSeek R1 for complex analytical tasks.",
+    vendorCapabilities: ["chat", "text-generation", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000,
+    maxTokens: 8192,
+    temperature: 0.7,
+    supportedLanguages: ["en"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "sonar-reasoning",
+    name: "sonar-reasoning",
+    version: "1.0.0",
+    provider: "perplexity",
+    modelName: "sonar-reasoning",
+    displayName: "Perplexity Sonar Reasoning",
+    description: "Lightweight reasoning offering powered by reasoning models trained with DeepSeek R1.",
+    vendorCapabilities: ["chat", "text-generation", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 127072,
     maxTokens: 4096,
     temperature: 0.7,
     supportedLanguages: ["en"],
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
+  },
+  {
+    id: "r1-1776",
+    name: "r1-1776",
+    version: "1.0.0",
+    provider: "perplexity",
+    modelName: "r1-1776",
+    displayName: "R1 1776",
+    description: "Uncensored version of the DeepSeek R1 model post-trained to provide unbiased, factual information.",
+    vendorCapabilities: ["chat", "text-generation", "reasoning"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000,
+    maxTokens: 8192,
+    temperature: 0.7,
+    supportedLanguages: ["en"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
   },
   {
     id: "pplx-7b-chat",
@@ -1138,7 +1849,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "pplx-70b-chat",
@@ -1157,7 +1869,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
 
   // DeepSeek models
@@ -1178,7 +1891,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "deepseek-coder",
@@ -1197,7 +1911,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "deepseek-reasoner",
@@ -1216,7 +1931,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
 
   // Experimental / Preview Google Models
@@ -1237,7 +1953,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "gemini-2.5-pro-experimental",
@@ -1256,7 +1973,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "gemini-2.0-flash",
@@ -1275,7 +1993,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
 
   // Qwen models
@@ -1296,7 +2015,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "qwen-plus",
@@ -1315,7 +2035,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "qwen-max",
@@ -1334,7 +2055,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "qwen-vl-plus",
@@ -1353,7 +2075,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain", "image/jpeg", "image/png"]
-    }
+    },
+    enabled: true
   },
   {
     id: "qwen-vl-max",
@@ -1372,7 +2095,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain", "image/jpeg", "image/png"]
-    }
+    },
+    enabled: true
   },
   {
     id: "qwen-plus-latest",
@@ -1391,7 +2115,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "qwen2.5-72b-instruct",
@@ -1410,7 +2135,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "qwen2.5-14b-instruct-1m",
@@ -1429,7 +2155,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain"]
-    }
+    },
+    enabled: true
   },
   {
     id: "qwen2.5-vl-72b-instruct",
@@ -1448,7 +2175,8 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     responseFormat: {
       type: "text",
       supportedFormats: ["text/plain", "image/jpeg", "image/png"]
-    }
+    },
+    enabled: true
   },
   {
     id: "placeholder-id",
@@ -1460,7 +2188,163 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
     description: "This is a placeholder, update all real entries.",
     vendorCapabilities: ["chat"],
     derivedProficiencies: [],
-    contextWindowSize: 4096
+    contextWindowSize: 4096,
+    enabled: true
+  },
+  // Qwen Models
+  {
+    id: "qwen-max",
+    name: "qwen-max",
+    version: "2.5",
+    provider: "qwen",
+    modelName: "qwen-max",
+    displayName: "Qwen Max",
+    description: "Qwen's most powerful model with advanced reasoning and tool use capabilities",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 32768,
+    maxTokens: 2048,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.002,
+    costPer1kOutputTokens: 0.01,
+    supportedLanguages: ["en", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "qwen-plus",
+    name: "qwen-plus",
+    version: "2.5",
+    provider: "qwen",
+    modelName: "qwen-plus",
+    displayName: "Qwen Plus",
+    description: "Balanced performance model for general-purpose use",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 32768,
+    maxTokens: 2048,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.001,
+    costPer1kOutputTokens: 0.005,
+    supportedLanguages: ["en", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "qwen-max-longcontext",
+    name: "qwen-max-longcontext",
+    version: "2.5",
+    provider: "qwen",
+    modelName: "qwen-max-longcontext",
+    displayName: "Qwen Max Long Context",
+    description: "Extended context window version of Qwen Max",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 2048,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.004,
+    costPer1kOutputTokens: 0.02,
+    supportedLanguages: ["en", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "qwen-plus-longcontext",
+    name: "qwen-plus-longcontext",
+    version: "2.5",
+    provider: "qwen",
+    modelName: "qwen-plus-longcontext",
+    displayName: "Qwen Plus Long Context",
+    description: "Extended context window version of Qwen Plus",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 128000,
+    maxTokens: 2048,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.002,
+    costPer1kOutputTokens: 0.01,
+    supportedLanguages: ["en", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "qwen-vl-max",
+    name: "qwen-vl-max",
+    version: "2.5",
+    provider: "qwen",
+    modelName: "qwen-vl-max",
+    displayName: "Qwen VL Max",
+    description: "Vision-language model with advanced multimodal capabilities",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
+    derivedProficiencies: [],
+    contextWindowSize: 32768,
+    maxTokens: 2048,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.004,
+    costPer1kOutputTokens: 0.02,
+    supportedLanguages: ["en", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "qwen-vl-plus",
+    name: "qwen-vl-plus",
+    version: "2.5",
+    provider: "qwen",
+    modelName: "qwen-vl-plus",
+    displayName: "Qwen VL Plus",
+    description: "Cost-effective vision-language model",
+    vendorCapabilities: ["text-generation", "chat", "function-calling", "vision"],
+    derivedProficiencies: [],
+    contextWindowSize: 32768,
+    maxTokens: 2048,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.002,
+    costPer1kOutputTokens: 0.01,
+    supportedLanguages: ["en", "zh"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "text-embedding-v3",
+    name: "text-embedding-v3",
+    version: "3.0",
+    provider: "qwen",
+    modelName: "text-embedding-v3",
+    displayName: "Text Embedding V3",
+    description: "High-quality text embeddings optimized for semantic search",
+    vendorCapabilities: ["embeddings"],
+    derivedProficiencies: [],
+    contextWindowSize: 8192,
+    maxTokens: 8192,
+    temperature: 0,
+    costPer1kInputTokens: 0.0001,
+    costPer1kOutputTokens: 0,
+    supportedLanguages: ["en", "zh"],
+    responseFormat: {
+      type: "embedding",
+      supportedFormats: ["vector"]
+    },
+    enabled: true
   }
 ] as const;
 

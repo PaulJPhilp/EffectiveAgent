@@ -6,12 +6,11 @@
 import {
     ContextWindowSize,
     Description,
-    Identifier,
     ModelCapability,
     Name,
     PositiveNumber,
     SubDimensionProficiency,
-    Version,
+    Version
 } from "@/schema.js";
 import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
 import { Schema as S } from "effect";
@@ -23,113 +22,93 @@ import { MODEL_IDS } from "./model-universe.js";
  * or a detailed breakdown by sub-dimensions.
  */
 export class ModelCapabilityDetail extends S.Class<ModelCapabilityDetail>("ModelCapabilityDetail")({
-    /** The core capability */
+    /** The core capability being described */
     capability: ModelCapability,
-    /** Optional overall proficiency (useful for simpler capabilities) */
-    overallProficiency: S.Literal(
-        "basic",
-        "intermediate",
-        "advanced"
-    ).pipe(S.optional),
-    /** Optional detailed proficiency breakdown for complex capabilities */
-    subDimensions: S.Array(SubDimensionProficiency).pipe(S.optional)
-}) { }
-
-export const Provider = S.Class<{ name: string }>("Provider")({
-    name: S.Literal(...PROVIDER_NAMES)
-});
-export type Provider = typeof PROVIDER_NAMES[number];
-
-export class RateLimitSchema extends S.Class<RateLimitSchema>("RateLimitSchema")({
-    requestsPerMinute: PositiveNumber.pipe(S.optional),
-    tokensPerMinute: PositiveNumber.pipe(S.optional)
-}) { }
-
-export class ModelMetadataSchema extends S.Class<ModelMetadataSchema>("ModelMetadataSchema")({
-    description: S.String.pipe(S.optional)
-}) { }
-
-export class ResponseFormat extends S.Class<ResponseFormat>("ResponseFormat")({
-    type: S.Literal("text", "image", "audio", "embedding"),
-    supportedFormats: S.Array(S.String)
+    /** Overall proficiency level for this capability */
+    proficiency: S.optional(SubDimensionProficiency),
+    /** Detailed breakdown by sub-dimensions */
+    subDimensions: S.optional(S.Record({ key: S.String, value: SubDimensionProficiency })),
 }) { }
 
 /**
- * Local representation matching the CoreModelDefinition structure,
- * but using locally defined literals (like MODEL_IDS).
- * Includes potentially derived proficiency data.
+ * Represents a model's pricing structure.
+ */
+export class ModelPricing extends S.Class<ModelPricing>("ModelPricing")({
+    /** Cost per 1K input tokens in USD */
+    inputTokens: PositiveNumber,
+    /** Cost per 1K output tokens in USD */
+    outputTokens: PositiveNumber,
+    /** Optional cost per image for vision models */
+    perImage: S.optional(PositiveNumber),
+    /** Optional cost per minute for audio models */
+    perMinute: S.optional(PositiveNumber),
+}) { }
+
+/**
+ * Core model configuration schema.
  */
 export class Model extends S.Class<Model>("Model")({
     /** Unique identifier for the model */
     id: S.Literal(...MODEL_IDS),
-    /** The provider or company */
-    provider: Provider,
     /** Human-readable name */
-    displayName: Name,
-    /** List of capabilities as claimed by the vendor/provider. */
-    vendorCapabilities: S.Array(ModelCapability),
-    /** List of capabilities with calculated proficiency tiers. */
-    derivedProficiencies: S.Array(ModelCapabilityDetail).pipe(S.optional),
-    // --- Other fields from model-universe ---
-    name: Identifier,
-    version: Version,
-    modelName: Identifier,
-    temperature: S.Number.pipe(S.optional),
-    maxTokens: PositiveNumber.pipe(S.optional),
-    contextWindowSize: ContextWindowSize.pipe(S.optional),
-    costPer1kInputTokens: PositiveNumber.pipe(S.optional),
-    costPer1kOutputTokens: PositiveNumber.pipe(S.optional),
-    metadata: S.Class<ModelMetadataSchema>("ModelMetadataSchema")({
-        description: S.String.pipe(S.optional)
-    }).pipe(S.optional),
-    supportedLanguages: S.Array(S.String).pipe(S.optional),
-    responseFormat: S.Class<ResponseFormat>("ResponseFormat")({
-        type: S.Literal("text", "image", "audio", "embedding"),
-        supportedFormats: S.Array(S.String)
-    }).pipe(S.optional)
+    name: Name,
+    /** Provider that offers this model */
+    provider: S.Literal(...PROVIDER_NAMES),
+    /** Model version */
+    version: S.optional(Version),
+    /** Model description */
+    description: S.optional(Description),
+    /** Maximum context window size in tokens */
+    contextWindow: S.optional(ContextWindowSize),
+    /** Detailed capability information */
+    capabilities: S.Array(ModelCapabilityDetail),
+    /** Pricing information */
+    pricing: S.optional(ModelPricing),
+    /** Whether the model is enabled for use */
+    enabled: S.Boolean,
+    /** Maximum thinking tokens for reasoning models */
+    thinkingBudget: S.optional(PositiveNumber),
+    /** Additional metadata */
+    metadata: S.optional(S.Record({ key: S.String, value: S.Unknown })),
 }) { }
 
-export type ModelDefinition = S.Schema.Type<typeof Model>;
-
-// --- Public Model Information Schema (Exposed by the API) ---
 /**
- * Schema for the model information publicly exposed by the ModelService API.
- * Excludes derived proficiency data.
+ * Public model information schema (subset of Model for external consumption).
  */
 export class PublicModelInfo extends S.Class<PublicModelInfo>("PublicModelInfo")({
     /** Unique identifier for the model */
     id: S.Literal(...MODEL_IDS),
-    /** The provider or company */
-    provider: Provider,
     /** Human-readable name */
-    displayName: Name,
-    /** List of capabilities as claimed by the vendor/provider. */
-    vendorCapabilities: S.Array(ModelCapability),
-    // --- Other fields from model-universe (excluding derivedProficiencies) ---
-    name: Identifier,
-    version: Version,
-    modelName: Identifier,
-    temperature: S.Number.pipe(S.optional),
-    maxTokens: PositiveNumber.pipe(S.optional),
-    contextWindowSize: ContextWindowSize.pipe(S.optional),
-    costPer1kInputTokens: PositiveNumber.pipe(S.optional),
-    costPer1kOutputTokens: PositiveNumber.pipe(S.optional),
-    metadata: S.Class<ModelMetadataSchema>("ModelMetadataSchema")({
-        description: S.String.pipe(S.optional)
-    }).pipe(S.optional),
-    supportedLanguages: S.Array(S.String).pipe(S.optional),
-    responseFormat: S.Class<ResponseFormat>("ResponseFormat")({
-        type: S.Literal("text", "image", "audio", "embedding"),
-        supportedFormats: S.Array(S.String)
-    }).pipe(S.optional)
+    name: Name,
+    /** Provider that offers this model */
+    provider: S.Literal(...PROVIDER_NAMES),
+    /** Model version */
+    version: S.optional(Version),
+    /** Model description */
+    description: S.optional(Description),
+    /** Maximum context window size in tokens */
+    contextWindow: S.optional(ContextWindowSize),
+    /** Detailed capability information */
+    capabilities: S.Array(ModelCapabilityDetail),
+    /** Pricing information */
+    pricing: S.optional(ModelPricing),
+    /** Whether the model is enabled for use */
+    enabled: S.Boolean,
+    /** Maximum thinking tokens for reasoning models */
+    thinkingBudget: S.optional(PositiveNumber),
 }) { }
 
-export type PublicModelInfoDefinition = S.Schema.Type<typeof PublicModelInfo>;
-
-// --- Root Configuration File Schema --- 
-// Updated to contain PublicModelInfo instead of Model
-export class ModelFileSchema extends S.Class<ModelFileSchema>("ModelFileSchema")({
-    ...BaseConfigSchema.fields,
-    description: Description.pipe(S.optional),
-    models: S.Array(PublicModelInfo).pipe(S.minItems(1))
+/**
+ * Configuration file schema for models.
+ */
+export class ModelFileSchema extends BaseConfigSchema.extend<ModelFileSchema>("ModelFileSchema")({
+    /** Array of model configurations */
+    models: S.Array(Model),
 }) { }
+
+// Type exports
+export type ModelData = typeof Model.Type;
+export type ModelCapabilityDetailData = typeof ModelCapabilityDetail.Type;
+export type ModelPricingData = typeof ModelPricing.Type;
+export type PublicModelInfoData = typeof PublicModelInfo.Type;
+export type ModelFileData = typeof ModelFileSchema.Type;

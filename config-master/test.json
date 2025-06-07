@@ -1,3 +1,37 @@
 {
-    "testValue": "test"
-} 
+  "name": "test-config",
+  "version": "1.0.0",
+  "runtimeSettings": {
+    "fileSystemImplementation": "node"
+  },
+  "logging": {
+    "level": "info",
+    "filePath": "./logs/test.log",
+    "enableConsole": true
+  },
+  "configPaths": {
+    "providers": "./config/providers.json",
+    "models": "./config/models.json",
+    "policy": "./config/policies.json"
+  },
+  "providers": {
+    "qwen": {
+      "apiKey": "test-api-key",
+      "baseUrl": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+    }
+  },
+  "models": {
+    "qwen-max": {
+      "provider": "qwen",
+      "capabilities": ["chat", "text-generation", "function-calling"]
+    },
+    "qwen-plus": {
+      "provider": "qwen",
+      "capabilities": ["chat", "text-generation", "function-calling"]
+    },
+    "text-embedding-v3": {
+      "provider": "qwen",
+      "capabilities": ["embeddings"]
+    }
+  }
+}

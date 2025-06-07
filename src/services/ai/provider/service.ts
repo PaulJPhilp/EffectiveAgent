@@ -7,6 +7,7 @@ import { makeGoogleClient } from "./clients/google-provider-client.js";
 import { makeGroqClient } from "./clients/groq-provider-client.js";
 import { makeOpenAIClient } from "./clients/openai-provider-client.js";
 import { makePerplexityClient } from "./clients/perplexity-provider-client.js";
+import { makeQwenClient } from "./clients/qwen-provider-client.js";
 import { makeXaiClient } from "./clients/xai-provider-client.js";
 import { ProviderNotFoundError, ProviderServiceConfigError } from "./errors.js";
 import { ProviderFile } from "./schema.js";
@@ -84,6 +85,8 @@ const makeProviderService = Effect.gen(function* () {
                     return makeGroqClient(apiKey);
                 case "perplexity":
                     return makePerplexityClient(apiKey);
+                case "qwen":
+                    return makeQwenClient(apiKey);
                 case "xai":
                     return makeXaiClient(apiKey);
                 default:
