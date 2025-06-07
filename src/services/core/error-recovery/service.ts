@@ -473,6 +473,5 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
                     }
                 })
         };
-    }),
-    dependencies: []
+    })
 }) { } 

@@ -21,8 +21,7 @@ import type {
   ProviderGenerateObjectOptions,
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
-  ProviderTranscribeOptions,
-  ToolDefinition
+  ProviderTranscribeOptions
 } from "./types.js";
 
 export class ProviderClient extends Effect.Service<ProviderClientApi>()(
@@ -127,7 +126,6 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
           return yield* currentProvider.provider.validateToolInput(toolName, input);
         }),
       };
-    }),
-    dependencies: [ModelService.Default]
+    })
   }
 ) { }

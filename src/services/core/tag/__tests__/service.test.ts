@@ -9,50 +9,55 @@ import type { TagServiceApi } from "../api.js";
 import { DuplicateTagNameError } from "../errors.js";
 import type { EntityTagLinkEntity, TagEntity } from "../schema.js";
 
-
 // --- Test Setup ---
 
 describe("TagService", () => {
-  // Create a test implementation of TagService
-  const TestTagService = Effect.succeed({
-    createTag: (name: string) => {
-      if (name === "duplicate-tag") {
-        return Effect.fail(new DuplicateTagNameError({
-          tagName: name
-        }));
-      }
-      return Effect.succeed({
-        id: crypto.randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        data: { name }
-      } as TagEntity);
-    },
+  // Create a test implementation of TagService using Effect.Service pattern
+  class TestTagService extends Effect.Service<TagServiceApi>()("TestTagService", {
+    effect: Effect.gen(function* () {
+      return {
+        createTag: (name: string) => {
+          if (name === "duplicate-tag") {
+            return Effect.fail(new DuplicateTagNameError({
+              tagName: name
+            }));
+          }
+          return Effect.succeed({
+            id: crypto.randomUUID(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            data: { name }
+          } as TagEntity);
+        },
 
-    getTagById: (id: string) => Effect.succeed(Option.none()),
+        getTagById: (id: string) => Effect.succeed(Option.none()),
 
-    getTagByName: (name: string) => Effect.succeed(Option.none()),
+        getTagByName: (name: string) => Effect.succeed(Option.none()),
 
-    findTags: (prefix?: string) => Effect.succeed([]),
+        findTags: (prefix?: string) => Effect.succeed([]),
 
-    tagEntity: (tagId: string, entityId: string, entityType: string) =>
-      Effect.succeed({
-        id: crypto.randomUUID(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        data: { tagId, entityId, entityType }
-      } as EntityTagLinkEntity),
+        tagEntity: (tagId: string, entityId: string, entityType: string) =>
+          Effect.succeed({
+            id: crypto.randomUUID(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            data: { tagId, entityId, entityType }
+          } as EntityTagLinkEntity),
 
-    untagEntity: (tagId: string, entityId: string, entityType: string) =>
-      Effect.succeed(undefined),
+        untagEntity: (tagId: string, entityId: string, entityType: string) =>
+          Effect.succeed(undefined),
 
-    getTagsForEntity: (entityId: string, entityType: string) =>
-      Effect.succeed([]),
+        getTagsForEntity: (entityId: string, entityType: string) =>
+          Effect.succeed([]),
 
-    getEntitiesForTag: (tagId: string) =>
-      Effect.succeed([{ entityId: "entity-123", entityType: "Document" }])
-  } as TagServiceApi);
+        getEntitiesForTag: (tagId: string) =>
+          Effect.succeed([{ entityId: "entity-123", entityType: "Document" }])
+      } satisfies TagServiceApi;
+    })
+  }) { }
 
+  // Create explicit dependency layer following centralized pattern
+  const tagServiceTestLayer = TestTagService.Default;
 
   // --- Test Data ---
   const testTag1 = {
@@ -73,7 +78,7 @@ describe("TagService", () => {
       const service = yield* TestTagService;
       const result = yield* service.createTag(testTag1.name);
       expect(result.data.name).toBe(testTag1.name);
-    })
+    }).pipe(Effect.provide(tagServiceTestLayer))
   );
 
   it("should prevent duplicate tag names", () =>
@@ -90,7 +95,7 @@ describe("TagService", () => {
           expect(error.tagName).toBe("duplicate-tag");
         }
       }
-    })
+    }).pipe(Effect.provide(tagServiceTestLayer))
   );
 
   it("should find tags by name prefix", () =>
@@ -102,7 +107,7 @@ describe("TagService", () => {
       const result = yield* service.findTags("test");
       expect(result.length).toBeGreaterThan(0);
       expect(result.every(tag => tag.data.name.startsWith("test"))).toBe(true);
-    })
+    }).pipe(Effect.provide(tagServiceTestLayer))
   );
 
   it("should tag and untag entities", () =>
@@ -129,6 +134,6 @@ describe("TagService", () => {
       // Verify entity is untagged
       const untaggedEntityTags = yield* service.getTagsForEntity(testEntityId, testEntityType);
       expect(untaggedEntityTags.length).toBe(0);
-    })
+    }).pipe(Effect.provide(tagServiceTestLayer))
   );
 });

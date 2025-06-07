@@ -3,7 +3,7 @@
  * Clock integration is deferred, using Date.now() placeholders.
  */
 
-import { Cause, Context, Effect, Exit, Layer, Option, Ref } from "effect"; // Added Ref
+import { Cause, Effect, Exit, Option, Ref } from "effect";
 import { describe, expect, it } from "vitest";
 
 import type { EntityId, JsonObject } from "@/types.js";
@@ -26,38 +26,35 @@ interface TestEntityData extends JsonObject {
 }
 interface TestEntity extends BaseEntity<TestEntityData> { }
 
-// 2. Define a specific Tag for the test repository service
-const TestRepository = Context.GenericTag<RepositoryApi<TestEntity>>(
-    "TestRepository",
-);
-
-// 3. Define the entity type string identifier
-const testEntityType = "TestEntity";
-
-// 4. Create the specific repository layer DIRECTLY using Layer.effect and make
-// This layer requires nothing (R = never)
-const testRepoLayer = Layer.effect(
-    TestRepository, // The specific Tag for RepositoryApi<TestEntity>
-    Effect.gen(function* () {
+// 2. Define a test repository service using Effect.Service pattern
+class TestRepositoryService extends Effect.Service<RepositoryApi<TestEntity>>()("TestRepositoryService", {
+    effect: Effect.gen(function* () {
         // Create the Ref store needed by 'make'
         const store = yield* Ref.make(new Map<EntityId, TestEntity>());
         // Call the imported 'make' function
-        const implementation = makeInMemoryRepository<TestEntity>(testEntityType, store);
-        return implementation; // Return the implementation matching the Tag's type
+        return makeInMemoryRepository<TestEntity>("TestEntity", store);
     })
-);
+}) { }
 
-// 5. Define the context required by test effects BEFORE providing the layer
-// Effects only use TestRepository now
-type TestEffectRequirements = RepositoryApi<TestEntity>;
+// 3. Create explicit dependency layer following centralized pattern
+const testRepositoryLayer = TestRepositoryService.Default;
 
-// 6. Helper functions to run tests with the layer provided
-// Input effect requires only the repository
-const runTest = <E, A>(effect: Effect.Effect<A, E, TestEffectRequirements>) =>
-    Effect.runPromise(Effect.provide(effect, testRepoLayer)); // Provide the repo layer directly
+// 4. Helper functions to run tests with explicit layer provision
+const runTest = <E, A>(effect: Effect.Effect<A, E, RepositoryApi<TestEntity>>) =>
+    Effect.runPromise(
+        effect.pipe(
+            Effect.provide(testRepositoryLayer)
+        )
+    );
 
-const runFailTest = <E, A>(effect: Effect.Effect<A, E, TestEffectRequirements>) =>
-    Effect.runPromise(Effect.exit(Effect.provide(effect, testRepoLayer))); // Provide the repo layer directly
+const runFailTest = <E, A>(effect: Effect.Effect<A, E, RepositoryApi<TestEntity>>) =>
+    Effect.runPromise(
+        Effect.exit(
+            effect.pipe(
+                Effect.provide(testRepositoryLayer)
+            )
+        )
+    );
 
 // --- Test Suite ---
 describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
@@ -66,7 +63,7 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
     it("should create an entity and assign placeholder timestamps", async () => {
         const data: TestEntityData = { name: "Create Test", value: 1 };
         const effect = Effect.gen(function* () {
-            const repo = yield* TestRepository;
+            const repo = yield* TestRepositoryService;
             const created = yield* repo.create(data);
             expect(created.id).toBeTypeOf("string");
             expect(created.data).toEqual(data);
@@ -82,7 +79,7 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
         const data: TestEntityData = { name: "FindById Test", value: 2 };
         let createdId: EntityId;
         const effect = Effect.gen(function* () {
-            const repo = yield* TestRepository;
+            const repo = yield* TestRepositoryService;
             const created = yield* repo.create(data);
             createdId = created.id;
             const foundSome = yield* repo.findById(created.id);
@@ -102,7 +99,7 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
         const data2: TestEntityData = { name: "FindMany 2", value: 20 };
         const data3: TestEntityData = { name: "FindMany 3", value: 10 };
         const effect = Effect.gen(function* () {
-            const repo = yield* TestRepository;
+            const repo = yield* TestRepositoryService;
             yield* repo.create(data1);
             yield* repo.create(data2);
             yield* repo.create(data3);
@@ -139,7 +136,7 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
         let createdId: EntityId;
         let originalCreatedAt: Date;
         const effect = Effect.gen(function* () {
-            const repo = yield* TestRepository;
+            const repo = yield* TestRepositoryService;
             const created = yield* repo.create(initialData);
             createdId = created.id;
             originalCreatedAt = created.createdAt;
@@ -163,7 +160,7 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
 
     it("should fail update with EntityNotFoundError for non-existent ID", async () => {
         const effect = Effect.gen(function* () {
-            const repo = yield* TestRepository;
+            const repo = yield* TestRepositoryService;
             return yield* repo.update("non-existent-id", { name: "Update Fail" });
         });
         const exit = await runFailTest(effect);
@@ -174,7 +171,7 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
             if (Option.isSome(failure)) {
                 expect(failure.value._tag).toBe("EntityNotFoundError");
                 expect((failure.value as EntityNotFoundError).entityId).toBe("non-existent-id");
-                expect((failure.value as EntityNotFoundError).entityType).toBe(testEntityType);
+                expect((failure.value as EntityNotFoundError).entityType).toBe("TestEntity");
             }
         } else {
             expect.fail("Expected effect to fail, but it succeeded.");
@@ -185,7 +182,7 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
         const data: TestEntityData = { name: "Delete Test", value: 3 };
         let createdId: EntityId;
         const effect = Effect.gen(function* () {
-            const repo = yield* TestRepository;
+            const repo = yield* TestRepositoryService;
             const created = yield* repo.create(data);
             createdId = created.id;
             const foundBefore = yield* repo.findById(createdId);
@@ -198,22 +195,53 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
     });
 
     it("should count entities", async () => {
-        const data1: TestEntityData = { name: "Count 1", value: 50 };
-        const data2: TestEntityData = { name: "Count 2", value: 50 };
-        const data3: TestEntityData = { name: "Count 3", value: 51 };
+        const data1: TestEntityData = { name: "Count 1", value: 1 };
+        const data2: TestEntityData = { name: "Count 2", value: 2 };
         const effect = Effect.gen(function* () {
-            const repo = yield* TestRepository;
+            const repo = yield* TestRepositoryService;
+            const initialCount = yield* repo.count();
+            expect(initialCount).toBe(0);
             yield* repo.create(data1);
+            const countAfterOne = yield* repo.count();
+            expect(countAfterOne).toBe(1);
             yield* repo.create(data2);
-            yield* repo.create(data3);
-            const totalCount = yield* repo.count();
-            expect(totalCount).toBe(3);
-            const value50Count = yield* repo.count({ filter: { value: 50 } });
-            expect(value50Count).toBe(2);
-            const noMatchCount = yield* repo.count({ filter: { name: "Not Here" } });
-            expect(noMatchCount).toBe(0);
+            const countAfterTwo = yield* repo.count();
+            expect(countAfterTwo).toBe(2);
+            const filteredCount = yield* repo.count({ filter: { value: 1 } });
+            expect(filteredCount).toBe(1);
         });
         await expect(runTest(effect)).resolves.toBeUndefined();
     });
 
+    it("should handle concurrent operations", async () => {
+        const effect = Effect.gen(function* () {
+            const repo = yield* TestRepositoryService;
+
+            // Create multiple entities concurrently
+            const createEffects = Array.from({ length: 5 }, (_, i) =>
+                repo.create({ name: `Concurrent ${i}`, value: i })
+            );
+
+            const created = yield* Effect.all(createEffects, { concurrency: "unbounded" });
+            expect(created).toHaveLength(5);
+
+            // Verify all were created
+            const all = yield* repo.findMany();
+            expect(all).toHaveLength(5);
+
+            // Update them concurrently
+            const updateEffects = created.map(entity =>
+                repo.update(entity.id, { value: entity.data.value * 2 })
+            );
+
+            const updated = yield* Effect.all(updateEffects, { concurrency: "unbounded" });
+            expect(updated).toHaveLength(5);
+
+            // Verify updates
+            for (let i = 0; i < updated.length; i++) {
+                expect(updated[i]?.data.value).toBe(i * 2);
+            }
+        });
+        await expect(runTest(effect)).resolves.toBeUndefined();
+    });
 });

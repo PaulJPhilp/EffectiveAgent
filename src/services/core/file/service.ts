@@ -222,8 +222,7 @@ export class FileService extends Effect.Service<FileServiceApi>()(
                 deleteFile,
                 findFilesByOwner,
             };
-        }),
-        dependencies: [RepositoryService<FileEntity>().live]
+        })
     }
 ) { }
 

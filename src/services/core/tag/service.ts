@@ -3,7 +3,7 @@
  */
 
 import { EntityId } from "@/types.js";
-import { Layer, Option } from "effect";
+import { Option } from "effect";
 import * as Effect from "effect/Effect";
 import { RepositoryError } from "../repository/errors.js";
 import { RepositoryService } from "../repository/service.js";
@@ -329,11 +329,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
           });
         }
       };
-    }),
-    dependencies: [
-      RepositoryService<TagEntity>().live,
-      RepositoryService<EntityTagLinkEntity>().live
-    ]
+    })
   }
 ) { }
 

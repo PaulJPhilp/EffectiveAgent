@@ -164,6 +164,5 @@ export class PipelineService
       };
 
       return service;
-    }),
-    dependencies: [ExecutiveService.Default],
+    })
   }) { }

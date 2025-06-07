@@ -191,8 +191,7 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
             };
 
             return service;
-        }),
-        dependencies: [ModelService.Default, ProviderService.Default]
+        })
     }
 ) { }
 

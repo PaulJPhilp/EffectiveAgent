@@ -162,7 +162,6 @@ export class ToolRegistryService extends Effect.Service<ToolRegistry>()(
                     return tools;
                 })
             };
-        }),
-        dependencies: [ConfigurationService.Default]
+        })
     }
 ) { }

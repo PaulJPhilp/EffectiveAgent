@@ -499,8 +499,7 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                 deleteLinksFrom,
                 deleteLinksTo,
             };
-        }),
-        dependencies: [] // No explicit dependencies here as they're provided through the layer system
+        })
     }
 ) { }
 

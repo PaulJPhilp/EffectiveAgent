@@ -1,5 +1,4 @@
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Ref } from "effect";
 import { ProviderServiceApi } from "./api.js";
 import { makeAnthropicClient } from "./clients/anthropic-provider-client.js";
@@ -101,7 +100,6 @@ const makeProviderService = Effect.gen(function* () {
 export class ProviderService extends Effect.Service<ProviderServiceApi>()(
     "ProviderService",
     {
-        effect: makeProviderService,
-        dependencies: [ConfigurationService.Default, NodeFileSystem.layer]
+        effect: makeProviderService
     }
 ) { }

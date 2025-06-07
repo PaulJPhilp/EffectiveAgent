@@ -7,16 +7,18 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ProviderNotFoundError, ProviderServiceConfigError } from "../errors.js";
 import { ProviderService } from "../service.js";
 
-const withLayers = <E, A>(effect: Effect.Effect<A, E, any>) =>
-    effect.pipe(
-        Effect.provide(Layer.mergeAll(
-            NodeFileSystem.layer,
-            ConfigurationService.Default,
-            ProviderService.Default
-        ))
+describe("ProviderService", () => {
+    // Create explicit dependency layers following centralized pattern
+    const fileSystemLayer = NodeFileSystem.layer;
+    const configurationLayer = Layer.provide(
+        ConfigurationService.Default,
+        fileSystemLayer
+    );
+    const providerServiceTestLayer = Layer.provide(
+        ProviderService.Default,
+        Layer.mergeAll(configurationLayer, fileSystemLayer)
     );
 
-describe("ProviderService", () => {
     const testDir = join(process.cwd(), "test-provider-configs");
     const validProvidersConfig = join(testDir, "valid-providers.json");
     const invalidProvidersConfig = join(testDir, "invalid-providers.json");
@@ -51,39 +53,45 @@ describe("ProviderService", () => {
 
     describe("service instantiation", () => {
         it("should instantiate the service", () =>
-            withLayers(Effect.gen(function* () {
+            Effect.gen(function* () {
                 const service = yield* ProviderService;
                 expect(service).toBeDefined();
                 expect(typeof service.getProviderClient).toBe("function");
-            }))
+            }).pipe(
+                Effect.provide(providerServiceTestLayer)
+            )
         );
     });
 
     describe("getProviderClient", () => {
         it("should get a provider client for a valid provider (OpenAI)", () =>
-            withLayers(Effect.gen(function* () {
+            Effect.gen(function* () {
                 const service = yield* ProviderService;
                 const client = yield* service.getProviderClient("openai");
                 expect(client).toBeDefined();
                 expect(typeof client.chat).toBe("function");
-            }))
+            }).pipe(
+                Effect.provide(providerServiceTestLayer)
+            )
         );
 
         it("should fail with ProviderNotFoundError for unknown provider", () =>
-            withLayers(Effect.gen(function* () {
+            Effect.gen(function* () {
                 const service = yield* ProviderService;
                 const result = yield* Effect.either(service.getProviderClient("unknown"));
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
                     expect(result.left).toBeInstanceOf(ProviderNotFoundError);
                 }
-            }))
+            }).pipe(
+                Effect.provide(providerServiceTestLayer)
+            )
         );
 
         it("should fail with ProviderServiceConfigError for missing API key", () => {
             // biome-ignore lint/performance/noDelete: <explanation>
             delete process.env.OPENAI_API_KEY;
-            return withLayers(Effect.gen(function* () {
+            return Effect.gen(function* () {
                 const service = yield* ProviderService;
                 const result = yield* Effect.either(service.getProviderClient("openai"));
                 expect(Either.isLeft(result)).toBe(true);
@@ -91,31 +99,37 @@ describe("ProviderService", () => {
                     expect(result.left).toBeInstanceOf(ProviderServiceConfigError);
                     expect((result.left as ProviderServiceConfigError).description).toContain("API key not found in environment");
                 }
-            }));
+            }).pipe(
+                Effect.provide(providerServiceTestLayer)
+            );
         });
 
         it("should fail when configuration file is missing", () => {
             process.env.PROVIDERS_CONFIG_PATH = "nonexistent.json";
-            return withLayers(Effect.gen(function* () {
+            return Effect.gen(function* () {
                 const service = yield* ProviderService;
                 const result = yield* Effect.either(service.getProviderClient("openai"));
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
                     expect(result.left).toBeInstanceOf(ProviderServiceConfigError);
                 }
-            }));
+            }).pipe(
+                Effect.provide(providerServiceTestLayer)
+            );
         });
 
         it("should handle empty providers array", () => {
             writeFileSync(validProvidersConfig, JSON.stringify({ providers: [] }));
-            return withLayers(Effect.gen(function* () {
+            return Effect.gen(function* () {
                 const service = yield* ProviderService;
                 const result = yield* Effect.either(service.getProviderClient("openai"));
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
                     expect(result.left).toBeInstanceOf(ProviderNotFoundError);
                 }
-            }));
+            }).pipe(
+                Effect.provide(providerServiceTestLayer)
+            );
         });
     });
 
@@ -135,7 +149,7 @@ describe("ProviderService", () => {
                 ]
             }));
 
-            return withLayers(Effect.gen(function* () {
+            return Effect.gen(function* () {
                 const service = yield* ProviderService;
                 const openaiClient = yield* service.getProviderClient("openai");
                 const anthropicClient = yield* service.getProviderClient("anthropic");
@@ -145,7 +159,9 @@ describe("ProviderService", () => {
 
                 // Verify they're different instances
                 expect(openaiClient).not.toBe(anthropicClient);
-            }));
+            }).pipe(
+                Effect.provide(providerServiceTestLayer)
+            );
         });
     });
 
@@ -159,7 +175,7 @@ describe("ProviderService", () => {
                 ]
             }));
 
-            return withLayers(Effect.gen(function* () {
+            return Effect.gen(function* () {
                 const service = yield* ProviderService;
                 const result = yield* Effect.either(service.getProviderClient("openai"));
                 expect(Either.isLeft(result)).toBe(true);
@@ -167,7 +183,9 @@ describe("ProviderService", () => {
                     expect(result.left).toBeInstanceOf(ProviderServiceConfigError);
                     expect((result.left as ProviderServiceConfigError).description).toContain("API key environment variable not configured");
                 }
-            }));
+            }).pipe(
+                Effect.provide(providerServiceTestLayer)
+            );
         });
     });
 }); 

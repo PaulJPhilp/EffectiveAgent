@@ -16,8 +16,9 @@ import { Effect, Either, Layer, Option } from "effect";
 import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-// Corrected imports for ExecutiveService components
 import { ExecutiveServiceError } from "../../executive-service/errors.js";
+// Corrected imports for ExecutiveService components
+import { ExecutiveService } from "../../executive-service/service.js";
 import type { PipelineServiceInterface } from "../api.js";
 import { PipelineService } from "../service.js";
 
@@ -164,15 +165,41 @@ describe("PipelineService", () => {
     // Store original env vars
     const originalEnv = { ...process.env };
 
+    // Centralized dependency management for PipelineService tests
+    const fileSystemLayer = NodeFileSystem.layer;
+
+    const configurationLayer = Layer.provide(
+        ConfigurationService.Default,
+        fileSystemLayer
+    );
+
+    const policyLayer = Layer.provide(
+        PolicyService.Default,
+        configurationLayer
+    );
+
+    const executiveLayer = Layer.provide(
+        ExecutiveService.Default,
+        policyLayer
+    );
+
+    const pipelineLayer = Layer.provide(
+        PipelineService.Default,
+        executiveLayer
+    );
+
+    const testLayer = Layer.mergeAll(
+        fileSystemLayer,
+        configurationLayer,
+        policyLayer,
+        executiveLayer,
+        pipelineLayer
+    );
+
     // Helper function to provide common layers
     const withLayers = <T, E, R>(effect: Effect.Effect<T, E, R>) =>
         effect.pipe(
-            Effect.provide(Layer.mergeAll(
-                NodeFileSystem.layer,
-                ConfigurationService.Default,
-                PolicyService.Default,
-                PipelineService.Default
-            ))
+            Effect.provide(testLayer)
         ) as Effect.Effect<T, E, never>;
 
     beforeEach(async () => {
@@ -359,38 +386,18 @@ describe("PipelineService", () => {
         );
     });
 
-    it("should be createable without dependencies", async () => {
-        const result = await Effect.runPromise(
-            Effect.gen(function* () {
-                const pipelineService = yield* PipelineService
-                expect(pipelineService).toBeDefined()
-                expect(typeof pipelineService.execute).toBe("function")
-            }).pipe(
-                Effect.provide(
-                    Layer.mergeAll(
-                        NodeFileSystem.layer,
-                        ConfigurationService.Default,
-                        PipelineService.Default
-                    )
-                )
-            )
-        )
-    })
+    it("should be createable without dependencies", () =>
+        withLayers(Effect.gen(function* () {
+            const pipelineService = yield* PipelineService
+            expect(pipelineService).toBeDefined()
+            expect(typeof pipelineService.execute).toBe("function")
+        }))
+    )
 
-    it("should have an execute method", async () => {
-        const result = await Effect.runPromise(
-            Effect.gen(function* () {
-                const pipelineService = yield* PipelineService
-                expect(typeof pipelineService.execute).toBe("function")
-            }).pipe(
-                Effect.provide(
-                    Layer.mergeAll(
-                        NodeFileSystem.layer,
-                        ConfigurationService.Default,
-                        PipelineService.Default
-                    )
-                )
-            )
-        )
-    })
+    it("should have an execute method", () =>
+        withLayers(Effect.gen(function* () {
+            const pipelineService = yield* PipelineService
+            expect(typeof pipelineService.execute).toBe("function")
+        }))
+    )
 });

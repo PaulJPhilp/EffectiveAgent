@@ -1,5 +1,5 @@
-
 import type { Effect } from "effect"
+import type { AgentRuntimeServiceApi } from "./api.js"
 
 export interface AgentActivity {
     agentRuntimeId: string
@@ -52,4 +52,8 @@ export function makeAgentRuntimeId(id: string): AgentRuntimeId {
 }
 
 
-export type AgentWorkflow<S, E> = (activity: AgentActivity, state: S) => Effect.Effect<S, E>
+export type AgentWorkflow<S, E> = (
+    activity: AgentActivity,
+    state: S,
+    agentRuntime: AgentRuntimeServiceApi
+) => Effect.Effect<S, E>

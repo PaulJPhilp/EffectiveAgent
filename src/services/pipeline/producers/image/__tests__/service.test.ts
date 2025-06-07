@@ -7,9 +7,8 @@ import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderOperationError } from "@/services/ai/provider/errors.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either } from "effect";
+import { Effect, Either, Layer } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
 import { ImageModelError, ImageSizeError } from "../errors.js";
@@ -19,6 +18,16 @@ const createTestService = Effect.gen(function* () {
     return yield* ImageService;
 });
 
+// Centralized dependency layer configuration
+const testLayer = Layer.provide(
+    Layer.mergeAll(
+        ConfigurationService.Default,
+        ProviderService.Default,
+        ModelService.Default,
+        ImageService.Default
+    ),
+    NodeFileSystem.layer
+);
 
 describe("ImageService Integration Tests", () => {
     describe("generate", () => {
@@ -36,13 +45,7 @@ describe("ImageService Integration Tests", () => {
                 expect(result.imageUrl).toBeDefined();
                 expect(typeof result.imageUrl).toBe("string");
                 expect(result.imageUrl.length).toBeGreaterThan(0);
-            }).pipe(
-                Effect.provide(ImageService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            )
+            }).pipe(Effect.provide(testLayer))
         );
 
         it("should handle invalid model ID", () =>
@@ -69,13 +72,7 @@ describe("ImageService Integration Tests", () => {
                     const error = result.left as ProviderOperationError;
                     expect(error.description).toContain("aborted");
                 }
-            }).pipe(
-                Effect.provide(ImageService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer)
-            )
+            }).pipe(Effect.provide(testLayer))
         );
     });
 });
@@ -97,13 +94,7 @@ it("should fail with invalid size", () =>
         if (Either.isLeft(result)) {
             expect(result.left).toBeInstanceOf(ImageSizeError);
         }
-    }).pipe(
-        Effect.provide(ImageService.Default),
-        Effect.provide(ModelService.Default),
-        Effect.provide(ProviderService.Default),
-        Effect.provide(ConfigurationService.Default),
-        Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
 );
 
 it("should fail with invalid model", () =>
@@ -122,13 +113,7 @@ it("should fail with invalid model", () =>
         if (Either.isLeft(result)) {
             expect(result.left).toBeInstanceOf(ImageModelError);
         }
-    }).pipe(
-        Effect.provide(ImageService.Default),
-        Effect.provide(ModelService.Default),
-        Effect.provide(ProviderService.Default),
-        Effect.provide(ConfigurationService.Default),
-        Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
 );
 
 it("should include negative prompt when provided", () =>
@@ -146,13 +131,7 @@ it("should include negative prompt when provided", () =>
         expect(result.model).toBe("test-model");
         expect(result.parameters).toBeDefined();
         expect(result.timestamp).toBeDefined();
-    }).pipe(
-        Effect.provide(ImageService.Default),
-        Effect.provide(ModelService.Default),
-        Effect.provide(ProviderService.Default),
-        Effect.provide(ConfigurationService.Default),
-        Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
 );
 
 it("should include system prompt when provided", () =>
@@ -169,11 +148,5 @@ it("should include system prompt when provided", () =>
         expect(result.model).toBe("test-model");
         expect(result.parameters).toBeDefined();
         expect(result.timestamp).toBeDefined();
-    }).pipe(
-        Effect.provide(ImageService.Default),
-        Effect.provide(ModelService.Default),
-        Effect.provide(ProviderService.Default),
-        Effect.provide(ConfigurationService.Default),
-        Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
 );

@@ -85,14 +85,17 @@ describe("PolicyService", () => {
     );
   });
 
+  // Centralized dependency layer configuration
+  const testLayer = Layer.provide(
+    Layer.mergeAll(
+      ConfigurationService.Default,
+      PolicyService.Default
+    ),
+    NodeFileSystem.layer
+  );
+
   const withLayers = <E, A>(effect: Effect.Effect<A, E, any>) =>
-    effect.pipe(
-      Effect.provide(Layer.mergeAll(
-        NodeFileSystem.layer,
-        ConfigurationService.Default,
-        PolicyService.Default
-      ))
-    );
+    effect.pipe(Effect.provide(testLayer));
 
   it("should load policy configuration", () =>
     withLayers(Effect.gen(function* () {

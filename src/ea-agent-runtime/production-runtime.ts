@@ -4,7 +4,7 @@
  */
 
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, LogLevel, Logger, Runtime } from "effect";
+import { Effect, Layer, LogLevel, Logger, Runtime } from "effect";
 import { bootstrap } from "./bootstrap.js";
 import InitializationService from "./initialization.js";
 import { MasterConfig } from "./schema.js";
@@ -61,9 +61,15 @@ export class AgentRuntime {
 
     /**
      * Create Effect runtime from validated master config using InitializationService
-     * This delegates to InitializationService to avoid code duplication
+     * Uses centralized dependency management - InitializationService handles all dependency wiring
      */
     private static async createRuntimeFromConfig(masterConfig: MasterConfig): Promise<Runtime.Runtime<any>> {
+        // Centralized dependency layer configuration for InitializationService
+        const initializationLayer = Layer.provide(
+            InitializationService.Default,
+            NodeFileSystem.layer
+        );
+
         const effect = Effect.gen(function* () {
             const initService = yield* InitializationService;
             const runtime = yield* initService.initialize(masterConfig);
@@ -75,8 +81,7 @@ export class AgentRuntime {
 
             return runtime;
         }).pipe(
-            Effect.provide(InitializationService.Default),
-            Effect.provide(NodeFileSystem.layer),
+            Effect.provide(initializationLayer),
             Effect.provide(Logger.minimumLogLevel(LogLevel.Info)),
             Effect.tapError(error => Effect.logError("AgentRuntime initialization failed", { error }))
         );

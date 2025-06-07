@@ -540,6 +540,5 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                     }
                 })
         };
-    }),
-    dependencies: []
+    })
 }) { } 

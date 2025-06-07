@@ -182,7 +182,6 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>()(
          */
         terminate: () => Effect.succeed(void 0)
       };
-    }),
-    dependencies: []
+    })
   }
 ) { } // Empty class body

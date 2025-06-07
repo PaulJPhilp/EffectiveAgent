@@ -3,21 +3,17 @@
  * @module services/pipeline/producers/object/__tests__/service.test
  */
 
-import { randomUUID } from "node:crypto";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import type { EffectiveResponse } from "@/types.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Exit, Option, pipe } from "effect";
-import { Schema } from "effect";
+import { Effect, Either, Layer, Option, Schema, pipe } from "effect";
+import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
-import { 
-  ObjectGenerationError,
-  ObjectInputError, 
+import {
   ObjectModelError,
-  ObjectProviderError,
-  ObjectSchemaError
+  ObjectProviderError
 } from "../errors.js";
 import { ObjectService } from "../service.js";
 import type { ObjectGenerationOptions } from "../types.js";
@@ -59,6 +55,17 @@ const createTestResponse = <T>(data: T): EffectiveResponse<T> => ({
 });
 
 describe("ObjectService Integration Tests", () => {
+  // Centralized dependency layer configuration
+  const testLayer = Layer.provide(
+    Layer.mergeAll(
+      ConfigurationService.Default,
+      ProviderService.Default,
+      ModelService.Default,
+      ObjectService.Default
+    ),
+    NodeFileSystem.layer
+  );
+
   // Test setup
   const testModelId = "test-model";
   const testPrompt = "Generate a test person";
@@ -82,7 +89,7 @@ describe("ObjectService Integration Tests", () => {
     Effect.gen(function* () {
       const objectService = yield* ObjectService;
       const options = createTestOptions(PersonSchema);
-      
+
       const result = yield* pipe(
         objectService.generate(options),
         Effect.map((response): EffectiveResponse<Person> => ({
@@ -90,7 +97,7 @@ describe("ObjectService Integration Tests", () => {
           data: response.data as Person
         }))
       );
-      
+
       // Validate the response structure
       expect(result).toHaveProperty("data");
       expect(result).toHaveProperty("metadata");
@@ -98,7 +105,7 @@ describe("ObjectService Integration Tests", () => {
       expect(typeof result.metadata.model).toBe("string");
       expect(result.metadata).toHaveProperty("id");
       expect(typeof result.metadata.id).toBe("string");
-      
+
       // Validate the data against the schema
       const decodedPerson = yield* Effect.either(Schema.decode(PersonSchema)(result.data));
       if (Either.isLeft(decodedPerson)) {
@@ -107,19 +114,14 @@ describe("ObjectService Integration Tests", () => {
       const person = decodedPerson.right;
       expect(typeof person.name).toBe("string");
       expect(typeof person.age).toBe("number");
-    }).pipe(
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
   );
 
   it("should handle missing model ID", () =>
     Effect.gen(function* () {
       const objectService = yield* ObjectService;
       const options = createTestOptions(PersonSchema, { modelId: "" });
-      
+
       const result = yield* pipe(
         objectService.generate(options),
         Effect.either,
@@ -133,24 +135,19 @@ describe("ObjectService Integration Tests", () => {
           return Effect.succeed(either.left);
         })
       );
-      
+
       expect(result).toBeInstanceOf(ObjectModelError);
       return result;
-    }).pipe(
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
   );
 
   it("should handle invalid model ID", () =>
     Effect.gen(function* () {
       const objectService = yield* ObjectService;
-      const options = createTestOptions(PersonSchema, { 
-        modelId: "non-existent-model" 
+      const options = createTestOptions(PersonSchema, {
+        modelId: "non-existent-model"
       });
-      
+
       const result = yield* pipe(
         objectService.generate(options),
         Effect.either,
@@ -158,7 +155,7 @@ describe("ObjectService Integration Tests", () => {
           if (Either.isRight(either)) {
             return Effect.fail(new Error("Expected failure but got success"));
           }
-          if (![ObjectModelError, ObjectProviderError].some(ErrorType => 
+          if (![ObjectModelError, ObjectProviderError].some(ErrorType =>
             either.left instanceof ErrorType
           )) {
             return Effect.fail(new Error(`Expected ObjectModelError or ObjectProviderError but got ${either.left?.constructor.name}`));
@@ -166,29 +163,24 @@ describe("ObjectService Integration Tests", () => {
           return Effect.succeed(either.left);
         })
       );
-      
+
       // If we get here, we know it's one of the expected error types
       return result;
-    }).pipe(
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
   );
 
   it("should handle abort signal", () =>
     Effect.gen(function* () {
       const controller = new AbortController();
       const objectService = yield* ObjectService;
-      
+
       // Abort immediately
       controller.abort();
-      
+
       const options = createTestOptions(PersonSchema, {
         signal: controller.signal
       });
-      
+
       const result = yield* pipe(
         objectService.generate(options),
         Effect.either,
@@ -203,16 +195,11 @@ describe("ObjectService Integration Tests", () => {
           return Effect.succeed(either.left);
         })
       );
-      
+
       // If we get here, we know we have an error
       expect(result).toBeDefined();
       return result;
-    }).pipe(
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
   );
 
   it("should generate a task with all required fields", () =>
@@ -221,7 +208,7 @@ describe("ObjectService Integration Tests", () => {
       const options = createTestOptions(TaskSchema, {
         prompt: "Generate a task for writing tests"
       });
-      
+
       const result = yield* pipe(
         objectService.generate(options),
         Effect.map((response): EffectiveResponse<Task> => ({
@@ -229,13 +216,13 @@ describe("ObjectService Integration Tests", () => {
           data: response.data as Task
         }))
       );
-      
+
       // Validate the response structure
       expect(result).toHaveProperty("data");
       expect(result).toHaveProperty("metadata");
       expect(result.metadata).toHaveProperty("model");
       expect(result.metadata).toHaveProperty("id");
-      
+
       // Validate the data against the schema
       const decodedTask = yield* Effect.either(Schema.decode(TaskSchema)(result.data));
       if (Either.isLeft(decodedTask)) {
@@ -245,14 +232,9 @@ describe("ObjectService Integration Tests", () => {
       expect(typeof task.id).toBe("string");
       expect(typeof task.title).toBe("string");
       expect(typeof task.completed).toBe("boolean");
-      
+
       return result;
-    }).pipe(
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
   );
   it("should generate a list of objects", () =>
     Effect.gen(function* () {
@@ -261,7 +243,7 @@ describe("ObjectService Integration Tests", () => {
       const options = createTestOptions(ListSchema, {
         prompt: "Generate a list of two people"
       });
-      
+
       const result = yield* pipe(
         objectService.generate(options),
         Effect.map((response): EffectiveResponse<Person[]> => ({
@@ -269,12 +251,12 @@ describe("ObjectService Integration Tests", () => {
           data: response.data as Person[]
         }))
       );
-      
+
       // Validate the response structure
       expect(result).toHaveProperty("data");
       expect(Array.isArray(result.data)).toBe(true);
       expect(result.data.length).toBeGreaterThan(0);
-      
+
       // Validate each item in the array against the schema
       for (const item of result.data) {
         const decodedItem = yield* pipe(
@@ -287,17 +269,12 @@ describe("ObjectService Integration Tests", () => {
             return Effect.succeed(either.right);
           })
         );
-        
+
         expect(typeof decodedItem.name).toBe("string");
         expect(typeof decodedItem.age).toBe("number");
       }
-      
+
       return result;
-    }).pipe(
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
+    }).pipe(Effect.provide(testLayer))
   );
 });

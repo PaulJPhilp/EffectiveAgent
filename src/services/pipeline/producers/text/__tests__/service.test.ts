@@ -8,6 +8,9 @@ import { TextService } from "../service.js";
  * Simplified TextService tests
  */
 describe("TextService with Test Harness", () => {
+  // Create explicit dependency layer following centralized pattern
+  const textServiceTestLayer = TextService.Default;
+
   describe("generate", () => {
     it("should handle abort signal", () =>
       Effect.gen(function* (_) {
@@ -28,7 +31,7 @@ describe("TextService with Test Harness", () => {
         const result = yield* service.generate(options);
         return result;
       }).pipe(
-        Effect.provide(TextService.Default)
+        Effect.provide(textServiceTestLayer)
       )
     );
 
@@ -47,7 +50,7 @@ describe("TextService with Test Harness", () => {
         expect(result.data.text).toBeDefined();
         expect(typeof result.data.text).toBe("string");
       }).pipe(
-        Effect.provide(TextService.Default)
+        Effect.provide(textServiceTestLayer)
       )
     );
 
@@ -66,7 +69,7 @@ describe("TextService with Test Harness", () => {
         expect(result.data.text).toBeDefined();
         expect(typeof result.data.text).toBe("string");
       }).pipe(
-        Effect.provide(TextService.Default)
+        Effect.provide(textServiceTestLayer)
       )
     );
 
@@ -86,7 +89,7 @@ describe("TextService with Test Harness", () => {
           expect((result.left as TextInputError).description).toContain("Empty prompt");
         }
       }).pipe(
-        Effect.provide(TextService.Default)
+        Effect.provide(textServiceTestLayer)
       )
     );
 
@@ -106,7 +109,7 @@ describe("TextService with Test Harness", () => {
           expect((result.left as TextModelError).description).toContain("Model not found");
         }
       }).pipe(
-        Effect.provide(TextService.Default)
+        Effect.provide(textServiceTestLayer)
       )
     );
 
@@ -126,7 +129,7 @@ describe("TextService with Test Harness", () => {
           expect((result.left as TextProviderError).description).toContain("Provider not found");
         }
       }).pipe(
-        Effect.provide(TextService.Default)
+        Effect.provide(textServiceTestLayer)
       )
     );
 
@@ -146,7 +149,7 @@ describe("TextService with Test Harness", () => {
           expect((result.left as TextGenerationError).description).toContain("Text generation failed");
         }
       }).pipe(
-        Effect.provide(TextService.Default)
+        Effect.provide(textServiceTestLayer)
       )
     );
   });

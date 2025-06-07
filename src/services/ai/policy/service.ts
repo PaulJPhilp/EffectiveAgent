@@ -229,6 +229,5 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
       healthCheck,
       shutdown
     } satisfies PolicyServiceApi;
-  }),
-  dependencies: [ConfigurationService.Default]
+  })
 }) { }

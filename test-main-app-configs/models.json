@@ -1,0 +1,15 @@
+{
+  "name": "Test Model Config",
+  "version": "1.0.0",
+  "models": [
+    {
+      "id": "gpt-4",
+      "provider": { "name": "openai" },
+      "displayName": "GPT-4",
+      "name": "gpt-4",
+      "modelName": "gpt-4",
+      "version": "1.0.0",
+      "vendorCapabilities": ["text-generation", "tool-use"]
+    }
+  ]
+}

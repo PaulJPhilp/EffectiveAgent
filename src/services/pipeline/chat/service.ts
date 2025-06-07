@@ -3,7 +3,7 @@
  * @module services/pipeline/chat/service
  */
 import { ChatHistory, ChatHistoryError, ChatHistoryServiceApi, ChatMessage } from "@/services/pipeline/chat/api.js";
-import { Effect, Either, Layer, Option, Ref, pipe } from "effect";
+import { Effect, Either, Option, Ref, pipe } from "effect";
 
 /**
  * Chat agent state for tracking conversation activity
@@ -369,7 +369,6 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
          */
         terminate: () => Effect.succeed(void 0)
       };
-    }),
-    dependencies: []
+    })
   }
 ) { }

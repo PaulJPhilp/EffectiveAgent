@@ -9,9 +9,11 @@ import { MasterConfig } from './schema.js';
 import { ModelService } from '@/services/ai/model/service.js';
 import { PolicyService } from '@/services/ai/policy/service.js';
 import { ProviderService } from '@/services/ai/provider/service.js';
+import { ToolRegistryService } from '@/services/ai/tool-registry/service.js';
 import { ConfigurationService } from '@/services/core/configuration/service.js';
 
 import { AgentRuntimeInitializationError } from './errors.js';
+import { AgentRuntimeService } from './service.js';
 import type { RuntimeServices } from './types.js';
 
 export interface InitializationServiceApi {
@@ -43,14 +45,17 @@ export class InitializationService extends Effect.Service<InitializationServiceA
             implementation: masterConfig.runtimeSettings.fileSystemImplementation
           });
 
-          // Create file logger based on master config
+          // Create file logger layer that depends on FileSystem
           const fileLoggerLayer = masterConfig.logging?.filePath
-            ? Logger.replaceScoped(
-              Logger.defaultLogger,
-              Effect.map(
-                Logger.logfmtLogger.pipe(PlatformLogger.toFile(masterConfig.logging.filePath)),
-                (fileLogger) => Logger.zip(Logger.prettyLoggerDefault, fileLogger)
-              )
+            ? Layer.provide(
+              Logger.replaceScoped(
+                Logger.defaultLogger,
+                Effect.map(
+                  Logger.logfmtLogger.pipe(PlatformLogger.toFile(masterConfig.logging.filePath)),
+                  (fileLogger) => Logger.zip(Logger.prettyLoggerDefault, fileLogger)
+                )
+              ),
+              fileSystemLayer
             )
             : Layer.empty;
 
@@ -78,21 +83,60 @@ export class InitializationService extends Effect.Service<InitializationServiceA
             level: masterConfig.logging?.level || 'info'
           });
 
-          // Compose the complete application layer with all services
-          yield* Effect.logInfo("🔧 Composing application layer with services");
+          // Centralized dependency management using explicit Layer.provide chains
+          yield* Effect.logInfo("🔧 Centralized dependency management: explicit dependency wiring");
+
+          // All dependencies explicitly wired here - this is true centralized dependency management
+          // Step 1: Core services with infrastructure dependencies
+          const configurationLayer = Layer.provide(
+            ConfigurationService.Default,
+            fileSystemLayer
+          );
+
+          // Step 2: AI services that depend on ConfigurationService
+          const providerLayer = Layer.provide(
+            ProviderService.Default,
+            configurationLayer
+          );
+
+          const modelLayer = Layer.provide(
+            ModelService.Default,
+            configurationLayer
+          );
+
+          const policyLayer = Layer.provide(
+            PolicyService.Default,
+            configurationLayer
+          );
+
+          const toolRegistryLayer = Layer.provide(
+            ToolRegistryService.Default,
+            configurationLayer
+          );
+
+          // Step 3: AgentRuntimeService with all AI service dependencies
+          const agentRuntimeLayer = Layer.provide(
+            AgentRuntimeService.Default,
+            Layer.mergeAll(modelLayer, providerLayer, policyLayer, toolRegistryLayer)
+          );
+
+          // Step 4: Complete application layer with all dependencies
           const appLayer = Layer.mergeAll(
             fileSystemLayer,
             fileLoggerLayer,
             logLevelLayer,
-            ConfigurationService.Default,
-            ProviderService.Default,
-            ModelService.Default,
-            PolicyService.Default
+            configurationLayer,
+            providerLayer,
+            modelLayer,
+            policyLayer,
+            toolRegistryLayer,
+            agentRuntimeLayer
           );
 
           yield* Effect.logInfo("⚡ Creating Effect runtime from application layer");
           const runtime = yield* Effect.runtime<RuntimeServices>().pipe(
-            Effect.provide(appLayer)
+            Effect.provide(appLayer),
+            Effect.provide(fileSystemLayer)
           );
 
           yield* Effect.logInfo("✅ InitializationService.initialize() completed successfully");
@@ -111,14 +155,7 @@ export class InitializationService extends Effect.Service<InitializationServiceA
           })
         ) as Effect.Effect<Runtime.Runtime<RuntimeServices>, AgentRuntimeInitializationError | ConfigurationError, never>
     } satisfies InitializationServiceApi;
-  }),
-  dependencies: [
-    ConfigurationService.Default,
-    ProviderService.Default,
-    ModelService.Default,
-    PolicyService.Default,
-    NodeFileSystem.layer
-  ]
+  })
 }) { }
 
 export default InitializationService;

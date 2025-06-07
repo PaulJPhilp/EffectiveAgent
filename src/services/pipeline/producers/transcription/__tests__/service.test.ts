@@ -3,6 +3,10 @@
  * @module services/ai/producers/transcription/service.test
  */
 
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Exit, Layer } from "effect";
 import { describe, expect, it, vi } from "vitest";
 import { TranscriptionService } from "../service.js";
@@ -37,6 +41,16 @@ const mockTranscriptionServiceLayer = Layer.succeed(
 );
 
 describe("TranscriptionService", () => {
+  // Centralized dependency layer configuration
+  const testLayer = Layer.provide(
+    Layer.mergeAll(
+      ConfigurationService.Default,
+      ProviderService.Default,
+      ModelService.Default,
+      TranscriptionService.Default
+    ),
+    NodeFileSystem.layer
+  );
   it("should handle abort signal", () =>
     Effect.gen(function* (_) {
       const controller = new AbortController();
@@ -54,9 +68,7 @@ describe("TranscriptionService", () => {
       // The operation should be aborted
       const result = yield* service.transcribe(options);
       return result;
-    }).pipe(
-      Effect.provide(TranscriptionService.Default)
-    )
+    }).pipe(Effect.provide(testLayer))
   );
 
   it("should successfully transcribe audio", async () => {

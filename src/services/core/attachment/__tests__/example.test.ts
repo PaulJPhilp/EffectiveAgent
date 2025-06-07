@@ -25,8 +25,7 @@ const createCounterLive = () => {
 
 // Define the service using Effect.Service pattern
 class CounterService extends Effect.Service<CounterServiceInterface>()("CounterService", {
-    effect: Effect.succeed(createCounterLive()),
-    dependencies: []
+    effect: Effect.succeed(createCounterLive())
 }) { }
 
 // No need for separate layer - using .Default from Effect.Service

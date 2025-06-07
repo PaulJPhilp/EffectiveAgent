@@ -209,8 +209,7 @@ class TextService extends Effect.Service<TextServiceApi>()(
       };
 
       return service;
-    }),
-    dependencies: [ModelService.Default, ProviderService.Default]
+    })
   }
 ) { }
 

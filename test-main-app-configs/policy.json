@@ -1,0 +1,14 @@
+{
+  "name": "Test-Policy-Config",
+  "version": "1.0.0",
+  "policies": [
+    {
+      "id": "default-allow-all",
+      "name": "Default Allow All",
+      "type": "allow",
+      "resource": "*",
+      "priority": 100,
+      "enabled": true
+    }
+  ]
+}

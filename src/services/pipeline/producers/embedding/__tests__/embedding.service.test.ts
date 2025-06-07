@@ -1,10 +1,10 @@
-import { Effect, Either } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer } from "effect";
 import { describe, expect, it } from "vitest";
 
 import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderOperationError } from "@/services/ai/provider/errors.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import type { GenerateEmbeddingsResult } from "@/services/ai/provider/types.js";
 
 import type { EmbeddingServiceApi } from "../api.js";
 import {
@@ -14,6 +14,16 @@ import {
 import { EmbeddingService } from "../service.js";
 
 describe("EmbeddingService", () => {
+    // Centralized dependency layer configuration
+    const testLayer = Layer.provide(
+        Layer.mergeAll(
+            ConfigurationService.Default,
+            ProviderService.Default,
+            ModelService.Default,
+            EmbeddingService.Default
+        ),
+        NodeFileSystem.layer
+    );
     let embeddingService: EmbeddingServiceApi;
 
     describe("Successful Generation", () => {
@@ -60,11 +70,7 @@ describe("EmbeddingService", () => {
                     result.usage.promptTokens
                 );
                 expect(result.finishReason).toBeDefined();
-            }).pipe(
-                Effect.provide(EmbeddingService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(ProviderService.Default)
-            )
+            }).pipe(Effect.provide(testLayer))
         );
     });
 
@@ -81,11 +87,7 @@ describe("EmbeddingService", () => {
                     expect(result.left).toBeInstanceOf(EmbeddingInputError);
                     expect(result.left.message).toContain("Input text cannot be empty");
                 }
-            }).pipe(
-                Effect.provide(EmbeddingService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(ProviderService.Default)
-            )
+            }).pipe(Effect.provide(testLayer))
         );
 
         it("should return EmbeddingGenerationError if embedding generation fails", () =>
@@ -112,11 +114,7 @@ describe("EmbeddingService", () => {
                     // );
                     // expect(result.left.cause).toBeInstanceOf(ProviderOperationError);
                 }
-            }).pipe(
-                Effect.provide(EmbeddingService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(ProviderService.Default)
-            )
+            }).pipe(Effect.provide(testLayer))
         );
     });
 });

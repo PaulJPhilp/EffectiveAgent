@@ -1,14 +1,12 @@
 import { wsParse, wsStringify } from "@/utils/ws-utils.js"
-import { createServer } from "http"
 /**
  * @file WebSocket server for the Actor Runtime, allowing stateful, per-client agent interactions.
  */
-import { HttpServer } from "@effect/platform"
-import { NodeHttpServer } from "@effect/platform-node"
 import { Effect, Fiber, Queue, Ref, Sink, Stream } from "effect"
 import type { WebSocket } from "ws"
 import { WebSocketServer } from "ws"
-import { ActorRuntimeManager } from "./actor-runtime.js"
+import { AgentRuntimeService } from "../ea-agent-runtime/service.js"
+import { createActorRuntimeManager } from "./actor-runtime.js"
 import { AgentRuntimeError } from "./errors.js"
 import { AgentActivity, AgentRuntimeId } from "./types.js"
 
@@ -18,8 +16,8 @@ export interface ActorServerApi {
 
 export class ActorServer extends Effect.Service<ActorServerApi>()("ActorServer", {
     effect: Effect.gen(function* () {
-        const server = yield* HttpServer.HttpServer
-        const manager = ActorRuntimeManager
+        const agentRuntime = yield* AgentRuntimeService
+        const manager = createActorRuntimeManager(agentRuntime)
 
         const wsPort = Number(process.env.WS_PORT) || 8081
         const wss = new WebSocketServer({ port: wsPort })
@@ -97,6 +95,5 @@ export class ActorServer extends Effect.Service<ActorServerApi>()("ActorServer",
         })
 
         return { wss }
-    }),
-    dependencies: [NodeHttpServer.layer(() => createServer(), { port: Number(process.env.HTTP_PORT) || 8080 })]
+    })
 }) { }

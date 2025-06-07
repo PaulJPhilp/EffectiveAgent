@@ -591,6 +591,5 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                     return metrics.filter(m => m.timestamp >= cutoff);
                 })
         };
-    }),
-    dependencies: []
+    })
 }) { } 

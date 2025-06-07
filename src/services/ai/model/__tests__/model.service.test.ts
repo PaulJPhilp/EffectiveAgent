@@ -16,6 +16,17 @@ describe("ModelService", () => {
     const chatCapability = "chat" as const satisfies S.Schema.Type<typeof ModelCapability>;
     const functionCallingCapability = "function-calling" as const satisfies S.Schema.Type<typeof ModelCapability>;
 
+    // Create explicit dependency layers following centralized pattern
+    const fileSystemLayer = NodeFileSystem.layer;
+    const configurationLayer = Layer.provide(
+        ConfigurationService.Default,
+        fileSystemLayer
+    );
+    const modelServiceTestLayer = Layer.provide(
+        ModelService.Default,
+        configurationLayer
+    );
+
     beforeEach(() => {
         process.env.MODELS_CONFIG_PATH = "/Users/paul/Projects/EffectiveAgent/src/services/ai/model/__tests__/config/models.json";
     });
@@ -27,11 +38,7 @@ describe("ModelService", () => {
                 const result = yield* service.validateModel("gpt-4o");
                 expect(result).toBe(true);
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
 
@@ -45,11 +52,7 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("invalid-model");
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
     });
@@ -68,11 +71,7 @@ describe("ModelService", () => {
                     expect(model.vendorCapabilities).toContain("chat");
                 });
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
 
@@ -85,11 +84,7 @@ describe("ModelService", () => {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
     });
@@ -106,11 +101,7 @@ describe("ModelService", () => {
                     expect(model.vendorCapabilities).toContain("chat")
                 );
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
 
@@ -125,11 +116,7 @@ describe("ModelService", () => {
                     expect(model.vendorCapabilities).toContain("function-calling");
                 });
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
 
@@ -143,11 +130,7 @@ describe("ModelService", () => {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
     });
@@ -159,11 +142,7 @@ describe("ModelService", () => {
                 const providerName = yield* service.getProviderName("gpt-4o");
                 expect(providerName).toBe("openai");
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
 
@@ -173,11 +152,7 @@ describe("ModelService", () => {
                 const providerName = yield* service.getProviderName("invalid-model");
                 expect(providerName).toBe("openai");
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
     });
@@ -197,11 +172,7 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("gpt-4o");
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
 
@@ -215,11 +186,7 @@ describe("ModelService", () => {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             )
         );
 
@@ -233,11 +200,7 @@ describe("ModelService", () => {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             );
         });
 
@@ -252,11 +215,7 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("gpt-4o");
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             );
         });
 
@@ -271,11 +230,7 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("unknown");
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             );
         });
 
@@ -290,11 +245,7 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("unknown");
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             );
         });
 
@@ -309,11 +260,7 @@ describe("ModelService", () => {
                     expect(result.left.modelId).toBe("gpt-4o");
                 }
             }).pipe(
-                Effect.provide(Layer.mergeAll(
-                    NodeFileSystem.layer,
-                    ConfigurationService.Default,
-                    ModelService.Default
-                ))
+                Effect.provide(modelServiceTestLayer)
             );
         });
     });
@@ -325,30 +272,21 @@ describe("ModelService", () => {
             const modelConfig = yield* configService.loadModelConfig(masterConfig.configPaths?.models || "./config/models.json");
             expect(modelConfig).toBeDefined();
         }).pipe(
-            Effect.provide(Layer.mergeAll(
-                NodeFileSystem.layer,
-                ConfigurationService.Default,
-                ModelService.Default
-            ))
+            Effect.provide(modelServiceTestLayer)
         )
     );
-});
-
-describe("ModelService (debug)", () => {
-    it("should print the loaded config and config path", () =>
-        Effect.gen(function* () {
-            const configService = yield* ConfigurationService;
-            const configPath = process.env.MODELS_CONFIG_PATH ?? "";
-            console.log("MODELS_CONFIG_PATH:", configPath);
-            const rawConfig = yield* configService.loadRawConfig(configPath);
-            console.log("Loaded config:", JSON.stringify(rawConfig, null, 2));
-            return rawConfig;
-        }).pipe(
-            Effect.provide(Layer.mergeAll(
-                NodeFileSystem.layer,
-                ConfigurationService.Default,
-                ModelService.Default
-            ))
-        )
-    );
+    describe("debug", () => {
+        it("should print the loaded config and config path", () =>
+            Effect.gen(function* () {
+                const configService = yield* ConfigurationService;
+                const configPath = process.env.MODELS_CONFIG_PATH ?? "";
+                console.log("MODELS_CONFIG_PATH:", configPath);
+                const rawConfig = yield* configService.loadRawConfig(configPath);
+                console.log("Loaded config:", JSON.stringify(rawConfig, null, 2));
+                return rawConfig;
+            }).pipe(
+                Effect.provide(modelServiceTestLayer)
+            )
+        );
+    });
 }); 

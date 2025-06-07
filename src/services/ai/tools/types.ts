@@ -72,8 +72,7 @@ export class ToolExecutorService extends Effect.Service<{
                 | ToolOutputValidationError
                 | ToolExecutionError
             > => Effect.fail(new ToolNotFoundError({ toolName, module: "ToolExecutorService", method: "run" }))
-        }),
-        dependencies: []
+        })
     }
 ) { }
 
@@ -140,8 +139,7 @@ export class ProjectWorkspace extends Effect.Service<ProjectWorkspaceShape>()("P
     effect: Effect.succeed({
         tools: HashMap.empty(),
         metadata: HashMap.empty()
-    }),
-    dependencies: []
+    })
 }) { }
 
 // --- Final Merged Tool Registry Data ---
@@ -162,8 +160,7 @@ export class ToolRegistryData extends Effect.Service<ToolRegistryDataShape>()(
         effect: Effect.succeed({
             tools: HashMap.empty(),
             metadata: HashMap.empty()
-        }),
-        dependencies: []
+        })
     }
 ) { }
 
@@ -188,7 +185,6 @@ export class ToolRegistry extends Effect.Service<ToolRegistryApi>()(
             listTools: () => Effect.succeed([]),
             registerTool: (toolName: FullToolName, implementation: ToolImplementation, metadata: Metadata) =>
                 Effect.succeed(void 0)
-        }),
-        dependencies: []
+        })
     }
 ) { }

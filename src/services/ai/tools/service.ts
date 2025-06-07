@@ -81,6 +81,5 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
                 return rawOutput as Output;
             })
         };
-    }),
-    dependencies: [ToolRegistryService.Default]
+    })
 }) { }

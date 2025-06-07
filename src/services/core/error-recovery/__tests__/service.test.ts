@@ -34,6 +34,9 @@ class ValidationError extends EffectiveError {
 }
 
 describe("ErrorRecoveryService", () => {
+    // Create explicit dependency layer following centralized pattern
+    const errorRecoveryServiceTestLayer = ErrorRecoveryService.Default;
+
     describe("Circuit Breaker Pattern", () => {
         it("should allow operations when circuit is closed", () =>
             Effect.gen(function* () {
@@ -57,7 +60,7 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics?.successCount).toBe(1);
                 expect(metrics?.totalRequests).toBe(1);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
 
         it("should open circuit after failure threshold", () =>
@@ -99,7 +102,7 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics?.state).toBe("OPEN");
                 expect(metrics?.totalFailures).toBe(2);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
 
         it("should reset circuit breaker", () =>
@@ -131,7 +134,7 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics?.state).toBe("CLOSED");
                 expect(metrics?.failureCount).toBe(0);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
     });
 
@@ -164,7 +167,7 @@ describe("ErrorRecoveryService", () => {
                 expect(result).toBe("success after retries");
                 expect(attemptCount).toBe(3);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             );
         });
 
@@ -198,7 +201,7 @@ describe("ErrorRecoveryService", () => {
                 }
                 expect(attemptCount).toBe(1);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             );
         });
 
@@ -232,7 +235,7 @@ describe("ErrorRecoveryService", () => {
                 }
                 expect(attemptCount).toBe(3);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             );
         });
     });
@@ -261,7 +264,7 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics?.fallbackUsed).toBe(true);
                 expect(metrics?.successes).toBe(1);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
 
         it("should try multiple fallback strategies in priority order", () =>
@@ -288,7 +291,7 @@ describe("ErrorRecoveryService", () => {
                 const result = yield* service.withFallback(primaryOperation, fallbackStrategies);
                 expect(result).toBe("second-fallback-result");
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
 
         it("should respect fallback strategy conditions", () =>
@@ -313,7 +316,7 @@ describe("ErrorRecoveryService", () => {
                 // Should fail because ValidationError doesn't match NetworkError condition
                 expect(Either.isLeft(result)).toBe(true);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
     });
 
@@ -329,7 +332,7 @@ describe("ErrorRecoveryService", () => {
                 expect(classification.category).toBe("NETWORK");
                 expect(classification.severity).toBe("MEDIUM");
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
 
         it("should classify validation errors as non-retryable", () =>
@@ -343,7 +346,7 @@ describe("ErrorRecoveryService", () => {
                 expect(classification.category).toBe("VALIDATION");
                 expect(classification.severity).toBe("LOW");
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
 
         it("should classify rate limit errors with suggested delay", () =>
@@ -362,7 +365,7 @@ describe("ErrorRecoveryService", () => {
                 expect(classification.category).toBe("RATE_LIMIT");
                 expect(classification.suggestedDelay).toBeDefined();
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
     });
 
@@ -396,7 +399,7 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics!.successCount).toBe(1);
                 expect(metrics!.failureCount).toBe(1);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
 
         it("should track retry metrics", () =>
@@ -420,7 +423,7 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics!.successes).toBeGreaterThan(0);
                 expect(metrics!.attempts).toBeGreaterThan(0);
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
     });
 
@@ -480,7 +483,7 @@ describe("ErrorRecoveryService", () => {
 
                 expect(result).toBe("cached-data");
             }).pipe(
-                Effect.provide(ErrorRecoveryService.Default)
+                Effect.provide(errorRecoveryServiceTestLayer)
             ));
     });
 }); 

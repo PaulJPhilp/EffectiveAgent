@@ -247,8 +247,7 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
             };
 
             return service;
-        }),
-        dependencies: [ModelService.Default, ProviderService.Default]
+        })
     }
 ) { }
 

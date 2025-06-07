@@ -1,7 +1,7 @@
 import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
 import { FileSystem } from "@effect/platform";
-import { NodeContext } from "@effect/platform-node";
-import { Effect, Either, Schema } from "effect";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer, Schema } from "effect";
 import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
@@ -97,6 +97,14 @@ describe("ConfigurationService", () => {
     // Store original environment variables
     const originalEnv = { ...process.env };
 
+    // Create explicit dependency layers following centralized pattern
+    const fileSystemLayer = NodeFileSystem.layer;
+
+    const configurationTestLayer = Layer.provide(
+        ConfigurationService.Default,
+        fileSystemLayer
+    );
+
     beforeEach(() =>
         Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem;
@@ -122,7 +130,7 @@ describe("ConfigurationService", () => {
             process.env.CUSTOM_ENV_VAR = "custom-value";
             process.env.EMPTY_ENV_VAR = "";
         }).pipe(
-            Effect.provide(NodeContext.layer)
+            Effect.provide(fileSystemLayer)
         )
     );
 
@@ -159,7 +167,7 @@ describe("ConfigurationService", () => {
             // Reset environment variables
             process.env = { ...originalEnv };
         }).pipe(
-            Effect.provide(NodeContext.layer)
+            Effect.provide(fileSystemLayer)
         )
     );
 
@@ -173,7 +181,7 @@ describe("ConfigurationService", () => {
                 );
                 expect(result).toEqual(validConfigData);
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should successfully load and validate a complex configuration", () =>
@@ -185,7 +193,7 @@ describe("ConfigurationService", () => {
                 );
                 expect(result).toEqual(validComplexConfigData);
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle validation errors for missing required fields", () =>
@@ -203,7 +211,7 @@ describe("ConfigurationService", () => {
                     expect(result.left.filePath).toBe(invalidConfig);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle JSON parse errors", () =>
@@ -221,7 +229,7 @@ describe("ConfigurationService", () => {
                     expect(result.left.filePath).toBe(malformedConfig);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle file read errors for non-existent files", () =>
@@ -239,7 +247,7 @@ describe("ConfigurationService", () => {
                     expect(result.left.filePath).toBe(nonExistentConfig);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle empty configuration files", () =>
@@ -256,7 +264,7 @@ describe("ConfigurationService", () => {
                     expect(result.left).toBeInstanceOf(ConfigValidationError);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle validation with BaseConfigSchema", () =>
@@ -278,8 +286,10 @@ describe("ConfigurationService", () => {
                 // Clean up
                 yield* fs.remove(tempConfig);
             }).pipe(
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeContext.layer)
+                Effect.provide(Layer.mergeAll(
+                    configurationTestLayer,
+                    fileSystemLayer
+                ))
             ));
     });
 
@@ -295,7 +305,7 @@ describe("ConfigurationService", () => {
                     expect(result.providers[0].name).toBe("openai");
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle validation errors for invalid provider configuration", () =>
@@ -309,7 +319,7 @@ describe("ConfigurationService", () => {
                     expect(result.left).toBeInstanceOf(ConfigValidationError);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle read errors for non-existent provider configuration", () =>
@@ -323,7 +333,7 @@ describe("ConfigurationService", () => {
                     expect(result.left).toBeInstanceOf(ConfigReadError);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
     });
 
@@ -334,7 +344,7 @@ describe("ConfigurationService", () => {
                 const result = yield* service.loadModelConfig(validConfig);
                 expect(result).toEqual(validConfigData);
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle JSON parse errors for malformed model configuration", () =>
@@ -348,7 +358,7 @@ describe("ConfigurationService", () => {
                     expect(result.left).toBeInstanceOf(ConfigParseError);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle read errors for non-existent model configuration", () =>
@@ -362,7 +372,7 @@ describe("ConfigurationService", () => {
                     expect(result.left).toBeInstanceOf(ConfigReadError);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
     });
 
@@ -378,7 +388,7 @@ describe("ConfigurationService", () => {
                     expect(result.policies[0].id).toBe("test-policy");
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle validation errors for invalid policy configuration", () =>
@@ -392,7 +402,7 @@ describe("ConfigurationService", () => {
                     expect(result.left).toBeInstanceOf(ConfigValidationError);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle read errors for non-existent policy configuration", () =>
@@ -406,7 +416,7 @@ describe("ConfigurationService", () => {
                     expect(result.left).toBeInstanceOf(ConfigReadError);
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
     });
 
@@ -417,7 +427,7 @@ describe("ConfigurationService", () => {
                 const apiKey = yield* service.getApiKey("TEST");
                 expect(apiKey).toBe("test-key");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should retrieve API key with correct case conversion", () =>
@@ -429,7 +439,7 @@ describe("ConfigurationService", () => {
                 const anthropicKey = yield* service.getApiKey("anthropic");
                 expect(anthropicKey).toBe("anthropic-test-key");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle mixed case provider names", () =>
@@ -438,7 +448,7 @@ describe("ConfigurationService", () => {
                 const apiKey = yield* service.getApiKey("OpenAI");
                 expect(apiKey).toBe("openai-test-key");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should return empty string for missing API keys", () =>
@@ -447,7 +457,7 @@ describe("ConfigurationService", () => {
                 const apiKey = yield* service.getApiKey("MISSING");
                 expect(apiKey).toBe("");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should return empty string for empty API keys", () =>
@@ -456,7 +466,7 @@ describe("ConfigurationService", () => {
                 const apiKey = yield* service.getApiKey("EMPTY_ENV_VAR");
                 expect(apiKey).toBe("");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
     });
 
@@ -467,7 +477,7 @@ describe("ConfigurationService", () => {
                 const envVar = yield* service.getEnvVariable("CUSTOM_ENV_VAR");
                 expect(envVar).toBe("custom-value");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should return empty string for missing environment variables", () =>
@@ -476,7 +486,7 @@ describe("ConfigurationService", () => {
                 const envVar = yield* service.getEnvVariable("MISSING_VAR");
                 expect(envVar).toBe("");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should return empty string for empty environment variables", () =>
@@ -485,7 +495,7 @@ describe("ConfigurationService", () => {
                 const envVar = yield* service.getEnvVariable("EMPTY_ENV_VAR");
                 expect(envVar).toBe("");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle system environment variables", () =>
@@ -495,7 +505,7 @@ describe("ConfigurationService", () => {
                 expect(typeof path).toBe("string");
                 // PATH should exist on most systems, but we don't check specific value
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
     });
 
@@ -513,7 +523,7 @@ describe("ConfigurationService", () => {
                     expect(error.cause).toBeDefined();
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should preserve error context in ConfigParseError", () =>
@@ -529,7 +539,7 @@ describe("ConfigurationService", () => {
                     expect(error.cause).toBeDefined();
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should preserve validation error context in ConfigValidationError", () =>
@@ -545,7 +555,7 @@ describe("ConfigurationService", () => {
                     expect(error.validationError).toBeDefined();
                 }
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle concurrent configuration loading", () =>
@@ -563,7 +573,7 @@ describe("ConfigurationService", () => {
                 expect(config2).toEqual(validComplexConfigData);
                 expect(config3.name).toBe(validProviderConfigData.name);
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
 
         it("should handle concurrent API key retrieval", () =>
@@ -581,7 +591,7 @@ describe("ConfigurationService", () => {
                 expect(openaiKey).toBe("openai-test-key");
                 expect(anthropicKey).toBe("anthropic-test-key");
             }).pipe(
-                Effect.provide(ConfigurationService.Default)
+                Effect.provide(configurationTestLayer)
             ));
     });
 });

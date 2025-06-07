@@ -4,7 +4,7 @@
  */
 
 import { Config, Effect, Layer } from "effect";
-import { DatabaseConfig, DatabaseConfigSchema, DrizzleClient, DrizzleClientLive } from "../config.js";
+import { DatabaseConfig, DrizzleClient, DrizzleClientLive } from "../config.js";
 
 /**
  * Test database configuration
@@ -21,6 +21,7 @@ export const TestDatabaseConfig = Config.all({
 
 /**
  * Layer that provides test database configuration
+ * Following centralized dependency management pattern
  */
 export const TestConfigLayer = Layer.succeed(
     DatabaseConfig,
@@ -36,25 +37,34 @@ export const TestConfigLayer = Layer.succeed(
 
 /**
  * Layer that provides a configured DrizzleClient for tests
+ * Using explicit dependency chain: TestConfigLayer → DrizzleClientLive
  */
-export const TestDrizzleLayer = DrizzleClientLive.pipe(
-    Layer.provide(TestConfigLayer)
+export const TestDrizzleLayer = Layer.provide(
+    DrizzleClientLive,
+    TestConfigLayer
 );
 
 /**
  * Helper to run a test effect with the test database layer
+ * Uses explicit layer provision following centralized pattern
  */
 export function runTestEffect<E, A>(effect: Effect.Effect<A, E, DrizzleClient>) {
     return Effect.runPromise(
-        Effect.provide(effect, TestDrizzleLayer)
+        effect.pipe(
+            Effect.provide(TestDrizzleLayer)
+        )
     );
 }
 
 /**
  * Helper to run a test effect that is expected to fail
+ * Uses explicit layer provision following centralized pattern
  */
 export function runFailTestEffect<E, A>(effect: Effect.Effect<A, E, DrizzleClient>) {
     return Effect.runPromise(
-        Effect.provide(effect.pipe(Effect.flip), TestDrizzleLayer)
+        effect.pipe(
+            Effect.flip,
+            Effect.provide(TestDrizzleLayer)
+        )
     );
 } 

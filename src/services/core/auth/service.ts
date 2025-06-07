@@ -123,8 +123,7 @@ export class AuthService extends Effect.Service<AuthServiceApi>()("AuthService",
             validateTenantAccess,
             updateContext
         };
-    }),
-    dependencies: []
+    })
 }) { }
 
 export default AuthService; 

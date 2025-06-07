@@ -5,22 +5,23 @@
 
 import { ModelFileSchema } from "@/services/ai/model/schema.js";
 import { PolicyConfigFile } from "@/services/ai/policy/schema.js";
-import { ProviderConfigSchema } from "@/services/ai/provider/schema.js";
-import { NodeFileSystem } from "@effect/platform-node";
+import { ProviderFile } from "@/services/ai/provider/schema.js";
+import { FileSystem } from "@effect/platform";
 import { Effect, Schema } from "effect";
 import { ParseError } from "effect/ParseResult";
-import { readFileSync } from "fs";
 import { ConfigurationServiceApi } from "./api.js";
 import { ConfigParseError, ConfigReadError, ConfigValidationError } from "./errors.js";
 import { MasterConfigSchema } from "./schema.js";
 
-const readFile = (filePath: string): Effect.Effect<string, ConfigReadError> =>
-    Effect.try({
-        try: () => readFileSync(filePath, "utf8"),
-        catch: error => new ConfigReadError({
-            filePath,
-            cause: error
-        })
+const readFile = (filePath: string): Effect.Effect<string, ConfigReadError, FileSystem.FileSystem> =>
+    Effect.gen(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        return yield* fs.readFileString(filePath, "utf8").pipe(
+            Effect.mapError(error => new ConfigReadError({
+                filePath,
+                cause: error
+            }))
+        );
     });
 
 const parseJson = (content: string, filePath: string): Effect.Effect<unknown, ConfigParseError> =>
@@ -76,7 +77,7 @@ const makeConfigurationService = Effect.gen(function* () {
                 const effectiveFilePath = masterConfig.configPaths?.providers || filePath;
                 const content = yield* readFile(effectiveFilePath);
                 const parsed = yield* parseJson(content, effectiveFilePath);
-                return yield* validateWithSchema(parsed, ProviderConfigSchema, effectiveFilePath);
+                return yield* validateWithSchema(parsed, ProviderFile, effectiveFilePath);
             }),
 
         loadModelConfig: (filePath: string) =>
@@ -112,8 +113,7 @@ const makeConfigurationService = Effect.gen(function* () {
 export class ConfigurationService extends Effect.Service<ConfigurationServiceApi>()(
     "ConfigurationService",
     {
-        effect: makeConfigurationService,
-        dependencies: [NodeFileSystem.layer]
+        effect: makeConfigurationService
     }
 ) { }
 

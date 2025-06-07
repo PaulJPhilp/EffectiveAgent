@@ -7,8 +7,6 @@ import { describe, expect, it } from "vitest";
 
 import type { RepositoryServiceApi } from "../../repository/api.js";
 import { EntityNotFoundError as RepoEntityNotFoundError, RepositoryError } from "../../repository/errors.js";
-import { RepositoryService } from "../../repository/service.js";
-import type { AttachmentServiceApi } from "../api.js";
 import { AttachmentLinkNotFoundError } from "../errors.js";
 import type { AttachmentLinkEntity } from "../schema.js";
 import { AttachmentService } from "../service.js";
@@ -18,164 +16,164 @@ import type { CreateAttachmentLinkInput } from "../types.js";
 // --- Test Setup ---
 
 describe("AttachmentService", () => {
-  // Create a simple mock repository for testing that conforms to RepositoryServiceApi<AttachmentLinkEntity>
-  const makeAttachmentRepo = (): RepositoryServiceApi<AttachmentLinkEntity> => ({
+  // Create a test repository service using Effect.Service pattern
+  class TestAttachmentRepositoryService extends Effect.Service<RepositoryServiceApi<AttachmentLinkEntity>>()("TestAttachmentRepositoryService", {
+    effect: Effect.gen(function* () {
+      return {
+        create: (data: AttachmentLinkEntity["data"]) => Effect.succeed({
+          id: crypto.randomUUID(),
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          data: data,
+        } as AttachmentLinkEntity),
 
-    create: (data: AttachmentLinkEntity["data"]) => Effect.succeed({
-      id: crypto.randomUUID(),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      data: data,
-    } as AttachmentLinkEntity),
-
-    findById: (id: string) => {
-      if (id === "non-existent-id") {
-        // Convert RepoEntityNotFoundError to RepositoryError to match the interface
-        return Effect.fail(new RepoEntityNotFoundError({
-          entityId: id,
-          entityType: "AttachmentLink"
-        }) as unknown as RepositoryError);
-      }
-      return Effect.succeed(Option.none<AttachmentLinkEntity>());
-    },
-
-    delete: (id: string) => {
-      if (id === "non-existent-id") {
-        return Effect.fail(new RepoEntityNotFoundError({
-          entityId: id,
-          entityType: "AttachmentLink"
-        }) as unknown as RepositoryError);
-      }
-      return Effect.succeed(undefined);
-    },
-
-    findOne: () => Effect.succeed(Option.none()),
-
-    findMany: (options?: any) => {
-      const filter = options?.filter || {};
-
-      // Handle link queries based on source entity
-      if (filter.entityA_id === "chat-1" && filter.entityA_type === "ChatMessage") {
-        return Effect.succeed([
-          {
-            id: "link-1",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            data: {
-              entityA_id: "chat-1",
-              entityA_type: "ChatMessage",
-              entityB_id: "file-abc",
-              entityB_type: "File",
-              linkType: "GENERATED"
-            }
-          },
-          {
-            id: "link-2",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            data: {
-              entityA_id: "chat-1",
-              entityA_type: "ChatMessage",
-              entityB_id: "file-def",
-              entityB_type: "File"
-            }
+        findById: (id: string) => {
+          if (id === "non-existent-id") {
+            // Convert RepoEntityNotFoundError to RepositoryError to match the interface
+            return Effect.fail(new RepoEntityNotFoundError({
+              entityId: id,
+              entityType: "AttachmentLink"
+            }) as unknown as RepositoryError);
           }
-        ]);
-      }
+          return Effect.succeed(Option.none<AttachmentLinkEntity>());
+        },
 
-      // Handle link queries based on target entity
-      if (filter.entityB_id === "file-abc" && filter.entityB_type === "File") {
-        return Effect.succeed([
-          {
-            id: "link-1",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            data: {
-              entityA_id: "chat-1",
-              entityA_type: "ChatMessage",
-              entityB_id: "file-abc",
-              entityB_type: "File",
-              linkType: "GENERATED"
-            }
-          },
-          {
-            id: "link-3",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            data: {
-              entityA_id: "exec-5",
-              entityA_type: "SkillExecution",
-              entityB_id: "file-abc",
-              entityB_type: "File"
-            }
+        delete: (id: string) => {
+          if (id === "non-existent-id") {
+            return Effect.fail(new RepoEntityNotFoundError({
+              entityId: id,
+              entityType: "AttachmentLink"
+            }) as unknown as RepositoryError);
           }
-        ]);
-      }
+          return Effect.succeed(undefined);
+        },
 
-      // For exec-5 source entity
-      if (filter.entityA_id === "exec-5" && filter.entityA_type === "SkillExecution") {
-        return Effect.succeed([
-          {
-            id: "link-3",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            data: {
-              entityA_id: "exec-5",
-              entityA_type: "SkillExecution",
-              entityB_id: "file-abc",
-              entityB_type: "File"
-            }
+        findOne: () => Effect.succeed(Option.none()),
+
+        findMany: (options?: any) => {
+          const filter = options?.filter || {};
+
+          // Handle link queries based on source entity
+          if (filter.entityA_id === "chat-1" && filter.entityA_type === "ChatMessage") {
+            return Effect.succeed([
+              {
+                id: "link-1",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                data: {
+                  entityA_id: "chat-1",
+                  entityA_type: "ChatMessage",
+                  entityB_id: "file-abc",
+                  entityB_type: "File",
+                  linkType: "GENERATED"
+                }
+              },
+              {
+                id: "link-2",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                data: {
+                  entityA_id: "chat-1",
+                  entityA_type: "ChatMessage",
+                  entityB_id: "file-def",
+                  entityB_type: "File"
+                }
+              }
+            ]);
           }
-        ]);
-      }
 
-      // For file-def target entity
-      if (filter.entityB_id === "file-def" && filter.entityB_type === "File") {
-        return Effect.succeed([
-          {
-            id: "link-2",
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            data: {
-              entityA_id: "chat-1",
-              entityA_type: "ChatMessage",
-              entityB_id: "file-def",
-              entityB_type: "File"
-            }
+          // Handle link queries based on target entity
+          if (filter.entityB_id === "file-abc" && filter.entityB_type === "File") {
+            return Effect.succeed([
+              {
+                id: "link-1",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                data: {
+                  entityA_id: "chat-1",
+                  entityA_type: "ChatMessage",
+                  entityB_id: "file-abc",
+                  entityB_type: "File",
+                  linkType: "GENERATED"
+                }
+              },
+              {
+                id: "link-3",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                data: {
+                  entityA_id: "exec-5",
+                  entityA_type: "SkillExecution",
+                  entityB_id: "file-abc",
+                  entityB_type: "File"
+                }
+              }
+            ]);
           }
-        ]);
-      }
 
-      // Default case - empty results
-      return Effect.succeed([]);
-    },
+          // For exec-5 source entity
+          if (filter.entityA_id === "exec-5" && filter.entityA_type === "SkillExecution") {
+            return Effect.succeed([
+              {
+                id: "link-3",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                data: {
+                  entityA_id: "exec-5",
+                  entityA_type: "SkillExecution",
+                  entityB_id: "file-abc",
+                  entityB_type: "File"
+                }
+              }
+            ]);
+          }
 
-    update: () => Effect.succeed({
-      id: "test-id",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      data: {
-        entityA_id: "source-id",
-        entityA_type: "SourceType",
-        entityB_id: "target-id",
-        entityB_type: "TargetType"
-      }
-    } as AttachmentLinkEntity),
+          // For file-def target entity
+          if (filter.entityB_id === "file-def" && filter.entityB_type === "File") {
+            return Effect.succeed([
+              {
+                id: "link-2",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                data: {
+                  entityA_id: "chat-1",
+                  entityA_type: "ChatMessage",
+                  entityB_id: "file-def",
+                  entityB_type: "File"
+                }
+              }
+            ]);
+          }
 
-    count: () => Effect.succeed(0)
-  });
+          // Default case - empty results
+          return Effect.succeed([]);
+        },
 
-  // Set up the test layers
-  const RepoLayer = Layer.succeed(
-    RepositoryService<AttachmentLinkEntity>().Tag,
-    makeAttachmentRepo()
+        update: () => Effect.succeed({
+          id: "test-id",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          data: {
+            entityA_id: "source-id",
+            entityA_type: "SourceType",
+            entityB_id: "target-id",
+            entityB_type: "TargetType"
+          }
+        } as AttachmentLinkEntity),
+
+        count: () => Effect.succeed(0)
+      };
+    })
+  }) { }
+
+  // Create explicit dependency layers following centralized pattern
+  const testRepositoryLayer = TestAttachmentRepositoryService.Default;
+
+  // Wire AttachmentService with explicit dependency chain: TestRepository → AttachmentService
+  const attachmentServiceTestLayer = Layer.provide(
+    AttachmentService.Default,
+    testRepositoryLayer
   );
-
-  // Combine repository layer with the AttachmentService layer
-  const TestLayer = Layer.provide(
-    AttachmentService.Default as unknown as Layer.Layer<unknown>,
-    RepoLayer
-  ) as Layer.Layer<AttachmentServiceApi>;
 
   // --- Test Data ---
   const linkInput1: CreateAttachmentLinkInput = {
@@ -226,7 +224,7 @@ describe("AttachmentService", () => {
         expect(created.data.entityB_id).toBe(linkInput1.entityB_id);
         expect(created.data.entityB_type).toBe(linkInput1.entityB_type);
         expect(created.data.linkType).toBe(linkInput1.linkType);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should create a link with extended fields (metadata, createdBy, expiresAt)", () =>
@@ -247,7 +245,7 @@ describe("AttachmentService", () => {
         expect(created.data.metadata).toEqual(linkInput4.metadata);
         expect(created.data.createdBy).toBe(linkInput4.createdBy);
         expect(created.data.expiresAt).toBe(linkInput4.expiresAt);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should get a link by its ID", () =>
@@ -264,7 +262,7 @@ describe("AttachmentService", () => {
         // Test querying a non-existent ID works as expected
         const notFoundOpt = yield* service.getLinkById("non-existent");
         expect(Option.isNone(notFoundOpt)).toBe(true);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should find links from a specific entity", () =>
@@ -293,7 +291,7 @@ describe("AttachmentService", () => {
           "OtherType",
         );
         expect(linksFromNonExistent).toHaveLength(0);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should find links to a specific entity", () =>
@@ -322,7 +320,7 @@ describe("AttachmentService", () => {
           "OtherType",
         );
         expect(linksToNonExistent).toHaveLength(0);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should delete a link", () =>
@@ -336,7 +334,7 @@ describe("AttachmentService", () => {
 
         // Success is indicated by not throwing an error
         expect(true).toBe(true);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should fail deleteLink with AttachmentLinkNotFoundError for non-existent ID", () =>
@@ -349,7 +347,7 @@ describe("AttachmentService", () => {
           expect(result.left).toBeInstanceOf(AttachmentLinkNotFoundError);
           expect((result.left as AttachmentLinkNotFoundError).linkId).toBe("non-existent-id");
         }
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     // Bulk operation tests
@@ -369,7 +367,7 @@ describe("AttachmentService", () => {
         expect(links[1]?.data.entityB_id).toBe(linkInput2.entityB_id);
         expect(links[2]?.data.entityA_id).toBe(linkInput3.entityA_id);
         expect(links[2]?.data.entityB_id).toBe(linkInput3.entityB_id);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should handle empty array in createLinks", () =>
@@ -380,7 +378,7 @@ describe("AttachmentService", () => {
         expect(links).toBeDefined();
         expect(links).toBeInstanceOf(Array);
         expect(links.length).toBe(0);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should delete all links from a source entity", () =>
@@ -402,7 +400,7 @@ describe("AttachmentService", () => {
           "ChatMessage"
         );
         expect(remainingLinks).toHaveLength(0);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should delete all links to a target entity", () =>
@@ -424,7 +422,7 @@ describe("AttachmentService", () => {
           "File"
         );
         expect(remainingLinks).toHaveLength(0);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     it("should handle no links found in bulk delete operations", () =>
@@ -442,49 +440,51 @@ describe("AttachmentService", () => {
           "Entity"
         );
         expect(toCount).toBe(0);
-      }).pipe(Effect.provide(TestLayer))
+      }).pipe(Effect.provide(attachmentServiceTestLayer))
     );
 
     // Transaction tests
     describe("Transaction Support", () => {
       it("should ensure atomicity in createLinks (all succeed or none)", () =>
         Effect.gen(function* () {
-          // We'll create a special test repo with a failure trigger
-          const FailingRepo: RepositoryServiceApi<AttachmentLinkEntity> = {
-            ...makeAttachmentRepo(),
-            create: (data) => {
-              // Fail on specific entity to simulate partial failure
-              if (data.entityB_id === 'will-fail') {
-                return Effect.fail(new RepositoryError({
-                  message: "Simulated transaction failure",
-                  entityType: "AttachmentLink"
-                }));
-              }
-              return Effect.succeed({
-                id: crypto.randomUUID(),
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                data
-              } as AttachmentLinkEntity);
-            }
-          };
+          // Create a failing repository service using Effect.Service pattern
+          class FailingAttachmentRepositoryService extends Effect.Service<RepositoryServiceApi<AttachmentLinkEntity>>()("FailingAttachmentRepositoryService", {
+            effect: Effect.gen(function* () {
+              return {
+                create: (data) => {
+                  // Fail on specific entity to simulate partial failure
+                  if (data.entityB_id === 'will-fail') {
+                    return Effect.fail(new RepositoryError({
+                      message: "Simulated transaction failure",
+                      entityType: "AttachmentLink"
+                    }));
+                  }
+                  return Effect.succeed({
+                    id: crypto.randomUUID(),
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    data
+                  } as AttachmentLinkEntity);
+                },
+                findById: () => Effect.succeed(Option.none()),
+                findOne: () => Effect.succeed(Option.none()),
+                findMany: () => Effect.succeed([]),
+                update: () => Effect.succeed({} as AttachmentLinkEntity),
+                delete: () => Effect.succeed(undefined),
+                count: () => Effect.succeed(0)
+              };
+            })
+          }) { }
 
-          // Create a layer with our failing repo
-          const FailingRepoLayer = Layer.succeed(
-            RepositoryService<AttachmentLinkEntity>().Tag,
-            FailingRepo
+          // Wire AttachmentService with failing repository
+          const failingTestLayer = Layer.provide(
+            AttachmentService.Default,
+            FailingAttachmentRepositoryService.Default
           );
 
-          // Layer with the failing repo
-          const FailingTestLayer = Layer.provide(
-            AttachmentService.Default as unknown as Layer.Layer<unknown>,
-            FailingRepoLayer
-          ) as Layer.Layer<AttachmentServiceApi>;
-
           // Create service with failing repo
-          const service: AttachmentServiceApi = yield* Effect.provide(
-            AttachmentService,
-            FailingTestLayer
+          const service = yield* AttachmentService.pipe(
+            Effect.provide(failingTestLayer)
           );
 
           // Create an array of links where the middle one will fail

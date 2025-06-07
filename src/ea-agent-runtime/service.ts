@@ -3,7 +3,6 @@ import { ModelService } from "@/services/ai/model/service.js"
 import { PolicyService } from "@/services/ai/policy/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
-import { FileService } from "@/services/core/file/service.js"
 import { Effect, Ref, Stream } from "effect"
 import type { AgentRuntimeServiceApi } from "./api.js"
 import {
@@ -26,7 +25,6 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
         const providerService = yield* ProviderService
         const policyService = yield* PolicyService
         const toolRegistryService = yield* ToolRegistryService
-        const fileService = yield* FileService
 
         // Agent management state (no mailbox/actor logic)
         const runtimes = yield* Ref.make<Map<AgentRuntimeId, Ref.Ref<AgentRuntimeState<any>>>>(new Map())
@@ -102,7 +100,6 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
         const getProviderService = () => Effect.succeed(providerService)
         const getPolicyService = () => Effect.succeed(policyService)
         const getToolRegistryService = () => Effect.succeed(toolRegistryService)
-        const getFileService = () => Effect.succeed(fileService)
         const getChatService = () => {
             // Lazy import to avoid circular dependency during module initialization
             // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -160,11 +157,9 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
             getProviderService,
             getPolicyService,
             getToolRegistryService,
-            getFileService,
             getChatService,
             createLangGraphAgent,
             run
         } satisfies AgentRuntimeServiceApi
-    }),
-    dependencies: [ModelService.Default, ProviderService.Default, PolicyService.Default, ToolRegistryService.Default, FileService.Default]
+    })
 }) { }

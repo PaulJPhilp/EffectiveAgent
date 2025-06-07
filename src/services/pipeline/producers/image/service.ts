@@ -246,8 +246,7 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
         };
 
         return service;
-    }),
-    dependencies: [ModelService.Default, ProviderService.Default]
+    })
 }) { }
 
 export default ImageService;

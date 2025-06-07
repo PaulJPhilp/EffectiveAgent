@@ -3,7 +3,6 @@ import type { ModelServiceApi } from "@/services/ai/model/api.js"
 import type { PolicyServiceApi } from "@/services/ai/policy/api.js"
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
 import type { ToolRegistry } from "@/services/ai/tool-registry/api.js"
-import type { FileServiceApi } from "@/services/core/file/api.js"
 import type { ChatServiceApi } from "@/services/pipeline/producers/chat/api.js"
 import { Effect, Stream } from "effect"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
@@ -137,13 +136,6 @@ export interface AgentRuntimeServiceApi {
      * @returns Effect<ToolRegistry> containing the configured ToolRegistryService
      */
     readonly getToolRegistryService: () => Effect.Effect<ToolRegistry, never>
-
-    /**
-     * Gets the configured FileService instance.
-     * 
-     * @returns Effect<FileServiceApi> containing the configured FileService
-     */
-    readonly getFileService: () => Effect.Effect<FileServiceApi, never>
 
     /**
      * Gets the configured ChatService instance.
