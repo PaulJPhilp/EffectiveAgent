@@ -6,11 +6,11 @@ import { Effect } from "effect"
 import { join } from "path"
 import { fileURLToPath } from "url"
 import { addCommand } from "./commands/add.js"
-import { configCommand } from "./commands/config.js"
+import { configCommands } from "./commands/config.js"
 import { deleteCommand } from "./commands/delete.js"
 import { initCommand } from "./commands/init.js"
 import { listCommand } from "./commands/list.js"
-import { logCommand } from "./commands/log.js"
+import { logCommands } from "./commands/log.js"
 import { runCommand } from "./commands/run.js"
 import { serveCommand } from "./commands/serve.js"
 
@@ -31,10 +31,10 @@ const program = Effect.gen(function* () {
         .pipe(Command.withSubcommands([
             initCommand,
             addCommand,
-            configCommand,
+            configCommands,
             deleteCommand,
             listCommand,
-            logCommand,
+            logCommands,
             runCommand,
             serveCommand
         ]))

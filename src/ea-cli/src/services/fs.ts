@@ -6,12 +6,12 @@ import { join } from "path"
 // FileSystem operations service
 export class FileSystemOps {
     // Create directory if it doesn't exist
-    static createDir = (path: string) =>
+    static createDir = (path: string, options?: { recursive?: boolean }) => // Add options for recursive directory creation
         Effect.gen(function* () {
             const fs = yield* FileSystem.FileSystem
             const exists = yield* fs.exists(path)
             if (!exists) {
-                yield* fs.makeDirectory(path)
+                yield* fs.makeDirectory(path, options) // Pass options to makeDirectory
             }
         })
 
@@ -23,6 +23,13 @@ export class FileSystemOps {
                 path,
                 JSON.stringify(data, null, 2)
             )
+        })
+
+    // Write plain text file
+    static writeFileString = (path: string, data: string) => // Add writeFileString for writing plain text
+        Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem
+            yield* fs.writeFileString(path, data)
         })
 
     // Initialize project structure
@@ -44,4 +51,4 @@ export class FileSystemOps {
 }
 
 // Layer for providing NodeContext
-export const FileSystemLayer = NodeContext.layer 
+export const FileSystemLayer = NodeContext.layer

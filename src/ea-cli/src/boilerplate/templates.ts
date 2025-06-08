@@ -1,4 +1,3 @@
-
 // Default configuration templates
 export const masterConfigTemplate = {
     logPath: "./logs/app.log",
@@ -89,4 +88,55 @@ export const tsConfigTemplate = {
     },
     "include": ["agents/**/*.ts"],
     "exclude": ["node_modules", "dist"]
-} 
+}
+
+export const agentPackageJsonTemplate = (agentName: string) => ({
+    name: `@agents/${agentName}`,
+    version: "0.1.0",
+    private: true,
+    type: "module",
+    scripts: {
+        test: "vitest run",
+        "test:watch": "vitest",
+        build: "tsc -p .",
+    },
+    dependencies: {
+        effect: "^3.16.4",
+        "@effective-agents/core": "^1.0.0",
+    },
+    devDependencies: {
+        "@types/node": "^20.11.30",
+        typescript: "^5.4.3",
+        vitest: "^1.4.0",
+    },
+});
+
+export const vitestConfigTemplate = `\
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: "node",
+  },
+});
+`;
+
+export const agentIndexTemplate = `\
+import { Effect } from "effect";
+
+// Define your agent logic here
+export const main = Effect.succeed("Hello from agent!");
+`;
+
+export const agentTestTemplate = `\
+import { describe, it, expect } from "vitest";
+import { main } from "../agent"; // Adjust path as needed
+
+describe("Agent Tests", () => {
+  it("should succeed", async () => {
+    // Replace with actual test logic
+    expect(true).toBe(true);
+  });
+});
+`;
