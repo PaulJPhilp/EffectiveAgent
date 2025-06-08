@@ -9,7 +9,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
     "lib": ["ESNext", "DOM"],
     "baseUrl": ".",
@@ -33,8 +32,19 @@
       "@core/test-utils/*": ["src/services/core/test-utils/*"],
       "@effectors/*": ["src/effectors/*"],
       "@ea/*": ["src/ea/*"]
-    }
+    },
+    "composite": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist"
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "test/**/*.ts"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "src/ea-cli"
+  ]
 }

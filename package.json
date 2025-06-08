@@ -10,10 +10,10 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "effect": "^3.16.0",
+    "effect": "3.16.4",
     "qwen-ai-provider": "^0.1.0"
   },
   "devDependencies": {
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.3"
   }
 }

@@ -1,0 +1,148 @@
+import { Command } from "@effect/cli"
+import { FileSystem } from "@effect/platform"
+import { NodeContext } from "@effect/platform-node"
+import { Effect } from "effect"
+import { join } from "path"
+import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { initCommand } from "../init.js"
+
+describe("init command", () => {
+    const TEST_DIR = join(process.cwd(), "test-workspace")
+    const PROJECT_NAME = "test-project"
+    const PROJECT_PATH = join(TEST_DIR, PROJECT_NAME)
+
+    // Set up test workspace before each test
+    beforeEach(async () => {
+        const fs = await Effect.runPromise(
+            Effect.gen(function* () {
+                return yield* FileSystem.FileSystem
+            }).pipe(Effect.provide(NodeContext.layer))
+        )
+
+        // Create test directory
+        await Effect.runPromise(
+            fs.makeDirectory(TEST_DIR).pipe(Effect.provide(NodeContext.layer))
+        )
+
+        // Change to test directory
+        process.chdir(TEST_DIR)
+    })
+
+    // Clean up after each test
+    afterEach(async () => {
+        const fs = await Effect.runPromise(
+            Effect.gen(function* () {
+                return yield* FileSystem.FileSystem
+            }).pipe(Effect.provide(NodeContext.layer))
+        )
+
+        // Remove test directory recursively
+        await Effect.runPromise(
+            fs.remove(TEST_DIR, { recursive: true })
+                .pipe(Effect.provide(NodeContext.layer))
+        )
+    })
+
+    it("should create a complete and valid workspace", async () => {
+        // Run init command
+        await Effect.runPromise(
+            Effect.gen(function* () {
+                // Run command with arguments
+                yield* Command.run(initCommand, { 
+                    name: "init", 
+                    version: "1.0.0" 
+                })(["init", PROJECT_NAME])
+
+                // Get FileSystem
+                const fs = yield* FileSystem.FileSystem
+
+                // Verify directory structure
+                const projectExists = yield* fs.exists(PROJECT_PATH)
+                expect(projectExists).toBe(true)
+
+                const configExists = yield* fs.exists(join(PROJECT_PATH, "ea-config"))
+                expect(configExists).toBe(true)
+
+                const agentsExists = yield* fs.exists(join(PROJECT_PATH, "agents"))
+                expect(agentsExists).toBe(true)
+
+                const logsExists = yield* fs.exists(join(PROJECT_PATH, "logs"))
+                expect(logsExists).toBe(true)
+
+                // Verify configuration files
+                const configFiles = [
+                    "master-config.json",
+                    "models.json",
+                    "providers.json",
+                    "policy.json",
+                    "tool-registry.json"
+                ]
+
+                for (const file of configFiles) {
+                    const exists = yield* fs.exists(join(PROJECT_PATH, "ea-config", file))
+                    expect(exists).toBe(true)
+
+                    const content = yield* fs.readFileString(join(PROJECT_PATH, "ea-config", file))
+                    expect(() => JSON.parse(content)).not.toThrow()
+                }
+
+                // Verify project files
+                const projectFiles = [
+                    "package.json",
+                    "tsconfig.json",
+                    ".biomerc.json"
+                ]
+
+                for (const file of projectFiles) {
+                    const exists = yield* fs.exists(join(PROJECT_PATH, file))
+                    expect(exists).toBe(true)
+
+                    const content = yield* fs.readFileString(join(PROJECT_PATH, file))
+                    expect(() => JSON.parse(content)).not.toThrow()
+                }
+
+                // Verify package.json content
+                const packageJson = JSON.parse(
+                    yield* fs.readFileString(join(PROJECT_PATH, "package.json"))
+                )
+                expect(packageJson.name).toBe(PROJECT_NAME)
+                expect(packageJson.workspaces).toContain("agents/*")
+                expect(packageJson.dependencies.effect).toBeDefined()
+                expect(packageJson.devDependencies["@biomejs/biome"]).toBeDefined()
+            }).pipe(
+                Effect.catchAll((err) => Effect.fail(err)),
+                Effect.provide(NodeContext.layer)
+            )
+        )
+    })
+
+    it("should fail if project directory already exists", async () => {
+        // Create project directory first
+        const fs = await Effect.runPromise(
+            Effect.gen(function* () {
+                return yield* FileSystem.FileSystem
+            }).pipe(Effect.provide(NodeContext.layer))
+        )
+
+        await Effect.runPromise(
+            fs.makeDirectory(PROJECT_PATH).pipe(Effect.provide(NodeContext.layer))
+        )
+
+        // Run init command and expect failure
+        try {
+            await Effect.runPromise(
+                Command.run(initCommand, { 
+                    name: "init", 
+                    version: "1.0.0" 
+                })(["init", PROJECT_NAME]).pipe(
+                    Effect.provide(NodeContext.layer)
+                )
+            )
+            // If we reach here, the command did not fail
+            throw new Error("Expected command to fail but it succeeded")
+        } catch (error) {
+            // Command failed as expected
+            expect(error).toBeDefined()
+        }
+    })
+})

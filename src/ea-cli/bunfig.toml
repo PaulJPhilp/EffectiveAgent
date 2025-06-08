@@ -1,0 +1,6 @@
+[test]
+preload = ["./effect-compat-plugin.js"]
+
+# Add module resolution for effect/ReadonlyArray -> effect/Array
+[resolve]
+"effect/ReadonlyArray" = "effect/Array"

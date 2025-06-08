@@ -1,0 +1,39 @@
+{
+  "name": "@effective-agents/cli",
+  "version": "1.0.0",
+  "description": "Official command-line interface for the Effective Agents framework",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "ea-cli": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "NODE_OPTIONS='--experimental-specifier-resolution=node --experimental-json-modules' bun run src/index.ts",
+    "test": "vitest",
+    "format": "biome format --write .",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "effect": "3.16.4",
+    "@effect/cli": "0.63.8",
+    "@effect/platform": "0.84.8",
+    "@effect/platform-node": "0.85.8",
+    "@effect/printer": "0.44.4",
+    "@effect/printer-ansi": "0.44.4"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.6.1",
+    "@types/node": "20.11.30",
+    "typescript": "5.4.3",
+    "vitest": "1.4.0"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "cli",
+    "effective-agents"
+  ],
+  "author": "Effective Agents Team",
+  "license": "MIT"
+}
