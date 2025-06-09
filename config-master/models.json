@@ -1,323 +1,79 @@
 {
-  "name": "Model Configurations",
-  "version": "0.1.0",
+  "name": "model-config",
+  "version": "1.0.0",
   "models": [
     {
-      "id": "gpt-35-turbo",
-      "name": "GPT-3.5 Turbo",
-      "version": "0.1.0",
-      "provider": "openai",
-      "modelName": "gpt-3.5-turbo",
-      "temperature": 0.7,
-      "maxTokens": 4096,
-      "contextWindowSize": "medium",
-      "costPer1kInputTokens": 0.0005,
-      "costPer1kOutputTokens": 0.0015,
-      "capabilities": ["text-generation", "chat", "function-calling"],
-      "metadata": {
-        "description": "Fast and capable model for chat and general tasks."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 3500,
-        "tokensPerMinute": 180000
-      }
-    },
-    {
-      "id": "gpt-4-turbo",
-      "name": "GPT-4 Turbo",
-      "version": "0.1.0",
-      "provider": "openai",
-      "modelName": "gpt-4-turbo",
-      "maxTokens": 4096,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.01,
-      "costPer1kOutputTokens": 0.03,
+      "id": "qwen-max",
+      "name": "qwen-max",
+      "provider": "qwen",
+      "version": "2.5.0",
+      "description": "Qwen's most powerful model with advanced reasoning capabilities",
+      "contextWindow": 32768,
       "capabilities": [
-        "text-generation",
-        "chat",
-        "function-calling",
-        "vision",
-        "reasoning",
-        "code-generation"
+        {
+          "capability": "chat",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "text-generation",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "function-calling",
+          "proficiency": "expert"
+        }
       ],
-      "metadata": {
-        "description": "Latest generation GPT-4 Turbo model with vision capabilities."
+      "pricing": {
+        "inputTokens": 0.0001,
+        "outputTokens": 0.0002
       },
-      "rateLimit": {
-        "requestsPerMinute": 5000,
-        "tokensPerMinute": 600000
-      }
+      "enabled": true
     },
     {
-      "id": "gemini-15-pro",
-      "name": "Gemini 1.5 Pro",
-      "version": "0.1.0",
-      "provider": "google",
-      "modelName": "gemini-1.5-pro-latest",
-      "maxTokens": 8192,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.0035,
-      "costPer1kOutputTokens": 0.0105,
+      "id": "qwen-plus",
+      "name": "qwen-plus",
+      "provider": "qwen",
+      "version": "2.5.0",
+      "description": "Balanced model for general use",
+      "contextWindow": 32768,
       "capabilities": [
-        "text-generation",
-        "chat",
-        "function-calling",
-        "vision",
-        "audio",
-        "reasoning",
-        "code-generation"
+        {
+          "capability": "chat",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "text-generation",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "function-calling",
+          "proficiency": "expert"
+        }
       ],
-      "metadata": {
-        "description": "Latest Pro version of Gemini 1.5 with large context window."
+      "pricing": {
+        "inputTokens": 0.001,
+        "outputTokens": 0.005
       },
-      "rateLimit": {
-        "requestsPerMinute": 1500,
-        "tokensPerMinute": 300000
-      }
+      "enabled": true
     },
     {
-      "id": "gemini-15-flash",
-      "name": "Gemini 1.5 Flash",
-      "version": "0.1.0",
-      "provider": "google",
-      "modelName": "gemini-1.5-flash-latest",
-      "maxTokens": 8192,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.00035,
-      "costPer1kOutputTokens": 0.00105,
+      "id": "text-embedding-v3",
+      "name": "text-embedding-v3",
+      "provider": "qwen",
+      "version": "3.0.0",
+      "description": "Qwen's text embedding model",
+      "contextWindow": 8192,
       "capabilities": [
-        "text-generation",
-        "chat",
-        "function-calling",
-        "vision",
-        "audio",
-        "reasoning",
-        "code-generation"
+        {
+          "capability": "embeddings",
+          "proficiency": "expert"
+        }
       ],
-      "metadata": {
-        "description": "Fast and cost-effective version of Gemini 1.5."
+      "pricing": {
+        "inputTokens": 0.00001,
+        "outputTokens": 0.00001
       },
-      "rateLimit": {
-        "requestsPerMinute": 3000,
-        "tokensPerMinute": 450000
-      }
-    },
-    {
-      "id": "dall-e-3",
-      "name": "DALL-E 3",
-      "version": "0.1.0",
-      "provider": "openai",
-      "modelName": "dall-e-3",
-      "contextWindowSize": "small",
-      "costPer1kInputTokens": 0,
-      "costPer1kOutputTokens": 0,
-      "capabilities": ["image-generation"],
-      "metadata": {
-        "description": "Latest image generation model from OpenAI."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 5
-      }
-    },
-    {
-      "id": "claude-3-opus",
-      "name": "Claude 3 Opus",
-      "version": "0.1.0",
-      "provider": "anthropic",
-      "modelName": "claude-3-opus-20240229",
-      "maxTokens": 4096,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.015,
-      "costPer1kOutputTokens": 0.075,
-      "capabilities": [
-        "text-generation",
-        "chat",
-        "function-calling",
-        "vision",
-        "reasoning",
-        "code-generation",
-        "tool-use"
-      ],
-      "metadata": {
-        "description": "Most powerful Claude 3 model."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 150,
-        "tokensPerMinute": 100000
-      }
-    },
-    {
-      "id": "claude-35-sonnet",
-      "name": "Claude 3.5 Sonnet",
-      "version": "0.1.0",
-      "provider": "anthropic",
-      "modelName": "claude-3-5-sonnet-20240229",
-      "maxTokens": 4096,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.003,
-      "costPer1kOutputTokens": 0.015,
-      "capabilities": [
-        "text-generation",
-        "chat",
-        "function-calling",
-        "vision",
-        "reasoning",
-        "code-generation",
-        "tool-use"
-      ],
-      "metadata": {
-        "description": "Latest balanced Claude 3.5 model."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 3000,
-        "tokensPerMinute": 450000
-      }
-    },
-    {
-      "id": "text-embedding-3-small",
-      "name": "Text Embedding 3 Small",
-      "version": "0.1.0",
-      "provider": "openai",
-      "modelName": "text-embedding-3-small",
-      "maxTokens": 8191,
-      "contextWindowSize": "medium",
-      "costPer1kInputTokens": 0.00002,
-      "costPer1kOutputTokens": 0,
-      "capabilities": ["embeddings"],
-      "metadata": {
-        "description": "Small text embedding model from OpenAI."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 3500
-      }
-    },
-    {
-      "id": "text-embedding-3-large",
-      "name": "Text Embedding 3 Large",
-      "version": "0.1.0",
-      "provider": "openai",
-      "modelName": "text-embedding-3-large",
-      "maxTokens": 8191,
-      "contextWindowSize": "medium",
-      "costPer1kInputTokens": 0.00013,
-      "costPer1kOutputTokens": 0,
-      "capabilities": ["embeddings"],
-      "metadata": {
-        "description": "Large text embedding model from OpenAI."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 3000
-      }
-    },
-    {
-      "id": "llama-3-70b-instruct",
-      "name": "LLaMA 3 70B Instruct",
-      "version": "0.1.0",
-      "provider": "groq",
-      "modelName": "llama3-70b-8192",
-      "maxTokens": 8192,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.00059,
-      "costPer1kOutputTokens": 0.00079,
-      "capabilities": [
-        "text-generation",
-        "chat",
-        "reasoning",
-        "code-generation"
-      ],
-      "metadata": {
-        "description": "70B parameter LLaMA 3 Instruct model (via Groq)."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 30000,
-        "tokensPerMinute": 900000
-      }
-    },
-    {
-      "id": "llama-3-8b-instruct",
-      "name": "LLaMA 3 8B Instruct",
-      "version": "0.1.0",
-      "provider": "groq",
-      "modelName": "llama3-8b-8192",
-      "maxTokens": 8192,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.00005,
-      "costPer1kOutputTokens": 0.0001,
-      "capabilities": [
-        "text-generation",
-        "chat",
-        "reasoning",
-        "code-generation"
-      ],
-      "metadata": {
-        "description": "8B parameter LLaMA 3 Instruct model (via Groq)."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 30000,
-        "tokensPerMinute": 900000
-      }
-    },
-    {
-      "id": "sonar-pro",
-      "name": "Sonar Pro",
-      "version": "0.1.0",
-      "provider": "perplexity",
-      "modelName": "sonar-pro",
-      "maxTokens": 4096,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.005,
-      "costPer1kOutputTokens": 0.005,
-      "capabilities": ["text-generation", "chat", "search-grounding"],
-      "metadata": {
-        "description": "Premier offering with search grounding and real-time citations."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 1000,
-        "tokensPerMinute": 200000
-      }
-    },
-    {
-      "id": "sonar",
-      "name": "Sonar",
-      "version": "0.1.0",
-      "provider": "perplexity",
-      "modelName": "sonar",
-      "maxTokens": 4096,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.002,
-      "costPer1kOutputTokens": 0.002,
-      "capabilities": ["text-generation", "chat", "search-grounding"],
-      "metadata": {
-        "description": "Lightweight offering, faster and cheaper with search grounding."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 2000,
-        "tokensPerMinute": 400000
-      }
-    },
-    {
-      "id": "sonar-deep-research",
-      "name": "Sonar Deep Research",
-      "version": "0.1.0",
-      "provider": "perplexity",
-      "modelName": "sonar-deep-research",
-      "maxTokens": 8192,
-      "contextWindowSize": "large",
-      "costPer1kInputTokens": 0.01,
-      "costPer1kOutputTokens": 0.01,
-      "capabilities": [
-        "text-generation",
-        "chat",
-        "search-grounding",
-        "research"
-      ],
-      "metadata": {
-        "description": "For in-depth research tasks with comprehensive search grounding."
-      },
-      "rateLimit": {
-        "requestsPerMinute": 500,
-        "tokensPerMinute": 100000
-      }
+      "enabled": true
     }
   ]
 }

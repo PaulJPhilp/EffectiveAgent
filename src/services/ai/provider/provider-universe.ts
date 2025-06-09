@@ -136,6 +136,21 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
       apiKeyEnvVar: "QWEN_API_KEY",
       baseUrl: "https://dashscope.aliyuncs.com/api/v1"
     }
+  },
+  {
+    name: "local",
+    displayName: "Local LLM",
+    logoUrl: "https://img.icons8.com/material/24/server.png",
+    docsUrl: "https://github.com/ggerganov/llama.cpp",
+    capabilities: [
+      "text-generation",
+      "chat",
+      "function-calling"
+    ],
+    configSchema: {
+      apiKeyEnvVar: "LOCAL_API_KEY",
+      baseUrl: "http://localhost:8000/v1"
+    }
   }
 ] as const;
 

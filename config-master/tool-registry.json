@@ -1,0 +1,12 @@
+{
+    "name": "tool-registry",
+    "version": "1.0.0",
+    "toolkits": [
+        {
+            "name": "test-toolkit",
+            "description": "Basic test toolkit for CLI testing",
+            "version": "1.0.0",
+            "tools": []
+        }
+    ]
+}

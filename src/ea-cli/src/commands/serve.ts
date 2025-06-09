@@ -1,172 +1,490 @@
-import { Args, Command, Options } from "@effect/cli";
-import { FileSystem, Path } from "@effect/platform";
-import { NodeContext } from "@effect/platform-node";
-import { Console, Duration, Effect, Stream } from "effect";
+import { ActorServer } from "@/ea-actor-runtime/server.js"
+import { AgentRuntimeService } from "@/ea-agent-runtime/service.js"
+import { Args, Command, Options } from "@effect/cli"
+import { Path } from "@effect/platform"
+import { NodeContext } from "@effect/platform-node"
+import { Console, Duration, Effect, Layer, Schedule, Stream } from "effect"
+import {
+  AgentRuntimeError,
+  ConfigurationError,
+  FileSystemError,
+  NetworkError,
+  mapUnknownError,
+} from "../errors.js"
+import { exists } from "../services/fs.js"
+import {
+  type ClientConnectEvent,
+  type ClientDisconnectEvent,
+  type RequestEvent,
+  type ResponseEvent,
+  type ServerEventUnion,
+  type ServerReadyEvent,
+  type ServerStartEvent,
+  type ServerStopEvent
+} from "../types/server.js"
 
-type ServerEventType = 'SERVER_START' | 'REQUEST' | 'RESPONSE' | 'ERROR' | 'INFO' | 'HEARTBEAT';
-
-interface ServerEvent {
-    type: ServerEventType;
-    timestamp: Date;
-    data: any;
+const formatEvent = (event: ServerEventUnion): string => {
+  const timestamp = event.timestamp.toISOString()
+  switch (event.type) {
+    case "SERVER_START": {
+      const data = event.data as ServerStartEvent["data"]
+      return `[${timestamp}] 🚀 Server starting on ${data.host}:${data.port}`
+    }
+    case "SERVER_READY": {
+      const data = event.data as ServerReadyEvent["data"]
+      return `[${timestamp}] ✅ Server ready at ws://${data.host}:${data.port}`
+    }
+    case "SERVER_STOP": {
+      const data = event.data as ServerStopEvent["data"]
+      return `[${timestamp}] 🛑 Server stopping: ${data.reason}`
+    }
+    case "CLIENT_CONNECT": {
+      const data = event.data as ClientConnectEvent["data"]
+      return `[${timestamp}] 🔌 Client connected [${data.clientId}]`
+    }
+    case "CLIENT_DISCONNECT": {
+      const data = event.data as ClientDisconnectEvent["data"]
+      return `[${timestamp}] ❌ Client disconnected [${data.clientId}]: ${data.reason || "Unknown reason"
+        }`
+    }
+    case "REQUEST": {
+      const data = event.data as RequestEvent["data"]
+      return `[${timestamp}] 📥 [${data.clientId}] ${data.message}`
+    }
+    case "RESPONSE": {
+      const data = event.data as ResponseEvent["data"]
+      return `[${timestamp}] 📤 [${data.clientId}] ${data.message}`
+    }
+    case "ERROR": {
+      return `[${timestamp}] ❌ ERROR: ${event.data.message}`
+    }
+    case "HEARTBEAT": {
+      const { activeConnections, memory, uptime } = event.data
+      const memoryMb = Math.round(memory.heapUsed / 1024 / 1024)
+      const uptimeHours = Math.round((uptime / 3600) * 10) / 10
+      return `[${timestamp}] 💓 Connections: ${activeConnections}, Memory: ${memoryMb}MB, Uptime: ${uptimeHours}h`
+    }
+    case "INFO":
+    default: {
+      return `[${timestamp}] ℹ️  ${event.data.message}`
+    }
+  }
 }
 
-let lastRequestId = 0;
-const nextRequestId = () => (++lastRequestId).toString();
+// WebSocket-based agent server implementation with proper Effect error handling
+const serveAgent = (
+  agentName: string,
+  port: number,
+  host: string,
+): Stream.Stream<ServerEventUnion, never, unknown> => {
+  // Validate server configuration with Effect
+  const validateServerConfig = Effect.gen(function* () {
+    const server = yield* ActorServer
 
-const mockEndpoints = [
-    { method: 'POST', path: '/chat', description: 'Chat endpoint' },
-    { method: 'POST', path: '/generate', description: 'Text generation endpoint' },
-    { method: 'POST', path: '/analyze', description: 'Analysis endpoint' },
-];
+    const addr = yield* Effect.try({
+      try: () => server.wss.address(),
+      catch: (error) =>
+        new NetworkError({
+          message: `Failed to get server address: ${mapUnknownError(error).message}`,
+          operation: "server-validation",
+          host,
+          port,
+          cause: error,
+        }),
+    })
 
-const mockStatusCodes = [200, 200, 200, 200, 201, 400, 500]; // Weighted towards success
+    return yield* addr && typeof addr !== "string"
+      ? Effect.fail(
+        new NetworkError({
+          message: `Port ${port} is already in use. Choose a different port or stop any existing server.`,
+          operation: "server-validation",
+          host,
+          port,
+        }),
+      )
+      : Effect.succeed(undefined)
+  })
 
-// Mocked framework function for serving an agent
-const mockServeAgent = (agentName: string, port: number, host: string): Stream.Stream<ServerEvent, Error, never> => {
-    // Stream for startup events
-    const startupEvents = Stream.fromIterable([
-        {
-            type: 'SERVER_START' as const,
-            timestamp: new Date(),
-            data: { agentName, host, port, message: 'Starting server...' }
+  // Create startup event stream with proper error handling
+  const startupEvents = Stream.fromEffect(
+    Effect.gen(function* () {
+      const server = yield* ActorServer
+      const startEvent: ServerEventUnion = {
+        type: "SERVER_START",
+        timestamp: new Date(),
+        data: { agentName, host, port, message: "Starting server" },
+      }
+
+      // The WebSocket server starts listening when first created
+      const readyEvent: ServerEventUnion = {
+        type: "SERVER_READY",
+        timestamp: new Date(),
+        data: { agentName, host, port, message: "Server ready" },
+      }
+
+      return [startEvent, readyEvent]
+    }),
+  ).pipe(Stream.flatMap(Stream.fromIterable))
+
+  // Process client connections with Effect-based error handling
+  const connectionEvents = Effect.gen(function* () {
+    const server = yield* ActorServer
+    return Stream.fromEffect(
+      Effect.async<ServerEventUnion>((resume) => {
+        server.wss.on("connection", (ws) => {
+          const clientId = Math.random().toString(36).slice(2)
+
+          // Handle connect
+          resume(
+            Effect.succeed({
+              type: "CLIENT_CONNECT",
+              timestamp: new Date(),
+              data: { clientId, agentName, host, port, message: "Client connected" },
+            } as ServerEventUnion),
+          )
+
+          // Handle messages with Effect
+          ws.on("message", (data) => {
+            const message = data.toString()
+            resume(
+              Effect.succeed({
+                type: "REQUEST",
+                timestamp: new Date(),
+                data: { clientId, agentName, host, port, message },
+              } as ServerEventUnion),
+            )
+
+            // Process request with Effect
+            Effect.gen(function* () {
+              return yield* Effect.succeed({
+                type: "RESPONSE",
+                timestamp: new Date(),
+                data: { clientId, agentName, host, port, message: "Message received" },
+              } as ServerEventUnion)
+            }).pipe(Effect.map((event) => resume(Effect.succeed(event))))
+          })
+
+          // Handle disconnect with proper cleanup
+          ws.on("close", (code, reason) => {
+            resume(
+              Effect.succeed({
+                type: "CLIENT_DISCONNECT",
+                timestamp: new Date(),
+                data: {
+                  clientId,
+                  agentName,
+                  host,
+                  port,
+                  message: reason.toString() || "Client disconnected",
+                  code,
+                },
+              } as ServerEventUnion),
+            )
+          })
+
+          // Handle WebSocket errors
+          ws.on("error", (error) => {
+            resume(
+              Effect.succeed({
+                type: "ERROR",
+                timestamp: new Date(),
+                data: {
+                  clientId,
+                  agentName,
+                  host,
+                  port,
+                  message: `WebSocket error: ${error.message}`,
+                  code: error instanceof Error && error.name !== "Error" ? 1002 : 1011,
+                  cause: error,
+                },
+              } as ServerEventUnion),
+            )
+          })
+        })
+
+        return Effect.succeed(void 0)
+      }),
+    )
+  })
+
+  // Handle heartbeats with Effect
+  const heartbeatEvents = Stream.repeatEffect(
+    Effect.gen(function* () {
+      const server = yield* ActorServer
+
+      const event: ServerEventUnion = {
+        type: "HEARTBEAT",
+        timestamp: new Date(),
+        data: {
+          agentName,
+          host,
+          port,
+          message: "Server heartbeat",
+          activeConnections: server.wss.clients.size,
+          uptime: process.uptime(),
+          memory: process.memoryUsage(),
         },
-        {
-            type: 'INFO' as const,
-            timestamp: new Date(),
-            data: { message: 'Loading agent configuration...' }
-        },
-        {
-            type: 'INFO' as const,
-            timestamp: new Date(),
-            data: { message: 'Agent loaded successfully' }
-        },
-        {
-            type: 'INFO' as const,
-            timestamp: new Date(),
-            data: { message: 'Server ready' }
-        }
-    ]);
+      }
 
-    // Stream for periodic heartbeat events (every 5 seconds)
-    const heartbeatEvents = Stream.repeatEffect(
-        Effect.succeed({
-            type: 'HEARTBEAT' as const,
+      return event
+    })
+  ).pipe(
+    Stream.schedule(Schedule.fixed(Duration.seconds(30)))
+  )
+
+  // Handle graceful process termination
+  const cleanupEvents = Stream.fromEffect(
+    Effect.async<ServerEventUnion>((resume) => {
+      const cleanup = () => {
+        resume(
+          Effect.succeed({
+            type: "SERVER_STOP",
             timestamp: new Date(),
             data: {
-                uptime: process.uptime(),
-                memory: process.memoryUsage(),
-                activeRequests: Math.floor(Math.random() * 5)
-            }
-        }).pipe(Effect.delay(Duration.seconds(5)))
-    );
-
-    // Stream for simulated request/response events (random intervals)
-    const requestEvents = Stream.repeatEffect(
-        Effect.gen(function* (_) {
-            const reqId = nextRequestId();
-            const endpoint = mockEndpoints[Math.floor(Math.random() * mockEndpoints.length)];
-            const status = mockStatusCodes[Math.floor(Math.random() * mockStatusCodes.length)];
-
-            // Random delay between 1-3 seconds for the next request
-            const delay = Math.floor(Math.random() * 2000) + 1000;
-
-            yield* _(Effect.sleep(Duration.millis(delay)));
-
-            // Emit request event
-            const requestEvent: ServerEvent = {
-                type: 'REQUEST',
-                timestamp: new Date(),
-                data: {
-                    id: reqId,
-                    method: endpoint.method,
-                    path: endpoint.path,
-                    description: endpoint.description
-                }
-            };
-
-            // Emit response event after a short delay
-            const responseEvent: ServerEvent = {
-                type: 'RESPONSE',
-                timestamp: new Date(),
-                data: {
-                    requestId: reqId,
-                    status,
-                    message: status === 200 ? 'Success' : status === 400 ? 'Bad Request' : 'Internal Error'
-                }
-            };
-
-            return [requestEvent, responseEvent];
-        }).pipe(
-            Effect.delay(Duration.seconds(2))
+              agentName,
+              host,
+              port,
+              message: "Server stopping due to process termination",
+            },
+          } as ServerEventUnion),
         )
-    ).pipe(Stream.flatMap(Stream.fromIterable));
+        process.exit(0)
+      }
 
-    // Merge all event streams
-    return Stream.merge(startupEvents, Stream.merge(heartbeatEvents, requestEvents));
-};
+      process.on("SIGINT", cleanup)
+      process.on("SIGTERM", cleanup)
 
-// Helper to format events for console output
-const formatEvent = (event: ServerEvent): string => {
-    const timestamp = event.timestamp.toISOString();
-    switch (event.type) {
-        case 'SERVER_START':
-            return `[${timestamp}] 🚀 Server starting on ${event.data.host}:${event.data.port}`;
-        case 'REQUEST':
-            return `[${timestamp}] ← ${event.data.method} ${event.data.path} (${event.data.id})`;
-        case 'RESPONSE': {
-            const statusEmoji = event.data.status < 300 ? '✅' : event.data.status < 500 ? '⚠️' : '❌';
-            return `[${timestamp}] → [${event.data.status}] ${statusEmoji} (${event.data.requestId})`;
-        }
-        case 'ERROR':
-            return `[${timestamp}] ❌ ERROR: ${event.data.message}`;
-        case 'HEARTBEAT':
-            return `[${timestamp}] 💓 Active requests: ${event.data.activeRequests}`;
-        case 'INFO':
-        default:
-            return `[${timestamp}] ℹ️  ${event.data.message}`;
-    }
-};
+      return Effect.succeed(void 0)
+    }),
+  )
 
-export const serveCommand = Command.make(
-    "serve",
-    {
-        agentName: Args.text({ name: "agent-name" }),
-        port: Options.integer("port").pipe(Options.withDefault(3000)),
-        host: Options.text("host").pipe(Options.withDefault("127.0.0.1")),
-    },
-    ({ agentName, port, host }) =>
-        Effect.gen(function* (_) {
-            const fs = yield* _(FileSystem.FileSystem);
-            const pathSvc = yield* _(Path.Path);
-            const cwd = process.cwd();
+  // Merge all event streams with proper error handling
+  return Stream.mergeAll(
+    [
+      startupEvents,
+      Stream.fromEffect(connectionEvents).pipe(
+        Stream.flatten,
+      ) as Stream.Stream<ServerEventUnion, never, unknown>,
+      heartbeatEvents,
+      cleanupEvents,
+    ],
+    { concurrency: "unbounded" },
+  ).pipe(
+    Stream.catchAll((error) =>
+      Stream.succeed({
+        type: "ERROR",
+        timestamp: new Date(),
+        data: {
+          agentName,
+          host,
+          port,
+          message: `Stream error: ${String(error)}`,
+          cause: error,
+        },
+      } as ServerEventUnion),
+    ),
+  )
+}
 
-            // 1. Validate agent exists
-            const agentDir = pathSvc.join(cwd, "agents", agentName);
-            const agentExists = yield* _(fs.exists(agentDir));
-            if (!agentExists) {
-                yield* _(Console.error(`Agent directory not found: ${agentDir}`));
-                return yield* _(Effect.fail(new Error(`Agent '${agentName}' not found.`)));
-            }
+const validateAgentConfiguration = (agentDir: string, configDir: string) =>
+  Effect.gen(function* () {
+    const pathSvc = yield* Path.Path
 
-            // 2. Validate config exists (simplified check)
-            const modelConfigPath = pathSvc.join(cwd, "ea-config", "models.json");
-            const configExists = yield* _(fs.exists(modelConfigPath));
-            if (!configExists) {
-                yield* _(Console.error(`Models configuration not found: ${modelConfigPath}`));
-                return yield* _(Effect.fail(new Error("Project models.json not found.")));
-            }
+    // Check required config files with improved error messages
+    const requiredConfigs = [
+      { name: "models.json", desc: "model configurations" },
+      { name: "providers.json", desc: "provider settings" },
+      { name: "policy.json", desc: "policy rules" },
+    ]
 
-            yield* _(Console.log(`Starting agent server for ${agentName}...`));
+    yield* Effect.forEach(
+      requiredConfigs,
+      (config) => {
+        const configPath = pathSvc.join(configDir, config.name)
+        return exists(configPath).pipe(
+          Effect.mapError(
+            (err) =>
+              new FileSystemError({
+                message: `Failed to check if ${config.name} exists. Please ensure ea-config directory is accessible.`,
+                path: configPath,
+                operation: "exists",
+                cause: err,
+              }),
+          ),
+          Effect.flatMap((exists) =>
+            exists
+              ? Effect.succeed(undefined)
+              : Effect.fail(
+                new ConfigurationError({
+                  message: `Required configuration file ${config.name} not found.\nThis file contains ${config.desc} and must exist in ea-config/.`,
+                  configPath,
+                  errorType: "missing",
+                }),
+              ),
+          ),
+        )
+      },
+      { concurrency: 1 },
+    )
 
-            const serverEventStream = mockServeAgent(agentName, port, host);
+    // Check agent package with detailed validation
+    const packagePath = pathSvc.join(agentDir, "package.json")
+    yield* exists(packagePath).pipe(
+      Effect.mapError(
+        (err) =>
+          new FileSystemError({
+            message:
+              "Failed to check agent's package.json. Please ensure the agent directory is accessible.",
+            path: packagePath,
+            operation: "exists",
+            cause: err,
+          }),
+      ),
+      Effect.flatMap((exists) =>
+        exists
+          ? Effect.succeed(undefined)
+          : Effect.fail(
+            new ConfigurationError({
+              message:
+                "Agent package.json not found. Please ensure:\n" +
+                "1. The agent was created using 'ea-cli add:agent'\n" +
+                "2. The agent directory structure is intact\n" +
+                "3. You are in the correct workspace directory",
+              configPath: packagePath,
+              errorType: "missing",
+            }),
+          ),
+      ),
+    )
+  })
 
-            // Process the event stream
-            yield* _(
-                Stream.runForEach(
-                    serverEventStream,
-                    (event) => Console.log(formatEvent(event))
-                )
-            );
-        }).pipe(Effect.provide(NodeContext.layer))
-);
+// Create application layer with explicit dependency chain:
+// NodeContext -> AgentRuntime -> ActorServer
+const AppLayer = Layer.merge(
+  NodeContext.layer,
+  Layer.provide(ActorServer.Default, AgentRuntimeService.Default),
+)
+
+export const ServeCommand = Command.make(
+  "serve",
+  {
+    agentName: Args.text({ name: "agent-name" }).pipe(
+      Args.withDescription(
+        "The name of the agent to serve (must exist in the agents/ directory)",
+      ),
+    ),
+    port: Options.integer("port").pipe(
+      Options.withDefault(8081),
+      Options.withDescription("The port number to listen on (default: 8081)"),
+    ),
+    host: Options.text("host").pipe(
+      Options.withDefault("127.0.0.1"),
+      Options.withDescription(
+        "The host address to bind to (default: 127.0.0.1)",
+      ),
+    ),
+  },
+  ({ agentName, port, host }) =>
+    Effect.gen(function* () {
+      const pathSvc = yield* Path.Path
+      const projectRoot = process.env.PROJECT_ROOT || process.cwd()
+
+      // 1. Validate agent exists
+      const agentDir = pathSvc.join(projectRoot, "agents", agentName)
+      yield* exists(agentDir).pipe(
+        Effect.mapError(
+          (err) =>
+            new FileSystemError({
+              message: "Failed to check if agent directory exists",
+              path: agentDir,
+              operation: "exists",
+              cause: err,
+            }),
+        ),
+        Effect.flatMap((exists) =>
+          exists
+            ? Effect.succeed(undefined)
+            : Effect.fail(
+              new AgentRuntimeError({
+                message: `Agent '${agentName}' not found. Make sure the agent exists in the agents/ directory.`,
+                agentName,
+                phase: "validation",
+              }),
+            ),
+        ),
+      )
+
+      // 2. Validate configuration
+      const configDir = pathSvc.join(projectRoot, "ea-config")
+      yield* validateAgentConfiguration(agentDir, configDir)
+
+      yield* Console.log(`Starting agent server for ${agentName}...`)
+
+      // 3. Start server with error handling
+      const serverEventStream = serveAgent(agentName, port, host)
+
+      // Process the event stream with error handling
+      yield* Stream.runForEach(serverEventStream, (event: ServerEventUnion) =>
+        Effect.gen(function* () {
+          yield* Console.log(formatEvent(event))
+
+          if (event.type === "ERROR") {
+            return Effect.fail(
+              new AgentRuntimeError({
+                message: event.data.message,
+                agentName,
+                phase: "server",
+              }),
+            )
+          }
+          return Effect.succeed(undefined)
+        }).pipe(
+          Effect.tapError((error: Error | unknown) =>
+            Effect.gen(function* () {
+              if (error instanceof NetworkError) {
+                yield* Console.error(`Network error: ${error.message}`)
+              } else if (error instanceof AgentRuntimeError) {
+                yield* Console.error(`Agent runtime error: ${error.message}`)
+              } else if (error instanceof ConfigurationError) {
+                yield* Console.error(`Configuration error: ${error.message}`)
+              } else {
+                yield* Console.error(`Error: ${String(error)}`)
+              }
+            }),
+          ),
+        ),
+      )
+    }).pipe(
+      Effect.provide(
+        Layer.merge(
+          NodeContext.layer,
+          Layer.provide(ActorServer.Default, AgentRuntimeService.Default),
+        ),
+      ),
+      Effect.catchAll((error) =>
+        Effect.gen(function* () {
+          yield* Console.error(
+            `Server error: ${error instanceof Error ? error.message : String(error)
+            }`,
+          )
+          return Effect.fail(error)
+        }),
+      ),
+    ),
+).pipe(
+  Command.withDescription(
+    "Start an agent server that accepts WebSocket connections.\n\n" +
+    "This command will:\n" +
+    "  1. Start a WebSocket server for the specified agent\n" +
+    "  2. Listen for client connections and process requests\n" +
+    "  3. Display real-time server status and connection info\n\n" +
+    "Arguments:\n" +
+    "  agent-name    The name of the agent to serve\n\n" +
+    "Options:\n" +
+    "  --port       Port number to listen on (default: 8081)\n" +
+    "  --host       Host address to bind to (default: 127.0.0.1)\n\n" +
+    "Example: ea-cli serve my-agent --port 8082 --host 0.0.0.0\n\n" +
+    "The server will continue running until interrupted. Status updates, client\n" +
+    "connections, and errors will be logged to the console.",
+  ),
+)

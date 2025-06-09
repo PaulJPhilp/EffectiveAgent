@@ -15,19 +15,17 @@
     "indentStyle": "space",
     "indentWidth": 2,
     "lineEnding": "lf",
-    "lineWidth": 80,
-    "attributePosition": "auto"
+    "lineWidth": 80
   },
   "javascript": {
     "formatter": {
       "jsxQuoteStyle": "double",
+      "quoteStyle": "double",
       "quoteProperties": "asNeeded",
-      "trailingCommas": "es5",
-      "semicolons": "asNeeded",
-      "arrowParentheses": "always",
       "bracketSpacing": true,
       "bracketSameLine": false,
-      "quoteStyle": "double"
+      "arrowParentheses": "always",
+      "semicolons": "asNeeded"
     }
   }
 }

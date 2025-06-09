@@ -7,6 +7,16 @@
   "bin": {
     "ea-cli": "dist/index.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/effective-agents/ea-cli.git"
+  },
+  "license": "MIT",
+  "author": "Effective Agents Team",
+  "engines": {
+    "node": ">=18.0.0",
+    "bun": ">=1.0.0"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "NODE_OPTIONS='--experimental-specifier-resolution=node --experimental-json-modules' bun run src/index.ts",
@@ -23,17 +33,26 @@
     "@effect/printer-ansi": "0.44.4"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.6.1",
-    "@types/node": "20.11.30",
-    "typescript": "5.4.3",
-    "vitest": "1.4.0"
+    "@biomejs/biome": "^1.9.4",
+    "@types/node": "^22.15.30",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.2"
   },
   "keywords": [
     "ai",
     "agents",
     "cli",
-    "effective-agents"
+    "effective-agents",
+    "framework",
+    "automation"
   ],
-  "author": "Effective Agents Team",
-  "license": "MIT"
+  "bugs": {
+    "url": "https://github.com/effective-agents/ea-cli/issues"
+  },
+  "homepage": "https://github.com/effective-agents/ea-cli#readme",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }

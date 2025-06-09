@@ -1,0 +1,42 @@
+{
+  "name": "default-policy-config",
+  "version": "1.0.0",
+  "description": "Default policy rules for the EffectiveAgent",
+  "policies": [
+    {
+      "id": "default-allow",
+      "name": "Default Allow Rule",
+      "type": "allow",
+      "resource": "*",
+      "priority": 100,
+      "enabled": true,
+      "description": "Default rule to allow all operations"
+    },
+    {
+      "id": "rate-limit-gpt4o",
+      "name": "GPT-4o Rate Limit",
+      "type": "allow",
+      "resource": "gpt-4o",
+      "priority": 50,
+      "enabled": true,
+      "description": "Rate limit GPT-4o usage",
+      "rateLimit": {
+        "limit": 10,
+        "window": 60
+      }
+    },
+    {
+      "id": "rate-limit-claude",
+      "name": "Claude Models Rate Limit",
+      "type": "allow",
+      "resource": "claude*",
+      "priority": 50,
+      "enabled": true,
+      "description": "Rate limit Claude model usage",
+      "rateLimit": {
+        "limit": 5,
+        "window": 60
+      }
+    }
+  ]
+}

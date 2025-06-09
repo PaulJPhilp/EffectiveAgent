@@ -10,9 +10,9 @@
     "enableConsole": true
   },
   "configPaths": {
-    "providers": "./config-master/providers.json",
-    "models": "./config-master/models.json",
-    "policy": "./config-master/policies.json"
+    "providers": "../../config-master/providers.json",
+    "models": "../../config-master/models.json",
+    "policy": "../../config-master/policies.json"
   },
   "providers": {
     "qwen": {
@@ -23,15 +23,25 @@
   "models": {
     "qwen-max": {
       "provider": "qwen",
-      "capabilities": ["chat", "text-generation", "function-calling"]
+      "capabilities": [
+        "chat",
+        "text-generation",
+        "function-calling"
+      ]
     },
     "qwen-plus": {
       "provider": "qwen",
-      "capabilities": ["chat", "text-generation", "function-calling"]
+      "capabilities": [
+        "chat",
+        "text-generation",
+        "function-calling"
+      ]
     },
     "text-embedding-v3": {
       "provider": "qwen",
-      "capabilities": ["embeddings"]
+      "capabilities": [
+        "embeddings"
+      ]
     }
   }
 }

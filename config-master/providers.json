@@ -1,4 +1,7 @@
 {
+  "version": "1.0.0",
+  "description": "AI Provider configurations for testing",
+  "name": "providers",
   "providers": [
     {
       "name": "openai",
@@ -56,7 +59,7 @@
     },
     {
       "name": "xai",
-      "displayName": "xAI Grok",
+      "displayName": "xAI_Grok",
       "type": "xai",
       "apiKeyEnvVar": "XAI_API_KEY",
       "baseUrl": "https://api.grok.x.ai/v1",
@@ -67,7 +70,7 @@
     },
     {
       "name": "perplexity",
-      "displayName": "Perplexity AI",
+      "displayName": "Perplexity_AI",
       "type": "perplexity",
       "apiKeyEnvVar": "PERPLEXITY_API_KEY",
       "baseUrl": "https://api.perplexity.ai",
@@ -78,23 +81,13 @@
     },
     {
       "name": "qwen",
-      "displayName": "Qwen (Alibaba Cloud)",
+      "displayName": "Qwen_Alibaba_Cloud",
       "type": "qwen",
       "apiKeyEnvVar": "QWEN_API_KEY",
       "baseUrl": "https://dashscope.aliyuncs.com/api/v1",
       "rateLimit": {
         "requestsPerMinute": 1000,
         "tokensPerMinute": 100000
-      }
-    },
-    {
-      "name": "local",
-      "displayName": "Local LLM",
-      "type": "local",
-      "baseUrl": "http://localhost:8000/v1",
-      "rateLimit": {
-        "requestsPerMinute": 1000,
-        "tokensPerMinute": 200000
       }
     }
   ],

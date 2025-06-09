@@ -1,5 +1,5 @@
 {
-    "imports": {
-        "effect/ReadonlyArray": "./packages/effect-compat/ReadonlyArray/index.js"
-    }
+  "imports": {
+    "effect/ReadonlyArray": "./packages/effect-compat/ReadonlyArray/index.js"
+  }
 }

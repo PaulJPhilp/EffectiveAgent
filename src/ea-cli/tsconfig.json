@@ -9,14 +9,7 @@
     "sourceMap": true,
     "noEmit": false
   },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "references": [
-    { "path": "../.." }
-  ],
-  "exclude": [
-    "node_modules",
-    "dist"
-  ]
-} 
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../.." }],
+  "exclude": ["node_modules", "dist"]
+}

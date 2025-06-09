@@ -1,16 +1,16 @@
+import path from "path"
 import { defineConfig } from "vitest/config"
 
 export default defineConfig({
-    test: {
-        globals: true,
-        environment: "node",
-        testTimeout: 30000,
+  test: {
+    globals: true,
+    environment: "node",
+    include: ["src/**/*.test.ts"],
+    exclude: ["**/node_modules/**", "**/dist/**"],
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "../../src"),
     },
-    resolve: {
-        alias: {
-            "@": new URL("../src", import.meta.url).pathname,
-            "@/agent-runtime": new URL("../src/agent-runtime", import.meta.url)
-                .pathname,
-        },
-    },
-}) 
+  },
+})

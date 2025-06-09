@@ -5,7 +5,7 @@ export default {
   setup(build) {
     // When effect/ReadonlyArray is imported, redirect to effect/Array
     build.onResolve({ filter: /^effect\/ReadonlyArray$/ }, () => {
-      return { path: require.resolve("effect/Array") };
-    });
+      return { path: require.resolve("effect/Array") }
+    })
   },
-};
+}
