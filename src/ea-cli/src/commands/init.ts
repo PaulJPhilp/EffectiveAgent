@@ -1,6 +1,6 @@
+import { join } from "node:path"
 import { Args, Command, Options } from "@effect/cli"
 import { Effect } from "effect"
-import { join } from "node:path"
 import * as Templates from "../boilerplate/templates.js"
 import {
     FileSystemError,

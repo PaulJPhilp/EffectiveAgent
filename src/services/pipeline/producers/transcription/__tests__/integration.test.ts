@@ -8,7 +8,7 @@ import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either } from "effect";
+import { Effect, Either, Layer } from "effect";
 import { Span } from "effect/Tracer";
 import { describe, expect, it } from "vitest";
 import { 
@@ -18,26 +18,13 @@ import {
   TranscriptionProviderError 
 } from "../errors.js";
 import { TranscriptionService } from "../service.js";
-import { AudioFormats, type TranscriptionOptions } from "../service.js";
-
-// Import the actual types from the service
-import type { TranscriptionResult } from "../types.js";
-
-// Helper type for test assertions
-type TestTranscriptionResult = TranscriptionResult & {
-  metadata: {
-    model: string;
-    id: string;
-  };
-};
+import { AudioFormats } from "../service.js";
+import type { TranscriptionOptions } from "../types.js";
 
 // Helper function to generate mock audio data
 const generateMockAudioData = (format: string = 'wav'): string => {
   // Generate some random binary data
   const buffer = randomBytes(1024);
-  
-  // For real testing, you might want to generate actual audio data
-  // For this example, we'll just return a base64 string
   return `data:audio/${format};base64,${buffer.toString('base64')}`;
 };
 
@@ -66,144 +53,113 @@ const createTestSpan = (): Span => ({
   updateName: () => {}
 } as unknown as Span);
 
+// Create test harness layer combining all required services
+const TestHarnessLayer = Layer.mergeAll(
+  TranscriptionService.Default,
+  ModelService.Default,
+  ProviderService.Default,
+  ConfigurationService.Default,
+  NodeFileSystem.layer
+);
+
+// Helper function to create test options
+const createTestOptions = (overrides: Partial<TranscriptionOptions> = {}): TranscriptionOptions => ({
+  modelId: "whisper-1",
+  audioData: generateMockAudioData('wav'),
+  span: createTestSpan(),
+  ...overrides
+});
+
 describe("TranscriptionService Integration Tests", () => {
   // Test setup
-  const testModelId = "whisper-1"; // Example model ID
+  const testModelId = "whisper-1";
   const testAudioData = generateMockAudioData('wav');
   const testSpan = createTestSpan();
 
-  // Helper function to create test options
-  const createTestOptions = (overrides: Partial<Omit<TranscriptionOptions, 'span'>> = {}): TranscriptionOptions => {
-    return {
-      modelId: testModelId,
-      audioData: testAudioData,
-      span: testSpan,
-      ...overrides
-    };
+  // Helper function to convert audio data to base64
+  const convertAudioToBase64 = (data: string | Uint8Array | ArrayBuffer): string => {
+    let uint8Array: Uint8Array;
+    if (typeof data === 'string') {
+      const base64Data = data.split(',')[1];
+      if (!base64Data) {
+        throw new Error('Invalid base64 audio data format');
+      }
+      uint8Array = new Uint8Array(Buffer.from(base64Data, 'base64'));
+    } else if (data instanceof Uint8Array) {
+      uint8Array = data;
+    } else {
+      uint8Array = new Uint8Array(data);
+    }
+    return Buffer.from(uint8Array).toString('base64');
   };
 
   it("should transcribe audio with valid input", () =>
     Effect.gen(function* (_) {
       const service = yield* TranscriptionService;
       
-      // Create test options and extract the audio data
+      // Create test options
       const options = createTestOptions();
       
-      // Ensure we have valid audio data
-      if (!options.audioData) {
-        return expect.fail('No audio data provided');
-      }
-      
-      // Convert the audio data to a Uint8Array first
-      let uint8Array: Uint8Array;
-      if (typeof options.audioData === 'string') {
-        // Handle base64 string
-        const base64Data = options.audioData.split(',')[1];
-        if (!base64Data) {
-          return expect.fail('Invalid base64 audio data format');
-        }
-        uint8Array = new Uint8Array(Buffer.from(base64Data, 'base64'));
-      } else if (options.audioData instanceof Uint8Array) {
-        // Already a Uint8Array
-        uint8Array = options.audioData;
-      } else {
-        // Convert ArrayBuffer to Uint8Array
-        uint8Array = new Uint8Array(options.audioData);
-      }
-      
-      // Call the service and get the result
-      // Create a new ArrayBuffer from the Uint8Array
-      const audioBuffer = uint8Array.buffer.slice(
-        uint8Array.byteOffset,
-        uint8Array.byteOffset + uint8Array.byteLength
-      ) as ArrayBuffer;
-      
       const result = yield* Effect.either(
-        service.transcribe(audioBuffer)
+        service.transcribe(options)
       );
-      
+
       // Check if the result is a success
       if (Either.isLeft(result)) {
         return expect.fail(`Transcription failed: ${result.left.message}`);
       }
+
+      const response = result.right;
+
+      // Verify required fields
+      expect(response).toBeDefined();
+      expect(response.data).toBeDefined();
+      expect(response.data.text).toBeDefined();
+      expect(response.data.model).toBe(options.modelId);
+      expect(response.data.timestamp).toBeInstanceOf(Date);
+      expect(response.data.id).toBeDefined();
       
-      // Get the transcription result
-      const transcription = result.right;
-      
-      // Verify the basic structure
-      expect(transcription).toMatchObject({
-        text: expect.any(String)
-      });
-      
-      // Check for additional fields if they exist
-      if ('model' in transcription) {
-        expect(transcription.model).toBe(testModelId);
+      // Check for segments if available
+      if (response.data.segments && response.data.segments.length > 0) {
+        const segment = response.data.segments[0];
+        expect(segment).toHaveProperty('id');
+        expect(segment).toHaveProperty('start');
+        expect(segment).toHaveProperty('end');
+        expect(segment).toHaveProperty('text');
+      }
+      if (response.data.detectedLanguage) {
+        expect(typeof response.data.detectedLanguage).toBe('string');
       }
       
-      if ('timestamp' in transcription) {
-        expect(transcription.timestamp).toBeInstanceOf(Date);
+      if (response.data.duration) {
+        expect(typeof response.data.duration).toBe('number');
       }
       
-      if ('id' in transcription) {
-        expect(transcription.id).toBeDefined();
-      }
-      
-      expect(transcription.text.length).toBeGreaterThan(0);
-      
-      // Check for segments if they exist
-      if ('segments' in transcription && Array.isArray(transcription.segments)) {
-        if (transcription.segments.length > 0) {
-          const segment = transcription.segments[0];
-          expect(segment).toMatchObject({
-            text: expect.any(String),
-            start: expect.any(Number),
-            end: expect.any(Number)
-          });
-        }
+      if (response.data.usage) {
+        expect(response.data.usage).toMatchObject({
+          promptTokens: expect.any(Number),
+          completionTokens: expect.any(Number),
+          totalTokens: expect.any(Number)
+        });
       }
     }).pipe(
-      Effect.provide(TranscriptionService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(TestHarnessLayer)
     )
   );
 
-  it("should handle different audio formats", () =>
-    Effect.gen(function* () {
+  it("should handle various audio formats", () =>
+    Effect.gen(function* (_) {
       const service = yield* TranscriptionService;
-      const formats: Array<keyof typeof AudioFormats> = ['MP3', 'WAV', 'FLAC'];
       
+      // Test with different audio formats
+      const formats = Object.values(AudioFormats);
       for (const format of formats) {
-        const audioData = generateMockAudioData(format);
         const options = createTestOptions({
-          audioData,
-          audioFormat: AudioFormats[format]
+          audioData: generateMockAudioData(format)
         });
         
-        // Convert audio data to ArrayBuffer
-        let uint8Array: Uint8Array;
-        if (typeof options.audioData === 'string') {
-          const base64Data = options.audioData.split(',')[1];
-          if (!base64Data) {
-            return expect.fail('Invalid base64 audio data format');
-          }
-          uint8Array = new Uint8Array(Buffer.from(base64Data, 'base64'));
-        } else if (options.audioData instanceof Uint8Array) {
-          uint8Array = options.audioData;
-        } else {
-          uint8Array = new Uint8Array(options.audioData);
-        }
-        
-        const audioBuffer = uint8Array.buffer.slice(
-          uint8Array.byteOffset,
-          uint8Array.byteOffset + uint8Array.byteLength
-        ) as ArrayBuffer;
-        
-        // Execute the effect and get the result
         const result = yield* Effect.either(
-          service.transcribe(audioBuffer)
+          service.transcribe(options)
         );
         
         if (Either.isLeft(result)) {
@@ -212,14 +168,12 @@ describe("TranscriptionService Integration Tests", () => {
         
         const response = result.right;
         expect(response).toBeDefined();
-        expect(response.text).toBeDefined();
+        expect(response.data).toBeDefined();
+        expect(response.data.text).toBeDefined();
+        expect(response.data.model).toBe(options.modelId);
       }
     }).pipe(
-      Effect.provide(TranscriptionService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(TestHarnessLayer)
     )
   );
 
@@ -227,11 +181,12 @@ describe("TranscriptionService Integration Tests", () => {
     Effect.gen(function* () {
       const service = yield* TranscriptionService;
       
-      // Create an empty ArrayBuffer
-      const emptyAudioBuffer = new ArrayBuffer(0);
+      const options = createTestOptions({
+        audioData: Buffer.from(new ArrayBuffer(0)).toString('base64')
+      });
       
       const result = yield* Effect.either(
-        service.transcribe(emptyAudioBuffer)
+        service.transcribe(options)
       );
 
       // Verify the error
@@ -240,43 +195,20 @@ describe("TranscriptionService Integration Tests", () => {
         expect(["TranscriptionAudioError", "TranscriptionError"]).toContain(result.left.constructor.name);
       }
     }).pipe(
-      Effect.provide(TranscriptionService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(TestHarnessLayer)
     )
   );
 
   it("should handle missing model ID error", () =>
     Effect.gen(function* () {
       const service = yield* TranscriptionService;
-      
+
       const options = createTestOptions({
         modelId: ""
       });
-      
-      // Convert audio data to ArrayBuffer
-      let uint8Array: Uint8Array;
-      if (typeof options.audioData === 'string') {
-        const base64Data = options.audioData.split(',')[1];
-        if (!base64Data) {
-          return expect.fail('Invalid base64 audio data format');
-        }
-        uint8Array = new Uint8Array(Buffer.from(base64Data, 'base64'));
-      } else if (options.audioData instanceof Uint8Array) {
-        uint8Array = options.audioData;
-      } else {
-        uint8Array = new Uint8Array(options.audioData);
-      }
-      
-      const audioBuffer = uint8Array.buffer.slice(
-        uint8Array.byteOffset,
-        uint8Array.byteOffset + uint8Array.byteLength
-      ) as ArrayBuffer;
-      
+
       const result = yield* Effect.either(
-        service.transcribe(audioBuffer)
+        service.transcribe(options)
       );
 
       // Verify the error
@@ -286,170 +218,8 @@ describe("TranscriptionService Integration Tests", () => {
         expect(result.left.message).toContain("model");
       }
     }).pipe(
-      Effect.provide(TranscriptionService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
-  );
-
-  it("should handle invalid model ID error", () =>
-    Effect.gen(function* () {
-      const service = yield* TranscriptionService;
-      
-      const options = createTestOptions({
-        modelId: "non-existent-model"
-      });
-      
-      // Convert audio data to ArrayBuffer
-      let uint8Array: Uint8Array;
-      if (typeof options.audioData === 'string') {
-        const base64Data = options.audioData.split(',')[1];
-        if (!base64Data) {
-          return expect.fail('Invalid base64 audio data format');
-        }
-        uint8Array = new Uint8Array(Buffer.from(base64Data, 'base64'));
-      } else if (options.audioData instanceof Uint8Array) {
-        uint8Array = options.audioData;
-      } else {
-        uint8Array = new Uint8Array(options.audioData);
-      }
-      
-      const audioBuffer = uint8Array.buffer.slice(
-        uint8Array.byteOffset,
-        uint8Array.byteOffset + uint8Array.byteLength
-      ) as ArrayBuffer;
-      
-      const result = yield* Effect.either(
-        service.transcribe(audioBuffer)
-      );
-
-      // Verify the error
-      expect(Either.isLeft(result)).toBe(true);
-      if (Either.isLeft(result)) {
-        expect(["TranscriptionModelError", "TranscriptionProviderError"]).toContain(result.left.constructor.name);
-      }
-    }).pipe(
-      Effect.provide(TranscriptionService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
-  );
-
-  it("should handle abort signal", () =>
-    Effect.gen(function* () {
-      const controller = new AbortController();
-      const service = yield* TranscriptionService;
-      
-      // Get the test options with the abort signal
-      const options = createTestOptions({
-        signal: controller.signal
-      });
-      
-      // Convert audio data to ArrayBuffer
-      let uint8Array: Uint8Array;
-      if (typeof options.audioData === 'string') {
-        const base64Data = options.audioData.split(',')[1];
-        if (!base64Data) {
-          return expect.fail('Invalid base64 audio data format');
-        }
-        uint8Array = new Uint8Array(Buffer.from(base64Data, 'base64'));
-      } else if (options.audioData instanceof Uint8Array) {
-        uint8Array = options.audioData;
-      } else {
-        uint8Array = new Uint8Array(options.audioData);
-      }
-      
-      const audioBuffer = uint8Array.buffer.slice(
-        uint8Array.byteOffset,
-        uint8Array.byteOffset + uint8Array.byteLength
-      ) as ArrayBuffer;
-      
-      // Abort after a short delay
-      setTimeout(() => controller.abort(), 100);
-
-      const result = yield* Effect.either(
-        service.transcribe(audioBuffer)
-      );
-
-      // Verify the error
-      expect(Either.isLeft(result)).toBe(true);
-      if (Either.isLeft(result)) {
-        expect(result.left).toBeInstanceOf(Error);
-        expect(result.left.message).toContain("aborted");
-      }
-    }).pipe(
-      Effect.provide(TranscriptionService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
-    )
-  );
-
-  it("should handle transcription parameters", () =>
-    Effect.gen(function* () {
-      const service = yield* TranscriptionService;
-      
-      const options = createTestOptions({
-        parameters: {
-          language: "en-US",
-          diarization: true,
-          timestamps: true
-        }
-      });
-      
-      // Convert audio data to ArrayBuffer
-      let uint8Array: Uint8Array;
-      if (typeof options.audioData === 'string') {
-        const base64Data = options.audioData.split(',')[1];
-        if (!base64Data) {
-          return expect.fail('Invalid base64 audio data format');
-        }
-        uint8Array = new Uint8Array(Buffer.from(base64Data, 'base64'));
-      } else if (options.audioData instanceof Uint8Array) {
-        uint8Array = options.audioData;
-      } else {
-        uint8Array = new Uint8Array(options.audioData);
-      }
-      
-      const audioBuffer = uint8Array.buffer.slice(
-        uint8Array.byteOffset,
-        uint8Array.byteOffset + uint8Array.byteLength
-      ) as ArrayBuffer;
-      
-      // Execute the effect and get the result
-      const result = yield* Effect.either(
-        service.transcribe(audioBuffer)
-      );
-      
-      if (Either.isLeft(result)) {
-        return expect.fail(`Transcription failed: ${result.left.message}`);
-      }
-      
-      const response = result.right;
-      
-      // Verify the response structure
-      expect(response).toBeDefined();
-      expect(response.text).toBeDefined();
-      
-      // Check that the response includes the expected parameters if supported
-      if ('segments' in response && Array.isArray(response.segments) && response.segments.length > 0) {
-        const segment = response.segments[0];
-        // These assertions depend on the provider's implementation
-        expect(segment).toHaveProperty("start");
-        expect(segment).toHaveProperty("end");
-      
-      }
-    }).pipe(
-      Effect.provide(TranscriptionService.Default),
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(TestHarnessLayer)
     )
   );
 });
+

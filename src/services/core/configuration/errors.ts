@@ -3,8 +3,8 @@
  * @module services/core/configuration/errors
  */
 
-import { ParseError } from "effect/ParseResult";
 import { Data } from "effect";
+import { ParseError } from "effect/ParseResult";
 
 /**
  * Error thrown when reading a configuration file fails.

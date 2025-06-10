@@ -59,16 +59,44 @@ describe("ModelService", () => {
 
     describe("findModelsByCapability", () => {
         const chatCapability = "chat" as const satisfies S.Schema.Type<typeof ModelCapability>;
+        const functionCallingCap = "function-calling" as const satisfies S.Schema.Type<typeof ModelCapability>;
         const invalidCapability = "invalid-capability" as unknown as S.Schema.Type<typeof ModelCapability>;
 
         it("should find models with chat capability", () =>
             Effect.gen(function* () {
                 const service = yield* ModelService;
-                const models: readonly S.Schema.Type<typeof PublicModelInfo>[] =
-                    yield* service.findModelsByCapability(chatCapability);
+                const models = yield* service.findModelsByCapability(chatCapability);
                 expect(models.length).toBeGreaterThan(0);
                 models.forEach((model) => {
-                    expect(model.vendorCapabilities).toContain("chat");
+                    const hasCapability = model.capabilities.some(
+                        (cap: { capability: S.Schema.Type<typeof ModelCapability> }) => 
+                            cap.capability === chatCapability
+                    );
+                    expect(hasCapability).toBe(true);
+                });
+            }).pipe(
+                Effect.provide(modelServiceTestLayer)
+            )
+        );
+
+        it("should find models with function-calling capability", () =>
+            Effect.gen(function* () {
+                const service = yield* ModelService;
+                const models = yield* service.findModelsByCapability(functionCallingCap);
+                expect(models.length).toBe(1); // Only gpt-4o has function-calling
+                models.forEach((model) => {
+                    const hasCapability = model.capabilities.some(
+                        (cap: { capability: S.Schema.Type<typeof ModelCapability> }) => 
+                            cap.capability === functionCallingCap
+                    );
+                    expect(hasCapability).toBe(true);
+                    // Verify capability details
+                    const capDetail = model.capabilities.find(
+                        (cap: { capability: S.Schema.Type<typeof ModelCapability> }) => 
+                            cap.capability === functionCallingCap
+                    );
+                    expect(capDetail?.proficiency).toBe("expert");
+                    expect(capDetail?.dimensions?.accuracy).toBeGreaterThan(0.9);
                 });
             }).pipe(
                 Effect.provide(modelServiceTestLayer)
@@ -90,30 +118,53 @@ describe("ModelService", () => {
     });
 
     describe("findModelsByCapabilities", () => {
-        const validCapabilities = ["chat", "text-generation"] as S.Schema.Type<typeof ModelCapability>[];
-        const invalidCapabilities = [S.decodeSync(ModelCapability)("text-generation")];
-        it("should return all models with chat capability", () =>
+        const validCapabilities = [chatCapability, functionCallingCapability];
+        const invalidCapabilities = ["invalid-cap" as unknown as S.Schema.Type<typeof ModelCapability>];
+
+        it("should find models with single capability", () =>
             Effect.gen(function* () {
                 const service = yield* ModelService;
-                const models = yield* service.findModelsByCapability(chatCapability);
-                expect(models.length).toBeGreaterThan(0);
-                models.forEach((model: PublicModelInfo) =>
-                    expect(model.vendorCapabilities).toContain("chat")
-                );
+                const models = yield* service.findModelsByCapabilities([chatCapability]);
+                expect(models.length).toBe(2); // Both models have chat capability
+                models.forEach((model) => {
+                    const hasCapability = model.capabilities.some(
+                        (cap: { capability: S.Schema.Type<typeof ModelCapability> }) => 
+                            cap.capability === chatCapability
+                    );
+                    expect(hasCapability).toBe(true);
+                });
             }).pipe(
                 Effect.provide(modelServiceTestLayer)
             )
         );
 
-        it("should find all models with multiple capabilities", () =>
+        it("should find models with multiple capabilities", () =>
             Effect.gen(function* () {
                 const service = yield* ModelService;
-                const capabilities = [chatCapability, functionCallingCapability];
-                const models = yield* service.findModelsByCapabilities(capabilities);
-                expect(models.length).toBeGreaterThan(0);
-                models.forEach((model: PublicModelInfo) => {
-                    expect(model.vendorCapabilities).toContain("chat");
-                    expect(model.vendorCapabilities).toContain("function-calling");
+                const models = yield* service.findModelsByCapabilities(validCapabilities);
+                expect(models.length).toBe(1); // Only gpt-4o has both capabilities
+                models.forEach((model) => {
+                    validCapabilities.forEach((requiredCap: S.Schema.Type<typeof ModelCapability>) => {
+                        const hasCapability = model.capabilities.some(
+                            (cap: { capability: S.Schema.Type<typeof ModelCapability> }) => 
+                                cap.capability === requiredCap
+                        );
+                        expect(hasCapability).toBe(true);
+                    });
+                    // Verify capability details
+                    const chatDetail = model.capabilities.find(
+                        (cap: { capability: S.Schema.Type<typeof ModelCapability> }) => 
+                            cap.capability === chatCapability
+                    );
+                    expect(chatDetail?.proficiency).toBe("expert");
+                    expect(chatDetail?.dimensions?.accuracy).toBeGreaterThan(0.9);
+                    
+                    const funcDetail = model.capabilities.find(
+                        (cap: { capability: S.Schema.Type<typeof ModelCapability> }) => 
+                            cap.capability === functionCallingCapability
+                    );
+                    expect(funcDetail?.proficiency).toBe("expert");
+                    expect(funcDetail?.dimensions?.reliability).toBeGreaterThan(0.9);
                 });
             }).pipe(
                 Effect.provide(modelServiceTestLayer)
@@ -123,8 +174,7 @@ describe("ModelService", () => {
         it("should return ModelNotFoundError for non-existent capabilities", () =>
             Effect.gen(function* () {
                 const service = yield* ModelService;
-                const invalidCapability = S.decodeSync(ModelCapability)("text-generation");
-                const result = yield* Effect.either(service.findModelsByCapabilities([invalidCapability]));
+                const result = yield* Effect.either(service.findModelsByCapabilities(invalidCapabilities));
                 expect(Either.isLeft(result)).toBe(true);
                 if (Either.isLeft(result)) {
                     expect(result.left).toBeInstanceOf(ModelNotFoundError);

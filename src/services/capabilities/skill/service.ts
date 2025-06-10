@@ -52,6 +52,7 @@ export class SkillService extends Effect.Service<SkillServiceApi>()("SkillServic
 
     const service: SkillServiceApi = {
       make: (definition: unknown) => Effect.mapError(
+        // @ts-expect-error Schema.decode validates unknown input at runtime
         S.decode(Skill)(definition),
         (error) => new SkillConfigError({
           description: "Failed to validate skill definition",
@@ -108,37 +109,38 @@ export class SkillService extends Effect.Service<SkillServiceApi>()("SkillServic
           // Generate a minimal valid output that matches the output schema
 
           const outputSchema = skill.outputSchema;
-          const generatedOutput = yield* Effect.gen(function* () {
-            // Generate a minimal valid output based on the output schema
-            const ast = outputSchema.ast;
+          // Generate a minimal valid output based on the output schema
+          const ast = outputSchema.ast;
+          let generatedOutput: unknown;
 
-            if (ast._tag === "TypeLiteral" && ast.propertySignatures) {
-              const result: any = {};
-              for (const prop of ast.propertySignatures) {
-                const key = prop.key;
-                const type = prop.type;
+          if (ast._tag === "TypeLiteral" && ast.propertySignatures) {
+            const result: any = {};
+            for (const prop of ast.propertySignatures) {
+              const key = prop.name;
+              const type = prop.type;
 
-                // Generate output data based on type
-                if (type._tag === "StringKeyword") {
-                  result[key] = `processed-${skillName}`;
-                } else if (type._tag === "NumberKeyword") {
-                  result[key] = 42;
-                } else if (type._tag === "BooleanKeyword") {
-                  result[key] = true;
-                } else {
-                  result[key] = null;
-                }
+              // Generate output data based on type
+              if (type._tag === "StringKeyword") {
+                result[key] = `processed-${skillName}`;
+              } else if (type._tag === "NumberKeyword") {
+                result[key] = 42;
+              } else if (type._tag === "BooleanKeyword") {
+                result[key] = true;
+              } else {
+                result[key] = null;
               }
-              return result;
             }
-
+            generatedOutput = result;
+          } else {
             // Fallback for other schema types
-            return { result: `Skill ${skillName} executed successfully` };
-          });
+            generatedOutput = { result: `Skill ${skillName} executed successfully` };
+          }
+
+          yield* Effect.succeed(generatedOutput);
 
           yield* Effect.log(`Executed skill: ${skillName}`, {
             input: validatedInput,
-            outputKeys: Object.keys(generatedOutput)
+            outputKeys: Object.keys(generatedOutput as object)
           });
 
           return generatedOutput;

@@ -1,7 +1,7 @@
+import { join } from "path"
 import { FileSystem } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import { Effect } from "effect"
-import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { initProjectHandler } from "../init.js"
 

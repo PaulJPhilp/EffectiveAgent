@@ -13,7 +13,7 @@ import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { Effect } from "effect";
 import type { ModelServiceApi } from "./api.js";
 import { ModelNotFoundError } from "./errors.js";
-import type { PublicModelInfoDefinition } from "./schema.js";
+import type { PublicModelInfoData } from "./schema.js";
 
 /**
  * Implementation of the ModelService using Effect.Service pattern.
@@ -33,15 +33,15 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
         const validateModel = (modelId: string) =>
             Effect.gen(function* () {
                 yield* Effect.logDebug("Validating model", { modelId });
-                const isValid = config.models.some((model: PublicModelInfoDefinition) => model.id === modelId);
+                const isValid = config.models.some((model: PublicModelInfoData) => model.id === modelId);
                 yield* Effect.logDebug("Model validation result", { modelId, isValid });
                 return isValid;
             });
 
         const findModelsByCapability = (capability: ModelCapability) =>
             Effect.gen(function* () {
-                const models = config.models.filter((model: PublicModelInfoDefinition) =>
-                    model.vendorCapabilities.includes(capability)
+                const models = config.models.filter((model: PublicModelInfoData) =>
+                    model.capabilities.some(cap => cap.capability === capability)
                 );
                 if (models.length === 0) {
                     yield* Effect.logError("No models found with capability", { capability });
@@ -57,8 +57,10 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
         const findModelsByCapabilities = (capabilities: readonly ModelCapability[]) =>
             Effect.gen(function* () {
                 yield* Effect.logDebug("Finding models by capabilities", { capabilities });
-                const models = config.models.filter((model: PublicModelInfoDefinition) =>
-                    capabilities.every(cap => model.vendorCapabilities.includes(cap))
+                const models = config.models.filter((model: PublicModelInfoData) =>
+                    capabilities.every(requiredCap =>
+                        model.capabilities.some(modelCap => modelCap.capability === requiredCap)
+                    )
                 );
                 if (models.length === 0) {
                     yield* Effect.logError("No models found with all capabilities", { capabilities });
@@ -73,7 +75,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
 
         const getProviderName = (modelId: string) =>
             Effect.gen(function* () {
-                const model = config.models.find((m: PublicModelInfoDefinition) => m.id === modelId);
+                const model = config.models.find((m: PublicModelInfoData) => m.id === modelId);
                 if (!model) {
                     yield* Effect.logError("Model not found", { modelId });
                     return yield* Effect.fail(new ModelNotFoundError({
@@ -82,13 +84,13 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                         description: `Model not found: ${modelId}`
                     }));
                 }
-                return model.provider.name;
+                return model.provider;
             });
 
         const exists = (modelId: string) =>
             Effect.gen(function* () {
                 yield* Effect.logDebug("Checking if model exists", { modelId });
-                return config.models.some((model: PublicModelInfoDefinition) => model.id === modelId);
+                return config.models.some((model: PublicModelInfoData) => model.id === modelId);
             });
 
         const getDefaultModelId = () =>
@@ -107,7 +109,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
 
         const getModelsForProvider = (providerName: string) =>
             Effect.gen(function* () {
-                const models = config.models.filter((model: PublicModelInfoDefinition) => model.provider.name === providerName);
+                const models = config.models.filter((model: PublicModelInfoData) => model.provider === providerName);
                 if (models.length === 0) {
                     yield* Effect.logError("No models found for provider", { providerName });
                     return yield* Effect.fail(new ModelNotFoundError({

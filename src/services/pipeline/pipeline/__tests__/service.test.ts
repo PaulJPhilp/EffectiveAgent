@@ -3,6 +3,7 @@
  * @module services/pipeline/pipeline/tests
  */
 
+import { join } from "path";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { FileEntity, FileEntityData } from "@/services/core/file/schema.js";
@@ -13,7 +14,6 @@ import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Schema } from "@effect/schema";
 import { Effect, Either, Layer, Option } from "effect";
-import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { ExecutiveServiceError } from "../../executive-service/errors.js";

@@ -4,16 +4,63 @@
   "models": [
     {
       "id": "gpt-4o",
-      "name": "gpt-4o",
+      "name": "GPT-4 Optimized",
+      "provider": "openai",
       "version": "1.0.0",
-      "provider": { "name": "openai" },
-      "modelName": "gpt-4o",
-      "displayName": "gpt-4o",
-      "vendorCapabilities": ["chat", "text-generation"],
-      "responseFormat": {
-        "type": "text",
-        "supportedFormats": ["text/plain", "text/markdown"]
-      }
+      "description": "GPT-4 optimized for general use",
+      "contextWindow": 8192,
+      "capabilities": [
+        {
+          "capability": "chat",
+          "proficiency": "expert",
+          "dimensions": {
+            "accuracy": 0.95,
+            "reliability": 0.98
+          }
+        },
+        {
+          "capability": "function-calling",
+          "proficiency": "expert",
+          "dimensions": {
+            "accuracy": 0.92,
+            "reliability": 0.95
+          }
+        }
+      ],
+      "pricing": {
+        "input": 0.01,
+        "output": 0.03,
+        "currency": "USD",
+        "unit": "1K tokens"
+      },
+      "enabled": true,
+      "thinkingBudget": 2000
+    },
+    {
+      "id": "gpt-3.5t",
+      "name": "GPT-3.5 Turbo",
+      "provider": "openai",
+      "version": "1.0.0",
+      "description": "Fast and efficient model for general use",
+      "contextWindow": 4096,
+      "capabilities": [
+        {
+          "capability": "chat",
+          "proficiency": "advanced",
+          "dimensions": {
+            "accuracy": 0.85,
+            "reliability": 0.90
+          }
+        }
+      ],
+      "pricing": {
+        "input": 0.001,
+        "output": 0.002,
+        "currency": "USD",
+        "unit": "1K tokens"
+      },
+      "enabled": true,
+      "thinkingBudget": 1000
     }
   ]
 }

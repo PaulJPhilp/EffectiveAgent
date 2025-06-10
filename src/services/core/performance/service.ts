@@ -175,20 +175,18 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                         type: "TIMER",
                         value: duration,
                         unit: "MILLISECONDS",
-                        tags: {
+                        tags: Object.assign({}, {
                             operation: operationName,
                             success: success.toString(),
-                            ...Object.entries(metadata).reduce((acc, [k, v]) => ({
-                                ...acc,
-                                [k]: String(v)
-                            }), {})
-                        },
+                        }, Object.entries(metadata).reduce((acc, [k, v]) => {
+                            acc[k] = String(v);
+                            return acc;
+                        }, {} as Record<string, string>)),
                         timestamp: Date.now(),
                         description: `Operation timing for ${operationName}`
                     };
 
-                    yield* Ref.update(state, s => ({
-                        ...s,
+                    yield* Ref.update(state, s => Object.assign({}, s, {
                         metrics: [...s.metrics, metric]
                     }));
 
@@ -204,8 +202,7 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                             const endTime = Date.now();
                             const duration = endTime - startTime;
 
-                            yield* Ref.update(state, s => ({
-                                ...s,
+                            yield* Ref.update(state, s => Object.assign({}, s, {
                                 timings: [...s.timings, {
                                     operationName,
                                     startTime,
@@ -239,8 +236,7 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                         metadata
                     };
 
-                    yield* Ref.update(state, s => ({
-                        ...s,
+                    yield* Ref.update(state, s => Object.assign({}, s, {
                         timings: [...s.timings, timing]
                     }));
 
@@ -250,14 +246,13 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                         type: "TIMER",
                         value: duration,
                         unit: "MILLISECONDS",
-                        tags: {
+                        tags: Object.assign({}, {
                             operation: operationName,
                             success: (result._tag === "Right").toString(),
-                            ...Object.entries(metadata).reduce((acc, [k, v]) => ({
-                                ...acc,
-                                [k]: String(v)
-                            }), {})
-                        },
+                        }, Object.entries(metadata).reduce((acc, [k, v]) => {
+                            acc[k] = String(v);
+                            return acc;
+                        }, {} as Record<string, string>)),
                         timestamp: Date.now(),
                         description: `Operation timing for ${operationName}`
                     };
@@ -516,7 +511,7 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                                 exportTime: Date.now()
                             }, null, 2);
 
-                        case "CSV":
+                        case "CSV": {
                             const csvLines = [
                                 "timestamp,name,type,value,unit,tags",
                                 ...currentState.metrics.map(m =>
@@ -524,8 +519,9 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                                 )
                             ];
                             return csvLines.join('\n');
+                        }
 
-                        case "PROMETHEUS":
+                        case "PROMETHEUS": {
                             const prometheusLines: string[] = [];
                             for (const metric of currentState.metrics) {
                                 const labels = Object.entries(metric.tags)
@@ -534,6 +530,7 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                                 prometheusLines.push(`${metric.name.replace(/[.-]/g, '_')}{${labels}} ${metric.value} ${metric.timestamp}`);
                             }
                             return prometheusLines.join('\n');
+                        }
 
                         default:
                             return "Unsupported format";

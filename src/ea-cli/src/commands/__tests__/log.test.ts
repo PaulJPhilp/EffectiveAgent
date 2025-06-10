@@ -1,7 +1,7 @@
+import { join } from "path"
 import { FileSystem } from "@effect/platform"
 import { NodeContext, NodeFileSystem } from "@effect/platform-node"
 import { Effect, Either, Layer, Option } from "effect"
-import { join } from "path"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest"
 import { clearCommand, viewCommand } from "../log.js"
 

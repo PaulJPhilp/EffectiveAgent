@@ -1,6 +1,6 @@
+import { cpus, freemem, loadavg, totalmem, uptime } from "os";
 import { EffectiveError } from "@/errors.js";
 import { Duration, Effect, HashMap, Option, Ref } from "effect";
-import { cpus, freemem, loadavg, totalmem, uptime } from "os";
 import {
     DegradationStrategy,
     HealthAlert,
@@ -155,7 +155,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                             case "HIGH_LATENCY":
                                 shouldActivate = trigger.threshold ? avgResponseTime >= trigger.threshold : false;
                                 break;
-                            case "DEPENDENCY_UNAVAILABLE":
+                            case "DEPENDENCY_UNAVAILABLE": {
                                 const dependencies = HashMap.get(currentState.serviceDependencies, serviceName) || [];
                                 const requiredDeps = dependencies.filter(d => d.required);
                                 shouldActivate = requiredDeps.some(dep => {
@@ -163,6 +163,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                                     return calculateOverallStatus(depChecks) === "UNHEALTHY";
                                 });
                                 break;
+                            }
                         }
 
                         if (shouldActivate) break;

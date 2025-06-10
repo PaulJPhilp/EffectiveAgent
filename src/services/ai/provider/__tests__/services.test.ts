@@ -2,8 +2,8 @@
  * @file Provider service integration tests
  */
 
-import { Effect, Either } from "effect";
 import path from "path";
+import { Effect, Either } from "effect";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { FileSystem, Path } from "@effect/platform";

@@ -4,6 +4,7 @@
  * conversation history management, and error handling.
  */
 
+import { join } from "path";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { ChatHistory, ChatMessage } from "@/services/pipeline/chat/schema.js";
@@ -11,7 +12,6 @@ import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer } from "effect";
-import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 describe("ChatHistoryService", () => {

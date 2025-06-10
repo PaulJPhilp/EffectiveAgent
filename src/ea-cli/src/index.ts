@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 
+import { join } from "node:path"
+import { fileURLToPath } from "node:url"
 import { Command } from "@effect/cli"
 import { NodeContext, NodeRuntime } from "@effect/platform-node"
 import { Effect } from "effect"
-import { join } from "node:path"
-import { fileURLToPath } from "node:url"
 
 // Import the production runtime for proper initialization
 import { runWithAgentRuntime } from "@/ea-agent-runtime/production-runtime.js"

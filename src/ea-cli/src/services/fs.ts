@@ -1,7 +1,7 @@
+import { join } from "node:path"
 import { FileSystem } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import { Effect } from "effect"
-import { join } from "node:path"
 
 // Create directory if it doesn't exist
 export const createDir = (path: string, options?: { recursive?: boolean }) =>

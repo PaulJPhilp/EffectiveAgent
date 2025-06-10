@@ -1,6 +1,33 @@
+import type { Span } from "effect/Tracer";
+
 /**
  * Types for the Transcription Service.
  */
+
+/**
+ * Options for transcription process
+ */
+export interface TranscriptionOptions {
+  /** The model ID to use */
+  readonly modelId?: string;
+  /** Base64 encoded audio data */
+  readonly audioData: string;
+  /** Tracing span for observability */
+  readonly span?: Span;
+  /** Optional signal to abort the operation */
+  readonly signal?: AbortSignal;
+  /** Optional parameters for model behavior */
+  readonly parameters?: {
+    /** Language code (e.g., 'en', 'fr') */
+    language?: string;
+    /** Maximum number of speakers to identify */
+    maxSpeakers?: number;
+    /** Whether to detect language automatically */
+    detectLanguage?: boolean;
+    /** Whether to include word-level timestamps */
+    wordTimestamps?: boolean;
+  };
+}
 
 /**
  * Result of the transcription process

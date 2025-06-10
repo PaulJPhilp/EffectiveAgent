@@ -3,13 +3,13 @@
  * @module services/pipeline/producers/object/__tests__/service.test
  */
 
+import { randomUUID } from "node:crypto";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import type { EffectiveResponse } from "@/types.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer, Option, Schema, pipe } from "effect";
-import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
   ObjectModelError,
