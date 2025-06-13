@@ -43,7 +43,20 @@ type StructuredOutputActivityPayload = GenerateCommand | ExtractCommand | StateU
 /**
  * Structured Output Agent implementation using AgentRuntime
  */
-export class StructuredOutputAgent extends Effect.Service<StructuredOutputAgent>()(
+export interface StructuredOutputAgentConfig {
+    readonly modelId?: string
+}
+
+export interface StructuredOutputAgentApi {
+    readonly generateStructuredOutput: <A>(input: GenerateStructuredOutputPayload<Schema.Schema<A, A>>, maxRetries?: number) => Effect.Effect<A, StructuredOutputPipelineError>
+    readonly extractStructured: <A>(text: string, schema: Schema.Schema<A, A>, options?: { maxRetries?: number; modelId?: string }) => Effect.Effect<A, StructuredOutputPipelineError>
+    readonly getAgentState: () => Effect.Effect<StructuredOutputAgentState, Error>
+    readonly getRuntime: () => AgentRuntimeService
+    readonly terminate: () => Effect.Effect<void, Error>
+    readonly modelId?: string
+}
+
+export class StructuredOutputAgent extends Effect.Service<StructuredOutputAgentApi>()(
     "StructuredOutputAgent",
     {
         effect: Effect.gen(function* () {
@@ -88,7 +101,7 @@ export class StructuredOutputAgent extends Effect.Service<StructuredOutputAgent>
                     const result = yield* objectService.generate({
                         prompt: input.prompt,
                         schema: input.schema,
-                        modelId: "gpt-4o"
+                        modelId: input.modelId ?? "gpt-4o"
                     }).pipe(
                         Effect.mapError(error =>
                             error instanceof StructuredOutputPipelineError
@@ -144,7 +157,7 @@ export class StructuredOutputAgent extends Effect.Service<StructuredOutputAgent>
                 schema: Schema.Schema<A, A>,
                 options?: { maxRetries?: number; modelId?: string }
             ): Effect.Effect<A, StructuredOutputPipelineError> =>
-                Effect.gen(function* () {
+                Effect.gen(function* (this: StructuredOutputAgentApi) {
                     yield* Effect.log("extractStructured called", { text });
 
                     // Send command to agent
@@ -164,7 +177,7 @@ export class StructuredOutputAgent extends Effect.Service<StructuredOutputAgent>
                     const result = yield* objectService.generate({
                         prompt: `Extract structured data from this text: ${text}`,
                         schema: schema,
-                        modelId: options?.modelId ?? "gpt-4o"
+                        modelId: options?.modelId ?? this.modelId ?? "gpt-4o"
                     }).pipe(
                         Effect.mapError(error =>
                             error instanceof StructuredOutputPipelineError

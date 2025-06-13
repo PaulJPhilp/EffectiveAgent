@@ -12,6 +12,10 @@ import { AgentRuntimeService } from "../service.js"
 import { AgentRecordType, makeAgentRuntimeId } from "../types.js"
 
 describe("AgentRuntime", () => {
+    it("should have .Default available", () => {
+        expect(AgentRuntimeService.Default).toBeDefined();
+    });
+
     let testDir: string
     let masterConfigPath: string
     let providersConfigPath: string

@@ -1,7 +1,7 @@
-import { join } from "path"
 import { FileSystem } from "@effect/platform"
 import { NodeContext } from "@effect/platform-node"
 import { Effect } from "effect"
+import { join } from "path"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { initProjectHandler } from "../init.js"
 
@@ -12,33 +12,34 @@ describe("init command", () => {
 
     // Set up test workspace before each test
     beforeEach(async () => {
-        const fs = await Effect.runPromise(
+        await Effect.runPromise(
             Effect.gen(function* () {
-                return yield* FileSystem.FileSystem
+                const fs = yield* FileSystem.FileSystem
+                try {
+                    yield* fs.makeDirectory(TEST_DIR)
+                } catch (e: any) {
+                    if (e?._tag !== "SystemError" || e?.reason !== "AlreadyExists") {
+                        throw e
+                    }
+                }
+                process.chdir(TEST_DIR)
             }).pipe(Effect.provide(NodeContext.layer))
         )
-
-        // Create test directory
-        await Effect.runPromise(
-            fs.makeDirectory(TEST_DIR).pipe(Effect.provide(NodeContext.layer))
-        )
-
-        // Change to test directory
-        process.chdir(TEST_DIR)
     })
 
     // Clean up after each test
     afterEach(async () => {
-        const fs = await Effect.runPromise(
-            Effect.gen(function* () {
-                return yield* FileSystem.FileSystem
-            }).pipe(Effect.provide(NodeContext.layer))
-        )
-
-        // Remove test directory recursively
         await Effect.runPromise(
-            fs.remove(TEST_DIR, { recursive: true })
-                .pipe(Effect.provide(NodeContext.layer))
+            Effect.gen(function* () {
+                const fs = yield* FileSystem.FileSystem
+                try {
+                    yield* fs.remove(TEST_DIR, { recursive: true })
+                } catch (e: any) {
+                    if (e?._tag !== "SystemError" || e?.reason !== "NotFound") {
+                        throw e
+                    }
+                }
+            }).pipe(Effect.provide(NodeContext.layer))
         )
     })
 

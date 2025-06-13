@@ -25,12 +25,20 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "effect": "3.16.4",
-    "@effect/cli": "0.63.8",
-    "@effect/platform": "0.84.8",
-    "@effect/platform-node": "0.85.8",
-    "@effect/printer": "0.44.4",
-    "@effect/printer-ansi": "0.44.4"
+    "effect": "^3.16.5",
+    "@effect/cli": "^0.63.9",
+    "@effect/platform": "^0.84.9",
+    "@effect/platform-node": "^0.85.14",
+    "@effect/printer": "^0.44.4",
+    "@effect/printer-ansi": "^0.44.4",
+    "@effect/cluster": "^0.38.13",
+    "@effect/rpc": "^0.61.12"
+  },
+  "peerDependencies": {
+    "@effect/cluster": "^0.38.13",
+    "@effect/rpc": "^0.61.12",
+    "@effect/printer": "^0.44.4",
+    "@effect/printer-ansi": "^0.44.4"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -192,6 +192,7 @@ export const runCommand = Command.make(
       ),
     ),
     input: Options.text("input").pipe(
+      Options.withAlias("i"),
       Options.withDescription("The input text to send to the agent"),
     ),
   },

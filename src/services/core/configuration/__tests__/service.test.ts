@@ -9,6 +9,10 @@ import { ConfigParseError, ConfigReadError, ConfigValidationError } from "../err
 import { ConfigurationService } from "../service.js";
 
 describe("ConfigurationService", () => {
+    it("should have .Default available", () => {
+        expect(ConfigurationService.Default).toBeDefined();
+    });
+
     // Test schemas
     const TestSchema = Schema.Struct({
         name: Schema.String,

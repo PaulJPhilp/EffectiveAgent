@@ -2345,6 +2345,28 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
       supportedFormats: ["vector"]
     },
     enabled: true
+  },
+  {
+    id: "gemini-2.0-flash",
+    name: "gemini-2_0-flash",
+    version: "2.0.0",
+    provider: "google",
+    modelName: "gemini-2.0-flash",
+    displayName: "Gemini 2.0 Flash",
+    description: "Google's Gemini 2.0 Flash model optimized for fast responses",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 32768,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.0001,
+    costPer1kOutputTokens: 0.0002,
+    supportedLanguages: ["en"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
   }
 ] as const;
 

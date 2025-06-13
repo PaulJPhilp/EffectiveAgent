@@ -72,6 +72,7 @@ export class SchemaValidatorTool extends Effect.Service<SchemaValidatorToolApi>(
 export interface GenerateStructuredOutputPayload<S extends Schema.Schema<any, any>> {
     readonly prompt: string;
     readonly schema: S;
+    readonly modelId?: string;
     readonly examples?: ReadonlyArray<{ readonly input: string; readonly output: Schema.Schema.Type<S> }>;
 }
 

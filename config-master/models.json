@@ -74,6 +74,33 @@
         "outputTokens": 0.00001
       },
       "enabled": true
+    },
+    {
+      "id": "gemini-2.0-flash",
+      "name": "gemini-2_0-flash",
+      "provider": "google",
+      "version": "2.0.0",
+      "description": "Google's Gemini 2.0 Flash model optimized for fast responses",
+      "contextWindow": 32768,
+      "capabilities": [
+        {
+          "capability": "chat",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "text-generation",
+          "proficiency": "expert"
+        },
+        {
+          "capability": "function-calling",
+          "proficiency": "expert"
+        }
+      ],
+      "pricing": {
+        "inputTokens": 0.0001,
+        "outputTokens": 0.0002
+      },
+      "enabled": true
     }
   ]
 }

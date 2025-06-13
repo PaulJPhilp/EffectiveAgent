@@ -74,7 +74,15 @@ export class WebSocketService extends Effect.Service<WebSocketServiceApi>()(
                                     resume(Effect.fail(error))
                                 }
                                 ws.onmessage = (event) => {
-                                    Effect.runFork(Effect.logDebug("WebSocket message received", { dataLength: event.data.length }));
+                                    const dataSize = typeof event.data === 'string'
+                                        ? event.data.length
+                                        : event.data instanceof ArrayBuffer
+                                            ? event.data.byteLength
+                                            : event.data instanceof Blob
+                                                ? event.data.size
+                                                : -1; // fallback for other types
+                                    
+                                    Effect.runFork(Effect.logDebug("WebSocket message received", { dataSize }));
                                     Effect.runFork(
                                         Effect.try({
                                             try: () => JSON.parse(event.data.toString()),

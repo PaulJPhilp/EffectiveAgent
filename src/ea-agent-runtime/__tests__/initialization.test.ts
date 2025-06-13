@@ -13,6 +13,10 @@ import { InitializationService } from "../initialization.js";
 import { MasterConfig } from "../schema.js";
 
 describe("AgentRuntime Initialization Integration Tests", () => {
+    it("should have .Default available", () => {
+        expect(InitializationService.Default).toBeDefined();
+    });
+
     let testDir: string;
     let masterConfigPath: string;
     let providersConfigPath: string;

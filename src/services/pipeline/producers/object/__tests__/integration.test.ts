@@ -3,25 +3,18 @@
  * @module services/pipeline/producers/object/__tests__/integration.test
  */
 
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Option, pipe } from "effect";
-import { Schema } from "effect";
+import { Effect, Option, Either, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 import { 
   ObjectInputError, 
-  ObjectModelError
+  ObjectModelError,
+  ObjectGenerationError
 } from "../errors.js";
 import { ObjectService } from "../service.js";
 import { ObjectGenerationOptions } from "../types.js";
 
 // Import EffectiveResponse type
 import type { EffectiveResponse } from "@/types.js";
-
-// Helper type for the expected response structure
-type ObjectServiceResponse<T> = Effect.Effect<EffectiveResponse<T>>;
 
 // Test schemas
 const PersonSchema = Schema.Struct({
@@ -71,30 +64,28 @@ describe("ObjectService Integration Tests", () => {
       });
 
       // Check the response structure
-      expect(response).toHaveProperty("data");
-      expect(response.data).toHaveProperty("name", "John Doe");
-      expect(response.data).toHaveProperty("age", 30);
-      expect(response.data).not.toHaveProperty("email");
+      expect(response).toBeDefined();
+      expect(response.data).toBeDefined();
+      const person = response.data as Person;
+      expect(person.name).toBe("John Doe");
+      expect(person.age).toBe(30);
+      expect(person.email).toBeUndefined();
       
       // Check metadata
-      expect(response).toHaveProperty("metadata");
-      expect(response.metadata).toHaveProperty("model", testModelId);
-      expect(response.metadata).toHaveProperty("id");
-      expect(response.metadata).toHaveProperty("timestamp");
+      expect(response.metadata).toBeDefined();
+      expect(response.metadata.model).toBe(testModelId);
+      expect(response.metadata.provider).toBeDefined();
+      expect(response.metadata.schema).toBeDefined();
+      expect(response.metadata.promptLength).toBeGreaterThan(0);
+      expect(response.metadata.objectSize).toBeGreaterThan(0);
       
-      // Check usage if present
-      if (response.usage) {
-        expect(response.usage).toMatchObject({
-          promptTokens: expect.any(Number),
-          completionTokens: expect.any(Number),
-          totalTokens: expect.any(Number)
-        });
-      }
+      // Check usage
+      expect(response.metadata.usage).toBeDefined();
+      expect(response.metadata.usage.promptTokens).toBeGreaterThan(0);
+      expect(response.metadata.usage.completionTokens).toBeGreaterThan(0);
+      expect(response.metadata.usage.totalTokens).toBeGreaterThan(0);
     }).pipe(
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(ObjectService.Default)
     )
   );
 
@@ -103,46 +94,36 @@ describe("ObjectService Integration Tests", () => {
       // Get the service instance
       const objectService = yield* ObjectService;
       
-      // Generate the object with proper typing
-      const response = yield* pipe(
-        objectService.generate({
-          ...createTestOptions(TaskSchema),
-          prompt: "Create a task 'Complete project'"
-        }),
-        Effect.map((res) => {
-          const typedRes = res as EffectiveResponse<Task>;
-          // Verify the response structure
-          expect(typedRes).toHaveProperty("data");
-          const responseData = typedRes.data as any; // Type assertion for test assertions
-          expect(responseData).toHaveProperty("title", "Complete project");
-          expect(typeof responseData.completed).toBe("boolean");
-          expect(responseData).toHaveProperty("id");
-          
-          // Check metadata
-          expect(typedRes).toHaveProperty("metadata");
-          expect(typedRes.metadata).toHaveProperty("model", testModelId);
-          expect(typedRes.metadata).toHaveProperty("id");
-          expect(typedRes.metadata).toHaveProperty("timestamp");
-          
-          // Check usage if present
-          if (typedRes.usage) {
-            expect(typedRes.usage).toMatchObject({
-              promptTokens: expect.any(Number),
-              completionTokens: expect.any(Number),
-              totalTokens: expect.any(Number)
-            });
-          }
-          
-          return typedRes;
-        })
-      );
+      // Generate the object
+      const response = yield* objectService.generate({
+        ...createTestOptions(TaskSchema),
+        prompt: "Create a task 'Complete project'"
+      });
       
-      return response;
+      // Check the response structure
+      expect(response).toBeDefined();
+      expect(response.data).toBeDefined();
+      const task = response.data as Task;
+      expect(task.id).toBeDefined();
+      expect(task.title).toBe("Complete project");
+      expect(task.completed).toBe(false);
+      expect(task.dueDate).toBeDefined();
+      
+      // Check metadata
+      expect(response.metadata).toBeDefined();
+      expect(response.metadata.model).toBe(testModelId);
+      expect(response.metadata.provider).toBeDefined();
+      expect(response.metadata.schema).toBeDefined();
+      expect(response.metadata.promptLength).toBeGreaterThan(0);
+      expect(response.metadata.objectSize).toBeGreaterThan(0);
+      
+      // Check usage
+      expect(response.metadata.usage).toBeDefined();
+      expect(response.metadata.usage.promptTokens).toBeGreaterThan(0);
+      expect(response.metadata.usage.completionTokens).toBeGreaterThan(0);
+      expect(response.metadata.usage.totalTokens).toBeGreaterThan(0);
     }).pipe(
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(ObjectService.Default)
     )
   );
 
@@ -157,16 +138,16 @@ describe("ObjectService Integration Tests", () => {
         })
       );
 
-      expect(result._tag).toBe("Left");
-      if (result._tag === "Left") {
-        expect(result.left).toBeInstanceOf(ObjectInputError);
-        expect(result.left.message).toContain("Prompt cannot be empty");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        const error = result.left as ObjectInputError;
+        expect(error).toBeInstanceOf(ObjectInputError);
+        expect(error.message).toContain("Prompt cannot be empty");
+        expect(error.module).toBe("ObjectService");
+        expect(error.method).toBe("generate");
       }
     }).pipe(
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(ObjectService.Default)
     )
   );
 
@@ -181,16 +162,16 @@ describe("ObjectService Integration Tests", () => {
         })
       );
 
-      expect(result._tag).toBe("Left");
-      if (result._tag === "Left") {
-        expect(result.left).toBeInstanceOf(ObjectModelError);
-        expect(result.left.message).toContain("Model ID must be provided");
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        const error = result.left as ObjectModelError;
+        expect(error).toBeInstanceOf(ObjectModelError);
+        expect(error.message).toContain("Model ID must be provided");
+        expect(error.module).toBe("ObjectService");
+        expect(error.method).toBe("generate");
       }
     }).pipe(
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(ObjectService.Default)
     )
   );
 
@@ -210,18 +191,16 @@ describe("ObjectService Integration Tests", () => {
         })
       );
 
-      expect(result._tag).toBe("Left");
-      if (result._tag === "Left") {
-        expect([
-          "AbortError",
-          "ObjectGenerationError"
-        ]).toContain(result.left.constructor.name);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        const error = result.left as ObjectGenerationError;
+        expect(error).toBeInstanceOf(ObjectGenerationError);
+        expect(error.message).toContain("aborted");
+        expect(error.module).toBe("ObjectService");
+        expect(error.method).toBe("generate");
       }
     }).pipe(
-      Effect.provide(ModelService.Default),
-      Effect.provide(ProviderService.Default),
-      Effect.provide(ConfigurationService.Default),
-      Effect.provide(NodeFileSystem.layer)
+      Effect.provide(ObjectService.Default)
     )
   );
 });

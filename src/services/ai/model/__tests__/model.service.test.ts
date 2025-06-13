@@ -13,6 +13,10 @@ const functionCallingCapability = S.decodeSync(ModelCapability)("function-callin
 const BAD_PATH = "/non/existent/path.json";
 
 describe("ModelService", () => {
+    it("should have .Default available", () => {
+        expect(ModelService.Default).toBeDefined();
+    });
+
     const chatCapability = "chat" as const satisfies S.Schema.Type<typeof ModelCapability>;
     const functionCallingCapability = "function-calling" as const satisfies S.Schema.Type<typeof ModelCapability>;
 

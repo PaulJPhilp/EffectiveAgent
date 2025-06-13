@@ -8,6 +8,10 @@ import { ProviderNotFoundError, ProviderServiceConfigError } from "../errors.js"
 import { ProviderService } from "../service.js";
 
 describe("ProviderService", () => {
+    it("should have .Default available", () => {
+        expect(ProviderService.Default).toBeDefined();
+    });
+
     // Create explicit dependency layers following centralized pattern
     const fileSystemLayer = NodeFileSystem.layer;
     const configurationLayer = Layer.provide(

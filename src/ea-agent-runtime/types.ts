@@ -244,13 +244,25 @@ export interface AgentRuntimeFactory {
  * Initializes the AgentRuntime system with the provided master configuration.
  * This sets up all required services and creates the Effect runtime.
  */
-// Define the runtime services type
-export type RuntimeServices = {
-  readonly configurationService: ConfigurationServiceApi;
-  readonly providerService: ProviderServiceApi;
-  readonly modelService: ModelServiceApi;
-  readonly policyService: PolicyServiceApi;
-};
+import type { Effect } from "effect";
+
+export interface RuntimeServices {
+  configurationService: {
+    getConfig: () => Effect.Effect<unknown, never, never>;
+  };
+  providerService: {
+    getProvider: () => Effect.Effect<unknown, never, never>;
+  };
+  modelService: {
+    getModel: () => Effect.Effect<unknown, never, never>;
+  };
+  policyService: {
+    getPolicy: () => Effect.Effect<unknown, never, never>;
+  };
+  toolRegistryService: {
+    getTools: () => Effect.Effect<unknown, never, never>;
+  };
+}
 
 /**
  * Configuration options for LangGraph agent execution.

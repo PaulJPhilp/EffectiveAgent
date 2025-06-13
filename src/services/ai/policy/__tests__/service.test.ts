@@ -9,6 +9,10 @@ import { PolicyService } from "../service.js";
 import { PolicyCheckContext } from "../types.js";
 
 describe("PolicyService", () => {
+  it("should have .Default available", () => {
+    expect(PolicyService.Default).toBeDefined();
+  });
+
   const testDir = join(process.cwd(), "test-policy-configs", "policy");
   const validPolicyConfig = join(testDir, "valid-policy.json");
   const modelsConfigPath = join(testDir, "models.json");

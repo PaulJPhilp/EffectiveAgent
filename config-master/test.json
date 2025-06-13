@@ -10,9 +10,9 @@
     "enableConsole": true
   },
   "configPaths": {
-    "providers": "../../config-master/providers.json",
-    "models": "../../config-master/models.json",
-    "policy": "../../config-master/policies.json"
+    "providers": "providers.json",
+    "models": "models.json",
+    "policy": "policies.json"
   },
   "providers": {
     "qwen": {

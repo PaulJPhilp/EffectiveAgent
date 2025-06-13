@@ -231,88 +231,7 @@ function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
           };
         }),
 
-      generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) =>
-        Effect.gen(function* () {
-          const modelId = options.modelId;
-          if (!modelId) {
-            return yield* Effect.fail(new ProviderMissingModelIdError({
-              providerName: "google",
-              capability: "text-generation",
-              module: "google",
-              method: "generateObject"
-            }));
-          }
 
-          const messages: Message[] = [];
-          if (options.system) {
-            messages.push({ role: "system", content: options.system });
-          }
-          messages.push({ role: "user", content: input.text });
-
-          try {
-            const result = yield* Effect.promise<GenerateTextResponse>(() =>
-              generateText({
-                messages,
-                model: modelId as unknown as LanguageModelV1,
-                temperature: options.parameters?.temperature,
-                maxTokens: options.parameters?.maxTokens,
-                topP: options.parameters?.topP,
-                frequencyPenalty: options.parameters?.frequencyPenalty,
-                presencePenalty: options.parameters?.presencePenalty
-              })
-            );
-
-            // Parse the text response as JSON
-            let parsedObject: T;
-            try {
-              parsedObject = JSON.parse(result.text || "") as T;
-            } catch (parseError) {
-              return yield* Effect.fail(new ProviderOperationError({
-                providerName: "google",
-                operation: "generateObject",
-                message: "Failed to parse generated text as JSON",
-                module: "google",
-                method: "generateObject",
-                cause: parseError
-              }));
-            }
-
-            const objectResult: GenerateObjectResult<T> = {
-              object: parsedObject,
-              id: result.response?.id || `google-object-${Date.now()}`,
-              model: result.response?.modelId || modelId,
-              timestamp: new Date(),
-              finishReason: (result.finishReason || "stop") as FinishReason,
-              usage: {
-                promptTokens: result.usage?.promptTokens || 0,
-                completionTokens: result.usage?.completionTokens || 0,
-                totalTokens: result.usage?.totalTokens || 0
-              }
-            };
-
-            return {
-              data: objectResult,
-              metadata: {
-                model: modelId,
-                provider: "google",
-                requestId: result.response?.id || `google-object-${Date.now()}`,
-                messageCount: messages.length,
-                hasSystemPrompt: !!options.system
-              },
-              usage: objectResult.usage,
-              finishReason: objectResult.finishReason
-            };
-          } catch (error) {
-            return yield* Effect.fail(new ProviderOperationError({
-              providerName: "google",
-              operation: "generateObject",
-              message: error instanceof Error ? error.message : "Unknown error",
-              module: "google",
-              method: "generateObject",
-              cause: error
-            }));
-          }
-        }),
 
       generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
         Effect.gen(function* () {
@@ -844,6 +763,92 @@ function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
           module: "google",
           method: "getDefaultModelIdForProvider"
         })),
+
+      generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) =>
+        Effect.gen(function* () {
+          const { modelId } = options;
+          if (!modelId) {
+            return yield* Effect.fail(new ProviderMissingModelIdError({
+              providerName: "google",
+              capability: "structured_output" as ModelCapability,
+              module: "google",
+              method: "generateObject"
+            }));
+          }
+
+          const messages = mapEAMessagesToGoogleMessages(Chunk.toReadonlyArray(input.messages));
+          const text = messages.map(m => m.content).join("\n");
+
+          const systemMessage = `You are a helpful assistant that generates structured JSON output. Your response should be valid JSON that matches this schema: ${JSON.stringify(options.schema)}. Do not include any explanations, markdown formatting, or anything other than the raw JSON object.`;
+
+          yield* Effect.logDebug("Generating structured output with Google provider", {
+            modelId,
+            schema: JSON.stringify(options.schema)
+          });
+
+          const result = yield* Effect.tryPromise({
+            try: () => generateText({
+              model: modelId as unknown as LanguageModelV1,
+              messages: [
+                { role: "system", content: systemMessage },
+                { role: "user", content: text }
+              ],
+              maxTokens: 1024,
+              temperature: options.parameters?.temperature ?? 0
+            }),
+            catch: (error) => new ProviderOperationError({
+              providerName: "google",
+              operation: "generateObject",
+              message: `Failed to generate object: ${error}`,
+              module: "google",
+              method: "generateObject",
+              cause: error
+            })
+          });
+
+          try {
+            const content = result.response.body as string;
+            yield* Effect.logDebug("Raw response from Google provider", { content });
+            
+            // Extract JSON from the response - handle cases where the model might include markdown code blocks or text
+            let jsonContent = content;
+            
+            // Try to extract JSON from markdown code blocks if present
+            const jsonBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+            if (jsonBlockMatch && jsonBlockMatch[1]) {
+              jsonContent = jsonBlockMatch[1].trim();
+              yield* Effect.logDebug("Extracted JSON from code block", { jsonContent });
+            }
+            
+            // Find the first occurrence of { and the last occurrence of } to extract JSON object
+            const firstBrace = jsonContent.indexOf('{');
+            const lastBrace = jsonContent.lastIndexOf('}');
+            
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+              jsonContent = jsonContent.substring(firstBrace, lastBrace + 1);
+              yield* Effect.logDebug("Extracted JSON object by braces", { jsonContent });
+            }
+            
+            // Try to parse the extracted JSON
+            try {
+              const parsed = JSON.parse(jsonContent);
+              yield* Effect.logDebug("Successfully parsed JSON", { parsed });
+              return parsed as T;
+            } catch (parseError) {
+              yield* Effect.logError("Failed to parse extracted JSON", { jsonContent, error: parseError });
+              throw parseError; // Re-throw to be caught by outer catch block
+            }
+          } catch (error) {
+            return yield* Effect.fail(new ProviderOperationError({
+              providerName: "google",
+              operation: "generateObject",
+              message: `Failed to parse response as JSON: ${error}`,
+              module: "google",
+              method: "generateObject",
+              cause: error
+            }));
+          }
+        }),
 
       // Provider management
       setVercelProvider: (vercelProvider: EffectiveProviderApi) =>

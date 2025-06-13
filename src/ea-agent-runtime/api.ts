@@ -4,9 +4,29 @@ import type { PolicyServiceApi } from "@/services/ai/policy/api.js"
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
 import type { ToolRegistry } from "@/services/ai/tool-registry/api.js"
 import type { ChatServiceApi } from "@/services/pipeline/producers/chat/api.js"
-import { Effect, Stream } from "effect"
+import { Effect } from "effect";
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
 import { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
+import { RuntimeServices } from "./types.js";
+import { ServiceProvider } from "./service-provider.js";
+import {
+  AgentRuntimeInitializationError,
+  ConfigurationError,
+  ConfigReadError,
+  ConfigParseError,
+  ConfigValidationError
+} from "@/effective-error.js";
+
+export interface AgentRuntimeApi extends RuntimeServices {
+  runEffect: <A, E>(
+    effect: Effect.Effect<A, E, RuntimeServices>
+  ) => Effect.Effect<A, E | AgentRuntimeInitializationError, never>;
+  getRuntime: () => Effect.Effect<RuntimeServices, AgentRuntimeInitializationError, never>;
+  initialize: () => Effect.Effect<void, AgentRuntimeInitializationError, never>;
+  shutdown: () => Effect.Effect<void, never, never>;
+}
+
+export type { AgentRuntimeApi as default };
 
 import type { LangGraphAgentState } from "@/ea-langgraph-sdk/types.js"
 

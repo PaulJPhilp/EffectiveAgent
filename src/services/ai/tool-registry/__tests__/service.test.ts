@@ -1,10 +1,14 @@
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer } from "effect";
-import { describe, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { ToolRegistryService } from "/Users/paul/Projects/EffectiveAgent/src/services/ai/tool-registry/service.js";
 
 describe("ToolRegistryService", () => {
+  it("should have .Default available", () => {
+    expect(ToolRegistryService.Default).toBeDefined();
+  });
+
   // Centralized dependency layer configuration
   const testLayer = Layer.provide(
     Layer.mergeAll(

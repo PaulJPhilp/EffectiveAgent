@@ -10,10 +10,16 @@
     "clean": "tsc --build --clean"
   },
   "dependencies": {
-    "effect": "3.16.4",
+    "@effect/platform": "^0.84.9",
+    "@effect/platform-node": "^0.85.14",
+    "effect": "^3.16.5",
     "qwen-ai-provider": "^0.1.0"
   },
   "devDependencies": {
+    "@effect/cli": "^0.63.9",
+    "@types/node": "^24.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.1",
     "typescript": "^5.8.3"
   }
 }

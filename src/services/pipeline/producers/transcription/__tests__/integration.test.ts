@@ -19,7 +19,7 @@ import {
 } from "../errors.js";
 import { TranscriptionService } from "../service.js";
 import { AudioFormats } from "../service.js";
-import type { TranscriptionOptions } from "../types.js";
+import type { TranscriptionOptions, TranscriptionResult } from "../types.js";
 
 // Helper function to generate mock audio data
 const generateMockAudioData = (format: string = 'wav'): string => {
@@ -71,27 +71,6 @@ const createTestOptions = (overrides: Partial<TranscriptionOptions> = {}): Trans
 });
 
 describe("TranscriptionService Integration Tests", () => {
-  // Test setup
-  const testModelId = "whisper-1";
-  const testAudioData = generateMockAudioData('wav');
-  const testSpan = createTestSpan();
-
-  // Helper function to convert audio data to base64
-  const convertAudioToBase64 = (data: string | Uint8Array | ArrayBuffer): string => {
-    let uint8Array: Uint8Array;
-    if (typeof data === 'string') {
-      const base64Data = data.split(',')[1];
-      if (!base64Data) {
-        throw new Error('Invalid base64 audio data format');
-      }
-      uint8Array = new Uint8Array(Buffer.from(base64Data, 'base64'));
-    } else if (data instanceof Uint8Array) {
-      uint8Array = data;
-    } else {
-      uint8Array = new Uint8Array(data);
-    }
-    return Buffer.from(uint8Array).toString('base64');
-  };
 
   it("should transcribe audio with valid input", () =>
     Effect.gen(function* (_) {
@@ -109,38 +88,33 @@ describe("TranscriptionService Integration Tests", () => {
         return expect.fail(`Transcription failed: ${result.left.message}`);
       }
 
-      const response = result.right;
+      const transcription = result.right.data;
 
       // Verify required fields
-      expect(response).toBeDefined();
-      expect(response.data).toBeDefined();
-      expect(response.data.text).toBeDefined();
-      expect(response.data.model).toBe(options.modelId);
-      expect(response.data.timestamp).toBeInstanceOf(Date);
-      expect(response.data.id).toBeDefined();
+      expect(transcription).toBeDefined();
+      expect(transcription.text).toBeDefined();
+      expect(transcription.model).toBe(options.modelId);
+      expect(transcription.timestamp).toBeInstanceOf(Date);
+      expect(transcription.id).toBeDefined();
       
       // Check for segments if available
-      if (response.data.segments && response.data.segments.length > 0) {
-        const segment = response.data.segments[0];
+      if (transcription.segments && transcription.segments.length > 0) {
+        const segment = transcription.segments[0];
         expect(segment).toHaveProperty('id');
         expect(segment).toHaveProperty('start');
         expect(segment).toHaveProperty('end');
         expect(segment).toHaveProperty('text');
       }
-      if (response.data.detectedLanguage) {
-        expect(typeof response.data.detectedLanguage).toBe('string');
+      if (transcription.detectedLanguage) {
+        expect(typeof transcription.detectedLanguage).toBe('string');
       }
-      
-      if (response.data.duration) {
-        expect(typeof response.data.duration).toBe('number');
+      if (transcription.duration) {
+        expect(typeof transcription.duration).toBe('number');
       }
-      
-      if (response.data.usage) {
-        expect(response.data.usage).toMatchObject({
-          promptTokens: expect.any(Number),
-          completionTokens: expect.any(Number),
-          totalTokens: expect.any(Number)
-        });
+      if (transcription.usage) {
+        expect(transcription.usage).toHaveProperty('promptTokens');
+        expect(transcription.usage).toHaveProperty('completionTokens');
+        expect(transcription.usage).toHaveProperty('totalTokens');
       }
     }).pipe(
       Effect.provide(TestHarnessLayer)
@@ -166,11 +140,10 @@ describe("TranscriptionService Integration Tests", () => {
           return expect.fail(`Transcription failed for format ${format}: ${result.left.message}`);
         }
         
-        const response = result.right;
-        expect(response).toBeDefined();
-        expect(response.data).toBeDefined();
-        expect(response.data.text).toBeDefined();
-        expect(response.data.model).toBe(options.modelId);
+        const transcription = result.right.data;
+        expect(transcription).toBeDefined();
+        expect(transcription.text).toBeDefined();
+        expect(transcription.model).toBe(options.modelId);
       }
     }).pipe(
       Effect.provide(TestHarnessLayer)
@@ -192,7 +165,31 @@ describe("TranscriptionService Integration Tests", () => {
       // Verify the error
       expect(Either.isLeft(result)).toBe(true);
       if (Either.isLeft(result)) {
-        expect(["TranscriptionAudioError", "TranscriptionError"]).toContain(result.left.constructor.name);
+        expect(result.left).toBeInstanceOf(TranscriptionAudioError);
+        expect(result.left.message).toContain("empty");
+      }
+    }).pipe(
+      Effect.provide(TestHarnessLayer)
+    )
+  );
+
+  it("should handle invalid audio data format", () =>
+    Effect.gen(function* () {
+      const service = yield* TranscriptionService;
+      
+      const options = createTestOptions({
+        audioData: "invalid-base64-data"
+      });
+      
+      const result = yield* Effect.either(
+        service.transcribe(options)
+      );
+
+      // Verify the error
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left).toBeInstanceOf(TranscriptionAudioError);
+        expect(result.left.message).toContain("format");
       }
     }).pipe(
       Effect.provide(TestHarnessLayer)

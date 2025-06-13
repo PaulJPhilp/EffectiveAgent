@@ -6,7 +6,7 @@
 import { ModelFileSchema } from "@/services/ai/model/schema.js";
 import { PolicyConfigFile } from "@/services/ai/policy/schema.js";
 import { ProviderFile } from "@/services/ai/provider/schema.js";
-import { FileSystem } from "@effect/platform";
+import { FileSystem, Path } from "@effect/platform";
 import { Effect, Schema } from "effect";
 import { ParseError } from "effect/ParseResult";
 import { ConfigurationServiceApi } from "./api.js";
@@ -49,14 +49,19 @@ export interface ConfigurationSchemas {
 }
 
 const makeConfigurationService = Effect.gen(function* () {
+    const path = yield* Path.Path;
     const masterConfigPath = process.env.MASTER_CONFIG_PATH ||
         process.env.EFFECTIVE_AGENT_MASTER_CONFIG ||
-        "./config/master-config.json";
+        "./config/master-config.json"; // Relative to CWD
 
-    const masterConfigContent = yield* readFile(masterConfigPath);
-    const masterConfigParsed = yield* parseJson(masterConfigContent, masterConfigPath);
+    // Resolve masterConfigPath to an absolute path to make subsequent resolutions robust
+    const absoluteMasterConfigPath = path.resolve(masterConfigPath);
+    const masterConfigDir = path.dirname(absoluteMasterConfigPath);
+
+    const masterConfigContent = yield* readFile(absoluteMasterConfigPath);
+    const masterConfigParsed = yield* parseJson(masterConfigContent, absoluteMasterConfigPath);
     const masterConfig: Schema.Schema.Type<typeof MasterConfigSchema> =
-        yield* validateWithSchema(masterConfigParsed, MasterConfigSchema, masterConfigPath);
+        yield* validateWithSchema(masterConfigParsed, MasterConfigSchema, absoluteMasterConfigPath);
 
     return {
         loadConfig: <T>(filePath: string, schema: Schema.Schema<T, any>) =>
@@ -74,7 +79,10 @@ const makeConfigurationService = Effect.gen(function* () {
 
         loadProviderConfig: (filePath: string) =>
             Effect.gen(function* () {
-                const effectiveFilePath = masterConfig.configPaths?.providers || filePath;
+                let effectiveFilePath = filePath;
+                if (masterConfig.configPaths?.providers) {
+                    effectiveFilePath = path.resolve(masterConfigDir, masterConfig.configPaths.providers);
+                }
                 const content = yield* readFile(effectiveFilePath);
                 const parsed = yield* parseJson(content, effectiveFilePath);
                 return yield* validateWithSchema(parsed, ProviderFile, effectiveFilePath);
@@ -82,7 +90,10 @@ const makeConfigurationService = Effect.gen(function* () {
 
         loadModelConfig: (filePath: string) =>
             Effect.gen(function* () {
-                const effectiveFilePath = masterConfig.configPaths?.models || filePath;
+                let effectiveFilePath = filePath;
+                if (masterConfig.configPaths?.models) {
+                    effectiveFilePath = path.resolve(masterConfigDir, masterConfig.configPaths.models);
+                }
                 const content = yield* readFile(effectiveFilePath);
                 const parsed = yield* parseJson(content, effectiveFilePath);
                 return yield* validateWithSchema(parsed, ModelFileSchema, effectiveFilePath);
@@ -90,7 +101,10 @@ const makeConfigurationService = Effect.gen(function* () {
 
         loadPolicyConfig: (filePath: string) =>
             Effect.gen(function* () {
-                const effectiveFilePath = masterConfig.configPaths?.policy || filePath;
+                let effectiveFilePath = filePath;
+                if (masterConfig.configPaths?.policy) {
+                    effectiveFilePath = path.resolve(masterConfigDir, masterConfig.configPaths.policy);
+                }
                 const content = yield* readFile(effectiveFilePath);
                 const parsed = yield* parseJson(content, effectiveFilePath);
                 return yield* validateWithSchema(parsed, PolicyConfigFile, effectiveFilePath);
@@ -116,11 +130,4 @@ export class ConfigurationService extends Effect.Service<ConfigurationServiceApi
         effect: makeConfigurationService
     }
 ) { }
-
-// Legacy alias – keep until downstream files migrate to explicit Layer composition
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore – dynamically attach property for backward compatibility
-if (!("Default" in ConfigurationService)) {
-    ; (ConfigurationService as any).Default = ConfigurationService;
-}
 
