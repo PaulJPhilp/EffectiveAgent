@@ -146,28 +146,28 @@ const getListDescription = (resourceType: ResourceType): string => {
       "all model entries defined in models.json.\n\n" +
       "Recovery hints:\n" +
       "- If models.json not found, run 'ea-cli init' first\n" +
-      "- If permission denied, check read access to ea-config/models.json\n" +
+      "- If permission denied, check read access to configuration/ea-config/models.json\n" +
       "- If JSON parse error, validate the file format",
     provider:
       "List all provider configurations in the project. Shows the names/IDs of " +
       "all provider entries defined in providers.json.\n\n" +
       "Recovery hints:\n" +
       "- If providers.json not found, run 'ea-cli init' first\n" +
-      "- If permission denied, check read access to ea-config/providers.json\n" +
+      "- If permission denied, check read access to configuration/ea-config/providers.json\n" +
       "- If JSON parse error, validate the file format",
     rule:
       "List all rules defined in the project. Shows the names/IDs of " +
       "all rules defined in policy.json.\n\n" +
       "Recovery hints:\n" +
       "- If policy.json not found, run 'ea-cli init' first\n" +
-      "- If permission denied, check read access to ea-config/policy.json\n" +
+      "- If permission denied, check read access to configuration/ea-config/policy.json\n" +
       "- If JSON parse error, validate the file format",
     toolkit:
       "List all toolkits defined in the project. Shows the names/IDs of " +
       "all toolkits defined in tool-registry.json.\n\n" +
       "Recovery hints:\n" +
       "- If tool-registry.json not found, run 'ea-cli init' first\n" +
-      "- If permission denied, check read access to ea-config/tool-registry.json\n" +
+      "- If permission denied, check read access to configuration/ea-config/tool-registry.json\n" +
       "- If JSON parse error, validate the file format",
   }
 
@@ -199,7 +199,7 @@ const listConfigItemsWithErrorHandling = (resourceType: ResourceType) =>
             return Effect.fail(
               new ConfigurationError({
                 message: `${resourceType} configuration file not found.\nRun 'ea-cli init' to create required configuration files.`,
-                configPath: `ea-config/${resourceType}s.json`,
+                configPath: `configuration/ea-config/${resourceType}s.json`,
                 errorType: "missing",
               }),
             )
@@ -207,8 +207,8 @@ const listConfigItemsWithErrorHandling = (resourceType: ResourceType) =>
           if (err.message.includes("EACCES")) {
             return Effect.fail(
               new PermissionError({
-                message: `Permission denied reading ${resourceType} configuration.\nCheck that you have read permissions for ea-config/${resourceType}s.json`,
-                path: `ea-config/${resourceType}s.json`,
+                message: `Permission denied reading ${resourceType} configuration.\nCheck that you have read permissions for configuration/ea-config/${resourceType}s.json`,
+                path: `configuration/ea-config/${resourceType}s.json`,
                 operation: "read",
                 requiredPermission: "read",
               }),
@@ -218,7 +218,7 @@ const listConfigItemsWithErrorHandling = (resourceType: ResourceType) =>
             return Effect.fail(
               new ConfigurationError({
                 message: `Invalid JSON in ${resourceType} configuration.\nCheck the file format and fix any syntax errors.`,
-                configPath: `ea-config/${resourceType}s.json`,
+                configPath: `configuration/ea-config/${resourceType}s.json`,
                 errorType: "parse",
                 cause: err,
               }),

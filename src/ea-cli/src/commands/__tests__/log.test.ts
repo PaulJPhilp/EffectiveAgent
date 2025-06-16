@@ -9,7 +9,7 @@ describe("log command functionality", () => {
   const TEST_DIR = join(process.cwd(), "test-workspace-log")
   const PROJECT_NAME = "test-log-project"
   const PROJECT_PATH = join(TEST_DIR, PROJECT_NAME)
-  const CONFIG_DIR = join(PROJECT_PATH, "ea-config")
+  const CONFIG_DIR = join(PROJECT_PATH, "configuration/ea-config")
   const LOGS_DIR = join(PROJECT_PATH, "logs")
   const LOG_FILE = join(LOGS_DIR, "agent.log")
 

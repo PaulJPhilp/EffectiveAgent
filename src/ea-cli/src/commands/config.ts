@@ -9,7 +9,7 @@ const validateConfigs = Effect.gen(function* () {
   const pathSvc = yield* Path.Path
   const fs = yield* FileSystem.FileSystem
   const cwd = process.cwd()
-  const configDir = pathSvc.join(cwd, "ea-config")
+  const configDir = pathSvc.join(cwd, "configuration/ea-config")
 
   // List of required config files with descriptions
   const requiredConfigs = [
@@ -31,7 +31,7 @@ const validateConfigs = Effect.gen(function* () {
         return Effect.fail(
           new ConfigurationError({
             message:
-              "ea-config directory not found.\nPlease ensure:\n" +
+              "configuration/ea-config directory not found.\nPlease ensure:\n" +
               "1. You are in the workspace root directory\n" +
               "2. Project was initialized with 'ea-cli init'",
             configPath: configDir,
@@ -129,7 +129,7 @@ const validateConfigs = Effect.gen(function* () {
 
 const validate = Command.make("validate").pipe(
   Command.withDescription(
-    "Validate all configuration files in ea-config/.\n\n" +
+    "Validate all configuration files in configuration/ea-config/.\n\n" +
       "This command will:\n" +
       "  1. Check each config file exists\n" +
       "  2. Validate JSON syntax\n" +
@@ -164,7 +164,7 @@ export const configCommands = Command.make("config").pipe(
       "  validate    Check all configuration files against their schemas\n\n" +
       "The config commands help ensure your project's configuration files\n" +
       "are valid and properly structured. Configuration files are stored\n" +
-      "in the ea-config/ directory.",
+      "in the configuration/ea-config/ directory.",
   ),
   Command.withSubcommands([validate]),
 )

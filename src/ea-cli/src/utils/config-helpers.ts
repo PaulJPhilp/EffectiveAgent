@@ -7,7 +7,7 @@ import { FileSystemLayer, exists, writeJson } from "../services/fs.js"
 export type ResourceType = "model" | "provider" | "rule" | "toolkit"
 
 interface ResourceConfig {
-  readonly filePath: string // Relative to ea-config directory
+  readonly filePath: string // Relative to configuration/ea-config directory
   readonly itemsKey: string // Key in the JSON file that holds the array of items
   readonly itemNameKey: string // Key within an item object that holds its unique name/ID
 }

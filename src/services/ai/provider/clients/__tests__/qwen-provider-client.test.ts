@@ -10,7 +10,7 @@ import { makeQwenClient } from "../qwen-provider-client.js";
 
 describe("Qwen Provider Client", () => {
     beforeEach(() => {
-        process.env.MASTER_CONFIG_PATH = "./config-master/test.json";
+        process.env.MASTER_CONFIG_PATH = "./configuration/config-master/test.json";
     });
 
     const withLayers = <R, E, A>(effect: Effect.Effect<A, E, R>) =>

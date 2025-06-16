@@ -10,7 +10,7 @@ describe("delete command functionality", () => {
   const TEST_DIR = join(process.cwd(), "test-workspace-delete")
   const PROJECT_NAME = "test-delete-project"
   const PROJECT_PATH = join(TEST_DIR, PROJECT_NAME)
-  const CONFIG_DIR = join(PROJECT_PATH, "ea-config")
+  const CONFIG_DIR = join(PROJECT_PATH, "configuration/ea-config")
   const AGENTS_DIR = join(PROJECT_PATH, "agents")
 
   // Test layer

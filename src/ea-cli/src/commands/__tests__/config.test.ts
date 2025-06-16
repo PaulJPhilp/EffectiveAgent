@@ -8,7 +8,7 @@ describe("config command functionality", () => {
   const TEST_DIR = join(process.cwd(), "test-workspace-config")
   const PROJECT_NAME = "test-config-project"
   const PROJECT_PATH = join(TEST_DIR, PROJECT_NAME)
-  const CONFIG_DIR = join(PROJECT_PATH, "ea-config")
+  const CONFIG_DIR = join(PROJECT_PATH, "configuration/ea-config")
 
   // Test layer
   const testLayer = Layer.mergeAll(NodeFileSystem.layer, NodeContext.layer)

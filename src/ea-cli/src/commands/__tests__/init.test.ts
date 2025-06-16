@@ -57,7 +57,7 @@ describe("init command", () => {
         const projectExists = yield* fs.exists(PROJECT_PATH)
         expect(projectExists).toBe(true)
 
-        const configExists = yield* fs.exists(join(PROJECT_PATH, "ea-config"))
+        const configExists = yield* fs.exists(join(PROJECT_PATH, "configuration/ea-config"))
         expect(configExists).toBe(true)
 
         const agentsExists = yield* fs.exists(join(PROJECT_PATH, "agents"))

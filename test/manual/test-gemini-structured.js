@@ -7,7 +7,7 @@ import { readFileSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 // Set environment variables
-process.env.MASTER_CONFIG_PATH = join(process.cwd(), "config-master/test.json");
+process.env.MASTER_CONFIG_PATH = join(process.cwd(), "configuration/config-master/test.json");
 process.env.PROJECT_ROOT = process.cwd();
 
 // Main function

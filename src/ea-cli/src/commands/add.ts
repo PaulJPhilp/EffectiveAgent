@@ -144,28 +144,28 @@ const createAddCommand = (
       "Recovery hints:\n" +
       "- If model exists, choose a different name or delete existing one\n" +
       "- If file not found, run 'ea-cli init' first\n" +
-      "- If permission denied, check write access to ea-config/models.json",
+      "- If permission denied, check write access to configuration/ea-config/models.json",
     provider:
       "Add a new provider configuration to the project. This will create an entry in providers.json " +
       "where you can configure API keys and other provider settings.\n\n" +
       "Recovery hints:\n" +
       "- If provider exists, choose a different name or delete existing one\n" +
       "- If file not found, run 'ea-cli init' first\n" +
-      "- If permission denied, check write access to ea-config/providers.json",
+      "- If permission denied, check write access to configuration/ea-config/providers.json",
     rule:
       "Add a new rule configuration to the project. This will create an entry in policy.json " +
       "where you can define custom rules and policies for agent behavior.\n\n" +
       "Recovery hints:\n" +
       "- If rule exists, choose a different name or delete existing one\n" +
       "- If file not found, run 'ea-cli init' first\n" +
-      "- If permission denied, check write access to ea-config/policy.json",
+      "- If permission denied, check write access to configuration/ea-config/policy.json",
     toolkit:
       "Add a new toolkit configuration to the project. This will create an entry in tool-registry.json " +
       "where you can define a collection of tools that agents can use.\n\n" +
       "Recovery hints:\n" +
       "- If toolkit exists, choose a different name or delete existing one\n" +
       "- If file not found, run 'ea-cli init' first\n" +
-      "- If permission denied, check write access to ea-config/tool-registry.json",
+      "- If permission denied, check write access to configuration/ea-config/tool-registry.json",
   }
 
   const desc = descriptions[type]
@@ -193,7 +193,7 @@ const createAddCommand = (
                 return Effect.fail(
                   new ConfigurationError({
                     message: `${type} configuration file not found.\nRun 'ea-cli init' to create required configuration files.`,
-                    configPath: `ea-config/${type}s.json`,
+                    configPath: `configuration/ea-config/${type}s.json`,
                     errorType: "missing",
                   }),
                 )
@@ -201,8 +201,8 @@ const createAddCommand = (
               if (error.message.includes("EACCES")) {
                 return Effect.fail(
                   new PermissionError({
-                    message: `Permission denied updating ${type} configuration.\nCheck that you have write permissions for ea-config/${type}s.json`,
-                    path: `ea-config/${type}s.json`,
+                    message: `Permission denied updating ${type} configuration.\nCheck that you have write permissions for configuration/ea-config/${type}s.json`,
+                    path: `configuration/ea-config/${type}s.json`,
                     operation: "write",
                     requiredPermission: "write",
                   }),
@@ -221,7 +221,7 @@ const createAddCommand = (
                 return Effect.fail(
                   new ConfigurationError({
                     message: `Invalid JSON in ${type} configuration.\nCheck the file format and fix any syntax errors.`,
-                    configPath: `ea-config/${type}s.json`,
+                    configPath: `configuration/ea-config/${type}s.json`,
                     errorType: "parse",
                     cause: error,
                   }),

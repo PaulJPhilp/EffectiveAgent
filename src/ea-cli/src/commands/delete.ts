@@ -183,7 +183,7 @@ const makeDeleteConfigCommand = (type: ResourceType) => {
 
         // Ask for confirmation with clear context
         const confirmed = yield* Prompt.confirm({
-          message: `⚠️  Are you sure you want to delete ${type} '${itemName}'?\nThis will remove the ${type} configuration from ea-config/${type}s.json.\nThis action cannot be undone.`,
+          message: `⚠️  Are you sure you want to delete ${type} '${itemName}'?\nThis will remove the ${type} configuration from configuration/ea-config/${type}s.json.\nThis action cannot be undone.`,
           initial: false,
         })
 
@@ -211,7 +211,7 @@ const makeDeleteConfigCommand = (type: ResourceType) => {
                 return Effect.fail(
                   new PermissionError({
                     message: `Permission denied updating ${type} configuration.\nPlease check file permissions.`,
-                    path: `ea-config/${type}s.json`,
+                    path: `configuration/ea-config/${type}s.json`,
                     operation: "write",
                     requiredPermission: "write",
                   }),
@@ -224,7 +224,7 @@ const makeDeleteConfigCommand = (type: ResourceType) => {
                 return Effect.fail(
                   new ConfigurationError({
                     message: `Invalid JSON in ${type} configuration.\nPlease fix any syntax errors.`,
-                    configPath: `ea-config/${type}s.json`,
+                    configPath: `configuration/ea-config/${type}s.json`,
                     errorType: "parse",
                     cause: error,
                   }),
