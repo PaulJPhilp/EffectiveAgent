@@ -1,5 +1,5 @@
 import {
-  AgentActivity,
+  type AgentActivity,
   AgentRuntimeError,
   AgentRuntimeService,
   type AgentRuntimeServiceApi,
@@ -62,13 +62,7 @@ const runAgent = (options: {
           // Add better error context and recovery hints
           const enhancedError = new AgentRuntimeError({
             agentRuntimeId: runtimeId,
-            message:
-              `Agent runtime error: ${error.message}\n` +
-              "Troubleshooting steps:\n" +
-              "1. Check agent implementation for errors\n" +
-              "2. Verify configuration in ea-config/\n" +
-              "3. Check system resources\n" +
-              "4. Review logs for details",
+            message: `Agent runtime error: ${error.message}\nTroubleshooting steps:\n1. Check agent implementation for errors\n2. Verify configuration in ea-config/\n3. Check system resources\n4. Review logs for details`,
             cause: error,
           })
           return Stream.fail(enhancedError)
@@ -131,15 +125,12 @@ const validateAgentConfiguration = (agentDir: string, configDir: string) =>
           exists
             ? Effect.succeed(undefined)
             : Effect.fail(
-              new ConfigurationError({
-                message:
-                  `Required configuration file ${config.name} not found.\n` +
-                  `This file contains ${config.purpose}.\n` +
-                  "Please run 'ea-cli init' if starting a new project.",
-                configPath,
-                errorType: "missing",
-              }),
-            ),
+                new ConfigurationError({
+                  message: `Required configuration file ${config.name} not found.\nThis file contains ${config.purpose}.\nPlease run 'ea-cli init' if starting a new project.`,
+                  configPath,
+                  errorType: "missing",
+                }),
+              ),
         ),
       )
 
@@ -150,10 +141,7 @@ const validateAgentConfiguration = (agentDir: string, configDir: string) =>
             try: () => JSON.parse(content),
             catch: () =>
               new ConfigurationError({
-                message:
-                  `Invalid JSON in ${config.name}.\n` +
-                  `Please ensure the file contains valid JSON and no syntax errors.\n` +
-                  "You can use 'ea-cli config:validate' to check all configuration files.",
+                message: `Invalid JSON in ${config.name}.\nPlease ensure the file contains valid JSON and no syntax errors.\nYou can use 'ea-cli config:validate' to check all configuration files.`,
                 configPath,
                 errorType: "parse",
               }),
@@ -267,11 +255,7 @@ export const runCommand = Command.make(
           Effect.gen(function* () {
             if (error instanceof AgentRuntimeError) {
               yield* Console.error(
-                `Agent Runtime Error: ${error.message}\n` +
-                "Possible solutions:\n" +
-                "1. Check agent implementation in agents/ directory\n" +
-                "2. Verify configuration files in ea-config/\n" +
-                "3. Run 'ea-cli config:validate' to check configurations",
+                `Agent Runtime Error: ${error.message}\nPossible solutions:\n1. Check agent implementation in agents/ directory\n2. Verify configuration files in ea-config/\n3. Run 'ea-cli config:validate' to check configurations`,
               )
             } else {
               yield* Console.error(`Error: ${String(error)}`)
@@ -302,16 +286,16 @@ export const runCommand = Command.make(
 ).pipe(
   Command.withDescription(
     "Execute an agent with the specified input and stream its output to the terminal.\n\n" +
-    "This command will:\n" +
-    "  1. Validate the agent exists in agents/ directory\n" +
-    "  2. Check required configuration files are present\n" +
-    "  3. Parse and validate configuration JSON\n" +
-    "  4. Run the agent with the provided input\n" +
-    "  5. Stream execution events to the terminal\n\n" +
-    "Common issues and solutions:\n" +
-    "  - Missing agent: Use 'ea-cli add:agent' to create it\n" +
-    "  - Config errors: Use 'ea-cli config:validate' to check files\n" +
-    "  - Permission errors: Check read/write access to project files\n" +
-    "  - Runtime errors: Check agent implementation and logs",
+      "This command will:\n" +
+      "  1. Validate the agent exists in agents/ directory\n" +
+      "  2. Check required configuration files are present\n" +
+      "  3. Parse and validate configuration JSON\n" +
+      "  4. Run the agent with the provided input\n" +
+      "  5. Stream execution events to the terminal\n\n" +
+      "Common issues and solutions:\n" +
+      "  - Missing agent: Use 'ea-cli add:agent' to create it\n" +
+      "  - Config errors: Use 'ea-cli config:validate' to check files\n" +
+      "  - Permission errors: Check read/write access to project files\n" +
+      "  - Runtime errors: Check agent implementation and logs",
   ),
 )

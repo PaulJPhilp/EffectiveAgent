@@ -8,7 +8,11 @@ import {
   mapUnknownError,
 } from "../errors.js"
 import { FileSystemLayer, exists } from "../services/fs.js"
-import { ResourceType, configMap, listConfigItems } from "../utils/config-helpers.js"
+import {
+  type ResourceType,
+  configMap,
+  listConfigItems,
+} from "../utils/config-helpers.js"
 
 const resourceTypes: ResourceType[] = ["model", "provider", "rule", "toolkit"]
 
@@ -53,13 +57,13 @@ const getAgentEntries = Effect.gen(function* (_) {
       dirExists
         ? Effect.succeed(undefined)
         : Effect.fail(
-          new FileSystemError({
-            message:
-              "Agents directory not found. Run 'ea-cli init' first to create the project structure.",
-            path: agentsDir,
-            operation: "exists",
-          }),
-        ),
+            new FileSystemError({
+              message:
+                "Agents directory not found. Run 'ea-cli init' first to create the project structure.",
+              path: agentsDir,
+              operation: "exists",
+            }),
+          ),
     ),
   )
 
@@ -92,10 +96,10 @@ const getAgentEntries = Effect.gen(function* (_) {
 const listAgentCommand = Command.make("agent").pipe(
   Command.withDescription(
     "List all agents in the project. Shows the names of all agent packages " +
-    "that exist in the agents/ directory.\n\n" +
-    "Recovery hints:\n" +
-    "- If agents directory not found, run 'ea-cli init' first\n" +
-    "- If permission denied, check read permissions on agents/ directory",
+      "that exist in the agents/ directory.\n\n" +
+      "Recovery hints:\n" +
+      "- If agents directory not found, run 'ea-cli init' first\n" +
+      "- If permission denied, check read permissions on agents/ directory",
   ),
   Command.withHandler(() =>
     Effect.gen(function* (_) {
@@ -114,17 +118,16 @@ const listAgentCommand = Command.make("agent").pipe(
       yield* Effect.forEach(entries, (entry) =>
         Effect.gen(function* () {
           const entryPath = path.join(agentsDir, entry)
-          return yield* fs
-            .readDirectory(entryPath)
-            .pipe(
-              Effect.map(() => Effect.log(`- ${entry}`)),
-              Effect.catchAll((err) =>
-                Effect.log(
-                  `Warning: Could not read ${entry}: ${err instanceof Error ? err.message : "Unknown error"
-                  }\nCheck that you have proper permissions and the directory is accessible.`,
-                ),
+          return yield* fs.readDirectory(entryPath).pipe(
+            Effect.map(() => Effect.log(`- ${entry}`)),
+            Effect.catchAll((err) =>
+              Effect.log(
+                `Warning: Could not read ${entry}: ${
+                  err instanceof Error ? err.message : "Unknown error"
+                }\nCheck that you have proper permissions and the directory is accessible.`,
               ),
-            )
+            ),
+          )
         }),
       )
 
@@ -178,17 +181,17 @@ const listConfigItemsWithErrorHandling = (resourceType: ResourceType) =>
       Effect.tap((items) =>
         items.length === 0
           ? Effect.log(
-            `No ${resourceType}s found. Use 'ea-cli add:${resourceType}' to add one.`,
-          )
+              `No ${resourceType}s found. Use 'ea-cli add:${resourceType}' to add one.`,
+            )
           : Effect.gen(function* () {
-            yield* Effect.log(`Available ${resourceType}s:`)
-            yield* Effect.forEach(items, (item) => {
-              // Extract the name using the config mapping
-              const config = configMap[resourceType]
-              const itemName = item[config.itemNameKey] || "Unknown Item"
-              return Effect.log(`- ${itemName}`)
-            })
-          }),
+              yield* Effect.log(`Available ${resourceType}s:`)
+              yield* Effect.forEach(items, (item) => {
+                // Extract the name using the config mapping
+                const config = configMap[resourceType]
+                const itemName = item[config.itemNameKey] || "Unknown Item"
+                return Effect.log(`- ${itemName}`)
+              })
+            }),
       ),
       Effect.catchAll((err) => {
         if (err instanceof Error) {

@@ -135,7 +135,7 @@ export interface TranscribeResult extends GenerateBaseResult {
     /** Language detected in the audio */
     detectedLanguage?: string
     /** Duration of the audio in seconds */
-    duration: number
+    duration?: number
     /** Audio processing parameters used */
     parameters: {
         /** Language hint provided (e.g., 'en-US') */

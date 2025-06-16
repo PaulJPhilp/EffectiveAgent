@@ -3,7 +3,7 @@
  * @module ea/pipelines/query-analysis/contract
  */
 
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 import { QueryAnalysisPipelineError } from "./errors.js";
 
 /**
@@ -116,9 +116,18 @@ export interface QueryAnalysisPipelineApi {
 }
 
 /**
- * Service tag for the QueryAnalysisPipeline
+ * Service tag for the QueryAnalysisPipeline using Effect.Service pattern
  */
-export class QueryAnalysisPipeline extends Context.Tag("QueryAnalysisPipeline")<
-    QueryAnalysisPipeline,
-    QueryAnalysisPipelineApi
->() { } 
+export interface QueryAnalysisPipelineTag {
+    readonly _tag: "QueryAnalysisPipeline"
+}
+
+export class QueryAnalysisPipeline extends Effect.Service<QueryAnalysisPipelineApi & QueryAnalysisPipelineTag>()("QueryAnalysisPipeline", {
+    effect: Effect.succeed({
+        _tag: "QueryAnalysisPipeline" as const,
+        // Service interface implementation will be provided in service.ts
+        analyzeQuery: undefined as any,
+        extractEntities: undefined as any
+    }),
+    dependencies: []
+}) { }

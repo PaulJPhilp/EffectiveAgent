@@ -78,7 +78,8 @@ export class ToolExecutorService extends Effect.Service<{
 
 
 // Export the EffectImplementation type from schema
-export type { EffectImplementation, IEffectImplementation } from "./schema.js";
+// Export the EffectImplementation type from schema
+export type { EffectImplementation, IEffectImplementation, EffectiveTool } from "./schema.js";
 
 /** Implementation using HTTP requests to external services. */
 export type HttpImplementation<InputA = any, InputE = any, OutputA = any, OutputE = any> = {

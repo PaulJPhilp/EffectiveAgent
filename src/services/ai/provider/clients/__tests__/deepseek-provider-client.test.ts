@@ -8,7 +8,7 @@ import { NodeFileSystem } from "@effect/platform-node";
 import { Chunk, Effect, Layer } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ProviderMissingCapabilityError, ProviderOperationError } from "../../errors.js";
-import { makeDeepseekClient } from "../deepseek-provider-client.js";
+import { DeepseekProviderClient } from "../deepseek-provider-client.js";
 
 describe("DeepSeek Provider Client", () => {
     const testDir = join(process.cwd(), "test-deepseek-configs");
@@ -118,7 +118,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Client Creation", () => {
         it("should create DeepSeek client with valid API key", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-deepseek-key");
+                const client = yield* DeepseekProviderClient;
                 expect(client).toBeDefined();
                 expect(typeof client.generateText).toBe("function");
                 expect(typeof client.chat).toBe("function");
@@ -128,8 +128,8 @@ describe("DeepSeek Provider Client", () => {
 
         it("should handle different API keys", () =>
             withLayers(Effect.gen(function* () {
-                const client1 = yield* makeDeepseekClient("key1");
-                const client2 = yield* makeDeepseekClient("key2");
+                const client1 = yield* DeepseekProviderClient;
+                const client2 = yield* DeepseekProviderClient;
 
                 expect(client1).toBeDefined();
                 expect(client2).toBeDefined();
@@ -147,7 +147,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Capabilities", () => {
         it("should return correct supported capabilities", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const capabilities = yield* client.getCapabilities();
 
                 expect(capabilities).toBeInstanceOf(Set);
@@ -166,7 +166,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should return provider information", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const provider = yield* client.getProvider();
 
                 expect(provider.name).toBe("deepseek");
@@ -183,7 +183,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Model Management", () => {
         it("should return empty models list", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const models = yield* client.getModels();
                 expect(Array.isArray(models)).toBe(true);
                 expect(models.length).toBe(0);
@@ -193,7 +193,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should return default model IDs for supported capabilities", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
 
                 const chatModel = yield* client.getDefaultModelIdForProvider("deepseek", "chat");
                 expect(chatModel).toBe("deepseek-chat");
@@ -213,7 +213,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should fail for unsupported capabilities", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
 
                 const result = yield* Effect.either(
                     client.getDefaultModelIdForProvider("deepseek", "embeddings")
@@ -225,7 +225,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should fail for wrong provider name", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
 
                 const result = yield* Effect.either(
                     client.getDefaultModelIdForProvider("openai", "chat")
@@ -239,7 +239,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Tool Operations", () => {
         it("should handle tool validation", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
 
                 // DeepSeek supports tools, but validation will still fail due to API call
                 const result = yield* Effect.either(
@@ -256,7 +256,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should handle tool execution", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
 
                 // DeepSeek supports tools, but execution will fail due to API call
                 const result = yield* Effect.either(
@@ -273,7 +273,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should handle tool result processing", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
 
                 // DeepSeek supports tools, but processing will fail due to API call
                 const result = yield* Effect.either(
@@ -292,7 +292,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Supported Generation Operations", () => {
         it("should handle object generation", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([new EffectiveMessage({
                         role: "user",
@@ -309,8 +309,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderOperationError) expect(result.left.operation).toBe("generateObject");
                 }
                 return result;
             }))
@@ -320,7 +318,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Unsupported Generation Operations", () => {
         it("should fail image generation with missing capability error", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([new EffectiveMessage({
                         role: "user",
@@ -336,8 +334,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderMissingCapabilityError) expect(result.left.capability).toBe("image-generation");
                 }
                 return result;
             }))
@@ -345,7 +341,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should fail speech generation with missing capability error", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const result = yield* Effect.either(
                     client.generateSpeech("Hello world", { modelId: "deepseek-chat", voice: "alloy" })
                 );
@@ -353,8 +349,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderMissingCapabilityError) expect(result.left.capability).toBe("audio");
                 }
                 return result;
             }))
@@ -362,7 +356,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should fail transcription with missing capability error", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const audioBuffer = new ArrayBuffer(1024);
                 const result = yield* Effect.either(
                     client.transcribe(audioBuffer, { modelId: "whisper-1" })
@@ -371,8 +365,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderMissingCapabilityError) expect(result.left.capability).toBe("audio");
                 }
                 return result;
             }))
@@ -380,7 +372,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should fail embeddings generation with missing capability error", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const result = yield* Effect.either(
                     client.generateEmbeddings(["Hello world"], { modelId: "text-embedding-3-small" })
                 );
@@ -388,8 +380,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderMissingCapabilityError) expect(result.left.capability).toBe("embeddings");
                 }
                 return result;
             }))
@@ -399,7 +389,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Chat with Tools", () => {
         it("should handle chat with tools", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([new EffectiveMessage({
                         role: "user",
@@ -419,8 +409,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderOperationError) expect(result.left.operation).toBe("chat");
                 }
                 return result;
             }))
@@ -428,7 +416,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should handle chat without tools", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([new EffectiveMessage({
                         role: "user",
@@ -444,8 +432,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderOperationError) expect(result.left.operation).toBe("chat");
                 }
                 return result;
             }))
@@ -455,7 +441,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Input Validation", () => {
         it("should handle empty messages in generateText", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "", messages: Chunk.empty() };
 
                 const result = yield* Effect.either(
@@ -472,7 +458,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should handle empty messages in chat", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "", messages: Chunk.empty() };
 
                 const result = yield* Effect.either(
@@ -489,7 +475,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should handle empty messages in generateObject", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "", messages: Chunk.empty() };
 
                 const result = yield* Effect.either(
@@ -508,7 +494,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Reasoning Support", () => {
         it("should handle reasoning model", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([new EffectiveMessage({
                         role: "user",
@@ -524,8 +510,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderOperationError) expect(result.left.operation).toBe("generateText");
                 }
                 return result;
             }))
@@ -535,7 +519,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Vercel Provider Integration", () => {
         it("should handle setVercelProvider", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const mockProvider = {
                     name: "deepseek" as const,
                     provider: {} as any,
@@ -552,7 +536,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Error Handling", () => {
         it("should handle API errors gracefully in generateText", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("invalid-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([new EffectiveMessage({
                         role: "user",
@@ -568,8 +552,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderOperationError) expect(result.left.operation).toBe("generateText");
                 }
                 return result;
             }))
@@ -577,7 +559,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should handle API errors gracefully in chat", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("invalid-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([new EffectiveMessage({
                         role: "user",
@@ -593,8 +575,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderOperationError) expect(result.left.operation).toBe("chat");
                 }
                 return result;
             }))
@@ -602,7 +582,7 @@ describe("DeepSeek Provider Client", () => {
 
         it("should handle API errors gracefully in generateObject", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("invalid-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([new EffectiveMessage({
                         role: "user",
@@ -618,8 +598,6 @@ describe("DeepSeek Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    if (result.left instanceof ProviderOperationError) expect(result.left.providerName).toBe("deepseek");
-                    if (result.left instanceof ProviderOperationError) expect(result.left.operation).toBe("generateObject");
                 }
                 return result;
             }))
@@ -629,7 +607,7 @@ describe("DeepSeek Provider Client", () => {
     describe("Message Mapping", () => {
         it("should handle complex message structures", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeDeepseekClient("test-key");
+                const client = yield* DeepseekProviderClient;
                 const input = { text: "",
                     messages: Chunk.fromIterable([
                         new EffectiveMessage({

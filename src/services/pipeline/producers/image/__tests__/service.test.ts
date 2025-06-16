@@ -41,10 +41,56 @@ describe("ImageService Integration Tests", () => {
                     system: O.none()
                 });
 
+                // Check required properties
                 expect(result).toBeDefined();
-                expect(result.imageUrl).toBeDefined();
-                expect(typeof result.imageUrl).toBe("string");
-                expect(result.imageUrl.length).toBeGreaterThan(0);
+                expect(result.data.imageUrl).toBeDefined();
+                expect(typeof result.data.imageUrl).toBe("string");
+                expect(result.data.imageUrl.length).toBeGreaterThan(0);
+
+                // Check parameters (required object)
+                expect(result.data.parameters).toBeDefined();
+                expect(typeof result.data.parameters).toBe("object");
+                // Optional parameters properties should be string if present
+                if (result.data.parameters.size) {
+                    expect(typeof result.data.parameters.size).toBe("string");
+                }
+                if (result.data.parameters.quality) {
+                    expect(typeof result.data.parameters.quality).toBe("string");
+                }
+                if (result.data.parameters.style) {
+                    expect(typeof result.data.parameters.style).toBe("string");
+                }
+
+                // Check model (required string)
+                expect(result.data.model).toBeDefined();
+                expect(typeof result.data.model).toBe("string");
+                expect(result.data.model).toBe("dall-e-3");
+
+                // Check timestamp (required Date)
+                expect(result.data.timestamp).toBeDefined();
+                expect(result.data.timestamp).toBeInstanceOf(Date);
+
+                // Check id (required string)
+                expect(result.data.id).toBeDefined();
+                expect(typeof result.data.id).toBe("string");
+                expect(result.data.id.length).toBeGreaterThan(0);
+
+                // Check optional usage statistics if present
+                if (result.data.usage) {
+                    expect(result.data.usage.promptTokens).toBeGreaterThanOrEqual(0);
+                    expect(result.data.usage.totalTokens).toBeGreaterThanOrEqual(
+                        result.data.usage.promptTokens
+                    );
+                }
+
+                // Check optional additional images if present
+                if (result.data.additionalImages) {
+                    expect(Array.isArray(result.data.additionalImages)).toBe(true);
+                    result.data.additionalImages.forEach(url => {
+                        expect(typeof url).toBe("string");
+                        expect(url.length).toBeGreaterThan(0);
+                    });
+                }
             }).pipe(Effect.provide(testLayer))
         );
 
@@ -127,10 +173,10 @@ it("should include negative prompt when provided", () =>
             system: O.none()
         });
 
-        expect(result.imageUrl).toBeDefined();
-        expect(result.model).toBe("test-model");
-        expect(result.parameters).toBeDefined();
-        expect(result.timestamp).toBeDefined();
+        expect(result.data.imageUrl).toBeDefined();
+        expect(result.data.model).toBe("test-model");
+        expect(result.data.parameters).toBeDefined();
+        expect(result.data.timestamp).toBeDefined();
     }).pipe(Effect.provide(testLayer))
 );
 
@@ -144,9 +190,9 @@ it("should include system prompt when provided", () =>
             system: O.some("test system prompt")
         });
 
-        expect(result.imageUrl).toBeDefined();
-        expect(result.model).toBe("test-model");
-        expect(result.parameters).toBeDefined();
-        expect(result.timestamp).toBeDefined();
+        expect(result.data.imageUrl).toBeDefined();
+        expect(result.data.model).toBe("test-model");
+        expect(result.data.parameters).toBeDefined();
+        expect(result.data.timestamp).toBeDefined();
     }).pipe(Effect.provide(testLayer))
 );

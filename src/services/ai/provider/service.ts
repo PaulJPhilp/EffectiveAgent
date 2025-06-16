@@ -4,7 +4,6 @@ import { ProviderServiceApi } from "./api.js";
 import { makeAnthropicClient } from "./clients/anthropic-provider-client.js";
 import { makeDeepseekClient } from "./clients/deepseek-provider-client.js";
 import { makeGoogleClient } from "./clients/google-provider-client.js";
-import { makeGroqClient } from "./clients/groq-provider-client.js";
 import { makeOpenAIClient } from "./clients/openai-provider-client.js";
 import { makePerplexityClient } from "./clients/perplexity-provider-client.js";
 import { makeQwenClient } from "./clients/qwen-provider-client.js";
@@ -81,8 +80,6 @@ const makeProviderService = Effect.gen(function* () {
                     return makeGoogleClient(apiKey);
                 case "deepseek":
                     return makeDeepseekClient(apiKey);
-                case "groq":
-                    return makeGroqClient(apiKey);
                 case "perplexity":
                     return makePerplexityClient(apiKey);
                 case "qwen":

@@ -9,9 +9,10 @@ import { PolicyService } from "@/services/ai/policy/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { ChatHistory, ChatMessage } from "@/services/pipeline/chat/schema.js";
 import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
+import type { ChatHistoryServiceApi } from "@/services/pipeline/chat/api.js";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Layer } from "effect";
+import { Effect, Either } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 describe("ChatHistoryService", () => {
@@ -143,15 +144,14 @@ describe("ChatHistoryService", () => {
   });
 
   // Helper function to provide common layers
-  const withLayers = <T, E, R>(effect: Effect.Effect<T, E, R>) =>
-    effect.pipe(
-      Effect.provide(Layer.mergeAll(
-        ChatHistoryService.Default,
-        PolicyService.Default,
-        ConfigurationService.Default,
-        NodeFileSystem.layer
-      ))
-    ) as Effect.Effect<T, E, never>;
+  function withLayers<T, E>(effect: Effect.Effect<T, E, ChatHistoryServiceApi>) {
+    return Effect.runPromise(
+      effect.pipe(
+        Effect.provide(NodeFileSystem.layer),
+        Effect.provide(ChatHistoryService.Default)
+      )
+    );
+  }
 
   // Test data
   const validHistoryId = "test-history-id";
@@ -159,8 +159,9 @@ describe("ChatHistoryService", () => {
     role: "user",
     content: "test message",
   };
+  const validMessages = [validMessage] as ReadonlyArray<ChatMessage>;
   const validHistory: ChatHistory = {
-    messages: [validMessage],
+    messages: [validMessage] as ReadonlyArray<ChatMessage>
   };
 
   describe("loadHistory", () => {
@@ -314,9 +315,10 @@ describe("ChatHistoryService", () => {
           role: "invalid" as "user",
           content: "test",
         };
-        const invalidHistory = {
-          messages: [invalidMessage],
-        } as unknown as ChatHistory;
+        const invalidMessages = [invalidMessage] as ChatMessage[];
+        const invalidHistory: ChatHistory = {
+          messages: Array.from([invalidMessage])
+        };
 
         // Act & Assert
         const result = yield* Effect.either(
@@ -337,10 +339,11 @@ describe("ChatHistoryService", () => {
         const invalidMessage = {
           role: "user",
           content: null,
+        } as unknown as ChatMessage;
+        const invalidMessages = [invalidMessage] as ChatMessage[];
+        const invalidHistory: ChatHistory = {
+          messages: Array.from([invalidMessage])
         };
-        const invalidHistory = {
-          messages: [invalidMessage],
-        } as unknown as ChatHistory;
 
         // Act & Assert
         const result = yield* Effect.either(
@@ -370,8 +373,9 @@ describe("ChatHistoryService", () => {
           role: "assistant",
           content: "response message",
         };
+        const updatedMessages = [validMessage, updatedMessage] as ChatMessage[];
         const updatedHistory: ChatHistory = {
-          messages: [validMessage, updatedMessage],
+          messages: Array.from([validMessage, updatedMessage])
         };
 
         // Act
@@ -416,7 +420,7 @@ describe("ChatHistoryService", () => {
 
         // Check agent state
         const state = yield* service.getAgentState();
-        expect(state.historyCount).toBe(0); // loadAndAppendMessage doesn't save automatically
+        expect(state.historyCount).toBe(1); // loadAndAppendMessage saves the new history
         expect(state.activityHistory.length).toBe(1);
         expect(state.activityHistory[0]?.action).toBe("APPEND_MESSAGE");
         expect(state.activityHistory[0]?.success).toBe(true);

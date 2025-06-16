@@ -13,14 +13,11 @@ describe("ChatService Integration Tests", () => {
 
 
   // Helper to create test options
-  const createTestOptions = () => Effect.gen(function* (_) {
-    const span = new TestSpan("test-span");
-    return {
-      input: testMessage,
-      span,
-      modelId: testModelId
-    } as const;
-  });
+  const createTestOptions = () => Effect.succeed({
+    input: testMessage,
+    span: new TestSpan("test-span"),
+    modelId: testModelId
+  } as const);
 
   it("should generate a valid chat response", () =>
     Effect.gen(function* () {

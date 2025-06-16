@@ -1,4 +1,3 @@
-import { Effect } from "effect";
 import { AgentRuntimeServiceApi } from "../../src/ea-agent-runtime/api.js";
 
 // Simple test agent for CLI testing
@@ -15,7 +14,7 @@ export interface TestAgentState {
 }
 
 export class TestAgent {
-  constructor(private readonly runtime: AgentRuntimeServiceApi) {}
+  constructor(private readonly runtime: AgentRuntimeServiceApi) { }
 
   async run(input: string): Promise<void> {
     // Simple echo implementation

@@ -98,7 +98,7 @@ export class IntentClassifierTool extends Effect.Service<IntentClassifierToolApi
 /**
  * Implementation of the QueryAnalysisPipeline service
  */
-export class QueryAnalysisPipelineService extends Effect.Service<QueryAnalysisPipelineApi>()("QueryAnalysisPipeline", {
+export class QueryAnalysisPipelineService extends Effect.Service<QueryAnalysisPipelineApi & { readonly _tag: "QueryAnalysisPipeline" }>()("QueryAnalysisPipeline", {
     effect: Effect.gen(function* () {
         // Yield dependencies
         const entityRecognizer = yield* EntityRecognitionTool;
@@ -165,6 +165,7 @@ export class QueryAnalysisPipelineService extends Effect.Service<QueryAnalysisPi
 
         // Return implementation of the API
         return {
+            _tag: "QueryAnalysisPipeline" as const,
             analyzeQuery,
             extractEntities
         };

@@ -1,10 +1,13 @@
 #!/usr/bin/env node
 
 import { Command } from "@effect/cli"
-import { NodeRuntime } from "@effect/platform-node"
+import { NodeContext } from "@effect/platform-node"
+import * as NodeRuntime from "@effect/platform-node/NodeRuntime"
 import { Data, Effect } from "effect"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
+import { ModelService } from "../../services/ai/model/service.js"
+import { ConfigurationService } from "../../services/core/configuration/service.js"
 
 // Import CLI commands
 import { addCommand } from "./commands/add.js"
@@ -21,7 +24,9 @@ import { testArgsCommand } from "./commands/test-args.js"
 // Set up master configuration path and project root
 const __dirname = fileURLToPath(new URL(".", import.meta.url))
 const projectRoot = process.env.PROJECT_ROOT || join(__dirname, "../../..")
-const configPath = process.env.MASTER_CONFIG_PATH || join(projectRoot, "config/master-config.json")
+const configPath =
+  process.env.MASTER_CONFIG_PATH ||
+  join(projectRoot, "config/master-config.json")
 
 process.env.MASTER_CONFIG_PATH = configPath
 process.env.PROJECT_ROOT = projectRoot
@@ -29,33 +34,44 @@ process.env.PROJECT_ROOT = projectRoot
 // Version information
 const version = "1.0.0"
 
+// Prepare commands array (no need to provide environment here)
+const commands = [
+  runCommand,
+  ServeCommand,
+  addCommand,
+  deleteCommand,
+  initCommand,
+  listCommand,
+  configCommands,
+  logCommands,
+  structureOutputCommand,
+  testArgsCommand,
+] as const
+
 // Create root command
-const program = Command.make("ea-cli", Data.struct({}))
-  .pipe(
-    Command.withSubcommands([
-      runCommand,
-      ServeCommand,
-      addCommand,
-      deleteCommand,
-      initCommand,
-      listCommand,
-      configCommands,
-      logCommands,
-      structureOutputCommand,
-      testArgsCommand
-    ] as const)
-  )
+const program = Command.make("ea-cli", Data.struct({})).pipe(
+  Command.withSubcommands(commands),
+)
 
 // Run CLI program
 const args = process.argv
 
-NodeRuntime.runMain(
-  Command.run(program, { name: "ea-cli", version })(args).pipe(
-    Effect.catchAll(error =>
-      Effect.logError("CLI Error:", { error }).pipe(
-        Effect.as(1)
-      )
-    )
+// Create main program Effect with services
+const mainEffect = Command.run(
+  program,
+  { name: "ea-cli", version },
+)(args)
+
+const mainEffectWithServices = mainEffect.pipe(
+  Effect.provide(NodeContext.layer),
+  Effect.provide(ConfigurationService.Default),
+  Effect.provide(ModelService.Default),
+  Effect.catchAll((error) =>
+    Effect.logError("CLI Error:", { error }).pipe(Effect.as(1)),
   ),
-  { disablePrettyLogger: false }
 )
+
+// Run the program
+NodeRuntime.runMain(mainEffectWithServices as Effect.Effect<void | number, never, never>, {
+  disablePrettyLogger: false,
+})

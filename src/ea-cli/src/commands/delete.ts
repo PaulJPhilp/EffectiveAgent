@@ -10,7 +10,7 @@ import {
   mapUnknownError,
 } from "../errors.js"
 import { exists } from "../services/fs.js"
-import { ResourceType, deleteConfigItem } from "../utils/config-helpers.js"
+import { type ResourceType, deleteConfigItem } from "../utils/config-helpers.js"
 import { handleCommandError } from "../utils/error-handling.js"
 
 const itemNameArg = Args.text()
@@ -42,9 +42,9 @@ const validateItemName = (name: string): Effect.Effect<void, ValidationError> =>
 const deleteAgentCommand = Command.make("agent", { args: itemNameArg }).pipe(
   Command.withDescription(
     "Delete an agent from the project. This will remove the entire agent directory " +
-    "and all its contents from the agents/ directory.\n\n" +
-    "⚠️ WARNING: This is a destructive operation that cannot be undone.\n" +
-    "A confirmation prompt will be shown before deletion.",
+      "and all its contents from the agents/ directory.\n\n" +
+      "⚠️ WARNING: This is a destructive operation that cannot be undone.\n" +
+      "A confirmation prompt will be shown before deletion.",
   ),
   Command.withHandler((options) =>
     Effect.gen(function* () {
@@ -72,25 +72,18 @@ const deleteAgentCommand = Command.make("agent", { args: itemNameArg }).pipe(
           exists
             ? Effect.succeed(void 0)
             : Effect.fail(
-              new ResourceNotFoundError({
-                resourceType: "agent",
-                resourceName: agentName,
-                message: `Agent '${agentName}' not found in agents/ directory`,
-              }),
-            ),
+                new ResourceNotFoundError({
+                  resourceType: "agent",
+                  resourceName: agentName,
+                  message: `Agent '${agentName}' not found in agents/ directory`,
+                }),
+              ),
         ),
       )
 
       // Ask for confirmation with clear warning
       const confirmed = yield* Prompt.confirm({
-        message:
-          `⚠️  Are you sure you want to delete agent '${agentName}'?\n` +
-          "This will permanently remove all agent files including:\n" +
-          "- Source code\n" +
-          "- Configuration\n" +
-          "- Dependencies\n" +
-          "- Test files\n" +
-          "This action cannot be undone.",
+        message: `⚠️  Are you sure you want to delete agent '${agentName}'?\nThis will permanently remove all agent files including:\n- Source code\n- Configuration\n- Dependencies\n- Test files\nThis action cannot be undone.`,
         initial: false,
       })
 
@@ -104,10 +97,12 @@ const deleteAgentCommand = Command.make("agent", { args: itemNameArg }).pipe(
           times: 3,
           while: (err) => {
             const error = err as Error
-            return error.message?.includes("EBUSY") ||
+            return (
+              error.message?.includes("EBUSY") ||
               error.message?.includes("EAGAIN") ||
               error.message?.includes("ENOTEMPTY")
-          }
+            )
+          },
         }),
         Effect.mapError((err) => {
           if (err instanceof Error) {
@@ -128,7 +123,8 @@ const deleteAgentCommand = Command.make("agent", { args: itemNameArg }).pipe(
               return new ResourceNotFoundError({
                 resourceType: "agent",
                 resourceName: agentName,
-                message: "Agent directory disappeared during deletion.\nPossibly deleted by another process.",
+                message:
+                  "Agent directory disappeared during deletion.\nPossibly deleted by another process.",
               })
             }
           }
@@ -148,11 +144,7 @@ const deleteAgentCommand = Command.make("agent", { args: itemNameArg }).pipe(
 
       // Log success with resource cleanup confirmation
       yield* Console.log(
-        `✅ Agent '${agentName}' deleted successfully\n` +
-        "All resources cleaned up:\n" +
-        "- Source code files\n" +
-        "- Configuration files\n" +
-        "- Dependencies"
+        `✅ Agent '${agentName}' deleted successfully\nAll resources cleaned up:\n- Source code files\n- Configuration files\n- Dependencies`,
       )
     }).pipe(
       Effect.catchAll((error) =>
@@ -180,9 +172,7 @@ const makeDeleteConfigCommand = (type: ResourceType) => {
 
   return Command.make(type, { args: itemNameArg }).pipe(
     Command.withDescription(
-      `${desc[type]}\n\n` +
-      "⚠️ WARNING: This is a destructive operation that cannot be undone.\n" +
-      "A confirmation prompt will be shown before deletion.",
+      `${desc[type]}\n\n⚠️ WARNING: This is a destructive operation that cannot be undone.\nA confirmation prompt will be shown before deletion.`,
     ),
     Command.withHandler((options) =>
       Effect.gen(function* () {
@@ -193,10 +183,7 @@ const makeDeleteConfigCommand = (type: ResourceType) => {
 
         // Ask for confirmation with clear context
         const confirmed = yield* Prompt.confirm({
-          message:
-            `⚠️  Are you sure you want to delete ${type} '${itemName}'?\n` +
-            `This will remove the ${type} configuration from ea-config/${type}s.json.\n` +
-            "This action cannot be undone.",
+          message: `⚠️  Are you sure you want to delete ${type} '${itemName}'?\nThis will remove the ${type} configuration from ea-config/${type}s.json.\nThis action cannot be undone.`,
           initial: false,
         })
 
@@ -206,7 +193,9 @@ const makeDeleteConfigCommand = (type: ResourceType) => {
 
         // Delete config item with Effect-based error handling
         return yield* deleteConfigItem(type, itemName).pipe(
-          Effect.flatMap(() => Console.log(`✅ ${type} '${itemName}' deleted successfully`)),
+          Effect.flatMap(() =>
+            Console.log(`✅ ${type} '${itemName}' deleted successfully`),
+          ),
           Effect.catchAll((error) => {
             if (error instanceof Error) {
               if (error.message.includes("not found")) {
@@ -221,9 +210,7 @@ const makeDeleteConfigCommand = (type: ResourceType) => {
               if (error.message.includes("EACCES")) {
                 return Effect.fail(
                   new PermissionError({
-                    message:
-                      `Permission denied updating ${type} configuration.\n` +
-                      "Please check file permissions.",
+                    message: `Permission denied updating ${type} configuration.\nPlease check file permissions.`,
                     path: `ea-config/${type}s.json`,
                     operation: "write",
                     requiredPermission: "write",
@@ -262,19 +249,21 @@ const makeDeleteConfigCommand = (type: ResourceType) => {
   )
 }
 
-const configCommands = resourceTypes.map((type) => makeDeleteConfigCommand(type))
+const configCommands = resourceTypes.map((type) =>
+  makeDeleteConfigCommand(type),
+)
 
 export const deleteCommand = Command.make("delete", {}).pipe(
   Command.withDescription(
     "Remove resources from the project.\n\n" +
-    "Available Resources:\n" +
-    "  agent       Delete an agent package from the agents/ directory\n" +
-    "  model       Remove a model from models.json\n" +
-    "  provider    Remove a provider from providers.json\n" +
-    "  rule        Remove a rule from policy.json\n" +
-    "  toolkit     Remove a toolkit from tool-registry.json\n\n" +
-    "⚠️ WARNING: These are destructive operations that cannot be undone.\n" +
-    "A confirmation prompt will be shown before deletion.",
+      "Available Resources:\n" +
+      "  agent       Delete an agent package from the agents/ directory\n" +
+      "  model       Remove a model from models.json\n" +
+      "  provider    Remove a provider from providers.json\n" +
+      "  rule        Remove a rule from policy.json\n" +
+      "  toolkit     Remove a toolkit from tool-registry.json\n\n" +
+      "⚠️ WARNING: These are destructive operations that cannot be undone.\n" +
+      "A confirmation prompt will be shown before deletion.",
   ),
   Command.withSubcommands([deleteAgentCommand, ...configCommands]),
 )

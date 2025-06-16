@@ -7,19 +7,34 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc --build",
-    "clean": "tsc --build --clean"
+    "clean": "tsc --build --clean",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@effect/platform": "^0.84.9",
-    "@effect/platform-node": "^0.85.14",
-    "effect": "^3.16.5",
-    "qwen-ai-provider": "^0.1.0"
+    "@ai-sdk/anthropic": "^1.2.12",
+    "@ai-sdk/deepseek": "^0.2.14",
+    "@ai-sdk/groq": "^1.2.9",
+    "@ai-sdk/openai": "^1.3.22",
+    "@ai-sdk/perplexity": "^1.1.9",
+    "@ai-sdk/xai": "^1.2.16",
+    "@effect/cli": "^0.63.11",
+    "@effect/platform": "^0.84.11",
+    "@effect/platform-node": "^0.85.16",
+    "@js-temporal/polyfill": "^0.5.1",
+    "@neondatabase/serverless": "^1.0.1",
+    "@types/pg": "^8.15.4",
+    "ai": "^4.3.16",
+    "drizzle-orm": "^0.44.2",
+    "effect": "^3.16.7",
+    "liquidjs": "^10.21.1",
+    "pdf-parse": "^1.1.1",
+    "pg": "^8.16.0"
   },
   "devDependencies": {
-    "@effect/cli": "^0.63.9",
-    "@types/node": "^24.0.0",
+    "@effect/language-service": "^0.20.1",
+    "@types/node": "^24.0.1",
     "ts-node": "^10.9.2",
-    "tsx": "^4.20.1",
+    "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }
 }

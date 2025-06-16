@@ -23,40 +23,7 @@ export const AudioFormats = {
     WEBM: "webm"
 } as const;
 
-/**
- * Options for audio transcription
- */
-export interface TranscriptionOptions {
-    /** The model ID to use */
-    readonly modelId?: string;
-    /** The audio data to transcribe (base64 or Uint8Array) */
-    readonly audioData: string | Uint8Array;
-    /** Audio file format (if not automatically detected) */
-    readonly audioFormat?: (typeof AudioFormats)[keyof typeof AudioFormats];
-    /** Tracing span for observability */
-    readonly span: Span;
-    /** Optional abort signal for cancellation */
-    readonly signal?: AbortSignal;
-    /** Optional parameters for transcription behavior */
-    readonly parameters?: {
-        /** Language hint (e.g., 'en-US', 'fr-FR') */
-        language?: string;
-        /** Enable speaker diarization (identifying different speakers) */
-        diarization?: boolean;
-        /** Include timestamps for each segment */
-        timestamps?: boolean;
-        /** Audio quality setting (e.g., 'standard', 'high') */
-        quality?: string;
-        /** A prompt to guide the model's transcription. */
-        prompt?: string;
-        /** The format of the response. */
-        responseFormat?: "json" | "text" | "verbose_json";
-        /** The sampling temperature, between 0 and 1. */
-        temperature?: number;
-        /** The timestamp granularities to include in the response. */
-        timestamp_granularities?: ("segment" | "word")[];
-    };
-}
+import type { TranscriptionOptions } from "./types.js";
 
 /**
  * Transcription agent state
@@ -109,7 +76,6 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                 readonly audioLength: number
                 readonly transcriptionLength: number
                 readonly success: boolean
-                readonly audioFormat: string
                 readonly language?: string
             }) => Effect.gen(function* () {
                 const currentState = yield* Ref.get(internalStateRef);
@@ -143,8 +109,7 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                         // Log start of transcription
                         yield* Effect.log("Starting audio transcription", {
                             modelId: options.modelId,
-                            audioLength: options.audioData.length,
-                            audioFormat: options.audioFormat
+                            audioLength: options.audioData.length
                         });
 
 
@@ -189,7 +154,6 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                             audioLength: options.audioData.length,
                             transcriptionLength: providerResult.data.text.length,
                             success: true,
-                            audioFormat: options.audioFormat ?? "unknown",
                             language: providerResult.data.detectedLanguage
                         });
 
@@ -207,8 +171,7 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                                     modelId: options.modelId || "unknown",
                                     audioLength: options.audioData?.length || 0,
                                     transcriptionLength: 0,
-                                    success: false,
-                                    audioFormat: options.audioFormat || "unknown"
+                                    success: false
                                 });
 
                                 return yield* Effect.fail(error);

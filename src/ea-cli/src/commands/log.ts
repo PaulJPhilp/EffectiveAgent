@@ -5,7 +5,7 @@ import { Console, Effect, Option } from "effect"
 import {
   ConfigurationError,
   FileSystemError,
-  PermissionError
+  PermissionError,
 } from "../errors.js"
 import { exists } from "../services/fs.js"
 import { handleCommandError } from "../utils/error-handling.js"
@@ -22,11 +22,11 @@ export const viewCommand = Command.make("view", {
 }).pipe(
   Command.withDescription(
     "Display log file contents. Supports --head N or --tail N for partial viewing.\n" +
-    "The log file path is configured in master-config.json under logging.filePath.\n\n" +
-    "Recovery hints:\n" +
-    "- If config not found, run 'ea-cli init' first\n" +
-    "- If permission denied, check file access permissions\n" +
-    "- If log file missing, it will be created when logs are generated",
+      "The log file path is configured in master-config.json under logging.filePath.\n\n" +
+      "Recovery hints:\n" +
+      "- If config not found, run 'ea-cli init' first\n" +
+      "- If permission denied, check file access permissions\n" +
+      "- If log file missing, it will be created when logs are generated",
   ),
   Command.withHandler(({ head, tail }) =>
     Effect.gen(function* () {
@@ -138,11 +138,12 @@ export const viewCommand = Command.make("view", {
           const lines = content.split("\n")
 
           return Option.match(head, {
-            onNone: () => Option.match(tail, {
-              onNone: () => content,
-              onSome: (tailCount) => lines.slice(-tailCount).join("\n")
-            }),
-            onSome: (headCount) => lines.slice(0, headCount).join("\n")
+            onNone: () =>
+              Option.match(tail, {
+                onNone: () => content,
+                onSome: (tailCount) => lines.slice(-tailCount).join("\n"),
+              }),
+            onSome: (headCount) => lines.slice(0, headCount).join("\n"),
           })
         }),
         Effect.mapError((err) => {
@@ -279,21 +280,22 @@ export const clearCommand = Command.make("clear", {}, () =>
 
     // Check if log file exists
     const logFileExists = yield* exists(logPath).pipe(
-      Effect.mapError((err) =>
-        new FileSystemError({
-          message: "Failed to check if log file exists.\nPlease ensure you have necessary permissions.",
-          path: logPath,
-          operation: "exists",
-          cause: err,
-        })
-      )
+      Effect.mapError(
+        (err) =>
+          new FileSystemError({
+            message:
+              "Failed to check if log file exists.\nPlease ensure you have necessary permissions.",
+            path: logPath,
+            operation: "exists",
+            cause: err,
+          }),
+      ),
     )
 
     if (!logFileExists) {
       // Non-existent log file is not an error, just inform
       yield* Console.log(
-        `Log file not found at: ${logPath}. Nothing to clear.\n` +
-        "A new log file will be created when logs are generated.",
+        `Log file not found at: ${logPath}. Nothing to clear.\nA new log file will be created when logs are generated.`,
       )
       return
     }
@@ -303,19 +305,21 @@ export const clearCommand = Command.make("clear", {}, () =>
       Effect.mapError((err) => {
         if (err instanceof Error && err.message?.includes("EACCES")) {
           return new PermissionError({
-            message: "Permission denied clearing log file.\nCheck write permissions for the log file.",
+            message:
+              "Permission denied clearing log file.\nCheck write permissions for the log file.",
             path: logPath,
             operation: "write",
             requiredPermission: "write",
           })
         }
         return new FileSystemError({
-          message: "Failed to clear log file.\nPlease ensure you have proper access and the file is not in use.",
+          message:
+            "Failed to clear log file.\nPlease ensure you have proper access and the file is not in use.",
           path: logPath,
           operation: "write",
           cause: err,
         })
-      })
+      }),
     )
 
     yield* Console.log(`Log file cleared successfully: ${logPath}`)
@@ -333,26 +337,26 @@ export const clearCommand = Command.make("clear", {}, () =>
 ).pipe(
   Command.withDescription(
     "Clear the contents of the project's log file.\n\n" +
-    "This command will:\n" +
-    "1. Show the target log file path\n" +
-    "2. Prompt for confirmation\n" +
-    "3. Clear the file if confirmed\n\n" +
-    "The log file path is configured in master-config.json.\n\n" +
-    "Recovery hints:\n" +
-    "- If config not found, run 'ea-cli init' first\n" +
-    "- If permission denied, check file write permissions\n" +
-    "- If log file missing, it will be created when needed"
+      "This command will:\n" +
+      "1. Show the target log file path\n" +
+      "2. Prompt for confirmation\n" +
+      "3. Clear the file if confirmed\n\n" +
+      "The log file path is configured in master-config.json.\n\n" +
+      "Recovery hints:\n" +
+      "- If config not found, run 'ea-cli init' first\n" +
+      "- If permission denied, check file write permissions\n" +
+      "- If log file missing, it will be created when needed",
   ),
 )
 
 export const logCommands = Command.make("log").pipe(
   Command.withDescription(
     "View and manage the project's log files.\n\n" +
-    "Available Commands:\n" +
-    "  view     Display log file contents (supports --head/--tail)\n" +
-    "  clear    Clear the log file (requires confirmation)\n\n" +
-    "The log file path is configured in master-config.json under logging.filePath.\n" +
-    "Use 'ea-cli log:<command> --help' for more information about a command.",
+      "Available Commands:\n" +
+      "  view     Display log file contents (supports --head/--tail)\n" +
+      "  clear    Clear the log file (requires confirmation)\n\n" +
+      "The log file path is configured in master-config.json under logging.filePath.\n" +
+      "Use 'ea-cli log:<command> --help' for more information about a command.",
   ),
   Command.withSubcommands([viewCommand, clearCommand]),
   Command.provide(NodeContext.layer),

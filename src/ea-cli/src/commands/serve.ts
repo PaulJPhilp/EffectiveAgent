@@ -12,15 +12,15 @@ import {
   mapUnknownError,
 } from "../errors.js"
 import { exists } from "../services/fs.js"
-import {
-  type ClientConnectEvent,
-  type ClientDisconnectEvent,
-  type RequestEvent,
-  type ResponseEvent,
-  type ServerEventUnion,
-  type ServerReadyEvent,
-  type ServerStartEvent,
-  type ServerStopEvent
+import type {
+  ClientConnectEvent,
+  ClientDisconnectEvent,
+  RequestEvent,
+  ResponseEvent,
+  ServerEventUnion,
+  ServerReadyEvent,
+  ServerStartEvent,
+  ServerStopEvent,
 } from "../types/server.js"
 
 const formatEvent = (event: ServerEventUnion): string => {
@@ -44,8 +44,9 @@ const formatEvent = (event: ServerEventUnion): string => {
     }
     case "CLIENT_DISCONNECT": {
       const data = event.data as ClientDisconnectEvent["data"]
-      return `[${timestamp}] ❌ Client disconnected [${data.clientId}]: ${data.reason || "Unknown reason"
-        }`
+      return `[${timestamp}] ❌ Client disconnected [${data.clientId}]: ${
+        data.reason || "Unknown reason"
+      }`
     }
     case "REQUEST": {
       const data = event.data as RequestEvent["data"]
@@ -64,7 +65,6 @@ const formatEvent = (event: ServerEventUnion): string => {
       const uptimeHours = Math.round((uptime / 3600) * 10) / 10
       return `[${timestamp}] 💓 Connections: ${activeConnections}, Memory: ${memoryMb}MB, Uptime: ${uptimeHours}h`
     }
-    case "INFO":
     default: {
       return `[${timestamp}] ℹ️  ${event.data.message}`
     }
@@ -95,13 +95,13 @@ const serveAgent = (
 
     return yield* addr && typeof addr !== "string"
       ? Effect.fail(
-        new NetworkError({
-          message: `Port ${port} is already in use. Choose a different port or stop any existing server.`,
-          operation: "server-validation",
-          host,
-          port,
-        }),
-      )
+          new NetworkError({
+            message: `Port ${port} is already in use. Choose a different port or stop any existing server.`,
+            operation: "server-validation",
+            host,
+            port,
+          }),
+        )
       : Effect.succeed(undefined)
   })
 
@@ -139,7 +139,13 @@ const serveAgent = (
             Effect.succeed({
               type: "CLIENT_CONNECT",
               timestamp: new Date(),
-              data: { clientId, agentName, host, port, message: "Client connected" },
+              data: {
+                clientId,
+                agentName,
+                host,
+                port,
+                message: "Client connected",
+              },
             } as ServerEventUnion),
           )
 
@@ -159,7 +165,13 @@ const serveAgent = (
               return yield* Effect.succeed({
                 type: "RESPONSE",
                 timestamp: new Date(),
-                data: { clientId, agentName, host, port, message: "Message received" },
+                data: {
+                  clientId,
+                  agentName,
+                  host,
+                  port,
+                  message: "Message received",
+                },
               } as ServerEventUnion)
             }).pipe(Effect.map((event) => resume(Effect.succeed(event))))
           })
@@ -194,7 +206,10 @@ const serveAgent = (
                   host,
                   port,
                   message: `WebSocket error: ${error.message}`,
-                  code: error instanceof Error && error.name !== "Error" ? 1002 : 1011,
+                  code:
+                    error instanceof Error && error.name !== "Error"
+                      ? 1002
+                      : 1011,
                   cause: error,
                 },
               } as ServerEventUnion),
@@ -227,10 +242,8 @@ const serveAgent = (
       }
 
       return event
-    })
-  ).pipe(
-    Stream.schedule(Schedule.fixed(Duration.seconds(30)))
-  )
+    }),
+  ).pipe(Stream.schedule(Schedule.fixed(Duration.seconds(30))))
 
   // Handle graceful process termination
   const cleanupEvents = Stream.fromEffect(
@@ -262,9 +275,11 @@ const serveAgent = (
   return Stream.mergeAll(
     [
       startupEvents,
-      Stream.fromEffect(connectionEvents).pipe(
-        Stream.flatten,
-      ) as Stream.Stream<ServerEventUnion, never, unknown>,
+      Stream.fromEffect(connectionEvents).pipe(Stream.flatten) as Stream.Stream<
+        ServerEventUnion,
+        never,
+        unknown
+      >,
       heartbeatEvents,
       cleanupEvents,
     ],
@@ -315,12 +330,12 @@ const validateAgentConfiguration = (agentDir: string, configDir: string) =>
             exists
               ? Effect.succeed(undefined)
               : Effect.fail(
-                new ConfigurationError({
-                  message: `Required configuration file ${config.name} not found.\nThis file contains ${config.desc} and must exist in ea-config/.`,
-                  configPath,
-                  errorType: "missing",
-                }),
-              ),
+                  new ConfigurationError({
+                    message: `Required configuration file ${config.name} not found.\nThis file contains ${config.desc} and must exist in ea-config/.`,
+                    configPath,
+                    errorType: "missing",
+                  }),
+                ),
           ),
         )
       },
@@ -344,16 +359,16 @@ const validateAgentConfiguration = (agentDir: string, configDir: string) =>
         exists
           ? Effect.succeed(undefined)
           : Effect.fail(
-            new ConfigurationError({
-              message:
-                "Agent package.json not found. Please ensure:\n" +
-                "1. The agent was created using 'ea-cli add:agent'\n" +
-                "2. The agent directory structure is intact\n" +
-                "3. You are in the correct workspace directory",
-              configPath: packagePath,
-              errorType: "missing",
-            }),
-          ),
+              new ConfigurationError({
+                message:
+                  "Agent package.json not found. Please ensure:\n" +
+                  "1. The agent was created using 'ea-cli add:agent'\n" +
+                  "2. The agent directory structure is intact\n" +
+                  "3. You are in the correct workspace directory",
+                configPath: packagePath,
+                errorType: "missing",
+              }),
+            ),
       ),
     )
   })
@@ -405,12 +420,12 @@ export const ServeCommand = Command.make(
           exists
             ? Effect.succeed(undefined)
             : Effect.fail(
-              new AgentRuntimeError({
-                message: `Agent '${agentName}' not found. Make sure the agent exists in the agents/ directory.`,
-                agentName,
-                phase: "validation",
-              }),
-            ),
+                new AgentRuntimeError({
+                  message: `Agent '${agentName}' not found. Make sure the agent exists in the agents/ directory.`,
+                  agentName,
+                  phase: "validation",
+                }),
+              ),
         ),
       )
 
@@ -464,7 +479,8 @@ export const ServeCommand = Command.make(
       Effect.catchAll((error) =>
         Effect.gen(function* () {
           yield* Console.error(
-            `Server error: ${error instanceof Error ? error.message : String(error)
+            `Server error: ${
+              error instanceof Error ? error.message : String(error)
             }`,
           )
           return Effect.fail(error)
@@ -474,17 +490,17 @@ export const ServeCommand = Command.make(
 ).pipe(
   Command.withDescription(
     "Start an agent server that accepts WebSocket connections.\n\n" +
-    "This command will:\n" +
-    "  1. Start a WebSocket server for the specified agent\n" +
-    "  2. Listen for client connections and process requests\n" +
-    "  3. Display real-time server status and connection info\n\n" +
-    "Arguments:\n" +
-    "  agent-name    The name of the agent to serve\n\n" +
-    "Options:\n" +
-    "  --port       Port number to listen on (default: 8081)\n" +
-    "  --host       Host address to bind to (default: 127.0.0.1)\n\n" +
-    "Example: ea-cli serve my-agent --port 8082 --host 0.0.0.0\n\n" +
-    "The server will continue running until interrupted. Status updates, client\n" +
-    "connections, and errors will be logged to the console.",
+      "This command will:\n" +
+      "  1. Start a WebSocket server for the specified agent\n" +
+      "  2. Listen for client connections and process requests\n" +
+      "  3. Display real-time server status and connection info\n\n" +
+      "Arguments:\n" +
+      "  agent-name    The name of the agent to serve\n\n" +
+      "Options:\n" +
+      "  --port       Port number to listen on (default: 8081)\n" +
+      "  --host       Host address to bind to (default: 127.0.0.1)\n\n" +
+      "Example: ea-cli serve my-agent --port 8082 --host 0.0.0.0\n\n" +
+      "The server will continue running until interrupted. Status updates, client\n" +
+      "connections, and errors will be logged to the console.",
   ),
 )

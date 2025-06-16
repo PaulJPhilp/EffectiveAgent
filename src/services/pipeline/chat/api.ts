@@ -1,6 +1,7 @@
 import { EffectiveError } from "@/errors.js";
 // src/services/pipeline/chat/api.ts
 import { Effect, Ref } from "effect";
+import type { ChatAgentState } from "./service.js";
 
 /**
  * Represents a message in a chat conversation
@@ -17,7 +18,7 @@ export interface ChatMessage {
  */
 export interface ChatHistory {
   /** The ordered list of messages in the chat */
-  messages: ChatMessage[];
+  messages: ReadonlyArray<ChatMessage>;
 }
 
 /**
@@ -100,7 +101,7 @@ export interface ChatHistoryServiceApi {
   loadAndAppendMessage(
     historyId: string | undefined,
     userMessage: string,
-  ): Effect.Effect<ChatMessage[], ChatHistoryError>;
+  ): Effect.Effect<ReadonlyArray<ChatMessage>, ChatHistoryError>;
 
   /**
    * Appends an assistant's response to the chat history and saves it.
@@ -113,20 +114,20 @@ export interface ChatHistoryServiceApi {
    */
   appendAndSaveResponse(
     historyId: string | undefined,
-    messages: ChatMessage[],
+    messages: ReadonlyArray<ChatMessage>,
     response: string,
   ): Effect.Effect<void, ChatHistoryError>;
 
   /**
    * Get the current agent state for monitoring/debugging
    */
-  readonly getAgentState: () => Effect.Effect<any>;
+  readonly getAgentState: () => Effect.Effect<ChatAgentState, never>;
 
   /**
    * Get the runtime status (returns error as runtime is not available in simplified state)
    * @returns Effect that resolves to state information
    */
-  readonly getRuntime: () => Effect.Effect<{ state: Ref.Ref<ChatAgentState> }, Error>;
+  readonly getRuntime: () => Effect.Effect<{ state: Ref.Ref<ChatAgentState> }, never>;
 
   /**
    * Terminate the agent

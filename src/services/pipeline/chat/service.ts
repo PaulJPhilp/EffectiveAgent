@@ -58,7 +58,7 @@ const validateHistory = (history: ChatHistory): Effect.Effect<ChatHistory, ChatH
 export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
   "ChatHistoryService",
   {
-    effect: Effect.gen(function* () {
+    scoped: Effect.gen(function* () {
       const initialState: ChatAgentState = {
         historyCount: 0,
         lastActivity: Option.none(),
@@ -207,10 +207,8 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
         loadAndAppendMessage: (
           historyId: string | undefined,
           userMessage: string,
-        ): Effect.Effect<ChatMessage[], ChatHistoryError> => {
-          return Effect.gen(function* () {
-
-
+        ): Effect.Effect<ReadonlyArray<ChatMessage>, ChatHistoryError> =>
+          Effect.gen(function* () {
             try {
               // Start with empty messages array
               let messages: ChatMessage[] = [];
@@ -227,27 +225,44 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
                   )
                 );
                 if (history) {
-                  messages = history.messages;
+                  messages = Array.from(history.messages);
                 }
               }
 
-              // Append user message
-              messages.push({
-                role: "user" as const,
-                content: userMessage,
-              });
+              // Create new array with user message appended
+              const updatedMessages = [
+                ...messages,
+                { role: "user" as const, content: userMessage }
+              ] as const;
+
+              // If we have a history ID, save the updated messages
+              if (historyId) {
+                yield* pipe(
+                  validateHistory({ messages: Array.from(updatedMessages) }),
+                  Effect.flatMap(() => Ref.get(historyStore)),
+                  Effect.flatMap((store: Map<string, ChatHistory>) => {
+                    const updatedStore = new Map<string, ChatHistory>(store);
+                    updatedStore.set(historyId, { messages: Array.from(updatedMessages) });
+                    return Ref.set(historyStore, updatedStore);
+                  }),
+                  Effect.mapError(error =>
+                    error instanceof ChatHistoryError ? error :
+                      ChatHistoryError.saveFailed(historyId, error)
+                  )
+                );
+              }
 
               // Update state with successful message append
               yield* updateState({
                 action: "APPEND_MESSAGE",
                 historyId,
                 success: true,
-                messageCount: messages.length
+                messageCount: updatedMessages.length
               });
 
-              return messages;
+              return updatedMessages;
 
-            } catch (error) {
+            } catch (error: unknown) {
               // Update state with failed message append
               yield* updateState({
                 action: "APPEND_MESSAGE",
@@ -260,50 +275,31 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
                   ChatHistoryError.loadFailed(historyId || "undefined", error)
               );
             }
-          }).pipe(
-            Effect.catchAll((error) =>
-              Effect.gen(function* () {
-                // Update state with failed message append
-                yield* updateState({
-                  action: "APPEND_MESSAGE",
-                  historyId,
-                  success: false
-                });
-
-                return yield* Effect.fail(
-                  error instanceof ChatHistoryError ? error :
-                    ChatHistoryError.loadFailed(historyId || "undefined", error)
-                );
-              })
-            )
-          );
-        },
+          }),
 
         appendAndSaveResponse: (
           historyId: string | undefined,
-          messages: ChatMessage[],
+          messages: ReadonlyArray<ChatMessage>,
           response: string,
-        ): Effect.Effect<void, ChatHistoryError> => {
-          return Effect.gen(function* () {
+        ): Effect.Effect<void, ChatHistoryError> =>
+          Effect.gen(function* () {
             if (!historyId) {
-              return Effect.succeed(void 0);
+              return Effect.void;
             }
-
-
 
             try {
               const updatedMessages = [
                 ...messages,
-                { role: "assistant" as const, content: response },
-              ];
+                { role: "assistant" as const, content: response }
+              ] as const;
 
               yield* pipe(
                 validateHistoryId(historyId),
-                Effect.flatMap(() => validateHistory({ messages: updatedMessages })),
+                Effect.flatMap(() => validateHistory({ messages: Array.from(updatedMessages) })),
                 Effect.flatMap(() => Ref.get(historyStore)),
                 Effect.flatMap((store: Map<string, ChatHistory>) => {
                   const updatedStore = new Map<string, ChatHistory>(store);
-                  updatedStore.set(historyId, { messages: updatedMessages });
+                  updatedStore.set(historyId, { messages: Array.from(updatedMessages) });
                   return Ref.set(historyStore, updatedStore);
                 }),
                 Effect.mapError(error =>
@@ -320,7 +316,9 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
                 messageCount: updatedMessages.length
               });
 
-            } catch (error) {
+              return Effect.void;
+
+            } catch (error: unknown) {
               // Update state with failed response append
               yield* updateState({
                 action: "APPEND_RESPONSE",
@@ -333,41 +331,24 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
                   ChatHistoryError.saveFailed(historyId, error)
               );
             }
-          }).pipe(
-            Effect.catchAll((error) =>
-              Effect.gen(function* () {
-                // Update state with failed response append
-                yield* updateState({
-                  action: "APPEND_RESPONSE",
-                  historyId,
-                  success: false
-                });
-
-                return yield* Effect.fail(
-                  error instanceof ChatHistoryError ? error :
-                    ChatHistoryError.saveFailed(historyId || "undefined", error)
-                );
-              })
-            )
-          );
-        },
+          }),
 
         /**
          * Get the current agent state for monitoring/debugging
          */
-        getAgentState: () => Ref.get(internalStateRef),
+        getAgentState: () => Effect.map(Ref.get(internalStateRef), state => state),
 
         /**
          * Get the runtime for direct access in tests
          */
         getRuntime: () => Effect.succeed({
           state: internalStateRef
-        }),
+        }) as Effect.Effect<{ state: Ref.Ref<ChatAgentState> }, never>,
 
         /**
          * Terminate the service (no-op since we don't have external runtime)
          */
-        terminate: () => Effect.succeed(void 0)
+        terminate: () => Effect.void
       };
     })
   }

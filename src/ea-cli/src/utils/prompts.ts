@@ -22,9 +22,14 @@ export const prompt = (options: PromptOptions) =>
       case "select":
         return yield* Prompt.select({
           message: options.message,
-          choices: (options.choices || []).map(choice => ({ title: choice, value: choice })),
+          choices: (options.choices || []).map((choice) => ({
+            title: choice,
+            value: choice,
+          })),
         })
       default:
-        return yield* Effect.fail(new Error(`Unsupported prompt type: ${options.type}`))
+        return yield* Effect.fail(
+          new Error(`Unsupported prompt type: ${options.type}`),
+        )
     }
   })

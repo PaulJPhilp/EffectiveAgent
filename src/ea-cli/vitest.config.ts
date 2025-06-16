@@ -1,4 +1,4 @@
-import path from "path"
+import path from "node:path"
 import { defineConfig } from "vitest/config"
 
 export default defineConfig({
@@ -7,7 +7,7 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     exclude: ["**/node_modules/**", "**/dist/**"],
-    setupFiles: ["./effect-compat-plugin.js"]
+    setupFiles: ["./effect-compat-plugin.js"],
   },
   resolve: {
     alias: {

@@ -1,6 +1,6 @@
 import { Args, Command, Options } from "@effect/cli"
-import { Console, Effect, Schema, Data, Option } from "effect"
 import { FileSystem, Path } from "@effect/platform"
+import { Console, Data, Effect, Option, Schema } from "effect"
 import { StructuredOutputAgent } from "../../../examples/structured-output/agent.js"
 import { ModelService } from "../../../services/ai/model/service.js"
 
@@ -74,9 +74,7 @@ export const structureOutputCommand = Command.make(
       ),
     ),
     input: Options.text("input").pipe(
-      Options.withDescription(
-        "Path to a JSON file defining the test cases",
-      ),
+      Options.withDescription("Path to a JSON file defining the test cases"),
     ),
     output: Options.text("output").pipe(
       Options.withDescription(
@@ -96,16 +94,17 @@ export const structureOutputCommand = Command.make(
       Options.withDefault(1),
     ),
   },
-  (
-    options: {
-      example: string
-      models: Option.Option<string>
-      input: string
-      output: string
-      runs: number
-    },
-  ) =>
+  (options: {
+    example: string
+    models: Option.Option<string>
+    input: string
+    output: string
+    runs: number
+  }) =>
     Effect.gen(function* () {
+      // Get platform services
+      const platformFs = yield* FileSystem.FileSystem
+      const platformPath = yield* Path.Path
       const { example, models: modelsOpt, input, output, runs } = options
       const modelsString = Option.getOrUndefined(modelsOpt)
 
@@ -136,7 +135,7 @@ export const structureOutputCommand = Command.make(
 
       yield* Console.log(`📄 Reading input file: ${input}`)
 
-      const inputContent = yield* fs.readFileString(input).pipe(
+      const inputContent = yield* platformFs.readFileString(input).pipe(
         Effect.catchAll((error) =>
           Effect.fail(
             new StructureOutputCommandError({
@@ -151,7 +150,7 @@ export const structureOutputCommand = Command.make(
         try: () => JSON.parse(inputContent) as InputConfig,
         catch: (error) =>
           new StructureOutputCommandError({
-            message: `Failed to parse input file as JSON`,
+            message: "Failed to parse input file as JSON",
             cause: error,
           }),
       })
@@ -159,11 +158,12 @@ export const structureOutputCommand = Command.make(
       const validatedConfig = yield* Schema.decode(InputConfigSchema)(
         parsedConfig,
       ).pipe(
-        Effect.mapError((error) =>
-          new StructureOutputCommandError({
-            message: `Input config validation failed`,
-            cause: error,
-          }),
+        Effect.mapError(
+          (error) =>
+            new StructureOutputCommandError({
+              message: "Input config validation failed",
+              cause: error,
+            }),
         ),
       )
 
@@ -171,29 +171,30 @@ export const structureOutputCommand = Command.make(
       // Prepare output directory
       // -----------------------------------------------------------------------
 
-      const outputExists = yield* fs.exists(output).pipe(
+      const exists = yield* platformFs.exists(output).pipe(
         Effect.catchAll((error) =>
           Effect.fail(
             new StructureOutputCommandError({
-              message: `Error checking output directory`,
+              message: "Error checking output directory",
               cause: error,
             }),
           ),
         ),
       )
 
-      if (!outputExists) {
+      if (!exists) {
         yield* Console.log(`Creating output directory: ${output}`)
-        yield* fs.makeDirectory(output, { recursive: true }).pipe(
-          Effect.mapError((error) =>
-            new StructureOutputCommandError({
-              message: `Failed to create output directory: ${output}`,
-              cause: error,
-            }),
+        yield* platformFs.makeDirectory(output).pipe(
+          Effect.mapError(
+            (error) =>
+              new StructureOutputCommandError({
+                message: `Failed to create output directory: ${output}`,
+                cause: error,
+              }),
           ),
         )
       } else {
-        const stat = yield* fs.stat(output)
+        const stat = yield* platformFs.stat(output)
         if (stat.type !== "Directory") {
           return yield* Effect.fail(
             new StructureOutputCommandError({
@@ -235,7 +236,7 @@ export const structureOutputCommand = Command.make(
       if (availableModels.length === 0) {
         return yield* Effect.fail(
           new StructureOutputCommandError({
-            message: `No valid models to run tests against`,
+            message: "No valid models to run tests against",
           }),
         )
       }
@@ -245,13 +246,14 @@ export const structureOutputCommand = Command.make(
       // -----------------------------------------------------------------------
 
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
-      const resultsDir = path.join(output, timestamp)
-      yield* fs.makeDirectory(resultsDir, { recursive: true }).pipe(
-        Effect.mapError((cause) =>
-          new StructureOutputCommandError({
-            message: `Failed to create output dir ${resultsDir}`,
-            cause,
-          }),
+      const resultsDir = platformPath.join(output, timestamp)
+      yield* platformFs.makeDirectory(resultsDir, { recursive: true }).pipe(
+        Effect.mapError(
+          (cause) =>
+            new StructureOutputCommandError({
+              message: `Failed to create output dir ${resultsDir}`,
+              cause,
+            }),
         ),
       )
 
@@ -283,7 +285,7 @@ export const structureOutputCommand = Command.make(
             } else if (testCase.type === "generate") {
               if (!testCase.prompt) {
                 yield* Console.error(
-                  `❌ Missing prompt for generate operation. Skipping.`,
+                  "❌ Missing prompt for generate operation. Skipping.",
                 )
                 result = { error: "Missing prompt" }
               } else {
@@ -296,7 +298,7 @@ export const structureOutputCommand = Command.make(
             } else if (testCase.type === "extract") {
               if (!testCase.text) {
                 yield* Console.error(
-                  `❌ Missing text for extract operation. Skipping.`,
+                  "❌ Missing text for extract operation. Skipping.",
                 )
                 result = { error: "Missing text" }
               } else {
@@ -311,15 +313,18 @@ export const structureOutputCommand = Command.make(
             }
 
             const fileName = `${testCase.caseName}_${modelId}_run${run}.json`
-            const filePath = path.join(resultsDir, fileName)
-            yield* fs.writeFileString(filePath, JSON.stringify(result, null, 2)).pipe(
-              Effect.mapError((cause) =>
-                new StructureOutputCommandError({
-                  message: `Failed to write output ${filePath}`,
-                  cause,
-                }),
-              ),
-            )
+            const filePath = platformPath.join(resultsDir, fileName)
+            yield* platformFs
+              .writeFileString(filePath, JSON.stringify(result, null, 2))
+              .pipe(
+                Effect.mapError(
+                  (cause) =>
+                    new StructureOutputCommandError({
+                      message: `Failed to write output ${filePath}`,
+                      cause,
+                    }),
+                ),
+              )
           }
         }
       }
@@ -335,8 +340,6 @@ export const structureOutputCommand = Command.make(
         ),
       ),
     ),
-).pipe(
-  Command.withDescription("Runs structured-output E2E test suites."),
-)
+).pipe(Command.withDescription("Runs structured-output E2E test suites."))
 
 export default structureOutputCommand

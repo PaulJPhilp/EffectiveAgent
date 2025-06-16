@@ -9,7 +9,9 @@ import type { ObjectServiceApi } from "@/services/pipeline/producers/object/api.
 import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
 import type { ObjectGenerationOptions } from "@/services/pipeline/producers/object/types.js";
 import type { EffectiveResponse } from "@/types.js";
-import { Chunk, Effect, Option, Ref, Schema as S } from "effect";
+import { Chunk, Effect, Option, Ref, Schema as S, Context } from "effect";
+import type { Scope } from "effect/Scope";
+import type { SpanOptions } from "effect/Tracer";
 
 /**
  * Object generation agent state
@@ -34,7 +36,7 @@ export interface ObjectAgentState {
  * ObjectService provides methods for generating structured objects using AI providers.
  * Simplified implementation without AgentRuntime dependency.
  */
-class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", {
+export class ObjectService extends Effect.Service<ObjectServiceApi<S.Schema<any, any>, never>>()("ObjectService", {
     effect: Effect.gen(function* () {
         // Get services directly
         const modelService = yield* ModelService;
@@ -88,8 +90,8 @@ class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", 
             /**
              * Generates a structured object using AI providers based on a prompt and schema
              */
-            generate: <T>(
-                options: ObjectGenerationOptions<any>
+            generate: <T, S extends S.Schema<T, any>>(
+                options: ObjectGenerationOptions<S>
             ): Effect.Effect<EffectiveResponse<T>, ObjectGenerationError | ObjectInputError | ObjectModelError | ObjectSchemaError> =>
                 Effect.gen(function* () {
                     // Log start of object generation
@@ -134,7 +136,7 @@ class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", 
                     const providerClient = yield* providerService.getProviderClient(providerName);
 
                     // Get schema name for tracking
-                    const schemaName = options.schema._ast?.annotations?.title?.toString() ?? "unknown";
+                    const schemaName = options.schema?.ast?.annotations?.title?.toString() ?? "unknown";
 
                     // Call the real AI provider for object generation
                     const providerResult = yield* providerClient.generateObject(
@@ -197,7 +199,7 @@ class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", 
                             yield* updateState({
                                 timestamp: Date.now(),
                                 modelId: options.modelId ?? "unknown",
-                                schemaName: options.schema?._ast?.annotations?.title?.toString() ?? "unknown",
+                                schemaName: options.schema?.ast?.annotations?.title?.toString() ?? "unknown",
                                 promptLength: options.prompt?.length ?? 0,
                                 objectSize: 0,
                                 success: false
@@ -246,6 +248,3 @@ class ObjectService extends Effect.Service<ObjectServiceApi>()("ObjectService", 
         return service;
     })
 }) { }
-
-export default ObjectService;
-export { ObjectService };

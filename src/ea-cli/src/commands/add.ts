@@ -8,7 +8,7 @@ import {
   ValidationError,
   mapUnknownError,
 } from "../errors.js"
-import { ResourceType, addConfigItem } from "../utils/config-helpers.js"
+import { type ResourceType, addConfigItem } from "../utils/config-helpers.js"
 
 // Validation utilities with improved error messages
 const validateAgentName = (
@@ -131,9 +131,11 @@ const createAddCommand = (
   type: ResourceType,
 ): Command.Command<
   ResourceType,
-  never,
-  ConfigurationError | PermissionError | ResourceExistsError | ValidationError,
-  { readonly itemName: string }
+  {
+    readonly itemName: string; // Ensure this matches the args definition
+  },
+  ValidationError | ResourceExistsError | ConfigurationError | PermissionError,
+  never // The handler returns Effect<void, E, R>, so success channel is void, which is effectively never for Command output unless specified
 > => {
   const descriptions = {
     model:
@@ -182,7 +184,10 @@ const createAddCommand = (
 
         // Add config item with Effect-based error handling
         yield* addConfigItem(type, itemName, { placeholder: true }).pipe(
-          Effect.catchAll((error) => {
+          Effect.catchAll((error: unknown) => { // Catch error as unknown
+            if (error instanceof ResourceExistsError || error instanceof ConfigurationError || error instanceof PermissionError || error instanceof ValidationError) {
+              return Effect.fail(error);
+            }
             if (error instanceof Error) {
               if (error.message.includes("ENOENT")) {
                 return Effect.fail(

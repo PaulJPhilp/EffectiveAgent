@@ -22,7 +22,7 @@ process.chdir(__dirname);
 // Run the CLI with bun from the CLI directory
 const args = process.argv.slice(2);
 // Properly quote and escape arguments
-const quotedArgs = args.map(arg => arg.includes(" ") ? `"${arg}"` : arg);
+const quotedArgs = args.map((arg) => (arg.includes(" ") ? `"${arg}"` : arg));
 const child = spawn("bun", ["run", "dev", "--", ...quotedArgs], {
   cwd: cliPath,
   stdio: "inherit",
@@ -32,7 +32,7 @@ const child = spawn("bun", ["run", "dev", "--", ...quotedArgs], {
     MASTER_CONFIG_PATH: join(projectRoot, "config/master-config.json"),
     MODELS_CONFIG_PATH: join(projectRoot, "config/models.json"),
     PROVIDERS_CONFIG_PATH: join(projectRoot, "config/providers.json"),
-    POLICY_CONFIG_PATH: join(projectRoot, "config/policy.json")
+    POLICY_CONFIG_PATH: join(projectRoot, "config/policy.json"),
   },
   shell: true,
 });

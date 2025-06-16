@@ -5,10 +5,11 @@ import { ModelService } from "@/services/ai/model/service.js"
 import { PolicyService } from "@/services/ai/policy/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
 import { ConfigurationService } from "@/services/core/configuration/service.js"
-import { NodeFileSystem } from "@effect/platform-node"
+import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node"
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
+import { AgentRuntimeService } from "../service.js";
 import { Effect, Layer } from "effect"
-import { afterEach, beforeEach, describe, expect, test } from "vitest"
-import { AgentRuntimeService } from "../service.js"
+import { afterEach, beforeEach, describe, expect, test, it } from "vitest"
 import { AgentRecordType, makeAgentRuntimeId } from "../types.js"
 
 describe("AgentRuntime", () => {
@@ -137,15 +138,6 @@ describe("AgentRuntime", () => {
         process.env = { ...originalEnv }
     })
 
-    const testLayer = Layer.mergeAll(
-        ConfigurationService.Default,
-        ProviderService.Default,
-        ModelService.Default,
-        PolicyService.Default,
-        AgentRuntimeService.Default,
-        NodeFileSystem.layer
-    )
-
     test.skip("basic lifecycle operations", async () => {
         const masterConfig = JSON.parse(JSON.stringify(validMasterConfig))
         masterConfig.configPaths.models = modelsConfigPath
@@ -161,44 +153,51 @@ describe("AgentRuntime", () => {
         console.log("[DEBUG] masterConfigPath contents:", require("fs").readFileSync(masterConfigPath, "utf8"))
         console.log("[DEBUG] providersConfigPath contents:", require("fs").readFileSync(providersConfigPath, "utf8"))
         await Effect.runPromise(
-            Effect.provide(
-                Effect.gen(function* () {
-                    // Always yield a fresh ConfigurationService instance
-                    const configService = yield* ConfigurationService;
-                    const service = yield* AgentRuntimeService
-                    const id = makeAgentRuntimeId("test-agent")
+            Effect.gen(function* () {
+                // Always yield a fresh ConfigurationService instance
+                const service = yield* AgentRuntimeService
+                const id = makeAgentRuntimeId("test-agent")
 
-                    // Create agent runtime
-                    const runtime = yield* service.create(id, { count: 0 })
-                    expect(runtime).toBeDefined()
-                    expect(runtime.id).toBe(id)
+                // Create agent runtime
+                const runtime = yield* service.create(id, { count: 0 })
+                expect(runtime).toBeDefined()
+                expect(runtime.id).toBe(id)
 
-                    // Get initial state
-                    const initialState = yield* service.getState(id)
-                    expect(initialState.state).toEqual({ count: 0 })
-                    expect(initialState.status).toBe("IDLE")
+                // Get initial state
+                const initialState = yield* service.getState(id)
+                expect(initialState.state).toEqual({ count: 0 })
+                expect(initialState.status).toBe("IDLE")
 
-                    // Send a record
-                    const record = {
-                        id: "test-record",
-                        agentRuntimeId: id,
-                        timestamp: Date.now(),
-                        type: AgentRecordType.COMMAND,
-                        payload: { increment: 1 },
-                        metadata: {},
-                        sequence: 1
-                    }
+                // Send a record
+                const record = {
+                    id: "test-record",
+                    agentRuntimeId: id,
+                    timestamp: Date.now(),
+                    type: AgentRecordType.COMMAND,
+                    payload: { increment: 1 },
+                    metadata: {},
+                    sequence: 1
+                }
 
-                    yield* service.send(id, record)
+                yield* service.send(id, record)
 
-                    // Terminate
-                    yield* service.terminate(id)
+                // Terminate
+                yield* service.terminate(id)
 
-                    // Verify terminated - should fail when trying to get state
-                    const stateResult = yield* Effect.either(service.getState(id))
-                    expect(stateResult._tag).toBe("Left")
-                }),
-                testLayer
+                // Verify terminated - should fail when trying to get state
+                const stateResult = yield* Effect.either(service.getState(id))
+                expect(stateResult._tag).toBe("Left")
+            })
+            .pipe(
+                Effect.provide(AgentRuntimeService.Default),
+                Effect.provide(ModelService.Default),
+                Effect.provide(ProviderService.Default),
+                Effect.provide(PolicyService.Default),
+                Effect.provide(ToolRegistryService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer),
+                Effect.provide(NodePath.layer),
+                Effect.provide(NodeTerminal.layer)
             )
         )
     })

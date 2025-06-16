@@ -1,7 +1,8 @@
 import { EffectiveResponse } from "@/types.js";
 import { Effect } from "effect";
 import { ChatServiceApi } from "../api.js";
-import type { ChatCompletionOptions, ChatService } from "../service.js";
+import type { ChatService } from "../service.js";
+import type { ChatCompletionOptions } from "../types.js";
 // Inline definition for test harness dependencies
 interface AiServiceDeps {
   modelService: unknown;

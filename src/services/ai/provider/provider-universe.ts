@@ -90,22 +90,6 @@ export const PROVIDER_UNIVERSE: readonly ProviderMetadata[] = [
     }
   },
   {
-    name: "groq",
-    displayName: "Groq",
-    logoUrl: "https://groq.com/favicon.ico",
-    docsUrl: "https://console.groq.com/docs",
-    capabilities: [
-      "text-generation",
-      "chat",
-      "function-calling",
-      "audio"
-    ],
-    configSchema: {
-      apiKeyEnvVar: "GROQ_API_KEY",
-      baseUrl: "https://api.groq.com/openai/v1"
-    }
-  },
-  {
     name: "deepseek",
     displayName: "DeepSeek",
     logoUrl: "https://deepseek.com/favicon.ico",

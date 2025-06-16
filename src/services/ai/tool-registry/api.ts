@@ -4,6 +4,7 @@
  */
 
 import { EffectiveTool, EffectiveToolkit } from "@/types.js";
+export type { ToolRegistryApi } from "./types.js";
 import { Effect } from "effect";
 import type {
     FullToolName,

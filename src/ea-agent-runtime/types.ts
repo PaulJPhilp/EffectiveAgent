@@ -1,7 +1,12 @@
 import { ModelServiceApi, ProviderServiceApi } from "@/services/ai/index.js"
 import { PolicyServiceApi } from "@/services/ai/policy/api.js"
+import { ToolRegistryApi } from "@/services/ai/tool-registry/api.js"
 import { ConfigurationServiceApi } from "@/services/core/configuration/api.js"
+import { AgentRuntimeServiceApi } from "./api.js"
 import { Brand, Effect, Stream } from "effect"
+import type { FileSystem } from "@effect/platform"
+import type * as Path from "@effect/platform/Path"
+import type * as Terminal from "@effect/platform/Terminal"
 
 /**
  * Message priority levels for the mailbox system.
@@ -244,25 +249,16 @@ export interface AgentRuntimeFactory {
  * Initializes the AgentRuntime system with the provided master configuration.
  * This sets up all required services and creates the Effect runtime.
  */
-import type { Effect } from "effect";
 
-export interface RuntimeServices {
-  configurationService: {
-    getConfig: () => Effect.Effect<unknown, never, never>;
-  };
-  providerService: {
-    getProvider: () => Effect.Effect<unknown, never, never>;
-  };
-  modelService: {
-    getModel: () => Effect.Effect<unknown, never, never>;
-  };
-  policyService: {
-    getPolicy: () => Effect.Effect<unknown, never, never>;
-  };
-  toolRegistryService: {
-    getTools: () => Effect.Effect<unknown, never, never>;
-  };
-}
+export type RuntimeServices = ConfigurationServiceApi &
+  ModelServiceApi &
+  ProviderServiceApi &
+  PolicyServiceApi &
+  ToolRegistryApi &
+  AgentRuntimeServiceApi &
+  FileSystem &
+  Path.Path &
+  Terminal.Terminal;
 
 /**
  * Configuration options for LangGraph agent execution.

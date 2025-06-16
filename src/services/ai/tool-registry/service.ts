@@ -2,7 +2,7 @@ import { EffectiveTool, ToolExecutionError } from "@/types.js";
 import { Effect, HashMap } from "effect";
 import { ConfigurationService } from "../../core/configuration/service.js";
 import { FullToolName, SimpleToolName } from "../tools/schema.js";
-import { ToolImplementation, ToolkitName } from "../tools/types.js";
+import { ToolImplementation, ToolkitName, ToolRegistryApi } from "../tools/types.js";
 import { ToolRegistry } from "./api.js";
 import { ToolNotFoundErrorInRegistry, ToolkitNotFoundErrorInRegistry } from "./errors.js";
 import { ToolkitSchema } from "./schema.js";
@@ -35,8 +35,8 @@ export class ToolRegistryService extends Effect.Service<ToolRegistry>()(
 
             // Return implementation object with all API methods
             return {
-                getRegistryData: (fullPath: string) => Effect.gen(function* () {
-                    return yield* readToolRegistry(fullPath);
+                getRegistryData: () => Effect.gen(function* () {
+                    return yield* readToolRegistry("standard");
                 }),
 
                 getTool: (toolName: FullToolName) => Effect.gen(function* () {

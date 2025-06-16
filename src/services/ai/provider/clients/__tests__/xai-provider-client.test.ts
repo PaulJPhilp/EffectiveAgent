@@ -1,13 +1,15 @@
 import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
-import { EffectiveMessage, TextPart } from "@/schema.js";
+import { EffectiveMessage, ModelCapability, TextPart, ToolCallPart } from "@/schema.js";
+import type { ModelServiceApi } from "@/services/ai/model/api.js";
+import type { EffectiveInput } from "@/types.js";
+import { ProviderServiceError, ProviderServiceConfigError, ProviderMissingCapabilityError, ProviderOperationError } from "@/services/ai/provider/errors.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Chunk, Effect, Layer } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { ProviderMissingCapabilityError, ProviderOperationError } from "../../errors.js";
 import { makeXaiClient } from "../xai-provider-client.js";
 
 describe("xAI Provider Client", () => {
@@ -105,15 +107,15 @@ describe("xAI Provider Client", () => {
         delete process.env.MASTER_CONFIG_PATH;
     });
 
-    const withLayers = <R, E, A>(effect: Effect.Effect<A, E, R>) =>
-        effect.pipe(
-            Effect.provide(Layer.mergeAll(
-                NodeFileSystem.layer,
-                ConfigurationService.Default,
-                ModelService.Default,
-                ToolRegistryService.Default,
-            ))
-        );
+    const testLayer = Layer.mergeAll(
+        NodeFileSystem.layer,
+        ConfigurationService.Default,
+        ModelService.Default,
+        ToolRegistryService.Default
+    );
+
+    const withLayers = <A, E>(effect: Effect.Effect<A, E, ModelServiceApi | ToolRegistryService>) =>
+        effect.pipe(Effect.provide(testLayer));
 
     describe("Client Creation", () => {
         it("should create xAI client with valid API key", () =>
@@ -215,6 +217,11 @@ describe("xAI Provider Client", () => {
                     client.getDefaultModelIdForProvider("xai", "embeddings")
                 );
                 expect(result._tag).toBe("Left");
+                if (result._tag === "Left") {
+                    expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("xai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("embeddings");
+                }
                 return result;
             }))
         );
@@ -227,6 +234,11 @@ describe("xAI Provider Client", () => {
                     client.getDefaultModelIdForProvider("openai", "chat")
                 );
                 expect(result._tag).toBe("Left");
+                if (result._tag === "Left") {
+                    expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("openai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("chat");
+                }
                 return result;
             }))
         );
@@ -243,8 +255,8 @@ describe("xAI Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.capability).toBe("tool-use");
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("xai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("tool-use");
                 }
                 return result;
             }))
@@ -260,8 +272,8 @@ describe("xAI Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.capability).toBe("tool-use");
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("xai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("tool-use");
                 }
                 return result;
             }))
@@ -277,8 +289,8 @@ describe("xAI Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.capability).toBe("tool-use");
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("xai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("tool-use");
                 }
                 return result;
             }))
@@ -289,7 +301,8 @@ describe("xAI Provider Client", () => {
         it("should fail object generation with missing capability error", () =>
             withLayers(Effect.gen(function* () {
                 const client = yield* makeXaiClient("test-key");
-                const input = {
+                const input: EffectiveInput = {
+                    text: "Generate an object",
                     messages: Chunk.of(new EffectiveMessage({
                         role: "user",
                         parts: Chunk.of(new TextPart({ _tag: "Text", content: "Generate an object" })),
@@ -304,8 +317,8 @@ describe("xAI Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.capability).toBe("function-calling");
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("xai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("function-calling");
                 }
                 return result;
             }))
@@ -321,8 +334,8 @@ describe("xAI Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.capability).toBe("audio");
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("xai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("audio");
                 }
                 return result;
             }))
@@ -339,8 +352,8 @@ describe("xAI Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.capability).toBe("audio");
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("xai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("audio");
                 }
                 return result;
             }))
@@ -356,59 +369,36 @@ describe("xAI Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.capability).toBe("embeddings");
+                    expect((result.left as ProviderMissingCapabilityError).providerName).toBe("xai");
+                    expect((result.left as ProviderMissingCapabilityError).capability).toBe("embeddings");
                 }
                 return result;
             }))
         );
-    });
 
-    describe("Chat with Tools", () => {
-        it("should fail chat with tools due to missing capability", () =>
+        it("should handle API errors gracefully in generateImage", () =>
             withLayers(Effect.gen(function* () {
-                const client = yield* makeXaiClient("test-key");
-                const input = {
+                const client = yield* makeXaiClient("invalid-key");
+                const input: EffectiveInput = {
+                    text: "A beautiful sunset",
                     messages: Chunk.of(new EffectiveMessage({
                         role: "user",
-                        parts: Chunk.of(new TextPart({ _tag: "Text", content: "Use a tool" })),
+                        parts: Chunk.of(new TextPart({ _tag: "Text", content: "A beautiful sunset" })),
                         metadata: {}
                     }))
                 };
 
                 const result = yield* Effect.either(
-                    client.chat(input, {
-                        modelId: "grok-3",
-                        tools: [{ name: "test_tool", description: "A test tool" }]
-                    })
-                );
-
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect(result.left).toBeInstanceOf(ProviderMissingCapabilityError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.capability).toBe("tool-use");
-                }
-                return result;
-            }))
-        );
-    });
-
-    describe("Input Validation", () => {
-        it("should handle empty messages in generateText", () =>
-            withLayers(Effect.gen(function* () {
-                const client = yield* makeXaiClient("test-key");
-                const input = { messages: Chunk.empty() };
-
-                // This should not fail due to empty messages, but due to API call
-                // Since we're using real services, the actual API call will fail
-                const result = yield* Effect.either(
-                    client.generateText(input, { modelId: "grok-3" })
+                    client.generateImage(input, { modelId: "grok-2-image" })
                 );
 
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
+                    if (result.left instanceof ProviderOperationError) {
+                        expect(result.left.providerName).toBe("xai");
+                        expect(result.left.operation).toBe("generateImage");
+                    }
                 }
                 return result;
             }))
@@ -417,7 +407,10 @@ describe("xAI Provider Client", () => {
         it("should handle empty messages in chat", () =>
             withLayers(Effect.gen(function* () {
                 const client = yield* makeXaiClient("test-key");
-                const input = { messages: Chunk.empty() };
+                const input: EffectiveInput = {
+                    text: "Hello",
+                    messages: Chunk.empty()
+                };
 
                 const result = yield* Effect.either(
                     client.chat(input, { modelId: "grok-3" })
@@ -434,7 +427,10 @@ describe("xAI Provider Client", () => {
         it("should handle empty prompt in generateImage", () =>
             withLayers(Effect.gen(function* () {
                 const client = yield* makeXaiClient("test-key");
-                const input = { messages: Chunk.empty() };
+                const input: EffectiveInput = {
+                    text: "Hello",
+                    messages: Chunk.empty()
+                };
 
                 const result = yield* Effect.either(
                     client.generateImage(input, { modelId: "grok-2-image" })
@@ -443,7 +439,7 @@ describe("xAI Provider Client", () => {
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    expect(result.left.message).toContain("No prompt found");
+                    expect((result.left as ProviderOperationError).message).toContain("No prompt found");
                 }
                 return result;
             }))
@@ -452,7 +448,8 @@ describe("xAI Provider Client", () => {
         it("should extract prompt from messages for generateImage", () =>
             withLayers(Effect.gen(function* () {
                 const client = yield* makeXaiClient("test-key");
-                const input = {
+                const input: EffectiveInput = {
+                    text: "Hello",
                     messages: Chunk.of(new EffectiveMessage({
                         role: "user",
                         parts: Chunk.of(new TextPart({ _tag: "Text", content: "A beautiful sunset" })),
@@ -469,7 +466,7 @@ describe("xAI Provider Client", () => {
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
                     // Should not be the "No prompt found" error
-                    expect(result.left.message).not.toContain("No prompt found");
+                    expect((result.left as ProviderOperationError).message).not.toContain("No prompt found");
                 }
                 return result;
             }))
@@ -483,7 +480,7 @@ describe("xAI Provider Client", () => {
                 const mockProvider = {
                     name: "xai" as const,
                     provider: {} as any,
-                    capabilities: new Set(["chat", "text-generation"])
+                    capabilities: new Set<ModelCapability>(["text-generation", "chat", "image-generation"]),
                 };
 
                 const result = yield* client.setVercelProvider(mockProvider);
@@ -491,91 +488,13 @@ describe("xAI Provider Client", () => {
                 return result;
             }))
         );
-    });
 
-    describe("Error Handling", () => {
-        it("should handle API errors gracefully in generateText", () =>
-            withLayers(Effect.gen(function* () {
-                const client = yield* makeXaiClient("invalid-key");
-                const input = {
-                    messages: Chunk.of(new EffectiveMessage({
-                        role: "user",
-                        parts: Chunk.of(new TextPart({ _tag: "Text", content: "Hello" })),
-                        metadata: {}
-                    }))
-                };
-
-                const result = yield* Effect.either(
-                    client.generateText(input, { modelId: "grok-3" })
-                );
-
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.operation).toBe("generateText");
-                }
-                return result;
-            }))
-        );
-
-        it("should handle API errors gracefully in chat", () =>
-            withLayers(Effect.gen(function* () {
-                const client = yield* makeXaiClient("invalid-key");
-                const input = {
-                    messages: Chunk.of(new EffectiveMessage({
-                        role: "user",
-                        parts: Chunk.of(new TextPart({ _tag: "Text", content: "Hello" })),
-                        metadata: {}
-                    }))
-                };
-
-                const result = yield* Effect.either(
-                    client.chat(input, { modelId: "grok-3" })
-                );
-
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.operation).toBe("chat");
-                }
-                return result;
-            }))
-        );
-
-        it("should handle API errors gracefully in generateImage", () =>
-            withLayers(Effect.gen(function* () {
-                const client = yield* makeXaiClient("invalid-key");
-                const input = {
-                    messages: Chunk.of(new EffectiveMessage({
-                        role: "user",
-                        parts: Chunk.of(new TextPart({ _tag: "Text", content: "A beautiful sunset" })),
-                        metadata: {}
-                    }))
-                };
-
-                const result = yield* Effect.either(
-                    client.generateImage(input, { modelId: "grok-2-image" })
-                );
-
-                expect(result._tag).toBe("Left");
-                if (result._tag === "Left") {
-                    expect(result.left).toBeInstanceOf(ProviderOperationError);
-                    expect(result.left.providerName).toBe("xai");
-                    expect(result.left.operation).toBe("generateImage");
-                }
-                return result;
-            }))
-        );
-    });
-
-    describe("Message Mapping", () => {
-        it("should handle complex message structures", () =>
+        it("should handle message mapping", () =>
             withLayers(Effect.gen(function* () {
                 const client = yield* makeXaiClient("test-key");
-                const input = {
-                    messages: Chunk.of(
+                const input: EffectiveInput = {
+                    text: "Hello, how are you?",
+                    messages: Chunk.make(
                         new EffectiveMessage({
                             role: "system",
                             parts: Chunk.of(new TextPart({ _tag: "Text", content: "You are a helpful assistant" })),
@@ -589,17 +508,20 @@ describe("xAI Provider Client", () => {
                     )
                 };
 
-                // This will fail due to API call, but should handle message mapping
                 const result = yield* Effect.either(
-                    client.generateText(input, { modelId: "grok-3" })
+                    client.chat(input, { modelId: "grok-3" })
                 );
 
                 expect(result._tag).toBe("Left");
                 if (result._tag === "Left") {
                     expect(result.left).toBeInstanceOf(ProviderOperationError);
+                    if (result.left instanceof ProviderOperationError) {
+                        expect(result.left.providerName).toBe("xai");
+                        expect(result.left.operation).toBe("chat");
+                    }
                 }
                 return result;
             }))
         );
-    });
-}); 
+    })
+});

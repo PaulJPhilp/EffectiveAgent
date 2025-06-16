@@ -13,14 +13,14 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@langchain/langgraph": "^0.2.0",
-    "@langchain/core": "^0.3.0",
-    "langchain": "^0.3.0",
-    "effect": "^3.16.3"
+    "@langchain/langgraph": "^0.2.74",
+    "@langchain/core": "^0.3.58",
+    "langchain": "^0.3.28",
+    "effect": "^3.16.7"
   },
   "devDependencies": {
     "@types/bun": "latest",
-    "typescript": "^5.8.0",
+    "typescript": "^5.8.3",
     "vitest": "latest"
   }
 }

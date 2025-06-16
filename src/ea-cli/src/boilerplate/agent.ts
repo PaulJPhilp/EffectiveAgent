@@ -1,4 +1,4 @@
-import { join } from "path"
+import { join } from "node:path"
 // Boilerplate agent creation logic
 import { Effect } from "effect"
 import {

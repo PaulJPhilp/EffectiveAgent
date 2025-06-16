@@ -3,7 +3,7 @@
  * @module ea/pipelines/vector-search/contract
  */
 
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 import { PipelineError } from "../common/errors.js";
 
 /**
@@ -154,9 +154,21 @@ export interface VectorSearchPipelineApi {
 }
 
 /**
- * Service tag for the VectorSearchPipeline
+ * Service tag interface for the VectorSearchPipeline
  */
-export class VectorSearchPipeline extends Context.Tag("VectorSearchPipeline")<
-    VectorSearchPipeline,
-    VectorSearchPipelineApi
->() { } 
+export interface VectorSearchPipelineTag {
+    readonly _tag: "VectorSearchPipeline"
+}
+
+/**
+ * Service implementation for the VectorSearchPipeline
+ */
+export class VectorSearchPipeline extends Effect.Service<VectorSearchPipelineApi & VectorSearchPipelineTag>()("VectorSearchPipeline", {
+    effect: Effect.succeed({
+        _tag: "VectorSearchPipeline" as const,
+        // Service interface implementation will be provided in service.ts
+        search: undefined as any,
+        generateEmbedding: undefined as any,
+    }),
+    dependencies: []
+}) { }

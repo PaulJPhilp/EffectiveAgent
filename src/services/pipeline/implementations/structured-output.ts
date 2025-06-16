@@ -128,8 +128,7 @@ export function executeStructuredOutput<
 export class StructuredOutputPipeline<T> extends AiPipeline<
     StructuredOutputInput,
     StructuredOutputOutput<T>,
-    EffectiveError,
-    never
+    EffectiveError
 > {
     readonly inputSchema = StructuredOutputInput as S.Schema<unknown, StructuredOutputInput>;
     readonly outputSchema: S.Schema<unknown, StructuredOutputOutput<T>>;
@@ -146,7 +145,7 @@ export class StructuredOutputPipeline<T> extends AiPipeline<
      */
     protected override executeProducer(
         input: StructuredOutputInput,
-    ): Effect.Effect<StructuredOutputOutput<T>, EffectiveError, never> {
+    ): Effect.Effect<StructuredOutputOutput<T>, EffectiveError, any> {
         const self = this;
         return Effect.gen(function* () {
             const objectService = yield* ObjectService;

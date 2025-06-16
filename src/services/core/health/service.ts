@@ -121,9 +121,9 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
         const checkDegradationTriggersForService = (serviceName: string) =>
             Effect.gen(function* () {
                 const currentState = yield* Ref.get(state);
-                const strategies = HashMap.get(currentState.degradationStrategies, serviceName) || [];
+                const strategies = Option.getOrElse(HashMap.get(currentState.degradationStrategies, serviceName), () => []);
                 const serviceMetrics = HashMap.get(currentState.serviceMetrics, serviceName);
-                const lastChecks = HashMap.get(currentState.lastChecks, serviceName) || [];
+                const lastChecks = Option.getOrElse(HashMap.get(currentState.lastChecks, serviceName), () => []);
 
                 if (Option.isNone(serviceMetrics)) return;
 
@@ -156,10 +156,10 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                                 shouldActivate = trigger.threshold ? avgResponseTime >= trigger.threshold : false;
                                 break;
                             case "DEPENDENCY_UNAVAILABLE": {
-                                const dependencies = HashMap.get(currentState.serviceDependencies, serviceName) || [];
+                                const dependencies = Option.getOrElse(HashMap.get(currentState.serviceDependencies, serviceName), () => []);
                                 const requiredDeps = dependencies.filter(d => d.required);
                                 shouldActivate = requiredDeps.some(dep => {
-                                    const depChecks = HashMap.get(currentState.lastChecks, dep.serviceName) || [];
+                                    const depChecks = Option.getOrElse(HashMap.get(currentState.lastChecks, dep.serviceName), () => []);
                                     return calculateOverallStatus(depChecks) === "UNHEALTHY";
                                 });
                                 break;
@@ -170,7 +170,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                     }
 
                     if (shouldActivate) {
-                        const activeStrategies = HashMap.get(currentState.activeStrategies, serviceName) || [];
+                        const activeStrategies = Option.getOrElse(HashMap.get(currentState.activeStrategies, serviceName), () => []);
                         const alreadyActive = activeStrategies.some(as => as.strategyName === strategy.name);
 
                         if (!alreadyActive) {
@@ -247,14 +247,21 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                                 : {
                                     checkName,
                                     status: "UNHEALTHY",
-                                    message: result.left.description || "Health check failed",
+                                    message: result.left instanceof Error ? result.left.message : "Health check failed",
                                     duration: 0,
                                     timestamp: Date.now(),
-                                    error: result.left
+                                    error: result.left instanceof Error 
+                                        ? new EffectiveError({
+                                            description: result.left.message,
+                                            module: "health-monitoring",
+                                            method: "monitoringLoop",
+                                            cause: result.left
+                                          })
+                                        : result.left
                                 };
 
                             // Update last checks
-                            const existingChecks = HashMap.get(currentState.lastChecks, serviceName) || [];
+                            const existingChecks = Option.getOrElse(HashMap.get(currentState.lastChecks, serviceName), () => []);
                             const updatedChecks = [
                                 ...existingChecks.filter(c => c.checkName !== checkName),
                                 checkResult
@@ -292,7 +299,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
             registerHealthCheck: (serviceName: string, checkName: string, check: HealthCheckFunction) =>
                 Effect.gen(function* () {
                     yield* Ref.update(state, s => {
-                        const serviceChecks = HashMap.get(s.healthChecks, serviceName) || HashMap.empty<string, HealthCheckFunction>();
+                        const serviceChecks = Option.getOrElse(HashMap.get(s.healthChecks, serviceName), () => HashMap.empty<string, HealthCheckFunction>());
                         const updatedServiceChecks = HashMap.set(serviceChecks, checkName, check);
                         return {
                             ...s,
@@ -323,25 +330,27 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                     const currentState = yield* Ref.get(state);
                     const serviceChecks = HashMap.get(currentState.healthChecks, serviceName);
 
-                    if (!serviceChecks) {
-                        return yield* Effect.fail(new EffectiveError({
+                    const serviceChecksMap = yield* Option.match(serviceChecks, {
+                        onNone: () => Effect.fail(new EffectiveError({
                             description: `No health checks registered for service: ${serviceName}`,
                             module: "ServiceHealthMonitoring",
                             method: "runHealthCheck"
-                        }));
-                    }
+                        })),
+                        onSome: (checks) => Effect.succeed(checks)
+                    });
 
-                    const check = HashMap.get(serviceChecks, checkName);
-                    if (!check) {
-                        return yield* Effect.fail(new EffectiveError({
+                    const check = HashMap.get(serviceChecksMap, checkName);
+                    const checkFunction = yield* Option.match(check, {
+                        onNone: () => Effect.fail(new EffectiveError({
                             description: `Health check '${checkName}' not found for service: ${serviceName}`,
                             module: "ServiceHealthMonitoring",
                             method: "runHealthCheck"
-                        }));
-                    }
+                        })),
+                        onSome: (checkFn) => Effect.succeed(checkFn)
+                    });
 
                     const startTime = Date.now();
-                    const result = yield* Effect.either(check);
+                    const result = yield* Effect.either(checkFunction);
                     const endTime = Date.now();
 
                     if (result._tag === "Right") {
@@ -362,9 +371,9 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                 Effect.gen(function* () {
                     const currentState = yield* Ref.get(state);
                     const serviceMetrics = HashMap.get(currentState.serviceMetrics, serviceName);
-                    const capabilities = HashMap.get(currentState.serviceCapabilities, serviceName) || [];
-                    const dependencies = HashMap.get(currentState.serviceDependencies, serviceName) || [];
-                    const lastChecks = HashMap.get(currentState.lastChecks, serviceName) || [];
+                    const capabilities = Option.getOrElse(HashMap.get(currentState.serviceCapabilities, serviceName), () => []);
+                    const dependencies = Option.getOrElse(HashMap.get(currentState.serviceDependencies, serviceName), () => []);
+                    const lastChecks = Option.getOrElse(HashMap.get(currentState.lastChecks, serviceName), () => []);
 
                     if (Option.isNone(serviceMetrics)) {
                         return undefined;
@@ -379,7 +388,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
 
                     // Get dependency statuses
                     const dependencyStatuses = dependencies.map(dep => {
-                        const depChecks = HashMap.get(currentState.lastChecks, dep.serviceName) || [];
+                        const depChecks = Option.getOrElse(HashMap.get(currentState.lastChecks, dep.serviceName), () => []);
                         return {
                             serviceName: dep.serviceName,
                             status: calculateOverallStatus(depChecks),
@@ -436,7 +445,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
             enableDegradationStrategy: (serviceName: string, strategy: DegradationStrategy) =>
                 Effect.gen(function* () {
                     yield* Ref.update(state, s => {
-                        const strategies = HashMap.get(s.degradationStrategies, serviceName) || [];
+                        const strategies = Option.getOrElse(HashMap.get(s.degradationStrategies, serviceName), () => []);
                         const updatedStrategies = [...strategies.filter(st => st.name !== strategy.name), strategy];
                         return {
                             ...s,
@@ -479,7 +488,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
             updateServiceCapability: (serviceName: string, capability: ServiceCapability) =>
                 Effect.gen(function* () {
                     yield* Ref.update(state, s => {
-                        const capabilities = HashMap.get(s.serviceCapabilities, serviceName) || [];
+                        const capabilities = Option.getOrElse(HashMap.get(s.serviceCapabilities, serviceName), () => []);
                         const updatedCapabilities = [
                             ...capabilities.filter(c => c.name !== capability.name),
                             capability
@@ -525,7 +534,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
             setServiceDependency: (serviceName: string, dependencyName: string, required: boolean) =>
                 Effect.gen(function* () {
                     yield* Ref.update(state, s => {
-                        const dependencies = HashMap.get(s.serviceDependencies, serviceName) || [];
+                        const dependencies = Option.getOrElse(HashMap.get(s.serviceDependencies, serviceName), () => []);
                         const updatedDependencies = [
                             ...dependencies.filter(d => d.serviceName !== dependencyName),
                             { serviceName: dependencyName, required }
@@ -574,7 +583,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                     for (const [svcName, svcMetrics] of HashMap.entries(currentState.serviceMetrics)) {
                         if (serviceName && svcName !== serviceName) continue;
 
-                        const checks = HashMap.get(currentState.lastChecks, svcName) || [];
+                        const checks = Option.getOrElse(HashMap.get(currentState.lastChecks, svcName), () => []);
                         const status = calculateOverallStatus(checks);
                         const avgResponseTime = svcMetrics.requestCount > 0
                             ? svcMetrics.totalResponseTime / svcMetrics.requestCount

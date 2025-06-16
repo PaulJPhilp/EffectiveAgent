@@ -3,7 +3,7 @@
  * @module ea/pipelines/coder-chat/contract
  */
 
-import { Context, Effect } from "effect";
+import { Effect } from "effect";
 import { CoderChatPipelineError } from "./errors.js";
 
 /**
@@ -93,9 +93,21 @@ export interface CoderChatPipelineApi {
 }
 
 /**
- * Service tag for the CoderChatPipeline
+ * Service tag interface for the CoderChatPipeline
  */
-export class CoderChatPipeline extends Context.Tag("CoderChatPipeline")<
-    CoderChatPipeline,
-    CoderChatPipelineApi
->() { } 
+export interface CoderChatPipelineTag {
+    readonly _tag: "CoderChatPipeline"
+}
+
+/**
+ * Service implementation for the CoderChatPipeline
+ */
+export class CoderChatPipeline extends Effect.Service<CoderChatPipelineApi & CoderChatPipelineTag>()("CoderChatPipeline", {
+    effect: Effect.succeed({
+        _tag: "CoderChatPipeline" as const,
+        // Service interface implementation will be provided in service.ts
+        chat: undefined as any,
+        viewCode: undefined as any,
+    }),
+    dependencies: []
+}) { }

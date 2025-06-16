@@ -111,37 +111,36 @@ const validateConfigs = Effect.gen(function* () {
   // Return validation results using Effect
   if (isValid) {
     return yield* Console.log("\n✅ All configuration files are valid")
-  } else {
-    yield* Console.log("\n❌ Configuration validation failed:")
-    yield* Effect.forEach(validationErrors, (error) => Console.log(error))
-    yield* Console.log("\nTo fix these issues:")
-    yield* Console.log("1. Run 'ea-cli init' to create missing files")
-    yield* Console.log("2. Check JSON syntax in existing files")
-    yield* Console.log("3. See documentation for configuration schemas")
-    return yield* Effect.fail(
-      new ConfigurationError({
-        message: "Configuration validation failed",
-        configPath: configDir,
-        errorType: "schema",
-      }),
-    )
   }
+  yield* Console.log("\n❌ Configuration validation failed:")
+  yield* Effect.forEach(validationErrors, (error) => Console.log(error))
+  yield* Console.log("\nTo fix these issues:")
+  yield* Console.log("1. Run 'ea-cli init' to create missing files")
+  yield* Console.log("2. Check JSON syntax in existing files")
+  yield* Console.log("3. See documentation for configuration schemas")
+  return yield* Effect.fail(
+    new ConfigurationError({
+      message: "Configuration validation failed",
+      configPath: configDir,
+      errorType: "schema",
+    }),
+  )
 })
 
 const validate = Command.make("validate").pipe(
   Command.withDescription(
     "Validate all configuration files in ea-config/.\n\n" +
-    "This command will:\n" +
-    "  1. Check each config file exists\n" +
-    "  2. Validate JSON syntax\n" +
-    "  3. Verify against schema definitions\n" +
-    "  4. Check for required fields\n\n" +
-    "Files checked:\n" +
-    "  - models.json\n" +
-    "  - providers.json\n" +
-    "  - policy.json\n" +
-    "  - tool-registry.json\n\n" +
-    "Results will show ✅ for valid files or detailed errors for invalid ones.",
+      "This command will:\n" +
+      "  1. Check each config file exists\n" +
+      "  2. Validate JSON syntax\n" +
+      "  3. Verify against schema definitions\n" +
+      "  4. Check for required fields\n\n" +
+      "Files checked:\n" +
+      "  - models.json\n" +
+      "  - providers.json\n" +
+      "  - policy.json\n" +
+      "  - tool-registry.json\n\n" +
+      "Results will show ✅ for valid files or detailed errors for invalid ones.",
   ),
   Command.withHandler(() =>
     validateConfigs.pipe(
@@ -161,11 +160,11 @@ const validate = Command.make("validate").pipe(
 export const configCommands = Command.make("config").pipe(
   Command.withDescription(
     "Manage and validate project configuration files.\n\n" +
-    "Available Commands:\n" +
-    "  validate    Check all configuration files against their schemas\n\n" +
-    "The config commands help ensure your project's configuration files\n" +
-    "are valid and properly structured. Configuration files are stored\n" +
-    "in the ea-config/ directory.",
+      "Available Commands:\n" +
+      "  validate    Check all configuration files against their schemas\n\n" +
+      "The config commands help ensure your project's configuration files\n" +
+      "are valid and properly structured. Configuration files are stored\n" +
+      "in the ea-config/ directory.",
   ),
   Command.withSubcommands([validate]),
 )

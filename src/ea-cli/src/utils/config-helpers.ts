@@ -40,11 +40,7 @@ const getConfigFilePath = (resourceType: ResourceType) =>
     const path = yield* _(Path.Path)
     // Use PROJECT_ROOT environment variable set by CLI for consistent path resolution
     const projectRoot = process.env.PROJECT_ROOT || process.cwd()
-    return path.join(
-      projectRoot,
-      "ea-config",
-      configMap[resourceType].filePath,
-    )
+    return path.join(projectRoot, "ea-config", configMap[resourceType].filePath)
   })
 
 export const listConfigItems = (resourceType: ResourceType) =>
@@ -70,9 +66,11 @@ export const listConfigItems = (resourceType: ResourceType) =>
 
     yield* _(Effect.log(`${resourceType}s:`))
     yield* _(Effect.log(`Available ${resourceType}s:`))
-    yield* _(Effect.forEach(items, (item) =>
-      Effect.log(`- ${item[resourceConfig.itemNameKey] || "Unknown Item"}`),
-    ))
+    yield* _(
+      Effect.forEach(items, (item) =>
+        Effect.log(`- ${item[resourceConfig.itemNameKey] || "Unknown Item"}`),
+      ),
+    )
     return items
   }).pipe(Effect.provide(FileSystemLayer))
 
@@ -91,7 +89,7 @@ export const deleteConfigItem = (
 
     const fs = yield* _(FileSystem.FileSystem)
     const contentString = yield* _(fs.readFileString(filePath, "utf-8"))
-    let content = JSON.parse(contentString)
+    const content = JSON.parse(contentString)
 
     const items = content[resourceConfig.itemsKey] as any[]
     const itemIndex = items.findIndex(
@@ -141,7 +139,7 @@ export const addConfigItem = (
 
     const fs = yield* _(FileSystem.FileSystem)
     const contentString = yield* _(fs.readFileString(filePath, "utf-8"))
-    let content = JSON.parse(contentString)
+    const content = JSON.parse(contentString)
 
     const items = content[resourceConfig.itemsKey] as any[]
     const itemExists = items.some(

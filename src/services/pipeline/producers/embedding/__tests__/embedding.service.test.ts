@@ -36,9 +36,9 @@ describe("EmbeddingService", () => {
                     modelId: "text-embedding-ada-002", // Assuming this model is configured
                 });
 
-                expect(result.embeddings).toBeInstanceOf(Array);
-                if (result.embeddings.length > 0) {
-                    const firstEmbedding = result.embeddings[0];
+                expect(result.data.embeddings).toBeInstanceOf(Array);
+                if (result.data.embeddings.length > 0) {
+                    const firstEmbedding = result.data.embeddings[0];
                     // Use Array.isArray for type narrowing recognized by TypeScript
                     if (Array.isArray(firstEmbedding)) {
                         expect(firstEmbedding).toBeInstanceOf(Array); // Runtime check is still good
@@ -51,7 +51,7 @@ describe("EmbeddingService", () => {
                         // Fail the test if firstEmbedding is not an array as expected.
                         throw new Error("AssertionError: Expected firstEmbedding to be an array.");
                     }
-                    expect(result.dimensions).toBeGreaterThan(0);
+                    expect(firstEmbedding.length).toBeGreaterThan(0);
                 } else {
                     // If embeddings are empty, this is unexpected for "test input".
                     // Fail the test explicitly, indicating why.
@@ -59,17 +59,13 @@ describe("EmbeddingService", () => {
                         "AssertionError: Expected non-empty embeddings for 'test input' but got an empty array."
                     );
                 }
-                expect(result.texts).toBeInstanceOf(Array);
-                expect(result.texts.length).toBeGreaterThan(0);
-                expect(result.model).toBe("text-embedding-ada-002");
-                expect(result.id).toBeDefined();
-                expect(result.timestamp).toBeInstanceOf(Date);
-                expect(result.usage).toBeDefined();
-                expect(result.usage.promptTokens).toBeGreaterThanOrEqual(0);
-                expect(result.usage.totalTokens).toBeGreaterThanOrEqual(
-                    result.usage.promptTokens
-                );
-                expect(result.finishReason).toBeDefined();
+                expect(result.data.model).toBe("text-embedding-ada-002");
+                if (result.data.usage) {
+                    expect(result.data.usage.promptTokens).toBeGreaterThanOrEqual(0);
+                    expect(result.data.usage.totalTokens).toBeGreaterThanOrEqual(
+                        result.data.usage.promptTokens
+                    );
+                }
             }).pipe(Effect.provide(testLayer))
         );
     });

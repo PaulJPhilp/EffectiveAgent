@@ -8,6 +8,7 @@
 import { Args, Command } from "@effect/cli";
 import { Console, Effect } from "effect";
 import { NodeRuntime } from "@effect/platform-node";
+import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 
 // Define a simple command with various argument types
 const testCommand = Command.make(
@@ -59,10 +60,14 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     version: "1.0.0"
   });
   
-  NodeRuntime.runMain(Effect.suspend(() => program(args)))
-    .then(() => console.log("CLI execution completed"))
-    .catch(error => {
-      console.error("CLI execution failed:", error);
-      process.exit(1);
-    });
+
+
+NodeRuntime.runMain(
+  Effect.suspend(() => program(args)).pipe(
+    Effect.provide(NodeFileSystem.layer),
+    Effect.provide(NodePath.layer),
+    Effect.provide(NodeTerminal.layer)
+  )
+);
+console.log("CLI execution completed");
 }

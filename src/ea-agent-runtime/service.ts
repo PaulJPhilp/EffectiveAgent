@@ -161,5 +161,11 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
             createLangGraphAgent,
             run
         } satisfies AgentRuntimeServiceApi
-    })
+    }),
+    dependencies: [
+        ModelService.Default,
+        ProviderService.Default,
+        PolicyService.Default,
+        ToolRegistryService.Default
+    ]
 }) { }

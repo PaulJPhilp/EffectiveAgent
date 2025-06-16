@@ -25,26 +25,28 @@
     "lint": "biome check ."
   },
   "dependencies": {
-    "effect": "^3.16.5",
-    "@effect/cli": "^0.63.9",
-    "@effect/platform": "^0.84.9",
-    "@effect/platform-node": "^0.85.14",
-    "@effect/printer": "^0.44.4",
-    "@effect/printer-ansi": "^0.44.4",
-    "@effect/cluster": "^0.38.13",
-    "@effect/rpc": "^0.61.12"
+    "@ai-sdk/anthropic": "^1.2.12",
+    "@effect/cli": "^0.63.11",
+    "@effect/cluster": "^0.38.16",
+    "@effect/platform": "^0.84.11",
+    "@effect/platform-node": "^0.85.16",
+    "@effect/printer": "^0.44.7",
+    "@effect/printer-ansi": "^0.44.7",
+    "@effect/rpc": "^0.61.15",
+    "ai": "^4.3.16",
+    "effect": "^3.16.7"
   },
   "peerDependencies": {
-    "@effect/cluster": "^0.38.13",
-    "@effect/rpc": "^0.61.12",
-    "@effect/printer": "^0.44.4",
-    "@effect/printer-ansi": "^0.44.4"
+    "@effect/cluster": "^0.38.16",
+    "@effect/rpc": "^0.61.15",
+    "@effect/printer": "^0.44.7",
+    "@effect/printer-ansi": "^0.44.7"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.15.30",
+    "@types/node": "^22.15.31",
     "typescript": "^5.8.3",
-    "vitest": "^3.2.2"
+    "vitest": "^3.2.3"
   },
   "keywords": [
     "ai",
@@ -58,9 +60,5 @@
     "url": "https://github.com/effective-agents/ea-cli/issues"
   },
   "homepage": "https://github.com/effective-agents/ea-cli#readme",
-  "files": [
-    "dist",
-    "README.md",
-    "LICENSE"
-  ]
+  "files": ["dist", "README.md", "LICENSE"]
 }

@@ -1,0 +1,14 @@
+{
+    "name": "@agents/test-agent",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "build": "tsc -p ."
+    },
+    "dependencies": {
+        "effect": "^3.16.5"
+    }
+}
