@@ -5,7 +5,7 @@ import { NodeContext, NodeRuntime } from "@effect/platform-node"
 import { Console, Effect } from "effect"
 
 // Simple test command using standard Effect runtime
-const testSimpleCommand = Command.make(
+export const testSimpleCommand = Command.make(
   "test-simple",
   {
     message: Args.text({ name: "message" }).pipe(
@@ -24,11 +24,16 @@ const testSimpleCommand = Command.make(
     }),
 ).pipe(Command.withDescription("A simple test command using standard runtime"))
 
-// Main CLI using standard Effect runtime (like official examples)
-const cli = Command.run(testSimpleCommand, {
-  name: "test-simple-cli",
-  version: "1.0.0",
-})
+// Only run the CLI if this file is being executed directly
+if (require.main === module) {
+  // Main CLI using standard Effect runtime (like official examples)
+  const cli = Command.run(testSimpleCommand, {
+    name: "test-simple-cli",
+    version: "1.0.0",
+  })
 
-// Use standard Effect runtime instead of our complex agent runtime
-cli(process.argv).pipe(Effect.provide(NodeContext.layer), NodeRuntime.runMain)
+  // Use standard Effect runtime instead of our complex agent runtime
+  Effect.suspend(() => cli(process.argv))
+    .pipe(Effect.provide(NodeContext.layer))
+    .pipe(NodeRuntime.runMain)
+}

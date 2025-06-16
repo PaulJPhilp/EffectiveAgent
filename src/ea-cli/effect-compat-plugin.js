@@ -9,6 +9,8 @@ export default {
       ...config.test,
       globals: true,
       environment: "node",
+      testTimeout: 5000, // 5 seconds
+      hookTimeout: 5000  // 5 seconds
     }
   },
   transform(code) {
@@ -18,11 +20,11 @@ export default {
     }
   },
   setup() {
-    Effect.setGlobal("reset")
     return {
-      teardown() {
-        Effect.setGlobal("reset")
-      },
+      onTestFinished() {
+        // Reset Effect state after each test
+        Effect.runFork(Effect.unit)
+      }
     }
   },
 }

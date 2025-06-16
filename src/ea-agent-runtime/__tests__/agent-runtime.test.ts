@@ -138,67 +138,70 @@ describe("AgentRuntime", () => {
         process.env = { ...originalEnv }
     })
 
-    test.skip("basic lifecycle operations", async () => {
-        const masterConfig = JSON.parse(JSON.stringify(validMasterConfig))
-        masterConfig.configPaths.models = modelsConfigPath
-        masterConfig.configPaths.providers = providersConfigPath
-        masterConfig.configPaths.policy = policyConfigPath
-        writeFileSync(masterConfigPath, JSON.stringify(masterConfig, null, 2))
-        writeFileSync(providersConfigPath, JSON.stringify(JSON.parse(JSON.stringify(validProviderConfig)), null, 2))
-        writeFileSync(modelsConfigPath, JSON.stringify(JSON.parse(JSON.stringify(validModelConfig)), null, 2))
-        writeFileSync(policyConfigPath, JSON.stringify(JSON.parse(JSON.stringify(validPolicyConfig)), null, 2))
-        process.env.MASTER_CONFIG_PATH = masterConfigPath
-        // Debug: print env and config files
-        console.log("[DEBUG] MASTER_CONFIG_PATH:", process.env.MASTER_CONFIG_PATH)
-        console.log("[DEBUG] masterConfigPath contents:", require("fs").readFileSync(masterConfigPath, "utf8"))
-        console.log("[DEBUG] providersConfigPath contents:", require("fs").readFileSync(providersConfigPath, "utf8"))
-        await Effect.runPromise(
-            Effect.gen(function* () {
-                // Always yield a fresh ConfigurationService instance
-                const service = yield* AgentRuntimeService
-                const id = makeAgentRuntimeId("test-agent")
+    it("basic lifecycle operations", () => 
+        Effect.gen(function* () {
+            // Create test configuration
+            const masterConfig = JSON.parse(JSON.stringify(validMasterConfig))
+            masterConfig.configPaths.models = modelsConfigPath
+            masterConfig.configPaths.providers = providersConfigPath
+            masterConfig.configPaths.policy = policyConfigPath
 
-                // Create agent runtime
-                const runtime = yield* service.create(id, { count: 0 })
-                expect(runtime).toBeDefined()
-                expect(runtime.id).toBe(id)
+            // Write configuration files
+            writeFileSync(masterConfigPath, JSON.stringify(masterConfig, null, 2))
+            writeFileSync(providersConfigPath, JSON.stringify(validProviderConfig, null, 2))
+            writeFileSync(modelsConfigPath, JSON.stringify(validModelConfig, null, 2))
+            writeFileSync(policyConfigPath, JSON.stringify(validPolicyConfig, null, 2))
 
-                // Get initial state
-                const initialState = yield* service.getState(id)
-                expect(initialState.state).toEqual({ count: 0 })
-                expect(initialState.status).toBe("IDLE")
+            // Set environment variable
+            process.env.MASTER_CONFIG_PATH = masterConfigPath
 
-                // Send a record
-                const record = {
-                    id: "test-record",
-                    agentRuntimeId: id,
-                    timestamp: Date.now(),
-                    type: AgentRecordType.COMMAND,
-                    payload: { increment: 1 },
-                    metadata: {},
-                    sequence: 1
-                }
+            // Get service and create test agent
+            const service = yield* AgentRuntimeService
+            const id = makeAgentRuntimeId("test-agent")
 
-                yield* service.send(id, record)
+            // Create agent runtime
+            const runtime = yield* service.create(id, { count: 0 })
+            expect(runtime).toBeDefined()
+            expect(runtime.id).toBe(id)
 
-                // Terminate
-                yield* service.terminate(id)
+            // Get initial state
+            const initialState = yield* service.getState(id)
+            expect(initialState.state).toEqual({ count: 0 })
+            expect(initialState.status).toBe("IDLE")
 
-                // Verify terminated - should fail when trying to get state
-                const stateResult = yield* Effect.either(service.getState(id))
-                expect(stateResult._tag).toBe("Left")
-            })
-            .pipe(
-                Effect.provide(AgentRuntimeService.Default),
-                Effect.provide(ModelService.Default),
-                Effect.provide(ProviderService.Default),
-                Effect.provide(PolicyService.Default),
-                Effect.provide(ToolRegistryService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer),
-                Effect.provide(NodePath.layer),
-                Effect.provide(NodeTerminal.layer)
-            )
+            // Send a record
+            const record = {
+                id: "test-record",
+                agentRuntimeId: id,
+                timestamp: Date.now(),
+                type: AgentRecordType.COMMAND,
+                payload: { increment: 1 },
+                metadata: {},
+                sequence: 1
+            }
+
+            yield* service.send(id, record)
+
+            // Get updated state and verify count increment
+            const updatedState = yield* service.getState(id)
+            expect((updatedState.state as { count: number }).count).toBe(1)
+
+            // Terminate
+            yield* service.terminate(id)
+
+            // Verify terminated - should fail when trying to get state
+            const stateResult = yield* Effect.either(service.getState(id))
+            expect(stateResult._tag).toBe("Left")
+        }).pipe(
+            Effect.provide(AgentRuntimeService.Default),
+            Effect.provide(ModelService.Default),
+            Effect.provide(ProviderService.Default),
+            Effect.provide(PolicyService.Default),
+            Effect.provide(ToolRegistryService.Default),
+            Effect.provide(ConfigurationService.Default),
+            Effect.provide(NodeFileSystem.layer),
+            Effect.provide(NodePath.layer),
+            Effect.provide(NodeTerminal.layer)
         )
-    })
-})
+    );
+});

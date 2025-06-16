@@ -78,8 +78,8 @@ export class ConfigPathsSchema extends Schema.Class<ConfigPathsSchema>("ConfigPa
 export class MasterConfigSchema extends Schema.Class<MasterConfigSchema>("MasterConfigSchema")({
     name: Schema.String,
     version: Schema.String,
-    runtimeSettings: RuntimeSettingsSchema,
-    logging: LoggingConfigSchema,
+    runtimeSettings: Schema.optionalWith(RuntimeSettingsSchema, { default: () => new RuntimeSettingsSchema() }),
+    logging: Schema.optionalWith(LoggingConfigSchema, { default: () => new LoggingConfigSchema() }),
     configPaths: ConfigPathsSchema
 }) { }
 

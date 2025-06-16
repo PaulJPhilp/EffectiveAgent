@@ -38,7 +38,8 @@ const validateWithSchema = <T>(data: unknown, schema: Schema.Schema<T, any>, fil
         Effect.mapError((error: ParseError) => new ConfigValidationError({
             filePath,
             validationError: error
-        }))
+        })),
+        Effect.tap(() => Effect.logDebug(`Successfully validated ${filePath}`))
     );
 
 export interface ConfigurationSchemas {
@@ -50,14 +51,16 @@ export interface ConfigurationSchemas {
 
 const makeConfigurationService = Effect.gen(function* () {
     const path = yield* Path.Path;
+    const projectRoot = process.env.PROJECT_ROOT || process.cwd();
     const masterConfigPath = process.env.MASTER_CONFIG_PATH ||
         process.env.EFFECTIVE_AGENT_MASTER_CONFIG ||
-        "./config/master-config.json"; // Relative to CWD
+        path.join(projectRoot, "ea-config/master-config.json");
 
     // Resolve masterConfigPath to an absolute path to make subsequent resolutions robust
     const absoluteMasterConfigPath = path.resolve(masterConfigPath);
     const masterConfigDir = path.dirname(absoluteMasterConfigPath);
 
+    yield* Effect.logDebug(`Loading master config from ${absoluteMasterConfigPath}`);
     const masterConfigContent = yield* readFile(absoluteMasterConfigPath);
     const masterConfigParsed = yield* parseJson(masterConfigContent, absoluteMasterConfigPath);
     const masterConfig: Schema.Schema.Type<typeof MasterConfigSchema> =
@@ -82,7 +85,9 @@ const makeConfigurationService = Effect.gen(function* () {
                 let effectiveFilePath = filePath;
                 if (masterConfig.configPaths?.providers) {
                     effectiveFilePath = path.resolve(masterConfigDir, masterConfig.configPaths.providers);
+                    yield* Effect.logDebug(`Resolved provider config path: ${effectiveFilePath}`);
                 }
+                yield* Effect.logDebug(`Loading provider config from ${effectiveFilePath}`);
                 const content = yield* readFile(effectiveFilePath);
                 const parsed = yield* parseJson(content, effectiveFilePath);
                 return yield* validateWithSchema(parsed, ProviderFile, effectiveFilePath);
@@ -93,7 +98,9 @@ const makeConfigurationService = Effect.gen(function* () {
                 let effectiveFilePath = filePath;
                 if (masterConfig.configPaths?.models) {
                     effectiveFilePath = path.resolve(masterConfigDir, masterConfig.configPaths.models);
+                    yield* Effect.logDebug(`Resolved model config path: ${effectiveFilePath}`);
                 }
+                yield* Effect.logDebug(`Loading model config from ${effectiveFilePath}`);
                 const content = yield* readFile(effectiveFilePath);
                 const parsed = yield* parseJson(content, effectiveFilePath);
                 return yield* validateWithSchema(parsed, ModelFileSchema, effectiveFilePath);
@@ -104,7 +111,9 @@ const makeConfigurationService = Effect.gen(function* () {
                 let effectiveFilePath = filePath;
                 if (masterConfig.configPaths?.policy) {
                     effectiveFilePath = path.resolve(masterConfigDir, masterConfig.configPaths.policy);
+                    yield* Effect.logDebug(`Resolved policy config path: ${effectiveFilePath}`);
                 }
+                yield* Effect.logDebug(`Loading policy config from ${effectiveFilePath}`);
                 const content = yield* readFile(effectiveFilePath);
                 const parsed = yield* parseJson(content, effectiveFilePath);
                 return yield* validateWithSchema(parsed, PolicyConfigFile, effectiveFilePath);

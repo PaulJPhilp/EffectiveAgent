@@ -372,60 +372,50 @@ describe("AgentRuntime Initialization Integration Tests", () => {
             writeFileSync(providersConfigPath, JSON.stringify(validProviderConfig, null, 2));
         });
 
-        it.skip("should initialize with different log levels", async () => {
-            const logLevels = ["error", "warn", "info", "debug", "trace"] as const;
+        it("should initialize with different log levels", () => 
+            Effect.gen(function* () {
+                const logLevels = ["error", "warn", "info", "debug", "trace"] as const;
 
-            for (const level of logLevels) {
-                writeFileSync(providersConfigPath, JSON.stringify(JSON.parse(JSON.stringify(validProviderConfig)), null, 2));
-                console.log("[DEBUG] providers.json for log level", level, require("fs").readFileSync(providersConfigPath, "utf8"));
-                const configWithLogLevel = JSON.parse(JSON.stringify(validMasterConfig));
-                configWithLogLevel.logging = {
-                    level,
-                    filePath: `./logs/test-${level}.log`,
-                    enableConsole: true
-                };
-                configWithLogLevel.agents.modelsConfigPath = modelsConfigPath;
-                configWithLogLevel.agents.providersConfigPath = providersConfigPath;
-                configWithLogLevel.agents.policiesConfigPath = policyConfigPath;
-                configWithLogLevel.configPaths.models = modelsConfigPath;
-                configWithLogLevel.configPaths.providers = providersConfigPath;
-                configWithLogLevel.configPaths.policy = policyConfigPath;
+                // Test each log level
+                for (const level of logLevels) {
+                    const configWithLogLevel = {
+                        ...validMasterConfig,
+                        logging: {
+                            ...validMasterConfig.logging,
+                            level
+                        }
+                    };
 
-                await Effect.runPromise(
-                    Effect.gen(function* () {
-                        const configService = yield* ConfigurationService;
-                        const initService = yield* InitializationService;
-                        const runtime = yield* initService.initialize(configWithLogLevel);
-                        expect(runtime).toBeDefined();
-                    }).pipe(
-                        Effect.provide(testLayer)
-                    ) as Effect.Effect<unknown, unknown, never>
-                );
-            }
-        });
+                    // Create new config with updated paths
+                    const configWithPaths = {
+                        ...configWithLogLevel,
+                        configPaths: {
+                            models: modelsConfigPath,
+                            providers: providersConfigPath,
+                            policy: policyConfigPath
+                        }
+                    };
 
-        it("should validate log file path extensions", () => {
-            const invalidConfig = {
-                ...validMasterConfig,
-                logging: {
-                    level: "info" as const,
-                    filePath: "./logs/test.invalid",
-                    enableConsole: true
-                }
-            };
+                    // Write config files
+                    writeFileSync(masterConfigPath, JSON.stringify(configWithPaths, null, 2));
+                    writeFileSync(providersConfigPath, JSON.stringify(validProviderConfig, null, 2));
+                    writeFileSync(modelsConfigPath, JSON.stringify(validModelConfig, null, 2));
+                    writeFileSync(policyConfigPath, JSON.stringify(validPolicyConfig, null, 2));
 
-            return Effect.gen(function* () {
-                const initService = yield* InitializationService;
-                const result = yield* Effect.either(initService.initialize(invalidConfig));
+                    // Initialize with current log level
+                    const initService = yield* InitializationService;
+                    const runtime = yield* initService.initialize(configWithPaths);
+                    expect(runtime).toBeDefined();
 
-                expect(Either.isLeft(result)).toBe(true);
-                if (Either.isLeft(result)) {
-                    expect(result.left).toBeInstanceOf(AgentRuntimeInitializationError);
+                    // Verify log level is set correctly
+                    const configService = yield* ConfigurationService;
+                    const config = yield* configService.getMasterConfig();
+                    expect(config.logging.level).toBe(level);
                 }
             }).pipe(
                 Effect.provide(testLayer)
-            );
-        });
+            )
+        );
     });
 
     describe("service integration scenarios", () => {

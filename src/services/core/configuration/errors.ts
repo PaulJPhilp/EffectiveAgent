@@ -12,7 +12,11 @@ import { ParseError } from "effect/ParseResult";
 export class ConfigReadError extends Data.TaggedError("ConfigReadError")<{
     readonly filePath: string;
     readonly cause: unknown;
-}> { }
+}> {
+    override toString(): string {
+        return `Failed to read config file ${this.filePath}: ${this.cause}`;
+    }
+}
 
 /**
  * Error thrown when parsing JSON content fails.
@@ -26,9 +30,18 @@ export class ConfigParseError extends Data.TaggedError("ConfigParseError")<{
  * Error thrown when validating configuration against a schema fails.
  */
 export class ConfigValidationError extends Data.TaggedError("ConfigValidationError")<{
+    readonly message: string;
     readonly filePath: string;
     readonly validationError: ParseError;
-}> { }
+}> {
+    constructor(options: { filePath: string; validationError: ParseError }) {
+        super({
+            message: `Failed to validate config file ${options.filePath}: ${options.validationError.toString()}`,
+            filePath: options.filePath,
+            validationError: options.validationError
+        });
+    }
+}
 
 /**
  * Union type of all possible configuration service errors.
