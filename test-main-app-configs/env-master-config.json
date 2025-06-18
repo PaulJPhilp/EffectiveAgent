@@ -1,0 +1,16 @@
+{
+  "name": "Environment Config",
+  "version": "1.0.0",
+  "runtimeSettings": {
+    "fileSystemImplementation": "node",
+    "logging": {
+      "level": "info",
+      "filePath": "./logs/main-app.log"
+    }
+  },
+  "configPaths": {
+    "providers": "/Users/paul/Projects/EffectiveAgent/test-main-app-configs/providers.json",
+    "models": "/Users/paul/Projects/EffectiveAgent/test-main-app-configs/models.json",
+    "policy": "/Users/paul/Projects/EffectiveAgent/test-main-app-configs/policy.json"
+  }
+}

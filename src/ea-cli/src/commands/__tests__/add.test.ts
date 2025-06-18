@@ -10,7 +10,7 @@ describe("add command functionality", () => {
   const TEST_DIR = join(process.cwd(), "test-workspace-add")
   const PROJECT_NAME = "test-add-project"
   const PROJECT_PATH = join(TEST_DIR, PROJECT_NAME)
-  const CONFIG_DIR = join(PROJECT_PATH, "configuration/ea-config")
+  const CONFIG_DIR = join(PROJECT_PATH, "ea-config")
   const AGENTS_DIR = join(PROJECT_PATH, "agents")
 
   // Test layer

@@ -57,6 +57,49 @@ The CLI integrates with the existing EffectiveAgent framework through:
 - Existing service architecture (ConfigurationService, ModelService, etc.)
 - Real services (no mocks) for all operations
 
+---
+
+## CLI Argument & Testing Practices
+
+### Effect CLI Usage
+- **Subcommands:** Register subcommands using `Command.withSubcommands([cmd])`.
+- **Positional Arguments:** Define arguments in the order they should be provided; Effect CLI parses them positionally.
+- **No Named Flags for Subcommands:** Do not use `--flag` syntax after subcommands unless explicitly supported.
+- **Handler Debugging:** Use debug logs in handlers to print `process.argv` and parsed options for troubleshooting.
+
+**Example:**
+```typescript
+const testCommand = Command.make(
+  "test-args",
+  {
+    textArg: Args.text({ name: "text" }),
+    filePathArg: Args.text({ name: "file-path" }),
+    dirPathArg: Args.text({ name: "dir-path" }),
+    intArg: Args.integer({ name: "int" }),
+    optionalArg: Args.text({ name: "optional" }).pipe(Args.optional)
+  },
+  (options) => Effect.gen(function* () {
+    // Debug output
+  })
+);
+```
+Invoke as:
+```sh
+bun run test-cli-args.ts test-args "sample text" "./basic/tmp" "./basic/tmp" 123
+```
+
+### Manual Test Automation
+- Use a unified temp directory for all test artifacts (e.g., `./basic/tmp`).
+- Always clean up temp directories after test runs.
+- Automate manual CLI tests with a shell script, passing positional arguments in order.
+
+### Effect CLI Runner Best Practices
+- `NodeRuntime.runMain` is synchronous; use `try/catch/finally` for error handling and cleanup.
+- Do not use `.then`/`.catch` on `NodeRuntime.runMain`.
+- Always invoke CLI with the correct pattern for your command definitions.
+
+---
+
 ## Commands (Planned)
 
 - `ea-cli init <project-name>` - Initialize new EA workspace

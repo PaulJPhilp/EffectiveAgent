@@ -1,70 +1,110 @@
-/**
- * @file Test configuration and helpers for drizzle repository tests
- * @module services/core/repository/implementations/drizzle/__tests__/test-config
- */
+import { Effect } from "effect";
+import { sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { pgTable, text, timestamp, jsonb } from "drizzle-orm/pg-core";
+import type { JsonObject, JsonValue } from "@/types.js";
+import { DrizzleClient, type DrizzleClientApi } from "../config.js";
 
-import { Config, Effect, Layer } from "effect";
-import { DatabaseConfig, DrizzleClient, DrizzleClientLive } from "../config.js";
+/* ---------------------------------------------------------------------------
+ * Connection configuration (Docker local Postgres)
+ * --------------------------------------------------------------------------*/
 
-/**
- * Test database configuration
- * Uses environment variables with test-specific defaults
- */
-export const TestDatabaseConfig = Config.all({
-    host: Config.succeed("localhost"),
-    port: Config.succeed(5432),
-    database: Config.succeed("test_db"),
-    user: Config.succeed("postgres"),
-    password: Config.succeed("postgres"),
-    ssl: Config.succeed(false)
+const testConfig = {
+  host: "localhost",
+  port: 5432,
+  database: "pg-test",
+  user: "postgres",
+  password: "postgres",
+  ssl: false
+};
+
+/* ---------------------------------------------------------------------------
+ * Ensure database exists (one-off at module load)
+ * --------------------------------------------------------------------------*/
+
+await (async () => {
+  const admin = new Pool({ ...testConfig, database: "postgres" });
+  const { rowCount } = await admin.query(
+    "SELECT 1 FROM pg_database WHERE datname = $1",
+    [testConfig.database]
+  );
+  if (rowCount === 0) {
+    await admin.query(`CREATE DATABASE "${testConfig.database}"`);
+  }
+  await admin.end();
+})();
+
+/* ---------------------------------------------------------------------------
+ * Drizzle client wired for tests
+ * --------------------------------------------------------------------------*/
+
+const testDb = drizzle(new Pool(testConfig));
+
+const testClient: DrizzleClientApi = {
+  getClient: () => Effect.succeed(testDb)
+};
+
+/* ---------------------------------------------------------------------------
+ * Helper to inject DrizzleClient into any Effect under test
+ * --------------------------------------------------------------------------*/
+
+export const withTestDatabase = <E, A>(
+  eff: Effect.Effect<A, E, DrizzleClientApi>
+): Effect.Effect<A, E> => eff.pipe(Effect.provideService(DrizzleClient, testClient));
+
+/* ---------------------------------------------------------------------------
+ * Test table schema
+ * --------------------------------------------------------------------------*/
+
+export const testTable = pgTable("test_entities", {
+  id: text("id").primaryKey(),
+  data: jsonb("data").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull()
 });
 
-/**
- * Layer that provides test database configuration
- * Following centralized dependency management pattern
- */
-export const TestConfigLayer = Layer.succeed(
-    DatabaseConfig,
-    {
-        host: "localhost",
-        port: 5432,
-        database: "test_db",
-        user: "postgres",
-        password: "postgres",
-        ssl: false
-    } as DatabaseConfigSchema
-);
+/* ---------------------------------------------------------------------------
+ * Lifecycle helpers for the test table
+ * --------------------------------------------------------------------------*/
 
-/**
- * Layer that provides a configured DrizzleClient for tests
- * Using explicit dependency chain: TestConfigLayer → DrizzleClientLive
- */
-export const TestDrizzleLayer = Layer.provide(
-    DrizzleClientLive,
-    TestConfigLayer
-);
-
-/**
- * Helper to run a test effect with the test database layer
- * Uses explicit layer provision following centralized pattern
- */
-export function runTestEffect<E, A>(effect: Effect.Effect<A, E, DrizzleClient>) {
-    return Effect.runPromise(
-        effect.pipe(
-            Effect.provide(TestDrizzleLayer)
-        )
+export const createTestTable = (tableName: string) =>
+  Effect.gen(function* () {
+    const client = yield* DrizzleClient;
+    const db = yield* client.getClient();
+    yield* Effect.tryPromise(() =>
+      db.execute(sql`
+        CREATE TABLE IF NOT EXISTS ${sql.identifier(tableName)} (
+          id TEXT PRIMARY KEY,
+          data JSONB NOT NULL,
+          created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+          updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+        )`)
     );
+  });
+
+export const cleanTestTable = (tableName: string) =>
+  Effect.gen(function* () {
+    const client = yield* DrizzleClient;
+    const db = yield* client.getClient();
+    yield* Effect.tryPromise(() => db.execute(sql`TRUNCATE TABLE ${sql.identifier(tableName)}`));
+  });
+
+export const dropTestTable = (tableName: string) =>
+  Effect.gen(function* () {
+    const client = yield* DrizzleClient;
+    const db = yield* client.getClient();
+    yield* Effect.tryPromise(() =>
+      db.execute(sql`DROP TABLE IF EXISTS ${sql.identifier(tableName)}`)
+    );
+  });
+
+/* ---------------------------------------------------------------------------
+ * Test entity data type
+ * --------------------------------------------------------------------------*/
+
+export interface TestEntityData extends JsonObject {
+  name: string;
+  value: number;
+  [key: string]: JsonValue;
 }
-
-/**
- * Helper to run a test effect that is expected to fail
- * Uses explicit layer provision following centralized pattern
- */
-export function runFailTestEffect<E, A>(effect: Effect.Effect<A, E, DrizzleClient>) {
-    return Effect.runPromise(
-        effect.pipe(
-            Effect.flip,
-            Effect.provide(TestDrizzleLayer)
-        )
-    );
-} 

@@ -1,11 +1,11 @@
-import { describe, expect, test } from "bun:test";
+import { describe, expect, it } from "vitest";
 import { Duration, Effect, HashMap, Option } from "effect";
 import { ServiceHealthMonitoringService } from "../service.js";
 import type { HealthCheckFunction, HealthMonitoringConfig } from "../types.js";
 
 describe("ServiceHealthMonitoringService", () => {
 
-    test("should register and run health checks", async () => {
+    it("should register and run health checks", async () => {
         const effect = Effect.gen(function* () {
             const service = yield* ServiceHealthMonitoringService;
             
@@ -34,7 +34,7 @@ describe("ServiceHealthMonitoringService", () => {
         );
     });
 
-    test("should fail when running non-existent health check", async () => {
+    it("should fail when running non-existent health check", async () => {
         const effect = Effect.gen(function* () {
             const service = yield* ServiceHealthMonitoringService;
             
@@ -53,7 +53,7 @@ describe("ServiceHealthMonitoringService", () => {
         );
     });
 
-    test("should get system health", async () => {
+    it("should get system health", async () => {
         const effect = Effect.gen(function* () {
             const service = yield* ServiceHealthMonitoringService;
             

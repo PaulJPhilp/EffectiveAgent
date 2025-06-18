@@ -2,9 +2,9 @@
  * @file Object Service implementation for AI structured object generation
  * @module services/pipeline/producers/object/service
  */
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectSchemaError } from "@/services/pipeline/producers/object/errors.js";
+import { ModelService } from "@services/ai/model/service";
+import { ProviderService } from "@services/ai/provider/service";
+import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectSchemaError } from "@services/pipeline/producers/object/errors";
 import { Chunk, Effect, Option, Ref, Schema as S } from "effect";
 /**
  * ObjectService provides methods for generating structured objects using AI providers.

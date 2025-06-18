@@ -16,7 +16,7 @@
     "@langchain/langgraph": "^0.2.74",
     "@langchain/core": "^0.3.58",
     "langchain": "^0.3.28",
-    "effect": "^3.16.7"
+    "effect": "^3.16.8"
   },
   "devDependencies": {
     "@types/bun": "latest",

@@ -1,188 +1,249 @@
-/**
- * @file Tests for the drizzle repository implementation
- * @module services/core/repository/implementations/drizzle/__tests__/live.test
- */
+import { Effect, Option } from "effect";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  it
+} from "vitest";
 
-import { Cause, Effect, Exit, Option } from "effect";
-import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
+import { make } from "../repository.js";
+import type { BaseEntity } from "../../../types.js";
 import { EntityNotFoundError } from "../../../errors.js";
-import { DrizzleClient } from "../config.js";
-import { make } from "../live.js";
-import { TestEntityData, testTable } from "../test-schema.js";
-import { cleanTestTable, createTestTable, dropTestTable } from "./setup.js";
-import { TestDrizzleLayer, runTestEffect } from "./test-config.js";
+import {
+  cleanTestTable,
+  createTestTable,
+  dropTestTable,
+  testTable,
+  TestEntityData,
+  withTestDatabase
+} from "./test-config.js";
 
-describe.skip("DrizzleRepository", () => {
-    const tableName = "test_entities";
-    const entityType = "TestEntity";
+/* ---------------------------------------------------------------------------
+ * Types
+ * --------------------------------------------------------------------------*/
 
-    // Create test table before all tests
-    beforeAll(async () => {
-        await createTestTable(tableName);
-    });
+type TestEntity = BaseEntity<TestEntityData>;
 
-    // Clean test data between tests
-    afterEach(async () => {
-        await cleanTestTable(tableName);
-    });
+/* ---------------------------------------------------------------------------
+ * Constants
+ * --------------------------------------------------------------------------*/
 
-    // Drop test table after all tests
-    afterAll(async () => {
-        await dropTestTable(tableName);
-    });
+const TEST_TABLE = "test_entities";
 
-    // Helper to create repository instance
-    const createRepo = Effect.flatMap(
-        DrizzleClient,
-        (client) => make<TestEntityData, BaseEntity<TestEntityData>>(entityType, testTable)
-    );
+/* ---------------------------------------------------------------------------
+ * Helper
+ * --------------------------------------------------------------------------*/
 
-    it("should create and retrieve an entity", async () => {
-        const testData: TestEntityData = {
-            name: "Test Entity",
-            value: 42
-        };
+const createRepo = () =>
+  make<TestEntityData, TestEntity>("test", testTable);
 
-        const effect = Effect.gen(function* () {
-            const repo = yield* createRepo;
-            const created = yield* repo.create(testData);
+/* ---------------------------------------------------------------------------
+ * Suite
+ * --------------------------------------------------------------------------*/
 
-            expect(created.id).toBeDefined();
-            expect(created.data).toEqual(testData);
-            expect(typeof created.createdAt).toBe('number');
-            expect(typeof created.updatedAt).toBe('number');
+describe("DrizzleRepository (integration)", () => {
+  /* Setup ------------------------------------------------------------------*/
+  beforeAll(() =>
+    Effect.runPromise(withTestDatabase(createTestTable(TEST_TABLE)))
+  );
 
-            const found = yield* repo.findById(created.id);
-            expect(Option.isSome(found)).toBe(true);
-            if (Option.isSome(found)) {
-                expect(found.value).toEqual(created);
-            }
-        });
+  afterEach(() =>
+    Effect.runPromise(withTestDatabase(cleanTestTable(TEST_TABLE)))
+  );
 
-        await runTestEffect(effect);
-    });
+  afterAll(() =>
+    Effect.runPromise(withTestDatabase(dropTestTable(TEST_TABLE)))
+  );
 
-    it("should find multiple entities", async () => {
-        const testData1: TestEntityData = { name: "Test 1", value: 1 };
-        const testData2: TestEntityData = { name: "Test 2", value: 2 };
+  /* Tests ------------------------------------------------------------------*/
 
-        const effect = Effect.gen(function* () {
-            const repo = yield* createRepo;
+  it("creates an entity", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const created = yield* repo.create({ name: "a", value: 1 });
 
-            // Create test entities
-            const entity1 = yield* repo.create(testData1);
-            const entity2 = yield* repo.create(testData2);
+          expect(created.id).toBeDefined();
+          expect(created.data).toEqual({ name: "a", value: 1 });
+          expect(created.createdAt).toBeInstanceOf(Date);
+          expect(created.updatedAt).toBeInstanceOf(Date);
+        })
+      )
+    ));
 
-            // Test findMany with no filter
-            const allEntities = yield* repo.findMany();
-            expect(allEntities).toHaveLength(2);
+  it("finds by id", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const created = yield* repo.create({ name: "b", value: 2 });
+          const found = yield* repo.findById(created.id);
 
-            // Test findMany with filter
-            const filteredEntities = yield* repo.findMany({
-                filter: { value: 1 }
-            });
-            expect(filteredEntities).toHaveLength(1);
-            expect(filteredEntities[0].data).toEqual(testData1);
+          expect(Option.isSome(found)).toBe(true);
+          expect(Option.getOrNull(found)).toEqual(created);
+        })
+      )
+    ));
 
-            // Test pagination
-            const pagedEntities = yield* repo.findMany({
-                limit: 1,
-                offset: 1
-            });
-            expect(pagedEntities).toHaveLength(1);
-            expect(pagedEntities[0].id).toBe(entity2.id);
-        });
+  it("finds many", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const e1 = yield* repo.create({ name: "c1", value: 3 });
+          const e2 = yield* repo.create({ name: "c2", value: 4 });
 
-        await runTestEffect(effect);
-    });
+          const list = yield* repo.findMany();
+          expect(list).toEqual([e1, e2]);
+        })
+      )
+    ));
 
-    it("should update an entity", async () => {
-        const testData: TestEntityData = { name: "Original", value: 1 };
-        const updateData: Partial<TestEntityData> = { value: 2 };
+  it("updates an entity", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const created = yield* repo.create({ name: "d", value: 5 });
+          const updated = yield* repo.update(created.id, {
+            name: "d+",
+            value: 6
+          });
 
-        const effect = Effect.gen(function* () {
-            const repo = yield* createRepo;
+          expect(updated.id).toBe(created.id);
+          expect(updated.data).toEqual({ name: "d+", value: 6 });
+          expect(updated.updatedAt.getTime()).toBeGreaterThan(
+            created.updatedAt.getTime()
+          );
+        })
+      )
+    ));
 
-            // Create and update entity
-            const created = yield* repo.create(testData);
-            const updated = yield* repo.update(created.id, updateData);
+  it("deletes an entity", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const created = yield* repo.create({ name: "e", value: 7 });
+          yield* repo.delete(created.id);
+          const found = yield* repo.findById(created.id);
+          expect(Option.isNone(found)).toBe(true);
+        })
+      )
+    ));
 
-            expect(updated.id).toBe(created.id);
-            expect(updated.data.value).toBe(updateData.value);
-            expect(updated.data.name).toBe(testData.name);
-            expect(updated.updatedAt).toBeGreaterThan(created.updatedAt);
-        });
+  it("counts entities", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          yield* repo.create({ name: "f1", value: 8 });
+          yield* repo.create({ name: "f2", value: 9 });
+          const cnt = yield* repo.count();
+          expect(cnt).toBe(2);
+        })
+      )
+    ));
 
-        await runTestEffect(effect);
-    });
+  it("fails to update non-existent", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const result = yield* Effect.either(
+            repo.update("missing-id", { name: "x" })
+          );
 
-    it("should fail to update non-existent entity", async () => {
-        const effect = Effect.gen(function* () {
-            const repo = yield* createRepo;
-            return yield* repo.update("non-existent", { value: 1 });
-        });
+          expect(result._tag).toBe("Left");
+          if (result._tag === "Left") {
+            expect(result.left).toBeInstanceOf(EntityNotFoundError);
+          }
+        })
+      )
+    ));
 
-        const result = await Effect.runPromiseExit(
-            Effect.provide(effect, TestDrizzleLayer)
-        );
+  /* -----------------------------------------------------------------------
+   * Additional edge-case coverage
+   * ---------------------------------------------------------------------*/
 
-        expect(Exit.isFailure(result)).toBe(true);
-        if (Exit.isFailure(result)) {
-            const error = Cause.failureOption(result.cause);
-            expect(Option.isSome(error)).toBe(true);
-            if (Option.isSome(error)) {
-                const err = error.value;
-                expect(err).toBeInstanceOf(EntityNotFoundError);
-                if (err instanceof EntityNotFoundError) {
-                    expect(err.entityId).toBe("non-existent");
-                    expect(err.entityType).toBe(entityType);
-                }
-            }
-        }
-    });
+  it("findMany with filter returns only matches", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const e1 = yield* repo.create({ name: "f", value: 1 });
+          yield* repo.create({ name: "g", value: 2 });
 
-    it("should delete an entity", async () => {
-        const testData: TestEntityData = { name: "To Delete", value: 1 };
+          const list = yield* repo.findMany({ filter: { name: "f" } });
+          expect(list).toEqual([e1]);
+        })
+      )
+    ));
 
-        const effect = Effect.gen(function* () {
-            const repo = yield* createRepo;
+  it("count with filter counts only matching rows", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          yield* repo.create({ name: "h", value: 1 });
+          yield* repo.create({ name: "h", value: 2 });
+          yield* repo.create({ name: "i", value: 3 });
 
-            // Create and then delete entity
-            const created = yield* repo.create(testData);
-            yield* repo.delete(created.id);
+          const cnt = yield* repo.count({ filter: { name: "h" } });
+          expect(cnt).toBe(2);
+        })
+      )
+    ));
 
-            // Verify entity is deleted
-            const found = yield* repo.findById(created.id);
-            expect(Option.isNone(found)).toBe(true);
-        });
+  it("findOne returns some/none correctly", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const created = yield* repo.create({ name: "j", value: 5 });
+          const some = yield* repo.findOne({ filter: { name: "j" } });
+          const none = yield* repo.findOne({ filter: { name: "zzz" } });
 
-        await runTestEffect(effect);
-    });
+          expect(Option.isSome(some)).toBe(true);
+          expect(Option.getOrNull(some)).toEqual(created);
+          expect(Option.isNone(none)).toBe(true);
+        })
+      )
+    ));
 
-    it("should count entities", async () => {
-        const testData1: TestEntityData = { name: "Count 1", value: 1 };
-        const testData2: TestEntityData = { name: "Count 2", value: 1 };
-        const testData3: TestEntityData = { name: "Count 3", value: 2 };
+  it("parallel create generates unique ids", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const inputs = Array.from({ length: 50 }, (_, i) => ({
+            name: `p${i}`,
+            value: i
+          }));
+          const created = yield* Effect.forEach(inputs, repo.create, {
+            concurrency: 10
+          });
+          const ids = created.map((e) => e.id);
+          expect(new Set(ids).size).toBe(inputs.length);
+        })
+      )
+    ));
 
-        const effect = Effect.gen(function* () {
-            const repo = yield* createRepo;
-
-            // Create test entities
-            yield* repo.create(testData1);
-            yield* repo.create(testData2);
-            yield* repo.create(testData3);
-
-            // Test total count
-            const totalCount = yield* repo.count();
-            expect(totalCount).toBe(3);
-
-            // Test filtered count
-            const filteredCount = yield* repo.count({
-                filter: { value: 1 }
-            });
-            expect(filteredCount).toBe(2);
-        });
-
-        await runTestEffect(effect);
-    });
-}); 
+  it("updatedAt increases on successive updates", () =>
+    Effect.runPromise(
+      withTestDatabase(
+        Effect.gen(function* () {
+          const repo = createRepo();
+          const created = yield* repo.create({ name: "q", value: 1 });
+          const first = yield* repo.update(created.id, { value: 2 });
+          const second = yield* repo.update(created.id, { value: 3 });
+          expect(second.updatedAt.getTime()).toBeGreaterThan(
+            first.updatedAt.getTime()
+          );
+        })
+      )
+    ));
+});

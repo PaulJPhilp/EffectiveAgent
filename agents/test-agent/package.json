@@ -9,6 +9,6 @@
         "build": "tsc -p ."
     },
     "dependencies": {
-        "effect": "^3.16.5"
+        "effect": "^3.16.8"
     }
 }

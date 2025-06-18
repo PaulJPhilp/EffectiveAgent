@@ -1,4 +1,11 @@
 {
+  "name": "test-project",
+  "version": "1.0.0",
+  "configPaths": {
+    "providers": "./ea-config/providers.json",
+    "models": "./ea-config/models.json",
+    "policy": "./ea-config/policy.json"
+  },
   "logPath": "./logs/app.log",
   "configPath": "./ea-config",
   "agentsPath": "./agents"

@@ -26,15 +26,15 @@
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^1.2.12",
-    "@effect/cli": "^0.63.11",
+    "@effect/cli": "^0.64.1",
     "@effect/cluster": "^0.38.16",
     "@effect/platform": "^0.84.11",
     "@effect/platform-node": "^0.85.16",
-    "@effect/printer": "^0.44.7",
-    "@effect/printer-ansi": "^0.44.7",
+    "@effect/printer": "^0.44.8",
+    "@effect/printer-ansi": "^0.44.8",
     "@effect/rpc": "^0.61.15",
     "ai": "^4.3.16",
-    "effect": "^3.16.7"
+    "effect": "^3.16.8"
   },
   "peerDependencies": {
     "@effect/cluster": "^0.38.16",
@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/node": "^22.15.31",
+    "@types/node": "^22.15.32",
     "typescript": "^5.8.3",
     "vitest": "^3.2.3"
   },

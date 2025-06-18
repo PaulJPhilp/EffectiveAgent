@@ -11,8 +11,9 @@
  */
 
 import { Effect, Option } from "effect";
-import type { EntityNotFoundError, RepositoryError } from "./errors.js";
+import type { DrizzleClientApi } from "@/services/core/repository/implementations/drizzle/config.js";
 import type { BaseEntity, FindOptions } from "./types.js";
+import type { EntityNotFoundError, RepositoryError } from "./errors.js";
 
 /**
  * Generic interface defining standard CRUD operations for a repository.
@@ -27,7 +28,7 @@ export interface RepositoryServiceApi<TEntity extends BaseEntity> {
      */
     readonly create: (
         entityData: TEntity["data"],
-    ) => Effect.Effect<TEntity, RepositoryError>;
+    ) => Effect.Effect<TEntity, RepositoryError, DrizzleClientApi>;
 
     /**
      * Finds an entity by its unique ID.
@@ -36,7 +37,7 @@ export interface RepositoryServiceApi<TEntity extends BaseEntity> {
      */
     readonly findById: (
         id: TEntity["id"],
-    ) => Effect.Effect<Option.Option<TEntity>, RepositoryError>;
+    ) => Effect.Effect<Option.Option<TEntity>, RepositoryError, DrizzleClientApi>;
 
     /**
      * Finds a single entity matching the specified criteria.
@@ -46,7 +47,7 @@ export interface RepositoryServiceApi<TEntity extends BaseEntity> {
      */
     readonly findOne: (
         options?: FindOptions<TEntity>,
-    ) => Effect.Effect<Option.Option<TEntity>, RepositoryError>;
+    ) => Effect.Effect<Option.Option<TEntity>, RepositoryError, DrizzleClientApi>;
 
     /**
      * Finds multiple entities matching the specified criteria.
@@ -55,7 +56,7 @@ export interface RepositoryServiceApi<TEntity extends BaseEntity> {
      */
     readonly findMany: (
         options?: FindOptions<TEntity>,
-    ) => Effect.Effect<ReadonlyArray<TEntity>, RepositoryError>;
+    ) => Effect.Effect<ReadonlyArray<TEntity>, RepositoryError, DrizzleClientApi>;
 
     /**
      * Updates an existing entity identified by its ID with partial data.
@@ -66,7 +67,7 @@ export interface RepositoryServiceApi<TEntity extends BaseEntity> {
     readonly update: (
         id: TEntity["id"],
         entityData: Partial<TEntity["data"]>,
-    ) => Effect.Effect<TEntity, RepositoryError | EntityNotFoundError>;
+    ) => Effect.Effect<TEntity, RepositoryError | EntityNotFoundError, DrizzleClientApi>;
 
     /**
      * Deletes an entity identified by its ID.
@@ -75,7 +76,7 @@ export interface RepositoryServiceApi<TEntity extends BaseEntity> {
      */
     readonly delete: (
         id: TEntity["id"],
-    ) => Effect.Effect<void, RepositoryError | EntityNotFoundError>;
+    ) => Effect.Effect<void, RepositoryError | EntityNotFoundError, DrizzleClientApi>;
 
     /**
      * Counts the number of entities matching the specified filter criteria.
@@ -84,5 +85,5 @@ export interface RepositoryServiceApi<TEntity extends BaseEntity> {
      */
     readonly count: (
         options?: Pick<FindOptions<TEntity>, "filter">,
-    ) => Effect.Effect<number, RepositoryError>;
+    ) => Effect.Effect<number, RepositoryError, DrizzleClientApi>;
 }
