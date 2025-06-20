@@ -5,7 +5,7 @@
 
 import { join } from "path";
 import { PolicyService } from "@/services/ai/policy/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { FileEntity, FileEntityData } from "@/services/core/file/schema.js";
 import type { RepositoryServiceApi } from "@/services/core/repository/api.js";
 import { EntityNotFoundError } from "@/services/core/repository/errors.js";
@@ -16,9 +16,8 @@ import { Schema } from "@effect/schema";
 import { Effect, Either, Layer, Option } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { ExecutiveServiceError } from "../../executive-service/errors.js";
-// Corrected imports for ExecutiveService components
-import { ExecutiveService } from "../../executive-service/service.js";
+import { ExecutiveServiceError } from "@/services/executive/errors.js";
+import { ExecutiveService } from "@/services/executive/service.js";
 import type { PipelineServiceInterface } from "../api.js";
 import { PipelineService } from "../service.js";
 

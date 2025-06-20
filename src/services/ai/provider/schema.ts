@@ -23,6 +23,7 @@ export type ProvidersType = typeof Providers.Type;
 export class ProviderConfigSchema extends S.Class<ProviderConfigSchema>("ProviderConfigSchema")({
     name: Providers,
     displayName: Name,
+    description: Description,
     type: S.String.pipe(S.minLength(1)),
     apiKeyEnvVar: S.optional(S.String.pipe(S.minLength(1))),
     baseUrl: S.optional(Url),

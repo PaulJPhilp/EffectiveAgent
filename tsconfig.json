@@ -16,7 +16,6 @@
     "paths": {
       "@/*": ["src/*"],
       "@agents/*": ["agents/*"],
-      "@services/*": ["src/services/*"],
       "@core/*": ["src/services/core/*"],
       "@ai/*": ["src/services/ai/*"],
       "@capabilities/*": ["src/services/capabilities/*"],

@@ -4,67 +4,84 @@
  * Test script to verify provider initialization and method availability
  */
 
-import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
-import { ProviderNotFoundError, ProviderOperationError, ProviderServiceConfigError } from "@/services/ai/provider/errors.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import type { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
-import { ConfigParseError, ConfigReadError, ConfigValidationError } from "@/services/core/configuration/errors.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
-import type * as Path from "@effect/platform/Path";
-import type * as Terminal from "@effect/platform/Terminal";
+import { NodeFileSystem } from "@effect/platform-node";
+import { NodePath } from "@effect/platform-node";
+import { NodeTerminal } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import {
+  ConfigParseError,
+  ConfigReadError,
+  ConfigValidationError,
+} from "@/services/core/configuration/errors.js";
+import {
+  ProviderNotFoundError,
+  ProviderOperationError,
+  ProviderServiceConfigError,
+} from "@/services/ai/provider/errors.js";
 
 // Set up environment for test
 process.env.PROJECT_ROOT = process.env.PROJECT_ROOT || "/Users/paul/Projects/EffectiveAgent/test-project";
-process.env.GOOGLE_API_KEY = "test-key";
+process.env.GOOGLE_API_KEY = process.env.GOOGLE_API_KEY || "test-key";
 
-// Create base services layer
-const runtimeLayer = Layer.merge(
-  ConfigurationService.Default,
-  Layer.merge(
-    NodeFileSystem.layer,
-    NodePath.layer,
-    NodeTerminal.layer
+// Compose test layers
+const testLayer = Layer.provideMerge(
+  ProviderService.Default,
+  Layer.provideMerge(
+    ConfigurationService.Default,
+    Layer.provideMerge(
+      NodeFileSystem.layer,
+      Layer.provideMerge(
+        NodePath.layer,
+        NodeTerminal.layer
+      )
+    )
   )
-).pipe(
-  Layer.provide(ProviderService.Default)
 );
 
-type RuntimeServices = ProviderServiceApi & ConfigurationServiceApi & FileSystem & Path.Path & Terminal.Terminal;
-
-type RuntimeError = ConfigReadError | ConfigParseError | ConfigValidationError | ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError;
-
-// Test program
-const program: Effect.Effect<void, RuntimeError, RuntimeServices> = Effect.gen(function* (_) {
+// Define test program
+const testProgram = Effect.gen(function* () {
+  // Get provider service
+  const provider = yield* ProviderService;
+  
+  // Run test
   yield* Effect.logInfo("Running provider init test...");
-  const providerService = yield* ProviderService;
-  const googleClient = yield* providerService.getProviderClient("google");
-  yield* Effect.logInfo("Got google client", { googleClient });
-  return void 0;
+  const googleClient = yield* provider.getProviderClient("google");
+  yield* Effect.logInfo("Got google client");
+  
+  return Effect.void;
 });
 
-const withDeps: Effect.Effect<void, RuntimeError, never> = program.pipe(
-  Effect.catchAll((error: RuntimeError) => {
+// Add error handling
+const withErrorHandling = testProgram.pipe(
+  Effect.catchAll((error) => Effect.gen(function* () {
     if (error instanceof ConfigReadError ||
-      error instanceof ConfigParseError ||
-      error instanceof ConfigValidationError) {
-      console.error("Configuration error:", error);
-    } else if (error instanceof ProviderServiceConfigError ||
-      error instanceof ProviderNotFoundError ||
-      error instanceof ProviderOperationError) {
-      console.error("Provider error:", error);
-    } else {
-      console.error("Test failed:", error);
+        error instanceof ConfigParseError ||
+        error instanceof ConfigValidationError) {
+      yield* Effect.logError(`Configuration error: ${error.message}`);
+      return Effect.fail(error);
+    } 
+    if (error instanceof ProviderServiceConfigError ||
+        error instanceof ProviderNotFoundError ||
+        error instanceof ProviderOperationError) {
+      yield* Effect.logError(`Provider error: ${error.message}`);
+      return Effect.fail(error);
     }
+    yield* Effect.logError(`Test failed: ${error}`);
     return Effect.fail(error);
-  }),
-  Effect.provide(runtimeLayer)
+  }))
 );
 
-Effect.runPromise(withDeps).then(() => {
+// Run test with dependencies
+Effect.runPromise(
+  withErrorHandling.pipe(
+    Effect.provide(testLayer)
+  )
+).then(() => {
   console.log("Test completed successfully");
   process.exit(0);
-}).catch(() => {
+}).catch((error) => {
+  console.error(error);
   process.exit(1);
 });

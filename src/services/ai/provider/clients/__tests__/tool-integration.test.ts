@@ -3,7 +3,7 @@ import { join } from "path";
 import { EffectiveMessage, TextPart } from "@/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Chunk, Effect, Either, Layer, Schema as S } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";

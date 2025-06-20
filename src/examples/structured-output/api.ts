@@ -4,6 +4,7 @@
  */
 
 import { Data, Effect, Schema } from "effect";
+import { AgentRuntimeId } from "@/ea-agent-runtime/index.js";
 
 // === Errors ===
 

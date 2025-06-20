@@ -8,7 +8,7 @@ import { ModelService } from '@/services/ai/model/service.js';
 import { PolicyService } from '@/services/ai/policy/service.js';
 import { ProviderService } from '@/services/ai/provider/service.js';
 import { ToolRegistryService } from '@/services/ai/tool-registry/service.js';
-import { ConfigurationService } from '@/services/core/configuration/service.js';
+import { ConfigurationService } from '@/services/core/configuration/index.js';
 
 import { AgentRuntimeInitializationError } from './errors.js';
 import { AgentRuntimeService } from './service.js';

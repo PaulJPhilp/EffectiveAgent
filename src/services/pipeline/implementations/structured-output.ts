@@ -6,14 +6,14 @@
 import { EffectiveError } from "@/errors.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { PipelineExecutionError } from "@/services/pipeline/pipeline/errors.js";
-import { ObjectServiceApi } from "@/services/pipeline/producers/object/api.js";
-import { ObjectService } from "@/services/pipeline/producers/object/service.js";
-import { TextGenerationOptions } from "@/services/pipeline/producers/text/types.js";
+import { ObjectServiceApi } from "@/services/producers/object/api.js";
+import { ObjectService } from "@/services/producers/object/service.js";
+import { TextGenerationOptions } from "@/services/producers/text/types.js";
 import { Effect, Option, Schema as S } from "effect";
-import { ExecutiveServiceError } from "../executive-service/index.js";
+import { ExecutiveServiceError } from "@/services/executive/errors.js";
 
 /**
  * Input schema for the structured output pipeline

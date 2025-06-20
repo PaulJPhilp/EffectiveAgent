@@ -1,7 +1,7 @@
 import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import { ModelService } from "@/services/ai/model/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -95,7 +95,10 @@ describe("Google Provider Client", () => {
         // Set up environment
         process.env.MASTER_CONFIG_PATH = masterConfigPath;
         process.env.MODELS_CONFIG_PATH = modelsConfigPath;
-        process.env.GOOGLE_API_KEY = "test-google-key";
+        // Expect caller (CI/local) to provide a valid key
+        if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+            throw new Error("GOOGLE_GENERATIVE_AI_API_KEY must be set for Google integration tests");
+        }
     });
 
     afterEach(() => {
@@ -117,7 +120,7 @@ describe("Google Provider Client", () => {
     describe("basic client creation", () => {
         it("should create a client successfully", () =>
             Effect.gen(function* () {
-                const client = yield* makeGoogleClient("test-key");
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
                 expect(client).toBeDefined();
                 expect(typeof client.generateText).toBe("function");
                 expect(typeof client.generateObject).toBe("function");
@@ -136,7 +139,7 @@ describe("Google Provider Client", () => {
     describe("getCapabilities", () => {
         it("should return supported capabilities", () =>
             Effect.gen(function* () {
-                const client = yield* makeGoogleClient("test-key");
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
                 const capabilities = yield* client.getCapabilities();
 
                 expect(capabilities).toBeInstanceOf(Set);
@@ -157,7 +160,7 @@ describe("Google Provider Client", () => {
     describe("tool methods", () => {
         it("should fail tool validation as expected", () =>
             Effect.gen(function* () {
-                const client = yield* makeGoogleClient("test-key");
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
                 const result = yield* Effect.either(client.validateToolInput("testTool", { param: "value" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
@@ -168,7 +171,7 @@ describe("Google Provider Client", () => {
 
         it("should fail tool execution as expected", () =>
             Effect.gen(function* () {
-                const client = yield* makeGoogleClient("test-key");
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
                 const result = yield* Effect.either(client.executeTool("testTool", { param: "value" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
@@ -179,7 +182,7 @@ describe("Google Provider Client", () => {
 
         it("should fail tool result processing as expected", () =>
             Effect.gen(function* () {
-                const client = yield* makeGoogleClient("test-key");
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
                 const result = yield* Effect.either(client.processToolResult("testTool", { result: "data" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
@@ -192,8 +195,8 @@ describe("Google Provider Client", () => {
     describe("client configuration", () => {
         it("should handle different API keys", () =>
             Effect.gen(function* () {
-                const client1 = yield* makeGoogleClient("key1");
-                const client2 = yield* makeGoogleClient("key2");
+                const client1 = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
+                const client2 = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
 
                 expect(client1).toBeDefined();
                 expect(client2).toBeDefined();
@@ -214,7 +217,7 @@ describe("Google Provider Client", () => {
     describe("Google-specific functionality", () => {
         it("should have expected capability set for Google models", () =>
             Effect.gen(function* () {
-                const client = yield* makeGoogleClient("test-key");
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
                 const capabilities = yield* client.getCapabilities();
 
                 // Google supports these core capabilities
@@ -234,7 +237,7 @@ describe("Google Provider Client", () => {
         it("should create client without dependency on models", () =>
             Effect.gen(function* () {
                 // Google client creation doesn't require ModelService unlike some other implementations
-                const client = yield* makeGoogleClient("test-google-api-key");
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
                 expect(client).toBeDefined();
                 expect(typeof client.getCapabilities).toBe("function");
 

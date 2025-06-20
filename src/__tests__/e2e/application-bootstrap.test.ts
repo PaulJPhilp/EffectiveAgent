@@ -11,7 +11,7 @@ import { MasterConfig } from "@/ea-agent-runtime/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 
 describe("End-to-End Application Bootstrap Tests", () => {
     // Comprehensive test layer that includes InitializationService and all service dependencies

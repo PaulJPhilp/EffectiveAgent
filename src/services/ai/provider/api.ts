@@ -1,10 +1,12 @@
-import type { EffectiveInput, EffectiveResponse } from "@/types.js";
+import type { EffectiveInput, EffectiveResponse, ProviderEffectiveResponse, FullToolName } from "@/types.js";
 import type { Effect } from "effect";
 
 import { ModelCapability } from "@/schema.js";
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import { ModelServiceApi } from "../model/api.js";
+import { ToolRegistryService } from "../tool-registry/service.js";
 import {
+    ProviderInvalidToolError,
     ProviderMissingCapabilityError,
     ProviderMissingModelIdError,
     ProviderNotFoundError,
@@ -69,7 +71,7 @@ export interface ProviderClientApi {
      * @returns Effect that resolves with validated input or fails with validation error
      */
     readonly validateToolInput: (
-        toolName: string,
+        toolName: FullToolName,
         input: unknown
     ) => Effect.Effect<unknown, ProviderToolError>;
 
@@ -80,7 +82,7 @@ export interface ProviderClientApi {
      * @returns Effect that resolves with tool output or fails with execution error
      */
     readonly executeTool: (
-        toolName: string,
+        toolName: FullToolName,
         input: unknown
     ) => Effect.Effect<unknown, ProviderToolError>;
 
@@ -91,12 +93,12 @@ export interface ProviderClientApi {
      * @returns Effect that resolves with formatted result or fails with processing error
      */
     readonly processToolResult: (
-        toolName: string,
+        toolName: FullToolName,
         result: unknown
     ) => Effect.Effect<unknown, ProviderToolError>;
 
 
-    chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderServiceConfigError>;
+        chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse, ProviderOperationError | ProviderServiceConfigError | ProviderInvalidToolError, ToolRegistryService>;
     /**
      * Set a Vercel AI SDK provider for this client.
      * @param vercelProvider The Vercel AI SDK provider instance with provider name as discriminator

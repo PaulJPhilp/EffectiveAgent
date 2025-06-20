@@ -1,0 +1,10 @@
+{
+	"name": "test-master-config",
+	"version": "1.0.0",
+	"description": "Test master configuration",
+	"configPaths": {
+		"providers": "src/test/config/providers.json",
+		"models": "src/test/config/models.json",
+		"policy": "src/test/config/policy.json"
+	}
+}

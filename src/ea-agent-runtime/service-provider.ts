@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";

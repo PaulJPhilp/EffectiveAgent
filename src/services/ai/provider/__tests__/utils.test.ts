@@ -1,6 +1,6 @@
 import path from "node:path";
 import { ProviderServiceConfigError } from "@/services/ai/provider/errors.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect } from 'effect';

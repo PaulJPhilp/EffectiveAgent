@@ -5,7 +5,7 @@ import { describe, expect, it, beforeEach } from "vitest"
 import { runCommand, expectCommandFailure } from "../test-utils.js"
 import { initCommand } from "../../src/commands/init.js"
 import { cleanupTestDirs } from "../setup.js"
-import { ConfigurationService } from "../../../services/core/configuration/service.js"
+import { ConfigurationService } from "../../../services/core/configuration/index.js"
 import { ModelService } from "../../../services/ai/model/service.js"
 
 describe("Init Command", () => {

@@ -3,12 +3,14 @@ import { FileSystem } from "@effect/platform"
 import { NodeContext, NodeFileSystem } from "@effect/platform-node"
 import { Effect, Either, Layer } from "effect"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
+import { createDir } from "../../services/fs"
 
 describe("config command functionality", () => {
   const TEST_DIR = join(process.cwd(), "test-workspace-config")
   const PROJECT_NAME = "test-config-project"
   const PROJECT_PATH = join(TEST_DIR, PROJECT_NAME)
   const CONFIG_DIR = join(PROJECT_PATH, "ea-config")
+  let originalCwd: string
 
   // Test layer
   const testLayer = Layer.mergeAll(NodeFileSystem.layer, NodeContext.layer)
@@ -89,18 +91,16 @@ describe("config command functionality", () => {
   }
 
   beforeEach(async () => {
+    originalCwd = process.cwd()
     await Effect.runPromise(
       Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem
+        // Create test directories recursively
+        yield* createDir(TEST_DIR, { recursive: true })
+        yield* createDir(PROJECT_PATH, { recursive: true })
+        yield* createDir(CONFIG_DIR, { recursive: true })
 
-        // Create test directories
-        yield* Effect.all([
-          fs.makeDirectory(TEST_DIR),
-          fs.makeDirectory(PROJECT_PATH),
-          fs.makeDirectory(CONFIG_DIR),
-        ])
-
-        // Change to project directory
+        // Set environment variable and change directory
+        process.env.PROJECT_ROOT = PROJECT_PATH
         process.chdir(PROJECT_PATH)
       }).pipe(Effect.provide(testLayer)),
     )
@@ -117,7 +117,9 @@ describe("config command functionality", () => {
         }
       }).pipe(Effect.provide(testLayer)),
     )
-    process.chdir(join(TEST_DIR, ".."))
+    // Restore CWD and clear environment variable
+    process.chdir(originalCwd)
+    delete process.env.PROJECT_ROOT
   })
 
   describe("config validation", () => {

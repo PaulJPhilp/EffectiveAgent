@@ -1,46 +1,39 @@
 import { join } from "node:path"
 import { FileSystem } from "@effect/platform"
-import { NodeContext } from "@effect/platform-node"
+import { NodeContext, NodeFileSystem } from "@effect/platform-node"
 import { Effect } from "effect"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
+import { createDir } from "../../services/fs"
 import { initProjectHandler } from "../init.js"
 
 describe("init command", () => {
   const TEST_DIR = join(process.cwd(), "test-workspace-init")
   const PROJECT_NAME = "test-project"
   const PROJECT_PATH = join(TEST_DIR, PROJECT_NAME)
+  let originalCwd: string
 
   // Set up test workspace before each test
   beforeEach(async () => {
+    originalCwd = process.cwd()
     await Effect.runPromise(
       Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem
-        try {
-          yield* fs.makeDirectory(TEST_DIR)
-        } catch (e: any) {
-          if (e?._tag !== "SystemError" || e?.reason !== "AlreadyExists") {
-            throw e
-          }
-        }
+        yield* createDir(TEST_DIR, { recursive: true })
         process.chdir(TEST_DIR)
-      }).pipe(Effect.provide(NodeContext.layer)),
+      }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
   })
 
   // Clean up after each test
   afterEach(async () => {
+    process.chdir(originalCwd) // Restore CWD first
     await Effect.runPromise(
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem
-        try {
-          yield* fs.remove(TEST_DIR, { recursive: true })
-        } catch (e: any) {
-          if (e?._tag !== "SystemError" || e?.reason !== "NotFound") {
-            throw e
-          }
-        }
-      }).pipe(Effect.provide(NodeContext.layer)),
+        // Use Effect.ignore to simplify cleanup if directory doesn't exist
+        yield* Effect.ignore(fs.remove(TEST_DIR, { recursive: true }))
+      }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
+    delete process.env.PROJECT_ROOT // Clean up env var
   })
 
   it("should create a complete and valid workspace", async () => {
@@ -104,7 +97,7 @@ describe("init command", () => {
         expect(packageJson.workspaces).toContain("agents/*")
         expect(packageJson.dependencies.effect).toBeDefined()
         expect(packageJson.devDependencies["@biomejs/biome"]).toBeDefined()
-      }).pipe(Effect.provide(NodeContext.layer)),
+      }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
   })
 
@@ -112,19 +105,19 @@ describe("init command", () => {
     const fs = await Effect.runPromise(
       Effect.gen(function* () {
         return yield* FileSystem.FileSystem
-      }).pipe(Effect.provide(NodeContext.layer)),
+      }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
 
     // Create project directory first
     await Effect.runPromise(
-      fs.makeDirectory(PROJECT_PATH).pipe(Effect.provide(NodeContext.layer)),
+      fs.makeDirectory(PROJECT_PATH).pipe(Effect.provide(NodeFileSystem.layer)),
     )
 
     // Run init command and expect failure using Effect.either
     const result = await Effect.runPromise(
       Effect.either(
         initProjectHandler({ projectName: PROJECT_NAME, yes: true }).pipe(
-          Effect.provide(NodeContext.layer),
+          Effect.provide(NodeFileSystem.layer),
         ),
       ),
     )
@@ -145,7 +138,7 @@ describe("init command", () => {
     const result = await Effect.runPromise(
       Effect.either(
         initProjectHandler({ projectName: INVALID_NAME, yes: true }).pipe(
-          Effect.provide(NodeContext.layer),
+          Effect.provide(NodeFileSystem.layer),
         ),
       ),
     )

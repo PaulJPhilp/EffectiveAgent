@@ -1,0 +1,16 @@
+{
+  "name": "E2E Structured Output Test",
+  "version": "1.0.0",
+  "runtimeSettings": {
+    "fileSystemImplementation": "node",
+    "logging": {
+      "level": "info",
+      "filePath": "./logs/e2e-structured.log"
+    }
+  },
+  "configPaths": {
+    "providers": "providers.json",
+    "models": "models.json",
+    "policy": "policy.json"
+  }
+}

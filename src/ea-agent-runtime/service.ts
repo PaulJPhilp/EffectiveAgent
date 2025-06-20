@@ -1,8 +1,8 @@
 import { EffectiveError } from "@/errors.js"
-import { ModelService } from "@services/ai/model/service.js"
-import { PolicyService } from "@services/ai/policy/service.js"
-import { ProviderService } from "@services/ai/provider/service.js"
-import { ToolRegistryService } from "@services/ai/tool-registry/service.js"
+import { ModelService } from "@/services/ai/model/service.js"
+import { PolicyService } from "@/services/ai/policy/service.js"
+import { ProviderService } from "@/services/ai/provider/service.js"
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
 import { Effect, Ref, Stream } from "effect"
 import type { AgentRuntimeServiceApi } from "./api.js"
 import {
@@ -103,7 +103,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
         const getChatService = () => {
             // Lazy import to avoid circular dependency during module initialization
             // eslint-disable-next-line @typescript-eslint/no-var-requires
-            const { ChatService } = require("@/services/pipeline/producers/chat/service.js")
+            const { ChatService } = require("@/services/producers/chat/service.js")
             return ChatService
         }
 

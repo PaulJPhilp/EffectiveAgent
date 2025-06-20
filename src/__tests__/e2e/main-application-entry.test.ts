@@ -10,7 +10,7 @@ import InitializationService from "@/ea-agent-runtime/initialization.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 
 // Comprehensive test layer that includes InitializationService and all service dependencies
 const CompleteTestLayer = Layer.provideMerge(

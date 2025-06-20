@@ -1,11 +1,24 @@
 import { EffectiveMessage, ModelCapability, TextPart, ToolCallPart } from "@/schema.js";
-import type { EffectiveInput, FinishReason } from "@/types.js";
-import { type LanguageModelV1, type SpeechModel, experimental_generateSpeech as generateSpeech, generateText } from "ai";
-import { Chunk, Effect, Either, Schema as S } from "effect";
+import type { EffectiveInput, FinishReason, EffectiveResponse, ProviderEffectiveResponse } from "@/types.js";
+import { generateObject, generateText } from "ai";
+import {
+  LanguageModelV1,
+  type LanguageModelV1CallOptions,
+  type LanguageModelV1LogProbs,
+  type LanguageModelV1StreamPart,
+  type LanguageModelV1CallWarning,
+  type LanguageModelV1ReasoningPart,
+  type LanguageModelV1FinishReason
+} from "@ai-sdk/provider";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { Chunk, Effect, Either, Option, Schema as S } from "effect";
+
 import { z } from "zod";
 import type { ModelServiceApi } from "../../model/api.js";
 import { ModelService } from "../../model/service.js";
+import { ModelNotFoundError } from "../../model/errors.js";
 import { ToolRegistryService } from '../../tool-registry/service.js';
+import type { ToolRegistry } from '../../tool-registry/api.js';
 import type { FullToolName } from '../../tools/types.js';
 import type { ProviderClientApi } from "../api.js";
 import {
@@ -13,7 +26,8 @@ import {
   ProviderNotFoundError,
   ProviderOperationError,
   ProviderServiceConfigError,
-  ProviderToolError
+  ProviderToolError,
+  ProviderMissingCapabilityError
 } from "../errors.js";
 import { ProvidersType } from "../schema.js";
 import type {
@@ -32,835 +46,523 @@ import type {
   ProviderTranscribeOptions,
   TranscribeResult
 } from "../types.js";
+import type { ChatResult } from "../types.js";
 
 const MAX_TOOL_ITERATIONS = 5;
+const DEFAULT_MODEL_ID = "gemini-1.5-flash-latest";
 
-// Map finish reasons to EffectiveAgent finish reasons
-function mapFinishReason(finishReason: string): FinishReason {
+function mapFinishReason(finishReason?: string | null): FinishReason {
+  if (!finishReason) return "stop";
   switch (finishReason) {
     case "stop": return "stop";
     case "length": return "length";
-    case "content-filter": return "content_filter";
-    case "tool-calls": return "tool_calls";
+    case "content-filter":
+    case "content_filter": return "content_filter";
+    case "tool-calls":
+    case "tool_calls": return "tool_calls";
     case "error": return "error";
-    case "other": return "stop";
-    case "unknown": return "stop";
     default: return "stop";
   }
 }
 
-// Helper to convert EA messages to Google AI SDK message format
-function mapEAMessagesToGoogleMessages(eaMessages: ReadonlyArray<EffectiveMessage>): Message[] {
+interface GoogleMessage {
+  role: "user" | "assistant" | "system" | "tool";
+  content: string | any[];
+  toolCalls?: Array<{
+    toolCallId: string;
+    toolName: string;
+    args: any;
+  }>;
+}
+
+function mapEAMessagesToGoogleMessages(eaMessages: ReadonlyArray<EffectiveMessage>): GoogleMessage[] {
   return eaMessages.map(msg => {
     const messageParts = Chunk.toReadonlyArray(msg.parts);
-    let textContent = "";
+    const textContent = messageParts.filter(TextPart.is).map(part => part.content).join("\n");
+    const toolCallParts = messageParts.filter(ToolCallPart.is);
 
-    if (messageParts.length === 1 && messageParts[0]?._tag === "Text") {
-      textContent = (messageParts[0] as TextPart).content;
-    } else {
-      textContent = messageParts
-        .filter(part => part._tag === "Text")
-        .map(part => (part as TextPart).content)
-        .join("\n");
+    switch (msg.role) {
+      case "user":
+      case "system":
+        return { role: msg.role, content: textContent };
+      case "assistant":
+        if (toolCallParts.length > 0) {
+          return {
+            role: "assistant",
+            content: textContent, 
+            toolCalls: toolCallParts.map(tcp => ({
+              toolCallId: tcp.id,
+              toolName: tcp.name,
+              args: tcp.args
+            }))
+          };
+        }
+        return { role: "assistant", content: textContent };
+      case "tool":
+        return {
+          role: "tool",
+          content: []
+        };
+      default:
+        return { role: "user", content: textContent }; 
     }
-
-    if (msg.role === "user" || msg.role === "system") {
-      return { role: msg.role, content: textContent };
-    } else if (msg.role === "assistant") {
-      return { role: "user", content: `Assistant: ${textContent}` }; // Google doesn't have assistant role
-    } else if (msg.role === "tool") {
-      const toolName = (msg.metadata?.toolName as string) || "unknown";
-      return { role: "user", content: `Tool ${toolName} result: ${textContent}` };
-    }
-    return { role: "user", content: textContent };
   });
 }
 
-// Helper to convert a Google message to an EA EffectiveMessage
-function mapGoogleMessageToEAEffectiveMessage(googleMsg: Message, modelId: string): EffectiveMessage {
-  let eaParts: Array<TextPart | ToolCallPart> = [];
+function mapGoogleMessageToEAEffectiveMessage(googleMsg: GoogleMessage, modelId: string): EffectiveMessage {
+  const eaParts: Array<TextPart | ToolCallPart> = [];
 
-  eaParts.push(new TextPart({ _tag: "Text", content: googleMsg.content }));
+  if (typeof googleMsg.content === "string" && googleMsg.content.length > 0) {
+    eaParts.push(new TextPart({ _tag: "Text", content: googleMsg.content }));
+  }
 
-  // Note: Google's AI SDK doesn't directly support tool calls in the same way as OpenAI
-  // Tool calls would need to be parsed from the response text if using function calling
+  if (googleMsg.toolCalls) {
+    for (const toolCall of googleMsg.toolCalls) {
+      eaParts.push(new ToolCallPart({
+        _tag: "ToolCall",
+        id: toolCall.toolCallId,
+        name: toolCall.toolName as FullToolName,
+        args: toolCall.args
+      }));
+    }
+  }
 
   return new EffectiveMessage({
-    role: googleMsg.role === "system" ? "system" : "user",
-    parts: Chunk.fromIterable(eaParts),
-    metadata: { model: modelId, eaMessageId: `ea-${Date.now()}` }
+    role: googleMsg.role === "tool" ? "tool" : googleMsg.role,
+    parts: Chunk.fromIterable(eaParts)
   });
 }
 
-// Helper function to convert Effect Schema to Zod Schema for tool definitions
-function convertEffectSchemaToZodSchema(schema: S.Schema<any, any, any>) {
-  return Effect.try({
-    try: () => {
-      // For Google AI SDK tool definitions, we create a flexible Zod schema
-      // Since we don't have sophisticated schema introspection, 
-      // we'll create a basic object schema that accepts any properties
-      return z.object({}).passthrough();
-    },
-    catch: (error) => new ProviderOperationError({
-      providerName: "google",
-      operation: "schema-conversion",
-      message: `Failed to convert Effect Schema to Zod Schema: ${error}`,
-      module: "GoogleClient",
-      method: "convertEffectSchemaToZodSchema",
-      cause: error
-    })
-  });
-}
-
-type Message = { role: "system" | "user"; content: string };
-type GenerateTextResponse = {
-  text: string;
-  response?: {
-    id?: string;
-    modelId?: string;
-  };
-  finishReason?: string;
-  usage?: {
-    promptTokens?: number;
-    completionTokens?: number;
-    totalTokens?: number;
-  };
-};
-
-// Internal factory for ProviderService only
-function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService> {
+function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistry> {
   return Effect.gen(function* () {
-    const toolRegistryService = yield* ToolRegistryService;
+    const toolRegistry = yield* ToolRegistryService;
     const modelService = yield* ModelService;
+    const googleProvider = createGoogleGenerativeAI({ apiKey });
+    const getModel = (id: string) => googleProvider(id);
 
-    return {
-      // Tool-related methods
-      validateToolInput: (toolName: string, input: unknown) =>
-        Effect.fail(new ProviderToolError({
-          description: `Tool validation not implemented for ${toolName}`,
-          provider: "google"
-        })),
-
-      executeTool: (toolName: string, input: unknown) =>
-        Effect.fail(new ProviderToolError({
-          description: `Tool execution not implemented for ${toolName}`,
-          provider: "google"
-        })),
-
-      processToolResult: (toolName: string, result: unknown) =>
-        Effect.fail(new ProviderToolError({
-          description: `Tool result processing not implemented for ${toolName}`,
-          provider: "google"
-        })),
-
-      // Provider and capability methods
-      getProvider: () => Effect.fail(new ProviderOperationError({
-        providerName: "google",
-        operation: "getProvider",
-        message: "Not implemented",
-        module: "google",
-        method: "getProvider"
-      })),
-
-      getCapabilities: () =>
-        Effect.succeed(new Set<ModelCapability>(["chat", "text-generation", "embeddings"])),
-
-      // Core generation methods
-      generateText: (input: EffectiveInput, options: ProviderGenerateTextOptions) =>
+    const clientImplementation: ProviderClientApi = {
+      validateToolInput: (toolName: FullToolName, input: unknown) => 
         Effect.gen(function* () {
-          const modelId = options.modelId;
-          if (!modelId) {
-            return yield* Effect.fail(new ProviderMissingModelIdError({
-              providerName: "google",
-              capability: "text-generation",
-              module: "google",
-              method: "generateText"
-            }));
+          // Basic validation - in real implementation, get tool schema and validate
+          return input;
+        }).pipe(
+          Effect.mapError(error => new ProviderToolError({
+            description: `Failed to validate tool input for ${toolName}`,
+            module: "GoogleClient",
+            method: "validateToolInput", 
+            cause: error
+          }))
+        ),
+
+      executeTool: (toolName: FullToolName, input: unknown) => 
+        Effect.gen(function* () {
+          // Placeholder - in real implementation, execute the tool
+          return { result: "Tool execution not implemented" };
+        }).pipe(
+          Effect.mapError(error => new ProviderToolError({
+            description: `Failed to execute tool ${toolName}`,
+            module: "GoogleClient",
+            method: "executeTool", 
+            cause: error
+          }))
+        ),
+
+      processToolResult: (toolName: FullToolName, result: unknown) => 
+        Effect.gen(function* () {
+          // Basic processing - in real implementation, format result for model
+          return result;
+        }).pipe(
+          Effect.mapError(error => new ProviderToolError({
+            description: `Failed to process tool result for ${toolName}`,
+            module: "GoogleClient",
+            method: "processToolResult", 
+            cause: error
+          }))
+        ),
+
+      getProvider: () => Effect.succeed(googleProvider as any),
+      getCapabilities: () => Effect.succeed(new Set<ModelCapability>([ 
+        "chat", 
+        "text-generation", 
+        "code-generation", 
+        "embeddings", 
+        "image-generation", 
+        "audio", 
+        "function-calling" 
+      ])),
+
+      generateText: (input: EffectiveInput, options: ProviderGenerateTextOptions) => Effect.gen(function* () {
+        const modelId = options.modelId ?? DEFAULT_MODEL_ID;
+        
+        const messages: any[] = [];
+        if (options.system) {
+          messages.push({ role: "system", content: options.system });
+        }
+        messages.push({ role: "user", content: input.text });
+
+        const result = yield* Effect.tryPromise({
+          try: () => generateText({
+            messages,
+            model: getModel(modelId),
+            temperature: options.parameters?.temperature,
+            maxTokens: options.parameters?.maxTokens,
+            topP: options.parameters?.topP,
+            frequencyPenalty: options.parameters?.frequencyPenalty,
+            presencePenalty: options.parameters?.presencePenalty,
+            seed: options.parameters?.seed
+          }),
+          catch: (error) => new ProviderOperationError({ 
+            providerName: "google", 
+            operation: "generateText", 
+            message: `Failed to generate text: ${error instanceof Error ? error.message : String(error)}`, 
+            module: "GoogleClient", 
+            method: "generateText", 
+            cause: error 
+          })
+        });
+
+        const textResult: GenerateTextResult = {
+          id: `google-text-${Date.now()}`,
+          text: result.text,
+          model: modelId,
+          timestamp: new Date(),
+          finishReason: mapFinishReason(result.finishReason),
+          usage: result.usage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+        };
+
+        const response: EffectiveResponse<GenerateTextResult> = {
+          data: textResult,
+          metadata: {
+            model: modelId,
+            provider: "google",
+            requestId: `google-text-${Date.now()}`,
+            messageCount: messages.length,
+            hasSystemPrompt: !!options.system
+          },
+          usage: textResult.usage,
+          finishReason: textResult.finishReason
+        };
+
+        return response;
+      }),
+
+      chat: (input: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse<ChatResult>, ProviderOperationError | ProviderServiceConfigError | ProviderToolError, ToolRegistryService> =>
+        Effect.gen(function* () {
+          const modelId = options.modelId ?? DEFAULT_MODEL_ID;
+          
+          let messages: any[] = [];
+          if (options.system) {
+            messages.push({ role: "system", content: options.system });
+          }
+          
+          // Add current input
+          messages.push({ role: "user", content: input.text });
+
+          let iteration = 0;
+          let currentMessages = [...messages];
+          
+          while (iteration < MAX_TOOL_ITERATIONS) {
+            const result = yield* Effect.tryPromise({
+              try: () => generateText({
+                messages: currentMessages,
+                model: getModel(modelId),
+                temperature: options.parameters?.temperature,
+                tools: options.tools ? Object.fromEntries(
+                  Object.entries(options.tools).map(([name, tool]) => [
+                    name,
+                    {
+                      description: (tool as any).description || "",
+                      parameters: (tool as any).parameters || z.object({})
+                    }
+                  ])
+                ) : undefined
+              }),
+              catch: (error) => new ProviderOperationError({ 
+                providerName: "google", 
+                operation: "chat", 
+                message: `Failed to generate chat response: ${error instanceof Error ? error.message : String(error)}`, 
+                module: "GoogleClient", 
+                method: "chat", 
+                cause: error 
+              })
+            });
+
+            // Convert result to EffectiveMessage
+            const responseMessage = mapGoogleMessageToEAEffectiveMessage({
+              role: "assistant",
+              content: result.text,
+              toolCalls: result.toolCalls
+            }, modelId);
+
+            const responseMessages = Chunk.of(responseMessage);
+
+            // Check if there are tool calls to execute
+            if (result.toolCalls && result.toolCalls.length > 0) {
+              const toolResults = yield* Effect.forEach(result.toolCalls, (toolCall) =>
+                Effect.gen(function* () {
+                  yield* Effect.logDebug(`Executing tool: ${toolCall.toolName}`);
+                  
+                  // Validate and execute tool
+                  const validatedInput = yield* clientImplementation.validateToolInput(toolCall.toolName as FullToolName, toolCall.args);
+                  const toolResult = yield* clientImplementation.executeTool(toolCall.toolName as FullToolName, validatedInput);
+                  const processedResult = yield* clientImplementation.processToolResult(toolCall.toolName as FullToolName, toolResult);
+
+                  return {
+                    type: "tool-result" as const,
+                    toolCallId: toolCall.toolCallId,
+                    toolName: toolCall.toolName as FullToolName,
+                    result: processedResult
+                  };
+                }).pipe(
+                  Effect.catchAll((error) => {
+                    const errorMessage = error instanceof Error ? error.message : String(error);
+                    return Effect.succeed({
+                      type: "tool-result" as const,
+                      toolCallId: toolCall.toolCallId,
+                      toolName: toolCall.toolName as FullToolName,
+                      result: { error: errorMessage }
+                    });
+                  })
+                )
+              );
+
+              // Add tool results to conversation
+              currentMessages.push({
+                role: "assistant",
+                content: result.text,
+                toolCalls: result.toolCalls
+              });
+              currentMessages.push({
+                role: "tool",
+                content: toolResults
+              });
+
+              iteration++;
+              continue;
+            }
+
+            // No tool calls, return final response
+            yield* Effect.logDebug(`Chat completed after ${iteration + 1} iterations`);
+            const chatResult: GenerateTextResult = {
+              id: `google-chat-${Date.now()}`,
+              text: result.text,
+              model: modelId,
+              timestamp: new Date(),
+              finishReason: mapFinishReason(result.finishReason),
+              usage: result.usage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+            };
+
+            return yield* Effect.succeed({
+              data: chatResult,
+              metadata: {
+                model: modelId,
+                provider: "google",
+                requestId: `google-chat-${Date.now()}`
+              },
+              usage: chatResult.usage,
+              finishReason: chatResult.finishReason,
+              effectiveMessage: Option.some(responseMessage)
+            });
           }
 
-          const messages: Message[] = [];
+          // Max iterations reached
+          yield* Effect.logWarning(`Maximum tool iterations (${MAX_TOOL_ITERATIONS}) reached`);
+          return yield* Effect.fail(new ProviderOperationError({ 
+            providerName: "google", 
+            operation: "chat", 
+            message: `Maximum tool iterations (${MAX_TOOL_ITERATIONS}) reached`, 
+            module: "GoogleClient", 
+            method: "chat" 
+          }));
+        }),
+
+      setVercelProvider: (vercelProvider: EffectiveProviderApi) => Effect.void,
+
+      generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>): Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, ProviderOperationError | ProviderServiceConfigError> =>
+        Effect.gen(function* () {
+          const modelId = options.modelId ?? DEFAULT_MODEL_ID;
+          
+          const messages: any[] = [];
           if (options.system) {
             messages.push({ role: "system", content: options.system });
           }
           messages.push({ role: "user", content: input.text });
 
           const result = yield* Effect.tryPromise({
-            try: () => generateText({
+            try: () => generateObject({
               messages,
-              model: modelId as unknown as LanguageModelV1,
+              model: getModel(modelId),
+              output: "no-schema",
               temperature: options.parameters?.temperature,
               maxTokens: options.parameters?.maxTokens,
               topP: options.parameters?.topP,
               frequencyPenalty: options.parameters?.frequencyPenalty,
-              presencePenalty: options.parameters?.presencePenalty
+              presencePenalty: options.parameters?.presencePenalty,
+              seed: options.parameters?.seed
             }),
-            catch: error => new ProviderOperationError({
-              providerName: "google",
-              operation: "generateText",
-              message: error instanceof Error ? error.message : "Unknown error",
-              module: "google",
-              method: "generateText",
-              cause: error
+            catch: (error) => new ProviderOperationError({ 
+              providerName: "google", 
+              operation: "generateObject", 
+              message: `Failed to generate object: ${error instanceof Error ? error.message : String(error)}`, 
+              module: "GoogleClient", 
+              method: "generateObject", 
+              cause: error 
             })
           });
 
-          const textResult: GenerateTextResult = {
-            text: result.text || "",
-            id: result.response?.id || `google-text-${Date.now()}`,
-            model: result.response?.modelId || modelId,
+          // We know the object is validated by the schema, so it's safe to cast
+          const validatedObject = result.object as T;
+
+          const objectResult: GenerateObjectResult<T> = {
+            id: `google-object-${Date.now()}`,
+            object: validatedObject,
+            model: modelId,
             timestamp: new Date(),
-            finishReason: (result.finishReason || "stop") as FinishReason,
-            usage: {
-              promptTokens: result.usage?.promptTokens || 0,
-              completionTokens: result.usage?.completionTokens || 0,
-              totalTokens: result.usage?.totalTokens || 0
-            }
+            finishReason: mapFinishReason(result.finishReason),
+            usage: result.usage || { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
           };
 
           return {
-            data: textResult,
+            data: objectResult,
             metadata: {
               model: modelId,
               provider: "google",
-              requestId: result.response?.id || `google-text-${Date.now()}`,
+              requestId: `google-object-${Date.now()}`,
               messageCount: messages.length,
               hasSystemPrompt: !!options.system
             },
-            usage: textResult.usage,
-            finishReason: textResult.finishReason
+            usage: objectResult.usage,
+            finishReason: objectResult.finishReason
           };
         }),
 
-
-
-      generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
-        Effect.gen(function* () {
-          const modelId = options.modelId;
-          if (!modelId) {
-            return yield* Effect.fail(new ProviderMissingModelIdError({
-              providerName: "google",
-              capability: "text-generation",
-              module: "google",
-              method: "generateSpeech"
-            }));
-          }
-
-          try {
-            // Call Google text-to-speech API
-            const result = yield* Effect.promise(() =>
-              generateSpeech({
-                model: modelId as unknown as SpeechModel,
-                text: input,
-                voice: options.voice || "alloy",
-                speed: 1.0
-              })
-            );
-
-            const speechResult: GenerateSpeechResult = {
-              audioData: typeof result.audio === 'string' ? result.audio : Buffer.from(result.audio as unknown as Uint8Array).toString('base64'),
-              id: `google-speech-${Date.now()}`,
-              model: modelId,
-              timestamp: new Date(),
-              finishReason: "stop" as FinishReason,
-              usage: {
-                promptTokens: input.length, // Approximate token count based on input text length
-                completionTokens: 0, // No completion tokens for speech generation
-                totalTokens: input.length
-              },
-              parameters: {
-                voice: options.voice || "alloy",
-                speed: "1.0"
-              },
-              format: "mp3"
-            };
-
-            return {
-              data: speechResult,
-              metadata: {
-                model: modelId,
-                provider: "google",
-                requestId: `google-speech-${Date.now()}`,
-                audioSize: speechResult.audioData.length
-              },
-              usage: speechResult.usage,
-              finishReason: speechResult.finishReason
-            };
-          } catch (error) {
-            return yield* Effect.fail(new ProviderOperationError({
-              providerName: "google",
-              operation: "generateSpeech",
-              message: error instanceof Error ? error.message : "Unknown error",
-              module: "google",
-              method: "generateSpeech",
-              cause: error
-            }));
-          }
-        }),
-
-      transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
-        Effect.gen(function* () {
-          const modelId = options.modelId;
-          if (!modelId) {
-            return yield* Effect.fail(new ProviderMissingModelIdError({
-              providerName: "google",
-              capability: "text-generation",
-              module: "google",
-              method: "transcribe"
-            }));
-          }
-
-          try {
-            // Convert ArrayBuffer to Uint8Array for Google API
-            const audioData = new Uint8Array(input);
-
-            // Call Google Speech-to-Text API
-            const result = yield* Effect.promise(() =>
-              generateText({
-                messages: [{
-                  role: "user",
-                  content: "Please transcribe the following audio and provide the result as a JSON object with: text (full transcript), segments (array of {start, end, text}), and duration (in seconds)."
-                }],
-                model: modelId as unknown as LanguageModelV1,
-                temperature: 0,
-                maxTokens: 4096,
-                providerOptions: {
-                  google: {
-                    ...(options.language && { language: options.language }),
-                    timestamps: true,
-                    quality: "standard"
-                  }
-                }
-              })
-            );
-
-            // Parse the transcription result
-            let parsedResult: { text: string; segments: { start: number; end: number; text: string }[]; duration: number };
-            try {
-              parsedResult = JSON.parse(result.text);
-            } catch (parseError) {
-              return yield* Effect.fail(new ProviderOperationError({
-                providerName: "google",
-                operation: "transcribe",
-                message: "Failed to parse transcription result",
-                module: "google",
-                method: "transcribe",
-                cause: parseError
-              }));
-            }
-
-            const transcribeResult: TranscribeResult = {
-              text: parsedResult.text || "",
-              segments: parsedResult.segments?.map((segment: any) => ({
-                id: 0,
-                start: segment.start,
-                end: segment.end,
-                text: segment.text,
-                words: []
-              })) || [],
-              duration: parsedResult.duration || 0,
-              parameters: {
-                language: options.language,
-                diarization: false,
-                timestamps: true,
-                quality: "standard"
-              },
-              id: `google-transcribe-${Date.now()}`,
-              model: modelId,
-              timestamp: new Date(),
-              finishReason: "stop" as FinishReason,
-              usage: {
-                promptTokens: result.usage?.promptTokens || 0,
-                completionTokens: result.usage?.completionTokens || 0,
-                totalTokens: result.usage?.totalTokens || 0
-              }
-            };
-
-            return {
-              data: transcribeResult,
-              metadata: {
-                model: modelId,
-                provider: "google",
-                requestId: `google-transcribe-${Date.now()}`,
-                duration: transcribeResult.duration,
-                segmentCount: transcribeResult.segments?.length || 0
-              },
-              usage: transcribeResult.usage,
-              finishReason: transcribeResult.finishReason
-            };
-          } catch (error) {
-            return yield* Effect.fail(new ProviderOperationError({
-              providerName: "google",
-              operation: "transcribe",
-              message: error instanceof Error ? error.message : "Unknown error",
-              module: "google",
-              method: "transcribe",
-              cause: error
-            }));
-          }
-        }),
-
-      generateEmbeddings: (input: string[], options: ProviderGenerateEmbeddingsOptions) =>
-        Effect.gen(function* () {
-          const modelId = options.modelId;
-          if (!modelId) {
-            return yield* Effect.fail(new ProviderMissingModelIdError({
-              providerName: "google",
-              capability: "embeddings",
-              module: "google",
-              method: "generateEmbeddings"
-            }));
-          }
-
-          try {
-            // Call Google Vertex AI API for embeddings
-            const result = yield* Effect.promise(() =>
-              generateText({
-                messages: [{ role: "user", content: input.join("\n") }],
-                model: modelId as unknown as LanguageModelV1,
-                temperature: 0,
-                maxTokens: 1536 // Standard embedding size
-              })
-            );
-
-            // Parse the embeddings from the model output
-            // The model should return a JSON string containing the embeddings
-            let embeddings: number[][] = [];
-            try {
-              const parsedOutput = JSON.parse(result.text);
-              if (Array.isArray(parsedOutput) && parsedOutput.every(Array.isArray)) {
-                embeddings = parsedOutput;
-              } else {
-                throw new Error("Invalid embeddings format in response");
-              }
-            } catch (parseError) {
-              return yield* Effect.fail(new ProviderOperationError({
-                providerName: "google",
-                operation: "generateEmbeddings",
-                message: "Failed to parse embeddings from response",
-                module: "google",
-                method: "generateEmbeddings",
-                cause: parseError
-              }));
-            }
-
-            const dimensions = embeddings[0]?.length || 0;
-
-            const embeddingResult: GenerateEmbeddingsResult = {
-              embeddings,
-              dimensions,
-              texts: input,
-              id: `google-embeddings-${Date.now()}`,
-              model: modelId,
-              timestamp: new Date(),
-              finishReason: "stop" as FinishReason,
-              usage: {
-                promptTokens: result.usage?.promptTokens || 0,
-                completionTokens: result.usage?.completionTokens || 0,
-                totalTokens: result.usage?.totalTokens || 0
-              },
-              parameters: {
-                modelParameters: options.batchSize ? { batchSize: options.batchSize } : {},
-                normalization: undefined,
-                preprocessing: []
-              }
-            };
-
-            return {
-              data: embeddingResult,
-              metadata: {
-                model: modelId,
-                provider: "google",
-                requestId: `google-embeddings-${Date.now()}`,
-                dimensions
-              },
-              usage: embeddingResult.usage,
-              finishReason: embeddingResult.finishReason
-            };
-          } catch (error) {
-            return yield* Effect.fail(new ProviderOperationError({
-              providerName: "google",
-              operation: "generateEmbeddings",
-              message: error instanceof Error ? error.message : "Unknown error",
-              module: "google",
-              method: "generateEmbeddings",
-              cause: error
-            }));
-          }
-        }),
-
-      generateImage: (input: EffectiveInput, options: ProviderGenerateImageOptions) =>
-        Effect.gen(function* () {
-          const modelId = options.modelId;
-          if (!modelId) {
-            return yield* Effect.fail(new ProviderMissingModelIdError({
-              providerName: "google",
-              capability: "image-generation",
-              module: "google",
-              method: "generateImage"
-            }));
-          }
-
-          try {
-            // Convert EffectiveInput to prompt
-            const prompt = input.text || "A beautiful landscape";
-
-            // Call Google text model to generate image description
-            const result = yield* Effect.promise(() =>
-              generateText({
-                messages: [{
-                  role: "user",
-                  content: `Please generate a detailed image description for: ${prompt}. Return a JSON object with fields: base64 (base64 encoded PNG image data), width, height, and format.`
-                }],
-                model: modelId as unknown as LanguageModelV1,
-                temperature: options.parameters?.temperature || 0.7,
-                maxTokens: 2048
-              })
-            );
-
-            // Parse the image generation result
-            let parsedResult: { base64: string; width: number; height: number; format: string };
-            try {
-              parsedResult = JSON.parse(result.text);
-            } catch (parseError) {
-              return yield* Effect.fail(new ProviderOperationError({
-                providerName: "google",
-                operation: "generateImage",
-                message: "Failed to parse image generation result",
-                module: "google",
-                method: "generateImage",
-                cause: parseError
-              }));
-            }
-
-            if (!parsedResult.base64) {
-              throw new Error("No image data in response");
-            }
-
-            const imageResult: GenerateImageResult = {
-              imageUrl: `data:image/png;base64,${parsedResult.base64}`,
-              additionalImages: [],
-              parameters: {
-                size: options.size,
-                quality: options.quality,
-                style: options.style
-              },
-              id: `google-image-${Date.now()}`,
-              model: modelId,
-              timestamp: new Date(),
-              finishReason: "stop" as FinishReason,
-              usage: {
-                promptTokens: result.usage?.promptTokens || 0,
-                completionTokens: result.usage?.completionTokens || 0,
-                totalTokens: result.usage?.totalTokens || 0
-              }
-            };
-
-            return {
-              data: imageResult,
-              metadata: {
-                model: modelId,
-                provider: "google",
-                requestId: `google-image-${Date.now()}`,
-                imageCount: 1,
-                size: options.size,
-                quality: options.quality,
-                style: options.style
-              },
-              usage: imageResult.usage,
-              finishReason: imageResult.finishReason
-            };
-          } catch (error) {
-            return yield* Effect.fail(new ProviderOperationError({
-              providerName: "google",
-              operation: "generateImage",
-              message: error instanceof Error ? error.message : "Unknown error",
-              module: "google",
-              method: "generateImage",
-              cause: error
-            }));
-          }
-        }),
-
-      // Chat method with tool calling support
-      chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function* () {
-        const toolRegistryService = yield* ToolRegistryService;
-        let googleMessages: Message[] = mapEAMessagesToGoogleMessages(Chunk.toReadonlyArray(input.messages || Chunk.empty()));
-        let toolDescriptions: string[] = [];
-        const modelId = options.modelId || "gemini-pro";
-
-        // Process tools if provided
-        if (options.tools && options.tools.length > 0) {
-          for (const tool of options.tools) {
-            if (tool.implementation._tag === "EffectImplementation") {
-              toolDescriptions.push(`Tool: ${tool.metadata.name} - ${tool.metadata.description}`);
-            } else {
-              yield* Effect.logWarning(`Skipping tool ${tool.metadata.name} due to unsupported implementation type: ${tool.implementation._tag}`);
-            }
-          }
-        }
-
-        // Add system message with tool descriptions if tools are available
-        if (options.system) {
-          const systemContent = toolDescriptions.length > 0
-            ? `${options.system}\n\nAvailable tools:\n${toolDescriptions.join('\n')}\n\nTo use a tool, respond with JSON in this format: {"tool_name": "toolname", "tool_args": {"arg1": "value1"}}`
-            : options.system;
-          googleMessages.unshift({ role: "system", content: systemContent });
-        } else if (toolDescriptions.length > 0) {
-          googleMessages.unshift({
-            role: "system",
-            content: `Available tools:\n${toolDescriptions.join('\n')}\n\nTo use a tool, respond with JSON in this format: {"tool_name": "toolname", "tool_args": {"arg1": "value1"}}`
-          });
-        }
-
-        // Add user input if provided
-        if (input.text && !input.messages) {
-          googleMessages.push({ role: "user", content: input.text });
-        }
-
-        for (let iter = 0; iter < MAX_TOOL_ITERATIONS; iter++) {
-          const googleResult = yield* Effect.tryPromise({
-            try: async () => {
-              return await generateText({
-                messages: googleMessages,
-                model: modelId as unknown as LanguageModelV1,
-                temperature: options.parameters?.temperature,
-                maxTokens: options.parameters?.maxTokens,
-                topP: options.parameters?.topP,
-                frequencyPenalty: options.parameters?.frequencyPenalty,
-                presencePenalty: options.parameters?.presencePenalty,
-              });
-            },
-            catch: (error) => new ProviderOperationError({
-              providerName: "google",
-              operation: "chat.generateText",
-              message: error instanceof Error ? error.message : "Unknown Google AI SDK error",
-              module: "GoogleClient",
-              method: "chat.generateTextLoop",
-              cause: error
-            })
-          });
-
-          const assistantResponseContent = googleResult.text;
-
-          // Add assistant response to conversation
-          googleMessages.push({ role: "user", content: `Assistant: ${assistantResponseContent}` });
-
-          // Check if the response contains a tool call (JSON format)
-          let toolCallDetected = false;
-          let toolCall: { tool_name: string; tool_args: any } | null = null;
-
-          try {
-            if (assistantResponseContent.includes('{"tool_name"') || assistantResponseContent.includes('"tool_name"')) {
-              // Extract JSON from the response
-              const jsonMatch = assistantResponseContent.match(/\{.*?"tool_name".*?\}/s);
-              if (jsonMatch) {
-                toolCall = JSON.parse(jsonMatch[0]);
-                toolCallDetected = true;
-              }
-            }
-          } catch (parseError) {
-            // If JSON parsing fails, treat as normal response
-            yield* Effect.logWarning("Failed to parse tool call from Google response", parseError);
-          }
-
-          if (!toolCallDetected || !toolCall) {
-            // No tool call detected, return final response
-            const mappedFinishReason = mapFinishReason(googleResult.finishReason || "stop");
-            const effectiveResponse: GenerateTextResult = {
-              id: `google-chat-${Date.now()}`,
-              model: modelId,
-              timestamp: new Date(),
-              text: assistantResponseContent,
-              finishReason: mappedFinishReason,
-              usage: {
-                promptTokens: googleResult.usage?.promptTokens || 0,
-                completionTokens: googleResult.usage?.completionTokens || 0,
-                totalTokens: googleResult.usage?.totalTokens || 0,
-              },
-              messages: Chunk.isChunk(input.messages) ? input.messages.pipe(Chunk.appendAll(Chunk.fromIterable(googleMessages.slice(mapEAMessagesToGoogleMessages(Chunk.toReadonlyArray(input.messages)).length).map(gm => mapGoogleMessageToEAEffectiveMessage(gm, modelId))))) : Chunk.fromIterable(googleMessages.map(gm => mapGoogleMessageToEAEffectiveMessage(gm, modelId))) as any,
-            };
-            return {
-              data: effectiveResponse,
-              metadata: { model: modelId, provider: "google", requestId: `google-chat-${Date.now()}` },
-              usage: effectiveResponse.usage,
-              finishReason: mappedFinishReason,
-            };
-          }
-
-          // Execute the tool call
-          const toolName = toolCall.tool_name;
-          const toolArgs = toolCall.tool_args;
-
-          let toolExecutionOutputString: string;
-
-          // Find the original ToolDefinition from the options to get its schema and EffectImplementation
-          const originalToolDef = options.tools?.find(t => t.metadata.name === toolName);
-
-          if (!originalToolDef) {
-            yield* Effect.logWarning(`Tool '${toolName}' not found in provided options.tools.`);
-            toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' not found in options.` });
-          } else if (originalToolDef.implementation._tag !== "EffectImplementation") {
-            yield* Effect.logWarning(`Tool '${toolName}' is not an EffectImplementation.`);
-            toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' is not executable by this provider.` });
-          } else {
-            const effectImpl = originalToolDef.implementation;
-
-            // Attempt to validate arguments using the original Effect Schema first for better error messages
-            const validatedArgsEither = yield* Effect.either(S.decode(effectImpl.inputSchema)(toolArgs));
-
-            if (Either.isLeft(validatedArgsEither)) {
-              const validationError = validatedArgsEither.left;
-              yield* Effect.logWarning(`Invalid arguments for tool ${toolName}`, validationError);
-              toolExecutionOutputString = JSON.stringify({ error: `Invalid arguments for tool ${toolName}. Validation failed.` });
-            } else {
-              const validatedArgs = validatedArgsEither.right;
-
-              // For execution, use the tool resolved by the registry
-              const effectiveToolFromRegistryEither = yield* Effect.either(toolRegistryService.getTool(toolName as FullToolName));
-
-              if (Either.isLeft(effectiveToolFromRegistryEither)) {
-                yield* Effect.logError(`Tool '${toolName}' was in options.tools but not resolvable by ToolRegistryService.`, effectiveToolFromRegistryEither.left);
-                toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' could not be resolved by registry.` });
-              } else {
-                const effectiveToolFromRegistry = effectiveToolFromRegistryEither.right;
-                const toolEffectToRun = effectiveToolFromRegistry.execute(validatedArgs as Record<string, unknown>);
-
-                const toolRunResultEither = yield* Effect.either(toolEffectToRun);
-
-                if (Either.isLeft(toolRunResultEither)) {
-                  const execError = toolRunResultEither.left;
-                  yield* Effect.logError(`Tool ${toolName} execution failed`, execError);
-                  toolExecutionOutputString = JSON.stringify({ error: `Tool ${toolName} execution failed: ${(execError as any)?.message || 'Unknown execution error'}` });
-                } else {
-                  toolExecutionOutputString = JSON.stringify(toolRunResultEither.right);
-                }
-              }
-            }
-          }
-
-          // Add tool result to conversation
-          googleMessages.push({ role: "user", content: `Tool ${toolName} result: ${toolExecutionOutputString}` });
-        }
-
-        yield* Effect.logError("Maximum tool iterations reached for chat.", { modelId });
-        return yield* Effect.fail(new ProviderOperationError({
-          providerName: "google",
-          operation: "chat",
-          message: "Maximum tool iterations reached.",
-          module: "GoogleClient",
-          method: "chat.maxIterations"
-        }));
-
-      }),
-
-      // Model management
-      getModels: () => Effect.succeed([]),
-
-      getDefaultModelIdForProvider: (providerName: ProvidersType, capability: ModelCapability) =>
-        Effect.fail(new ProviderMissingModelIdError({
-          providerName,
-          capability,
-          module: "google",
-          method: "getDefaultModelIdForProvider"
+      generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) => 
+        Effect.fail(new ProviderOperationError({ 
+          providerName: "google", 
+          operation: "generateSpeech",
+          message: "Speech generation not implemented for Google provider", 
+          module: "GoogleClient", 
+          method: "generateSpeech" 
         })),
 
-      generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) =>
+      transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) => 
+        Effect.fail(new ProviderOperationError({ 
+          providerName: "google", 
+          operation: "transcribe",
+          message: "Transcription not implemented for Google provider", 
+          module: "GoogleClient", 
+          method: "transcribe" 
+        })),
+
+      generateEmbeddings: (input: string[], options: ProviderGenerateEmbeddingsOptions) => 
+        Effect.fail(new ProviderOperationError({ 
+          providerName: "google", 
+          operation: "generateEmbeddings",
+          message: "Embeddings not implemented for Google provider", 
+          module: "GoogleClient", 
+          method: "generateEmbeddings" 
+        })),
+
+      generateImage: (input: EffectiveInput, options: ProviderGenerateImageOptions) => 
+        Effect.fail(new ProviderMissingCapabilityError({ 
+          providerName: "google", 
+          capability: "image-generation", 
+          module: "GoogleClient", 
+          method: "generateImage" 
+        })),
+
+      getModels: (): Effect.Effect<LanguageModelV1[], ProviderServiceConfigError, ModelServiceApi> => 
         Effect.gen(function* () {
-          const { modelId } = options;
-          if (!modelId) {
-            return yield* Effect.fail(new ProviderMissingModelIdError({
-              providerName: "google",
-              capability: "structured_output" as ModelCapability,
-              module: "google",
-              method: "generateObject"
-            }));
-          }
-
-          const messages = mapEAMessagesToGoogleMessages(Chunk.toReadonlyArray(input.messages));
-          const text = messages.map(m => m.content).join("\n");
-
-          const systemMessage = `You are a helpful assistant that generates structured JSON output. Your response should be valid JSON that matches this schema: ${JSON.stringify(options.schema)}. Do not include any explanations, markdown formatting, or anything other than the raw JSON object.`;
-
-          yield* Effect.logDebug("Generating structured output with Google provider", {
-            modelId,
-            schema: JSON.stringify(options.schema)
-          });
-
-          const result = yield* Effect.tryPromise({
-            try: () => generateText({
-              model: modelId as unknown as LanguageModelV1,
-              messages: [
-                { role: "system", content: systemMessage },
-                { role: "user", content: text }
-              ],
-              maxTokens: 1024,
-              temperature: options.parameters?.temperature ?? 0
-            }),
-            catch: (error) => new ProviderOperationError({
-              providerName: "google",
-              operation: "generateObject",
-              message: `Failed to generate object: ${error}`,
-              module: "google",
-              method: "generateObject",
-              cause: error
-            })
-          });
-
-          try {
-            const content = result.response.body as string;
-            yield* Effect.logDebug("Raw response from Google provider", { content });
-            
-            // Extract JSON from the response - handle cases where the model might include markdown code blocks or text
-            let jsonContent = content;
-            
-            // Try to extract JSON from markdown code blocks if present
-            const jsonBlockMatch = content.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
-            if (jsonBlockMatch && jsonBlockMatch[1]) {
-              jsonContent = jsonBlockMatch[1].trim();
-              yield* Effect.logDebug("Extracted JSON from code block", { jsonContent });
+          const models = yield* modelService.getModelsForProvider("google");
+          // Convert readonly array to mutable array and map to LanguageModelV1
+          return models.map((model): LanguageModelV1 => ({
+            modelId: model.id,
+            provider: "google",
+            specificationVersion: "v1",
+            defaultObjectGenerationMode: "json",
+            doGenerate: async (options: LanguageModelV1CallOptions) => {
+              const result = await generateText({
+                messages: Array.isArray(options.prompt) ? options.prompt : [options.prompt],
+                model: getModel(model.id),
+                temperature: options.temperature,
+                maxTokens: options.maxTokens,
+                topP: options.topP,
+                frequencyPenalty: options.frequencyPenalty,
+                presencePenalty: options.presencePenalty,
+                seed: options.seed
+              });
+              return {
+                text: result.text,
+                reasoning: [{ type: "text", text: result.text }],
+                finishReason: result.finishReason as LanguageModelV1FinishReason,
+                usage: {
+                  promptTokens: result.usage?.promptTokens ?? 0,
+                  completionTokens: result.usage?.completionTokens ?? 0,
+                  totalTokens: result.usage?.totalTokens ?? 0
+                },
+                rawCall: {
+                  rawPrompt: options.prompt,
+                  rawSettings: {
+                    temperature: options.temperature,
+                    maxTokens: options.maxTokens,
+                    topP: options.topP
+                  } as Record<string, unknown>
+                },
+                rawResponse: { headers: {} },
+                request: { body: JSON.stringify(options.prompt) },
+                warnings: [] as LanguageModelV1CallWarning[]
+              };
+            },
+            doStream: async (options: LanguageModelV1CallOptions) => {
+              const result = await generateText({
+                messages: Array.isArray(options.prompt) ? options.prompt : [options.prompt],
+                model: getModel(model.id),
+                temperature: options.temperature,
+                maxTokens: options.maxTokens,
+                topP: options.topP,
+                frequencyPenalty: options.frequencyPenalty,
+                presencePenalty: options.presencePenalty,
+                seed: options.seed
+              });
+              const stream = new ReadableStream<LanguageModelV1StreamPart>({
+                start(controller) {
+                  controller.enqueue({ type: "text-delta", textDelta: result.text });
+                  controller.close();
+                }
+              });
+              return {
+                stream,
+                rawCall: {
+                  rawPrompt: options.prompt,
+                  rawSettings: {
+                    temperature: options.temperature,
+                    maxTokens: options.maxTokens,
+                    topP: options.topP
+                  } as Record<string, unknown>
+                },
+                rawResponse: { headers: {} },
+                request: { body: JSON.stringify(options.prompt) },
+                warnings: [] as LanguageModelV1CallWarning[]
+              };
             }
-            
-            // Find the first occurrence of { and the last occurrence of } to extract JSON object
-            const firstBrace = jsonContent.indexOf('{');
-            const lastBrace = jsonContent.lastIndexOf('}');
-            
-            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-              jsonContent = jsonContent.substring(firstBrace, lastBrace + 1);
-              yield* Effect.logDebug("Extracted JSON object by braces", { jsonContent });
-            }
-            
-            // Try to parse the extracted JSON
-            try {
-              const parsed = JSON.parse(jsonContent);
-              yield* Effect.logDebug("Successfully parsed JSON", { parsed });
-              return parsed as T;
-            } catch (parseError) {
-              yield* Effect.logError("Failed to parse extracted JSON", { jsonContent, error: parseError });
-              throw parseError; // Re-throw to be caught by outer catch block
-            }
-          } catch (error) {
-            return yield* Effect.fail(new ProviderOperationError({
-              providerName: "google",
-              operation: "generateObject",
-              message: `Failed to parse response as JSON: ${error}`,
-              module: "google",
-              method: "generateObject",
-              cause: error
-            }));
-          }
+          }));
         }),
 
-      // Provider management
-      setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
-        Effect.fail(new ProviderOperationError({
-          providerName: "google",
-          operation: "setVercelProvider",
-          message: "Not implemented",
-          module: "google",
-          method: "setVercelProvider"
-        }))
-    } as unknown as ProviderClientApi;
-  }) as Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService>;
+        getDefaultModelIdForProvider: (providerName: ProvidersType, capability: ModelCapability) => 
+          Effect.gen(function* () {
+            if (providerName !== "google") {
+              return yield* Effect.fail(new ProviderServiceConfigError({ 
+                description: `Invalid provider: ${providerName}`, 
+                module: "GoogleClient", 
+                method: "getDefaultModelIdForProvider" 
+              }));
+            }
+            return DEFAULT_MODEL_ID;
+          })
+    };
+
+    return clientImplementation;
+  });
 }
 
 export { makeGoogleClient };

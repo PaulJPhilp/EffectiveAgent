@@ -1,0 +1,51 @@
+{
+  "name": "e2e-test-models",
+  "version": "1.0.0",
+  "description": "E2E test models configuration",
+  "models": [
+    {
+      "id": "gemini-2.0-flash",
+      "name": "gemini-2-0-flash",
+      "provider": "google",
+      "enabled": true,
+      "contextWindow": 32768,
+      "capabilities": [
+        { "capability": "text-generation" },
+        { "capability": "chat" }
+      ]
+    },
+    {
+      "id": "gemini-2.5-flash",
+      "name": "gemini-2-5-flash",
+      "provider": "google",
+      "enabled": true,
+      "contextWindow": 65536,
+      "capabilities": [
+        { "capability": "text-generation" },
+        { "capability": "chat" }
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "name": "gpt-3-5-turbo",
+      "provider": "openai",
+      "enabled": true,
+      "contextWindow": 16385,
+      "capabilities": [
+        { "capability": "text-generation" },
+        { "capability": "chat" }
+      ]
+    },
+    {
+      "id": "claude-3-haiku-20240307",
+      "name": "claude-3-haiku-20240307",
+      "provider": "anthropic",
+      "enabled": true,
+      "contextWindow": 200000,
+      "capabilities": [
+        { "capability": "text-generation" },
+        { "capability": "chat" }
+      ]
+    }
+  ]
+}

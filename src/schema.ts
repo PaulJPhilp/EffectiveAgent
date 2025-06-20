@@ -23,15 +23,25 @@ export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>;
 export class TextPart extends S.Class<TextPart>("TextPart")({
   _tag: S.Literal("Text"),
   content: S.String
-}) { }
+}) {
+  static is(part: Part): part is TextPart {
+    return part._tag === "Text";
+  }
+}
 
 /**
  * Tool call part in a message
  */
 export class ToolCallPart extends S.Class<ToolCallPart>("ToolCallPart")({
   _tag: S.Literal("ToolCall"),
-  toolCall: S.String
-}) { }
+  id: S.String,       // Corresponds to Vercel's toolCallId
+  name: S.String,     // Corresponds to Vercel's toolName
+  args: S.Record({key: S.String, value: S.Any})     // Represents a JSON object for tool arguments
+}) {
+  static is(part: Part): part is ToolCallPart {
+    return part._tag === "ToolCall";
+  }
+}
 
 /**
  * Image URL part in a message
@@ -39,7 +49,11 @@ export class ToolCallPart extends S.Class<ToolCallPart>("ToolCallPart")({
 export class ImageUrlPart extends S.Class<ImageUrlPart>("ImageUrlPart")({
   _tag: S.Literal("ImageUrl"),
   url: S.String
-}) { }
+}) {
+  static is(part: Part): part is ImageUrlPart {
+    return part._tag === "ImageUrl";
+  }
+}
 
 /**
  * Union type for all message parts

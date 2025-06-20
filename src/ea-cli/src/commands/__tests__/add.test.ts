@@ -5,6 +5,7 @@ import { Effect, Either, Layer } from "effect"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { createAgent } from "../../boilerplate/agent.js"
 import { addConfigItem } from "../../utils/config-helpers.js"
+import { createDir } from "../../services/fs.js"
 
 describe("add command functionality", () => {
   const TEST_DIR = join(process.cwd(), "test-workspace-add")
@@ -49,11 +50,12 @@ describe("add command functionality", () => {
 
         // Create test directories
         yield* Effect.all([
-          fs.makeDirectory(TEST_DIR),
-          fs.makeDirectory(PROJECT_PATH),
-          fs.makeDirectory(CONFIG_DIR),
-          fs.makeDirectory(AGENTS_DIR),
+          createDir(TEST_DIR, { recursive: true }),
+          createDir(PROJECT_PATH, { recursive: true }),
         ])
+
+        // Create config directory
+        yield* createDir(CONFIG_DIR, { recursive: true })
 
         // Create required config files
         yield* Effect.all([

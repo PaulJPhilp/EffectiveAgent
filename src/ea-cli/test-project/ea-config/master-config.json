@@ -1,0 +1,5 @@
+{
+  "logPath": "./logs/app.log",
+  "configPath": "./ea-config",
+  "agentsPath": "./agents"
+}

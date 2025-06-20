@@ -1,0 +1,6 @@
+{
+  "name": "test-policy",
+  "version": "1.0.0",
+  "description": "Test policy configuration",
+  "policies": []
+}

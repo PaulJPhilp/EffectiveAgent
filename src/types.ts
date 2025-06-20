@@ -3,7 +3,7 @@
  */
 
 import { Part as EffectiveLocalPart, EffectiveMessage } from "@/schema.js";
-import { Effect, Schema as S } from "effect";
+import { Effect, Option, Schema as S } from "effect";
 import * as Chunk from "effect/Chunk";
 
 /**
@@ -85,6 +85,14 @@ export interface EffectiveResponse<T> {
   providerMetadata?: Record<string, unknown>;
   /** Messages in the conversation */
   messages?: Chunk.Chunk<EffectiveMessage>;
+}
+
+/**
+ * Extended response type for provider operations that return a single assistant message.
+ */
+export interface ProviderEffectiveResponse<T> extends EffectiveResponse<T> {
+    /** The assistant's response message, if applicable */
+    readonly effectiveMessage?: Option<EffectiveMessage>;
 }
 
 /**

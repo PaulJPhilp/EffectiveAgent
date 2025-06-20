@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { PublicModelInfo } from "../schema.js";
 
 import { ModelCapability } from "@/schema.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ModelNotFoundError } from "../errors.js";
 import { ModelService } from "../service.js";
 

@@ -20,7 +20,7 @@
  * ```
  */
 
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { Effect, HashMap, Option, Ref } from "effect";
 import type { PolicyServiceApi } from "./api.js";
 import { PolicyError } from "./errors.js";

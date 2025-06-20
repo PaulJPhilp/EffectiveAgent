@@ -9,7 +9,7 @@ config(); // Load environment variables from .env file
 import { bootstrap } from "@/ea-agent-runtime/bootstrap.js";
 import InitializationService from "@/ea-agent-runtime/initialization.js";
 import { WeatherAgent } from "@/examples/weather/agent.js";
-import TextService from "@/services/pipeline/producers/text/service.js";
+import TextService from "@/services/producers/text/service.js";
 import { PlatformLogger } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Layer, Logger } from "effect";

@@ -184,10 +184,10 @@ export const initProjectHandler = (args: {
 
     // Initialize project structure with error handling
     yield* Effect.gen(function* () {
-      yield* createDir(projectPath)
-      yield* createDir(join(projectPath, "ea-config"))
-      yield* createDir(join(projectPath, "agents"))
-      yield* createDir(join(projectPath, "logs"))
+      yield* createDir(projectPath, { recursive: true })
+      yield* createDir(join(projectPath, "ea-config"), { recursive: true })
+      yield* createDir(join(projectPath, "agents"), { recursive: true })
+      yield* createDir(join(projectPath, "logs"), { recursive: true })
     }).pipe(
       Effect.mapError(
         (err) =>

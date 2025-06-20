@@ -4,7 +4,7 @@ import {
   ExecutiveParameters,
   ExecutiveService,
   ExecutiveServiceError,
-} from "../executive-service/index.js";
+} from "@/services/executive/index.js";
 import { PipelineServiceInterface } from "./api.js";
 
 /**

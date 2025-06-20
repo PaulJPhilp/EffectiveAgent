@@ -16,17 +16,17 @@ import { IntelligenceService } from "@/services/capabilities/intelligence/servic
 import { PersonaService } from "@/services/capabilities/persona/service.js";
 import { AttachmentService } from "@/services/core/attachment/service.js";
 import { AuthService } from "@/services/core/auth/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ErrorRecoveryService } from "@/services/core/error-recovery/service.js";
 import { FileService } from "@/services/core/file/service.js";
 import { TagService } from "@/services/core/tag/service.js";
 import { WebSocketService } from "@/services/core/websocket/service.js";
-import { ChatService } from "@/services/pipeline/producers/chat/service.js";
-import { EmbeddingService } from "@/services/pipeline/producers/embedding/service.js";
-import { ImageService } from "@/services/pipeline/producers/image/service.js";
-import { ObjectService } from "@/services/pipeline/producers/object/service.js";
-import { TextService } from "@/services/pipeline/producers/text/service.js";
-import { TranscriptionService } from "@/services/pipeline/producers/transcription/service.js";
+import { ChatService } from "@/services/producers/chat/service.js";
+import { EmbeddingService } from "@/services/producers/embedding/service.js";
+import { ImageService } from "@/services/producers/image/service.js";
+import { ObjectService } from "@/services/producers/object/service.js";
+import { TextService } from "@/services/producers/text/service.js";
+import { TranscriptionService } from "@/services/producers/transcription/service.js";
 
 /**
  * Test layer that provides all services for integration testing

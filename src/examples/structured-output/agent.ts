@@ -3,9 +3,9 @@
  * @module examples/structured-output/agent
  */
 
-import { AgentRuntimeService, makeAgentRuntimeId } from "@/ea-agent-runtime/index.js";
+import { AgentRuntimeId, AgentRuntimeService, makeAgentRuntimeId } from "@/ea-agent-runtime/index.js";
 import { AgentActivity, AgentActivityType } from "@/ea-agent-runtime/types.js";
-import ObjectService from "@/services/pipeline/producers/object/service.js";
+import { ObjectService } from "@/services/producers/object/service.js";
 import { Effect, Option, Schema } from "effect";
 import { GenerateStructuredOutputPayload, StructuredOutputPipelineError } from "./api.js";
 
@@ -52,7 +52,8 @@ export interface StructuredOutputAgentApi {
     readonly extractStructured: <A>(text: string, schema: Schema.Schema<A, A>, options?: { maxRetries?: number; modelId?: string }) => Effect.Effect<A, StructuredOutputPipelineError>
     readonly getAgentState: () => Effect.Effect<StructuredOutputAgentState, Error>
     readonly getRuntime: () => AgentRuntimeService
-    readonly terminate: () => Effect.Effect<void, Error>
+    readonly terminate: () => Effect.Effect<void, Error>;
+    readonly getAgentRuntimeId: () => AgentRuntimeId;
     readonly modelId?: string
 }
 
@@ -246,12 +247,15 @@ export class StructuredOutputAgent extends Effect.Service<StructuredOutputAgentA
             const terminate = (): Effect.Effect<void, Error> =>
                 agentRuntimeService.terminate(agentId);
 
+            const getAgentRuntimeId = () => agentId;
+
             return {
                 generateStructuredOutput,
                 extractStructured,
                 getAgentState,
                 getRuntime,
-                terminate
+                terminate,
+                getAgentRuntimeId
             };
         }),
         dependencies: [AgentRuntimeService.Default, ObjectService.Default]

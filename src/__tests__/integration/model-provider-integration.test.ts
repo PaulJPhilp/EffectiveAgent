@@ -32,7 +32,8 @@ const testLayer = Layer.provideMerge(
     ModelService.Default,
     Layer.provideMerge(
         ProviderService.Default,
-        Layer.provideMerge(ConfigurationService.Default, NodeFileSystem.layer)
+        Layer.provideMerge(ConfigurationService.Default, NodeFileSystem.layer),
+        NodePath.layer
     )
 );
 
@@ -53,7 +54,7 @@ describe("ModelService", () => {
     it("should validate models from configured providers", async () => {
         const effect = Effect.gen(function* () {
             const service = yield* ModelService;
-            const result = yield* service.validateModel("gpt-4o");
+            const result = yield* service.validateModel("gemini-2.0-flash");
             expect(result).toBe(true);
         });
 
@@ -64,7 +65,7 @@ describe("ModelService", () => {
     it("should return provider name for a model", async () => {
         const effect = Effect.gen(function* () {
             const service = yield* ModelService;
-            const result = yield* service.getProviderName("gpt-4o");
+            const result = yield* service.getProviderName("gemini-2.0-flash");
             expect(result).toBeDefined();
         });
 
@@ -90,7 +91,7 @@ describe("ProviderService", () => {
     it("should return a provider client by name", async () => {
         const effect = Effect.gen(function* () {
             const service = yield* ProviderService;
-            const client = yield* service.getProviderClient("openai");
+            const client = yield* service.getProviderClient("google");
             expect(client).toBeDefined();
         });
 

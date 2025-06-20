@@ -31,10 +31,10 @@ export const writeFileString = (path: string, data: string) =>
 export const initializeProject = (projectPath: string) =>
   Effect.gen(function* () {
     // Create main directories
-    yield* createDir(projectPath)
-    yield* createDir(join(projectPath, "ea-config"))
-    yield* createDir(join(projectPath, "agents"))
-    yield* createDir(join(projectPath, "logs"))
+    yield* createDir(projectPath, { recursive: true })
+    yield* createDir(join(projectPath, "ea-config"), { recursive: true })
+    yield* createDir(join(projectPath, "agents"), { recursive: true })
+    yield* createDir(join(projectPath, "logs"), { recursive: true })
   })
 
 // Check if a file or directory exists

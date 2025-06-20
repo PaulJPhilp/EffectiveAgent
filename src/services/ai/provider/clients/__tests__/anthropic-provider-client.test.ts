@@ -1,7 +1,7 @@
 import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import { EffectiveMessage, TextPart } from "@/schema.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Chunk, Effect, Layer } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";

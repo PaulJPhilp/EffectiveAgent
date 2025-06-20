@@ -4,7 +4,7 @@ import { join } from "path"
 import { ModelService } from "@/services/ai/model/service.js"
 import { PolicyService } from "@/services/ai/policy/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
-import { ConfigurationService } from "@/services/core/configuration/service.js"
+import { ConfigurationService } from "@/services/core/configuration/index.js"
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node"
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { AgentRuntimeService } from "../service.js";

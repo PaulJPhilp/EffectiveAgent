@@ -1,0 +1,28 @@
+{
+  "name": "e2e-test-providers",
+  "version": "1.0.0",
+  "description": "E2E test providers configuration",
+  "providers": [
+    {
+      "name": "google",
+      "displayName": "Google",
+      "type": "llm",
+      "apiKeyEnvVar": "GOOGLE_GENERATIVE_AI_API_KEY",
+      "description": "Google Generative AI provider for e2e testing"
+    },
+    {
+      "name": "openai",
+      "displayName": "OpenAI",
+      "type": "llm",
+      "apiKeyEnvVar": "OPENAI_API_KEY",
+      "description": "OpenAI API provider for e2e testing"
+    },
+    {
+      "name": "anthropic",
+      "displayName": "Anthropic",
+      "type": "llm",
+      "apiKeyEnvVar": "ANTHROPIC_API_KEY",
+      "description": "Anthropic API provider for e2e testing"
+    }
+  ]
+}

@@ -54,6 +54,6 @@ export function createAgent(agentName: string) {
     yield* writeFileString(join(srcPath, "index.ts"), agentIndexTemplate)
 
     // Write agent test file
-    yield* writeJson(join(testPath, "index.test.ts"), agentTestTemplate)
+    yield* writeFileString(join(testPath, "index.test.ts"), agentTestTemplate)
   })
 }

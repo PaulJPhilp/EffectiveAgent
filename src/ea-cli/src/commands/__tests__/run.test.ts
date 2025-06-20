@@ -2,10 +2,11 @@ import { join } from "node:path"
 import { AgentRuntimeService } from "@/ea-agent-runtime/service.js"
 import { ModelService } from "@/services/ai/model/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
-import { ConfigurationService } from "@/services/core/configuration/service.js"
+import { ConfigurationService } from "@/services/core/configuration/index.js"
 import { FileSystem } from "@effect/platform"
 import { NodeContext, NodeFileSystem } from "@effect/platform-node"
 import { Effect, Either, Layer } from "effect"
+import { createDir } from "../../services/fs"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { AgentRuntimeError, ConfigurationError } from "../../errors.js"
 import { runCommand } from "../run.js"
@@ -17,6 +18,7 @@ describe("run command", () => {
   const AGENTS_DIR = join(PROJECT_PATH, "agents")
   const CONFIG_DIR = join(PROJECT_PATH, "ea-config")
   const TEST_AGENT_DIR = join(AGENTS_DIR, "test-agent")
+  let originalCwd: string
 
   // Test configurations
   const validProviderConfig = {
@@ -87,21 +89,19 @@ describe("run command", () => {
 
   // Set up test workspace before each test
   beforeEach(async () => {
+    originalCwd = process.cwd()
     // Set required env vars
     process.env.OPENAI_API_KEY = "test-key"
 
     await Effect.runPromise(
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem
-
-        // Create test directories
-        yield* Effect.all([
-          fs.makeDirectory(TEST_DIR),
-          fs.makeDirectory(PROJECT_PATH),
-          fs.makeDirectory(AGENTS_DIR),
-          fs.makeDirectory(CONFIG_DIR),
-          fs.makeDirectory(TEST_AGENT_DIR),
-        ])
+        // Create test directories recursively
+        yield* createDir(TEST_DIR, { recursive: true })
+        yield* createDir(PROJECT_PATH, { recursive: true })
+        yield* createDir(AGENTS_DIR, { recursive: true })
+        yield* createDir(CONFIG_DIR, { recursive: true })
+        yield* createDir(TEST_AGENT_DIR, { recursive: true })
 
         // Write test config files
         yield* Effect.all([
@@ -119,14 +119,19 @@ describe("run command", () => {
           ),
         ])
 
-        // Change to project directory for tests
+        // Set environment variable and change directory for tests
+        process.env.PROJECT_ROOT = PROJECT_PATH
         process.chdir(PROJECT_PATH)
-      }).pipe(Effect.provide(NodeContext.layer)),
+      }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
   })
 
   // Clean up after each test
   afterEach(async () => {
+    // Restore CWD first
+    process.chdir(originalCwd)
+    // Clear specific env var
+    delete process.env.PROJECT_ROOT
     // Clean up environment
     process.env = { ...originalEnv }
 
@@ -135,7 +140,7 @@ describe("run command", () => {
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem
         yield* fs.remove(TEST_DIR, { recursive: true })
-      }).pipe(Effect.provide(NodeContext.layer)),
+      }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
   })
 

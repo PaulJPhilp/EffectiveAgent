@@ -7,7 +7,7 @@ import { Data, Effect } from "effect"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
 import { ModelService } from "../../services/ai/model/service.js"
-import { ConfigurationService } from "../../services/core/configuration/service.js"
+import { ConfigurationService } from "../../services/core/configuration/index.js"
 
 // Import CLI commands
 import { addCommand } from "./commands/add.js"

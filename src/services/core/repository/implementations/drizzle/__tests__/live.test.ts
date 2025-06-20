@@ -239,6 +239,8 @@ describe("DrizzleRepository (integration)", () => {
           const repo = createRepo();
           const created = yield* repo.create({ name: "q", value: 1 });
           const first = yield* repo.update(created.id, { value: 2 });
+          // Add a small delay to ensure timestamps are different
+          yield* Effect.sleep("1 millis");
           const second = yield* repo.update(created.id, { value: 3 });
           expect(second.updatedAt.getTime()).toBeGreaterThan(
             first.updatedAt.getTime()

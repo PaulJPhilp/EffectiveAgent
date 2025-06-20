@@ -4,7 +4,7 @@ import { AgentRuntimeService } from "@/ea-agent-runtime/service.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import TextService from "@/services/pipeline/producers/text/service.js";
+import TextService from "@/services/producers/text/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, LogLevel, Logger } from "effect";
 import { WeatherAgent } from "../agent.js";

@@ -1,4 +1,4 @@
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { Effect, Ref } from "effect";
 import { ProviderServiceApi } from "./api.js";
 import { makeAnthropicClient } from "./clients/anthropic-provider-client.js";
@@ -41,6 +41,7 @@ const makeProviderService = Effect.gen(function* () {
             }
 
             const providerInfo = config.providers.find((p: { name: string }) => p.name === providerName);
+            yield* Effect.logInfo("Provider info", { providerInfo });
             if (!providerInfo) {
                 yield* Effect.logError("Provider not found", { providerName });
                 return yield* Effect.fail(new ProviderNotFoundError({
@@ -73,19 +74,19 @@ const makeProviderService = Effect.gen(function* () {
             // Create provider-specific client based on provider type
             switch (providerInfo.name) {
                 case "openai":
-                    return makeOpenAIClient(apiKey);
+                    return yield* makeOpenAIClient(apiKey);
                 case "anthropic":
-                    return makeAnthropicClient(apiKey);
+                    return yield* makeAnthropicClient(apiKey);
                 case "google":
-                    return makeGoogleClient(apiKey);
+                    return yield* makeGoogleClient(apiKey);
                 case "deepseek":
-                    return makeDeepseekClient(apiKey);
+                    return yield* makeDeepseekClient(apiKey);
                 case "perplexity":
-                    return makePerplexityClient(apiKey);
+                    return yield* makePerplexityClient(apiKey);
                 case "qwen":
-                    return makeQwenClient(apiKey);
+                    return yield* makeQwenClient(apiKey);
                 case "xai":
-                    return makeXaiClient(apiKey);
+                    return yield* makeXaiClient(apiKey);
                 default:
                     return yield* Effect.fail(new ProviderNotFoundError({
                         providerName,

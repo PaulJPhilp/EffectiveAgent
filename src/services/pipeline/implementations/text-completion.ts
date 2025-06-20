@@ -6,9 +6,9 @@
 import { EffectiveError } from "@/errors.js";
 import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
-import { TextCompletionError } from "@/services/pipeline/producers/text/errors.js";
-import { TextCompletionInput, TextCompletionOutput } from "@/services/pipeline/producers/text/schema.js";
-import { TextService } from "@/services/pipeline/producers/text/service.js";
+import { TextCompletionError } from "@/services/producers/text/errors.js";
+import { TextCompletionInput, TextCompletionOutput } from "@/services/producers/text/schema.js";
+import { TextService } from "@/services/producers/text/service.js";
 // PipelineService import removed
 import { Effect, Option, Schema, pipe } from "effect";
 

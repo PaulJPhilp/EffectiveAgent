@@ -1,6 +1,6 @@
 import { EffectiveTool, ToolExecutionError } from "@/types.js";
 import { Effect, HashMap } from "effect";
-import { ConfigurationService } from "../../core/configuration/service.js";
+import { ConfigurationService } from "../../core/configuration/index.js";
 import { FullToolName, SimpleToolName } from "../tools/schema.js";
 import { ToolImplementation, ToolkitName, ToolRegistryApi } from "../tools/types.js";
 import { ToolRegistry } from "./api.js";

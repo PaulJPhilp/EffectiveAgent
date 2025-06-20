@@ -9,7 +9,7 @@
  */
 
 import { ModelCapability } from "@/schema.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { Effect } from "effect";
 import type { ModelServiceApi } from "./api.js";
 import { ModelNotFoundError } from "./errors.js";

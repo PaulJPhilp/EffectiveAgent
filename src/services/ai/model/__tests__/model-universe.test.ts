@@ -2,7 +2,7 @@
  * @file Tests for the MODEL_UNIVERSE implementation in the ModelService
  */
 
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeContext } from "@effect/platform-node";
 import type { ModelServiceApi } from "../api.js";
 import { ModelService } from "../service.js";

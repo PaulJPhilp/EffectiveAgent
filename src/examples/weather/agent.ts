@@ -5,7 +5,7 @@
 
 import { AgentRuntimeService, makeAgentRuntimeId } from "@/ea-agent-runtime/index.js";
 import { AgentActivity, AgentActivityType } from "@/ea-agent-runtime/types.js";
-import { TextService } from "@/services/pipeline/producers/text/service.js";
+import { TextService } from "@/services/producers/text/service.js";
 import type { JsonObject } from "@/types.js";
 import { Effect, Option } from "effect";
 import { WeatherPipelineError } from "./errors.js";

@@ -3,7 +3,7 @@
  * and the layer providing loaded PromptConfigData.
  */
 
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { Config, ConfigProvider, Effect, HashMap, Ref } from "effect";
 import { Liquid } from "liquidjs";
 import {

@@ -1,0 +1,25 @@
+{
+  "name": "test-project",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "agents/*"
+  ],
+  "scripts": {
+    "test": "bun test",
+    "build": "bun run build",
+    "format": "biome format --write .",
+    "lint": "biome check ."
+  },
+  "dependencies": {
+    "effect": "^3.16.4",
+    "@effective-agents/core": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.6.1",
+    "@types/node": "^20.11.30",
+    "typescript": "^5.4.3",
+    "vitest": "^1.4.0"
+  }
+}

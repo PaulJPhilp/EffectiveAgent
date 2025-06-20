@@ -1,0 +1,1 @@
+{"name":"e2e-test-policy","version":"1.0.0","description":"E2E test policy configuration","policies":[{"id":"default","name":"Default Policy","type":"allow","resource":"*","enabled":true,"priority":1}]}

@@ -49,7 +49,7 @@ export interface ConfigurationSchemas {
     readonly masterConfigSchema: Schema.Schema<any, any>;
 }
 
-const makeConfigurationService = Effect.gen(function* () {
+export const make = Effect.gen(function* () {
     const path = yield* Path.Path;
     const projectRoot = process.env.PROJECT_ROOT || process.cwd();
     const masterConfigPath = process.env.MASTER_CONFIG_PATH ||
@@ -136,7 +136,7 @@ const makeConfigurationService = Effect.gen(function* () {
 export class ConfigurationService extends Effect.Service<ConfigurationServiceApi>()(
     "ConfigurationService",
     {
-        effect: makeConfigurationService
+        effect: make
     }
 ) { }
 

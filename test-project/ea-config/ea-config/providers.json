@@ -1,0 +1,18 @@
+{
+    "version": "1.0.0",
+    "description": "Test provider config for provider init test",
+    "name": "test-provider-config",
+    "providers": [
+        {
+            "name": "google",
+            "displayName": "Google",
+            "type": "text",
+            "apiKeyEnvVar": "GOOGLE_API_KEY",
+            "baseUrl": "https://generativelanguage.googleapis.com/v1",
+            "rateLimit": {
+                "maxRequests": 100,
+                "perSeconds": 60
+            }
+        }
+    ]
+}

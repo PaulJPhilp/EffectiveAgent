@@ -2367,6 +2367,50 @@ export const MODEL_UNIVERSE: readonly ModelMetadata[] = [
       supportedFormats: ["text/plain"]
     },
     enabled: true
+  },
+  {
+    id: "gemini-2.5-flash",
+    name: "gemini-2_5-flash",
+    version: "2.5.0",
+    provider: "google",
+    modelName: "gemini-2.5-flash",
+    displayName: "Gemini 2.5 Flash",
+    description: "Google's Gemini 2.5 Flash model, optimized for speed and efficiency.",
+    vendorCapabilities: ["text-generation", "chat", "function-calling"],
+    derivedProficiencies: [],
+    contextWindowSize: 65536,
+    maxTokens: 32768,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.0001,
+    costPer1kOutputTokens: 0.0002,
+    supportedLanguages: ["en"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
+  },
+  {
+    id: "claude-3-haiku-20240307",
+    name: "claude-3-haiku-20240307",
+    version: "20240307",
+    provider: "anthropic",
+    modelName: "claude-3-haiku-20240307",
+    displayName: "Claude 3 Haiku",
+    description: "Anthropic's fastest and most compact model for near-instant responsiveness.",
+    vendorCapabilities: ["text-generation", "chat"],
+    derivedProficiencies: [],
+    contextWindowSize: 200000,
+    maxTokens: 4096,
+    temperature: 0.7,
+    costPer1kInputTokens: 0.00025,
+    costPer1kOutputTokens: 0.00125,
+    supportedLanguages: ["en"],
+    responseFormat: {
+      type: "text",
+      supportedFormats: ["text/plain"]
+    },
+    enabled: true
   }
 ] as const;
 

@@ -1,7 +1,7 @@
 import { Message, TextPart } from "@/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { EffectiveInput } from "@/types.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Chunk, Effect, Layer } from "effect";

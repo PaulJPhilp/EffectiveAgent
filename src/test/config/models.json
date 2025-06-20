@@ -1,0 +1,37 @@
+{
+  "name": "test-models",
+  "version": "1.0.0",
+  "description": "Test models configuration",
+  "models": [
+    {
+      "id": "test-google-model",
+      "provider": "google",
+      "modelId": "gemini-pro",
+      "displayName": "Test Google Model",
+      "description": "Google's Gemini Pro model for general text and chat",
+      "type": "llm",
+      "contextWindow": 32000,
+      "maxTokens": 2048
+    },
+    {
+      "id": "test-openai-model",
+      "provider": "openai",
+      "modelId": "gpt-4-turbo-preview",
+      "displayName": "Test OpenAI Model",
+      "description": "OpenAI's GPT-4 Turbo model for advanced text and chat",
+      "type": "llm",
+      "contextWindow": 128000,
+      "maxTokens": 4096
+    },
+    {
+      "id": "test-anthropic-model",
+      "provider": "anthropic",
+      "modelId": "claude-3-opus",
+      "displayName": "Test Anthropic Model",
+      "description": "Anthropic's Claude 3 Opus model for sophisticated text and chat",
+      "type": "llm",
+      "contextWindow": 200000,
+      "maxTokens": 4096
+    }
+  ]
+}

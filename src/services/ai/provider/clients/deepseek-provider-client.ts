@@ -29,7 +29,7 @@ import { ModelServiceApi } from "../../model/api.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { ProvidersType } from "../schema.js";
 import { ModelService } from "../../model/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
 import { EffectiveInput, EffectiveResponse } from "@/types.js";
 import { LanguageModelV1 } from "ai";

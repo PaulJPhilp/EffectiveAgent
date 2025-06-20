@@ -3,9 +3,9 @@ import { join } from "path";
 import { EffectiveMessage, ModelCapability, TextPart } from "@/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Chunk, Effect, Layer } from "effect";
+import { Chunk, Effect, Layer, Schema as S } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ProviderMissingCapabilityError, ProviderOperationError } from "../../errors.js";
 import { makePerplexityClient } from "../perplexity-provider-client.js";
@@ -499,7 +499,7 @@ describe("Perplexity Provider Client", () => {
                 const result = yield* Effect.either(
                     client.chat(input, {
                         modelId: "sonar-pro",
-                        tools: [{ name: "test_tool", description: "A test tool", parameters: {} }]
+                        tools: [{ metadata: { name: "test_tool", description: "A test tool" }, implementation: { _tag: "EffectImplementation" as const, execute: () => Effect.succeed("placeholder tool execution"), inputSchema: S.Any, outputSchema: S.Any } }]
                     })
                 );
 

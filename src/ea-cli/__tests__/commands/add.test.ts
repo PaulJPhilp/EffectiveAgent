@@ -4,7 +4,7 @@ import { NodeContext, NodeFileSystem } from "@effect/platform-node"
 import { addCommand } from "../../src/commands/add.js"
 import { runCommand, expectCommandFailure } from "../test-utils.js"
 import { setupTestWorkspace } from "../setup.js"
-import { ConfigurationService } from "../../../services/core/configuration/service.js"
+import { ConfigurationService } from "../../../services/core/configuration/index.js"
 import { ModelService } from "../../../services/ai/model/service.js"
 import {
   ValidationError,

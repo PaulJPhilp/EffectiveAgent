@@ -212,7 +212,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           const result = yield* Effect.tryPromise({
             try: () => generateText({
               messages,
-              model: modelId as unknown as LanguageModelV1,
+              model: anthropicProvider(modelId),
               temperature: options.parameters?.temperature,
               maxTokens: options.parameters?.maxTokens,
               topP: options.parameters?.topP,
@@ -324,12 +324,13 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           }
         }
 
+        const vercelModel = anthropicProvider(modelId);
+
         for (let iter = 0; iter < MAX_TOOL_ITERATIONS; iter++) {
           const vercelResult = yield* Effect.tryPromise({
             try: async () => {
-              const modelInstance = anthropicProvider(modelId);
               return await generateText({
-                model: modelInstance,
+                model: vercelModel,
                 messages: vercelMessages,
                 tools: llmTools,
                 system: options.system,

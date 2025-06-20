@@ -1,4 +1,4 @@
-import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer } from "effect";
 import { describe, expect, it } from "vitest";

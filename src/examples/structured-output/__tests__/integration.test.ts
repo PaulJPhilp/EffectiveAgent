@@ -1,5 +1,5 @@
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { ObjectService } from "@/services/pipeline/producers/object/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { ObjectService } from "@/services/producers/object/service.js";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import { Effect, Schema } from "effect";
 import { describe, expect, it } from "vitest";
