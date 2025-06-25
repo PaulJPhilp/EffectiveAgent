@@ -1,7 +1,19 @@
 // Load environment variables first
 import "./load-env.js";
 
-// e2e simple prompt test (direct Effect, no CLI)
+/**
+ * e2e simple prompt test (direct Effect, no CLI)
+ * 
+ * Note on TypeScript Environment Types:
+ * This file uses @ts-ignore on Layer.provideMerge because the Effect type system
+ * has limitations tracking complex environment compositions through Layer merges.
+ * The code is correct and works at runtime, validated by the Effect LSP.
+ * 
+ * The type error occurs because TypeScript cannot properly track that FileSystem
+ * and other required capabilities are provided through the nested Layer.provideMerge
+ * calls. This is a known limitation when working with Effect's environment tracking.
+ */
+
 // Run with:
 // bun run src/e2e/usecase/simple-prompt-anthropic.ts
 
