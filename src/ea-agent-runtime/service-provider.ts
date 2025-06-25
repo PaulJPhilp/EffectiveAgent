@@ -33,5 +33,3 @@ export class ServiceProvider extends Effect.Service<RuntimeServices>()(
     ]
   }
 ) {}
-
-export const ServiceProviderLive = ServiceProvider.Default;

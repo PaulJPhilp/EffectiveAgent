@@ -2,8 +2,12 @@ import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
 import { join } from "path";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { ToolRegistryService } from "@/services/ai/tool-registry/index.js";
+import { EffectiveInput } from "@/types.js";
+import { EffectImplementation } from "@/services/ai/tools/schema.js";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect } from "effect";
+import { Chunk, Effect } from "effect";
+import { z } from "zod";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { makeGoogleClient } from "../google-provider-client.js";
 
@@ -161,7 +165,7 @@ describe("Google Provider Client", () => {
         it("should fail tool validation as expected", () =>
             Effect.gen(function* () {
                 const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
-                const result = yield* Effect.either(client.validateToolInput("testTool", { param: "value" }));
+                const result = yield* Effect.either(client.validateToolInput("test:testTool", { param: "value" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
                 Effect.provide(ModelService.Default),
@@ -172,7 +176,7 @@ describe("Google Provider Client", () => {
         it("should fail tool execution as expected", () =>
             Effect.gen(function* () {
                 const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
-                const result = yield* Effect.either(client.executeTool("testTool", { param: "value" }));
+                const result = yield* Effect.either(client.executeTool("test:testTool", { param: "value" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
                 Effect.provide(ModelService.Default),
@@ -183,7 +187,7 @@ describe("Google Provider Client", () => {
         it("should fail tool result processing as expected", () =>
             Effect.gen(function* () {
                 const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
-                const result = yield* Effect.either(client.processToolResult("testTool", { result: "data" }));
+                const result = yield* Effect.either(client.processToolResult("test:testTool", { result: "data" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
                 Effect.provide(ModelService.Default),
@@ -208,6 +212,74 @@ describe("Google Provider Client", () => {
                 expect(caps1.size).toBe(caps2.size);
                 return { client1, client2 };
             }).pipe(
+                Effect.provide(ModelService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+            ));
+    });
+
+    describe("chat functionality", () => {
+        it("should work without tools", () =>
+            Effect.gen(function* () {
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
+                const input = new EffectiveInput("What is 2+2?", Chunk.empty());
+                
+                const result = yield* client.chat(input, {
+                    modelId: "gemini-1.5-flash",
+                    system: "You are a helpful math assistant."
+                });
+
+                expect(result.data).toBeDefined();
+                expect(result.data.text).toBeDefined();
+                expect(result.data.model).toBe("gemini-1.5-flash");
+                return result;
+            }).pipe(
+                Effect.provide(ModelService.Default),
+                Effect.provide(ConfigurationService.Default),
+                Effect.provide(NodeFileSystem.layer)
+            ));
+
+        it("should require ToolRegistryService with tools", () =>
+            Effect.gen(function* () {
+                const client = yield* makeGoogleClient(process.env.GOOGLE_GENERATIVE_AI_API_KEY!);
+                const input = new EffectiveInput("What is 2+2?", Chunk.empty());
+                
+                const tools = [{
+                    metadata: {
+                        name: "calculator",
+                        description: "A calculator that can perform basic math",
+                        parameters: z.object({
+                            operation: z.enum(["add", "subtract", "multiply", "divide"]),
+                            a: z.number(),
+                            b: z.number()
+                        })
+                    },
+                    implementation: new EffectImplementation({
+                        _tag: "EffectImplementation",
+                        inputSchema: z.object({
+                            operation: z.enum(["add", "subtract", "multiply", "divide"]),
+                            a: z.number(),
+                            b: z.number()
+                        }),
+                        outputSchema: z.object({
+                            result: z.string()
+                        }),
+                        execute: (input: unknown) => Effect.succeed({ result: "4" })
+                    })
+                }];
+
+                const result = yield* client.chat(input, {
+                    modelId: "gemini-1.5-flash",
+                    system: "You are a helpful math assistant.",
+                    tools
+                });
+
+                expect(result.data).toBeDefined();
+                expect(result.data.text).toBeDefined();
+                expect(result.data.model).toBe("gemini-1.5-flash");
+                return result;
+            }).pipe(
+                Effect.provide(ToolRegistryService.Default),
                 Effect.provide(ModelService.Default),
                 Effect.provide(ConfigurationService.Default),
                 Effect.provide(NodeFileSystem.layer)

@@ -10,6 +10,7 @@ import { PolicyCheckContext, PolicyCheckResult, PolicyRecordContext } from "./ty
  * It acts as the Policy Decision Point (PDP) in the system.
  */
 export interface PolicyServiceApi {
+  loadPolicy: any;
   /**
    * Checks if an AI operation is allowed based on policy rules.
    * 

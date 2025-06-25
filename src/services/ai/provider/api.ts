@@ -1,12 +1,13 @@
-import type { EffectiveInput, EffectiveResponse, ProviderEffectiveResponse, FullToolName } from "@/types.js";
+import type { EffectiveInput, EffectiveResponse, ProviderEffectiveResponse } from "@/types.js";
 import type { Effect } from "effect";
+import type { FullToolName } from "../tool-registry/types.js";
+import type { ChatResult } from "./types.js";
 
 import { ModelCapability } from "@/schema.js";
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import { ModelServiceApi } from "../model/api.js";
-import { ToolRegistryService } from "../tool-registry/service.js";
+import { type ToolRegistryService } from "../tool-registry/service.js";
 import {
-    ProviderInvalidToolError,
     ProviderMissingCapabilityError,
     ProviderMissingModelIdError,
     ProviderNotFoundError,
@@ -39,6 +40,7 @@ import {
  * Defines the public API for the ProviderService.
  */
 export type ProviderServiceApi = {
+    loadProvider: any;
     /**
      * Gets a provider client by name.
      * @param providerName The name of the provider to get.
@@ -98,7 +100,7 @@ export interface ProviderClientApi {
     ) => Effect.Effect<unknown, ProviderToolError>;
 
 
-        chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse, ProviderOperationError | ProviderServiceConfigError | ProviderInvalidToolError, ToolRegistryService>;
+    chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse<ChatResult>, ProviderOperationError | ProviderServiceConfigError | ProviderToolError, ToolRegistryService>;
     /**
      * Set a Vercel AI SDK provider for this client.
      * @param vercelProvider The Vercel AI SDK provider instance with provider name as discriminator

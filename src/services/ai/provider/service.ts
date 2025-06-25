@@ -1,4 +1,5 @@
-import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { ConfigurationService } from "@/services/core/configuration/service";
+
 import { Effect, Ref } from "effect";
 import { ProviderServiceApi } from "./api.js";
 import { makeAnthropicClient } from "./clients/anthropic-provider-client.js";
@@ -101,6 +102,7 @@ const makeProviderService = Effect.gen(function* () {
 export class ProviderService extends Effect.Service<ProviderServiceApi>()(
     "ProviderService",
     {
-        effect: makeProviderService
+        effect: makeProviderService,
+        dependencies: [ConfigurationService.Default]
     }
 ) { }

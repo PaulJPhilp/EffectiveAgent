@@ -36,7 +36,7 @@ export class ToolCallPart extends S.Class<ToolCallPart>("ToolCallPart")({
   _tag: S.Literal("ToolCall"),
   id: S.String,       // Corresponds to Vercel's toolCallId
   name: S.String,     // Corresponds to Vercel's toolName
-  args: S.Record({key: S.String, value: S.Any})     // Represents a JSON object for tool arguments
+  args: S.Record({ key: S.String, value: S.Any })     // Represents a JSON object for tool arguments
 }) {
   static is(part: Part): part is ToolCallPart {
     return part._tag === "ToolCall";
@@ -237,3 +237,4 @@ export class Message extends S.Class<Message>("Message")({
 // Compatibility exports for legacy imports
 export { Message as EffectiveMessage };
 export type { Part as EffectiveLocalPart };
+

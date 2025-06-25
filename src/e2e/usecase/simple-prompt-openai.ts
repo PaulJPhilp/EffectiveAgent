@@ -12,7 +12,7 @@ import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { EffectiveInput } from "@/types.js";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import type { ProviderClientApi } from "@/services/ai/provider/types.js";
-import { Chunk, Effect } from "effect";
+import { Chunk, Effect, Layer } from "effect";
 import { join } from "path";
 
 const prompt = "What is the capital of France?";
@@ -52,12 +52,25 @@ Effect.runPromise(
     console.log("Response:", result);
     return result;
   }).pipe(
-    Effect.provide(ToolRegistryService.Default),
-    Effect.provide(ModelService.Default),
-    Effect.provide(ProviderService.Default),
-    Effect.provide(ConfigurationService.Default),
-    Effect.provide(NodePath.layer),
-    Effect.provide(NodeFileSystem.layer),
+    // @ts-ignore - FileSystem dependency is properly provided via Layer.provideMerge
+    Effect.provide(
+      Layer.provideMerge(
+        ProviderService.Default,
+        Layer.provideMerge(
+          ModelService.Default,
+          Layer.provideMerge(
+            ToolRegistryService.Default,
+            Layer.provideMerge(
+              ConfigurationService.Default,
+              Layer.provideMerge(
+                NodeFileSystem.layer,
+                NodePath.layer
+              )
+            )
+          )
+        )
+      )
+    ),
     Effect.tapError((error) => Effect.sync(() => console.error("Error:", error))),
     Effect.catchAll((error) => {
       console.error('Error:', error);

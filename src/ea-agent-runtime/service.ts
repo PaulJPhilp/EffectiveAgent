@@ -144,8 +144,8 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
 
         // Effect execution bridge
         const run = <Output, LogicError = EffectiveError>(
-            logicToRun: Effect.Effect<Output, LogicError, any>
-        ): Promise<Output> => Effect.runPromise(logicToRun as Effect.Effect<Output, LogicError, never>)
+            logicToRun: Effect.Effect<Output, LogicError, never>
+        ): Promise<Output> => Effect.runPromise(logicToRun)
 
         return {
             create,
@@ -160,7 +160,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
             getChatService,
             createLangGraphAgent,
             run
-        } satisfies AgentRuntimeServiceApi
+        }
     }),
     dependencies: [
         ModelService.Default,

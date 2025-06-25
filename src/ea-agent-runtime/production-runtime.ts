@@ -12,8 +12,6 @@ import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { Logger, LogLevel } from "effect";
 import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
-import { bootstrap } from "./bootstrap.js";
-import InitializationService from "./initialization.js";
 import { AgentRuntimeService } from "./service.js";
 import type { RuntimeServices } from "./types.js";
 

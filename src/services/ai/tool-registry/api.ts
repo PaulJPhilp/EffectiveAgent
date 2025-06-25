@@ -3,10 +3,10 @@
  * @module services/ai/tool-registry/api
  */
 
-import { EffectiveTool, EffectiveToolkit } from "@/types.js";
-export type { ToolRegistryApi } from "./types.js";
+import { EffectiveToolkit } from "@/types.js";
 import { Effect } from "effect";
 import type {
+    EffectiveTool,
     FullToolName,
     ToolRegistryData,
     ToolkitName,
@@ -21,7 +21,8 @@ import type {
  * Service contract for managing and accessing the tool registry.
  * This includes both internal tools (standard library) and project-specific tools.
  */
-export interface ToolRegistry {
+export interface ToolRegistryApi {
+    loadTools: any;
     /**
      * Retrieves the fully merged tool registry data.
      * This data includes all tools and toolkits from various sources

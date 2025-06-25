@@ -1,9 +1,9 @@
 import { EffectiveTool, ToolExecutionError } from "@/types.js";
 import { Effect, HashMap } from "effect";
-import { ConfigurationService } from "../../core/configuration/index.js";
+import { ConfigurationService } from "@/services/core/configuration/service";
 import { FullToolName, SimpleToolName } from "../tools/schema.js";
-import { ToolImplementation, ToolkitName, ToolRegistryApi } from "../tools/types.js";
-import { ToolRegistry } from "./api.js";
+import { ToolImplementation, ToolkitName } from "../tools/types.js";
+import { ToolRegistryApi } from "./api.js";
 import { ToolNotFoundErrorInRegistry, ToolkitNotFoundErrorInRegistry } from "./errors.js";
 import { ToolkitSchema } from "./schema.js";
 
@@ -12,7 +12,7 @@ import { ToolkitSchema } from "./schema.js";
  * This includes both internal tools (standard library) and project-specific tools.
  */
 
-export class ToolRegistryService extends Effect.Service<ToolRegistry>()(
+export class ToolRegistryService extends Effect.Service<ToolRegistryApi>()(
     "ToolRegistryService",
     {
         effect: Effect.gen(function* () {
@@ -162,6 +162,7 @@ export class ToolRegistryService extends Effect.Service<ToolRegistry>()(
                     return tools;
                 })
             };
-        })
+        }),
+        dependencies: [ConfigurationService.Default]
     }
 ) { }

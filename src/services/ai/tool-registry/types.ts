@@ -31,18 +31,10 @@ export type InternalToolboxData = HashMap.HashMap<string, EffectiveTool>;
 
 // Re-export SimpleToolName if needed by the service API or consumers
 
-/**
- * Canonical Effect.Service API for ToolRegistryService.
- * Only includes methods exposed via the Effect.Service pattern.
- */
-export interface ToolRegistryApi {
-  readonly getRegistryData: (fullPath: string) => Effect.Effect<ToolRegistryData, ToolRegistryError>;
-  readonly getTool: (toolName: FullToolName) => Effect.Effect<EffectiveTool, ToolNotFoundErrorInRegistry | ToolRegistryError>;
-  readonly getToolkit: (toolkitName: ToolkitName) => Effect.Effect<EffectiveToolkit, ToolkitNotFoundErrorInRegistry | ToolRegistryError>;
-  readonly listTools: () => Effect.Effect<FullToolName[], ToolRegistryError>;
-}
+
 
 export type SimpleToolName = SchemaSimpleToolName;
+export type { FullToolName };
 export type { ToolDefinition }; // Re-export ToolDefinition if needed
 
 /**

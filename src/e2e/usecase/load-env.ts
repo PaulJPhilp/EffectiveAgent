@@ -1,5 +1,14 @@
 import { config } from "dotenv";
+import { join } from "path";
 
-const result = config();
-console.log("dotenv result:", result);
-console.log("GOOGLE_GENERATIVE_AI_API_KEY:", process.env.GOOGLE_GENERATIVE_AI_API_KEY);
+// Load environment variables from .env.test
+const result = config({ path: join(process.cwd(), ".env.test") });
+
+if (result.error) {
+  console.error("Error loading .env.test file:", result.error);
+  // In a test environment, we might want to throw the error
+  // to fail fast if the configuration is missing.
+  throw result.error;
+}
+
+console.log("Loaded environment variables from .env.test");

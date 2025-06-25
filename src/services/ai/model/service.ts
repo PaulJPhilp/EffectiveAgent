@@ -9,7 +9,7 @@
  */
 
 import { ModelCapability } from "@/schema.js";
-import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { ConfigurationService } from "@/services/core/configuration/service";
 import { Effect } from "effect";
 import type { ModelServiceApi } from "./api.js";
 import { ModelNotFoundError } from "./errors.js";
@@ -136,6 +136,8 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
         const shutdown = () =>
             Effect.succeed(void 0).pipe(Effect.tap(() => Effect.logDebug("ModelService shutdown called")));
 
+        const loadModel = (modelId: string) => Effect.succeed(`model ${modelId} loaded`);
+
         return {
             validateModel,
             findModelsByCapability,
@@ -146,7 +148,12 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
             getModelsForProvider,
             load,
             healthCheck,
-            shutdown
+            shutdown,
+            loadModel,
+            get publicModels() {
+                return Effect.succeed(config.models.filter((model: PublicModelInfoData) => model.enabled));
+            }
         } satisfies ModelServiceApi;
-    })
+    }),
+    dependencies: [ConfigurationService.Default]
 }) { }

@@ -2,27 +2,26 @@ import { EffectiveError } from "@/errors.js"
 import type { ModelServiceApi } from "@/services/ai/model/api.js"
 import type { PolicyServiceApi } from "@/services/ai/policy/api.js"
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
-import type { ToolRegistry } from "@/services/ai/tool-registry/api.js"
+import type { ToolRegistryApi } from "@/services/ai/tool-registry/api.js"
 import type { ChatServiceApi } from "@/services/producers/chat/api.js"
-import { Effect, Stream } from "effect";
+import { Effect, Stream } from "effect"
 import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
-import { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
-import { RuntimeServices } from "./types.js";
-import { ServiceProvider } from "./service-provider.js";
+import { AgentActivity, AgentRuntimeId, AgentRuntimeState, RuntimeServices } from "./types.js"
+
 import {
-  AgentRuntimeInitializationError,
-  ConfigurationError} from "./errors.js";
+    AgentRuntimeInitializationError
+} from "./errors.js"
 
 export interface AgentRuntimeApi extends RuntimeServices {
-  runEffect: <A, E>(
-    effect: Effect.Effect<A, E, RuntimeServices>
-  ) => Effect.Effect<A, E | AgentRuntimeInitializationError, never>;
-  getRuntime: () => Effect.Effect<RuntimeServices, AgentRuntimeInitializationError, never>;
-  initialize: () => Effect.Effect<void, AgentRuntimeInitializationError, never>;
-  shutdown: () => Effect.Effect<void, never, never>;
+    runEffect: <A, E>(
+        effect: Effect.Effect<A, E, RuntimeServices>
+    ) => Effect.Effect<A, E | AgentRuntimeInitializationError, never>;
+    getRuntime: () => Effect.Effect<RuntimeServices, AgentRuntimeInitializationError, never>;
+    initialize: () => Effect.Effect<void, AgentRuntimeInitializationError, never>;
+    shutdown: () => Effect.Effect<void, never, never>;
 }
 
-export type { AgentRuntimeApi as default };
+export type { AgentRuntimeApi as default }
 
 import type { LangGraphAgentState } from "@/ea-langgraph-sdk/types.js"
 
@@ -65,6 +64,7 @@ export interface AgentRuntime<S = unknown> {
  * as well as accessing configured services.
  */
 export interface AgentRuntimeServiceApi {
+    loadRuntime: any
     /**
      * Creates a new AgentRuntime instance with default processing logic.
      * 
@@ -151,7 +151,7 @@ export interface AgentRuntimeServiceApi {
      * 
      * @returns Effect<ToolRegistry> containing the configured ToolRegistryService
      */
-    readonly getToolRegistryService: () => Effect.Effect<ToolRegistry, never>
+    readonly getToolRegistryService: () => Effect.Effect<ToolRegistryApi, never>
 
     /**
      * Gets the configured ChatService instance.
@@ -193,6 +193,6 @@ export interface AgentRuntimeServiceApi {
      * @returns Promise that resolves with the Effect's output or rejects with EffectiveError
      */
     readonly run: <Output, LogicError = EffectiveError>(
-        logicToRun: Effect.Effect<Output, LogicError, any>
+        logicToRun: Effect.Effect<Output, LogicError, never>
     ) => Promise<Output>
 }

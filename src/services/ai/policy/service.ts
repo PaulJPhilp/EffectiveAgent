@@ -20,7 +20,7 @@
  * ```
  */
 
-import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { ConfigurationService } from "@/services/core/configuration/service";
 import { Effect, HashMap, Option, Ref } from "effect";
 import type { PolicyServiceApi } from "./api.js";
 import { PolicyError } from "./errors.js";
@@ -76,80 +76,53 @@ type PolicyConfigData = typeof PolicyConfigFile.Type;
  */
 export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicyService", {
   effect: Effect.gen(function* () {
-    // Load our own config via ConfigurationService
     const configService = yield* ConfigurationService;
-
-    // Get policy config path from master config
     const masterConfig = yield* configService.getMasterConfig();
     const policyConfigPath = masterConfig.configPaths?.policy || "./config/policy.json";
-    const config = yield* configService.loadPolicyConfig(policyConfigPath);
-
-    // Initialize rule repository
     const ruleRepo = yield* Ref.make(HashMap.empty<string, PolicyRuleEntity>());
 
-    // Load initial rules
-    for (const rule of config.policies) {
-      yield* Ref.update(ruleRepo, rules => HashMap.set(rules, rule.id, {
-        id: rule.id,
-        data: rule,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      }));
-    }
+    const loadPolicy = () =>
+      Effect.gen(function* () {
+        const config = yield* configService.loadPolicyConfig(policyConfigPath);
+        yield* Ref.set(ruleRepo, HashMap.empty());
+        for (const rule of config.policies) {
+          yield* Ref.update(ruleRepo, (rules) =>
+            HashMap.set(rules, rule.id, {
+              id: rule.id,
+              data: rule,
+              createdAt: new Date(),
+              updatedAt: new Date()
+            })
+          );
+        }
+      });
 
-    // Return service implementation
+    yield* loadPolicy();
+
     const checkPolicy = (context: PolicyCheckContext): Effect.Effect<PolicyCheckResult, PolicyError, never> =>
       Effect.gen(function* () {
-        yield* Effect.logDebug("Checking policy", { context });
         const rules = yield* Ref.get(ruleRepo);
-
         if (HashMap.isEmpty(rules)) {
-          yield* Effect.logDebug("No rules found, allowing operation");
-          return {
-            allowed: true,
-            effectiveModel: context.requestedModel
-          };
+          return { allowed: true, effectiveModel: context.requestedModel };
         }
 
         const matchingRules = Array.from(HashMap.values(rules))
           .filter((rule: unknown) => {
             const entityRule = rule as PolicyRuleEntity;
             const ruleData = entityRule.data;
-
-            // Check if rule applies to this operation
-            if (ruleData.resource && ruleData.resource !== context.operationType) {
-              return false;
-            }
-
-            // Check if rule applies to this model
+            if (ruleData.resource && ruleData.resource !== context.operationType) return false;
             if (ruleData.conditions) {
               try {
                 const conditions = JSON.parse(ruleData.conditions);
-                if (conditions.model && conditions.model !== context.requestedModel) {
-                  return false;
-                }
-              } catch {
-                // Invalid conditions JSON, skip model check
-              }
+                if (conditions.model && conditions.model !== context.requestedModel) return false;
+              } catch {}
             }
-
-            // Rule must be enabled
             return ruleData.enabled;
           })
-          .sort((a, b) => {
-            const entityA = a as PolicyRuleEntity;
-            const entityB = b as PolicyRuleEntity;
-            return entityB.data.priority - entityA.data.priority;
-          });
+          .sort((a, b) => (b as PolicyRuleEntity).data.priority - (a as PolicyRuleEntity).data.priority);
 
-        // Check for matching deny rules first (highest priority wins)
         const denyRule = matchingRules.find(rule => (rule as PolicyRuleEntity).data.type === POLICY_RULE_DENY);
-
         if (denyRule) {
-          yield* Effect.logInfo("Operation denied by policy rule", {
-            ruleId: (denyRule as PolicyRuleEntity).id,
-            context
-          });
           return {
             allowed: false,
             effectiveModel: context.requestedModel,
@@ -157,22 +130,11 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
           };
         }
 
-        // No deny rules matched, look for allow rules
         const allowRule = matchingRules.find(rule => (rule as PolicyRuleEntity).data.type === POLICY_RULE_ALLOW);
-
         if (allowRule) {
-          yield* Effect.logInfo("Operation allowed by policy rule", {
-            ruleId: (allowRule as PolicyRuleEntity).id,
-            context
-          });
-          return {
-            allowed: true,
-            effectiveModel: context.requestedModel
-          };
+          return { allowed: true, effectiveModel: context.requestedModel };
         }
 
-        // No matching rules found, default to deny
-        yield* Effect.logInfo("No matching rules found, denying operation by default", { context });
         return {
           allowed: false,
           effectiveModel: context.requestedModel,
@@ -182,52 +144,39 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
 
     const addRule = (rule: PolicyRuleEntity): Effect.Effect<PolicyRuleEntity, PolicyError, never> =>
       Effect.gen(function* () {
-        yield* Effect.logDebug("Adding policy rule", { rule });
-        yield* Ref.update(ruleRepo, rules => HashMap.set(rules, rule.id, rule));
+        yield* Ref.update(ruleRepo, (rules) => HashMap.set(rules, rule.id, rule));
         return rule;
       });
 
     const removeRule = (ruleId: string): Effect.Effect<void, PolicyError, never> =>
       Effect.gen(function* () {
-        yield* Effect.logDebug("Removing policy rule", { ruleId });
-        yield* Ref.update(ruleRepo, rules => HashMap.remove(rules, ruleId));
+        yield* Ref.update(ruleRepo, (rules) => HashMap.remove(rules, ruleId));
       });
 
     const getRules = (): Effect.Effect<readonly PolicyRuleEntity[], PolicyError, never> =>
       Effect.gen(function* () {
-        const rules = yield* Ref.get(ruleRepo);
-        return Array.from(HashMap.values(rules));
+        return Array.from(HashMap.values(yield* Ref.get(ruleRepo)));
       });
 
-    const healthCheck = () =>
-      Effect.succeed(void 0).pipe(Effect.tap(() => Effect.logDebug("PolicyService healthCheck called")));
-
-    const shutdown = () =>
-      Effect.succeed(void 0).pipe(Effect.tap(() => Effect.logDebug("PolicyService shutdown called")));
-
     return {
+      loadPolicy,
       checkPolicy,
       createRule: (rule) => {
         const id = crypto.randomUUID();
-        return addRule({
-          id,
-          data: { ...rule, id },
-          createdAt: new Date(),
-          updatedAt: new Date()
-        });
+        return addRule({ id, data: { ...rule, id }, createdAt: new Date(), updatedAt: new Date() });
       },
-      getRule: (ruleId) => Effect.map(getRules(), rules =>
-        Option.fromNullable(rules.find(r => r.id === ruleId))
-      ),
+      getRule: (ruleId) => Effect.map(getRules(), (rules) => Option.fromNullable(rules.find((r) => r.id === ruleId))),
       updateRule: (ruleId, updates) => Effect.fail(new PolicyError({ description: "Not implemented", method: "updateRule" })),
       deleteRule: (ruleId) => Effect.gen(function* () {
+        const rule = yield* Effect.map(Ref.get(ruleRepo), r => HashMap.get(r, ruleId));
         yield* removeRule(ruleId);
-        return Option.none();
+        return rule;
       }),
-      recordOutcome: () => Effect.fail(new PolicyError({ description: "Not implemented", method: "recordOutcome" })),
-      resetAll: () => Effect.succeed(void 0),
-      healthCheck,
-      shutdown
+      recordOutcome: (outcome) => Effect.logDebug("recordOutcome called but not implemented", { outcome }),
+      resetAll: () => Ref.set(ruleRepo, HashMap.empty()),
+      healthCheck: () => Effect.void,
+      shutdown: () => Effect.void
     } satisfies PolicyServiceApi;
-  })
+  }),
+  dependencies: [ConfigurationService.Default]
 }) { }

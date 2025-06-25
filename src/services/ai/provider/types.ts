@@ -1,5 +1,4 @@
-import { Option } from "effect";
-import type { EffectiveMessage, GenerateBaseResult, ResponseMessage } from "@/types.js";
+import type { GenerateBaseResult, ResponseMessage } from "@/types.js";
 import type { ToolServiceApi } from "../tools/api.js";
 import { type ToolDefinition } from "../tools/schema.js";
 import type { ToolRegistryData } from "../tools/types.js";

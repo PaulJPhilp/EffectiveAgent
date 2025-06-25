@@ -1,67 +1,79 @@
+import { Effect } from "effect";
+import type { ModelNotFoundError } from "./errors.js";
 import type { ModelCapability } from "@/schema.js";
-import { Effect, Schema as S } from "effect";
-import type {
-  ModelNotFoundError
-} from "./errors.js";
-import type { PublicModelInfoDefinition } from "./schema.js";
+import type { PublicModelInfoData } from "./schema.js";
 
 /**
  * Defines the public API for the ModelService.
+ * This service is responsible for managing and providing information about available AI models.
  */
-export type ModelServiceApi = {
+export interface ModelServiceApi {
+  /**
+   * This was missing from the API, causing a type error in the service implementation.
+   */
+  loadModel: any;
+
+  /**
+   * Checks if a model with the given ID exists.
+   */
   exists: (modelId: string) => Effect.Effect<boolean, ModelNotFoundError>;
+
   /**
    * Loads the model configuration.
-   * Returns a ModelFile containing PublicModelInfoDefinition objects.
+   * Returns a ModelFile containing PublicModelInfoData objects.
    */
-  load: () => Effect.Effect<{ models: readonly PublicModelInfoDefinition[], name: string, version: string }, ModelNotFoundError>;
+  load: () => Effect.Effect<{ models: readonly PublicModelInfoData[], name: string, version: string }, ModelNotFoundError>;
 
   /**
    * Gets the provider name for a given model ID.
    */
-  readonly getProviderName: (modelId: string) => Effect.Effect<string, ModelNotFoundError, never>;
+  getProviderName: (modelId: string) => Effect.Effect<string, ModelNotFoundError>;
 
   /**
-   * Finds all models that include the specified capability (based on vendorCapabilities).
-   * Returns PublicModelInfoDefinition objects.
+   * Finds models that have a specific capability (e.g., 'chat', 'image-generation').
+   * Returns an array of PublicModelInfoData objects.
    */
-  readonly findModelsByCapability: (capability: S.Schema.Type<typeof ModelCapability>) => Effect.Effect<readonly PublicModelInfoDefinition[], ModelNotFoundError, never>;
+  findModelsByCapability: (
+    capability: ModelCapability
+  ) => Effect.Effect<PublicModelInfoData[], ModelNotFoundError>;
 
   /**
    * Finds all models that include ALL of the specified capabilities (based on vendorCapabilities).
-   * Returns PublicModelInfoDefinition objects.
+   * Returns PublicModelInfoData objects.
    */
-  readonly findModelsByCapabilities: (capabilities: readonly S.Schema.Type<typeof ModelCapability>[]) => Effect.Effect<readonly PublicModelInfoDefinition[], ModelNotFoundError, never>;
+  findModelsByCapabilities: (
+    capabilities: readonly ModelCapability[]
+  ) => Effect.Effect<readonly PublicModelInfoData[], ModelNotFoundError>;
 
   /**
-   * Gets the default model ID for a given provider and capability.
+   * Gets the default model ID.
    */
-  readonly getDefaultModelId: () => Effect.Effect<string, ModelNotFoundError, never>;
+  getDefaultModelId: () => Effect.Effect<string, ModelNotFoundError>;
 
   /**
    * Gets metadata for all models associated with a specific provider.
    */
-  readonly getModelsForProvider: (providerName: string) => Effect.Effect<readonly PublicModelInfoDefinition[], ModelNotFoundError, never>;
+  getModelsForProvider: (
+    providerName: string
+  ) => Effect.Effect<readonly PublicModelInfoData[], ModelNotFoundError>;
+
+  /**
+   * Gets the available public models.
+   */
+  get publicModels(): Effect.Effect<PublicModelInfoData[], never, never>;
 
   /**
    * Validates if a model has all the specified capabilities (based on vendorCapabilities).
-   * @param modelId The ID of the model to validate.
-   * @param capabilities Array of capabilities to validate against.
-   * @returns An Effect resolving to true if the model exists and has all specified capabilities.
-   * @error ModelNotFoundError If the model ID doesn't exist.
-   * @error ModelValidationError If the model lacks required capabilities.
    */
   validateModel: (modelId: string) => Effect.Effect<boolean, ModelNotFoundError>;
 
   /**
    * Checks the health of the model service.
-   * @returns An Effect that resolves to void on success or fails with ModelNotFoundError
    */
   healthCheck: () => Effect.Effect<void, ModelNotFoundError>;
 
   /**
    * Shuts down the model service and cleans up resources.
-   * @returns An Effect that resolves to void on success or fails with ModelNotFoundError
    */
   shutdown: () => Effect.Effect<void, ModelNotFoundError>;
-};
+}
