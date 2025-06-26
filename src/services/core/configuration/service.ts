@@ -13,16 +13,6 @@ import { ConfigurationServiceApi } from "./api.js";
 import { ConfigParseError, ConfigReadError, ConfigValidationError } from "./errors.js";
 import { MasterConfigSchema } from "./schema.js";
 
-const readFile = (filePath: string): Effect.Effect<string, ConfigReadError, FileSystem.FileSystem> =>
-    Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        return yield* fs.readFileString(filePath, "utf8").pipe(
-            Effect.mapError(error => new ConfigReadError({
-                filePath,
-                cause: error
-            }))
-        );
-    });
 
 const parseJson = (content: string, filePath: string): Effect.Effect<unknown, ConfigParseError> =>
     Effect.try({
@@ -50,6 +40,17 @@ export interface ConfigurationSchemas {
 }
 
 export const make = Effect.gen(function* () {
+
+    const readFile = (filePath: string): Effect.Effect<string, ConfigReadError, FileSystem.FileSystem> =>
+        Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            return yield* fs.readFileString(filePath, "utf8").pipe(
+                Effect.mapError(error => new ConfigReadError({
+                    filePath,
+                    cause: error
+                }))
+            );
+        });
     const path = yield* Path.Path;
     const projectRoot = process.env.PROJECT_ROOT || process.cwd();
     const masterConfigPath = process.env.MASTER_CONFIG_PATH ||
@@ -95,8 +96,7 @@ export const make = Effect.gen(function* () {
 
         loadModelConfig: (filePath: string) =>
             Effect.gen(function* () {
-                let effectiveFilePath = filePath;
-                if (masterConfig.configPaths?.models) {
+                let effectiveFilePath = filePath;if (masterConfig.configPaths?.models) {
                     effectiveFilePath = path.resolve(masterConfigDir, masterConfig.configPaths.models);
                     yield* Effect.logDebug(`Resolved model config path: ${effectiveFilePath}`);
                 }
@@ -139,4 +139,3 @@ export class ConfigurationService extends Effect.Service<ConfigurationServiceApi
         effect: make
     }
 ) { }
-

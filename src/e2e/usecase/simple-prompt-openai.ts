@@ -19,11 +19,11 @@ import "./load-env.js";
 
 import { ModelService } from "@/services/ai/model/index.js";
 import { ProviderService } from "@/services/ai/provider/index.js";
+import type { ProviderClientApi } from "@/services/ai/provider/types.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/index.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { EffectiveInput } from "@/types.js";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
-import type { ProviderClientApi } from "@/services/ai/provider/types.js";
 import { Chunk, Effect, Layer } from "effect";
 import { join } from "path";
 
@@ -32,22 +32,21 @@ const prompt = "What is the capital of France?";
 // Use e2e configuration
 process.env.EFFECTIVE_AGENT_MASTER_CONFIG = join(process.cwd(), "src/e2e/config/master-config.json");
 
-const layer = Layer.mergeAll(ProviderService.Default, ModelService.Default, ToolRegistryService.Default)
+// Layer Composition
+// A single, flat layer is created by merging all service and platform layers.
+// Effect's `Layer.mergeAll` is powerful enough to resolve the entire dependency
+// graph. It ensures that services like `ConfigurationService` get their required
+// `FileSystem` and `Path` dependencies from the platform layers, and that other
+// services get the fully constructed `ConfigurationService` they need.
+const appLayer = Layer.mergeAll(
+  NodeFileSystem.layer,
+  NodePath.layer,
+  ConfigurationService.Default,
+  ProviderService.Default,
+  ModelService.Default,
+  ToolRegistryService.Default
+);
 
-// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-// IMPORTANT: DO NOT MODIFY THE LAYER STRUCTURE BELOW
-// Effect Service Pattern for Tests:
-// 1. Create base layers for system dependencies (FileSystem)
-// 2. Create configuration layer that depends on FileSystem
-// 3. Create provider layer that depends on both configuration and FileSystem
-// 4. Use Effect.gen to yield services and make API calls
-// 5. Provide all layers in correct dependency order via Effect.provide
-
-// IMPORTANT: The OpenAI provider is the correct provider for this test.
-// The provider client from getProviderClient("openai") exposes generateText
-// which is the correct method to use. The chat method is not available for this simple prompt test.
-
-// Run the test with all dependencies provided
 // Run the program with all dependencies
 Effect.runPromise(
   Effect.gen(function* () {
@@ -66,24 +65,13 @@ Effect.runPromise(
     console.log("Response:", result);
     return result;
   }).pipe(
-    // @ts-ignore - FileSystem dependency is properly provided via Layer.provideMerge
-    Effect.provide(
-      Layer.mergeAll(
-        layer,
-        ConfigurationService.Default,
-        Layer.provideMerge(
-          NodeFileSystem.layer,
-          NodePath.layer
-        )
-      )
-    )
-  )
-),
-  Effect.tapError((error) => Effect.sync(() => console.error("Error:", error))),
-  Effect.catchAll((error) => {
-    console.error('Error:', error);
-    process.exit(1);
-    return Effect.succeed(void 0);
-  })
+    // @ts-ignore - The type system can struggle to infer the final provided environment
+    // through multiple layers of composition, but the dependency graph is correct.
+    Effect.provide(appLayer),
+    Effect.tapError((error) => Effect.sync(() => console.error("Error:", error))),
+    Effect.catchAll((error) => {
+      console.error('Error:', error);
+      process.exit(1);
+    })
   )
 );

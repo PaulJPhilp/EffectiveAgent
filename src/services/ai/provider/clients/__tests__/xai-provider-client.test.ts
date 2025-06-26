@@ -249,7 +249,7 @@ describe("xAI Provider Client", () => {
             withLayers(Effect.gen(function* () {
                 const client = yield* makeXaiClient("test-key");
                 const result = yield* Effect.either(
-                    client.validateToolInput("testTool", { param: "value" })
+                    client.validateToolInput("testTool:validate", { param: "value" })
                 );
 
                 expect(result._tag).toBe("Left");
@@ -266,7 +266,7 @@ describe("xAI Provider Client", () => {
             withLayers(Effect.gen(function* () {
                 const client = yield* makeXaiClient("test-key");
                 const result = yield* Effect.either(
-                    client.executeTool("testTool", { param: "value" })
+                    client.executeTool("testTool:execute", { param: "value" })
                 );
 
                 expect(result._tag).toBe("Left");
@@ -283,7 +283,7 @@ describe("xAI Provider Client", () => {
             withLayers(Effect.gen(function* () {
                 const client = yield* makeXaiClient("test-key");
                 const result = yield* Effect.either(
-                    client.processToolResult("testTool", { result: "data" })
+                    client.processToolResult("testTool:execute", { result: "data" })
                 );
 
                 expect(result._tag).toBe("Left");

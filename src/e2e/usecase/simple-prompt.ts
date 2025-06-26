@@ -71,14 +71,11 @@ Effect.runPromise(
   })
     .pipe(
       Effect.provide(
-        Layer.merge(
+        Layer.provideMerge(
           layer,
-          Layer.merge(
+          Layer.provideMerge(
             ConfigurationService.Default,
-            Layer.merge(
-              NodeFileSystem.layer,
-              NodePath.layer
-            )
+            Layer.merge(NodeFileSystem.layer, NodePath.layer)
           )
         )
       ),
@@ -88,3 +85,4 @@ Effect.runPromise(
         process.exit(1);
       }))
     )
+)
