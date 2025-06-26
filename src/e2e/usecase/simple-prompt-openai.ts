@@ -23,7 +23,7 @@ import type { ProviderClientApi } from "@/services/ai/provider/types.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/index.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { EffectiveInput } from "@/types.js";
-import { NodeFileSystem, NodePath } from "@effect/platform-node";
+import { NodeContext, NodeFileSystem, NodePath } from "@effect/platform-node";
 import { Chunk, Effect, Layer } from "effect";
 import { join } from "path";
 
@@ -39,17 +39,17 @@ process.env.EFFECTIVE_AGENT_MASTER_CONFIG = join(process.cwd(), "src/e2e/config/
 // `FileSystem` and `Path` dependencies from the platform layers, and that other
 // services get the fully constructed `ConfigurationService` they need.
 const appLayer = Layer.mergeAll(
-  NodeFileSystem.layer,
-  NodePath.layer,
   ConfigurationService.Default,
   ProviderService.Default,
   ModelService.Default,
   ToolRegistryService.Default
-);
+).pipe(
+  Layer.provide(NodeContext.layer)
+)
 
 // Run the program with all dependencies
-Effect.runPromise(
-  Effect.gen(function* () {
+
+const app = Effect.gen(function* () {
     // Get required services
     const providerService = yield* ProviderService;
     yield* Effect.logInfo("Getting OpenAI provider client");
@@ -69,9 +69,10 @@ Effect.runPromise(
     // through multiple layers of composition, but the dependency graph is correct.
     Effect.provide(appLayer),
     Effect.tapError((error) => Effect.sync(() => console.error("Error:", error))),
-    Effect.catchAll((error) => {
-      console.error('Error:', error);
-      process.exit(1);
-    })
+    // Effect.catchAll((error) => {
+    //   console.error('Error:', error);
+    //   process.exit(1);
+    // })
   )
-);
+
+Effect.runPromise(app);

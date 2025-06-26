@@ -40,10 +40,11 @@ export interface ConfigurationSchemas {
 }
 
 export const make = Effect.gen(function* () {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
 
-    const readFile = (filePath: string): Effect.Effect<string, ConfigReadError, FileSystem.FileSystem> =>
+    const readFile = (filePath: string): Effect.Effect<string, ConfigReadError> =>
         Effect.gen(function* () {
-            const fs = yield* FileSystem.FileSystem;
             return yield* fs.readFileString(filePath, "utf8").pipe(
                 Effect.mapError(error => new ConfigReadError({
                     filePath,
@@ -51,7 +52,7 @@ export const make = Effect.gen(function* () {
                 }))
             );
         });
-    const path = yield* Path.Path;
+    
     const projectRoot = process.env.PROJECT_ROOT || process.cwd();
     const masterConfigPath = process.env.MASTER_CONFIG_PATH ||
         process.env.EFFECTIVE_AGENT_MASTER_CONFIG ||
