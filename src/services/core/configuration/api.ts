@@ -25,30 +25,30 @@ export interface LoadConfigOptions<T> {
  */
 export interface ConfigurationServiceApi {
 
-    readonly loadConfig: <T>(filePath: string, schema: Schema.Schema<T, any>) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError, FileSystem>;
+    readonly loadConfig: <T>(filePath: string, schema: Schema.Schema<T, any>) => Effect.Effect<T, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Load and parse a raw configuration file without schema validation
      * @param filePath - Path to the configuration file
      * @returns Effect containing the parsed JSON object or configuration error
      */
-    readonly loadRawConfig: (filePath: string) => Effect.Effect<unknown, ConfigReadError | ConfigParseError, FileSystem>;
+    readonly loadRawConfig: (filePath: string) => Effect.Effect<unknown, ConfigReadError | ConfigParseError>;
 
     /**
      * Load and validate provider configuration.
      */
-    readonly loadProviderConfig: (filePath: string) => Effect.Effect<ProviderFile, ConfigReadError | ConfigParseError | ConfigValidationError, FileSystem>;
+    readonly loadProviderConfig: (filePath: string) => Effect.Effect<ProviderFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Load and validate model configuration.
      */
-    readonly loadModelConfig: (filePath: string) => Effect.Effect<ModelConfigData, ConfigReadError | ConfigParseError | ConfigValidationError, FileSystem>;
+    readonly loadModelConfig: (filePath: string) => Effect.Effect<ModelConfigData, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Load and validate the policy configuration file
      * @returns Effect containing PolicyConfigFile or configuration error
      */
-    readonly loadPolicyConfig: (filePath: string) => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigParseError | ConfigValidationError, FileSystem>;
+    readonly loadPolicyConfig: (filePath: string) => Effect.Effect<PolicyConfigFile, ConfigReadError | ConfigParseError | ConfigValidationError>;
 
     /**
      * Get an API key from environment variables.
@@ -64,5 +64,5 @@ export interface ConfigurationServiceApi {
      */
     readonly getEnvVariable: (name: string) => Effect.Effect<string>;
 
-    readonly getMasterConfig: () => Effect.Effect<MasterConfig, ConfigReadError | ConfigParseError | ConfigValidationError, FileSystem>;
+    readonly getMasterConfig: () => Effect.Effect<MasterConfig, ConfigReadError | ConfigParseError | ConfigValidationError>;
 }
