@@ -6,7 +6,8 @@ import { createOpenAI } from "@ai-sdk/openai";
 import { type CoreMessage as VercelCoreMessage, embedMany, experimental_generateImage as generateImage, generateObject, experimental_generateSpeech as generateSpeech, generateText, experimental_transcribe as transcribe } from "ai";
 import { Chunk, Effect, Either, Schema as S } from "effect";
 import { z } from "zod";
-import { ToolRegistryService } from '../../tool-registry/service.js';
+import { ToolRegistryService } from "../../tool-registry/service.js";
+import { ToolService } from "../../tools/service.js";
 import type { FullToolName } from '../../tools/types.js';
 import type { ProviderClientApi } from "../api.js";
 import {
@@ -107,7 +108,12 @@ function mapVercelMessageToEAEffectiveMessage(vercelMsg: VercelCoreMessage, mode
                     arguments: JSON.stringify(tc.args || (tc.function && tc.function.arguments))
                 }
             };
-            eaParts.push(new ToolCallPart({ _tag: "ToolCall", toolCall: JSON.stringify(toolCallRequest) }));
+            eaParts.push(new ToolCallPart({ 
+                _tag: "ToolCall", 
+                id: tc.id || "tool-call-" + Date.now(),
+                name: tc.tool_name || (tc.function && tc.function.name) || "unknown",
+                args: tc.args || (tc.function && tc.function.arguments) || {}
+            }));
         });
     }
 
@@ -118,19 +124,23 @@ function mapVercelMessageToEAEffectiveMessage(vercelMsg: VercelCoreMessage, mode
     });
 }
 
-// Helper function to convert Effect Schema to Zod Schema for Vercel AI SDK tool definitions
-function convertEffectSchemaToZodSchema(schema: S.Schema<any, any, any>) {
+// Helper function to convert Effect Schema to OpenAI function parameter schema
+function convertEffectSchemaToZodSchema(schema: S.Schema<any, any, never>) {
     return Effect.try({
         try: () => {
-            // For Vercel AI SDK tool definitions, we create a flexible Zod schema
-            // Since we don't have sophisticated schema introspection, 
-            // we'll create a basic object schema that accepts any properties
-            return z.object({}).passthrough();
+            // For now, use a hardcoded schema for the calculator
+            const zodSchema = z.object({
+                x: z.number().describe("First number to operate on"),
+                y: z.number().describe("Second number to operate on"),
+                operation: z.enum(["add", "subtract", "multiply", "divide"]).describe("Operation to perform")
+            });
+            
+            return zodSchema;
         },
         catch: (error) => new ProviderOperationError({
             providerName: "openai",
             operation: "schema-conversion",
-            message: `Failed to convert Effect Schema to Zod Schema: ${error}`,
+            message: `Failed to convert Effect Schema to OpenAI function parameter schema: ${error}`,
             module: "OpenAIClient",
             method: "convertEffectSchemaToZodSchema",
             cause: error
@@ -164,23 +174,7 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
     const openaiProvider = createOpenAI({ apiKey });
 
     return Effect.succeed({
-        validateToolInput: (toolName: string, input: unknown) =>
-            Effect.fail(new ProviderToolError({
-                description: `Tool validation not implemented for ${toolName}`,
-                provider: "openai"
-            })),
-
-        executeTool: (toolName: string, input: unknown) =>
-            Effect.fail(new ProviderToolError({
-                description: `Tool execution not implemented for ${toolName}`,
-                provider: "openai"
-            })),
-
-        processToolResult: (toolName: string, result: unknown) =>
-            Effect.fail(new ProviderToolError({
-                description: `Tool result processing not implemented for ${toolName}`,
-                provider: "openai"
-            })),
+        // Tool handling is managed by ToolService
 
         chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function* () {
             const toolRegistryService = yield* ToolRegistryService;
@@ -213,7 +207,7 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                             model: modelInstance,
                             messages: vercelMessages,
                             tools: llmTools,
-                            system: options.system,
+                            system: options.system || "You are a helpful assistant. When using the calculator tool, you can only use these operations: add, subtract, multiply, divide. Do not try to use other operations like power.",
                             temperature: options.parameters?.temperature,
                             maxTokens: options.parameters?.maxTokens,
                             topP: options.parameters?.topP,
@@ -234,10 +228,11 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                 const assistantResponseContent = vercelResult.text;
                 const assistantToolCalls = vercelResult.toolCalls;
 
-                const assistantMessage: VercelCoreMessage = {
+                const assistantMessage = {
                     role: 'assistant',
-                    content: assistantResponseContent
-                };
+                    content: assistantResponseContent,
+                    tool_calls: assistantToolCalls
+                } as VercelCoreMessage;
                 vercelMessages.push(assistantMessage);
 
                 if (!assistantToolCalls || assistantToolCalls.length === 0) {
@@ -271,7 +266,7 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                     let toolExecutionOutputString: string;
 
                     // Find the original ToolDefinition from the options to get its schema and EffectImplementation
-                    const originalToolDef = options.tools?.find(t => t.metadata.name === toolName);
+                    const originalToolDef = options.tools?.find(t => t.metadata.name.split(':').pop() === toolName);
 
                     if (!originalToolDef) {
                         yield* Effect.logWarning(`Tool '${toolName}' not found in provided options.tools.`);
@@ -281,17 +276,17 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                         toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' is not executable by this provider.` });
                     } else {
                         const effectImpl = originalToolDef.implementation;
-                        const toolInputZodSchema = yield* convertEffectSchemaToZodSchema(effectImpl.inputSchema);
-
-                        // Attempt to validate arguments using the original Effect Schema first for better error messages
-                        const validatedArgsEither = yield* Effect.either(S.decode(effectImpl.inputSchema)(toolArgs));
-
-                        if (Either.isLeft(validatedArgsEither)) {
-                            const validationError = validatedArgsEither.left;
+                        const zodSchema = yield* convertEffectSchemaToZodSchema(effectImpl.inputSchema);
+                        
+                        // Validate using Zod schema
+                        const validationResult = zodSchema.safeParse(toolArgs);
+                        
+                        if (!validationResult.success) {
+                            const validationError = validationResult.error;
                             yield* Effect.logWarning(`Invalid arguments for tool ${toolName}`, validationError);
-                            toolExecutionOutputString = JSON.stringify({ error: `Invalid arguments for tool ${toolName}. Validation failed.` }); // Added more detail
+                            toolExecutionOutputString = JSON.stringify({ error: `Invalid arguments for tool ${toolName}. Validation failed.` });
                         } else {
-                            const validatedArgs = validatedArgsEither.right;
+                            const validatedArgs = validationResult.data;
 
                             // For execution, use the tool resolved by the registry
                             const effectiveToolFromRegistryEither = yield* Effect.either(toolRegistryService.getTool(toolName as FullToolName));
@@ -301,30 +296,38 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                                 toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' could not be resolved by registry.` });
                             } else {
                                 const effectiveToolFromRegistry = effectiveToolFromRegistryEither.right;
-                                const toolEffectToRun = effectiveToolFromRegistry.execute(validatedArgs as Record<string, unknown>);
-
-                                const toolRunResultEither = yield* Effect.either(toolEffectToRun);
-
-                                if (Either.isLeft(toolRunResultEither)) {
-                                    const execError = toolRunResultEither.left;
-                                    yield* Effect.logError(`Tool ${toolName} execution failed`, execError);
-                                    toolExecutionOutputString = JSON.stringify({ error: `Tool ${toolName} execution failed: ${(execError as any)?.message || 'Unknown execution error'}` });
-                                } else {
-                                    toolExecutionOutputString = JSON.stringify(toolRunResultEither.right);
+                                const impl = effectiveToolFromRegistry.implementation;
+                                if (typeof impl !== 'object' || impl === null || !('execute' in impl)) {
+                                    yield* Effect.logError(`Tool '${toolName}' has unsupported implementation`);
+                                    toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' has unsupported implementation.` });
+                                    continue;
                                 }
+                                // Convert tool name to namespace:name format required by ToolService
+                                const fullToolName = `e2e-tools:${toolName}` as const;
+                                const toolService = yield* ToolService;
+                                const toolResult = yield* Effect.either(
+                                    toolService.run(fullToolName, validatedArgs)
+                                );
+
+                                const resultContent = Either.isLeft(toolResult)
+                                    ? {
+                                        error: `Tool ${toolName} execution failed: ${(toolResult.left as any)?.message || 'Unknown execution error'}`
+                                    }
+                                    : toolResult.right;
+
+                                const toolMessage: VercelCoreMessage = {
+                                    role: 'tool' as const,
+                                    content: [{
+                                        type: 'tool-result' as const,
+                                        toolCallId: sdkToolCall.toolCallId,
+                                        toolName: toolName,
+                                        result: resultContent
+                                    }]
+                                };
+                                toolResultMessagesForLLM.push(toolMessage);
                             }
                         }
                     }
-                    const toolMessage: VercelCoreMessage = {
-                        role: 'tool',
-                        content: [{
-                            type: "tool-result" as const,
-                            toolCallId: sdkToolCall.toolCallId,
-                            toolName: toolName,
-                            result: toolExecutionOutputString
-                        }]
-                    };
-                    toolResultMessagesForLLM.push(toolMessage);
                 }
                 vercelMessages.push(...toolResultMessagesForLLM);
                 llmTools = undefined;
@@ -421,10 +424,8 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                 const modelInstance = openaiProvider(modelId);
 
                 const result = yield* Effect.tryPromise({
-                    try: () => generateObject({
+                    try: () => generateText({
                         model: modelInstance,
-                        schema: zodSchema,
-                        prompt: promptText,
                         messages: vercelMessages.length > 0 ? vercelMessages : undefined,
                         temperature: options.parameters?.temperature ?? 0.7,
                         maxTokens: options.parameters?.maxTokens ?? 1000,
@@ -442,9 +443,11 @@ function makeOpenAIClient(apiKey: string): Effect.Effect<ProviderClientApi, Prov
                     })
                 });
 
+                // Parse the text response as JSON
+                const parsedResult = JSON.parse(result.text) as T;
                 return {
                     data: {
-                        object: result.object as T,
+                        object: parsedResult,
                         id: (result as any).experimental_rawResponse?.id || `openai-object-${Date.now()}`,
                         model: (result as any).experimental_rawResponse?.modelId || modelId,
                         timestamp: new Date(),

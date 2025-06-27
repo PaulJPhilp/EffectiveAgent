@@ -9,13 +9,13 @@ import {
     type LanguageModelV1StreamPart
 } from "@ai-sdk/provider";
 import { generateObject, generateText } from "ai";
-import { Chunk, Effect, Option } from "effect";
+import { Chunk, Effect, Either, Option } from "effect";
 
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolService } from "@/services/ai/tools/service.js";
 import { z } from "zod";
 import type { ModelServiceApi } from "../../model/api.js";
-import { ToolRegistryService } from '../../tool-registry/service.js';
+import type { ToolRegistryApi } from "../../tool-registry/api.js";
 import type { FullToolName } from '../../tools/types.js';
 import type { ProviderClientApi } from "../api.js";
 import {
@@ -125,7 +125,7 @@ function mapGoogleMessageToEAEffectiveMessage(googleMsg: GoogleMessage, modelId:
     });
 }
 
-export function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi> {
+export function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryApi> {
     return Effect.gen(function* () {
         const modelService = yield* ModelService;
         const googleProvider = createGoogleGenerativeAI({ apiKey });
@@ -135,36 +135,23 @@ export function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientAp
         }
 
         const clientImplementation: ProviderClientApi = {
-            validateToolInput: (toolName: FullToolName, input: unknown) =>
+            // Required interface methods, but not used since we delegate to ToolService
+            validateToolInput: (_toolName: FullToolName, input: unknown) =>
                 Effect.succeed(input) as Effect.Effect<unknown, ProviderToolError, never>,
 
-            executeTool: (toolName: FullToolName, input: unknown) =>
-                Effect.gen(function* () {
-                    const toolService = yield* ToolService;
-                    const result = yield* toolService.run(toolName, input);
-                    return result;
-                }).pipe(
-                    Effect.mapError(error => new ProviderToolError({
-                        description: `Failed to execute tool ${toolName}`,
-                        module: "GoogleClient",
-                        method: "executeTool",
-                        cause: error
-                    })),
-                    Effect.map(result => result as unknown)
-                ) as Effect.Effect<unknown, ProviderToolError, never>,
+            executeTool: (_toolName: FullToolName, _input: unknown) =>
+                Effect.fail(new ProviderToolError({
+                    description: 'Tool execution is handled by ToolService',
+                    module: 'GoogleClient',
+                    method: 'executeTool'
+                })),
 
-            processToolResult: (toolName: FullToolName, result: unknown) =>
-                Effect.gen(function* () {
-                    // Basic processing - in real implementation, format result for model
-                    return result;
-                }).pipe(
-                    Effect.mapError(error => new ProviderToolError({
-                        description: `Failed to process tool result for ${toolName}`,
-                        module: "GoogleClient",
-                        method: "processToolResult",
-                        cause: error
-                    }))
-                ),
+            processToolResult: (_toolName: FullToolName, _result: unknown) =>
+                Effect.fail(new ProviderToolError({
+                    description: 'Tool result processing is handled by ToolService',
+                    module: 'GoogleClient',
+                    method: 'processToolResult'
+                })),
 
             getProvider: () => Effect.succeed(googleProvider as any),
             getCapabilities: () => Effect.succeed(new Set<ModelCapability>([
@@ -200,7 +187,7 @@ export function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientAp
                     catch: (error) => new ProviderOperationError({
                         providerName: "google",
                         operation: "generateText",
-                        message: `Failed to generate text: ${error instanceof Error ? error.message : String(error)}`,
+                        message: `Failed to generate text: ${String(error)}`,
                         module: "GoogleClient",
                         method: "generateText",
                         cause: error
@@ -232,7 +219,7 @@ export function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientAp
                 return response;
             }),
 
-            chat: (effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse<ChatResult>, ProviderOperationError | ProviderServiceConfigError | ProviderToolError, ToolRegistryService> =>
+            chat: (effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse<ChatResult>, ProviderOperationError | ProviderServiceConfigError | ProviderToolError, ToolRegistryApi> =>
                 Effect.gen(function* () {
                     const modelId = options.modelId ?? DEFAULT_MODEL_ID;
 
@@ -263,14 +250,27 @@ export function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientAp
                                     ])
                                 ) : undefined
                             }),
-                            catch: (error) => new ProviderOperationError({
-                                providerName: "google",
-                                operation: "chat",
-                                message: `Failed to generate chat response: ${error instanceof Error ? error.message : String(error)}`,
-                                module: "GoogleClient",
-                                method: "chat",
-                                cause: error
-                            })
+                            catch: (error: unknown) => {
+                                if (error instanceof Error) {
+                                    return new ProviderOperationError({
+                                        providerName: "google",
+                                        operation: "chat",
+                                        message: `Failed to generate chat response: ${error.message}`,
+                                        module: "GoogleClient",
+                                        method: "chat",
+                                        cause: error
+                                    });
+                                } else {
+                                    return new ProviderOperationError({
+                                        providerName: "google",
+                                        operation: "chat",
+                                        message: `Failed to generate chat response: ${String(error)}`,
+                                        module: "GoogleClient",
+                                        method: "chat",
+                                        cause: error
+                                    });
+                                }
+                            }
                         });
 
                         // Convert result to EffectiveMessage
@@ -288,10 +288,19 @@ export function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientAp
                                 Effect.gen(function* () {
                                     yield* Effect.logDebug(`Executing tool: ${toolCall.toolName}`);
 
-                                    // Validate and execute tool
-                                    const validatedInput = yield* clientImplementation.validateToolInput(toolCall.toolName as FullToolName, toolCall.args);
-                                    const toolResult = yield* clientImplementation.executeTool(toolCall.toolName as FullToolName, validatedInput);
-                                    const processedResult = yield* clientImplementation.processToolResult(toolCall.toolName as FullToolName, toolResult);
+                                    // Use ToolService for tool execution
+                                    const fullToolName = `e2e-tools:${toolCall.toolName}` as const;
+                                    const toolService = yield* ToolService;
+                                    const toolResult = yield* Effect.either(
+                                        toolService.run(fullToolName, toolCall.args)
+                                    );
+
+                                    const processedResult = Either.match(toolResult, {
+                                        onLeft: (error) => ({
+                                            error: `Tool ${toolCall.toolName} execution failed: ${String(error)}`
+                                        }),
+                                        onRight: (result) => result
+                                    });
 
                                     return {
                                         type: "tool-result" as const,
@@ -300,11 +309,11 @@ export function makeGoogleClient(apiKey: string): Effect.Effect<ProviderClientAp
                                         result: processedResult
                                     };
                                 }).pipe(
-                                    Effect.catchAll((error) => Effect.succeed({
+                                    Effect.catchAll((error: unknown) => Effect.succeed({
                                         type: "tool-result" as const,
                                         toolCallId: toolCall.toolCallId,
                                         toolName: toolCall.toolName as FullToolName,
-                                        result: { error: error instanceof Error ? error.message : String(error) }
+                                        result: { error: typeof error === 'object' && error !== null && 'message' in error ? error.message : String(error) }
                                     }))
                                 )
                             );

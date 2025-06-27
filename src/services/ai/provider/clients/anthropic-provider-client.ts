@@ -1,12 +1,15 @@
 import { EffectiveMessage, ModelCapability, TextPart, ToolCallPart } from "@/schema.js";
-import type { EffectiveInput, FinishReason } from "@/types.js";
+import type { EffectiveInput, FinishReason, ProviderEffectiveResponse } from "@/types.js";
+import type { ToolDefinition } from "../../tools/schema.js";
+
 import { createAnthropic } from "@ai-sdk/anthropic";
-import { type LanguageModelV1, type CoreMessage as VercelCoreMessage, generateText } from "ai";
-import { Chunk, Effect, Either, Schema as S } from "effect";
+import { type CoreMessage as VercelCoreMessage, generateText } from "ai";
+import { Chunk, Effect, Schema as S } from "effect";
 import { z } from "zod";
 import type { ModelServiceApi } from "../../model/api.js";
 import { ModelService } from "../../model/service.js";
-import { ToolRegistryService } from '../../tool-registry/service.js';
+import type { ToolRegistryApi } from "../../tool-registry/api.js";
+import { ToolRegistryService } from "../../tool-registry/service.js";
 import type { FullToolName } from '../../tools/types.js';
 import type { ProviderClientApi } from "../api.js";
 import {
@@ -29,6 +32,10 @@ import type {
   ProviderTranscribeOptions,
   ToolCallRequest
 } from "../types.js";
+
+function isEffectImplementation(tool: ToolDefinition): tool is ToolDefinition & { implementation: { _tag: "EffectImplementation", inputSchema: S.Schema<unknown>, execute: (args: unknown) => Effect.Effect<unknown, unknown, never> } } {
+  return tool.implementation._tag === "EffectImplementation";
+}
 
 const MAX_TOOL_ITERATIONS = 5;
 
@@ -119,7 +126,12 @@ function mapVercelMessageToEAEffectiveMessage(vercelMsg: VercelCoreMessage, mode
           arguments: JSON.stringify(tc.args || (tc.function && tc.function.arguments))
         }
       };
-      eaParts.push(new ToolCallPart({ _tag: "ToolCall", toolCall: JSON.stringify(toolCallRequest) }));
+      eaParts.push(new ToolCallPart({
+        _tag: "ToolCall",
+        id: toolCallRequest.id,
+        name: toolCallRequest.function.name,
+        args: JSON.parse(toolCallRequest.function.arguments)
+      }));
     });
   }
 
@@ -151,28 +163,26 @@ function convertEffectSchemaToZodSchema(schema: S.Schema<any, any, any>) {
 }
 
 // Internal factory for ProviderService only
-function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService> {
+function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ToolRegistryApi> {
   const anthropicProvider = createAnthropic({ apiKey });
 
   return Effect.gen(function* () {
-    const toolRegistryService = yield* ToolRegistryService;
-    const modelService = yield* ModelService;
 
     return {
       // Tool-related methods
-      validateToolInput: (toolName: string, input: unknown) =>
+      validateToolInput: (toolName: string) =>
         Effect.fail(new ProviderToolError({
           description: `Tool validation not implemented for ${toolName}`,
           provider: "anthropic"
         })),
 
-      executeTool: (toolName: string, input: unknown) =>
+      executeTool: (toolName: string) =>
         Effect.fail(new ProviderToolError({
           description: `Tool execution not implemented for ${toolName}`,
           provider: "anthropic"
         })),
 
-      processToolResult: (toolName: string, result: unknown) =>
+      processToolResult: (toolName: string) =>
         Effect.fail(new ProviderToolError({
           description: `Tool result processing not implemented for ${toolName}`,
           provider: "anthropic"
@@ -256,7 +266,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           };
         }),
 
-      generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) =>
+      generateObject: () =>
         Effect.fail(new ProviderOperationError({
           providerName: "anthropic",
           operation: "generateObject",
@@ -265,7 +275,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           method: "generateObject"
         })),
 
-      generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
+      generateSpeech: () =>
         Effect.fail(new ProviderOperationError({
           providerName: "anthropic",
           operation: "generateSpeech",
@@ -274,7 +284,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           method: "generateSpeech"
         })),
 
-      transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
+      transcribe: () =>
         Effect.fail(new ProviderOperationError({
           providerName: "anthropic",
           operation: "transcribe",
@@ -283,7 +293,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           method: "transcribe"
         })),
 
-      generateEmbeddings: (input: string[], options: ProviderGenerateEmbeddingsOptions) =>
+      generateEmbeddings: () =>
         Effect.fail(new ProviderOperationError({
           providerName: "anthropic",
           operation: "generateEmbeddings",
@@ -292,7 +302,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           method: "generateEmbeddings"
         })),
 
-      generateImage: (input: EffectiveInput, options: ProviderGenerateImageOptions) =>
+      generateImage: () =>
         Effect.fail(new ProviderOperationError({
           providerName: "anthropic",
           operation: "generateImage",
@@ -302,7 +312,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
         })),
 
       // Chat method with tool support
-      chat: (input: EffectiveInput, options: ProviderChatOptions) => Effect.gen(function* () {
+      chat: (input: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderServiceConfigError | ProviderToolError, ToolRegistryApi> => Effect.gen(function* () {
         const toolRegistryService = yield* ToolRegistryService;
         let vercelMessages: VercelCoreMessage[] = mapEAMessagesToVercelMessages(Chunk.toReadonlyArray(input.messages || Chunk.empty()));
         let llmTools: Record<string, any> | undefined = undefined;
@@ -310,7 +320,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
 
         if (options.tools && options.tools.length > 0) {
           llmTools = {};
-          for (const tool of options.tools) {
+          for (const tool of options.tools as ToolDefinition[]) {
             if (tool.implementation._tag === "EffectImplementation") {
               const effectImpl = tool.implementation;
               const inputZodSchema = yield* convertEffectSchemaToZodSchema(effectImpl.inputSchema);
@@ -381,70 +391,41 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
             };
           }
 
-          const toolResultMessagesForLLM: VercelCoreMessage[] = [];
-          for (const sdkToolCall of assistantToolCalls) {
-            const toolName = sdkToolCall.toolName;
-            const toolArgs = sdkToolCall.args;
+          const toolMessages: VercelCoreMessage[] = [];
+          for (const toolCall of assistantToolCalls) {
+            const toolName = toolCall.toolName;
+            const toolArgs = toolCall.args;
+            let toolExecutionOutputString = "";
 
-            let toolExecutionOutputString: string;
+            // Get tool from registry
+            const toolResult = yield* toolRegistryService.getTool(toolName as FullToolName).pipe(
+              Effect.catchAll((error) => Effect.gen(function* (_) {
+                yield* Effect.logWarning(`Tool '${toolName}' not found in registry`, error);
+                toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' not found: ${error.message}` });
+                return yield* Effect.fail(new ProviderToolError({
+                  description: `Tool '${toolName}' not found in registry`,
+                  provider: "anthropic",
+                  module: "anthropic-provider-client",
+                  method: "chat",
+                  cause: error
+                }));
+              }))
+            );
 
-            // Find the original ToolDefinition from the options to get its schema and EffectImplementation
-            const originalToolDef = options.tools?.find(t => t.metadata.name === toolName);
+            // Validate and execute tool
 
-            if (!originalToolDef) {
-              yield* Effect.logWarning(`Tool '${toolName}' not found in provided options.tools.`);
-              toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' not found in options.` });
-            } else if (originalToolDef.implementation._tag !== "EffectImplementation") {
-              yield* Effect.logWarning(`Tool '${toolName}' is not an EffectImplementation.`);
-              toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' is not executable by this provider.` });
-            } else {
-              const effectImpl = originalToolDef.implementation;
-              const toolInputZodSchema = yield* convertEffectSchemaToZodSchema(effectImpl.inputSchema);
-
-              // Attempt to validate arguments using the original Effect Schema first for better error messages
-              const validatedArgsEither = yield* Effect.either(S.decode(effectImpl.inputSchema)(toolArgs));
-
-              if (Either.isLeft(validatedArgsEither)) {
-                const validationError = validatedArgsEither.left;
-                yield* Effect.logWarning(`Invalid arguments for tool ${toolName}`, validationError);
-                toolExecutionOutputString = JSON.stringify({ error: `Invalid arguments for tool ${toolName}. Validation failed.` });
-              } else {
-                const validatedArgs = validatedArgsEither.right;
-
-                // For execution, use the tool resolved by the registry
-                const effectiveToolFromRegistryEither = yield* Effect.either(toolRegistryService.getTool(toolName as FullToolName));
-
-                if (Either.isLeft(effectiveToolFromRegistryEither)) {
-                  yield* Effect.logError(`Tool '${toolName}' was in options.tools but not resolvable by ToolRegistryService.`, effectiveToolFromRegistryEither.left);
-                  toolExecutionOutputString = JSON.stringify({ error: `Tool '${toolName}' could not be resolved by registry.` });
-                } else {
-                  const effectiveToolFromRegistry = effectiveToolFromRegistryEither.right;
-                  const toolEffectToRun = effectiveToolFromRegistry.execute(validatedArgs as Record<string, unknown>);
-
-                  const toolRunResultEither = yield* Effect.either(toolEffectToRun);
-
-                  if (Either.isLeft(toolRunResultEither)) {
-                    const execError = toolRunResultEither.left;
-                    yield* Effect.logError(`Tool ${toolName} execution failed`, execError);
-                    toolExecutionOutputString = JSON.stringify({ error: `Tool ${toolName} execution failed: ${(execError as any)?.message || 'Unknown execution error'}` });
-                  } else {
-                    toolExecutionOutputString = JSON.stringify(toolRunResultEither.right);
-                  }
-                }
-              }
-            }
             const toolMessage: VercelCoreMessage = {
               role: 'tool',
               content: [{
                 type: "tool-result" as const,
-                toolCallId: sdkToolCall.toolCallId,
-                toolName: toolName,
+                toolCallId: toolCall.toolCallId,
+                toolName,
                 result: toolExecutionOutputString
               }]
             };
-            toolResultMessagesForLLM.push(toolMessage);
+            toolMessages.push(toolMessage);
           }
-          vercelMessages.push(...toolResultMessagesForLLM);
+          vercelMessages.push(...toolMessages);
           llmTools = undefined;
         }
 
@@ -471,7 +452,7 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
         })),
 
       // Vercel provider integration
-      setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
+      setVercelProvider: () =>
         Effect.fail(new ProviderOperationError({
           providerName: "anthropic",
           operation: "setVercelProvider",
@@ -479,8 +460,9 @@ function makeAnthropicClient(apiKey: string): Effect.Effect<ProviderClientApi, P
           module: "anthropic",
           method: "setVercelProvider"
         }))
-    } as unknown as ProviderClientApi;
-  }) as Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError, ModelServiceApi | ToolRegistryService>;
+    };
+
+  });
 }
 
 export { makeAnthropicClient };

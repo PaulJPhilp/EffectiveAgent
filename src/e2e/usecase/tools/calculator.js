@@ -1,0 +1,23 @@
+// @ts-check
+/**
+ * @file Calculator tool implementation for e2e tests.
+ */
+
+import { RegistryToolSchema } from "../../../services/ai/tool-registry/schema.js";
+import { EffectImplementation } from "../../../services/ai/tools/schema.js";
+import { calculatorImpl, calculatorInputSchema, calculatorOutputSchema } from "../../../services/ai/tools/implementations/calculator.js";
+
+export const CalculatorTool = new RegistryToolSchema({
+  metadata: {
+    name: "calculator",
+    description: "A calculator tool for performing mathematical calculations",
+    version: "1.0.0",
+    author: "system"
+  },
+  implementation: new EffectImplementation({
+    _tag: "EffectImplementation",
+    inputSchema: calculatorInputSchema,
+    outputSchema: calculatorOutputSchema,
+    execute: calculatorImpl
+  })
+});

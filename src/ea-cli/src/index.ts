@@ -11,6 +11,7 @@ import { ConfigurationService } from "../../services/core/configuration/index.js
 
 // Import CLI commands
 import { addCommand } from "./commands/add.js"
+import { chatCommand } from "./commands/chat.js"
 import { configCommands } from "./commands/config.js"
 import { deleteCommand } from "./commands/delete.js"
 import { initCommand } from "./commands/init.js"
@@ -39,6 +40,7 @@ const commands = [
   runCommand,
   ServeCommand,
   addCommand,
+  chatCommand,
   deleteCommand,
   initCommand,
   listCommand,

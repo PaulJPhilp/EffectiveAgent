@@ -70,9 +70,11 @@ export const make = Effect.gen(function* () {
     return {
         loadConfig: <T>(filePath: string, schema: Schema.Schema<T, any>) =>
             Effect.gen(function* () {
-                const content = yield* readFile(filePath);
-                const parsed = yield* parseJson(content, filePath);
-                return yield* validateWithSchema(parsed, schema, filePath);
+                const path = yield* Path.Path;
+                const resolvedPath = path.resolve(masterConfigDir, filePath);
+                const content = yield* readFile(resolvedPath);
+                const parsed = yield* parseJson(content, resolvedPath);
+                return yield* validateWithSchema(parsed, schema, resolvedPath);
             }),
 
         loadRawConfig: (filePath: string) =>

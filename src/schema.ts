@@ -44,6 +44,19 @@ export class ToolCallPart extends S.Class<ToolCallPart>("ToolCallPart")({
 }
 
 /**
+ * Tool result part in a message
+ */
+export class ToolPart extends S.Class<ToolPart>("ToolPart")({
+  _tag: S.Literal("Tool"),
+  tool_call_id: S.String,
+  content: S.String
+}) {
+  static is(part: Part): part is ToolPart {
+    return part._tag === "Tool";
+  }
+}
+
+/**
  * Image URL part in a message
  */
 export class ImageUrlPart extends S.Class<ImageUrlPart>("ImageUrlPart")({
@@ -58,7 +71,8 @@ export class ImageUrlPart extends S.Class<ImageUrlPart>("ImageUrlPart")({
 /**
  * Union type for all message parts
  */
-export type Part = TextPart | ToolCallPart | ImageUrlPart;
+export const Part = S.Union(TextPart, ToolCallPart, ImageUrlPart, ToolPart);
+export type Part = S.Schema.Type<typeof Part>;
 
 // --- Core String Schemas ---
 
@@ -229,7 +243,7 @@ export class Message extends S.Class<Message>("Message")({
   /** Role of the message sender */
   role: EffectiveRole,
   /** Parts that make up the message content */
-  parts: S.Chunk(S.Union(TextPart, ToolCallPart, ImageUrlPart)),
+  parts: S.Chunk(Part),
   /** Optional metadata */
   metadata: S.optional(Metadata)
 }) { }

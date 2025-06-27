@@ -3,12 +3,10 @@
  * @module services/tools/implementations/hackernews
  */
 
-import { PlatformError } from "@effect/platform/Error.js";
-import * as HttpBody from "@effect/platform/HttpBody.js";
-// Import HttpClient related modules from @effect/platform
-import { HttpClient, HttpClientError } from "@effect/platform/HttpClient.js";
-import * as HttpClientRequest from "@effect/platform/HttpClientRequest.js";
-import { Effect, ParseError, Schema } from "effect";
+import { HttpClient } from "@effect/platform/HttpClient";
+import * as HttpBody from "@effect/platform/HttpBody";
+import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
+import { Effect, Schema } from "effect";
 // Import base ToolExecutionError
 import { ToolExecutionError } from "../errors.js";
 
@@ -62,7 +60,7 @@ const HN_API_BASE = "https://hacker-news.firebaseio.com/v0";
  */
 const fetchHNItem = (
 	itemId: number,
-): Effect.Effect<HNItem, ToolExecutionError, HttpClient> => {
+): Effect.Effect<HNItem, ToolExecutionError, HttpClient | unknown> => {
 	const itemUrl = `${HN_API_BASE}/item/${itemId}.json`;
 	const request = HttpClientRequest.get(itemUrl);
 
@@ -72,24 +70,27 @@ const fetchHNItem = (
 		const httpClient = yield* HttpClient;
 
 		// Execute request and map HTTP/Platform errors
-		const response = yield* Effect.mapError(
-			httpClient.execute(request), // Use httpClient.execute
-			(cause: HttpClientError | PlatformError) => // Catch relevant errors
-				new ToolExecutionError({ toolName: "hackerNewsReader", input: { itemId }, cause }),
+		const response = yield* httpClient.execute(request).pipe(
+			Effect.mapError(
+				(cause): ToolExecutionError =>
+					new ToolExecutionError({ toolName: "hackerNewsReader", input: { itemId }, module: "hackernews", method: "fetchHNItem", cause })
+			)
 		);
 
 		// Decode the JSON response body and map body errors
-		const json = yield* Effect.mapError(
-			HttpBody.json(response), // Use HttpBody.json(response)
-			(cause: HttpBody.HttpBodyError) => // Catch body errors
-				new ToolExecutionError({ toolName: "hackerNewsReader", input: { itemId }, cause }),
+		const json = yield* HttpBody.json(response).pipe(
+			Effect.mapError(
+				(cause): ToolExecutionError =>
+					new ToolExecutionError({ toolName: "hackerNewsReader", input: { itemId }, module: "hackernews", method: "fetchHNItem", cause })
+			)
 		);
 
 		// Parse and validate the JSON and map schema errors
-		const item = yield* Effect.mapError(
-			Schema.decodeUnknown(HNItemSchema)(json), // Use Schema.decodeUnknown(schema)(data)
-			(cause: ParseError) => // Catch ParseError
-				new ToolExecutionError({ toolName: "hackerNewsReader", input: { itemId }, cause }),
+		const item = yield* Schema.decodeUnknown(HNItemSchema)(json).pipe(
+			Effect.mapError(
+				(cause): ToolExecutionError =>
+					new ToolExecutionError({ toolName: "hackerNewsReader", input: { itemId }, module: "hackernews", method: "fetchHNItem", cause })
+			)
 		);
 
 		return item; // Return the validated item
@@ -103,49 +104,40 @@ const fetchHNItem = (
  */
 export const hackerNewsImpl = (
 	input: HackerNewsInput,
-): Effect.Effect<HackerNewsOutput, ToolExecutionError, HttpClient> => { // Ensure return type annotation is correct
-
+): Effect.Effect<HackerNewsOutput, ToolExecutionError, HttpClient | unknown> => {
 	const storyListUrl = `${HN_API_BASE}/${input.storyType}stories.json`;
 	const listRequest = HttpClientRequest.get(storyListUrl);
 
-	// Define the effect chain for fetching IDs separately with explicit type annotation
-	const storyIdsEffect: Effect.Effect<ReadonlyArray<number>, ToolExecutionError, HttpClient> =
-		HttpClient.pipe( // Corrected: Start the pipe directly from the HttpClient Tag
-			Effect.flatMap(httpClient => Effect.mapError(
-				httpClient.execute(listRequest),
-				(cause: HttpClientError | PlatformError) =>
-					new ToolExecutionError({ toolName: "hackerNewsReader", input, cause })
-			)),
-			Effect.flatMap(response => Effect.mapError(
-				HttpBody.json(response),
-				(cause: HttpBody.HttpBodyError) =>
-					new ToolExecutionError({ toolName: "hackerNewsReader", input, cause })
-			)),
-			Effect.flatMap(json => Effect.mapError(
-				Schema.decodeUnknown(Schema.Array(Schema.Number))(json),
-				(cause: ParseError) =>
-					new ToolExecutionError({ toolName: "hackerNewsReader", input, cause })
-			)),
+	return Effect.gen(function* () {
+		// 1. Get story IDs
+		const httpClient = yield* HttpClient;
+		const response = yield* httpClient.execute(listRequest).pipe(
+			Effect.mapError(
+				(cause): ToolExecutionError =>
+					new ToolExecutionError({ toolName: "hackerNewsReader", input, module: "hackernews", method: "getStoryIds", cause })
+			)
+		);
+		const json = yield* HttpBody.json(response).pipe(
+			Effect.mapError(
+				(cause): ToolExecutionError =>
+					new ToolExecutionError({ toolName: "hackerNewsReader", input, module: "hackernews", method: "getStoryIds", cause })
+			)
+		);
+		const storyIds = yield* Schema.decodeUnknown(Schema.Array(Schema.Number))(json).pipe(
+			Effect.mapError(
+				(cause): ToolExecutionError =>
+					new ToolExecutionError({ toolName: "hackerNewsReader", input, module: "hackernews", method: "getStoryIds", cause })
+			)
 		);
 
-	// Main logic using Effect.gen
-	return Effect.gen(function* () {
-		// 1. Execute the effect to fetch story IDs
-		// Yielding this effect brings HttpClient and ToolExecutionError into the Gen context
-		const storyIds = yield* storyIdsEffect;
+		// 2. Limit number of stories and fetch details in parallel
+		const stories = yield* Effect.forEach(
+			storyIds.slice(0, input.limit),
+			(id: number) => fetchHNItem(id),
+			{ concurrency: 5 }
+		);
 
-		// 2. Slice the array
-		const limitedIds = Array.from(storyIds).slice(0, input.limit);
-
-		// 3. Fetch details for each ID in parallel
-		// Yielding this also brings HttpClient and ToolExecutionError into the Gen context
-		const storiesResult = yield* Effect.forEach(limitedIds, (id) => fetchHNItem(id), {
-			concurrency: 5,
-		});
-
-		// 4. Return the result matching the output schema
-		// The overall Effect's R and E types are now correctly inferred from the yielded effects
-		const output: HackerNewsOutput = { stories: storiesResult };
-		return output;
+		// 3. Return the result
+		return { stories };
 	});
 };

@@ -1,0 +1,47 @@
+{
+  "name": "e2e-tools",
+  "description": "A set of tools for end-to-end testing.",
+  "version": "1.0.0",
+  "tools": {
+    "calculator": {
+      "metadata": {
+        "name": "calculator",
+        "description": "A calculator tool for performing mathematical calculations",
+        "version": "1.0.0",
+        "author": "system"
+      },
+      "implementation": {
+        "_tag": "EffectImplementation",
+        "inputSchema": {
+          "_tag": "Struct",
+          "fields": {
+            "expression": {
+              "_tag": "String",
+              "annotations": {
+                "description": "The mathematical expression to evaluate (e.g., '2 + 2 * 5')"
+              },
+              "constraints": [
+                {
+                  "_tag": "MinLength",
+                  "min": 1
+                }
+              ]
+            }
+          }
+        },
+        "outputSchema": {
+          "_tag": "Struct",
+          "fields": {
+            "result": {
+              "_tag": "Number",
+              "annotations": {
+                "description": "The numerical result of the calculation"
+              }
+            }
+          }
+        },
+        "execute": "calculatorImpl"
+      }
+    }
+  }
+}

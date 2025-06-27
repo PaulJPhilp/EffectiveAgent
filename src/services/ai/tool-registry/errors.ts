@@ -1,4 +1,5 @@
 import { EffectiveError } from "@/errors.js";
+import { Data } from "effect";
 
 /**
  * Base error for the ToolRegistryService.
@@ -17,34 +18,26 @@ export class ToolRegistryError extends EffectiveError {
 /**
  * Error thrown when a tool is not found in the registry.
  */
-export class ToolNotFoundErrorInRegistry extends ToolRegistryError {
-  constructor(params: {
-    toolName: string;
-    method: string;
-    cause?: unknown;
-  }) {
-    super({
-      ...params,
-      description: `Tool '${params.toolName}' not found in registry.`,
-    });
-  }
-}
+export class ToolNotFoundErrorInRegistry extends Data.TaggedError("ToolNotFoundErrorInRegistry")<{
+    readonly toolName: string;
+    readonly method: string;
+}> { }
 
 /**
  * Error thrown when a toolkit is not found in the registry.
  */
-export class ToolkitNotFoundErrorInRegistry extends ToolRegistryError {
-  constructor(params: {
-    toolkitName: string;
-    method: string;
-    cause?: unknown;
-  }) {
-    super({
-      ...params,
-      description: `Toolkit '${params.toolkitName}' not found in registry.`,
-    });
-  }
-}
+export class ToolkitNotFoundErrorInRegistry extends Data.TaggedError("ToolkitNotFoundErrorInRegistry")<{
+    readonly toolkitName: string;
+    readonly method: string;
+}> { }
+
+/**
+ * Error thrown when a tool implementation is not found.
+ */
+export class ToolImplementationNotFoundError extends Data.TaggedError("ToolImplementationNotFoundError")<{
+    readonly toolName: string;
+    readonly method: string;
+}> { }
 
 /**
  * Error thrown if there's a conflict registering a tool.

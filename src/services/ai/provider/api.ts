@@ -6,7 +6,7 @@ import type { ChatResult } from "./types.js";
 import { ModelCapability } from "@/schema.js";
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import { ModelServiceApi } from "../model/api.js";
-import { type ToolRegistryService } from "../tool-registry/service.js";
+import { type ToolRegistryApi } from "../tool-registry/api.js";
 import {
     ProviderMissingCapabilityError,
     ProviderMissingModelIdError,
@@ -100,7 +100,7 @@ export interface ProviderClientApi {
     ) => Effect.Effect<unknown, ProviderToolError>;
 
 
-    chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse<ChatResult>, ProviderOperationError | ProviderServiceConfigError | ProviderToolError, ToolRegistryService>;
+    chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse<ChatResult>, ProviderOperationError | ProviderServiceConfigError | ProviderToolError, ToolRegistryApi>;
     /**
      * Set a Vercel AI SDK provider for this client.
      * @param vercelProvider The Vercel AI SDK provider instance with provider name as discriminator

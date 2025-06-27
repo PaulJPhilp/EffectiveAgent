@@ -3,6 +3,7 @@ import { PolicyServiceApi } from "@/services/ai/policy/api.js"
 import { ToolRegistryApi } from "@/services/ai/tool-registry/api.js"
 import { ConfigurationServiceApi } from "@/services/core/configuration/api.js"
 import { AgentRuntimeServiceApi } from "./api.js"
+import { Schema } from "effect"
 import { Brand, Effect, Stream } from "effect"
 import type { FileSystem } from "@effect/platform"
 import type * as Path from "@effect/platform/Path"
@@ -310,3 +311,17 @@ export interface LangGraphAgentRuntimeState<S> extends AgentRuntimeState<S> {
   /** LangGraph execution statistics */
   readonly langGraph?: LangGraphStats;
 }
+
+/**
+ * Schema for the payload of the 'generate_structured_output' command.
+ */
+export const GenerateStructuredOutputPayloadSchema = Schema.Struct({
+    action: Schema.Literal("generate_structured_output"),
+    prompt: Schema.String,
+    model: Schema.String
+})
+
+/**
+ * Type for the payload of the 'generate_structured_output' command.
+ */
+export type GenerateStructuredOutputPayload = typeof GenerateStructuredOutputPayloadSchema.Type

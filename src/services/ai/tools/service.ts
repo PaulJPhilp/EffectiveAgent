@@ -12,6 +12,7 @@ import {
     ToolNotFoundError,
     ToolOutputValidationError
 } from "./errors.js";
+import type { EffectiveTool, IEffectImplementation } from "./schema.js";
 import type { FullToolName } from "./types.js";
 
 /**
@@ -29,7 +30,7 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
         // Return implementation
         return {
             run: <Output = unknown>(
-                toolName: FullToolName,
+                toolName: `${string}:${string}`,
                 rawInput: unknown
             ): Effect.Effect<
                 Output,
@@ -66,19 +67,11 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
                     })
                 );
 
-                // Execute the tool with validated input
-                const rawOutput = yield* Effect.mapError(
-                    tool.execute(validatedInput),
-                    (error) => new ToolExecutionError({
-                        toolName,
-                        module: "ToolService",
-                        method: "run",
-                        cause: error
-                    })
-                );
-
-                // Return output directly since validation is handled by the tool
-                return rawOutput as Output;
+                // Return the validated tool and input for the LLM to use
+                return {
+                    tool,
+                    validatedInput
+                } as Output;
             })
         };
     })

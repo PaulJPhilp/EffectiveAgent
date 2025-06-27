@@ -3,7 +3,9 @@ import { ModelService } from "@/services/ai/model/service.js"
 import { PolicyService } from "@/services/ai/policy/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
-import { Effect, Ref, Stream } from "effect"
+import { EffectiveInput } from "@/types.js";
+import { EffectiveMessage, Part, TextPart, ToolCallPart, ToolPart } from "@/schema.js";
+import { Schema, Chunk, Effect, Either, Option, Ref, Stream, pipe } from "effect"
 import type { AgentRuntimeServiceApi } from "./api.js"
 import {
     AgentRuntimeError,
@@ -14,9 +16,22 @@ import {
     AgentRuntimeId,
     AgentRuntimeState,
     CompiledLangGraph,
+    GenerateStructuredOutputPayloadSchema,
     LangGraphAgentRuntimeState,
     LangGraphRunOptions
 } from "./types.js"
+
+const GenerateTextPayloadSchema = Schema.Struct({
+    action: Schema.Literal("generate_text"),
+    prompt: Schema.String,
+    model: Schema.String,
+    tools: Schema.optional(Schema.Array(Schema.String))
+});
+
+const AnyCommandPayloadSchema = Schema.Union(
+    GenerateTextPayloadSchema,
+    GenerateStructuredOutputPayloadSchema
+);
 
 export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>()("AgentRuntimeService", {
     effect: Effect.gen(function* () {
@@ -76,8 +91,32 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                 })
             })
 
-        const send = (_id: AgentRuntimeId, _activity: AgentActivity) =>
-            Effect.succeed(void 0) // No-op for agent runtime (no mailbox)
+        const send = (id: AgentRuntimeId, activity: AgentActivity) =>
+            Effect.gen(function* () {
+                const agentRef = yield* pipe(
+                    runtimes,
+                    Effect.map((agents: Map<AgentRuntimeId, Ref.Ref<AgentRuntimeState<any>>>) => 
+                        Option.fromNullable(agents.get(id))
+                    )
+                );
+
+                if (Option.isNone(agentRef)) {
+                    return yield* Effect.fail(new AgentRuntimeError({
+                        agentRuntimeId: id,
+                        message: `AgentRuntime ${id} not found`
+                    }));
+                }
+
+                // For now, just validate the payload and return
+                // Actual agent routing will be implemented later
+                const payloadEither = yield* Effect.either(Schema.decodeUnknown(AnyCommandPayloadSchema)(activity.payload));
+
+                if (Either.isLeft(payloadEither)) {
+                    return yield* Effect.void;
+                }
+
+                return yield* Effect.void;
+            });
 
         const getState = <S>(id: AgentRuntimeId) =>
             Effect.gen(function* () {

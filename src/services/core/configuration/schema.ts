@@ -69,7 +69,8 @@ export class AgentConfigSchema extends Schema.Class<AgentConfigSchema>("AgentCon
 export class ConfigPathsSchema extends Schema.Class<ConfigPathsSchema>("ConfigPathsSchema")({
     providers: Schema.String,
     models: Schema.String,
-    policy: Schema.String
+    policy: Schema.String,
+    ["e2e-tools"]: Schema.String
 }) { }
 
 /**

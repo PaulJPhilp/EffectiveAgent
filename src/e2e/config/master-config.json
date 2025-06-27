@@ -11,6 +11,7 @@
   "configPaths": {
     "providers": "providers.json",
     "models": "models.json",
-    "policy": "policy.json"
+    "policy": "policy.json",
+    "e2e-tools": "../usecase/tools/e2e-toolkit.json"
   }
 }

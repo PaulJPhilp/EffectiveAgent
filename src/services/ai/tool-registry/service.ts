@@ -20,14 +20,24 @@ export class ToolRegistryService extends Effect.Service<ToolRegistryApi>()(
             const configuration = yield* ConfigurationService;
 
             // Helper to read tool registry
-            const readToolRegistry = (path: string) => Effect.gen(function* () {
+            const readToolRegistry = (toolkitName: string) => Effect.gen(function* () {
+                // Get master config to find toolkit path
+                const masterConfig = yield* configuration.getMasterConfig();
+                const toolkitPath = masterConfig.configPaths[toolkitName as keyof typeof masterConfig.configPaths];
+                if (!toolkitPath) {
+                    return yield* Effect.fail(new ToolkitNotFoundErrorInRegistry({
+                        toolkitName,
+                        method: "readToolRegistry"
+                    }));
+                }
+
                 // First load and validate the toolkit schema
-                const toolkit = yield* configuration.loadConfig(path, ToolkitSchema);
+                const toolkit = yield* configuration.loadConfig(toolkitPath, ToolkitSchema);
 
                 // Then construct and validate the registry schema
                 const registry = {
                     toolkits: {
-                        [path]: toolkit
+                        [toolkitName]: toolkit
                     }
                 };
                 return yield* Effect.succeed(registry);
@@ -40,8 +50,8 @@ export class ToolRegistryService extends Effect.Service<ToolRegistryApi>()(
                 }),
 
                 getTool: (toolName: FullToolName) => Effect.gen(function* () {
-                    // FullToolName should be in the form "toolkitName.toolName"
-                    const splitIdx = toolName.indexOf(".");
+                    // FullToolName should be in the form "toolkitName:toolName"
+                    const splitIdx = toolName.indexOf(":");
                     if (splitIdx === -1) {
                         return yield* Effect.fail(new ToolNotFoundErrorInRegistry({
                             toolName,

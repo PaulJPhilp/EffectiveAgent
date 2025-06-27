@@ -6,6 +6,11 @@ import type { ProviderClientApi } from "./api.js"; // Added import
 import { PROVIDER_NAMES } from "./provider-universe.js";
 
 /**
+ * Represents a fully qualified tool name in the format `${namespace}:${toolName}`
+ */
+export type FullToolName = `${string}:${string}`;
+
+/**
  * Detailed reasoning step
  */
 export interface ReasoningDetail {
@@ -397,6 +402,16 @@ export interface ProviderGenerateImageOptions extends BaseProviderOptions {
     readonly quality?: string;
     /** Artistic style (e.g., 'vivid', 'natural') */
     readonly style?: string;
+}
+
+/**
+ * Options specific to object generation.
+ */
+export interface ProviderGenerateObjectOptions<T> extends BaseProviderOptions {
+    /** The schema for the object to be generated */
+    readonly schema: unknown;
+    /** Optional system prompt or instructions */
+    readonly system?: string;
 }
 
 /**
