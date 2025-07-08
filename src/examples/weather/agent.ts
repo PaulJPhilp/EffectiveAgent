@@ -57,7 +57,7 @@ export class WeatherAgent extends Effect.Service<WeatherAgent>()(
                     });
 
                     yield* Effect.log("Raw text service response", {
-                        output: response.data.output
+                        output: response.data.text
                     } as JsonObject);
 
                     // Extract JSON from markdown code blocks if present
@@ -66,7 +66,7 @@ export class WeatherAgent extends Effect.Service<WeatherAgent>()(
                         return jsonMatch?.[1]?.trim() ?? text.trim();
                     };
 
-                    const jsonText = extractJsonFromMarkdown(response.data.output);
+                    const jsonText = extractJsonFromMarkdown(response.data.text);
                     const parsed = JSON.parse(jsonText) as {
                         location: { name: string; country: string };
                         temperature: number;
@@ -170,7 +170,7 @@ export class WeatherAgent extends Effect.Service<WeatherAgent>()(
                             temperature: defaultConfig.defaultTemperature
                         }
                     }).pipe(
-                        Effect.map((response): string => response.data.output),
+                        Effect.map((response): string => response.data.text),
                         Effect.mapError((error): WeatherPipelineError => new WeatherPipelineError({ message: "Failed to generate weather summary", cause: error }))
                     );
 

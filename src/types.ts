@@ -92,7 +92,7 @@ export interface EffectiveResponse<T> {
  */
 export interface ProviderEffectiveResponse<T> extends EffectiveResponse<T> {
     /** The assistant's response message, if applicable */
-    readonly effectiveMessage?: Option<EffectiveMessage>;
+    readonly effectiveMessage?: Option.Option<EffectiveMessage>;
 }
 
 /**

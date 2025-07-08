@@ -123,7 +123,7 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
         validateToolInputs: (toolName: string, input: unknown) => Effect.gen(function* () {
           const currentProvider = yield* getProviderHelper();
           yield* validateCapabilities({ providerName: currentProvider.name, required: "tool-use", actual: currentProvider.capabilities, method: "validateToolInputs" });
-          return yield* currentProvider.provider.validateToolInput(toolName, input);
+          return yield* currentProvider.provider.validateToolInput(toolName as `${string}:${string}`, input);
         }),
       };
     })

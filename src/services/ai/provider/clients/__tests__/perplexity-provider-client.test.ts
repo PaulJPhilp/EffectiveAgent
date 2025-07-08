@@ -248,7 +248,7 @@ describe("Perplexity Provider Client", () => {
                 const client = yield* makePerplexityClient("test-key");
 
                 const result = yield* Effect.either(
-                    client.validateToolInput("testTool", { param: "value" })
+                    client.validateToolInput("test:testTool", { param: "value" })
                 );
 
                 expect(result._tag).toBe("Left");
@@ -265,7 +265,7 @@ describe("Perplexity Provider Client", () => {
                 const client = yield* makePerplexityClient("test-key");
 
                 const result = yield* Effect.either(
-                    client.executeTool("testTool", { param: "value" })
+                    client.executeTool("test:testTool", { param: "value" })
                 );
 
                 expect(result._tag).toBe("Left");
@@ -282,7 +282,7 @@ describe("Perplexity Provider Client", () => {
                 const client = yield* makePerplexityClient("test-key");
 
                 const result = yield* Effect.either(
-                    client.processToolResult("testTool", { result: "data" })
+                    client.processToolResult("test:testTool", { result: "data" })
                 );
 
                 expect(result._tag).toBe("Left");

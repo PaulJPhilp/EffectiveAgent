@@ -49,7 +49,7 @@ const createMockAgentRuntime = (): AgentRuntimeServiceApi => ({
     } as any),
     getPolicyService: () => Effect.succeed({} as any),
     getToolRegistryService: () => Effect.succeed({} as any),
-    getFileService: () => Effect.succeed({} as any),
+
     getChatService: () => Effect.succeed({} as any),
     createLangGraphAgent: () => Effect.succeed({
         agentRuntime: {

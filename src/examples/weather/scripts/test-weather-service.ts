@@ -4,18 +4,21 @@ import { AgentRuntimeService } from "@/ea-agent-runtime/service.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import TextService from "@/services/producers/text/service.js";
+import { TextService } from "@/services/producers/text/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, LogLevel, Logger } from "effect";
 import { WeatherAgent } from "../agent.js";
 
 // Set up environment for testing
-process.env.MASTER_CONFIG_PATH = process.env.MASTER_CONFIG_PATH || "./config/master-config.json";
+process.env.MASTER_CONFIG_PATH =
+  process.env.MASTER_CONFIG_PATH || "./config/master-config.json";
 process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "test-key-for-mock";
 
 // Temporary: Set individual config paths until services are updated to use master config
-process.env.MODELS_CONFIG_PATH = process.env.MODELS_CONFIG_PATH || "./config/models.json";
-process.env.PROVIDERS_CONFIG_PATH = process.env.PROVIDERS_CONFIG_PATH || "./config/providers.json";
+process.env.MODELS_CONFIG_PATH =
+  process.env.MODELS_CONFIG_PATH || "./config/models.json";
+process.env.PROVIDERS_CONFIG_PATH =
+  process.env.PROVIDERS_CONFIG_PATH || "./config/providers.json";
 
 // Test normal case
 const testNormal = Effect.gen(function* () {
@@ -24,13 +27,13 @@ const testNormal = Effect.gen(function* () {
   console.log("\nTesting normal case...");
   const weather = yield* agent.getWeather({
     location: "New York",
-    units: { type: "celsius", windSpeedUnit: "mps" }
+    units: { type: "celsius", windSpeedUnit: "mps" },
   });
   console.log("Weather:", JSON.stringify(weather, null, 2));
 
   const summary = yield* agent.getWeatherSummary({
     location: "New York",
-    units: { type: "celsius", windSpeedUnit: "mps" }
+    units: { type: "celsius", windSpeedUnit: "mps" },
   });
   console.log("Summary:", summary);
 
@@ -50,7 +53,7 @@ const testError = Effect.gen(function* () {
   try {
     yield* agent.getWeather({
       location: "",
-      units: { type: "celsius", windSpeedUnit: "mps" }
+      units: { type: "celsius", windSpeedUnit: "mps" },
     });
   } catch (error) {
     console.log("Got expected error:", error);
@@ -78,4 +81,6 @@ const program = Effect.gen(function* () {
   Effect.provide(Logger.minimumLogLevel(LogLevel.Info))
 );
 
-Effect.runPromise(program).catch(console.error);
+Effect.runPromise(program as Effect.Effect<void, never, never>).catch(
+  console.error
+);

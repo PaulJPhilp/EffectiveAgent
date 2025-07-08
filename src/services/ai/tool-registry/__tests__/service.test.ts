@@ -11,10 +11,7 @@ describe("ToolRegistryService", () => {
 
   // Centralized dependency layer configuration
   const testLayer = Layer.provide(
-    Layer.mergeAll(
-      ConfigurationService.Default,
-      ToolRegistryService.Default
-    ),
+    Layer.mergeAll(ConfigurationService.Default, ToolRegistryService.Default),
     NodeFileSystem.layer
   );
   it("should return registry data", () =>
@@ -32,7 +29,7 @@ describe("ToolRegistryService", () => {
       const service = yield* ToolRegistryService;
       const tool = yield* service.getTool("test-toolkit:test-tool");
 
-      if (!tool?.name || !tool?.description) {
+      if (!tool?.toolMetadata?.name || !tool?.toolMetadata?.description) {
         throw new Error("Expected tool with name and description");
       }
     }).pipe(Effect.provide(testLayer)));
@@ -60,7 +57,9 @@ describe("ToolRegistryService", () => {
   it("should fail when toolkit not found", () =>
     Effect.gen(function* () {
       const service = yield* ToolRegistryService;
-      const result = yield* Effect.either(service.getToolkit("invalid-toolkit"));
+      const result = yield* Effect.either(
+        service.getToolkit("invalid-toolkit")
+      );
 
       if (!Either.isLeft(result)) {
         throw new Error("Expected toolkit not found error");
@@ -86,9 +85,11 @@ describe("ToolRegistryService", () => {
         throw new Error("Expected array of tool names");
       }
 
-      const hasValidFormat = tools.every(name => name.includes(":"));
+      const hasValidFormat = tools.every((name) => name.includes(":"));
       if (!hasValidFormat) {
-        throw new Error("Expected all tool names to be in namespace:name format");
+        throw new Error(
+          "Expected all tool names to be in namespace:name format"
+        );
       }
     }).pipe(Effect.provide(testLayer)));
 });

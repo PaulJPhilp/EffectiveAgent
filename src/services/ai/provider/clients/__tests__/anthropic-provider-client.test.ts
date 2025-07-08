@@ -138,7 +138,7 @@ describe("Anthropic Provider Client", () => {
         it("should fail tool validation as expected", () =>
             Effect.gen(function* () {
                 const client = yield* makeAnthropicClient("test-key");
-                const result = yield* Effect.either(client.validateToolInput("testTool", { param: "value" }));
+                const result = yield* Effect.either(client.validateToolInput("test:testTool", { param: "value" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
                 Effect.provide(Layer.mergeAll(
@@ -150,7 +150,7 @@ describe("Anthropic Provider Client", () => {
         it("should fail tool execution as expected", () =>
             Effect.gen(function* () {
                 const client = yield* makeAnthropicClient("test-key");
-                const result = yield* Effect.either(client.executeTool("testTool", { param: "value" }));
+                const result = yield* Effect.either(client.executeTool("test:testTool", { param: "value" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
                 Effect.provide(Layer.mergeAll(
@@ -162,7 +162,7 @@ describe("Anthropic Provider Client", () => {
         it("should fail tool result processing as expected", () =>
             Effect.gen(function* () {
                 const client = yield* makeAnthropicClient("test-key");
-                const result = yield* Effect.either(client.processToolResult("testTool", { result: "data" }));
+                const result = yield* Effect.either(client.processToolResult("test:testTool", { result: "data" }));
                 expect(result._tag).toBe("Left");
             }).pipe(
                 Effect.provide(Layer.mergeAll(

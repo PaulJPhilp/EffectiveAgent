@@ -128,7 +128,7 @@ describe("OpenAI Provider Client", () => {
     it("should fail tool validation as expected", () =>
       withLayers(Effect.gen(function* () {
         const client = yield* makeOpenAIClient("test-key");
-        const result = yield* Effect.either(client.validateToolInput("testTool", { param: "value" }));
+        const result = yield* Effect.either(client.validateToolInput("test:testTool", { param: "value" }));
         expect(result._tag).toBe("Left");
       }))
     );

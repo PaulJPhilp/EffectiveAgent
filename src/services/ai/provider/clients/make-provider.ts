@@ -13,7 +13,7 @@ import type {
   ProviderGenerateTextOptions,
   ProviderTranscribeOptions,
   ToolCallRequest,
-  ToolDefinition
+  ToolDefinition,
 } from "../types.js";
 
 export const makeProvider = (
@@ -27,51 +27,47 @@ export const makeProvider = (
 
   // Real implementation only
   return {
-    validateToolInputs: (tools: ToolDefinition[]) =>
+    validateToolInput: (toolName: `${string}:${string}`, input: unknown) =>
       Effect.succeed(void 0),
-    executeToolCalls: (toolCalls: ToolCallRequest[], tools: ToolDefinition[]) =>
-      Effect.succeed([]),
-    generateText: (input: string, options: ProviderGenerateTextOptions) => {
-      const effectiveInput = new EffectiveInput(input, Chunk.empty());
-      return providerClient.generateText(effectiveInput, options);
+    executeTool: (toolName: `${string}:${string}`, input: unknown) =>
+      Effect.succeed({}),
+    processToolResult: (toolName: `${string}:${string}`, result: unknown) =>
+      Effect.succeed(result),
+    generateText: (
+      input: EffectiveInput,
+      options: ProviderGenerateTextOptions
+    ) => {
+      return providerClient.generateText(input, options);
     },
-    generateObject: <T>(input: string, options: ProviderGenerateObjectOptions<T>) => {
-      const effectiveInput = new EffectiveInput(input, Chunk.empty());
-      return providerClient.generateObject<T>(effectiveInput, options);
+    generateObject: <T>(
+      input: EffectiveInput,
+      options: ProviderGenerateObjectOptions<T>
+    ) => {
+      return providerClient.generateObject<T>(input, options);
     },
-    generateSpeech: (text: string, options: ProviderGenerateSpeechOptions) => {
-      const effectiveInput = new EffectiveInput(text, Chunk.empty());
-      return providerClient.generateSpeech(effectiveInput, options);
+    generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) => {
+      return providerClient.generateSpeech(input, options);
     },
-    transcribe: (audio: Buffer | ArrayBuffer, options: ProviderTranscribeOptions) =>
+    transcribe: (audio: ArrayBuffer, options: ProviderTranscribeOptions) =>
       providerClient.transcribe(audio, options),
-    generateImage: (prompt: string, options: ProviderGenerateImageOptions) => {
-      const effectiveInput = new EffectiveInput(prompt, Chunk.empty());
-      return providerClient.generateImage(effectiveInput, options);
+    generateImage: (
+      input: EffectiveInput,
+      options: ProviderGenerateImageOptions
+    ) => {
+      return providerClient.generateImage(input, options);
     },
-    generateEmbeddings: (texts: string[], options: ProviderGenerateEmbeddingsOptions) =>
-      providerClient.generateEmbeddings(texts, options),
-    chat: (messages: Message[], options: ProviderChatOptions) => {
-      // Messages are already in the correct format - just use them directly
-      const effectiveInput = new EffectiveInput("", Chunk.fromIterable(messages));
+    generateEmbeddings: (
+      texts: string[],
+      options: ProviderGenerateEmbeddingsOptions
+    ) => providerClient.generateEmbeddings(texts, options),
+    chat: (effectiveInput: EffectiveInput, options: ProviderChatOptions) => {
       return providerClient.chat(effectiveInput, options);
     },
     getModels: () => providerClient.getModels(),
-    streamText: (input: string, options: ProviderGenerateTextOptions) =>
-      Effect.fail(new ProviderOperationError({
-        providerName: name,
-        operation: "streamText",
-        message: "Not implemented",
-        module: "provider",
-        method: "streamText"
-      })),
-    streamObject: <T>(input: string, options: ProviderGenerateObjectOptions<T>) =>
-      Effect.fail(new ProviderOperationError({
-        providerName: name,
-        operation: "streamObject",
-        message: "Not implemented",
-        module: "provider",
-        method: "streamObject"
-      }))
-  }
-}
+    setVercelProvider: (vercelProvider: any) => Effect.succeed(void 0),
+    getProvider: () => providerClient.getProvider(),
+    getCapabilities: () => providerClient.getCapabilities(),
+    getDefaultModelIdForProvider: (providerName: any, capability: any) =>
+      Effect.succeed("default-model"),
+  };
+};
