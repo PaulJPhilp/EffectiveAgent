@@ -1,7 +1,13 @@
-import { Effect } from "effect";
+import { Context, Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
 import { EntityNotFoundError } from "../../errors.js";
 import { InMemoryRepository } from "./repository.js";
+
+// Mock DrizzleClientApi for tests since in-memory doesn't need it
+const mockDrizzleClientApi = Layer.succeed(
+  Context.GenericTag<"DrizzleClientApi", any>("DrizzleClientApi"),
+  {} as any
+);
 
 interface TestEntity {
   id: string;
@@ -21,8 +27,9 @@ describe("InMemoryRepository", () => {
   const runTest = <A, E>(effect: Effect.Effect<A, E, any>): Promise<A> => {
     return Effect.runPromise(
       effect.pipe(
-        Effect.provide(repository.live("TestEntity"))
-      ) as Effect.Effect<A, E, never>
+        Effect.provide(repository.live("TestEntity")),
+        Effect.provide(mockDrizzleClientApi)
+      )
     );
   };
 
@@ -80,7 +87,7 @@ describe("InMemoryRepository", () => {
           yield* service.create({ name: "other", value: 24 });
 
           const found = yield* service.findMany({
-            filter: { value: 42 }
+            filter: { value: 42 },
           });
 
           expect(found.length).toBe(2);
@@ -99,12 +106,12 @@ describe("InMemoryRepository", () => {
 
           const page1 = yield* service.findMany({
             offset: 0,
-            limit: 2
+            limit: 2,
           });
 
           const page2 = yield* service.findMany({
             offset: 2,
-            limit: 2
+            limit: 2,
           });
 
           expect(page1.length).toBe(2);
@@ -125,21 +132,21 @@ describe("InMemoryRepository", () => {
           const updated = yield* service.update(created.id, { value: 24 });
           expect(updated.data.name).toBe("test");
           expect(updated.data.value).toBe(24);
-          expect(updated.updatedAt.getTime()).toBeGreaterThan(created.updatedAt.getTime());
+          expect(updated.updatedAt.getTime()).toBeGreaterThan(
+            created.updatedAt.getTime()
+          );
         })
       );
     });
 
     it("should fail when updating non-existent entity", async () => {
-      const result = await Effect.runPromise(
-        Effect.either(
-          Effect.gen(function* (_) {
-            const service = yield* repository.Tag;
-            yield* service.update("non-existent", { value: 24 });
-          }).pipe(
-            Effect.provide(repository.live("TestEntity"))
-          )
-        )
+      const result = await runTest(
+        Effect.gen(function* (_) {
+          const service = yield* repository.Tag;
+          return yield* Effect.either(
+            service.update("non-existent", { value: 24 })
+          );
+        })
       );
 
       expect(result._tag).toBe("Left");
@@ -163,15 +170,11 @@ describe("InMemoryRepository", () => {
     });
 
     it("should fail when deleting non-existent entity", async () => {
-      const result = await Effect.runPromise(
-        Effect.either(
-          Effect.gen(function* (_) {
-            const service = yield* repository.Tag;
-            yield* service.delete("non-existent");
-          }).pipe(
-            Effect.provide(repository.live("TestEntity"))
-          )
-        )
+      const result = await runTest(
+        Effect.gen(function* (_) {
+          const service = yield* repository.Tag;
+          return yield* Effect.either(service.delete("non-existent"));
+        })
       );
 
       expect(result._tag).toBe("Left");
@@ -191,7 +194,7 @@ describe("InMemoryRepository", () => {
           yield* service.create({ name: "other", value: 24 });
 
           const count = yield* service.count({
-            filter: { value: 42 }
+            filter: { value: 42 },
           });
 
           expect(count).toBe(2);
