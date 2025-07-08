@@ -14,7 +14,7 @@ This document outlines the dependencies for services located under `src/services
     *   `Path` (from `@effect/platform`)
     *   `FileSystem` (from `@effect/platform`)
 
-*   **`ErrorRecoveryService`**
+*   **`ResilienceService`**
     *   _No external service dependencies identified._
 
 *   **`FileService`**

@@ -1,7 +1,7 @@
 import { EffectiveError } from "@/errors.js";
 import { Duration, Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
-import { ErrorRecoveryService } from "../service.js";
+import { ResilienceService } from "../service.js";
 import {
     CircuitBreakerConfig,
     CircuitBreakerError,
@@ -44,12 +44,12 @@ class ValidationError extends EffectiveError {
 }
 
 describe("Error Recovery Integration Tests", () => {
-    const errorRecoveryServiceTestLayer = ErrorRecoveryService.Default;
+    const resilienceServiceTestLayer = ResilienceService.Default;
 
     describe("Circuit Breaker State Transitions", () => {
         it("should handle complete circuit breaker lifecycle", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "lifecycle-test",
@@ -92,12 +92,12 @@ describe("Error Recovery Integration Tests", () => {
                 expect(metrics?.totalRequests).toBe(3);
                 expect(metrics?.totalFailures).toBe(2);
                 expect(metrics?.successCount).toBe(1);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
 
         it("should enforce maximum attempts in HALF_OPEN state", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "half-open-test",
@@ -128,14 +128,14 @@ describe("Error Recovery Integration Tests", () => {
                 if (Either.isLeft(result2)) {
                     expect(result2.left).toBeInstanceOf(CircuitBreakerError);
                 }
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
     });
 
     describe("Retry with Exponential Backoff", () => {
         it("should respect backoff delays", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
                 const startTime = Date.now();
 
                 const policy: RetryPolicy = {
@@ -157,15 +157,15 @@ describe("Error Recovery Integration Tests", () => {
                 // Should be at least baseDelay + (baseDelay * backoffMultiplier)
                 expect(totalTime).toBeGreaterThanOrEqual(150);
 
-                const metrics = yield* service.getRecoveryMetrics("retry-operation");
+                const metrics = yield* service.getResilienceMetrics("retry-operation");
                 expect(metrics?.attempts).toBe(3);
                 expect(metrics?.failures).toBe(3);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
 
         it("should handle mixed error types correctly", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
                 let attemptCount = 0;
 
                 const mixedErrorOperation = Effect.gen(function* () {
@@ -193,17 +193,17 @@ describe("Error Recovery Integration Tests", () => {
                 expect(Either.isLeft(result)).toBe(true);
                 expect(attemptCount).toBe(3); // Should stop at ValidationError
 
-                const metrics = yield* service.getRecoveryMetrics("retry-operation");
+                const metrics = yield* service.getResilienceMetrics("retry-operation");
                 expect(metrics?.attempts).toBe(3);
                 expect(metrics?.failures).toBe(3);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
     });
 
     describe("Advanced Fallback Scenarios", () => {
         it("should chain multiple fallback strategies with timeouts", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const fallbackStrategies: ReadonlyArray<FallbackStrategy<string>> = [
                     {
@@ -226,19 +226,19 @@ describe("Error Recovery Integration Tests", () => {
                 const result = yield* service.withFallback(failingOperation, fallbackStrategies);
                 expect(result).toBe("backup-data");
 
-                const metrics = yield* service.getRecoveryMetrics("fallback-operation");
+                const metrics = yield* service.getResilienceMetrics("fallback-operation");
                 expect(metrics?.fallbackUsed).toBe(true);
                 expect(metrics?.attempts).toBeGreaterThan(0);
                 expect(metrics?.successes).toBe(1);
                 expect(metrics?.failures).toBe(1); // From primary cache failure
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
     });
 
     describe("Complex Recovery Chains", () => {
         it("should handle nested recovery patterns", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const circuitConfig: CircuitBreakerConfig = {
                     name: "complex-chain",
@@ -290,22 +290,22 @@ describe("Error Recovery Integration Tests", () => {
                 expect(cbMetrics?.totalFailures).toBe(2);
 
                 // Verify retry metrics
-                const retryMetrics = yield* service.getRecoveryMetrics("retry-operation");
+                const retryMetrics = yield* service.getResilienceMetrics("retry-operation");
                 expect(retryMetrics?.attempts).toBeGreaterThan(0);
                 expect(retryMetrics?.failures).toBeGreaterThan(0);
 
                 // Verify fallback metrics
-                const fallbackMetrics = yield* service.getRecoveryMetrics("fallback-operation");
+                const fallbackMetrics = yield* service.getResilienceMetrics("fallback-operation");
                 expect(fallbackMetrics?.fallbackUsed).toBe(true);
                 expect(fallbackMetrics?.successes).toBe(1);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
     });
 
     describe("Circuit Breaker Race Conditions", () => {
         it("should maintain state consistency during concurrent operations", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "race-test",
@@ -332,12 +332,12 @@ describe("Error Recovery Integration Tests", () => {
                 const metrics = yield* service.getCircuitBreakerMetrics("race-test");
                 expect(metrics?.failureCount).toBeLessThanOrEqual(config.failureThreshold);
                 expect([metrics?.state === "OPEN", metrics?.state === "CLOSED"]).toContain(true);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
 
         it("should handle concurrent requests during HALF_OPEN state", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "half-open-race",
@@ -373,12 +373,12 @@ describe("Error Recovery Integration Tests", () => {
                     const successfulResults = results.right.filter(result => result === "success");
                     expect(successfulResults.length).toBeLessThanOrEqual(config.halfOpenMaxAttempts);
                 }
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
 
         it("should handle concurrent reset timeouts", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "reset-race",
@@ -412,12 +412,12 @@ describe("Error Recovery Integration Tests", () => {
                 const metrics = yield* service.getCircuitBreakerMetrics("reset-race");
                 expect(metrics?.state === "CLOSED" || metrics?.state === "HALF_OPEN").toBe(true);
                 expect(metrics?.successCount).toBeLessThanOrEqual(config.halfOpenMaxAttempts);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
 
         it("should maintain accurate metrics during high concurrency", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "metrics-race",
@@ -449,14 +449,14 @@ describe("Error Recovery Integration Tests", () => {
                 } else if (metrics) {
                     expect(metrics.state).toBe("CLOSED");
                 }
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
     });
 
     describe("Concurrent Access Patterns", () => {
         it("should handle concurrent recovery chains with shared resources", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
                 let sharedResourceCount = 0;
 
                 const config: CircuitBreakerConfig = {
@@ -506,12 +506,12 @@ describe("Error Recovery Integration Tests", () => {
                 const metrics = yield* service.getCircuitBreakerMetrics("shared-resource");
                 expect(metrics?.totalRequests).toBe(10);
                 expect(metrics?.state === "OPEN" || metrics?.state === "CLOSED").toBe(true);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
 
         it("should maintain fallback chain ordering under concurrent load", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
                 const executionOrder: string[] = [];
 
                 const fallbackStrategies: ReadonlyArray<FallbackStrategy<string>> = [
@@ -566,15 +566,15 @@ describe("Error Recovery Integration Tests", () => {
                 )).toBe(true);
 
                 // Verify metrics
-                const metrics = yield* service.getRecoveryMetrics("fallback-operation");
+                const metrics = yield* service.getResilienceMetrics("fallback-operation");
                 expect(metrics?.fallbackUsed).toBe(true);
                 expect(metrics?.attempts).toBeGreaterThan(0);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
 
         it("should handle interleaved retry and circuit breaker operations", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
                 const operationLog: Array<{ type: string, timestamp: number }> = [];
 
                 const config: CircuitBreakerConfig = {
@@ -628,12 +628,12 @@ describe("Error Recovery Integration Tests", () => {
                 expect(operationLog.filter(log => log.type === "circuit").length).toBeGreaterThan(0);
 
                 // Check metrics for both systems
-                const retryMetrics = yield* service.getRecoveryMetrics("retry-operation");
+                const retryMetrics = yield* service.getResilienceMetrics("retry-operation");
                 const circuitMetrics = yield* service.getCircuitBreakerMetrics("interleaved-test");
 
                 expect(retryMetrics?.attempts).toBeGreaterThan(0);
                 expect(circuitMetrics?.totalRequests).toBeGreaterThan(0);
-            }).pipe(Effect.provide(errorRecoveryServiceTestLayer))
+            }).pipe(Effect.provide(resilienceServiceTestLayer))
         );
     });
 });

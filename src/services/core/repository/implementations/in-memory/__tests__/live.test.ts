@@ -11,6 +11,7 @@ import { EntityNotFoundError } from "@core/repository/errors.js";
 // Import the 'make' function directly
 import { make as makeInMemoryRepository } from "@core/repository/implementations/in-memory/live.js";
 import type { BaseEntity, RepositoryApi } from "@core/repository/types.js";
+import { ResilienceService } from "@/services/execution/resilience/index.js";
 
 // --- Test Setup ---
 
@@ -62,6 +63,16 @@ const runFailTest = <E, A>(effect: Effect.Effect<A, E, any>) =>
         Effect.provide(mockDrizzleClientApi)
       )
     ) as Effect.Effect<Exit.Exit<A, E>, never, never>
+  );
+
+// Helper function to run tests with resilience service
+const runTestWithResilience = <E, A>(effect: Effect.Effect<A, E, any>) =>
+  Effect.runPromise(
+    effect.pipe(
+      Effect.provide(testRepositoryLayer),
+      Effect.provide(ResilienceService.Default),
+      Effect.provide(mockDrizzleClientApi)
+    ) as Effect.Effect<A, E, never>
   );
 
 // --- Test Suite ---
@@ -262,5 +273,78 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
       }
     });
     await expect(runTest(effect)).resolves.toBeUndefined();
+  });
+
+  // --- Resilience Integration Tests ---
+  describe("with ResilienceService integration", () => {
+    it("should work with ResilienceService available", async () => {
+      const data: TestEntityData = { name: "Resilience Test", value: 1 };
+      const effect = Effect.gen(function* () {
+        const repo = yield* TestRepositoryService;
+        const resilience = yield* ResilienceService;
+        
+        // Perform repository operation
+        const created = yield* repo.create(data);
+        expect(created.id).toBeTypeOf("string");
+        expect(created.data).toEqual(data);
+        
+        // Verify ResilienceService is available (in-memory doesn't use database circuit breaker)
+        const metrics = yield* resilience.getCircuitBreakerMetrics("some-other-service");
+        expect(metrics).toBeUndefined(); // No metrics for non-existent circuit breaker
+        
+        return created;
+      });
+      await expect(runTestWithResilience(effect)).resolves.toBeDefined();
+    });
+
+    it("should handle all repository operations with ResilienceService available", async () => {
+      const data: TestEntityData = { name: "Resilience CRUD", value: 42 };
+      const effect = Effect.gen(function* () {
+        const repo = yield* TestRepositoryService;
+        const resilience = yield* ResilienceService;
+        
+        // Create entity
+        const created = yield* repo.create(data);
+        
+        // Read entity
+        const found = yield* repo.findById(created.id);
+        expect(Option.isSome(found)).toBe(true);
+        
+        // Update entity
+        const updated = yield* repo.update(created.id, { value: 100 });
+        expect(updated.data.value).toBe(100);
+        
+        // Count entities
+        const count = yield* repo.count();
+        expect(count).toBeGreaterThan(0);
+        
+        // Delete entity
+        yield* repo.delete(created.id);
+        
+        // Verify ResilienceService is still available
+        const metrics = yield* resilience.getCircuitBreakerMetrics("test-circuit");
+        expect(metrics).toBeUndefined(); // No metrics for non-existent circuit breaker
+      });
+      await expect(runTestWithResilience(effect)).resolves.toBeUndefined();
+    });
+
+    it("should work without ResilienceService (graceful degradation)", async () => {
+      const data: TestEntityData = { name: "No Resilience", value: 1 };
+      const effect = Effect.gen(function* () {
+        const repo = yield* TestRepositoryService;
+        
+        // Should work normally without ResilienceService
+        const created = yield* repo.create(data);
+        expect(created.id).toBeTypeOf("string");
+        expect(created.data).toEqual(data);
+        
+        const found = yield* repo.findById(created.id);
+        expect(Option.isSome(found)).toBe(true);
+        
+        return created;
+      });
+      // Run without ResilienceService layer
+      await expect(runTest(effect)).resolves.toBeDefined();
+    });
   });
 });

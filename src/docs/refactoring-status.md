@@ -117,7 +117,7 @@ All phases successfully completed with comprehensive testing and documentation.
   - Retryability determination
 
 **Services Created**:
-- `src/services/core/error-recovery/` - Complete error recovery service
+- `src/services/execution/resilience/` - Complete resilience service
 - Comprehensive test suite with 15+ test scenarios
 - Integration with existing service architecture
 
@@ -242,7 +242,7 @@ All phases successfully completed with comprehensive testing and documentation.
 - `src/services/core/configuration/` - Master configuration management
 - `src/services/core/file/` - File system operations
 - `src/services/core/initialization/` - Runtime initialization
-- `src/services/core/error-recovery/` - Error recovery and resilience
+- `src/services/execution/resilience/` - Resilience patterns and recovery
 - `src/services/core/performance/` - Performance monitoring and benchmarking
 - `src/services/core/health/` - Health monitoring and degradation
 

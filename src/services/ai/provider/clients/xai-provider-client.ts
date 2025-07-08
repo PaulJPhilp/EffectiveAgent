@@ -4,28 +4,29 @@ import {
   TextPart,
   ToolCallPart,
 } from "@/schema.js";
-import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import type { EffectiveInput, FinishReason } from "@/types.js";
-import { createXai } from "@ai-sdk/xai";
-import {
-  type CoreMessage as VercelCoreMessage,
-  experimental_generateImage as generateImage,
-  generateText,
-} from "ai";
-import { Chunk, Effect } from "effect";
-import type { ToolRegistryApi } from "../../tool-registry/api.js";
+import type {
+  EffectiveInput,
+  FinishReason,
+  ProviderEffectiveResponse,
+} from "@/types.js";
+import { createOpenAI } from "@ai-sdk/openai";
+import { type CoreMessage as VercelCoreMessage, generateText } from "ai";
+import { Chunk, Duration, Effect, Option, Schema as S } from "effect";
+import { z } from "zod";
+import type { ModelServiceApi } from "../../model/api.js";
+import { ModelService } from "../../model/service.js";
+import { ToolRegistryService } from "../../tool-registry/service.js";
+import type { FullToolName } from "../../tools/types.js";
 import type { ProviderClientApi } from "../api.js";
 import {
-  ProviderMissingCapabilityError,
-  ProviderMissingModelIdError,
   ProviderNotFoundError,
   ProviderOperationError,
   ProviderServiceConfigError,
+  ProviderToolError,
 } from "../errors.js";
 import { ProvidersType } from "../schema.js";
 import type {
   EffectiveProviderApi,
-  GenerateImageResult,
   GenerateTextResult,
   ProviderChatOptions,
   ProviderGenerateEmbeddingsOptions,
@@ -36,6 +37,8 @@ import type {
   ProviderTranscribeOptions,
   ToolCallRequest,
 } from "../types.js";
+import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
+import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
 
 // Map AI SDK finish reasons to EffectiveAgent finish reasons
 function mapFinishReason(finishReason: string): FinishReason {
@@ -154,408 +157,404 @@ function makeXaiClient(
 ): Effect.Effect<
   ProviderClientApi,
   ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError,
-  ModelServiceApi | ToolRegistryApi
+  ModelServiceApi | ToolRegistryService | OrchestratorService
 > {
-  const xaiProvider = createXai({ apiKey });
+  const xaiProvider = createOpenAI({ apiKey });
 
-  return Effect.succeed({
-    // Tool-related methods - xAI Grok does not support tools
-    validateToolInput: (toolName: string, input: unknown) =>
-      Effect.fail(
-        new ProviderMissingCapabilityError({
-          providerName: "xai",
-          capability: "tool-use",
-          module: "xai",
-          method: "validateToolInput",
-        })
-      ),
+  return Effect.gen(function* () {
+    const orchestrator = yield* OrchestratorService;
 
-    executeTool: (toolName: string, input: unknown) =>
-      Effect.fail(
-        new ProviderMissingCapabilityError({
-          providerName: "xai",
-          capability: "tool-use",
-          module: "xai",
-          method: "executeTool",
-        })
-      ),
+    // Orchestration configurations for XAI operations
+    const XAI_GENERATE_TEXT_CONFIG: OrchestratorParameters = {
+      operationName: "xai-generateText",
+      timeoutMs: 30000,
+      maxRetries: 3,
+      resilience: {
+        circuitBreakerEnabled: true,
+        failureThreshold: 5,
+        resetTimeoutMs: 60000,
+        retryBackoffMultiplier: 2,
+        retryJitter: true,
+      },
+    };
 
-    processToolResult: (toolName: string, result: unknown) =>
-      Effect.fail(
-        new ProviderMissingCapabilityError({
-          providerName: "xai",
-          capability: "tool-use",
-          module: "xai",
-          method: "processToolResult",
-        })
-      ),
+    const XAI_CHAT_CONFIG: OrchestratorParameters = {
+      operationName: "xai-chat",
+      timeoutMs: 45000,
+      maxRetries: 3,
+      resilience: {
+        circuitBreakerEnabled: true,
+        failureThreshold: 5,
+        resetTimeoutMs: 60000,
+        retryBackoffMultiplier: 2,
+        retryJitter: true,
+      },
+    };
 
-    // Provider and capability methods
-    getProvider: () =>
-      Effect.succeed({
-        name: "xai" as const,
-        provider: {} as any, // Raw provider not needed for EffectiveProviderApi
-        capabilities: new Set<ModelCapability>([
-          "chat",
-          "text-generation",
-          "image-generation",
-        ]),
-      }),
+    return {
+      // Tool-related methods - xAI Grok does not support tools
+      validateToolInput: (toolName: string, input: unknown) =>
+        Effect.fail(
+          new ProviderToolError({
+            description: `Tool validation not supported by xAI provider: ${toolName}`,
+            provider: "xai",
+            module: "xai",
+            method: "validateToolInput",
+          })
+        ),
 
-    getCapabilities: () =>
-      Effect.succeed(
-        new Set<ModelCapability>([
-          "chat",
-          "text-generation",
-          "image-generation",
-        ])
-      ),
+      executeTool: (toolName: string, input: unknown) =>
+        Effect.fail(
+          new ProviderToolError({
+            description: `Tool execution not supported by xAI provider: ${toolName}`,
+            provider: "xai",
+            module: "xai",
+            method: "executeTool",
+          })
+        ),
 
-    // Core generation methods
-    generateText: (
-      input: EffectiveInput,
-      options: ProviderGenerateTextOptions
-    ) =>
-      Effect.gen(function* () {
-        try {
-          const vercelMessages = mapEAMessagesToVercelMessages(
-            Chunk.toReadonlyArray(input.messages || Chunk.empty())
-          );
-          const modelId = options.modelId || "grok-3";
+      processToolResult: (toolName: string, result: unknown) =>
+        Effect.fail(
+          new ProviderToolError({
+            description: `Tool result processing not supported by xAI provider: ${toolName}`,
+            provider: "xai",
+            module: "xai",
+            method: "processToolResult",
+          })
+        ),
 
-          const result = yield* Effect.tryPromise({
-            try: () =>
-              generateText({
-                model: xaiProvider(modelId),
-                messages: vercelMessages,
-                system: options.system,
-                maxTokens: options.parameters?.maxTokens,
-                temperature: options.parameters?.temperature,
-                topP: options.parameters?.topP,
-                topK: options.parameters?.topK,
-                presencePenalty: options.parameters?.presencePenalty,
-                frequencyPenalty: options.parameters?.frequencyPenalty,
-                stopSequences: options.parameters?.stop,
-                seed: options.parameters?.seed,
-                maxRetries: 2,
-                abortSignal: options.signal,
-              }),
-            catch: (error) =>
-              new ProviderOperationError({
-                providerName: "xai",
-                operation: "generateText",
-                message: `Failed to generate text: ${error}`,
-                module: "xai",
-                method: "generateText",
-                cause: error,
-              }),
-          });
+      // Provider and capability methods
+      getProvider: () =>
+        Effect.succeed({
+          name: "xai" as const,
+          provider: {} as any, // Raw provider not needed for EffectiveProviderApi
+          capabilities: new Set<ModelCapability>([
+            "chat",
+            "text-generation",
+            "image-generation",
+          ]),
+        }),
 
-          const responseMessages = result.response?.messages || [];
-          const eaMessages = responseMessages.map((msg) =>
-            mapVercelMessageToEAEffectiveMessage(msg, modelId)
-          );
+      getCapabilities: () =>
+        Effect.succeed(
+          new Set<ModelCapability>([
+            "chat",
+            "text-generation",
+            "image-generation",
+          ])
+        ),
 
-          const textResult: GenerateTextResult = {
-            id: `xai-${Date.now()}`,
-            model: modelId,
-            timestamp: new Date(),
-            text: result.text,
-            finishReason: mapFinishReason(result.finishReason),
-            usage: {
-              promptTokens: result.usage?.promptTokens || 0,
-              completionTokens: result.usage?.completionTokens || 0,
-              totalTokens: result.usage?.totalTokens || 0,
-            },
-            toolCalls: [],
-            reasoning: result.reasoning,
-          };
+      // Core generation methods
+      generateText: (
+        input: EffectiveInput,
+        options: ProviderGenerateTextOptions
+      ) =>
+        orchestrator.execute(
+          Effect.gen(function* () {
+            try {
+              const vercelMessages = mapEAMessagesToVercelMessages(
+                Chunk.toReadonlyArray(input.messages || Chunk.empty())
+              );
+              const modelId = options.modelId || "grok-3";
 
-          return {
-            data: textResult,
-            metadata: {
-              model: modelId,
-              provider: "xai",
-              requestId: `xai-${Date.now()}`,
-            },
-            usage: textResult.usage,
-            finishReason: textResult.finishReason,
-          };
-        } catch (error) {
-          return yield* Effect.fail(
-            new ProviderOperationError({
-              providerName: "xai",
-              operation: "generateText",
-              message: `Failed to generate text: ${error}`,
-              module: "xai",
-              method: "generateText",
-              cause: error,
-            })
-          );
-        }
-      }),
+              const result = yield* Effect.tryPromise({
+                try: () =>
+                  generateText({
+                    model: xaiProvider(modelId),
+                    messages: vercelMessages,
+                    system: options.system,
+                    maxTokens: options.parameters?.maxTokens,
+                    temperature: options.parameters?.temperature,
+                    topP: options.parameters?.topP,
+                    topK: options.parameters?.topK,
+                    presencePenalty: options.parameters?.presencePenalty,
+                    frequencyPenalty: options.parameters?.frequencyPenalty,
+                    stopSequences: options.parameters?.stop,
+                    seed: options.parameters?.seed,
+                    maxRetries: 2,
+                    abortSignal: options.signal,
+                  }),
+                catch: (error) =>
+                  new ProviderOperationError({
+                    providerName: "xai",
+                    operation: "generateText",
+                    message: `Failed to generate text: ${error}`,
+                    module: "xai",
+                    method: "generateText",
+                    cause: error,
+                  }),
+              });
 
-    generateObject: <T = unknown>(
-      input: EffectiveInput,
-      options: ProviderGenerateObjectOptions<T>
-    ) =>
-      Effect.fail(
-        new ProviderMissingCapabilityError({
-          providerName: "xai",
-          capability: "function-calling",
-          module: "xai",
-          method: "generateObject",
-        })
-      ),
+              const responseMessages = result.response?.messages || [];
+              const eaMessages = responseMessages.map((msg) =>
+                mapVercelMessageToEAEffectiveMessage(msg, modelId)
+              );
 
-    generateImage: (
-      input: EffectiveInput,
-      options: ProviderGenerateImageOptions
-    ) =>
-      Effect.gen(function* () {
-        try {
-          const modelId = options.modelId || "grok-2-image";
+              const textResult: GenerateTextResult = {
+                id: `xai-${Date.now()}`,
+                model: modelId,
+                timestamp: new Date(),
+                text: result.text,
+                finishReason: mapFinishReason(result.finishReason),
+                usage: {
+                  promptTokens: result.usage?.promptTokens || 0,
+                  completionTokens: result.usage?.completionTokens || 0,
+                  totalTokens: result.usage?.totalTokens || 0,
+                },
+                toolCalls: [],
+                reasoning: result.reasoning,
+              };
 
-          // Extract prompt from input messages
-          const messages = Chunk.toReadonlyArray(
-            input.messages || Chunk.empty()
-          );
-          const prompt = messages
-            .flatMap((msg) => Chunk.toReadonlyArray(msg.parts))
-            .filter((part) => part._tag === "Text")
-            .map((part) => (part as TextPart).content)
-            .join(" ");
+              return {
+                data: textResult,
+                metadata: {
+                  model: modelId,
+                  provider: "xai",
+                  requestId: `xai-${Date.now()}`,
+                },
+                usage: textResult.usage,
+                finishReason: textResult.finishReason,
+              };
+            } catch (error) {
+              return yield* Effect.fail(
+                new ProviderOperationError({
+                  providerName: "xai",
+                  operation: "generateText",
+                  message: `Failed to generate text: ${error}`,
+                  module: "xai",
+                  method: "generateText",
+                  cause: error,
+                })
+              );
+            }
+          }),
+          XAI_GENERATE_TEXT_CONFIG
+        ),
 
-          if (!prompt) {
+      generateObject: <T = unknown>(
+        input: EffectiveInput,
+        options: ProviderGenerateObjectOptions<T>
+      ) =>
+        Effect.fail(
+          new ProviderToolError({
+            description: "Object generation not supported by xAI provider",
+            provider: "xai",
+            module: "xai",
+            method: "generateObject",
+          })
+        ),
+
+      generateImage: (
+        input: EffectiveInput,
+        options: ProviderGenerateImageOptions
+      ) =>
+        Effect.gen(function* () {
+          try {
+            const modelId = options.modelId || "grok-2-image";
+
+            // Extract prompt from input messages
+            const messages = Chunk.toReadonlyArray(
+              input.messages || Chunk.empty()
+            );
+            const prompt = messages
+              .flatMap((msg) => Chunk.toReadonlyArray(msg.parts))
+              .filter((part) => part._tag === "Text")
+              .map((part) => (part as TextPart).content)
+              .join(" ");
+
+            if (!prompt) {
+              return yield* Effect.fail(
+                new ProviderOperationError({
+                  providerName: "xai",
+                  operation: "generateImage",
+                  message: "No prompt found in input messages",
+                  module: "xai",
+                  method: "generateImage",
+                })
+              );
+            }
+
+            // XAI doesn't support image generation, return error
             return yield* Effect.fail(
               new ProviderOperationError({
                 providerName: "xai",
                 operation: "generateImage",
-                message: "No prompt found in input messages",
+                message: "XAI does not support image generation",
                 module: "xai",
                 method: "generateImage",
               })
             );
-          }
-
-          const result = yield* Effect.tryPromise({
-            try: () =>
-              generateImage({
-                model: xaiProvider.image(modelId),
-                prompt: prompt,
-                n: options.n || 1,
-                size: options.size as `${number}x${number}` | undefined,
-                maxRetries: 2,
-                abortSignal: options.signal,
-              }),
-            catch: (error) =>
+          } catch (error) {
+            return yield* Effect.fail(
               new ProviderOperationError({
                 providerName: "xai",
                 operation: "generateImage",
                 message: `Failed to generate image: ${error}`,
                 module: "xai",
                 method: "generateImage",
-                cause: error,
-              }),
-          });
+              })
+            );
+          }
+        }),
 
-          const imageResult: GenerateImageResult = {
-            id: `xai-${Date.now()}`,
-            model: modelId,
-            timestamp: new Date(),
-            imageUrl: result.image.base64
-              ? `data:image/png;base64,${result.image.base64}`
-              : "",
-            parameters: {
-              size: options.size,
-              quality: options.quality,
-              style: options.style,
-            },
-            usage: {
-              promptTokens: 0,
-              completionTokens: 0,
-              totalTokens: 0,
-            },
-            finishReason: "stop",
-          };
-
-          return {
-            data: imageResult,
-            metadata: {
-              model: modelId,
-              provider: "xai",
-              requestId: `xai-${Date.now()}`,
-            },
-            usage: imageResult.usage,
-            finishReason: imageResult.finishReason,
-          };
-        } catch (error) {
-          return yield* Effect.fail(
-            new ProviderOperationError({
-              providerName: "xai",
-              operation: "generateImage",
-              message: `Failed to generate image: ${error}`,
-              module: "xai",
-              method: "generateImage",
-              cause: error,
-            })
-          );
-        }
-      }),
-
-    // Unsupported capabilities
-    generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
-      Effect.fail(
-        new ProviderMissingCapabilityError({
-          providerName: "xai",
-          capability: "audio",
-          module: "xai",
-          method: "generateSpeech",
-        })
-      ),
-
-    transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
-      Effect.fail(
-        new ProviderMissingCapabilityError({
-          providerName: "xai",
-          capability: "audio",
-          module: "xai",
-          method: "transcribe",
-        })
-      ),
-
-    generateEmbeddings: (
-      input: string[],
-      options: ProviderGenerateEmbeddingsOptions
-    ) =>
-      Effect.fail(
-        new ProviderMissingCapabilityError({
-          providerName: "xai",
-          capability: "embeddings",
-          module: "xai",
-          method: "generateEmbeddings",
-        })
-      ),
-
-    // Chat method - delegates to generateText since xAI doesn't support tools
-    chat: (effectiveInput: EffectiveInput, options: ProviderChatOptions) =>
-      Effect.gen(function* () {
-        if (options.tools && options.tools.length > 0) {
-          return yield* Effect.fail(
-            new ProviderMissingCapabilityError({
-              providerName: "xai",
-              capability: "tool-use",
-              module: "xai",
-              method: "chat",
-            })
-          );
-        }
-
-        // Delegate to generateText for simple chat without tools
-        const vercelMessages = mapEAMessagesToVercelMessages(
-          Chunk.toReadonlyArray(effectiveInput.messages || Chunk.empty())
-        );
-        const modelId = options.modelId || "grok-3";
-
-        const result = yield* Effect.tryPromise({
-          try: () =>
-            generateText({
-              model: xaiProvider(modelId),
-              messages: vercelMessages,
-              system: options.system,
-              maxTokens: options.parameters?.maxTokens,
-              temperature: options.parameters?.temperature,
-              topP: options.parameters?.topP,
-              topK: options.parameters?.topK,
-              presencePenalty: options.parameters?.presencePenalty,
-              frequencyPenalty: options.parameters?.frequencyPenalty,
-              stopSequences: options.parameters?.stop,
-              seed: options.parameters?.seed,
-              maxRetries: 2,
-              abortSignal: options.signal,
-            }),
-          catch: (error) =>
-            new ProviderOperationError({
-              providerName: "xai",
-              operation: "chat",
-              message: `Failed to generate text: ${error}`,
-              module: "xai",
-              method: "chat",
-              cause: error,
-            }),
-        });
-
-        const responseMessages = result.response?.messages || [];
-        const eaMessages = responseMessages.map((msg) =>
-          mapVercelMessageToEAEffectiveMessage(msg, modelId)
-        );
-
-        const chatResult: GenerateTextResult = {
-          id: `xai-${Date.now()}`,
-          model: modelId,
-          timestamp: new Date(),
-          text: result.text,
-          finishReason: mapFinishReason(result.finishReason),
-          usage: {
-            promptTokens: result.usage?.promptTokens || 0,
-            completionTokens: result.usage?.completionTokens || 0,
-            totalTokens: result.usage?.totalTokens || 0,
-          },
-          toolCalls: [],
-          reasoning: result.reasoning,
-        };
-
-        return {
-          data: chatResult,
-          metadata: {
-            model: modelId,
+      // Unsupported capabilities
+      generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
+        Effect.fail(
+          new ProviderToolError({
+            description: "Speech generation not supported by xAI provider",
             provider: "xai",
-            requestId: `xai-${Date.now()}`,
-          },
-          usage: chatResult.usage,
-          finishReason: chatResult.finishReason,
-        };
-      }),
-
-    // Model management
-    getModels: () => Effect.succeed([]),
-
-    getDefaultModelIdForProvider: (
-      providerName: ProvidersType,
-      capability: ModelCapability
-    ) => {
-      if (providerName !== "xai") {
-        return Effect.fail(
-          new ProviderMissingModelIdError({
-            providerName,
-            capability,
             module: "xai",
-            method: "getDefaultModelIdForProvider",
+            method: "generateSpeech",
           })
-        );
-      }
+        ),
 
-      switch (capability) {
-        case "chat":
-        case "text-generation":
-          return Effect.succeed("grok-3");
-        case "image-generation":
-          return Effect.succeed("grok-2-image");
-        default:
+      transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
+        Effect.fail(
+          new ProviderToolError({
+            description: "Transcription not supported by xAI provider",
+            provider: "xai",
+            module: "xai",
+            method: "transcribe",
+          })
+        ),
+
+      generateEmbeddings: (
+        input: string[],
+        options: ProviderGenerateEmbeddingsOptions
+      ) =>
+        Effect.fail(
+          new ProviderToolError({
+            description: "Embeddings generation not supported by xAI provider",
+            provider: "xai",
+            module: "xai",
+            method: "generateEmbeddings",
+          })
+        ),
+
+      // Chat method - delegates to generateText since xAI doesn't support tools
+      chat: (effectiveInput: EffectiveInput, options: ProviderChatOptions) =>
+        orchestrator.execute(
+          Effect.gen(function* () {
+            if (options.tools && options.tools.length > 0) {
+              return yield* Effect.fail(
+                new ProviderToolError({
+                  description:
+                    "Tool usage not supported by xAI provider in chat",
+                  provider: "xai",
+                  module: "xai",
+                  method: "chat",
+                })
+              );
+            }
+
+            // Delegate to generateText for simple chat without tools
+            const vercelMessages = mapEAMessagesToVercelMessages(
+              Chunk.toReadonlyArray(effectiveInput.messages || Chunk.empty())
+            );
+            const modelId = options.modelId || "grok-3";
+
+            const result = yield* Effect.tryPromise({
+              try: () =>
+                generateText({
+                  model: xaiProvider(modelId),
+                  messages: vercelMessages,
+                  system: options.system,
+                  maxTokens: options.parameters?.maxTokens,
+                  temperature: options.parameters?.temperature,
+                  topP: options.parameters?.topP,
+                  topK: options.parameters?.topK,
+                  presencePenalty: options.parameters?.presencePenalty,
+                  frequencyPenalty: options.parameters?.frequencyPenalty,
+                  stopSequences: options.parameters?.stop,
+                  seed: options.parameters?.seed,
+                  maxRetries: 2,
+                  abortSignal: options.signal,
+                }),
+              catch: (error) =>
+                new ProviderOperationError({
+                  providerName: "xai",
+                  operation: "chat",
+                  message: `Failed to generate text: ${error}`,
+                  module: "xai",
+                  method: "chat",
+                  cause: error,
+                }),
+            });
+
+            const responseMessages = result.response?.messages || [];
+            const eaMessages = responseMessages.map((msg) =>
+              mapVercelMessageToEAEffectiveMessage(msg, modelId)
+            );
+
+            const chatResult: GenerateTextResult = {
+              id: `xai-${Date.now()}`,
+              model: modelId,
+              timestamp: new Date(),
+              text: result.text,
+              finishReason: mapFinishReason(result.finishReason),
+              usage: {
+                promptTokens: result.usage?.promptTokens || 0,
+                completionTokens: result.usage?.completionTokens || 0,
+                totalTokens: result.usage?.totalTokens || 0,
+              },
+              toolCalls: [],
+              reasoning: result.reasoning,
+            };
+
+            return {
+              data: chatResult,
+              metadata: {
+                model: modelId,
+                provider: "xai",
+                requestId: `xai-${Date.now()}`,
+              },
+              usage: chatResult.usage,
+              finishReason: chatResult.finishReason,
+            };
+          }),
+          XAI_CHAT_CONFIG
+        ),
+
+      // Model management
+      getModels: () => Effect.succeed([]),
+
+      getDefaultModelIdForProvider: (
+        providerName: ProvidersType,
+        capability: ModelCapability
+      ) => {
+        if (providerName !== "xai") {
           return Effect.fail(
-            new ProviderMissingModelIdError({
-              providerName,
-              capability,
+            new ProviderToolError({
+              description: `Invalid provider for xAI client: ${providerName}`,
+              provider: providerName,
               module: "xai",
               method: "getDefaultModelIdForProvider",
             })
           );
-      }
-    },
+        }
 
-    // Vercel provider integration
-    setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
-      Effect.succeed(undefined),
+        switch (capability) {
+          case "chat":
+          case "text-generation":
+            return Effect.succeed("grok-3");
+          case "image-generation":
+            return Effect.succeed("grok-2-image");
+          default:
+            return Effect.fail(
+              new ProviderToolError({
+                description: `Unsupported capability for xAI provider: ${capability}`,
+                provider: providerName,
+                module: "xai",
+                method: "getDefaultModelIdForProvider",
+              })
+            );
+        }
+      },
+
+      // Vercel provider integration
+      setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
+        Effect.succeed(undefined),
+    };
   });
 }
 

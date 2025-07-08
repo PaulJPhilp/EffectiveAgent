@@ -7,7 +7,6 @@ import {
   ToolCallPart,
 } from "@/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import type { ToolRegistryApi } from "@/services/ai/tool-registry/api.js";
 import type { EffectiveInput } from "@/types.js";
 import {
   ProviderServiceError,
@@ -18,6 +17,8 @@ import {
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
+import { ResilienceService } from "@/services/execution/resilience/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Chunk, Effect, Layer } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
@@ -125,11 +126,17 @@ describe("xAI Provider Client", () => {
     NodeFileSystem.layer,
     ConfigurationService.Default,
     ModelService.Default,
-    ToolRegistryService.Default
+    ToolRegistryService.Default,
+    OrchestratorService.Default,
+    ResilienceService.Default
   );
 
   const withLayers = <A, E>(
-    effect: Effect.Effect<A, E, ModelServiceApi | ToolRegistryApi>
+    effect: Effect.Effect<
+      A,
+      E,
+      ModelServiceApi | ToolRegistryService | OrchestratorService
+    >
   ) => effect.pipe(Effect.provide(testLayer));
 
   describe("Client Creation", () => {

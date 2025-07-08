@@ -1,10 +1,6 @@
 import { EffectiveError } from "@/errors.js";
 import { Effect } from "effect";
 import { Duration } from "effect/Duration";
-import {
-  type ExecutiveParameters,
-  ExecutiveServiceError,
-} from "../../executive/index.js";
 import type {
   InputValidationError,
   OutputValidationError,
@@ -36,6 +32,57 @@ export interface PipelineConfig {
    * @default Duration.seconds(1)
    */
   readonly retryDelay?: Duration;
+
+  readonly timeoutMs?: number;
+  readonly retryAttempts?: number;
+  readonly enableLogging?: boolean;
+}
+
+/**
+ * Error types that can occur during pipeline execution
+ */
+export type PipelineError =
+  | PipelineTimeoutError
+  | PipelineValidationError
+  | PipelineExecutionError;
+
+/**
+ * Error thrown when pipeline execution times out
+ */
+export class PipelineTimeoutError extends EffectiveError {
+  constructor(timeoutMs: number) {
+    super({
+      description: `Pipeline execution timed out after ${timeoutMs}ms`,
+      module: "PipelineService",
+      method: "execute",
+    });
+  }
+}
+
+/**
+ * Error thrown when pipeline configuration is invalid
+ */
+export class PipelineValidationError extends EffectiveError {
+  constructor(message: string) {
+    super({
+      description: `Pipeline configuration validation failed: ${message}`,
+      module: "PipelineService",
+      method: "validateConfig",
+    });
+  }
+}
+
+/**
+ * Error thrown during pipeline execution
+ */
+export class PipelineExecutionError extends EffectiveError {
+  constructor(message: string) {
+    super({
+      description: `Pipeline execution failed: ${message}`,
+      module: "PipelineService",
+      method: "execute",
+    });
+  }
 }
 
 /**
@@ -69,13 +116,10 @@ export type AiPipelineError<CustomError extends EffectiveError> =
   | CustomError // Errors from configureChatHistory/configureExecutiveCall
   | InputValidationError
   | OutputValidationError
-  | PipelineConfigurationError // AiPipelineService's own configuration error
-  | ExecutiveServiceError; // Errors from ExecutiveService (incl. Policy/Constraint)
+  | PipelineConfigurationError; // AiPipelineService's own configuration error
 
 /** Parameters for configuring the execution within AiPipelineService */
 export interface ExecutiveCallConfig<A, E, R> {
   /** The Effect to execute */
   effect: Effect.Effect<A, E, R>;
-  /** Optional execution parameters */
-  parameters?: ExecutiveParameters;
 }

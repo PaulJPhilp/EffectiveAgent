@@ -1,7 +1,7 @@
-# ExecutiveService Design Document
+# OrchestratorService Design Document
 
 ## Overview
-The ExecutiveService is a core service in the EffectiveAgent project that provides controlled execution of Effect-based operations. It acts as a central orchestrator for executing operations with policy enforcement, authentication, rate limiting, and audit logging.
+The OrchestratorService is a core service in the EffectiveAgent project that provides controlled execution of Effect-based operations. It acts as a central orchestrator for executing operations with policy enforcement, authentication, rate limiting, and audit logging.
 
 ## Core Features
 
@@ -46,7 +46,7 @@ The ExecutiveService is a core service in the EffectiveAgent project that provid
 
 ### Service Pattern
 ```typescript
-export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>() {
+export class OrchestratorService extends Effect.Service<OrchestratorServiceApi>() {
   // Effect.Service pattern implementation
 }
 ```
@@ -119,7 +119,7 @@ export class ExecutiveService extends Effect.Service<ExecutiveServiceApi>() {
 
 ## Usage Example
 ```typescript
-const service = yield* ExecutiveService;
+const service = yield* OrchestratorService;
 const result = yield* service.execute(myEffect, {
   auth: myAuthContext,
   rateLimiter: myRateLimiter,
@@ -137,4 +137,4 @@ const result = yield* service.execute(myEffect, {
 6. Consider distributed execution
 
 ## Conclusion
-The ExecutiveService provides a robust foundation for controlled effect execution. With the planned enhancements, particularly cron support, it will offer a complete solution for both immediate and scheduled operations while maintaining security, reliability, and observability.
+The OrchestratorService provides a robust foundation for controlled effect execution. With the planned enhancements, particularly cron support, it will offer a complete solution for both immediate and scheduled operations while maintaining security, reliability, and observability.

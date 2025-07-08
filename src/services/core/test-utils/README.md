@@ -80,7 +80,7 @@ The `PipelineTestLayer` provides:
 
 - `PipelineService.Default` - Core pipeline service
 - `AgentRuntimeService.Default` - AgentRuntime dependency injection
-- `ExecutiveService.Default` - Execution management 
+- `OrchestratorService.Default` - Execution management 
 - `NodeFileSystem.layer` - File system operations
 
 All services use proper dependency injection through the AgentRuntime, avoiding the need for configuration files or complex setup.

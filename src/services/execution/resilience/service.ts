@@ -5,7 +5,7 @@ import {
   CircuitBreakerError,
   CircuitBreakerState,
   ErrorClassification,
-  ErrorRecoveryServiceApi,
+  ResilienceServiceApi,
   FallbackStrategy,
   RetryExhaustedError,
   RetryPolicy,
@@ -21,7 +21,7 @@ interface CircuitBreakerInternalState {
   readonly totalFailures: number;
 }
 
-interface RecoveryInternalMetrics {
+interface ResilienceInternalMetrics {
   readonly attempts: number;
   readonly successes: number;
   readonly failures: number;
@@ -33,8 +33,8 @@ interface RecoveryInternalMetrics {
 /**
  * Enhanced error recovery service implementation
  */
-export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi>()(
-  "ErrorRecoveryService",
+export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
+  "ResilienceService",
   {
     effect: Effect.gen(function* () {
       // Circuit breaker state management
@@ -43,8 +43,8 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
       );
 
       // Recovery metrics tracking
-      const recoveryMetrics = yield* Ref.make(
-        HashMap.empty<string, Ref.Ref<RecoveryInternalMetrics>>()
+      const resilienceMetrics = yield* Ref.make(
+        HashMap.empty<string, Ref.Ref<ResilienceInternalMetrics>>()
       );
 
       // Helper function to get or create circuit breaker state
@@ -75,16 +75,16 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
         });
 
       // Helper function to get or create recovery metrics
-      const getRecoveryMetricsState = (operationName: string) =>
+      const getResilienceMetricsState = (operationName: string) =>
         Effect.gen(function* () {
-          const metrics = yield* Ref.get(recoveryMetrics);
+          const metrics = yield* Ref.get(resilienceMetrics);
           const existing = HashMap.get(metrics, operationName);
 
           if (existing._tag === "Some") {
             return existing.value;
           }
 
-          const newMetrics = yield* Ref.make<RecoveryInternalMetrics>({
+          const newMetrics = yield* Ref.make<ResilienceInternalMetrics>({
             attempts: 0,
             successes: 0,
             failures: 0,
@@ -94,7 +94,7 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
           });
 
           yield* Ref.update(
-            recoveryMetrics,
+            resilienceMetrics,
             HashMap.set(operationName, newMetrics)
           );
           return newMetrics;
@@ -330,7 +330,7 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
           policy: RetryPolicy
         ) =>
           Effect.gen(function* () {
-            const metricsRef = yield* getRecoveryMetricsState(
+            const metricsRef = yield* getResilienceMetricsState(
               "retry-operation"
             );
             const startTime = Date.now();
@@ -411,7 +411,7 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
           strategies: ReadonlyArray<FallbackStrategy<A>>
         ) =>
           Effect.gen(function* () {
-            const metricsRef = yield* getRecoveryMetricsState(
+            const metricsRef = yield* getResilienceMetricsState(
               "fallback-operation"
             );
             const startTime = Date.now();
@@ -494,9 +494,9 @@ export class ErrorRecoveryService extends Effect.Service<ErrorRecoveryServiceApi
             };
           }),
 
-        getRecoveryMetrics: (operationName: string) =>
+        getResilienceMetrics: (operationName: string) =>
           Effect.gen(function* () {
-            const metrics = yield* Ref.get(recoveryMetrics);
+            const metrics = yield* Ref.get(resilienceMetrics);
             const metricsRefOpt = HashMap.get(metrics, operationName);
 
             if (metricsRefOpt._tag === "None") {

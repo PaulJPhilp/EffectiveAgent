@@ -1,7 +1,7 @@
 import { EffectiveError } from "@/errors.js";
 import { Duration, Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
-import { ErrorRecoveryService } from "../service.js";
+import { ResilienceService } from "../service.js";
 import {
     CircuitBreakerConfig,
     CircuitBreakerError,
@@ -33,14 +33,14 @@ class ValidationError extends EffectiveError {
     }
 }
 
-describe("ErrorRecoveryService", () => {
+describe("ResilienceService", () => {
     // Create explicit dependency layer following centralized pattern
-    const errorRecoveryServiceTestLayer = ErrorRecoveryService.Default;
+    const resilienceServiceTestLayer = ResilienceService.Default;
 
     describe("Circuit Breaker Pattern", () => {
         it("should allow operations when circuit is closed", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "test-circuit",
@@ -60,12 +60,12 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics?.successCount).toBe(1);
                 expect(metrics?.totalRequests).toBe(1);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
 
         it("should open circuit after failure threshold", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "test-circuit-failure",
@@ -102,12 +102,12 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics?.state).toBe("OPEN");
                 expect(metrics?.totalFailures).toBe(2);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
 
         it("should reset circuit breaker", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "test-circuit-reset",
@@ -134,7 +134,7 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics?.state).toBe("CLOSED");
                 expect(metrics?.failureCount).toBe(0);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
     });
 
@@ -161,13 +161,13 @@ describe("ErrorRecoveryService", () => {
             };
 
             return Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
                 const result = yield* service.withRetry(retryableOperation, policy);
 
                 expect(result).toBe("success after retries");
                 expect(attemptCount).toBe(3);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             );
         });
 
@@ -190,7 +190,7 @@ describe("ErrorRecoveryService", () => {
             };
 
             return Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
                 const result = yield* Effect.either(
                     service.withRetry(nonRetryableOperation, policy)
                 );
@@ -201,7 +201,7 @@ describe("ErrorRecoveryService", () => {
                 }
                 expect(attemptCount).toBe(1);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             );
         });
 
@@ -224,7 +224,7 @@ describe("ErrorRecoveryService", () => {
             };
 
             return Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
                 const result = yield* Effect.either(
                     service.withRetry(alwaysFailingOperation, policy)
                 );
@@ -235,7 +235,7 @@ describe("ErrorRecoveryService", () => {
                 }
                 expect(attemptCount).toBe(3);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             );
         });
     });
@@ -243,7 +243,7 @@ describe("ErrorRecoveryService", () => {
     describe("Fallback Strategies", () => {
         it("should use fallback when primary operation fails", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const primaryOperation = Effect.fail(new NetworkError("Primary failed"));
 
@@ -260,16 +260,16 @@ describe("ErrorRecoveryService", () => {
                 expect(result).toBe("cached-result");
 
                 // Check that fallback was used
-                const metrics = yield* service.getRecoveryMetrics("fallback-operation");
+                const metrics = yield* service.getResilienceMetrics("fallback-operation");
                 expect(metrics?.fallbackUsed).toBe(true);
                 expect(metrics?.successes).toBe(1);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
 
         it("should try multiple fallback strategies in priority order", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const primaryOperation = Effect.fail(new NetworkError("Primary failed"));
 
@@ -291,12 +291,12 @@ describe("ErrorRecoveryService", () => {
                 const result = yield* service.withFallback(primaryOperation, fallbackStrategies);
                 expect(result).toBe("second-fallback-result");
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
 
         it("should respect fallback strategy conditions", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const primaryOperation = Effect.fail(new ValidationError("Validation failed"));
 
@@ -316,14 +316,14 @@ describe("ErrorRecoveryService", () => {
                 // Should fail because ValidationError doesn't match NetworkError condition
                 expect(Either.isLeft(result)).toBe(true);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
     });
 
     describe("Error Classification", () => {
         it("should classify network errors as retryable", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const networkError = new NetworkError("Connection timeout");
                 const classification = service.classifyError(networkError);
@@ -332,12 +332,12 @@ describe("ErrorRecoveryService", () => {
                 expect(classification.category).toBe("NETWORK");
                 expect(classification.severity).toBe("MEDIUM");
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
 
         it("should classify validation errors as non-retryable", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const validationError = new ValidationError("Invalid input format");
                 const classification = service.classifyError(validationError);
@@ -346,12 +346,12 @@ describe("ErrorRecoveryService", () => {
                 expect(classification.category).toBe("VALIDATION");
                 expect(classification.severity).toBe("LOW");
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
 
         it("should classify rate limit errors with suggested delay", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const rateLimitError = new EffectiveError({
                     description: "Rate limit exceeded",
@@ -365,14 +365,14 @@ describe("ErrorRecoveryService", () => {
                 expect(classification.category).toBe("RATE_LIMIT");
                 expect(classification.suggestedDelay).toBeDefined();
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
     });
 
     describe("Recovery Metrics", () => {
         it("should track recovery metrics", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const config: CircuitBreakerConfig = {
                     name: "metrics-test",
@@ -399,12 +399,12 @@ describe("ErrorRecoveryService", () => {
                 expect(metrics!.successCount).toBe(1);
                 expect(metrics!.failureCount).toBe(1);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
 
         it("should track retry metrics", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 const policy: RetryPolicy = {
                     maxAttempts: 3,
@@ -418,19 +418,19 @@ describe("ErrorRecoveryService", () => {
 
                 yield* service.withRetry(Effect.succeed("success"), policy);
 
-                const metrics = yield* service.getRecoveryMetrics("retry-operation");
+                const metrics = yield* service.getResilienceMetrics("retry-operation");
                 expect(metrics).toBeDefined();
                 expect(metrics!.successes).toBeGreaterThan(0);
                 expect(metrics!.attempts).toBeGreaterThan(0);
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
     });
 
     describe("Integration Scenarios", () => {
         it("should combine circuit breaker with retry and fallback", () =>
             Effect.gen(function* () {
-                const service = yield* ErrorRecoveryService;
+                const service = yield* ResilienceService;
 
                 let callCount = 0;
                 const unreliableOperation = Effect.gen(function* () {
@@ -483,7 +483,7 @@ describe("ErrorRecoveryService", () => {
 
                 expect(result).toBe("cached-data");
             }).pipe(
-                Effect.provide(errorRecoveryServiceTestLayer)
+                Effect.provide(resilienceServiceTestLayer)
             ));
     });
 }); 

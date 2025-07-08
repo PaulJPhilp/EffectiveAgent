@@ -16,8 +16,7 @@ import { Schema } from "effect";
 import { Effect, Either, Layer, Option } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { ExecutiveServiceError } from "@/services/executive/errors.js";
-import { ExecutiveService } from "@/services/executive/service.js";
+// OrchestratorService removed to prevent stacking with provider client orchestration
 import type { PipelineServiceInterface } from "../api.js";
 import { PipelineService } from "../service.js";
 
@@ -178,15 +177,15 @@ describe("PipelineService", () => {
 
   const policyLayer = Layer.provide(PolicyService.Default, configurationLayer);
 
-  const executiveLayer = Layer.provide(ExecutiveService.Default, policyLayer);
-
-  const pipelineLayer = Layer.provide(PipelineService.Default, executiveLayer);
+  const pipelineLayer = Layer.provide(
+    PipelineService.Default,
+    configurationLayer
+  );
 
   const testLayer = Layer.mergeAll(
     fileSystemLayer,
     configurationLayer,
     policyLayer,
-    executiveLayer,
     pipelineLayer
   );
 
@@ -265,12 +264,7 @@ describe("PipelineService", () => {
           const pipeline: PipelineServiceInterface = yield* PipelineService;
           const input = { prompt: "test prompt" };
 
-          const result = yield* pipeline.execute(Effect.succeed(input), {
-            operationName: "test-execution",
-            maxRetries: 3,
-            timeoutMs: 30000,
-            rateLimit: true,
-          });
+          const result = yield* pipeline.execute(Effect.succeed(input));
 
           expect(result).toBeDefined();
         })
@@ -283,12 +277,7 @@ describe("PipelineService", () => {
           const input = { prompt: "test prompt" };
 
           const executions = Array.from({ length: 3 }, () =>
-            pipeline.execute(Effect.succeed(input), {
-              operationName: "concurrent-test",
-              maxRetries: 3,
-              timeoutMs: 30000,
-              rateLimit: true,
-            })
+            pipeline.execute(Effect.succeed(input))
           );
 
           const results = yield* Effect.all(executions, {
@@ -305,17 +294,12 @@ describe("PipelineService", () => {
           const input = { prompt: "test prompt" };
 
           const result = yield* Effect.either(
-            pipeline.execute(Effect.succeed(input), {
-              operationName: "invalid-model-test",
-              maxRetries: 0,
-              timeoutMs: 5000,
-              rateLimit: true,
-            })
+            pipeline.execute(Effect.fail(new Error("Test error")))
           );
 
           expect(Either.isLeft(result)).toBe(true);
           if (Either.isLeft(result)) {
-            expect(result.left).toBeInstanceOf(ExecutiveServiceError);
+            expect(result.left).toBeInstanceOf(Error);
           }
         })
       ));
@@ -328,12 +312,7 @@ describe("PipelineService", () => {
           const pipeline: PipelineServiceInterface = yield* PipelineService;
           const input = { prompt: "test prompt" };
 
-          const result = yield* pipeline.execute(Effect.succeed(input), {
-            operationName: "history-test",
-            maxRetries: 3,
-            timeoutMs: 30000,
-            rateLimit: true,
-          });
+          const result = yield* pipeline.execute(Effect.succeed(input));
 
           expect(result).toBeDefined();
           const state = yield* pipeline.getAgentState();
@@ -358,12 +337,7 @@ describe("PipelineService", () => {
 
           // Execute 25 times
           const executions = Array.from({ length: 25 }, () =>
-            pipeline.execute(Effect.succeed(input), {
-              operationName: "history-limit-test",
-              maxRetries: 3,
-              timeoutMs: 30000,
-              rateLimit: true,
-            })
+            pipeline.execute(Effect.succeed(input))
           );
 
           yield* Effect.all(executions, { concurrency: "unbounded" });

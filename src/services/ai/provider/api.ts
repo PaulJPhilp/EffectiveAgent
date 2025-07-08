@@ -1,4 +1,8 @@
-import type { EffectiveInput, EffectiveResponse, ProviderEffectiveResponse } from "@/types.js";
+import type {
+  EffectiveInput,
+  EffectiveResponse,
+  ProviderEffectiveResponse,
+} from "@/types.js";
 import type { Effect } from "effect";
 import type { FullToolName } from "../tool-registry/types.js";
 import type { ChatResult } from "./types.js";
@@ -6,31 +10,31 @@ import type { ChatResult } from "./types.js";
 import { ModelCapability } from "@/schema.js";
 import { LanguageModelV1 } from "@ai-sdk/provider";
 import { ModelServiceApi } from "../model/api.js";
-import { type ToolRegistryApi } from "../tool-registry/api.js";
+import { ToolRegistryService } from "../tool-registry/service.js";
 import {
-    ProviderMissingCapabilityError,
-    ProviderMissingModelIdError,
-    ProviderNotFoundError,
-    ProviderOperationError,
-    ProviderServiceConfigError,
-    ProviderToolError
+  ProviderMissingCapabilityError,
+  ProviderMissingModelIdError,
+  ProviderNotFoundError,
+  ProviderOperationError,
+  ProviderServiceConfigError,
+  ProviderToolError,
 } from "./errors.js";
 import { ProvidersType } from "./schema.js";
 import {
-    EffectiveProviderApi,
-    GenerateEmbeddingsResult,
-    GenerateImageResult,
-    GenerateObjectResult,
-    GenerateSpeechResult,
-    GenerateTextResult,
-    ProviderChatOptions,
-    ProviderGenerateEmbeddingsOptions,
-    ProviderGenerateImageOptions,
-    ProviderGenerateObjectOptions,
-    ProviderGenerateSpeechOptions,
-    ProviderGenerateTextOptions,
-    ProviderTranscribeOptions,
-    TranscribeResult
+  EffectiveProviderApi,
+  GenerateEmbeddingsResult,
+  GenerateImageResult,
+  GenerateObjectResult,
+  GenerateSpeechResult,
+  GenerateTextResult,
+  ProviderChatOptions,
+  ProviderGenerateEmbeddingsOptions,
+  ProviderGenerateImageOptions,
+  ProviderGenerateObjectOptions,
+  ProviderGenerateSpeechOptions,
+  ProviderGenerateTextOptions,
+  ProviderTranscribeOptions,
+  TranscribeResult,
 } from "./types.js";
 
 // Use the imported ProviderClientApi type instead of redeclaring it
@@ -40,25 +44,30 @@ import {
  * Defines the public API for the ProviderService.
  */
 export type ProviderServiceApi = {
-    loadProvider: any;
-    /**
-     * Gets a provider client by name.
-     * @param providerName The name of the provider to get.
-     * @returns An Effect resolving to the provider client.
-     */
-    getProviderClient: (providerName: string) => Effect.Effect<ProviderClientApi, ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError>;
+  loadProvider: any;
+  /**
+   * Gets a provider client by name.
+   * @param providerName The name of the provider to get.
+   * @returns An Effect resolving to the provider client.
+   */
+  getProviderClient: (
+    providerName: string
+  ) => Effect.Effect<
+    ProviderClientApi,
+    ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError
+  >;
 
-    /**
-     * Checks the health of the provider service.
-     * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
-     */
-    healthCheck: () => Effect.Effect<void, ProviderServiceConfigError>;
+  /**
+   * Checks the health of the provider service.
+   * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
+   */
+  healthCheck: () => Effect.Effect<void, ProviderServiceConfigError>;
 
-    /**
-     * Shuts down the provider service and cleans up resources.
-     * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
-     */
-    shutdown: () => Effect.Effect<void, ProviderServiceConfigError>;
+  /**
+   * Shuts down the provider service and cleans up resources.
+   * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
+   */
+  shutdown: () => Effect.Effect<void, ProviderServiceConfigError>;
 };
 
 /**
@@ -66,118 +75,133 @@ export type ProviderServiceApi = {
  * Methods are specifically typed to match capabilities and return types.
  */
 export interface ProviderClientApi {
-    /**
-     * Validates tool inputs against their schemas and prepares them for execution.
-     * @param toolName - Name of the tool to validate input for
-     * @param input - Raw input to validate
-     * @returns Effect that resolves with validated input or fails with validation error
-     */
-    readonly validateToolInput: (
-        toolName: FullToolName,
-        input: unknown
-    ) => Effect.Effect<unknown, ProviderToolError>;
+  /**
+   * Validates tool inputs against their schemas and prepares them for execution.
+   * @param toolName - Name of the tool to validate input for
+   * @param input - Raw input to validate
+   * @returns Effect that resolves with validated input or fails with validation error
+   */
+  readonly validateToolInput: (
+    toolName: FullToolName,
+    input: unknown
+  ) => Effect.Effect<unknown, ProviderToolError>;
 
-    /**
-     * Executes a tool with validated input.
-     * @param toolName - Name of the tool to execute
-     * @param input - Validated input for the tool
-     * @returns Effect that resolves with tool output or fails with execution error
-     */
-    readonly executeTool: (
-        toolName: FullToolName,
-        input: unknown
-    ) => Effect.Effect<unknown, ProviderToolError>;
+  /**
+   * Executes a tool with validated input.
+   * @param toolName - Name of the tool to execute
+   * @param input - Validated input for the tool
+   * @returns Effect that resolves with tool output or fails with execution error
+   */
+  readonly executeTool: (
+    toolName: FullToolName,
+    input: unknown
+  ) => Effect.Effect<unknown, ProviderToolError>;
 
-    /**
-     * Processes tool execution results and formats them for the model.
-     * @param toolName - Name of the tool that was executed
-     * @param result - Raw result from tool execution
-     * @returns Effect that resolves with formatted result or fails with processing error
-     */
-    readonly processToolResult: (
-        toolName: FullToolName,
-        result: unknown
-    ) => Effect.Effect<unknown, ProviderToolError>;
+  /**
+   * Processes tool execution results and formats them for the model.
+   * @param toolName - Name of the tool that was executed
+   * @param result - Raw result from tool execution
+   * @returns Effect that resolves with formatted result or fails with processing error
+   */
+  readonly processToolResult: (
+    toolName: FullToolName,
+    result: unknown
+  ) => Effect.Effect<unknown, ProviderToolError>;
 
+  chat(
+    effectiveInput: EffectiveInput,
+    options: ProviderChatOptions
+  ): Effect.Effect<
+    ProviderEffectiveResponse<ChatResult>,
+    ProviderOperationError | ProviderServiceConfigError | ProviderToolError,
+    ToolRegistryService
+  >;
+  /**
+   * Set a Vercel AI SDK provider for this client.
+   * @param vercelProvider The Vercel AI SDK provider instance with provider name as discriminator
+   * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
+   */
+  setVercelProvider(
+    vercelProvider: EffectiveProviderApi
+  ): Effect.Effect<void, ProviderServiceConfigError>;
 
-    chat(effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<ProviderEffectiveResponse<ChatResult>, ProviderOperationError | ProviderServiceConfigError | ProviderToolError, ToolRegistryApi>;
-    /**
-     * Set a Vercel AI SDK provider for this client.
-     * @param vercelProvider The Vercel AI SDK provider instance with provider name as discriminator
-     * @returns An Effect that resolves to void on success or fails with ProviderServiceConfigError
-     */
-    setVercelProvider(
-        vercelProvider: EffectiveProviderApi
-    ): Effect.Effect<void, ProviderServiceConfigError>;
+  readonly getProvider: () => Effect.Effect<
+    EffectiveProviderApi,
+    ProviderServiceConfigError
+  >;
 
-    readonly getProvider: () => Effect.Effect<
-        EffectiveProviderApi,
-        ProviderServiceConfigError
-    >;
+  readonly generateText: (
+    input: EffectiveInput,
+    options: ProviderGenerateTextOptions
+  ) => Effect.Effect<
+    EffectiveResponse<GenerateTextResult>,
+    | ProviderOperationError
+    | ProviderServiceConfigError
+    | ProviderMissingCapabilityError
+  >;
 
-    readonly generateText: (
-        input: EffectiveInput,
-        options: ProviderGenerateTextOptions,
-    ) => Effect.Effect<
-        EffectiveResponse<GenerateTextResult>,
-        ProviderOperationError | ProviderServiceConfigError | ProviderMissingCapabilityError
-    >;
+  readonly generateObject: <T = unknown>(
+    input: EffectiveInput,
+    options: ProviderGenerateObjectOptions<T>
+  ) => Effect.Effect<
+    EffectiveResponse<GenerateObjectResult<T>>,
+    ProviderOperationError | ProviderServiceConfigError
+  >;
 
-    readonly generateObject: <T = unknown>(
-        input: EffectiveInput,
-        options: ProviderGenerateObjectOptions<T>,
-    ) => Effect.Effect<
-        EffectiveResponse<GenerateObjectResult<T>>,
-        ProviderOperationError | ProviderServiceConfigError
-    >;
+  readonly generateSpeech: (
+    input: string,
+    options: ProviderGenerateSpeechOptions
+  ) => Effect.Effect<
+    EffectiveResponse<GenerateSpeechResult>,
+    ProviderOperationError | ProviderServiceConfigError
+  >;
 
-    readonly generateSpeech: (
-        input: string,
-        options: ProviderGenerateSpeechOptions,
-    ) => Effect.Effect<
-        EffectiveResponse<GenerateSpeechResult>,
-        ProviderOperationError | ProviderServiceConfigError
-    >;
+  readonly transcribe: (
+    input: ArrayBuffer,
+    options: ProviderTranscribeOptions
+  ) => Effect.Effect<
+    EffectiveResponse<TranscribeResult>,
+    ProviderOperationError | ProviderServiceConfigError
+  >;
 
-    readonly transcribe: (
-        input: ArrayBuffer,
-        options: ProviderTranscribeOptions,
-    ) => Effect.Effect<
-        EffectiveResponse<TranscribeResult>,
-        ProviderOperationError | ProviderServiceConfigError
-    >;
+  readonly generateEmbeddings: (
+    input: string[],
+    options: ProviderGenerateEmbeddingsOptions
+  ) => Effect.Effect<
+    EffectiveResponse<GenerateEmbeddingsResult>,
+    ProviderOperationError | ProviderServiceConfigError
+  >;
 
-    readonly generateEmbeddings: (
-        input: string[],
-        options: ProviderGenerateEmbeddingsOptions,
-    ) => Effect.Effect<
-        EffectiveResponse<GenerateEmbeddingsResult>,
-        ProviderOperationError | ProviderServiceConfigError
-    >;
+  /**
+   * Generate an image using the provider's image generation capability.
+   * @param input - The effective input (prompt, parameters, etc)
+   * @param options - Provider-specific image generation options
+   * @returns An Effect containing the image generation result or an error
+   */
+  readonly generateImage: (
+    input: EffectiveInput,
+    options: ProviderGenerateImageOptions
+  ) => Effect.Effect<
+    EffectiveResponse<GenerateImageResult>,
+    ProviderOperationError | ProviderServiceConfigError
+  >;
 
-    /**
-     * Generate an image using the provider's image generation capability.
-     * @param input - The effective input (prompt, parameters, etc)
-     * @param options - Provider-specific image generation options
-     * @returns An Effect containing the image generation result or an error
-     */
-    readonly generateImage: (
-        input: EffectiveInput,
-        options: ProviderGenerateImageOptions,
-    ) => Effect.Effect<
-        EffectiveResponse<GenerateImageResult>,
-        ProviderOperationError | ProviderServiceConfigError
-    >;
+  readonly getCapabilities: () => Effect.Effect<
+    Set<ModelCapability>,
+    ProviderOperationError | ProviderServiceConfigError
+  >;
 
-    readonly getCapabilities: () => Effect.Effect<
-        Set<ModelCapability>,
-        ProviderOperationError | ProviderServiceConfigError
-    >;
+  readonly getModels: () => Effect.Effect<
+    LanguageModelV1[],
+    ProviderServiceConfigError,
+    ModelServiceApi
+  >;
 
-    readonly getModels: () => Effect.Effect<LanguageModelV1[], ProviderServiceConfigError, ModelServiceApi>;
-
-    readonly getDefaultModelIdForProvider: (
-        providerName: ProvidersType,
-        capability: ModelCapability
-    ) => Effect.Effect<string, ProviderServiceConfigError | ProviderMissingModelIdError>;
+  readonly getDefaultModelIdForProvider: (
+    providerName: ProvidersType,
+    capability: ModelCapability
+  ) => Effect.Effect<
+    string,
+    ProviderServiceConfigError | ProviderMissingModelIdError
+  >;
 }

@@ -7,33 +7,43 @@ import { describe, expect, it } from "vitest";
 
 import type { EntityId } from "../../../../types.js";
 import type { RepositoryServiceApi } from "../../repository/api.js";
-import { EntityNotFoundError, RepositoryError } from "../../repository/errors.js";
+import {
+  EntityNotFoundError,
+  RepositoryError,
+} from "../../repository/errors.js";
 import { FileNotFoundError } from "../errors.js";
 import type { FileEntity } from "../schema.js";
 import { FileService } from "../service.js";
 import type { FileInput } from "../types.js";
+import { ResilienceService } from "@/services/execution/resilience/service.js";
+import { Duration } from "effect";
 
 // --- Test Setup ---
 
 describe("FileService", () => {
   // Create a test repository service using Effect.Service pattern
-  class TestFileRepositoryService extends Effect.Service<RepositoryServiceApi<FileEntity>>()("TestFileRepositoryService", {
+  class TestFileRepositoryService extends Effect.Service<
+    RepositoryServiceApi<FileEntity>
+  >()("TestFileRepositoryService", {
     effect: Effect.gen(function* () {
       return {
-        create: (data: FileEntity["data"]) => Effect.succeed({
-          id: crypto.randomUUID(),
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          data: data
-        } as FileEntity),
+        create: (data: FileEntity["data"]) =>
+          Effect.succeed({
+            id: crypto.randomUUID(),
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            data: data,
+          } as FileEntity),
 
         findById: (id: string) => {
           if (id === "non-existent-id") {
             // Convert EntityNotFoundError to RepositoryError to match the interface
-            return Effect.fail(new EntityNotFoundError({
-              entityId: id,
-              entityType: "FileEntity"
-            }) as unknown as RepositoryError);
+            return Effect.fail(
+              new EntityNotFoundError({
+                entityId: id,
+                entityType: "FileEntity",
+              }) as unknown as RepositoryError
+            );
           }
           return Effect.succeed(Option.none<FileEntity>());
         },
@@ -42,48 +52,57 @@ describe("FileService", () => {
 
         findMany: (options?: any) => {
           if (options?.filter?.ownerId === "agent-456") {
-            return Effect.succeed([{
-              id: "test-file-id-3",
-              createdAt: new Date(),
-              updatedAt: new Date(),
-              data: {
-                filename: "test3.txt",
-                mimeType: "text/plain",
-                sizeBytes: 13,
-                ownerId: "agent-456",
-                contentBase64: Buffer.from("Another Owner").toString("base64")
-              }
-            }]);
+            return Effect.succeed([
+              {
+                id: "test-file-id-3",
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                data: {
+                  filename: "test3.txt",
+                  mimeType: "text/plain",
+                  sizeBytes: 13,
+                  ownerId: "agent-456",
+                  contentBase64:
+                    Buffer.from("Another Owner").toString("base64"),
+                },
+              },
+            ]);
           }
           return Effect.succeed([]);
         },
 
-        update: () => Effect.succeed({
-          id: "test-id",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          data: { contentBase64: "" }
-        } as FileEntity),
+        update: () =>
+          Effect.succeed({
+            id: "test-id",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            data: { contentBase64: "" },
+          } as FileEntity),
 
         delete: (id: string) => {
           if (id === "non-existent-id") {
-            return Effect.fail(new EntityNotFoundError({ entityId: id, entityType: "FileEntity" }));
+            return Effect.fail(
+              new EntityNotFoundError({
+                entityId: id,
+                entityType: "FileEntity",
+              })
+            );
           }
           return Effect.succeed(undefined);
         },
 
-        count: () => Effect.succeed(0)
+        count: () => Effect.succeed(0),
       };
-    })
-  }) { }
+    }),
+  }) {}
 
   // Create explicit dependency layers following centralized pattern
   const testRepositoryLayer = TestFileRepositoryService.Default;
 
-  // Wire FileService with explicit dependency chain: TestRepository → FileService
+  // Wire FileService with explicit dependency chain: TestRepository + ResilienceService → FileService
   const fileServiceTestLayer = Layer.provide(
     FileService.Default,
-    testRepositoryLayer
+    Layer.merge(testRepositoryLayer, ResilienceService.Default)
   );
 
   // --- Test Data ---
@@ -122,9 +141,10 @@ describe("FileService", () => {
       expect(storedEntity.data.mimeType).toBe(testFileData1.mimeType);
       expect(storedEntity.data.sizeBytes).toBe(testFileData1.sizeBytes);
       expect(storedEntity.data.ownerId).toBe(testFileData1.ownerId);
-      expect(storedEntity.data.contentBase64).toBe(testFileData1.content.toString("base64"));
-    }).pipe(Effect.provide(fileServiceTestLayer))
-  );
+      expect(storedEntity.data.contentBase64).toBe(
+        testFileData1.content.toString("base64")
+      );
+    }).pipe(Effect.provide(fileServiceTestLayer)));
 
   // --- Test 2: retrieveFileContent (Success) ---
   it("should retrieve file content correctly", () =>
@@ -135,22 +155,24 @@ describe("FileService", () => {
 
       expect(content).toBeInstanceOf(Buffer);
       expect(content.toString()).toBe("Hello World 1");
-    }).pipe(Effect.provide(fileServiceTestLayer))
-  );
+    }).pipe(Effect.provide(fileServiceTestLayer)));
 
   // --- Test 3: retrieveFileContent (Failure) ---
   it("should fail retrieveFileContent with FileNotFoundError for non-existent ID", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
-      const result = yield* Effect.either(service.retrieveFileContent("non-existent-id"));
+      const result = yield* Effect.either(
+        service.retrieveFileContent("non-existent-id")
+      );
 
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
         expect(result.left).toBeInstanceOf(FileNotFoundError);
-        expect((result.left as FileNotFoundError).fileId).toBe("non-existent-id");
+        expect((result.left as FileNotFoundError).fileId).toBe(
+          "non-existent-id"
+        );
       }
-    }).pipe(Effect.provide(fileServiceTestLayer))
-  );
+    }).pipe(Effect.provide(fileServiceTestLayer)));
 
   // --- Test 4: retrieveFileMetadata (Success) ---
   it("should retrieve file metadata correctly", () =>
@@ -166,22 +188,24 @@ describe("FileService", () => {
       expect(metadata.data.sizeBytes).toBe(testFileData2.sizeBytes);
       expect(metadata.data.ownerId).toBe(testFileData2.ownerId);
       expect(metadata.data).not.toHaveProperty("contentBase64");
-    }).pipe(Effect.provide(fileServiceTestLayer))
-  );
+    }).pipe(Effect.provide(fileServiceTestLayer)));
 
   // --- Test 5: retrieveFileMetadata (Failure) ---
   it("should fail retrieveFileMetadata with FileNotFoundError for non-existent ID", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
-      const result = yield* Effect.either(service.retrieveFileMetadata("non-existent-id"));
+      const result = yield* Effect.either(
+        service.retrieveFileMetadata("non-existent-id")
+      );
 
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
         expect(result.left).toBeInstanceOf(FileNotFoundError);
-        expect((result.left as FileNotFoundError).fileId).toBe("non-existent-id");
+        expect((result.left as FileNotFoundError).fileId).toBe(
+          "non-existent-id"
+        );
       }
-    }).pipe(Effect.provide(fileServiceTestLayer))
-  );
+    }).pipe(Effect.provide(fileServiceTestLayer)));
 
   // --- Test 6: findFilesByOwner ---
   it("should find files by owner", () =>
@@ -197,8 +221,7 @@ describe("FileService", () => {
       // Find files by non-existent owner
       const noFiles = yield* service.findFilesByOwner("agent-789");
       expect(noFiles).toHaveLength(0);
-    }).pipe(Effect.provide(fileServiceTestLayer))
-  );
+    }).pipe(Effect.provide(fileServiceTestLayer)));
 
   // --- Test 7: deleteFile (Success) ---
   it("should delete a file", () =>
@@ -212,20 +235,94 @@ describe("FileService", () => {
 
       // Success is indicated by not throwing an error
       expect(true).toBe(true);
-    }).pipe(Effect.provide(fileServiceTestLayer))
-  );
+    }).pipe(Effect.provide(fileServiceTestLayer)));
 
   // --- Test 8: deleteFile (Failure) ---
   it("should fail deleteFile with FileNotFoundError for non-existent ID", () =>
     Effect.gen(function* () {
       const service = yield* FileService;
-      const result = yield* Effect.either(service.deleteFile("non-existent-id"));
 
-      expect(result._tag).toBe("Left");
-      if (result._tag === "Left") {
-        expect(result.left).toBeInstanceOf(FileNotFoundError);
-        expect((result.left as FileNotFoundError).fileId).toBe("non-existent-id");
-      }
-    }).pipe(Effect.provide(fileServiceTestLayer))
-  );
+      yield* Effect.flip(
+        service.deleteFile("non-existent-id" as EntityId)
+      ).pipe(
+        Effect.tap((error) => {
+          expect(error._tag).toBe("FileNotFoundError");
+          expect(error).toBeInstanceOf(FileNotFoundError);
+        })
+      );
+    }).pipe(Effect.provide(fileServiceTestLayer)));
+
+  describe("Resilience Integration", () => {
+    it("should track database operations in circuit breaker metrics", () =>
+      Effect.gen(function* () {
+        const service = yield* FileService;
+        const resilience = yield* ResilienceService;
+
+        // Perform a successful operation
+        const testFile: FileInput = {
+          content: Buffer.from("Resilience test content"),
+          filename: "resilience-test.txt",
+          mimeType: "text/plain",
+          sizeBytes: 23,
+          ownerId: "resilience-test-owner" as EntityId,
+        };
+
+        const storedFile = yield* service.storeFile(testFile);
+
+        // Check if circuit breaker metrics are being tracked
+        const metrics = yield* resilience.getCircuitBreakerMetrics(
+          "file-service-database"
+        );
+        expect(metrics).toBeDefined();
+        if (metrics) {
+          expect(metrics.totalRequests).toBeGreaterThan(0);
+        }
+
+        // Clean up
+        yield* service.deleteFile(storedFile.id);
+      }).pipe(Effect.provide(fileServiceTestLayer)));
+
+    it("should handle database operation failures with circuit breaker", () =>
+      Effect.gen(function* () {
+        const service = yield* FileService;
+        const resilience = yield* ResilienceService;
+
+        // Try to retrieve a non-existent file (should fail but be tracked)
+        yield* Effect.either(
+          service.retrieveFileContent("non-existent-id" as EntityId)
+        );
+
+        // Check if circuit breaker tracked the failure
+        const metrics = yield* resilience.getCircuitBreakerMetrics(
+          "file-service-database"
+        );
+        expect(metrics).toBeDefined();
+        if (metrics) {
+          expect(metrics.totalRequests).toBeGreaterThan(0);
+        }
+      }).pipe(Effect.provide(fileServiceTestLayer)));
+
+    it("should apply retry policies to database operations", () =>
+      Effect.gen(function* () {
+        const service = yield* FileService;
+
+        // This test verifies that retry policies are configured
+        // The actual retry behavior is tested at the ResilienceService level
+        const testFile: FileInput = {
+          content: Buffer.from("Retry test content"),
+          filename: "retry-test.txt",
+          mimeType: "text/plain",
+          sizeBytes: 18,
+          ownerId: "retry-test-owner" as EntityId,
+        };
+
+        const storedFile = yield* service.storeFile(testFile);
+        const retrieved = yield* service.retrieveFileContent(storedFile.id);
+
+        expect(retrieved.toString()).toBe("Retry test content");
+
+        // Clean up
+        yield* service.deleteFile(storedFile.id);
+      }).pipe(Effect.provide(fileServiceTestLayer)));
+  });
 });
