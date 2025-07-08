@@ -29,7 +29,7 @@ describe("InMemoryRepository", () => {
       effect.pipe(
         Effect.provide(repository.live("TestEntity")),
         Effect.provide(mockDrizzleClientApi)
-      )
+      ) as Effect.Effect<A, E, never>
     );
   };
 

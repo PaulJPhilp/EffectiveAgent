@@ -51,7 +51,7 @@ const runTest = <E, A>(effect: Effect.Effect<A, E, any>) =>
     effect.pipe(
       Effect.provide(testRepositoryLayer),
       Effect.provide(mockDrizzleClientApi)
-    )
+    ) as Effect.Effect<A, E, never>
   );
 
 const runFailTest = <E, A>(effect: Effect.Effect<A, E, any>) =>
@@ -61,7 +61,7 @@ const runFailTest = <E, A>(effect: Effect.Effect<A, E, any>) =>
         Effect.provide(testRepositoryLayer),
         Effect.provide(mockDrizzleClientApi)
       )
-    )
+    ) as Effect.Effect<Exit.Exit<A, E>, never, never>
   );
 
 // --- Test Suite ---

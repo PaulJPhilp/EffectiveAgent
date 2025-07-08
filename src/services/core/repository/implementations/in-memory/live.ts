@@ -292,7 +292,7 @@ export const InMemoryRepositoryLiveLayer = <
       // Create the implementation by passing dependencies to make
       // No Clock needed for make anymore
       const implementation = make<TEntity>(entityType, store);
-      return implementation as TService; // Cast to TService
+      return implementation as unknown as TService; // Cast to TService
     })
   );
 

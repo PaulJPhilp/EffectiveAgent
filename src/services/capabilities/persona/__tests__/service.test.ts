@@ -52,7 +52,7 @@ describe("PersonaService", () => {
   const invalidPersonaDefinition = {
     name: "", // Invalid: empty name
     instructions: "Valid instructions",
-    tone: "invalid-tone", // Invalid: not in allowed tones
+    tone: "invalid-tone" as any, // Invalid: not in allowed tones
   };
 
   const complexPersonaDefinition = {
