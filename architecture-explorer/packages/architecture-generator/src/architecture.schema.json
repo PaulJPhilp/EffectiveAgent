@@ -1,0 +1,114 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Architecture Data",
+  "description": "Defines the structure for the architecture-data.json file, which contains parsed architectural information about a software project.",
+  "type": "object",
+  "properties": {
+    "diagrams": {
+      "description": "An array of diagram definitions.",
+      "type": "array",
+      "items": { "$ref": "#/definitions/diagramDefinition" }
+    },
+    "nodes": {
+      "description": "An array of all identified architectural nodes.",
+      "type": "array",
+      "items": { "$ref": "#/definitions/nodeData" }
+    },
+    "edges": {
+      "description": "An array of all identified relationships between nodes.",
+      "type": "array",
+      "items": { "$ref": "#/definitions/edgeData" }
+    }
+  },
+  "required": ["diagrams", "nodes", "edges"],
+  "definitions": {
+    "diagramDefinition": {
+      "description": "Defines a specific Mermaid diagram that can be rendered.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "A unique identifier for this diagram."
+        },
+        "mermaidDefinition": {
+          "type": "string",
+          "description": "The raw Mermaid diagram definition string."
+        },
+        "defaultView": {
+          "type": "boolean",
+          "description": "True if this is the default view."
+        }
+      },
+      "required": ["id", "mermaidDefinition", "defaultView"]
+    },
+    "nodeData": {
+      "description": "Represents an individual architectural component (node).",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "A unique identifier for the node (e.g., class name)."
+        },
+        "name": {
+          "type": "string",
+          "description": "The display name of the node."
+        },
+        "c4Level": {
+          "$ref": "#/definitions/c4Level"
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the component's purpose."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "layer": {
+          "$ref": "#/definitions/layerName"
+        },
+        "links": {
+          "type": "array",
+          "items": { "type": "string", "format": "uri" }
+        }
+      },
+      "required": ["id", "name", "c4Level"]
+    },
+    "edgeData": {
+      "description": "Represents a relationship (edge) between two nodes.",
+      "type": "object",
+      "properties": {
+        "sourceId": {
+          "type": "string",
+          "description": "The ID of the source node."
+        },
+        "targetId": {
+          "type": "string",
+          "description": "The ID of the target node."
+        },
+        "label": {
+          "type": "string",
+          "description": "An optional label describing the relationship."
+        },
+        "type": {
+          "$ref": "#/definitions/relationshipType"
+        }
+      },
+      "required": ["sourceId", "targetId"]
+    },
+    "c4Level": {
+      "description": "Defines the accepted C4 model levels.",
+      "type": "string",
+      "enum": ["System", "Container", "Component", "Database", "External System", "Person"]
+    },
+    "layerName": {
+      "description": "Defines the names of the architectural layers.",
+      "type": "string"
+    },
+    "relationshipType": {
+      "description": "Defines common types of relationships between components.",
+      "type": "string",
+      "enum": ["uses", "calls", "communicates", "depends on", "reads from", "writes to"]
+    }
+  }
+}

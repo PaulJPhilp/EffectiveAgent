@@ -1,0 +1,11 @@
+{
+	"name": "@architecture-explorer/generator",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"generate": "echo \"Generate script not implemented yet\""
+	},
+	"dependencies": {},
+	"devDependencies": {}
+}
