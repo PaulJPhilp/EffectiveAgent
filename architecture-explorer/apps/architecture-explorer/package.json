@@ -10,10 +10,11 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"ajv": "^8.17.1",
+		"clsx": "^2.1.1",
+		"mermaid": "^10.9.1",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
-		"mermaid": "^10.9.1",
-		"clsx": "^2.1.1",
 		"tailwind-merge": "^2.3.0"
 	},
 	"devDependencies": {

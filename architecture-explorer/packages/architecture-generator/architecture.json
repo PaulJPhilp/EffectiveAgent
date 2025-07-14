@@ -1,0 +1,37 @@
+{
+  "diagrams": [
+    {
+      "id": "main-diagram",
+      "mermaidDefinition": "graph TD\n  subgraph Other[\"Other\"]\n    InvalidMetadataComponent[\"InvalidMetadataComponent\"]\n    ImporterComponent[\"ImporterComponent\"]\n  end\n  subgraph Service[\"Service\"]\n    BrokenComponent[\"BrokenComponent\"]\n  end\n",
+      "defaultView": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "InvalidMetadataComponent",
+      "name": "InvalidMetadataComponent",
+      "c4Level": "Component",
+      "links": []
+    },
+    {
+      "id": "ImporterComponent",
+      "name": "ImporterComponent",
+      "c4Level": "Container",
+      "description": "An importer component that depends on SampleComponent.",
+      "tags": [
+        "importer"
+      ]
+    },
+    {
+      "id": "BrokenComponent",
+      "name": "BrokenComponent",
+      "c4Level": "Component",
+      "description": "A component with syntax errors for testing error handling.",
+      "tags": [
+        "broken"
+      ],
+      "layer": "Service"
+    }
+  ],
+  "edges": []
+}

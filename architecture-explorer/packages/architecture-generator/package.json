@@ -1,11 +1,20 @@
 {
-	"name": "@architecture-explorer/generator",
-	"version": "1.0.0",
-	"private": true,
-	"type": "module",
-	"scripts": {
-		"generate": "echo \"Generate script not implemented yet\""
-	},
-	"dependencies": {},
-	"devDependencies": {}
+  "name": "@architecture-explorer/generator",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "bun run src/index.ts",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "ts-morph": "^26.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
 }

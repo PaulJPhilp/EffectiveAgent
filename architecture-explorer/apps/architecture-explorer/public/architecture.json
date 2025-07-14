@@ -1,0 +1,38 @@
+{
+  "diagrams": [
+    {
+      "id": "main-diagram",
+      "mermaidDefinition": "graph TD\n  subgraph Core\n    SampleComponent[SampleComponent]\n  end\n  subgraph AI\n    ImporterComponent[ImporterComponent]\n  end\n  ImporterComponent -->|depends on| SampleComponent\n",
+      "defaultView": true
+    }
+  ],
+  "nodes": [
+    {
+      "id": "SampleComponent",
+      "name": "SampleComponent",
+      "c4Level": "System",
+      "description": "A sample component for testing the generator.",
+      "tags": [
+        "sample"
+      ],
+      "layer": "Core"
+    },
+    {
+      "id": "ImporterComponent",
+      "name": "ImporterComponent",
+      "c4Level": "Container",
+      "description": "An importer component that depends on SampleComponent.",
+      "tags": [
+        "importer"
+      ],
+      "layer": "AI"
+    }
+  ],
+  "edges": [
+    {
+      "sourceId": "ImporterComponent",
+      "targetId": "SampleComponent",
+      "type": "depends on"
+    }
+  ]
+}
