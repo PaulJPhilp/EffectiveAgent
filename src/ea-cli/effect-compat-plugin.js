@@ -10,7 +10,7 @@ export default {
       globals: true,
       environment: "node",
       testTimeout: 5000, // 5 seconds
-      hookTimeout: 5000  // 5 seconds
+      hookTimeout: 5000, // 5 seconds
     }
   },
   transform(code) {
@@ -24,7 +24,7 @@ export default {
       onTestFinished() {
         // Reset Effect state after each test
         Effect.runFork(Effect.unit)
-      }
+      },
     }
   },
 }

@@ -1,8 +1,8 @@
-import { BaseEntity, JsonObject } from "@/types.js";
 import { Context, Effect, Layer } from "effect";
-import { RepositoryServiceApi } from "./api.js";
+import type { BaseEntity, JsonObject } from "@/types.js";
+import type { RepositoryServiceApi } from "./api.js";
 import { RepositoryError } from "./errors.js";
-import { FindOptions } from "./types.js";
+import type { FindOptions } from "./types.js";
 
 /**
  * Base entity type with required data property

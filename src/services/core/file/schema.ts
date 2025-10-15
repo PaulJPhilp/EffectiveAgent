@@ -2,8 +2,8 @@
  * @file Defines the schema for the File entity stored in the database.
  */
 
-import { BaseEntitySchema } from "@/schema.js"; // Use path alias
 import { Schema as S } from "effect";
+import { BaseEntitySchema } from "@/schema.js"; // Use path alias
 
 // Helper for EntityId schema
 function EntityIdSchema() {

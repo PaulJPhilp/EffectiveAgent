@@ -19,12 +19,13 @@ describe("JSDocParser", () => {
       const sourceCode = `
         /**
          * @architectureComponent
-         * @c4 System
+         * @c4 SystemContext
          * @description A complete component for testing.
          * @tag ui
          * @tag form
          * @groupByLayer UI
          * @link https://example.com/docs
+         * @color #ffcc00
          */
         export class CompleteComponent {
           public method(): void {}
@@ -38,14 +39,14 @@ describe("JSDocParser", () => {
       if (result.success) {
         expect(result.data.id).toBe("CompleteComponent");
         expect(result.data.name).toBe("CompleteComponent");
-        expect(result.data.c4Level).toBe("System");
+        expect(result.data.c4Level).toBe("SystemContext");
         expect(result.data.description).toBe(
           "A complete component for testing."
         );
         expect(result.data.tags).toEqual(["ui", "form"]);
         expect(result.data.layer).toBe("UI");
         expect(result.data.links).toEqual(["https://example.com/docs"]);
-        expect(result.warnings).toHaveLength(0);
+        expect(result.data.color).toBe("#ffcc00");
       }
     });
 
@@ -190,7 +191,7 @@ describe("JSDocParser", () => {
       if (result.success) {
         expect(result.data.c4Level).toBe("Component"); // Should fallback to default
         expect(result.warnings).toContain(
-          "Component 'InvalidC4Component' has invalid @c4 level 'InvalidLevel'. Valid levels: System, Container, Component"
+          "Component 'InvalidC4Component' has invalid @c4 level 'InvalidLevel'. Valid levels: SystemContext, Container, Component, Code"
         );
       }
     });
@@ -288,9 +289,14 @@ describe("JSDocParser", () => {
 
   describe("Valid Values", () => {
     it("should accept all valid c4Level values", () => {
-      const validLevels = ["System", "Container", "Component"];
+      const validLevels: [string, string][] = [
+        ["SystemContext", "SystemContext"],
+        ["Container", "Container"],
+        ["Component", "Component"],
+        ["Code", "Code"]
+      ];
 
-      for (const level of validLevels) {
+      for (const [level, expected] of validLevels) {
         const sourceCode = `
           /**
            * @architectureComponent
@@ -306,13 +312,50 @@ describe("JSDocParser", () => {
 
         expect(result.success).toBe(true);
         if (result.success) {
-          expect(result.data.c4Level).toBe(level);
-          // Should not have warning about invalid c4Level
+          expect(result.data.c4Level).toBe(expected);
           const c4Warnings = result.warnings.filter((w) =>
             w.includes("invalid @c4 level")
           );
           expect(c4Warnings).toHaveLength(0);
         }
+      }
+    });
+
+    it("should map legacy 'System' to 'SystemContext' and warn", () => {
+      const sourceCode = `
+        /**
+         * @architectureComponent
+         * @c4 System
+         */
+        export class LegacySystemComponent {
+          public method(): void {}
+        }
+      `;
+      const classDecl = createClassWithJSDoc(sourceCode);
+      const result = parseComponentJSDoc(classDecl) as JSDocParseResult;
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.c4Level).toBe("SystemContext");
+        expect(result.warnings.some(w => w.includes("legacy @c4 level 'System'"))).toBe(true);
+      }
+    });
+
+    it("should warn and not assign invalid c4Level values", () => {
+      const sourceCode = `
+        /**
+         * @architectureComponent
+         * @c4 InvalidLevel
+         */
+        export class InvalidC4Component {
+          public method(): void {}
+        }
+      `;
+      const classDecl = createClassWithJSDoc(sourceCode);
+      const result = parseComponentJSDoc(classDecl) as JSDocParseResult;
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.c4Level).not.toBe("InvalidLevel");
+        expect(result.warnings.some(w => w.includes("invalid @c4 level"))).toBe(true);
       }
     });
 

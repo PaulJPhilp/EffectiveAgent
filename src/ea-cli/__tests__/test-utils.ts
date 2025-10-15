@@ -10,13 +10,13 @@ import { ConfigurationService } from "../../services/core/configuration/index.js
  */
 export const createTestCli = <N extends string, R, E, A>(
   command: Command.Command<N, R, E, A>,
-  args: string[]
+  args: string[],
 ): Effect.Effect<void, E, never> =>
   Effect.gen(function* () {
     // Run the command
     const program = Command.run({
       name: "test-cli",
-      version: "1.0.0"
+      version: "1.0.0",
     })(command)(args)
 
     yield* program
@@ -24,7 +24,7 @@ export const createTestCli = <N extends string, R, E, A>(
     Effect.mapError((error): E => error as E),
     Effect.map(() => void 0),
     Effect.withSpan("createTestCli"),
-    Effect.annotateLogs({ args })
+    Effect.annotateLogs({ args }),
   ) as Effect.Effect<void, E, never>
 
 /**
@@ -32,7 +32,7 @@ export const createTestCli = <N extends string, R, E, A>(
  */
 export const runCommand = <N extends string, R, E, A>(
   command: Command.Command<N, R, E, A>,
-  args: string[]
+  args: string[],
 ): Effect.Effect<void, E, never> =>
   createTestCli(command, ["node", "ea-cli", ...args])
 
@@ -41,11 +41,13 @@ export const runCommand = <N extends string, R, E, A>(
  */
 export const expectCommandFailure = <N extends string, R, E, A>(
   command: Command.Command<N, R, E, A>,
-  args: string[]
+  args: string[],
 ): Effect.Effect<E, never, never> =>
   runCommand(command, args).pipe(
     Effect.match({
-      onSuccess: () => { throw new Error("Expected command to fail") },
-      onFailure: (error) => error as E
-    })
+      onSuccess: () => {
+        throw new Error("Expected command to fail")
+      },
+      onFailure: (error) => error as E,
+    }),
   )

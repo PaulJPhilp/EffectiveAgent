@@ -4,16 +4,16 @@
  * conversation history management, and error handling.
  */
 
-import { join } from "path";
-import { PolicyService } from "@/services/ai/policy/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { ChatHistory, ChatMessage } from "@/services/pipeline/chat/schema.js";
-import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
-import type { ChatHistoryServiceApi } from "@/services/pipeline/chat/api.js";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either } from "effect";
+import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { PolicyService } from "@/services/ai/policy/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import type { ChatHistoryServiceApi } from "@/services/pipeline/chat/api.js";
+import type { ChatHistory, ChatMessage } from "@/services/pipeline/chat/schema.js";
+import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
 
 describe("ChatHistoryService", () => {
   const testDir = join(process.cwd(), "test-policy-configs", "chat");

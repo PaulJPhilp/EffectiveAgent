@@ -1,12 +1,12 @@
-import { EffectiveError } from "@/errors.js";
 import { Duration, Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
+import { EffectiveError } from "@/errors.js";
 import { ResilienceService } from "../service.js";
 import {
-    CircuitBreakerConfig,
+    type CircuitBreakerConfig,
     CircuitBreakerError,
-    FallbackStrategy,
-    RetryPolicy
+    type FallbackStrategy,
+    type RetryPolicy
 } from "../types.js";
 
 // Test error types

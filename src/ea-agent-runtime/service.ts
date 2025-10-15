@@ -1,24 +1,22 @@
-import { EffectiveError } from "@/errors.js"
+import { Effect, Either, Option, pipe, Ref, Schema, Stream } from "effect"
+import type { EffectiveError } from "@/errors.js"
 import { ModelService } from "@/services/ai/model/service.js"
 import { PolicyService } from "@/services/ai/policy/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
-import { EffectiveInput } from "@/types.js";
-import { EffectiveMessage, Part, TextPart, ToolCallPart, ToolPart } from "@/schema.js";
-import { Schema, Chunk, Effect, Either, Option, Ref, Stream, pipe } from "effect"
 import type { AgentRuntimeServiceApi } from "./api.js"
 import {
     AgentRuntimeError,
     AgentRuntimeNotFoundError
 } from "./errors.js"
 import {
-    AgentActivity,
-    AgentRuntimeId,
-    AgentRuntimeState,
-    CompiledLangGraph,
+    type AgentActivity,
+    type AgentRuntimeId,
+    type AgentRuntimeState,
+    type CompiledLangGraph,
     GenerateStructuredOutputPayloadSchema,
-    LangGraphAgentRuntimeState,
-    LangGraphRunOptions
+    type LangGraphAgentRuntimeState,
+    type LangGraphRunOptions
 } from "./types.js"
 
 const GenerateTextPayloadSchema = Schema.Struct({
@@ -95,7 +93,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
             Effect.gen(function* () {
                 const agentRef = yield* pipe(
                     runtimes,
-                    Effect.map((agents: Map<AgentRuntimeId, Ref.Ref<AgentRuntimeState<any>>>) => 
+                    Effect.map((agents: Map<AgentRuntimeId, Ref.Ref<AgentRuntimeState<any>>>) =>
                         Option.fromNullable(agents.get(id))
                     )
                 );

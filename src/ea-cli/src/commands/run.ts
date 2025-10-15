@@ -1,3 +1,7 @@
+import { Args, Command, Options } from "@effect/cli"
+import { FileSystem, Path } from "@effect/platform"
+import { NodeContext } from "@effect/platform-node"
+import { Console, Effect, Stream } from "effect"
 import {
   type AgentActivity,
   AgentRuntimeError,
@@ -5,10 +9,6 @@ import {
   type AgentRuntimeServiceApi,
   makeAgentRuntimeId,
 } from "@/ea-agent-runtime/index.js"
-import { Args, Command, Options } from "@effect/cli"
-import { FileSystem, Path } from "@effect/platform"
-import { NodeContext } from "@effect/platform-node"
-import { Console, Effect, Stream } from "effect"
 import {
   ConfigurationError,
   FileSystemError,

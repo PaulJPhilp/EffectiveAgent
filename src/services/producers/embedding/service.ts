@@ -2,10 +2,12 @@
  * @file Embedding Service implementation for AI embedding generation
  * @module services/pipeline/producers/embedding/service
  */
+
+import { generateEmbeddingsWithModel } from "@effective-agent/ai-sdk";
+import { Effect, Option, Ref } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import type { GenerateEmbeddingsResult } from "@/services/ai/provider/types.js";
-import { Effect, Option, Ref } from "effect";
 import type { EmbeddingGenerationOptions, EmbeddingServiceApi } from "./api.js";
 import { EmbeddingInputError, EmbeddingModelError } from "./errors.js";
 
@@ -116,18 +118,16 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
 
                         // Get provider for the model
                         const providerName = yield* modelService.getProviderName(modelId);
-                        const providerClient = yield* providerService.getProviderClient(providerName);
+                        const languageModel = yield* providerService.getAiSdkLanguageModel(providerName, modelId);
 
-                        // Call the real AI provider
-                        const providerResult = yield* providerClient.generateEmbeddings([options.text], {
-                            modelId
-                        });
+                        // Call ai-sdk operation directly
+                        const aiSdkResult = yield* generateEmbeddingsWithModel(languageModel, [options.text]);
 
                         const result: GenerateEmbeddingsResult = {
-                            embeddings: providerResult.data.embeddings,
-                            usage: providerResult.data.usage,
+                            embeddings: aiSdkResult.data.embeddings,
+                            usage: aiSdkResult.data.usage,
                             model: modelId,
-                            dimensions: providerResult.data.embeddings[0]?.length ?? 0,
+                            dimensions: aiSdkResult.data.embeddings[0]?.length ?? 0,
                             texts: [options.text],
                             parameters: {},
                             id: "",
@@ -142,7 +142,7 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
                             timestamp: Date.now(),
                             modelId,
                             textLength: options.text.length,
-                            dimensions: providerResult.data.embeddings[0]?.length || 0,
+                            dimensions: aiSdkResult.data.embeddings[0]?.length || 0,
                             success: true
                         });
 

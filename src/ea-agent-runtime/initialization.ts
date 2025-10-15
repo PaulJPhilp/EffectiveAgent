@@ -1,16 +1,14 @@
 import { FileSystem, Path, PlatformLogger } from "@effect/platform";
-import { Effect, Layer, LogLevel, Logger, Runtime } from "effect";
-
-import { ConfigurationError } from '@/services/core/configuration/errors.js';
-import { MasterConfigSchema } from './schema.js';
-
+import { NodeFileSystem, NodePath } from "@effect/platform-node";
+import { Effect, Logger, LogLevel, type Runtime } from "effect";
 import { ModelService } from '@/services/ai/model/service.js';
 import { PolicyService } from '@/services/ai/policy/service.js';
 import { ProviderService } from '@/services/ai/provider/service.js';
 import { ToolRegistryService } from '@/services/ai/tool-registry/service.js';
+import type { ConfigurationError } from '@/services/core/configuration/errors.js';
 import { ConfigurationService } from '@/services/core/configuration/index.js';
-
 import { AgentRuntimeInitializationError } from './errors.js';
+import type { MasterConfigSchema } from './schema.js';
 import { AgentRuntimeService } from './service.js';
 import type { RuntimeServices } from './types.js';
 
@@ -112,7 +110,16 @@ export class InitializationService extends Effect.Service<InitializationServiceA
             })
           ) as Effect.Effect<Runtime.Runtime<RuntimeServices>, AgentRuntimeInitializationError | ConfigurationError, never>
       } satisfies InitializationServiceApi;
-    })
+    }),
+    dependencies: [
+      ConfigurationService.Default,
+      ModelService.Default,
+      PolicyService.Default,
+      ProviderService.Default,
+      ToolRegistryService.Default,
+      NodeFileSystem.layer,
+      NodePath.layer
+    ]
   }
 ) { }
 

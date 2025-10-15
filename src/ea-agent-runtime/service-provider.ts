@@ -1,10 +1,10 @@
 import { Effect } from "effect";
-import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
-import { RuntimeServices } from "./types.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
+import type { RuntimeServices } from "./types.js";
 
 export class ServiceProvider extends Effect.Service<RuntimeServices>()(
   "ServiceProvider",

@@ -12,10 +12,11 @@ describe("JsonSerializer", () => {
   const testDir = "test-output";
 
   beforeEach(() => {
-    // Clean up any existing test files
+    // Clean up and recreate test directory before each test
     if (existsSync(testDir)) {
       rmSync(testDir, { recursive: true, force: true });
     }
+    mkdirSync(testDir, { recursive: true });
   });
 
   afterEach(() => {

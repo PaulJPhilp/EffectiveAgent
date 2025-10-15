@@ -3,8 +3,7 @@
  * @module ea/pipelines/structured-output/contract
  */
 
-import { Data, Effect, Schema } from "effect";
-import { AgentRuntimeId } from "@/ea-agent-runtime/index.js";
+import { Data, Effect, type Schema } from "effect";
 
 // === Errors ===
 
@@ -41,7 +40,7 @@ export class SchemaValidationError extends Data.TaggedError("SchemaValidationErr
  * API for a service that validates data against a schema.
  */
 export interface SchemaValidatorToolApi {
-    readonly validate: <I, A>(data: I, schema: Schema.Schema<A, I>) => Effect.Effect<A, SchemaValidationError>;
+    readonly validate: <A>(data: unknown, schema: Schema.Schema<A, unknown>) => Effect.Effect<A, SchemaValidationError>;
 }
 
 /**
@@ -52,7 +51,7 @@ export class SchemaValidatorTool extends Effect.Service<SchemaValidatorToolApi>(
     {
         effect: Effect.gen(function* () {
             return {
-                validate: <I, A>(data: I, schema: Schema.Schema<A, I>) => Effect.fail(
+                validate: <A>(data: unknown, schema: Schema.Schema<A, unknown>) => Effect.fail(
                     new SchemaValidationError({
                         message: "Validation not implemented by default",
                         validationIssues: []

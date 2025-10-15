@@ -2,8 +2,8 @@
  * @file A simple WebSocket client to test the ActorServer.
  */
 
-import { wsParse, wsStringify } from "@/utils/ws-utils.js";
 import WebSocket from "ws";
+import { wsParse, wsStringify } from "@/utils/ws-utils.js";
 
 // Give the server a moment to start
 setTimeout(() => {

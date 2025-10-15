@@ -1,10 +1,10 @@
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Option, pipe, Schema } from "effect";
+import { describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import type { EffectiveResponse } from "@/types.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Option, Schema, pipe } from "effect";
-import { describe, expect, it } from "vitest";
 import {
   ObjectGenerationError,
   ObjectInputError,

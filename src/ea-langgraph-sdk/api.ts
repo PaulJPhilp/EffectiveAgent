@@ -1,4 +1,4 @@
-import { Effect } from "effect"
+import type { Effect } from "effect"
 import type { AgentRuntimeServiceApi } from "../ea-agent-runtime/api.js"
 import type { AgentRuntimeError } from "../ea-agent-runtime/errors.js"
 import type {

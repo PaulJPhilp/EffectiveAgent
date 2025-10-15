@@ -2,12 +2,12 @@ import { Effect } from "effect";
 // PipelineService import removed
 import { 
   PipelineConfigError, 
-  PipelineError, 
+  type PipelineError, 
   PipelineSharedExecutionError, 
   PipelineValidationError 
 } from "../pipeline/errors.js";
-import { PipelineConfig } from "../pipeline/types.js";
-import { GeminiProCodingPipelineApi } from "./gemini-pro-coding.api.js";
+import type { PipelineConfig } from "../pipeline/types.js";
+import type { GeminiProCodingPipelineApi } from "./gemini-pro-coding.api.js";
 
 const SYSTEM_PROMPT = "You are an expert coding AI assistant.";
 

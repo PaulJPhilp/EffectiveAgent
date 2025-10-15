@@ -14,7 +14,7 @@
  * along with metadata such as original filename, content type, and size.
  */
 
-import { Effect } from "effect";
+import type { Effect } from "effect";
 import type { EntityId } from "../../../types.js";
 import type { DrizzleClientApi } from "../repository/implementations/drizzle/config.js";
 import type { FileError, FileNotFoundError } from "./errors.js";

@@ -4,13 +4,13 @@ import { Console, Effect } from "effect"
 import {
   ConfigurationError,
   FileSystemError,
+  mapUnknownError,
   PermissionError,
   ResourceNotFoundError,
   ValidationError,
-  mapUnknownError,
 } from "../errors.js"
 import { exists } from "../services/fs.js"
-import { type ResourceType, deleteConfigItem } from "../utils/config-helpers.js"
+import { deleteConfigItem, type ResourceType } from "../utils/config-helpers.js"
 import { handleCommandError } from "../utils/error-handling.js"
 
 const itemNameArg = Args.text()

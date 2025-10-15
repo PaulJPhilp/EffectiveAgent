@@ -2,20 +2,20 @@
  * @file Implementation of the AttachmentService using Effect.Service pattern.
  */
 
-import { EntityId } from "@/types.js";
-import { Effect, Option, Ref } from "effect";
+import { Effect, type Option, Ref } from "effect";
+import type { EntityId } from "@/types.js";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "../repository/errors.js";
-import { RepositoryService } from "../repository/service.js";
 import type { DrizzleClientApi } from "../repository/implementations/drizzle/config.js";
-import { AttachmentServiceApi } from "./api.js";
+import { RepositoryService } from "../repository/service.js";
+import type { AttachmentServiceApi } from "./api.js";
 import {
   AttachmentDbError,
   AttachmentLinkNotFoundError,
   AttachmentTransactionError,
   AttachmentValidationError,
 } from "./errors.js";
-import { AttachmentLinkEntity, AttachmentLinkEntityData } from "./schema.js";
-import { CreateAttachmentLinkInput } from "./types.js";
+import type { AttachmentLinkEntity, AttachmentLinkEntityData } from "./schema.js";
+import type { CreateAttachmentLinkInput } from "./types.js";
 
 /**
  * Implementation of the AttachmentService using Effect.Service pattern.

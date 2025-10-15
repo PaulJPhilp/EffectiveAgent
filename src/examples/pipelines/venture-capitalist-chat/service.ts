@@ -399,7 +399,7 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                         // Generate response for a pitch
                         responseMessage = `Thank you for sharing your business concept. As a venture capitalist focused on ${input.industry || "various sectors"}, I look at opportunities through a specific lens. `;
                         responseMessage += `Your venture appears to be at the ${input.investmentStage || "early"} stage, where we typically look for ${stageData.expectations.join(", ")}. `;
-                        responseMessage += `I\'ve analyzed your proposal and identified several key points worth discussing further.`;
+                        responseMessage += `I've analyzed your proposal and identified several key points worth discussing further.`;
 
                         // Include the analysis and comparables
                         return {
@@ -422,12 +422,12 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                         responseMessage += `Current trends affecting valuations include ${industryData.trends.join(", ")}.`;
                     } else if (input.message.toLowerCase().includes("metrics") || input.message.toLowerCase().includes("kpi")) {
                         responseMessage += `investors at the ${input.investmentStage || "early"} stage typically focus on ${industryData.keyMetrics.join(", ")}. `;
-                        responseMessage += `These metrics provide insight into the company\'s growth trajectory, unit economics, and market potential.`;
+                        responseMessage += `These metrics provide insight into the company's growth trajectory, unit economics, and market potential.`;
                     } else if (input.message.toLowerCase().includes("trend")) {
-                        responseMessage += `we\'re seeing several interesting trends in the market: ${industryData.trends.join(", ")}. `;
+                        responseMessage += `we're seeing several interesting trends in the market: ${industryData.trends.join(", ")}. `;
                         responseMessage += `Companies that position themselves to capitalize on these trends often attract more investor interest.`;
                     } else {
-                        responseMessage += `I\'d consider several factors: market opportunity, team capabilities, traction, and competitive advantage. `;
+                        responseMessage += `I'd consider several factors: market opportunity, team capabilities, traction, and competitive advantage. `;
                         responseMessage += `For ${input.investmentStage || "early stage"} companies in ${input.industry || "this space"}, we typically look for ${stageData.expectations.slice(0, 2).join(" and ")}. `;
                         responseMessage += `The most successful ventures demonstrate strong ${industryData.keyMetrics[0]} and a clear path to scaling.`;
                     }
@@ -468,7 +468,7 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                     const stageData = yield* financialModeling.getInvestmentStageRequirements(options?.investmentStage || "seed");
 
                     // Craft a comprehensive response
-                    const responseMessage = `I\'ve reviewed your business pitch through a venture capital lens. ` +
+                    const responseMessage = `I've reviewed your business pitch through a venture capital lens. ` +
                         `For a ${options?.investmentStage || "seed"} stage company in ${options?.industry || "this industry"}, ` +
                         `we typically evaluate against key criteria like ${stageData.expectations.slice(0, 2).join(" and ")}. ` +
                         `Your pitch demonstrates several interesting aspects that warrant further discussion.`;

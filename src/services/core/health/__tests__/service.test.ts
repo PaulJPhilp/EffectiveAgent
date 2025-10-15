@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { Duration, Effect, HashMap, Option } from "effect";
+import { describe, expect, it } from "vitest";
 import { ServiceHealthMonitoringService } from "../service.js";
 import type { HealthCheckFunction, HealthMonitoringConfig } from "../types.js";
 

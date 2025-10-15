@@ -1,6 +1,6 @@
 import { Effect, Queue, Scope, Stream } from "effect";
 import { WebSocket } from "ws";
-import { WebSocketServiceApi } from "./api.js";
+import type { WebSocketServiceApi } from "./api.js";
 import { WebSocketConnectionError, WebSocketError, WebSocketSendError, WebSocketSerializationError } from "./errors.js";
 
 /**

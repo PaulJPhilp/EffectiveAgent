@@ -102,6 +102,9 @@ function main(): GenerationResult {
     // Step 2: Parse JSDoc metadata for each component
     logInfo("Parsing component metadata...");
     const nodes: NodeData[] = [];
+    // --- Layer color extraction ---
+    const layerColors: Record<string, string> = {};
+    const layerColorSources: Record<string, string> = {};
 
     sourceFiles.forEach((sourceFile) => {
       try {
@@ -124,6 +127,29 @@ function main(): GenerationResult {
               if (parseResult.success) {
                 nodes.push(parseResult.data);
                 stats.componentsSuccessful++;
+
+                // --- Layer color extraction logic ---
+                const jsDoc = cls.getJsDocs()[0];
+                if (jsDoc) {
+                  let layerName: string | undefined;
+                  let color: string | undefined;
+                  for (const tag of jsDoc.getTags()) {
+                    const tagName = tag.getTagName();
+                    const tagValue = tag.getCommentText()?.trim();
+                    if (tagName === "groupByLayer" && tagValue) layerName = tagValue;
+                    if (tagName === "color" && tagValue) color = tagValue;
+                  }
+                  if (layerName && color) {
+                    if (layerColors[layerName] && layerColors[layerName] !== color) {
+                      const msg = `Layer '${layerName}' has multiple color definitions: '${layerColors[layerName]}' and '${color}'.`;
+                      logWarning(msg);
+                      allWarnings.push(msg);
+                    }
+                    layerColors[layerName] = color;
+                    layerColorSources[layerName] = cls.getName() || sourceFile.getBaseName();
+                  }
+                }
+                // --- End layer color extraction ---
 
                 // Log warnings for this component
                 parseResult.warnings.forEach((warning) => {
@@ -267,6 +293,11 @@ function main(): GenerationResult {
     });
 
     const architectureData = modelResult.data;
+    // Attach layerColors if any were found
+    if (Object.keys(layerColors).length > 0) {
+      architectureData.layerColors = layerColors;
+      logInfo(`Extracted layerColors: ${JSON.stringify(layerColors)}`);
+    }
     logInfo("Architecture model built successfully");
 
     // Step 5: Validate against schema

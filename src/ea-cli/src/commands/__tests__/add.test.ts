@@ -4,8 +4,8 @@ import { NodeContext, NodeFileSystem } from "@effect/platform-node"
 import { Effect, Either, Layer } from "effect"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { createAgent } from "../../boilerplate/agent.js"
-import { addConfigItem } from "../../utils/config-helpers.js"
 import { createDir } from "../../services/fs.js"
+import { addConfigItem } from "../../utils/config-helpers.js"
 
 describe("add command functionality", () => {
   const TEST_DIR = join(process.cwd(), "test-workspace-add")

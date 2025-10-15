@@ -1,0 +1,112 @@
+name: Update models.dev
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # every day at 02:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  update-models-dev:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        # keep credentials so the action can push directly to the repo
+        with:
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Bun
+        run: |
+          curl -fsSL https://bun.sh/install | bash
+          # persist bun in PATH for subsequent steps
+          echo "$HOME/.bun/bin" >> $GITHUB_PATH
+
+      - name: Fetch canonical models JSON (verbose)
+        env:
+          MODELS_DEV_URL: https://models.dev/models.json
+        run: |
+          set -euo pipefail
+          echo "MODELS_DEV_URL=$MODELS_DEV_URL"
+          mkdir -p tmp
+
+          # fetch with status code output for logging
+          HTTP_OUT=tmp/http_out.txt
+          STATUS=$(curl -sS -w "%{http_code}" -o tmp/models.raw.json "$MODELS_DEV_URL") || true
+          echo "HTTP_STATUS=$STATUS"
+          if [ "$STATUS" -ge 400 ]; then
+            echo "Failed to fetch models.json (status=$STATUS)"
+            cat tmp/models.raw.json || true
+            exit 1
+          fi
+
+          # Pretty-print and normalize JSON for deterministic diffs
+          jq . tmp/models.raw.json > tmp/models.normalized.json
+          echo "Normalized JSON saved to tmp/models.normalized.json"
+          # show a short preview
+          echo "Preview of registry (first 200 chars):"
+          head -c 200 tmp/models.normalized.json || true
+          echo
+          # model count heuristics: if top-level 'models' use that, otherwise array
+          if jq -e 'has("models")' tmp/models.normalized.json >/dev/null 2>&1; then
+            COUNT=$(jq '.models | length' tmp/models.normalized.json)
+          else
+            COUNT=$(jq 'length' tmp/models.normalized.json)
+          fi
+          echo "Model count: $COUNT"
+          shasum -a 256 tmp/models.normalized.json
+
+      - name: Validate canonical models JSON
+        run: |
+          node scripts/check_models_dev.js tmp/models.normalized.json
+
+      - name: Install project dependencies
+        run: |
+          npm ci
+
+      - name: Run in-code preflight (ensureModelsDevAvailable)
+        run: |
+          # Use bunx to execute the TypeScript preflight script which exercises the Effect-based preflight
+          bunx tsx src/scripts/run_models_preflight.ts
+
+      - name: Commit canonical models to repo (with diff)
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email 'actions@github.com'
+          mkdir -p packages/effect-aisdk/config
+          jq . tmp/models.normalized.json > packages/effect-aisdk/config/models.reg.json
+          git add packages/effect-aisdk/config/models.reg.json
+
+          echo "--- Git status ---"
+          git status --porcelain
+
+          echo "--- Staged files ---"
+          git diff --staged --name-only || true
+
+          if git diff --staged --quiet; then
+            echo "No registry changes to commit"
+          else
+            echo "--- Staged diff ---"
+            git --no-pager diff --staged --color || true
+            git commit -m "chore(ci): update canonical models registry from models.dev"
+            echo "Pushing changes..."
+            git push origin HEAD:main
+            echo "Pushed commit:" $(git rev-parse --short HEAD)
+          fi
+
+      - name: Create issue if install failed
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'models.dev installation failed in CI',
+              body: `The scheduled job failed while trying to install or update models.dev in packages/effect-aisdk. See workflow run: ${process.env.GITHUB_RUN_ID}`,
+            })

@@ -7,16 +7,15 @@ import {
   expect,
   it
 } from "vitest";
-
-import { make } from "../repository.js";
-import type { BaseEntity } from "../../../types.js";
 import { EntityNotFoundError } from "../../../errors.js";
+import type { BaseEntity } from "../../../types.js";
+import { make } from "../repository.js";
 import {
   cleanTestTable,
   createTestTable,
   dropTestTable,
+  type TestEntityData,
   testTable,
-  TestEntityData,
   withTestDatabase
 } from "./test-config.js";
 

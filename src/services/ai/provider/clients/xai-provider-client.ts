@@ -1,30 +1,28 @@
+import { createOpenAI } from "@ai-sdk/openai";
 import {
-  EffectiveMessage,
-  ModelCapability,
-  TextPart,
-  ToolCallPart,
-} from "@/schema.js";
+  AiSdkMessageTransformError,
+  type TextPart,
+  toEffectiveMessage, toVercelMessages
+} from "@effective-agent/ai-sdk";
+import { generateText } from "ai";
+import { Chunk, Effect } from "effect";
+import type { ModelCapability } from "@/schema.js";
+import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
+import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
 import type {
   EffectiveInput,
-  FinishReason,
-  ProviderEffectiveResponse,
+  FinishReason
 } from "@/types.js";
-import { createOpenAI } from "@ai-sdk/openai";
-import { type CoreMessage as VercelCoreMessage, generateText } from "ai";
-import { Chunk, Duration, Effect, Option, Schema as S } from "effect";
-import { z } from "zod";
 import type { ModelServiceApi } from "../../model/api.js";
-import { ModelService } from "../../model/service.js";
-import { ToolRegistryService } from "../../tool-registry/service.js";
-import type { FullToolName } from "../../tools/types.js";
+import type { ToolRegistryService } from "../../tool-registry/service.js";
 import type { ProviderClientApi } from "../api.js";
 import {
-  ProviderNotFoundError,
+  type ProviderNotFoundError,
   ProviderOperationError,
-  ProviderServiceConfigError,
+  type ProviderServiceConfigError,
   ProviderToolError,
 } from "../errors.js";
-import { ProvidersType } from "../schema.js";
+import type { ProvidersType } from "../schema.js";
 import type {
   EffectiveProviderApi,
   GenerateTextResult,
@@ -34,11 +32,8 @@ import type {
   ProviderGenerateObjectOptions,
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
-  ProviderTranscribeOptions,
-  ToolCallRequest,
+  ProviderTranscribeOptions
 } from "../types.js";
-import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
-import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
 
 // Map AI SDK finish reasons to EffectiveAgent finish reasons
 function mapFinishReason(finishReason: string): FinishReason {
@@ -63,93 +58,10 @@ function mapFinishReason(finishReason: string): FinishReason {
 }
 
 // Helper to convert EA messages to Vercel AI SDK CoreMessage format
-function mapEAMessagesToVercelMessages(
-  eaMessages: ReadonlyArray<EffectiveMessage>
-): VercelCoreMessage[] {
-  return eaMessages.map((msg) => {
-    const messageParts = Chunk.toReadonlyArray(msg.parts);
-    let textContent = "";
-
-    if (messageParts.length === 1 && messageParts[0]?._tag === "Text") {
-      textContent = (messageParts[0] as TextPart).content;
-    } else {
-      textContent = messageParts
-        .filter((part) => part._tag === "Text")
-        .map((part) => (part as TextPart).content)
-        .join("\n");
-    }
-
-    if (
-      msg.role === "user" ||
-      msg.role === "assistant" ||
-      msg.role === "system"
-    ) {
-      return { role: msg.role, content: textContent };
-    } else if (msg.role === "tool") {
-      const toolCallId = (msg.metadata?.toolCallId as string) || "";
-      const toolName = (msg.metadata?.toolName as string) || "unknown";
-      return {
-        role: "tool" as const,
-        content: [
-          {
-            type: "tool-result" as const,
-            toolCallId: toolCallId,
-            toolName: toolName,
-            result: textContent,
-          },
-        ],
-      };
-    }
-    return { role: "user", content: textContent };
-  });
-}
-
 // Helper to convert a Vercel AI SDK message to an EA EffectiveMessage
-function mapVercelMessageToEAEffectiveMessage(
-  vercelMsg: VercelCoreMessage,
-  modelId: string
-): EffectiveMessage {
-  let eaParts: Array<TextPart | ToolCallPart> = [];
-
-  if (Array.isArray(vercelMsg.content)) {
-    vercelMsg.content.forEach((part) => {
-      if (part.type === "text") {
-        eaParts.push(new TextPart({ _tag: "Text", content: part.text }));
-      }
-    });
-  } else if (typeof vercelMsg.content === "string") {
-    eaParts.push(new TextPart({ _tag: "Text", content: vercelMsg.content }));
-  }
-
-  if ((vercelMsg as any).tool_calls) {
-    (vercelMsg as any).tool_calls.forEach((tc: any) => {
-      const toolCallRequest: ToolCallRequest = {
-        id: tc.id || tc.tool_call_id,
-        type: "tool_call",
-        function: {
-          name: tc.tool_name || (tc.function && tc.function.name),
-          arguments: JSON.stringify(
-            tc.args || (tc.function && tc.function.arguments)
-          ),
-        },
-      };
-      eaParts.push(
-        new ToolCallPart({
-          _tag: "ToolCall",
-          id: toolCallRequest.id,
-          name: toolCallRequest.function.name,
-          args: JSON.parse(toolCallRequest.function.arguments),
-        })
-      );
-    });
-  }
-
-  return new EffectiveMessage({
-    role: vercelMsg.role as EffectiveMessage["role"],
-    parts: Chunk.fromIterable(eaParts),
-    metadata: { model: modelId, eaMessageId: `ea-${Date.now()}` },
-  });
-}
+// Note: Message transformation functions are now imported from @effective-agent/ai-sdk:
+// - toVercelMessages() replaces mapEAMessagesToVercelMessages()
+// - toEffectiveMessage() replaces mapVercelMessageToEAEffectiveMessage()
 
 // Internal factory for ProviderService only
 function makeXaiClient(
@@ -252,8 +164,8 @@ function makeXaiClient(
         orchestrator.execute(
           Effect.gen(function* () {
             try {
-              const vercelMessages = mapEAMessagesToVercelMessages(
-                Chunk.toReadonlyArray(input.messages || Chunk.empty())
+              const vercelMessages = yield* toVercelMessages(
+                input.messages || Chunk.empty()
               );
               const modelId = options.modelId || "grok-3";
 
@@ -286,9 +198,7 @@ function makeXaiClient(
               });
 
               const responseMessages = result.response?.messages || [];
-              const eaMessages = responseMessages.map((msg) =>
-                mapVercelMessageToEAEffectiveMessage(msg, modelId)
-              );
+              const eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
               const textResult: GenerateTextResult = {
                 id: `xai-${Date.now()}`,
@@ -327,7 +237,25 @@ function makeXaiClient(
                 })
               );
             }
-          }),
+          }).pipe(
+            Effect.catchAll((error) => {
+              // Map ai-sdk errors to EffectiveError types
+              if (error instanceof AiSdkMessageTransformError) {
+                return Effect.fail(
+                  new ProviderOperationError({
+                    operation: "messageTransform",
+                    message: error.message,
+                    providerName: "xai",
+                    module: "XaiProviderClient",
+                    method: "generateText",
+                    cause: error,
+                  })
+                );
+              }
+              // For other errors, assume they're already EffectiveError types
+              return Effect.fail(error);
+            })
+          ),
           XAI_GENERATE_TEXT_CONFIG
         ),
 
@@ -448,8 +376,8 @@ function makeXaiClient(
             }
 
             // Delegate to generateText for simple chat without tools
-            const vercelMessages = mapEAMessagesToVercelMessages(
-              Chunk.toReadonlyArray(effectiveInput.messages || Chunk.empty())
+            const vercelMessages = yield* toVercelMessages(
+              effectiveInput.messages || Chunk.empty()
             );
             const modelId = options.modelId || "grok-3";
 
@@ -482,9 +410,7 @@ function makeXaiClient(
             });
 
             const responseMessages = result.response?.messages || [];
-            const eaMessages = responseMessages.map((msg) =>
-              mapVercelMessageToEAEffectiveMessage(msg, modelId)
-            );
+            const eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
             const chatResult: GenerateTextResult = {
               id: `xai-${Date.now()}`,
@@ -511,7 +437,25 @@ function makeXaiClient(
               usage: chatResult.usage,
               finishReason: chatResult.finishReason,
             };
-          }),
+          }).pipe(
+            Effect.catchAll((error) => {
+              // Map ai-sdk errors to EffectiveError types
+              if (error instanceof AiSdkMessageTransformError) {
+                return Effect.fail(
+                  new ProviderOperationError({
+                    operation: "messageTransform",
+                    message: error.message,
+                    providerName: "xai",
+                    module: "XaiProviderClient",
+                    method: "chat",
+                    cause: error,
+                  })
+                );
+              }
+              // For other errors, assume they're already EffectiveError types
+              return Effect.fail(error);
+            })
+          ),
           XAI_CHAT_CONFIG
         ),
 

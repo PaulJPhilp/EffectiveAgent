@@ -1,4 +1,4 @@
-import { type EffectiveRole } from "@/schema.js";
+import { type EffectiveRole, ImageUrlPart, Message, type Part, TextPart, ToolCallPart } from "@effective-agent/ai-sdk";
 import {
   InvalidInputError,
   InvalidMessageError,
@@ -22,11 +22,10 @@ export const METHOD_ADD_PART_OR_MESSAGE = "addPartOrMessage" as const;
 export const METHOD_EXTRACT_TEXTS_FOR_EMBEDDINGS = "extractTextsForEmbeddings" as const;
 export const METHOD_EXTRACT_TEXT_FOR_SPEECH = "extractTextForSpeech" as const;
 
-import { ImageUrlPart, Message, Part, TextPart, ToolCallPart } from "@/schema.js";
-import { EffectiveInput } from "@/types.js";
 
 import { Chunk, Effect, Ref } from "effect";
-import { InputServiceApi } from "./api.js";
+import type { EffectiveInput } from "@/types.js";
+import type { InputServiceApi } from "./api.js";
 import { FilePart } from "./schema.js";
 export { FilePart };
 

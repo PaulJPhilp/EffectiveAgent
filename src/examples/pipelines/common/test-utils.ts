@@ -3,7 +3,7 @@
  * @module ea/pipelines/common/test-utils
  */
 
-import { Context, Effect, Layer } from "effect";
+import { type Context, Effect, Layer } from "effect";
 import { vi } from "vitest";
 
 /**

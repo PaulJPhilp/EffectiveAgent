@@ -13,7 +13,7 @@ import {
   type ReActTool,
 } from "./contract.js";
 import { ReActPipelineError } from "./errors.js";
-import { type Tool } from "./types.js";
+import type { Tool } from "./types.js";
 
 /**
  * Service for managing tools

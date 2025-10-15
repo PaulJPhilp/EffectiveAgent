@@ -11,7 +11,7 @@ import {
   type ScientistChatResponse,
 } from "./contract.js";
 import { ScientistChatPipelineError } from "./errors.js";
-import { type CitationData, type ResearchData } from "./types.js";
+import type { CitationData, ResearchData } from "./types.js";
 
 /**
  * Service for research data

@@ -4,7 +4,7 @@
  */
 
 import { EffectiveError } from "@/errors.js";
-import { PROVIDER_NAMES } from "./provider-universe.js";
+import type { PROVIDER_NAMES } from "./provider-universe.js";
 import type { ModelCapability } from "./types.js";
 
 // Use the provider names array to create the type

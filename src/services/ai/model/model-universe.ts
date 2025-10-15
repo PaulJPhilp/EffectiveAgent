@@ -1,6 +1,6 @@
-import { ModelCapability } from "@/schema.js";
-import { PROVIDER_NAMES } from "../provider/provider-universe.js";
-import { ModelCapabilityDetail } from "./schema.js";
+import type { ModelCapability } from "@/schema.js";
+import type { PROVIDER_NAMES } from "../provider/provider-universe.js";
+import type { ModelCapabilityDetail } from "./schema.js";
 /**
  * Canonical list of all models supported by the ModelService.
  *

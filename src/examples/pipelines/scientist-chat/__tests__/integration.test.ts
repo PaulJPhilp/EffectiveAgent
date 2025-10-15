@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for ScientistChatService, its live layer, AI model mock layers, and mock tool layers
 
 process.env.PROVIDERS_CONFIG_PATH = require('path').resolve(__dirname, '../../config/providers.json');

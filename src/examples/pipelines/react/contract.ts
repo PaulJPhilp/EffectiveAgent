@@ -4,7 +4,7 @@
  */
 
 import { Effect } from "effect";
-import { ReActPipelineError } from "./errors.js";
+import type { ReActPipelineError } from "./errors.js";
 
 /**
  * Represents a tool that can be used within the ReAct reasoning framework

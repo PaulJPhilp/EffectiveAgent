@@ -3,10 +3,10 @@
  * @module services/pipeline/producers/image/types
  */
 
-import { GenerateImageResult } from "@/services/ai/provider/types.js";
-import { EffectiveResponse } from "@/types.js";
 import type { Option } from "effect/Option";
 import type { Span } from "effect/Tracer";
+import type { GenerateImageResult } from "@/services/ai/provider/types.js";
+import type { EffectiveResponse } from "@/types.js";
 
 /**
  * Result shape expected from the underlying provider client's generateImage method

@@ -1,19 +1,20 @@
+import { NodeFileSystem, NodePath } from "@effect/platform-node";
 /**
  * @file Chat Service implementation for AI chat completion
  * @module services/pipeline/producers/chat/service
  */
-import { TextPart } from "@/schema.js";
+import { generateTextWithModel, TextPart } from "@effective-agent/ai-sdk";
+import { Chunk, Effect, Option, Ref } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { NodeFileSystem, NodePath } from "@effect/platform-node";
+import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
+import { ResilienceService } from "@/services/execution/resilience/service.js";
 import {
-  EffectiveInput,
   EffectiveMessage,
-  EffectiveResponse,
+  type EffectiveResponse
 } from "@/types.js";
-import { Chunk, Effect, Option, Ref } from "effect";
 import type { ChatServiceApi } from "./api.js";
 import { ChatInputError, ChatModelError } from "./errors.js";
 import type { ChatCompletionOptions, ChatCompletionResult } from "./types.js";
@@ -146,8 +147,9 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
 
             // Get provider for the model
             const providerName = yield* modelService.getProviderName(modelId);
-            const providerClient = yield* providerService.getProviderClient(
-              providerName
+            const languageModel = yield* providerService.getAiSdkLanguageModel(
+              providerName,
+              modelId
             );
 
             // Prepare messages array
@@ -168,38 +170,26 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
                 })
             );
 
-            // Create EffectiveInput
-            const effectiveInput = new EffectiveInput(
-              options.input,
-              Chunk.fromIterable(effectiveMessages)
-            );
-
-            // Call the real AI provider
-            const providerResult = yield* providerClient
-              .chat(effectiveInput, {
-                modelId,
-                parameters: {
-                  temperature: options.parameters?.temperature ?? 0.7,
-                  maxTokens: options.parameters?.maxTokens ?? 1000,
-                  topP: options.parameters?.topP ?? 1,
-                  frequencyPenalty: options.parameters?.frequencyPenalty ?? 0,
-                  presencePenalty: options.parameters?.presencePenalty ?? 0,
-                  stop: options.parameters?.stop,
-                },
-                system: options.system,
-              })
-              .pipe(
-                Effect.provide(ToolRegistryService.Default),
-                Effect.provide(ConfigurationService.Default),
-                Effect.provide(NodeFileSystem.layer),
-                Effect.provide(NodePath.layer)
-              );
+            // Call ai-sdk operation directly
+            const aiSdkResult = yield* generateTextWithModel(languageModel, {
+              text: options.input,
+              messages: Chunk.fromIterable(effectiveMessages)
+            }, {
+              system: options.system,
+              parameters: {
+                temperature: options.parameters?.temperature ?? 0.7,
+                maxTokens: options.parameters?.maxTokens ?? 1000,
+                topP: options.parameters?.topP ?? 1,
+                frequencyPenalty: options.parameters?.frequencyPenalty ?? 0,
+                presencePenalty: options.parameters?.presencePenalty ?? 0,
+              },
+            });
 
             const completion: ChatCompletionResult = {
-              content: providerResult.data.text,
-              finishReason: providerResult.data.finishReason,
-              usage: providerResult.data.usage,
-              toolCalls: (providerResult.data.toolCalls || []).map(
+              content: aiSdkResult.data.text,
+              finishReason: aiSdkResult.data.finishReason,
+              usage: aiSdkResult.data.usage,
+              toolCalls: (aiSdkResult.data.toolCalls || []).map(
                 (toolCall) => ({
                   id: toolCall.id,
                   type: "function" as const,
@@ -212,13 +202,7 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
               providerMetadata: {
                 model: modelId,
                 provider: providerName,
-                ...Object.fromEntries(
-                  Object.entries(
-                    providerResult.data.providerMetadata || {}
-                  ).filter(
-                    ([key]) => key !== "capabilities" && key !== "configSchema"
-                  )
-                ),
+                ...aiSdkResult.data.providerMetadata
               },
             };
 
@@ -282,7 +266,17 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
 
       return service;
     }),
+    dependencies: [
+      ModelService.Default,
+      ProviderService.Default,
+      ToolRegistryService.Default,
+      ConfigurationService.Default,
+      OrchestratorService.Default,
+      ResilienceService.Default,
+      NodeFileSystem.layer,
+      NodePath.layer
+    ]
   }
-) {}
+) { }
 
 export default ChatService;

@@ -6,6 +6,7 @@
     {
       "name": "openai",
       "displayName": "OpenAI",
+      "description": "OpenAI's GPT model family for text and chat",
       "type": "llm",
       "apiKeyEnvVar": "OPENAI_API_KEY",
       "baseUrl": "https://api.openai.com/v1"

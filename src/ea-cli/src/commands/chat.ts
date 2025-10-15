@@ -1,18 +1,17 @@
 import { Args, Command } from "@effect/cli"
-import { Console, Effect, Chunk, pipe, Data } from "effect"
-import { ProviderService } from "@/services/ai/provider/service.js"
-import { ModelService } from "@/services/ai/model/service.js"
-import { type ProviderServiceApi } from "@/services/ai/provider/api.js"
-import { type ModelServiceApi } from "@/services/ai/model/api.js"
+import { Chunk, Console, Data, Effect, pipe } from "effect"
 import { Message, TextPart } from "@/schema.js"
-import { ModelNotFoundError } from "@/services/ai/model/errors.js"
-import { 
-  ProviderServiceConfigError, 
-  ProviderNotFoundError, 
-  ProviderOperationError 
+import type { ModelServiceApi } from "@/services/ai/model/api.js"
+import type { ModelNotFoundError } from "@/services/ai/model/errors.js"
+import { ModelService } from "@/services/ai/model/service.js"
+import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
+import type {
+  ProviderNotFoundError,
+  ProviderOperationError,
+  ProviderServiceConfigError,
 } from "@/services/ai/provider/errors.js"
-import { ToolExecutionError } from "@/types.js"
-import { EffectiveInput } from "@/types.js"
+import { ProviderService } from "@/services/ai/provider/service.js"
+import { EffectiveInput, type ToolExecutionError } from "@/types.js"
 
 /**
  * Union type of all possible errors that can occur during chat operations
@@ -30,15 +29,13 @@ type ChatError =
 interface ChatServiceApi {
   /**
    * Sends a chat message to the AI provider and returns the response
-   * 
+   *
    * @param input - The user's input message
    * @returns Effect producing the AI response string or ChatError
    */
-  chat: (input: string) => Effect.Effect<
-    string,
-    ChatError,
-    ProviderServiceApi | ModelServiceApi
-  >
+  chat: (
+    input: string,
+  ) => Effect.Effect<string, ChatError, ProviderServiceApi | ModelServiceApi>
 }
 
 /**
@@ -50,29 +47,33 @@ const makeChatService = Effect.gen(function* () {
   const model = yield* ModelService
 
   return {
-    chat: (input: string) => Effect.gen(function* () {
-      // Load available models
-      const models = yield* model.load()
-      const defaultModel = models.models[0]
+    chat: (input: string) =>
+      Effect.gen(function* () {
+        // Load available models
+        const models = yield* model.load()
+        const defaultModel = models.models[0]
 
-      // Create message with user input
-      const message = new Message({
-        role: "user",
-        parts: Chunk.fromIterable([new TextPart({ _tag: "Text", content: input })])
-      })
+        // Create message with user input
+        const message = new Message({
+          role: "user",
+          parts: Chunk.fromIterable([
+            new TextPart({ _tag: "Text", content: input }),
+          ]),
+        })
 
-      // Get provider client and send chat request
-      const client = yield* provider.getProviderClient("google")
-      const response = yield* client.generateText(
-        new EffectiveInput(input, Chunk.fromIterable([message])),
-        {
-          modelId: defaultModel.id,
-          system: "You are a helpful assistant that provides accurate, factual answers."
-        }
-      )
+        // Get provider client and send chat request
+        const client = yield* provider.getProviderClient("google")
+        const response = yield* client.generateText(
+          new EffectiveInput(input, Chunk.fromIterable([message])),
+          {
+            modelId: defaultModel.id,
+            system:
+              "You are a helpful assistant that provides accurate, factual answers.",
+          },
+        )
 
-      return response.data
-    })
+        return response.data
+      }),
   }
 })
 
@@ -80,17 +81,17 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
   "ChatService",
   {
     effect: makeChatService,
-    dependencies: [ProviderService.Default, ModelService.Default]
-  }
-) { }
+    dependencies: [ProviderService.Default, ModelService.Default],
+  },
+) {}
 
 // Create CLI command
 export const chatCommand = Command.make(
   "chat",
   {
     message: Args.text({ name: "message" }).pipe(
-      Args.withDescription("Message to send to the AI assistant")
-    )
+      Args.withDescription("Message to send to the AI assistant"),
+    ),
   },
   ({ message }) =>
     Effect.gen(function* () {
@@ -98,9 +99,5 @@ export const chatCommand = Command.make(
       const response = yield* service.chat(message)
       yield* Console.log(response)
       return Effect.succeed(void 0)
-    }).pipe(
-      Effect.provide(ChatService.Default)
-    )
-).pipe(
-  Command.withDescription("Chat with the AI assistant")
-)
+    }).pipe(Effect.provide(ChatService.Default)),
+).pipe(Command.withDescription("Chat with the AI assistant"))

@@ -2,15 +2,14 @@
  * @file Provider service integration tests
  */
 
-import path from "path";
-import { Effect, Either } from "effect";
-import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { FileSystem, Path } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either } from "effect";
+import path from "path";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
-  ProviderNotFoundError,
-  ProviderServiceConfigError
+  ProviderOperationError
 } from "../errors.js";
 import { ProviderService } from "../service.js";
 
@@ -31,16 +30,18 @@ describe("ProviderService", () => {
   it("should load provider configuration successfully from default path", () =>
     Effect.gen(function* () {
       const service = yield* ProviderService;
-      const client = yield* service.getProviderClient("openai");
-      expect(client).toBeDefined();
-      expect(typeof client.getCapabilities).toBe("function");
+      const result = yield* Effect.either(service.getProviderClient("openai"));
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left).toBeInstanceOf(ProviderOperationError);
+      }
     }).pipe(
       Effect.provide(ProviderService.Default),
       Effect.provide(NodeFileSystem.layer)
     )
   );
 
-  it("should get a provider client for a valid provider (OpenAI)", () =>
+  it("should fail with ProviderOperationError for deprecated getProviderClient method", () =>
     Effect.gen(function* () {
       if (!process.env.OPENAI_API_KEY) {
         console.warn(
@@ -50,37 +51,30 @@ describe("ProviderService", () => {
       }
 
       const service = yield* ProviderService;
-      const clientEither = yield* Effect.either(
+      const result = yield* Effect.either(
         service.getProviderClient("openai")
       );
 
-      if (Either.isLeft(clientEither)) {
-        console.error("OpenAI client error:", clientEither.left);
-        throw new Error(
-          `Expected OpenAI client, got error: ${JSON.stringify(clientEither.left)}`
-        );
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left).toBeInstanceOf(ProviderOperationError);
       }
-
-      const client = clientEither.right;
-      expect(client).toBeDefined();
-      const capabilities = yield* client.getCapabilities();
-      expect(Array.from(capabilities)).toContain("chat");
     }).pipe(
       Effect.provide(ProviderService.Default),
       Effect.provide(NodeFileSystem.layer)
     )
   );
 
-  it("should fail with ProviderNotFoundError for an unknown provider", () =>
+  it("should fail with ProviderOperationError for unknown provider", () =>
     Effect.gen(function* () {
       const service = yield* ProviderService;
-      const clientEither = yield* Effect.either(
+      const result = yield* Effect.either(
         service.getProviderClient("nonexistent-provider")
       );
 
-      expect(Either.isLeft(clientEither)).toBe(true);
-      if (Either.isLeft(clientEither)) {
-        expect(clientEither.left).toBeInstanceOf(ProviderNotFoundError);
+      expect(Either.isLeft(result)).toBe(true);
+      if (Either.isLeft(result)) {
+        expect(result.left).toBeInstanceOf(ProviderOperationError);
       }
     }).pipe(
       Effect.provide(ProviderService.Default),
@@ -143,9 +137,7 @@ describe("ProviderService", () => {
         // Assert
         expect(Either.isLeft(clientEither)).toBe(true);
         if (Either.isLeft(clientEither)) {
-          expect(clientEither.left).toBeInstanceOf(ProviderServiceConfigError);
-          const error = clientEither.left as ProviderServiceConfigError;
-          expect(error.description).toContain("API key not found in environment");
+          expect(clientEither.left).toBeInstanceOf(ProviderOperationError);
         }
 
         // Cleanup

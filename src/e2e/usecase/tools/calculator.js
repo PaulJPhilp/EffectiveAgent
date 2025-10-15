@@ -4,8 +4,8 @@
  */
 
 import { RegistryToolSchema } from "../../../services/ai/tool-registry/schema.js";
-import { EffectImplementation } from "../../../services/ai/tools/schema.js";
 import { calculatorImpl, calculatorInputSchema, calculatorOutputSchema } from "../../../services/ai/tools/implementations/calculator.js";
+import { EffectImplementation } from "../../../services/ai/tools/schema.js";
 
 export const CalculatorTool = new RegistryToolSchema({
   metadata: {

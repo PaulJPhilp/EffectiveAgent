@@ -2,11 +2,12 @@
  * @file Image Service implementation for AI image generation
  * @module services/pipeline/producers/image/service
  */
+
+import { Chunk, Effect, Option, Ref } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { GenerateImageResult } from "@/services/ai/provider/types.js";
+import type { GenerateImageResult } from "@/services/ai/provider/types.js";
 import { EffectiveInput } from "@/types.js";
-import { Chunk, Effect, Option, Ref } from "effect";
 import type { ImageGenerationOptions, ImageServiceApi } from "./api.js";
 import { ImageGenerationError, ImageModelError, ImageSizeError } from "./errors.js";
 

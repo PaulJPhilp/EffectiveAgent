@@ -1,6 +1,6 @@
 // Potentially in a shared location like src/services/capabilities/types.ts
 
-import { Effect } from "effect";
+import type { Effect } from "effect";
 
 // Generic Input type (often derived from Data schema)
 export type CapabilityInput = Record<string, any>; // Placeholder, refine as needed

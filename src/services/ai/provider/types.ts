@@ -1,9 +1,9 @@
 import type { GenerateBaseResult, ResponseMessage } from "@/types.js";
 import type { ToolServiceApi } from "../tools/api.js";
-import { type ToolDefinition } from "../tools/schema.js";
+import type { ToolDefinition } from "../tools/schema.js";
 import type { ToolRegistryData } from "../tools/types.js";
 import type { ProviderClientApi } from "./api.js"; // Added import
-import { PROVIDER_NAMES } from "./provider-universe.js";
+import type { PROVIDER_NAMES } from "./provider-universe.js";
 
 /**
  * Represents a fully qualified tool name in the format `${namespace}:${toolName}`
@@ -467,4 +467,4 @@ export type EffectiveProviderSettings = {
     settings: unknown;
 };
 
-export { ToolDefinition, type ProviderClientApi };
+export type { ToolDefinition, ProviderClientApi };

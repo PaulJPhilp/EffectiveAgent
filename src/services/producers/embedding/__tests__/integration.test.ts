@@ -1,8 +1,8 @@
 import { Effect, Either, Option } from "effect";
 import { describe, expect, it } from "vitest";
-import { EmbeddingService } from "../service.js";
-import { EmbeddingGenerationError, EmbeddingModelError } from "../errors.js";
 import type { EffectiveResponse } from "@/types.js";
+import { EmbeddingGenerationError, EmbeddingModelError } from "../errors.js";
+import { EmbeddingService } from "../service.js";
 
 describe("EmbeddingService Integration Tests", () => {
   const testModelId = "test-model";

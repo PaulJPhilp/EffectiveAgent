@@ -1,6 +1,6 @@
-import { ConfigurationService } from "@/services/core/configuration/service";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service";
 
 /**
  * The BaseLayer provides foundational, cross-cutting services that other

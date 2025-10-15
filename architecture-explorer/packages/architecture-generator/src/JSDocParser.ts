@@ -44,8 +44,9 @@ export function parseComponentJSDoc(
   const result: NodeData = {
     id: className,
     name: className,
-    c4Level: "Component" as C4Level, // Default fallback
+    c4Level: "Component" as C4Level, // Default fallback is 'Component'
   };
+
 
   // Track which required tags we've found
   let hasArchitectureComponent = false;
@@ -64,19 +65,24 @@ export function parseComponentJSDoc(
           break;
 
         case "c4":
+          // Supported: SystemContext, Container, Component, Code (C4 model)
           if (tagValue) {
             const validC4Levels: C4Level[] = [
-              "System",
+              "SystemContext",
               "Container",
               "Component",
+              "Code"
             ];
             if (validC4Levels.includes(tagValue as C4Level)) {
               result.c4Level = tagValue as C4Level;
+            } else if (tagValue === "System") {
+              result.c4Level = "SystemContext";
+              warnings.push(
+                `Component '${className}' uses legacy @c4 level 'System'. Use 'SystemContext' instead.`
+              );
             } else {
               warnings.push(
-                `Component '${className}' has invalid @c4 level '${tagValue}'. Valid levels: ${validC4Levels.join(
-                  ", "
-                )}`
+                `Component '${className}' has invalid @c4 level '${tagValue}'. Valid levels: ${validC4Levels.join(", ")}`
               );
             }
           } else {
@@ -145,6 +151,14 @@ export function parseComponentJSDoc(
             }
           } else {
             warnings.push(`Component '${className}' has empty @link tag`);
+          }
+          break;
+
+        case "color":
+          if (tagValue) {
+            result.color = tagValue;
+          } else {
+            warnings.push(`Component '${className}' has empty @color tag`);
           }
           break;
       }

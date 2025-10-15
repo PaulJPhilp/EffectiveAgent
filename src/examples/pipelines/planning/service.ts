@@ -4,14 +4,14 @@
  */
 
 import { Cause, Effect } from "effect";
-import {
-    type PlanStep,
-    type PlanningPipelineApi,
-    type PlanningPipelineInput,
-    type PlanningPipelineOutput
+import type {
+    PlanningPipelineApi,
+    PlanningPipelineInput,
+    PlanningPipelineOutput, 
+    PlanStep
 } from "./contract.js";
 import { PlanningPipelineError } from "./errors.js";
-import { type TaskAnalysisResult } from "./types.js";
+import type { TaskAnalysisResult } from "./types.js";
 
 /**
  * Service for analyzing tasks

@@ -3,8 +3,8 @@
  * @module services/capabilities/persona/schema
  */
 
-import { Description, Metadata, Name, Version } from "@/schema.js";
 import { Schema as S } from "effect";
+import { Description, Metadata, Name, Version } from "@/schema.js";
 
 // Define allowed values for enum-like fields
 const AllowedTones = S.Literal(

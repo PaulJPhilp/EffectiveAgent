@@ -9,9 +9,9 @@
  * 
  * This file is an example of the Effect.Service pattern and should not be modified by AI agents unless explicitly instructed.
  */
+
+import type { Either, Exit } from "effect";
 import { Effect } from "effect";
-import type { Either } from "effect";
-import type { Exit } from "effect";
 
 /**
  * API for the ServiceMaster.

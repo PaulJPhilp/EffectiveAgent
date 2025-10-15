@@ -1,8 +1,8 @@
 
 import { Effect, Either, Option } from "effect";
 import { describe, expect, it } from "vitest";
-import { ImageService, ImageSizes, ImageQualities, ImageStyles } from "../service.js";
 import { ImageGenerationError, ImageModelError, ImageSizeError } from "../errors.js";
+import { ImageQualities, ImageService, ImageSizes, ImageStyles } from "../service.js";
 
 // Helper to create test options
 const createTestOptions = () => ({

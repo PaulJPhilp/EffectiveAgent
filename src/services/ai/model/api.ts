@@ -1,6 +1,6 @@
-import { Effect } from "effect";
-import type { ModelNotFoundError } from "./errors.js";
+import type { Effect } from "effect";
 import type { ModelCapability } from "@/schema.js";
+import type { ModelNotFoundError } from "./errors.js";
 import type { PublicModelInfoData } from "./schema.js";
 
 /**

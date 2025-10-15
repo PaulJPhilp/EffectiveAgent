@@ -1,5 +1,5 @@
-import type { EffectiveResponse } from "@/types.js";
 import type { Effect, Ref } from "effect";
+import type { EffectiveResponse } from "@/types.js";
 import type { EmbeddingAgentState } from "./service.js";
 import type { EmbeddingGenerationOptions, EmbeddingGenerationResult } from "./types.js";
 

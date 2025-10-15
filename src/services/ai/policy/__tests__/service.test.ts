@@ -1,12 +1,12 @@
-import { join } from "path";
-import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer, Option } from "effect";
+import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { PolicyError } from "../errors.js";
 import { PolicyService } from "../service.js";
-import { PolicyCheckContext } from "../types.js";
+import type { PolicyCheckContext } from "../types.js";
 
 describe("PolicyService", () => {
   it("should have .Default available", () => {

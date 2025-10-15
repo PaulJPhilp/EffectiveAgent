@@ -3,8 +3,8 @@
  * @module services/core/configuration/types
  */
 
-import { Effect, Schema } from "effect";
-import {
+import type { Effect, Schema } from "effect";
+import type {
     ConfigParseError,
     ConfigReadError,
     ConfigSchemaMissingError,

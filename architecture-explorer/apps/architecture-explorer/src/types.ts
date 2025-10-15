@@ -5,6 +5,15 @@
  * Represents the overall structure of the generated architectural data.
  * This is the root object of the `architecture-data.json` file.
  */
+/**
+ * C4 model level of detail.
+ * - SystemContext: Big picture, external actors, and systems
+ * - Container: Major deployable units/services
+ * - Component: Internal components/classes/modules
+ * - Code: Source code-level structure
+ */
+export type C4Level = "SystemContext" | "Container" | "Component" | "Code";
+
 export interface ArchitectureData {
 	/**
 	 * An array of diagram definitions. In V1, this will typically contain one
@@ -20,6 +29,16 @@ export interface ArchitectureData {
 	 * An array of all identified relationships (edges) between architectural nodes.
 	 */
 	edges: EdgeData[];
+	/**
+	 * Optional map of group/layer names to color strings, extracted from @color JSDoc tags on groups/layers.
+	 * Used for group/layer coloring in diagrams. Example: { Core: "#ffeedd", AI: "#eeddff" }
+	 */
+	layerColors?: LayerColors;
+	/**
+	 * Optional C4 model level of detail for this architecture data.
+	 * Controls diagram scope and abstraction (SystemContext, Container, Component, Code).
+	 */
+	c4Level?: C4Level;
 }
 
 /**
@@ -76,6 +95,11 @@ export interface NodeData {
 	 * An array of URLs to external resources related to the component (e.g., source code, docs).
 	 */
 	links?: string[];
+	/**
+	 * Optional hex or CSS color string for the node, extracted from the @color JSDoc tag in source code.
+	 * Example: "#ffcc00" or "red".
+	 */
+	color?: string;
 	// Future: Add position or layout hints if needed
 	// x?: number;
 	// y?: number;
@@ -109,7 +133,7 @@ export interface EdgeData {
  * Defines the accepted C4 model levels for architectural components.
  * Corresponds to the `@c4` JSDoc tag.
  */
-export type C4Level = "System" | "Container" | "Component" | "Database" | "External System" | "Person";
+
 
 /**
  * Defines the names of the architectural layers for static grouping.
@@ -117,6 +141,12 @@ export type C4Level = "System" | "Container" | "Component" | "Database" | "Exter
  * These should be customized based on your specific monorepo's layered architecture.
  */
 export type LayerName = "Core" | "AI" | "Pipeline" | "Infrastructure" | string; // 'string' to allow for custom, unlisted layers
+
+/**
+ * Maps architectural layer names to color strings, extracted from @color JSDoc tags on groups/layers.
+ * Example: { Core: "#ffeedd", AI: "#eeddff" }
+ */
+export type LayerColors = Record<LayerName, string>;
 
 /**
  * Defines common types of relationships between components.

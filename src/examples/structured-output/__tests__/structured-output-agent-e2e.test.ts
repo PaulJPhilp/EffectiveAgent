@@ -4,19 +4,20 @@
  */
 
 import { config } from "dotenv";
+
 config(); // Load environment variables from .env file
 
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Layer, Schema } from "effect";
+import { beforeAll, describe, expect, it } from "vitest";
 import { AgentRuntimeService, makeAgentRuntimeId } from "@/ea-agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/ea-agent-runtime/types.js";
+import { type AgentActivity, AgentActivityType } from "@/ea-agent-runtime/types.js";
 import { StructuredOutputAgent } from "@/examples/structured-output/agent.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ObjectService } from "@/services/producers/object/index.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Layer, Schema } from "effect";
-import { beforeAll, describe, expect, it } from "vitest";
 
 // Test schemas
 const UserProfileSchema = Schema.Struct({
@@ -41,7 +42,7 @@ describe("StructuredOutputAgent E2E Tests", () => {
 
         // Ensure we have an OpenAI API key for testing (can be a mock one)
         process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || "test-key-for-mock";
-    }, 10000);
+    });
 
     const testLayer = Layer.mergeAll(
         ConfigurationService.Default,

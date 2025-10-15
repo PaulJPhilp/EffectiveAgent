@@ -6,57 +6,44 @@
     {
       "id": "gpt-4o",
       "name": "gpt-4o",
-      "version": "1.0.0",
       "provider": "openai",
-      "modelName": "gpt-4o",
-      "displayName": "GPT-4o",
-      "vendorCapabilities": [
-        "text-generation",
-        "chat",
-        "vision",
-        "function-calling",
-        "audio"
-      ],
-      "contextWindowSize": 128000,
-      "maxTokens": 4096,
-      "temperature": 0.7,
-      "costPer1kInputTokens": 0.005,
-      "costPer1kOutputTokens": 0.015,
-      "supportedLanguages": ["en", "multi"],
-      "responseFormat": {
-        "type": "text",
-        "supportedFormats": ["text/plain", "audio/mpeg"]
-      },
-      "metadata": {
-        "description": "OpenAI's most advanced model, optimized for chat and multimodal capabilities"
-      }
-    },
-    {
-      "id": "test-model",
-      "name": "Test Image Model",
       "version": "1.0.0",
-      "provider": "test-provider",
-      "modelName": "test-model",
-      "displayName": "Test Image Model",
-      "vendorCapabilities": [
-        "image-generation"
+      "description": "OpenAI's most advanced model, optimized for chat and multimodal capabilities",
+      "contextWindow": 128000,
+      "capabilities": [
+        {
+          "capability": "text-generation"
+        },
+        {
+          "capability": "chat"
+        },
+        {
+          "capability": "vision"
+        },
+        {
+          "capability": "function-calling"
+        },
+        {
+          "capability": "audio"
+        }
       ],
-      "contextWindowSize": 1,
-      "maxTokens": 1,
-      "temperature": 1,
-      "costPer1kInputTokens": 0,
-      "costPer1kOutputTokens": 0,
-      "supportedLanguages": [
-        "en"
-      ],
-      "responseFormat": {
-        "type": "image",
-        "supportedFormats": [
-          "image/png"
-        ]
+      "pricing": {
+        "inputTokens": 0.005,
+        "outputTokens": 0.015
       },
+      "enabled": true,
       "metadata": {
-        "description": "An image model used for integration testing."
+        "supportedLanguages": [
+          "en",
+          "multi"
+        ],
+        "responseFormat": {
+          "type": "text",
+          "supportedFormats": [
+            "text/plain",
+            "audio/mpeg"
+          ]
+        }
       }
     }
   ]

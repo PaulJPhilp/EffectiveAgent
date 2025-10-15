@@ -2,36 +2,108 @@
   "diagrams": [
     {
       "id": "main-diagram",
-      "mermaidDefinition": "graph TD\n  subgraph Other[\"Other\"]\n    InvalidMetadataComponent[\"InvalidMetadataComponent\"]\n    ImporterComponent[\"ImporterComponent\"]\n  end\n  subgraph Service[\"Service\"]\n    BrokenComponent[\"BrokenComponent\"]\n  end\n",
+      "mermaidDefinition": "graph TD\n  subgraph Service_[\"Service\"]\n    SampleComponent[\"SampleComponent\"]\n    ApiService[\"ApiService\"]\n  end\n  subgraph UI_[\"UI\"]\n    SettingsComponent[\"SettingsComponent\"]\n    DashboardComponent[\"DashboardComponent\"]\n    ImporterComponent[\"ImporterComponent\"]\n  end\n  subgraph Data_[\"Data\"]\n    DatabaseService[\"DatabaseService\"]\n  end\n  ApiService --> DatabaseService\n  ApiService --> SampleComponent\n  DashboardComponent --> ApiService\n  ImporterComponent --> SampleComponent\n  SettingsComponent --> ApiService\n  style SampleComponent fill:#cccccc\n  style SettingsComponent fill:#ff6699\n  style ApiService fill:#ffcc00\n  style DashboardComponent fill:#99ccff\n  style DatabaseService fill:#66cc99\n  style ImporterComponent fill:#ff9966\n",
       "defaultView": true
     }
   ],
   "nodes": [
     {
-      "id": "InvalidMetadataComponent",
-      "name": "InvalidMetadataComponent",
+      "id": "SampleComponent",
+      "name": "SampleComponent",
       "c4Level": "Component",
-      "links": []
+      "color": "#cccccc",
+      "description": "A sample component for testing the generator.",
+      "tags": [
+        "sample"
+      ],
+      "layer": "Service"
+    },
+    {
+      "id": "SettingsComponent",
+      "name": "SettingsComponent",
+      "c4Level": "Component",
+      "color": "#ff6699",
+      "description": "A settings panel for configuring user preferences.",
+      "tags": [
+        "ui"
+      ],
+      "layer": "UI"
+    },
+    {
+      "id": "ApiService",
+      "name": "ApiService",
+      "c4Level": "Component",
+      "description": "An API service that coordinates between components and database.",
+      "tags": [
+        "api"
+      ],
+      "layer": "Service",
+      "color": "#ffcc00"
+    },
+    {
+      "id": "DashboardComponent",
+      "name": "DashboardComponent",
+      "c4Level": "Container",
+      "color": "#99ccff",
+      "description": "A dashboard component that displays user data.",
+      "tags": [
+        "ui"
+      ],
+      "layer": "UI"
+    },
+    {
+      "id": "DatabaseService",
+      "name": "DatabaseService",
+      "c4Level": "Component",
+      "color": "#66cc99",
+      "description": "A database service that stores user data.",
+      "tags": [
+        "database"
+      ],
+      "layer": "Data"
     },
     {
       "id": "ImporterComponent",
       "name": "ImporterComponent",
       "c4Level": "Container",
+      "color": "#ff9966",
       "description": "An importer component that depends on SampleComponent.",
       "tags": [
         "importer"
-      ]
-    },
-    {
-      "id": "BrokenComponent",
-      "name": "BrokenComponent",
-      "c4Level": "Component",
-      "description": "A component with syntax errors for testing error handling.",
-      "tags": [
-        "broken"
       ],
-      "layer": "Service"
+      "layer": "UI"
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "sourceId": "ApiService",
+      "targetId": "DatabaseService",
+      "type": "depends on"
+    },
+    {
+      "sourceId": "ApiService",
+      "targetId": "SampleComponent",
+      "type": "depends on"
+    },
+    {
+      "sourceId": "DashboardComponent",
+      "targetId": "ApiService",
+      "type": "depends on"
+    },
+    {
+      "sourceId": "ImporterComponent",
+      "targetId": "SampleComponent",
+      "type": "depends on"
+    },
+    {
+      "sourceId": "SettingsComponent",
+      "targetId": "ApiService",
+      "type": "depends on"
+    }
+  ],
+  "layerColors": {
+    "Service": "#ffcc00",
+    "UI": "#ff9966",
+    "Data": "#66cc99"
+  }
 }

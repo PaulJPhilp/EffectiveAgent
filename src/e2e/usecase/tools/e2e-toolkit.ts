@@ -3,8 +3,8 @@
  */
 
 import { ToolkitSchema } from "@/services/ai/tool-registry/schema"
-import { WeatherTool } from "./weather"
 import { CalculatorTool } from "./calculator"
+import { WeatherTool } from "./weather"
 
 export default new ToolkitSchema({
   name: "e2e-tools",

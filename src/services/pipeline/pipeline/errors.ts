@@ -1,5 +1,5 @@
-import { EffectiveError } from "@/errors.js"; 
 import { Data } from "effect";
+import { EffectiveError } from "@/errors.js"; 
 
 // Errors moved from shared/errors.ts
 export class PipelineConfigError extends Data.TaggedError("PipelineConfigError")<{

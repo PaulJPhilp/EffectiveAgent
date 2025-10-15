@@ -3,8 +3,8 @@
  * Defines the contract for audio transcription using AI models/providers.
  */
 
-import type { EffectiveResponse } from "@/types.js";
 import type { Effect, Ref } from "effect";
+import type { EffectiveResponse } from "@/types.js";
 import type { TranscriptionAgentState } from "./service.js";
 import type { TranscriptionOptions, TranscriptionResult } from "./types.js";
 

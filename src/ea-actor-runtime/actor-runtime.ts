@@ -1,13 +1,13 @@
-import { Effect, Fiber, Queue, Ref, Sink, Stream } from "effect";
-import { AgentRuntimeServiceApi } from "./api.js";
-import { AgentRuntimeError, AgentRuntimeProcessingError } from "./errors.js";
+import { Effect, Fiber, type Queue, Ref, Sink, Stream } from "effect";
+import type { AgentRuntimeServiceApi } from "./api.js";
+import { AgentRuntimeError, type AgentRuntimeProcessingError } from "./errors.js";
 import { PrioritizedMailbox } from "./prioritized-mailbox.js";
 import {
-  AgentActivity,
-  AgentRuntimeId,
-  AgentRuntimeState,
+  type AgentActivity,
+  type AgentRuntimeId,
+  type AgentRuntimeState,
   AgentRuntimeStatus,
-  AgentWorkflow,
+  type AgentWorkflow,
 } from "./types.js";
 
 /**

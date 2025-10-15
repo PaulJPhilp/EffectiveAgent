@@ -3,7 +3,7 @@
  * @module ea/pipelines/structured-output/cache/contract
  */
 
-import { Effect, Schema } from "effect";
+import { Effect, type Schema } from "effect";
 
 /**
  * API for a caching service.

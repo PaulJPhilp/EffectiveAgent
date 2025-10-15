@@ -20,18 +20,16 @@
  * ```
  */
 
-import { ConfigurationService } from "@/services/core/configuration/service";
 import { Effect, HashMap, Option, Ref } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service";
 import type { PolicyServiceApi } from "./api.js";
 import { PolicyError } from "./errors.js";
-import { PolicyRuleEntity } from "./schema.js";
+import type { PolicyConfigFile, PolicyRuleEntity } from "./schema.js";
 import type {
   PolicyCheckContext,
   PolicyCheckResult
 } from "./types.js";
 import { POLICY_RULE_ALLOW, POLICY_RULE_DENY } from "./types.js";
-
-import { PolicyConfigFile } from "./schema.js";
 
 type PolicyConfigData = typeof PolicyConfigFile.Type;
 

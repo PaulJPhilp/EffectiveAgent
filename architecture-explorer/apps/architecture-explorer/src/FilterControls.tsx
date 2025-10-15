@@ -37,38 +37,45 @@ function FilterControls({ nodes, activeFilters, onFilterChange }: FilterControls
 
     const containerStyle = {
         border: '1px solid #ccc',
-        borderRadius: '8px',
-        padding: '16px',
-        backgroundColor: '#f9f9f9',
-        marginBottom: '16px'
+        borderRadius: '4px',
+        padding: '6px 8px',
+        backgroundColor: '#fafbfc',
+        marginBottom: '8px',
+        maxWidth: '220px',
+        fontSize: '0.85rem',
+        lineHeight: 1.2
     }
 
     const buttonStyle = {
-        padding: '4px 8px',
-        margin: '0 4px 8px 0',
+        padding: '2px 6px',
+        margin: '0 2px 4px 0',
         border: '1px solid #ddd',
-        borderRadius: '4px',
+        borderRadius: '3px',
         backgroundColor: '#fff',
         cursor: 'pointer',
-        fontSize: '0.875rem'
+        fontSize: '0.8rem',
+        height: '22px',
+        minWidth: '54px'
     }
 
     const checkboxContainerStyle = {
         display: 'flex',
         flexDirection: 'column' as const,
-        gap: '8px',
-        marginTop: '12px'
+        gap: '4px',
+        marginTop: '6px'
     }
 
     const checkboxItemStyle = {
         display: 'flex',
         alignItems: 'center',
-        gap: '8px'
+        gap: '4px',
+        minHeight: '20px'
     }
 
     const tagLabelStyle = {
-        fontSize: '0.875rem',
-        cursor: 'pointer'
+        fontSize: '0.8rem',
+        cursor: 'pointer',
+        padding: '0 2px'
     }
 
     if (uniqueTags.length === 0) {

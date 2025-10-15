@@ -2,12 +2,12 @@ import { Effect } from "effect";
 // PipelineService import removed
 import { 
   PipelineConfigError, 
-  PipelineError, 
+  type PipelineError, 
   PipelineSharedExecutionError, 
   PipelineValidationError 
 } from "../pipeline/errors.js";
-import { PipelineConfig } from "../pipeline/types.js";
-import { GeminiProPipelineApi } from "./gemini-pro.api.js";
+import type { PipelineConfig } from "../pipeline/types.js";
+import type { GeminiProPipelineApi } from "./gemini-pro.api.js";
 
 const SYSTEM_PROMPT = "You are a helpful AI assistant.";
 

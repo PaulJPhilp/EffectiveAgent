@@ -2,15 +2,15 @@
  * e2e simple chat test using ea-cli chat command with Google Gemini
  */
 
-import { Console, Effect, Chunk, pipe, Option } from "effect";
-import { Args, Command } from "@effect/cli";
 import { join } from "node:path";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { ModelService } from "@/services/ai/model/service.js";
-import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
+import { Args, Command } from "@effect/cli";
 import { NodeContext } from "@effect/platform-node";
+import { Message, TextPart } from "@effective-agent/ai-sdk";
+import { Chunk, Console, Effect, Option, pipe } from "effect";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { EffectiveInput } from "@/types.js";
-import { Message, TextPart } from "@/schema.js";
 
 // Use e2e configuration
 process.env.EFFECTIVE_AGENT_MASTER_CONFIG = join(

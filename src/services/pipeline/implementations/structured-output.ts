@@ -3,17 +3,17 @@
  * @module framework/pipeline/structured-output
  */
 
+import { Effect, Option, Schema as S } from "effect";
 import { EffectiveError } from "@/errors.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { OrchestratorServiceError } from "@/services/execution/orchestrator/errors.js";
 import { AiPipeline } from "@/services/pipeline/pipeline/base.js";
 import { PipelineExecutionError } from "@/services/pipeline/pipeline/errors.js";
-import { ObjectServiceApi } from "@/services/producers/object/api.js";
+import type { ObjectServiceApi } from "@/services/producers/object/api.js";
 import { ObjectService } from "@/services/producers/object/service.js";
-import { TextGenerationOptions } from "@/services/producers/text/types.js";
-import { Effect, Option, Schema as S } from "effect";
-import { OrchestratorServiceError } from "@/services/execution/orchestrator/errors.js";
+import type { TextGenerationOptions } from "@/services/producers/text/types.js";
 
 /**
  * Input schema for the structured output pipeline
@@ -128,7 +128,18 @@ export function executeStructuredOutput<T, S extends S.Schema<any, any>>(
 
       return yield* Effect.fail(pipelineError);
     }
-  });
+  }).pipe(
+    Effect.mapError((error): OrchestratorServiceError => {
+      // If it's already an OrchestratorServiceError, return it
+      if (error instanceof OrchestratorServiceError) {
+        return error;
+      }
+      // Otherwise convert to OrchestratorServiceError
+      return new OrchestratorServiceError(
+        `Structured output execution failed: ${String(error)}`
+      );
+    })
+  );
 }
 
 export class StructuredOutputPipeline<T> extends AiPipeline<

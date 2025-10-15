@@ -3,21 +3,21 @@
  * @module services/pipeline/pipeline/tests
  */
 
+import { FileSystem } from "@effect/platform";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer, Option, Schema } from "effect";
 import { join } from "path";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { FileEntity, FileEntityData } from "@/services/core/file/schema.js";
+import type { FileEntity, FileEntityData } from "@/services/core/file/schema.js";
 import type { RepositoryServiceApi } from "@/services/core/repository/api.js";
 import { EntityNotFoundError } from "@/services/core/repository/errors.js";
 import { RepositoryService } from "@/services/core/repository/service.js";
-import { FileSystem } from "@effect/platform";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Schema } from "effect";
-import { Effect, Either, Layer, Option } from "effect";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 // OrchestratorService removed to prevent stacking with provider client orchestration
 import type { PipelineServiceInterface } from "../api.js";
+import { PipelineExecutionError } from "../errors.js";
 import { PipelineService } from "../service.js";
 
 // Test repository implementation
@@ -294,12 +294,14 @@ describe("PipelineService", () => {
           const input = { prompt: "test prompt" };
 
           const result = yield* Effect.either(
-            pipeline.execute(Effect.fail(new Error("Test error")))
+            pipeline.execute(
+              Effect.fail(new PipelineExecutionError("Test error"))
+            )
           );
 
           expect(Either.isLeft(result)).toBe(true);
           if (Either.isLeft(result)) {
-            expect(result.left).toBeInstanceOf(Error);
+            expect(result.left).toBeInstanceOf(PipelineExecutionError);
           }
         })
       ));

@@ -74,7 +74,7 @@ export function inferImportRelationships(project: Project): RelationshipResult {
                   componentsFound++;
                 } else {
                   warnings.push(
-                    `Found architectural component without name in file: ${sourceFile.getFilePath()}`
+                    `Found architectural component without name in file`
                   );
                 }
               }
@@ -116,16 +116,17 @@ export function inferImportRelationships(project: Project): RelationshipResult {
         const imports = sourceFile.getImportDeclarations();
 
         imports.forEach((importDecl) => {
-          totalImports++;
 
           try {
             const moduleSpecifier = importDecl.getModuleSpecifierValue();
 
             // Skip external modules (those starting with package names or relative paths to node_modules)
             if (moduleSpecifier.match(/^[a-zA-Z@]/)) {
-              // This is likely an external package
+              // This is an external package, don't count it
               return;
             }
+            // Only count internal imports
+            totalImports++;
 
             // Resolve the import to its source file
             const resolvedSourceFile =

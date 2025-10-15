@@ -4,7 +4,7 @@
  */
 
 import { Data } from "effect";
-import { ParseError } from "effect/ParseResult";
+import type { ParseError } from "effect/ParseResult";
 
 /**
  * Error thrown when reading a configuration file fails.

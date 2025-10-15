@@ -1,5 +1,5 @@
-import { EffectiveError } from "@/errors.js";
 import { Data } from "effect";
+import { EffectiveError } from "@/errors.js";
 
 /**
  * Base error for the ToolRegistryService.

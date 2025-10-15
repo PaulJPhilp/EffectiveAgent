@@ -1,5 +1,5 @@
 import { Duration, Effect, HashMap, Ref } from "effect";
-import {
+import type {
     BenchmarkConfig,
     BenchmarkResult,
     CPUMetrics,

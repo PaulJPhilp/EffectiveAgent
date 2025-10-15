@@ -4,8 +4,7 @@
  */
 
 import { createHash } from "crypto";
-import { Schema as S } from "effect";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, type Schema as S } from "effect";
 import { CacheService, type CacheServiceApi } from "./contract.js";
 
 /**

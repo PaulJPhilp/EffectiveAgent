@@ -3,14 +3,14 @@
  * @module services/pipeline/producers/image/__tests__/service
  */
 
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderOperationError } from "@/services/ai/provider/errors.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderOperationError } from "@/services/ai/provider/errors.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ImageModelError, ImageSizeError } from "../errors.js";
 import { ImageService } from "../service.js";
 

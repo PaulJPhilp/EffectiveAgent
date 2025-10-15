@@ -3,13 +3,13 @@
  * @module services/pipeline/producers/text/__tests__/integration.test
  */
 
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Option } from "effect";
+import type { Span } from "effect/Tracer";
+import { describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Option } from "effect";
-import { Span } from "effect/Tracer";
-import { describe, expect, it } from "vitest";
 import {
   TextInputError,
   TextModelError

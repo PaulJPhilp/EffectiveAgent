@@ -4,7 +4,7 @@
  */
 
 import { Effect } from "effect";
-import { ScientistChatPipelineError } from "./errors.js";
+import type { ScientistChatPipelineError } from "./errors.js";
 
 /**
  * Input parameters for the ScientistChatPipeline

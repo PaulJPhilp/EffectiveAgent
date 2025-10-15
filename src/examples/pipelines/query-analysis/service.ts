@@ -4,12 +4,12 @@
  */
 
 import { Effect } from "effect";
-import {
-    type Entity,
-    type Intent,
-    type QueryAnalysisOutput,
-    type QueryAnalysisPipelineApi,
-    type QueryAnalysisPipelineInput
+import type {
+    Entity,
+    Intent,
+    QueryAnalysisOutput,
+    QueryAnalysisPipelineApi,
+    QueryAnalysisPipelineInput
 } from "./contract.js";
 import { QueryAnalysisPipelineError } from "./errors.js";
 

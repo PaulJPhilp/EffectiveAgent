@@ -1,9 +1,9 @@
-import { BaseEntitySchema, Description, Name, RateLimit } from "@/schema.js";
-import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
 /**
  * @file Defines the schema for Policy entities.
  */
 import { Schema as S } from "effect";
+import { BaseEntitySchema, Description, Name, RateLimit } from "@/schema.js";
+import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
 
 /**
  * PolicyRuleData schema and type

@@ -3,7 +3,7 @@
  * @module services/ai/model/errors
  */
 
-import { EffectiveError, EntityLoadError, EntityParseError } from "@/errors.js";
+import { EffectiveError, type EntityLoadError, type EntityParseError } from "@/errors.js";
 
 /**
  * Base error type for model-related errors
@@ -137,5 +137,23 @@ export class ModelValidationError extends EffectiveError {
     });
     this.modelId = params.modelId;
     this.capabilities = params.capabilities;
+  }
+}
+
+/**
+ * Error when the external `models.dev` package is missing or cannot be imported.
+ * This is a structured error that CI can detect programmatically to fail fast.
+ */
+export class ModelsDevMissingError extends EffectiveError {
+  public readonly installCommand: string;
+
+  constructor(params: { message?: string; method: string; installCommand?: string; cause?: unknown }) {
+    super({
+      description: params.message ?? "Required package 'models.dev' is missing or failed to import",
+      module: "services/ai/model/errors",
+      method: params.method,
+      cause: params.cause,
+    });
+    this.installCommand = params.installCommand ?? "bun add models.dev -w -F ./packages/effect-aisdk";
   }
 }

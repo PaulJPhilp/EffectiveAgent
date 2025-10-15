@@ -2,7 +2,7 @@
  * @file Defines the Skill Service API for managing skill configurations and execution.
  */
 
-import { Effect } from "effect";
+import type { Effect } from "effect";
 import type {
     SkillConfigError,
     SkillExecutionError,

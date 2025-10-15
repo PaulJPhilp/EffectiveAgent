@@ -1,4 +1,4 @@
-import { Duration, Effect } from "effect";
+import type { Duration, Effect } from "effect";
 
 /**
  * Performance metric types

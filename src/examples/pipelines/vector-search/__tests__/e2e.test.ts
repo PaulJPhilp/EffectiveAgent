@@ -1,4 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
+
 // Add imports for the VectorSearchPipeline, live layers for real embedding and vector store services, and config.
 
 describe("VectorSearch pipeline E2E tests", () => {

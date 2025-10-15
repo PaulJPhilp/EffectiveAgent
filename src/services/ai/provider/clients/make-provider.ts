@@ -1,7 +1,5 @@
-import { Message } from "@/schema.js";
-import { EffectiveInput } from "@/types.js";
-import { Chunk, Effect } from "effect";
-import { ProviderOperationError } from "../errors.js";
+import { Effect } from "effect";
+import type { EffectiveInput } from "@/types.js";
 import type {
   ModelCapability,
   ProviderChatOptions,
@@ -11,9 +9,7 @@ import type {
   ProviderGenerateObjectOptions,
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
-  ProviderTranscribeOptions,
-  ToolCallRequest,
-  ToolDefinition,
+  ProviderTranscribeOptions
 } from "../types.js";
 
 export const makeProvider = (

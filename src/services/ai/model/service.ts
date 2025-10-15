@@ -8,11 +8,12 @@
  * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
  */
 
-import { ModelCapability } from "@/schema.js";
-import { ConfigurationService } from "@/services/core/configuration/service";
 import { Effect } from "effect";
+import type { ModelCapability } from "@/schema.js";
+import { ConfigurationService } from "@/services/core/configuration/service";
 import type { ModelServiceApi } from "./api.js";
-import { ModelNotFoundError } from "./errors.js";
+import { ModelConfigError, ModelNotFoundError } from "./errors.js";
+import { ModelsRegistryService } from "./registry.js";
 import type { PublicModelInfoData } from "./schema.js";
 
 /**
@@ -28,6 +29,28 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
         const masterConfig = yield* configService.getMasterConfig();
         const modelsConfigPath = masterConfig.configPaths?.models || "./config/models.json";
         const config = yield* configService.loadModelConfig(modelsConfigPath);
+
+        // Fetch canonical global models from the injected ModelsRegistry and hydrate local config
+        let globalModels: any[] = [];
+        try {
+            const registry = yield* ModelsRegistryService;
+            const list = yield* registry.list;
+            globalModels = list as any[];
+        } catch (err) {
+            yield* Effect.logError("Failed to fetch global models from models registry", { err });
+            return yield* Effect.fail(new ModelConfigError({ message: "Failed to fetch global models from models registry", method: "ModelService.init", cause: err as any }));
+        }
+
+        // Hydrate local model entries with global canonical data where available
+        for (const localModel of config.models) {
+            const match = globalModels.find((gm: any) => gm.id === localModel.id || gm.modelId === localModel.id || gm.name === localModel.id);
+            if (!match) {
+                yield* Effect.logError("Local model not found in models.dev registry", { modelId: localModel.id });
+                return yield* Effect.fail(new ModelConfigError({ message: `Model '${localModel.id}' not found in models.dev registry`, method: "ModelService.init", cause: null as any }));
+            }
+            // Shallow merge canonical fields into local model
+            Object.assign(localModel, match);
+        }
 
         // Return service implementation
         const validateModel = (modelId: string) =>
@@ -155,5 +178,5 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
             }
         } satisfies ModelServiceApi;
     }),
-    dependencies: [ConfigurationService.Default]
+    dependencies: [ConfigurationService.Default, ModelsRegistryService.Default]
 }) { }

@@ -2,10 +2,10 @@
  * @file Defines schemas for Tag and EntityTagLink entities.
  */
 
-import { BaseEntitySchema } from "@/schema.js";
-import { BaseEntity, BaseEntityWithData } from "@/services/core/repository/types.js";
-import { JsonObject } from "@/types.js";
 import { Schema as S } from "effect";
+import { BaseEntitySchema } from "@/schema.js";
+import { BaseEntity, type BaseEntityWithData } from "@/services/core/repository/types.js";
+import type { JsonObject } from "@/types.js";
 
 // Helper for EntityId schema
 function EntityIdSchema() {

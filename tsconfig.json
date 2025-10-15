@@ -11,20 +11,51 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
-    "lib": ["ESNext", "DOM"],
+    "lib": [
+      "ESNext",
+      "DOM"
+    ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "@agents/*": ["agents/*"],
-      "@core/*": ["src/services/core/*"],
-      "@ai/*": ["src/services/ai/*"],
-      "@capabilities/*": ["src/services/capabilities/*"],
-      "@pipeline/*": ["src/services/pipeline/*"],
-      "@docs/*": ["src/services/docs/*"],
-      "@test-harness/*": ["src/services/test-harness/*"],
-      "@effectors/*": ["src/effectors/*"],
-      "@ea/*": ["src/ea/*"],
-      "@ea-agent-runtime/*": ["src/ea-agent-runtime/*"]
+      "@/*": [
+        "src/*"
+      ],
+      "@agents/*": [
+        "agents/*"
+      ],
+      "@effective-agent/ai-sdk": [
+        "packages/effect-aisdk/src/index.ts"
+      ],
+      "@effective-agent/langgraph": [
+        "packages/effect-langgraph/src/index.ts"
+      ],
+      "@core/*": [
+        "src/services/core/*"
+      ],
+      "@ai/*": [
+        "src/services/ai/*"
+      ],
+      "@capabilities/*": [
+        "src/services/capabilities/*"
+      ],
+      "@pipeline/*": [
+        "src/services/pipeline/*"
+      ],
+      "@docs/*": [
+        "src/services/docs/*"
+      ],
+      "@test-harness/*": [
+        "src/services/test-harness/*"
+      ],
+      "@effectors/*": [
+        "src/effectors/*"
+      ],
+      "@ea/*": [
+        "src/ea/*"
+      ],
+      "@ea-agent-runtime/*": [
+        "src/ea-agent-runtime/*"
+      ]
     },
     "plugins": [
       {
@@ -45,7 +76,8 @@
     "outDir": "./dist"
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "packages/*/src/**/*"
   ],
   "exclude": [
     "node_modules",

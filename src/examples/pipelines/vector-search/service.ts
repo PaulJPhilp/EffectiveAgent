@@ -14,7 +14,7 @@ import {
     type VectorSearchPipelineOutput,
     type VectorSearchResult
 } from "./contract.js";
-import { type SearchResult, type Vector } from "./types.js";
+import type { SearchResult, Vector } from "./types.js";
 
 // Placeholder for dependencies
 class EmbeddingProvider extends Context.Tag("EmbeddingProvider")<EmbeddingProvider, any>() { }

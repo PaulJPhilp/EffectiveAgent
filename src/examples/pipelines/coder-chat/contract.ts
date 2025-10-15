@@ -4,7 +4,7 @@
  */
 
 import { Effect } from "effect";
-import { CoderChatPipelineError } from "./errors.js";
+import type { CoderChatPipelineError } from "./errors.js";
 
 /**
  * Input parameters for the CoderChatPipeline

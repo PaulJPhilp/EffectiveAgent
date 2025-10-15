@@ -2,8 +2,8 @@
  * @file Defines Effect schemas for Prompt definitions and configurations.
  */
 
-import { Description, Metadata, Name } from "@/schema.js";
 import { Schema as S } from "effect";
+import { Description, Metadata, Name } from "@/schema.js";
 
 // Schema for a single named Prompt Definition structure
 // Export this directly if needed elsewhere

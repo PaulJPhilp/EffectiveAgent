@@ -4,5 +4,5 @@
  */
 
 export type { ToolRegistryApi } from "./api.js";
-export { ToolRegistryService } from "./service.js";
 export * from "./errors.js";
+export { ToolRegistryService } from "./service.js";

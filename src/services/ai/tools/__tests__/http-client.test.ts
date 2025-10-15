@@ -3,17 +3,16 @@
  * This is a temporary file to work out the correct HttpClient implementation pattern
  */
 
-// ParseError import removed: use Effect Schema error types if needed
-import { Schema as S } from "effect";
-import { Effect } from "effect";
-import { describe, expect, it } from "vitest";
-
-import { layer as NodeHttpClientLayer } from "@effect/platform-node/NodeHttpClient"; // Correct live layer provider
 // Import HttpClient and related types
 import { HttpClient } from "@effect/platform/HttpClient";
 import * as HttpClientError from "@effect/platform/HttpClientError";
-import * as HttpClientResponse from "@effect/platform/HttpClientResponse";
-import { ParseError } from "effect/ParseResult";
+import type * as HttpClientResponse from "@effect/platform/HttpClientResponse";
+
+import { layer as NodeHttpClientLayer } from "@effect/platform-node/NodeHttpClient"; // Correct live layer provider
+// ParseError import removed: use Effect Schema error types if needed
+import { Effect, Schema as S } from "effect";
+import type { ParseError } from "effect/ParseResult";
+import { describe, expect, it } from "vitest";
 
 // Use the live HttpClient layer for integration testing
 const liveHttpClientLayer = NodeHttpClientLayer;

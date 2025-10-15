@@ -3,9 +3,9 @@
  * @module ea-actor-runtime/api
  */
 
-import { Effect, Queue } from "effect"
-import { AgentRuntimeError, AgentRuntimeProcessingError } from "./errors.js"
-import { AgentActivity, AgentRuntimeId, AgentRuntimeState, AgentWorkflow } from "./types.js"
+import type { Effect, Queue } from "effect"
+import type { AgentRuntimeError, AgentRuntimeProcessingError } from "./errors.js"
+import type { AgentActivity, AgentRuntimeId, AgentRuntimeState, AgentWorkflow } from "./types.js"
 
 /**
  * Service contract for managing agent actor runtimes with mailbox-based message processing.

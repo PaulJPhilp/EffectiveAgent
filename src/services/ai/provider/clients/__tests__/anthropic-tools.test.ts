@@ -1,4 +1,4 @@
-import { EffectiveMessage, TextPart } from "@/schema.js";
+import { Message as EffectiveMessage, TextPart } from "@effective-agent/ai-sdk";
 import { Chunk, Effect, Either, Schema as S } from "effect";
 import { describe, expect, it } from "vitest";
 

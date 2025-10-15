@@ -1,23 +1,21 @@
-import { EffectiveError } from "@/errors.js";
+import type { Effect, Stream } from "effect";
+import type { EffectiveError } from "@/errors.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import type { PolicyServiceApi } from "@/services/ai/policy/api.js";
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js";
 import type { ToolRegistryApi } from "@/services/ai/tool-registry/api.js";
 import type { ChatServiceApi } from "@/services/producers/chat/api.js";
-import { Effect, Stream } from "effect";
-import {
-  AgentRuntimeError,
+import type {
+  AgentRuntimeError,AgentRuntimeInitializationError, 
   AgentRuntimeNotFoundError,
-  AgentRuntimeTerminatedError,
+  AgentRuntimeTerminatedError
 } from "./errors.js";
-import {
+import type {
   AgentActivity,
   AgentRuntimeId,
   AgentRuntimeState,
   RuntimeServices,
 } from "./types.js";
-
-import { AgentRuntimeInitializationError } from "./errors.js";
 
 export interface AgentRuntimeApi extends RuntimeServices {
   runEffect: <A, E>(

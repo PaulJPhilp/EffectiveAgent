@@ -3,15 +3,15 @@
  * @module services/execution/orchestrator/service
  */
 import { Duration, Effect, Option, Ref, Schedule } from "effect";
-import { OrchestratorParameters, OrchestratorServiceApi } from "./api.js";
-import { OrchestratorServiceError } from "./errors.js";
-import { EffectiveError } from "@/errors.js";
+import type { EffectiveError } from "@/errors.js";
 import {
+  type CircuitBreakerConfig,
   ResilienceService,
   ResilienceServiceApi,
-  CircuitBreakerConfig,
-  RetryPolicy,
+  type RetryPolicy,
 } from "../resilience/index.js";
+import type { OrchestratorParameters, OrchestratorServiceApi } from "./api.js";
+import { OrchestratorServiceError } from "./errors.js";
 
 /**
  * Orchestrator agent state for tracking execution activity

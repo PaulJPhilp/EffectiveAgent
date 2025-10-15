@@ -1,8 +1,9 @@
 /**
  * @file WebSocket message parsing and stringification utilities.
  */
-import type { AgentActivity } from "@/ea-actor-runtime/types.js"
+
 import { Effect } from "effect"
+import type { AgentActivity } from "@/ea-actor-runtime/types.js"
 
 /**
  * Safely parses a WebSocket message string into an AgentActivity object.

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for the QueryAnalysisPipeline, live layers for real AI services, and config.
 
 describe("QueryAnalysis pipeline E2E tests", () => {

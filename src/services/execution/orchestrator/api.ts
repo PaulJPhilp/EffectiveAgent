@@ -1,6 +1,6 @@
-import { Effect } from "effect";
-import { OrchestratorServiceError } from "./errors.js";
-import { EffectiveError } from "@/errors.js";
+import type { Effect } from "effect";
+import type { EffectiveError } from "@/errors.js";
+import type { OrchestratorServiceError } from "./errors.js";
 
 /**
  * Parameters for configuring orchestration

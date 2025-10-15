@@ -1,6 +1,6 @@
 import { Effect, Option, Ref } from "effect";
-import { EffectiveError } from "@/errors.js";
-import { PipelineServiceInterface } from "./api.js";
+import type { EffectiveError } from "@/errors.js";
+import type { PipelineServiceInterface } from "./api.js";
 
 /**
  * Pipeline execution agent state

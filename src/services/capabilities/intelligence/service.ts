@@ -6,7 +6,7 @@
 import { Effect, Option, Ref } from "effect";
 import type { IntelligenceServiceApi } from "./api.js";
 import { IntelligenceConfigError } from "./errors.js";
-import { IntelligenceFile, type IntelligenceType } from "./schema.js";
+import type { IntelligenceFile, IntelligenceType } from "./schema.js";
 
 /**
  * Intelligence service internal state

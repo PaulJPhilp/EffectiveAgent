@@ -1,7 +1,7 @@
+import { Duration, Effect, HashMap, Option, Ref } from "effect";
 import { cpus, freemem, loadavg, totalmem, uptime } from "os";
 import { EffectiveError } from "@/errors.js";
-import { Duration, Effect, HashMap, Option, Ref } from "effect";
-import {
+import type {
     DegradationStrategy,
     HealthAlert,
     HealthCheckFunction,

@@ -1,7 +1,7 @@
+import { Effect, type Schema } from "effect";
 import { EffectiveError } from "@/errors.js";
-import { Effect, Schema } from "effect";
 // PipelineService import removed
-import { ExecutiveCallConfig } from "./types.js";
+import type { ExecutiveCallConfig } from "./types.js";
 
 /**
  * Abstract base class for defining non-streaming AI interaction pipelines.

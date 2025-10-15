@@ -16,3 +16,6 @@ extensions = [".ts", ".tsx", ".js", ".jsx"]
 "@core/logging" = "./src/services/core/logging"
 "@core/repository" = "./src/services/core/repository"
 "@core/tag" = "./src/services/core/tag"
+
+[meta]
+tooling = ["bun", "biome"]

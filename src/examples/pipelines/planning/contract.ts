@@ -3,8 +3,8 @@
  * @module ea/pipelines/planning/contract
  */
 
-import { Context, Effect } from "effect";
-import { PlanningPipelineError } from "./errors.js";
+import { Context, type Effect } from "effect";
+import type { PlanningPipelineError } from "./errors.js";
 
 /**
  * Represents a single step in a plan

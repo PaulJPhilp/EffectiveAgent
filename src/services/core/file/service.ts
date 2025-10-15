@@ -4,17 +4,17 @@
  * Handles Base64 encoding/decoding for file content.
  */
 
-import { EntityId } from "@/types.js";
-import {
-  ResilienceService,
-  RetryPolicy,
-  CircuitBreakerConfig,
-} from "@/services/execution/resilience/index.js";
-import { EffectiveError } from "@/errors.js";
 import { Duration, Effect, Option } from "effect";
+import { EffectiveError } from "@/errors.js";
+import {
+  type CircuitBreakerConfig,
+  ResilienceService,
+  type RetryPolicy,
+} from "@/services/execution/resilience/index.js";
+import type { EntityId } from "@/types.js";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "../repository/errors.js";
-import { RepositoryService } from "../repository/service.js";
 import type { DrizzleClientApi } from "../repository/implementations/drizzle/config.js";
+import { RepositoryService } from "../repository/service.js";
 import type { FileServiceApi } from "./api.js";
 import { FileDbError, FileNotFoundError } from "./errors.js";
 import type { FileEntity, FileEntityData } from "./schema.js";

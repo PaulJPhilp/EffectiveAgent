@@ -1,11 +1,11 @@
+import { NodeFileSystem, NodePath } from "@effect/platform-node";
+import { Layer } from "effect";
 import { AgentRuntimeService } from "@/ea-agent-runtime/service";
 import { ModelService } from "@/services/ai/model/service";
 import { PolicyService } from "@/services/ai/policy/service";
 import { ProviderService } from "@/services/ai/provider/service";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service";
 import { ConfigurationService } from "@/services/core/configuration/service";
-import { NodeFileSystem, NodePath } from "@effect/platform-node";
-import { Layer } from "effect";
 
 /**
  * The main application layer, which composes all other layers into a single,

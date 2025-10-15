@@ -2,15 +2,14 @@
  * @file Type definitions for the Chat Service
  */
 
-import { Message } from "@/schema.js";
-import { FinishReason } from "@/types.js";
-import { Effect } from "effect";
-import { Option } from "effect/Option";
-import { Span } from "effect/Tracer";
-import { CoreMessage } from "./utils.js";
-
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
+import type { Effect } from "effect";
+import type { Option } from "effect/Option";
+import type { Span } from "effect/Tracer";
+import type { Message } from "@/schema.js";
+import type { ModelService } from "@/services/ai/model/service.js";
+import type { ProviderService } from "@/services/ai/provider/service.js";
+import type { FinishReason } from "@/types.js";
+import type { CoreMessage } from "./utils.js";
 
 export interface ChatCompletionOptions {
     readonly input: string;

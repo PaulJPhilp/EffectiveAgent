@@ -3,19 +3,19 @@
  * @module services/core/configuration/service
  */
 
+import { FileSystem, Path } from "@effect/platform";
+import { Duration, Effect, Schema } from "effect";
+import type { ParseError } from "effect/ParseResult";
+import { EffectiveError } from "@/errors.js";
 import { ModelFileSchema } from "@/services/ai/model/schema.js";
 import { PolicyConfigFile } from "@/services/ai/policy/schema.js";
 import { ProviderFile } from "@/services/ai/provider/schema.js";
 import {
+  type CircuitBreakerConfig,
   ResilienceService,
-  RetryPolicy,
-  CircuitBreakerConfig,
+  type RetryPolicy,
 } from "@/services/execution/resilience/index.js";
-import { EffectiveError } from "@/errors.js";
-import { FileSystem, Path } from "@effect/platform";
-import { Duration, Effect, Schema } from "effect";
-import { ParseError } from "effect/ParseResult";
-import { ConfigurationServiceApi } from "./api.js";
+import type { ConfigurationServiceApi } from "./api.js";
 import {
   ConfigParseError,
   ConfigReadError,
@@ -245,4 +245,4 @@ export class ConfigurationService extends Effect.Service<ConfigurationServiceApi
     effect: make,
     dependencies: [ResilienceService.Default],
   }
-) {}
+) { }

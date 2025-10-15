@@ -10,10 +10,10 @@
  * standard Effect.Service pattern directly.
  */
 
-import { Effect, Option } from "effect";
+import type { Effect, Option } from "effect";
 import type { DrizzleClientApi } from "@/services/core/repository/implementations/drizzle/config.js";
-import type { BaseEntity, FindOptions } from "./types.js";
 import type { EntityNotFoundError, RepositoryError } from "./errors.js";
+import type { BaseEntity, FindOptions } from "./types.js";
 
 /**
  * Generic interface defining standard CRUD operations for a repository.

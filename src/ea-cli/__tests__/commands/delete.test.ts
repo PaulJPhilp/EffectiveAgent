@@ -1,8 +1,8 @@
 import { Effect } from "effect"
 import { describe, expect, it } from "vitest"
-import { expectCommandFailure, runCommand } from "../test-utils.js"
-import { deleteCommand } from "../../src/commands/delete.js"
 import { addCommand } from "../../src/commands/add.js"
+import { deleteCommand } from "../../src/commands/delete.js"
+import { expectCommandFailure, runCommand } from "../test-utils.js"
 
 describe("delete command", () => {
   describe("delete", () => {
@@ -10,16 +10,14 @@ describe("delete command", () => {
       Effect.gen(function* () {
         const result = yield* runCommand(deleteCommand, [])
         expect(result).toBeDefined()
-      })
-    )
+      }))
 
     it("should fail with invalid subcommand", () =>
       Effect.gen(function* () {
         const error = yield* expectCommandFailure(deleteCommand, ["invalid"])
         expect(error).toBeDefined()
         expect(error.message).toContain("invalid")
-      })
-    )
+      }))
   })
 
   describe("delete:agent", () => {
@@ -27,20 +25,21 @@ describe("delete command", () => {
       Effect.gen(function* () {
         // First create an agent
         yield* runCommand(addCommand, ["agent", "test-agent"])
-        
+
         // Then delete it
         const result = yield* runCommand(deleteCommand, ["agent", "test-agent"])
         expect(result).toBeDefined()
-      })
-    )
+      }))
 
     it("should fail if agent does not exist", () =>
       Effect.gen(function* () {
-        const error = yield* expectCommandFailure(deleteCommand, ["agent", "non-existent-agent"])
+        const error = yield* expectCommandFailure(deleteCommand, [
+          "agent",
+          "non-existent-agent",
+        ])
         expect(error).toBeDefined()
         expect(error.message).toContain("does not exist")
-      })
-    )
+      }))
   })
 
   describe("delete:model", () => {
@@ -48,20 +47,21 @@ describe("delete command", () => {
       Effect.gen(function* () {
         // First create a model
         yield* runCommand(addCommand, ["model", "test-model"])
-        
+
         // Then delete it
         const result = yield* runCommand(deleteCommand, ["model", "test-model"])
         expect(result).toBeDefined()
-      })
-    )
+      }))
 
     it("should fail if model does not exist", () =>
       Effect.gen(function* () {
-        const error = yield* expectCommandFailure(deleteCommand, ["model", "non-existent-model"])
+        const error = yield* expectCommandFailure(deleteCommand, [
+          "model",
+          "non-existent-model",
+        ])
         expect(error).toBeDefined()
         expect(error.message).toContain("does not exist")
-      })
-    )
+      }))
   })
 
   describe("delete:provider", () => {
@@ -69,19 +69,23 @@ describe("delete command", () => {
       Effect.gen(function* () {
         // First create a provider
         yield* runCommand(addCommand, ["provider", "test-provider"])
-        
+
         // Then delete it
-        const result = yield* runCommand(deleteCommand, ["provider", "test-provider"])
+        const result = yield* runCommand(deleteCommand, [
+          "provider",
+          "test-provider",
+        ])
         expect(result).toBeDefined()
-      })
-    )
+      }))
 
     it("should fail if provider does not exist", () =>
       Effect.gen(function* () {
-        const error = yield* expectCommandFailure(deleteCommand, ["provider", "non-existent-provider"])
+        const error = yield* expectCommandFailure(deleteCommand, [
+          "provider",
+          "non-existent-provider",
+        ])
         expect(error).toBeDefined()
         expect(error.message).toContain("does not exist")
-      })
-    )
+      }))
   })
 })

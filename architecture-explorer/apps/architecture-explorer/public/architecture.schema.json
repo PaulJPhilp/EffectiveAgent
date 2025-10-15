@@ -69,7 +69,7 @@
         },
         "links": {
           "type": "array",
-          "items": { "type": "string", "format": "uri" }
+          "items": { "type": "string" }
         }
       },
       "required": ["id", "name", "c4Level"]

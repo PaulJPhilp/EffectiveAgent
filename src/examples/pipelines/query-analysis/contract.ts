@@ -4,7 +4,7 @@
  */
 
 import { Effect } from "effect";
-import { QueryAnalysisPipelineError } from "./errors.js";
+import type { QueryAnalysisPipelineError } from "./errors.js";
 
 /**
  * Represents a detected entity in a query

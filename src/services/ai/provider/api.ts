@@ -1,17 +1,15 @@
+import type { LanguageModelV2 } from "@ai-sdk/provider";
+import type { Effect } from "effect";
+import type { ModelCapability } from "@/schema.js";
 import type {
   EffectiveInput,
   EffectiveResponse,
   ProviderEffectiveResponse,
 } from "@/types.js";
-import type { Effect } from "effect";
+import type { ModelServiceApi } from "../model/api.js";
+import type { ToolRegistryService } from "../tool-registry/service.js";
 import type { FullToolName } from "../tool-registry/types.js";
-import type { ChatResult } from "./types.js";
-
-import { ModelCapability } from "@/schema.js";
-import { LanguageModelV1 } from "@ai-sdk/provider";
-import { ModelServiceApi } from "../model/api.js";
-import { ToolRegistryService } from "../tool-registry/service.js";
-import {
+import type {
   ProviderMissingCapabilityError,
   ProviderMissingModelIdError,
   ProviderNotFoundError,
@@ -19,8 +17,8 @@ import {
   ProviderServiceConfigError,
   ProviderToolError,
 } from "./errors.js";
-import { ProvidersType } from "./schema.js";
-import {
+import type { ProvidersType } from "./schema.js";
+import type { ChatResult, 
   EffectiveProviderApi,
   GenerateEmbeddingsResult,
   GenerateImageResult,
@@ -34,8 +32,7 @@ import {
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
   ProviderTranscribeOptions,
-  TranscribeResult,
-} from "./types.js";
+  TranscribeResult,} from "./types.js";
 
 // Use the imported ProviderClientApi type instead of redeclaring it
 // export type { ProviderClientApi } from "./types.js";
@@ -47,6 +44,7 @@ export type ProviderServiceApi = {
   loadProvider: any;
   /**
    * Gets a provider client by name.
+   * @deprecated Use getAiSdkLanguageModel or getAiSdkEmbeddingModel instead. This method is deprecated and will be removed in a future version.
    * @param providerName The name of the provider to get.
    * @returns An Effect resolving to the provider client.
    */
@@ -54,6 +52,46 @@ export type ProviderServiceApi = {
     providerName: string
   ) => Effect.Effect<
     ProviderClientApi,
+    ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError
+  >;
+
+  /**
+   * Gets an AI SDK provider instance by name.
+   * @param providerName The name of the provider to get.
+   * @returns An Effect resolving to the AI SDK provider.
+   */
+  getAiSdkProvider: (
+    providerName: string
+  ) => Effect.Effect<
+    any,
+    ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError
+  >;
+
+  /**
+   * Gets an AI SDK language model by provider and model ID.
+   * @param providerName The name of the provider.
+   * @param modelId The model ID.
+   * @returns An Effect resolving to the AI SDK language model.
+   */
+  getAiSdkLanguageModel: (
+    providerName: string,
+    modelId: string
+  ) => Effect.Effect<
+    any,
+    ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError
+  >;
+
+  /**
+   * Gets an AI SDK embedding model by provider and model ID.
+   * @param providerName The name of the provider.
+   * @param modelId The model ID.
+   * @returns An Effect resolving to the AI SDK embedding model.
+   */
+  getAiSdkEmbeddingModel: (
+    providerName: string,
+    modelId: string
+  ) => Effect.Effect<
+    any,
     ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError
   >;
 
@@ -192,7 +230,7 @@ export interface ProviderClientApi {
   >;
 
   readonly getModels: () => Effect.Effect<
-    LanguageModelV1[],
+    LanguageModelV2[],
     ProviderServiceConfigError,
     ModelServiceApi
   >;

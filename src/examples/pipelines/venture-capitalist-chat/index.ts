@@ -4,10 +4,10 @@
  */
 
 export * from "./contract.js";
+export type { VentureCapitalistChatPipelineError } from "./errors.js";
 export {
   FinancialAnalysisError,
   MarketResearchError,
   ValuationError,
 } from "./errors.js";
-export type { VentureCapitalistChatPipelineError } from "./errors.js";
 export * from "./service.js";

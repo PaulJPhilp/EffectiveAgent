@@ -5,10 +5,10 @@
  * the layer should be constructed where needed.
  */
 
-import { EntityId } from "@/types.js";
-import { Context, Effect, Layer, Option, Ref } from "effect"; // Removed Clock
+import { type Context, Effect, Layer, Option, Ref } from "effect"; // Removed Clock
 import * as Arr from "effect/Array";
 import { v4 as uuidv4 } from "uuid";
+import type { EntityId } from "@/types.js";
 import type { RepositoryServiceApi } from "../../api.js";
 
 /**
@@ -38,6 +38,7 @@ interface InMemoryRepositoryApi<TEntity extends BaseEntity> {
     options?: Pick<FindOptions<TEntity>, "filter">
   ) => Effect.Effect<number, RepositoryError, never>;
 }
+
 import { EntityNotFoundError, RepositoryError } from "../../errors.js";
 import type { BaseEntity, FindOptions } from "../../types.js";
 
@@ -57,7 +58,7 @@ export const make = <TEntity extends BaseEntity>(
     if (!filter) return true;
     for (const key in filter) {
       if (
-        Object.prototype.hasOwnProperty.call(filter, key) &&
+        Object.hasOwn(filter, key) &&
         entity.data[key] !== filter[key]
       ) {
         return false;

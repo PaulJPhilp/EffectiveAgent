@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for VectorSearchService, its live layer, mock embedding service layer, and mock vector store layer
 
 process.env.PROVIDERS_CONFIG_PATH = require('path').resolve(__dirname, '../../config/providers.json');

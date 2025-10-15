@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for CoderChatService and any necessary mocks or dependencies
 
 describe("CoderChatService unit tests", () => {

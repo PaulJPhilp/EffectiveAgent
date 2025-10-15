@@ -2,7 +2,7 @@
  * @file Defines the Tool Service API interface and tag.
  */
 
-import { Effect } from "effect";
+import type { Effect } from "effect";
 import type {
     ToolExecutionError,
     ToolInputValidationError,

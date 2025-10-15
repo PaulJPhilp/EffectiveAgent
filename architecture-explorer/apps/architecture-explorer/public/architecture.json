@@ -2,7 +2,7 @@
   "diagrams": [
     {
       "id": "main-diagram",
-      "mermaidDefinition": "graph TD\n  subgraph Core\n    SampleComponent[SampleComponent]\n  end\n  subgraph AI\n    ImporterComponent[ImporterComponent]\n  end\n  ImporterComponent -->|depends on| SampleComponent\n",
+      "mermaidDefinition": "graph TD\n  subgraph Service_[\"Service\"]\n    SampleComponent[\"SampleComponent\"]\n    ApiService[\"ApiService\"]\n  end\n  subgraph UI_[\"UI\"]\n    SettingsComponent[\"SettingsComponent\"]\n    DashboardComponent[\"DashboardComponent\"]\n    ImporterComponent[\"ImporterComponent\"]\n  end\n  subgraph Data_[\"Data\"]\n    DatabaseService[\"DatabaseService\"]\n  end\n  ApiService --> DatabaseService\n  ApiService --> SampleComponent\n  DashboardComponent --> ApiService\n  ImporterComponent --> SampleComponent\n  SettingsComponent --> ApiService\n",
       "defaultView": true
     }
   ],
@@ -15,7 +15,47 @@
       "tags": [
         "sample"
       ],
-      "layer": "Core"
+      "layer": "Service"
+    },
+    {
+      "id": "SettingsComponent",
+      "name": "SettingsComponent",
+      "c4Level": "Component",
+      "description": "A settings panel for configuring user preferences.",
+      "tags": [
+        "ui"
+      ],
+      "layer": "UI"
+    },
+    {
+      "id": "ApiService",
+      "name": "ApiService",
+      "c4Level": "Component",
+      "description": "An API service that coordinates between components and database.",
+      "tags": [
+        "api"
+      ],
+      "layer": "Service"
+    },
+    {
+      "id": "DashboardComponent",
+      "name": "DashboardComponent",
+      "c4Level": "Component",
+      "description": "A dashboard component that displays user data.",
+      "tags": [
+        "ui"
+      ],
+      "layer": "UI"
+    },
+    {
+      "id": "DatabaseService",
+      "name": "DatabaseService",
+      "c4Level": "Component",
+      "description": "A database service that stores user data.",
+      "tags": [
+        "database"
+      ],
+      "layer": "Data"
     },
     {
       "id": "ImporterComponent",
@@ -25,13 +65,33 @@
       "tags": [
         "importer"
       ],
-      "layer": "AI"
+      "layer": "UI"
     }
   ],
   "edges": [
     {
+      "sourceId": "ApiService",
+      "targetId": "DatabaseService",
+      "type": "depends on"
+    },
+    {
+      "sourceId": "ApiService",
+      "targetId": "SampleComponent",
+      "type": "depends on"
+    },
+    {
+      "sourceId": "DashboardComponent",
+      "targetId": "ApiService",
+      "type": "depends on"
+    },
+    {
       "sourceId": "ImporterComponent",
       "targetId": "SampleComponent",
+      "type": "depends on"
+    },
+    {
+      "sourceId": "SettingsComponent",
+      "targetId": "ApiService",
       "type": "depends on"
     }
   ]

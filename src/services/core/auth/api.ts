@@ -3,9 +3,9 @@
  * @module services/core/auth/api
  */
 
-import { Effect } from "effect";
+import type { Effect } from "effect";
 import type { AuthError, AuthenticationError, AuthorizationError } from "./errors.js";
-import { AuthContext } from "./types.js";
+import type { AuthContext } from "./types.js";
 
 /**
  * API interface for the Auth Service.

@@ -188,16 +188,9 @@ function validateArchitectureData(data: ArchitectureData): ValidationResult {
 
       if (
         !diagram.mermaidDefinition ||
-        typeof diagram.mermaidDefinition !== "string"
+        typeof diagram.mermaidDefinition !== "string" ||
+        diagram.mermaidDefinition.length === 0
       ) {
-        return {
-          isValid: false,
-          error: `Diagram '${diagram.id}' is missing required 'mermaidDefinition' field`,
-          warnings,
-        };
-      }
-
-      if (diagram.mermaidDefinition.length === 0) {
         warnings.push(`Diagram '${diagram.id}' has empty mermaidDefinition`);
       }
     }

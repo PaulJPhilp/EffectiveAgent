@@ -7,10 +7,10 @@ import { ToolRegistryService } from "../tool-registry/service.js";
 import type { ToolServiceApi } from "./api.js";
 import {
     AppToolParseError,
-    ToolExecutionError,
+    type ToolExecutionError,
     ToolInputValidationError,
     ToolNotFoundError,
-    ToolOutputValidationError
+    type ToolOutputValidationError
 } from "./errors.js";
 import type { EffectiveTool, IEffectImplementation } from "./schema.js";
 import type { FullToolName } from "./types.js";

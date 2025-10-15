@@ -2,15 +2,15 @@
  * e2e structured output test for Google Gemini 2.5 Flash using ea-cli chat command
  */
 
-import { Console, Effect, Chunk, pipe, Schema } from "effect"
+import { ok } from "node:assert"
 import { join } from "node:path"
-import { ProviderService } from "@/services/ai/provider/service.js"
-import { ModelService } from "@/services/ai/model/service.js"
-import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
 import { NodeContext } from "@effect/platform-node"
+import { Message, TextPart } from "@effective-agent/ai-sdk"
+import { Chunk, Effect, pipe, Schema } from "effect"
+import { ModelService } from "@/services/ai/model/service.js"
+import { ProviderService } from "@/services/ai/provider/service.js"
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
 import { EffectiveInput } from "@/types.js"
-import { Message, TextPart } from "@/schema.js"
-import { deepStrictEqual, ok } from "node:assert"
 
 // Use e2e configuration
 process.env.EFFECTIVE_AGENT_MASTER_CONFIG = join(

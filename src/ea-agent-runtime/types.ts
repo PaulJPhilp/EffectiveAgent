@@ -1,13 +1,12 @@
-import { ModelServiceApi, ProviderServiceApi } from "@/services/ai/index.js"
-import { PolicyServiceApi } from "@/services/ai/policy/api.js"
-import { ToolRegistryApi } from "@/services/ai/tool-registry/api.js"
-import { ConfigurationServiceApi } from "@/services/core/configuration/api.js"
-import { AgentRuntimeServiceApi } from "./api.js"
-import { Schema } from "effect"
-import { Brand, Effect, Stream } from "effect"
 import type { FileSystem } from "@effect/platform"
 import type * as Path from "@effect/platform/Path"
 import type * as Terminal from "@effect/platform/Terminal"
+import { type Brand, type Effect, Schema, type Stream } from "effect"
+import type { ModelServiceApi, ProviderServiceApi } from "@/services/ai/index.js"
+import type { PolicyServiceApi } from "@/services/ai/policy/api.js"
+import type { ToolRegistryApi } from "@/services/ai/tool-registry/api.js"
+import type { ConfigurationServiceApi } from "@/services/core/configuration/api.js"
+import type { AgentRuntimeServiceApi } from "./api.js"
 
 /**
  * Message priority levels for the mailbox system.

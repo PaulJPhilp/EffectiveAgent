@@ -1,5 +1,5 @@
+import { ImageUrlPart as BaseImageUrlPart, TextPart as BaseTextPart, ToolCallPart as BaseToolCallPart } from "@effective-agent/ai-sdk"; // Import base parts
 import { Schema as S } from "effect";
-import { ImageUrlPart as BaseImageUrlPart, TextPart as BaseTextPart, ToolCallPart as BaseToolCallPart } from "@/schema.js"; // Import base parts
 
 /**
  * Represents a file part in a message.

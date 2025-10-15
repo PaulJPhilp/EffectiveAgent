@@ -3,15 +3,14 @@
  * Clock integration is deferred, using Date.now() placeholders.
  */
 
-import { Cause, Context, Effect, Exit, Layer, Option, Ref } from "effect";
-import { describe, expect, it } from "vitest";
-
-import type { EntityId, JsonObject } from "@/types.js";
-import { EntityNotFoundError } from "@core/repository/errors.js";
+import type { EntityNotFoundError } from "@core/repository/errors.js";
 // Import the 'make' function directly
 import { make as makeInMemoryRepository } from "@core/repository/implementations/in-memory/live.js";
 import type { BaseEntity, RepositoryApi } from "@core/repository/types.js";
+import { Cause, Context, Effect, Exit, Layer, Option, Ref } from "effect";
+import { describe, expect, it } from "vitest";
 import { ResilienceService } from "@/services/execution/resilience/index.js";
+import type { EntityId, JsonObject } from "@/types.js";
 
 // --- Test Setup ---
 

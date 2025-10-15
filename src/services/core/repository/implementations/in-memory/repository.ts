@@ -1,7 +1,7 @@
-import type { EntityId } from "@/types.js";
 import { Context, Effect, Layer, Option, Ref } from "effect";
 import * as Arr from "effect/Array";
 import { v4 as uuidv4 } from "uuid";
+import type { EntityId } from "@/types.js";
 import type { RepositoryServiceApi } from "../../api.js";
 import { EntityNotFoundError, RepositoryError } from "../../errors.js";
 import type { BaseEntity, FindOptions } from "../../types.js";
@@ -19,7 +19,7 @@ export const InMemoryRepository = <TEntity extends BaseEntity>() => {
     if (!filter) return true;
     for (const key in filter) {
       if (
-        Object.prototype.hasOwnProperty.call(filter, key) &&
+        Object.hasOwn(filter, key) &&
         entity.data[key] !== filter[key]
       ) {
         return false;

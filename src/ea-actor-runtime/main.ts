@@ -3,8 +3,8 @@
  * This script starts a WebSocket server on top of the ea-agent-runtime.
  */
 
-import { getAgentRuntime } from "@/ea-agent-runtime/production-runtime.js";
 import { WebSocketServer } from "ws";
+import { getAgentRuntime } from "@/ea-agent-runtime/production-runtime.js";
 
 // Simple WebSocket server without Effect dependencies
 async function startActorServer() {

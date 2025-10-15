@@ -1,11 +1,11 @@
-import { Message, TextPart } from "@/schema.js";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Message, TextPart } from "@effective-agent/ai-sdk";
+import { Chunk, Effect, Layer } from "effect";
+import { beforeEach, describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { EffectiveInput } from "@/types.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Chunk, Effect, Layer } from "effect";
-import { beforeEach, describe, expect, it } from "vitest";
 import { makeQwenClient } from "../qwen-provider-client.js";
 
 describe("Qwen Provider Client", () => {

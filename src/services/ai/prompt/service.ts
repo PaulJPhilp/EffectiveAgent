@@ -3,21 +3,21 @@
  * and the layer providing loaded PromptConfigData.
  */
 
-import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { Config, ConfigProvider, Effect, HashMap, Ref } from "effect";
 import { Liquid } from "liquidjs";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import {
     PromptConfigError,
     RenderingError,
     TemplateNotFoundError
 } from "../errors.js";
 import {
-    Prompt,
+    type Prompt,
     PromptFile
 } from "./schema.js";
-import {
-    type RenderStringParams,
-    type RenderTemplateParams
+import type {
+    RenderStringParams,
+    RenderTemplateParams
 } from "./types.js";
 
 const PROMPTS_CONFIG_PATH_KEY = "PROMPT_SERVICE_PROMPT_FILE_PATH";

@@ -2,21 +2,19 @@
  * @file Tests for FileService implementation
  */
 
-import { Effect, Layer, Option } from "effect";
+import { Duration, Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
-
+import { ResilienceService } from "@/services/execution/resilience/service.js";
 import type { EntityId } from "../../../../types.js";
 import type { RepositoryServiceApi } from "../../repository/api.js";
 import {
   EntityNotFoundError,
-  RepositoryError,
+  type RepositoryError,
 } from "../../repository/errors.js";
 import { FileNotFoundError } from "../errors.js";
 import type { FileEntity } from "../schema.js";
 import { FileService } from "../service.js";
 import type { FileInput } from "../types.js";
-import { ResilienceService } from "@/services/execution/resilience/service.js";
-import { Duration } from "effect";
 
 // --- Test Setup ---
 

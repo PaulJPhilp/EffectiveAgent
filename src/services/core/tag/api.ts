@@ -15,7 +15,6 @@
  * between entities that may not have explicit relationships otherwise.
  */
 
-import type { EntityId } from "@/types.js";
 import type {
   DuplicateTagNameError,
   LinkAlreadyExistsError,
@@ -24,7 +23,8 @@ import type {
   TagNotFoundError
 } from "@core/tag/errors.js";
 import type { EntityTagLinkEntity, TagEntity } from "@core/tag/schema.js";
-import { Effect, Option } from "effect";
+import type { Effect, Option } from "effect";
+import type { EntityId } from "@/types.js";
 
 /**
  * Interface defining operations for managing tags and their associations with entities.

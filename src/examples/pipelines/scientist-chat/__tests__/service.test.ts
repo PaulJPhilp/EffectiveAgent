@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for ScientistChatService and any necessary mocks
 
 describe("ScientistChatService unit tests", () => {

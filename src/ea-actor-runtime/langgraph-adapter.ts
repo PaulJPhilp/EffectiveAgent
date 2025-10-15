@@ -1,8 +1,9 @@
 /**
  * @file Adapter to bridge LangGraph agents with the EA Actor Runtime.
  */
-import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
+
 import { Effect } from "effect"
+import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 import { AgentRuntimeProcessingError } from "./errors.js"
 import type { AgentActivity, AgentWorkflow } from "./types.js"
 

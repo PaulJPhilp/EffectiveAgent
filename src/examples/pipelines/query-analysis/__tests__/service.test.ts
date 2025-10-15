@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for QueryAnalysisService and any necessary mocks or dependencies
 
 describe("QueryAnalysisService unit tests", () => {

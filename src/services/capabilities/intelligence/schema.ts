@@ -3,8 +3,8 @@
  * @module services/capabilities/intelligence/schema
  */
 
-import { Description, Metadata, Name, Version } from "@/schema.js";
 import { Schema as S } from "effect";
+import { Description, Metadata, Name, Version } from "@/schema.js";
 
 // Allowed values for enum-like fields
 const AllowedMemoryAccessLevel = S.Literal(

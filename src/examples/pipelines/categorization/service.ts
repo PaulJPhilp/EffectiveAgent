@@ -12,7 +12,7 @@ import {
     type CategorizationResult,
     type Category
 } from "./contract.js";
-import { type ClusteringResult, type EmbeddingResult } from "./types.js";
+import type { ClusteringResult, EmbeddingResult } from "./types.js";
 
 /**
  * Service for generating embeddings
