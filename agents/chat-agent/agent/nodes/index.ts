@@ -3,6 +3,7 @@
  * @file Defines the core nodes for chat conversation processing
  */
 
+import { AIMessage, type BaseMessage, HumanMessage } from "@langchain/core/messages"
 import {
     createActivity,
     createStateTransformer,
@@ -10,14 +11,13 @@ import {
     setStateProperty,
     validateStateStructure
 } from "@/ea-langgraph-sdk/helpers.js"
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages"
 import type { ChatAgentState } from "../agent.js"
 import { generateAiResponse, logActivity, validateUserPolicies } from "../utils/index.js"
 
 /**
  * State transformers for common operations
  */
-const addMessage = createStateTransformer<ChatAgentState, {
+const _addMessage = createStateTransformer<ChatAgentState, {
     role: "user" | "assistant" | "system"
     content: string
     metadata?: Record<string, unknown>
@@ -56,7 +56,7 @@ const updateStep = createStateTransformer<ChatAgentState, ChatAgentState["curren
     (step, state) => ({ ...state, currentStep: step })
 )
 
-const setError = createStateTransformer<ChatAgentState, string>(
+const _setError = createStateTransformer<ChatAgentState, string>(
     (error, state) => ({ ...state, error, currentStep: "error" })
 )
 

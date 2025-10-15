@@ -4,10 +4,10 @@
  */
 
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, LogLevel, Logger, Runtime } from "effect";
+import { Effect, Logger, LogLevel, type Runtime } from "effect";
 import { bootstrap } from "./bootstrap.js";
 import InitializationService from "./initialization.js";
-import { MasterConfig } from "./schema.js";
+import type { MasterConfig } from "./schema.js";
 
 /**
  * Main AgentRuntime class that provides automatic initialization and configuration

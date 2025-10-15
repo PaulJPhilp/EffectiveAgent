@@ -2,20 +2,17 @@
  * e2e test for OpenAI GPT-4 using the calculator tool
  */
 
-import { Console, Effect, Chunk, pipe } from "effect"
-import { join } from "node:path"
-import { Args, Command } from "@effect/cli"
-import { ProviderService } from "@/services/ai/provider/service.js"
-import { ModelService } from "@/services/ai/model/service.js"
-import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
-import { NodeContext } from "@effect/platform-node"
-import { EffectiveInput } from "@/types.js"
-import { Message, TextPart } from "@/schema.js"
 import { ok } from "node:assert"
+import { join } from "node:path"
+import { NodeContext } from "@effect/platform-node"
+import { Message, TextPart } from "@effective-agent/ai-sdk"
+import { Chunk, Effect, pipe } from "effect"
+import { ModelService } from "@/services/ai/model/service.js"
+import { ProviderService } from "@/services/ai/provider/service.js"
 import { ToolNotFoundErrorInRegistry } from "@/services/ai/tool-registry/errors.js"
-import { ToolDefinition } from "@/services/ai/tool-registry/types.js"
-import { Tool, ToolMetadata } from "@/services/ai/tools/schema.js"
-import { EffectiveTool } from "@/services/ai/tools/types.js"
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
+import type { ToolDefinition } from "@/services/ai/tool-registry/types.js"
+import { EffectiveInput } from "@/types.js"
 
 // OpenAI function tool type
 type OpenAIFunctionTool = {
@@ -45,7 +42,7 @@ process.env.EFFECTIVE_AGENT_MASTER_CONFIG = join(
 const makeChatCommand = Effect.gen(function* () {
   // Get required services
   const provider = yield* ProviderService
-  const model = yield* ModelService
+  const _model = yield* ModelService
   const toolRegistry = yield* ToolRegistryService
 
   return {
@@ -105,11 +102,11 @@ const testEffect = Effect.gen(function* () {
   const text = response.toLowerCase()
   ok(text.includes("351"), "Response should include the correct calculation result (351)")
   ok(
-    text.includes("square root") && text.includes("cube"), 
+    text.includes("square root") && text.includes("cube"),
     "Response should explain the mathematical operations"
   )
   ok(
-    text.includes("calculator"), 
+    text.includes("calculator"),
     "Response should mention using the calculator tool"
   )
 

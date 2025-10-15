@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for the CategorizationPipeline, live AI service layer, and config.
 
 describe("Categorization pipeline E2E tests", () => {

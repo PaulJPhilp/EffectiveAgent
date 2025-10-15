@@ -2,9 +2,9 @@
  * @file Defines globally shared primitive types for the application services.
  */
 
-import { Part as EffectiveLocalPart, EffectiveMessage } from "@/schema.js";
-import { Effect, Option, Schema as S } from "effect";
-import * as Chunk from "effect/Chunk";
+import { type Part as EffectiveLocalPart, Message as EffectiveMessage } from "@effective-agent/ai-sdk";
+import { type Effect, type Option, Schema as S } from "effect";
+import type * as Chunk from "effect/Chunk";
 
 /**
  * Unified type for operation finish reasons across all services
@@ -91,8 +91,8 @@ export interface EffectiveResponse<T> {
  * Extended response type for provider operations that return a single assistant message.
  */
 export interface ProviderEffectiveResponse<T> extends EffectiveResponse<T> {
-    /** The assistant's response message, if applicable */
-    readonly effectiveMessage?: Option.Option<EffectiveMessage>;
+  /** The assistant's response message, if applicable */
+  readonly effectiveMessage?: Option.Option<EffectiveMessage>;
 }
 
 /**
@@ -169,16 +169,14 @@ export interface EffectiveToolkit {
 /**
  * Base tool API interface with proper typing
  */
-export interface EffectiveToolApi {
+export type EffectiveToolApi = 
   <Input extends Record<string, unknown>, Output = unknown>(
-    input: Input
-  ): Effect.Effect<
+    input: Input) => Effect.Effect<
     Output,
     | ToolExecutionError
     | ToolInputValidationError
     | ToolOutputValidationError
-  >;
-}
+  >
 
 /**
  * Base tool interface with improved typing

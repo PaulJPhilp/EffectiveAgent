@@ -3,6 +3,7 @@
  * @module services/ai/model/schema
  */
 
+import { Schema as S } from "effect";
 import {
     ContextWindowSize,
     Description,
@@ -13,7 +14,6 @@ import {
     Version
 } from "@/schema.js";
 import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
-import { Schema as S } from "effect";
 import { PROVIDER_NAMES } from "../provider/provider-universe.js";
 import { MODEL_IDS } from "./model-universe.js";
 

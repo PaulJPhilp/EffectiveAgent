@@ -4,13 +4,13 @@
  */
 
 import { Cause, Effect } from "effect";
-import {
-    type CoderChatPipelineApi,
-    type CoderChatPipelineInput,
-    type CoderChatResponse
+import type {
+    CoderChatPipelineApi,
+    CoderChatPipelineInput,
+    CoderChatResponse
 } from "./contract.js";
 import { CoderChatPipelineError } from "./errors.js";
-import { type LanguageAnalysis } from "./types.js";
+import type { LanguageAnalysis } from "./types.js";
 
 /**
  * Service for documentation operations
@@ -48,7 +48,7 @@ export interface LanguageToolProviderApi {
 export class LanguageToolProvider extends Effect.Service<LanguageToolProviderApi>()("LanguageToolProvider", {
     effect: Effect.succeed({
         _tag: "LanguageToolProvider" as const,
-        analyzeCode: (code: string, language: string): Effect.Effect<LanguageAnalysis, never> => {
+        analyzeCode: (_code: string, language: string): Effect.Effect<LanguageAnalysis, never> => {
             // Mock implementation - replace with real code analysis
             return Effect.succeed({
                 language,
@@ -70,11 +70,11 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
     {
         effect: Effect.gen(function* () {
             // Yield dependencies
-            const languageTool = yield* LanguageToolProvider;
-            const documentation = yield* DocumentationService;
+            const _languageTool = yield* LanguageToolProvider;
+            const _documentation = yield* DocumentationService;
 
             // Helper to get language-specific examples
-            const getCodeExample = (language: string, prompt: string): { code: string; explanation: string } => {
+            const getCodeExample = (language: string, _prompt: string): { code: string; explanation: string } => {
                 // TODO: Replace with actual Phoenix MCP server call
                 // For now, we'll return predefined examples based on language
                 const examples: Record<string, { code: string; explanation: string }> = {
@@ -87,11 +87,11 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                         explanation: "This JavaScript function demonstrates proper error handling in asynchronous API calls using promises."
                     },
                     python: {
-                        code: `import requests\n\ndef get_user_data(user_id):\n    try:\n        response = requests.get(f\"https://api.example.com/users/{user_id}\")\n        response.raise_for_status()\n        return response.json()\n    except requests.exceptions.HTTPError as e:\n        print(f\"HTTP Error: {e}\")\n    except requests.exceptions.RequestException as e:\n        print(f\"Error fetching user data: {e}\")\n    return None`,
+                        code: `import requests\n\ndef get_user_data(user_id):\n    try:\n        response = requests.get(f"https://api.example.com/users/{user_id}")\n        response.raise_for_status()\n        return response.json()\n    except requests.exceptions.HTTPError as e:\n        print(f"HTTP Error: {e}")\n    except requests.exceptions.RequestException as e:\n        print(f"Error fetching user data: {e}")\n    return None`,
                         explanation: "This Python function shows how to make HTTP requests with proper error handling using the requests library."
                     },
                     java: {
-                        code: `public class UserService {\n    private final HttpClient httpClient;\n    \n    public UserService() {\n        this.httpClient = HttpClient.newBuilder()\n            .version(HttpClient.Version.HTTP_2)\n            .build();\n    }\n    \n    public CompletableFuture<User> getUserById(String userId) {\n        HttpRequest request = HttpRequest.newBuilder()\n            .uri(URI.create(\"https://api.example.com/users/\" + userId))\n            .GET()\n            .build();\n            \n        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())\n            .thenApply(HttpResponse::body)\n            .thenApply(this::parseUserJson);\n    }\n    \n    private User parseUserJson(String json) {\n        // Parse JSON and create User object\n        return new User(); // Simplified for example\n    }\n}`,
+                        code: `public class UserService {\n    private final HttpClient httpClient;\n    \n    public UserService() {\n        this.httpClient = HttpClient.newBuilder()\n            .version(HttpClient.Version.HTTP_2)\n            .build();\n    }\n    \n    public CompletableFuture<User> getUserById(String userId) {\n        HttpRequest request = HttpRequest.newBuilder()\n            .uri(URI.create("https://api.example.com/users/" + userId))\n            .GET()\n            .build();\n            \n        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())\n            .thenApply(HttpResponse::body)\n            .thenApply(this::parseUserJson);\n    }\n    \n    private User parseUserJson(String json) {\n        // Parse JSON and create User object\n        return new User(); // Simplified for example\n    }\n}`,
                         explanation: "This Java example demonstrates using the modern HttpClient to make asynchronous API calls with CompletableFuture."
                     }
                 };
@@ -140,15 +140,15 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                     const language = input.language || "javascript";
 
                     // Generate mock message based on user input
-                    let responseMessage = `Here\'s some guidance on ${input.message}`;
+                    let responseMessage = `Here's some guidance on ${input.message}`;
 
                     // Check for common coding questions and provide more specific responses
                     if (input.message.toLowerCase().includes("function")) {
-                        responseMessage = `Functions are blocks of reusable code. In ${language}, they can be defined in various ways depending on your needs. Here\'s how you can create and use functions effectively.`;
+                        responseMessage = `Functions are blocks of reusable code. In ${language}, they can be defined in various ways depending on your needs. Here's how you can create and use functions effectively.`;
                     } else if (input.message.toLowerCase().includes("error")) {
                         responseMessage = `Error handling is crucial for robust applications. In ${language}, you can use try/catch patterns or promise-based error handling depending on your context.`;
                     } else if (input.message.toLowerCase().includes("api") || input.message.toLowerCase().includes("fetch")) {
-                        responseMessage = `Making API calls in ${language} typically involves using fetch or a dedicated HTTP client library. I\'ve included an example below that demonstrates best practices.`;
+                        responseMessage = `Making API calls in ${language} typically involves using fetch or a dedicated HTTP client library. I've included an example below that demonstrates best practices.`;
                     }
 
                     // Generate code examples if requested
@@ -181,7 +181,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
             const reviewCode = (
                 code: string,
                 language: string,
-                options?: Partial<Omit<CoderChatPipelineInput, "message">>
+                _options?: Partial<Omit<CoderChatPipelineInput, "message">>
             ): Effect.Effect<CoderChatResponse, CoderChatPipelineError> =>
                 Effect.gen(function* () {
                     yield* Effect.logInfo(`Reviewing code in language: ${language}`);
@@ -192,7 +192,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                     const hasComments = code.includes('//') || code.includes('/*') || code.includes('#');
                     const hasErrorHandling = code.includes('try') || code.includes('catch') || code.includes('throw');
 
-                    let reviewMessage = `I\'ve reviewed your ${language} code (${codeLines} lines). `;
+                    let reviewMessage = `I've reviewed your ${language} code (${codeLines} lines). `;
 
                     // Add feedback points
                     const feedbackPoints = [];
@@ -206,7 +206,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                     if (!hasErrorHandling) {
                         feedbackPoints.push("Your code could benefit from error handling to make it more robust");
                     } else {
-                        feedbackPoints.push("I like that you\'ve included error handling in your code");
+                        feedbackPoints.push("I like that you've included error handling in your code");
                     }
 
                     // Add language-specific feedback
@@ -214,7 +214,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                         if (!code.includes(':')) {
                             feedbackPoints.push("Consider adding type annotations to improve type safety");
                         } else {
-                            feedbackPoints.push("Good use of TypeScript\'s type system");
+                            feedbackPoints.push("Good use of TypeScript's type system");
                         }
                     }
 
@@ -225,7 +225,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                     }
 
                     // Format the message
-                    reviewMessage += feedbackPoints.join(". ") + ".";
+                    reviewMessage += `${feedbackPoints.join(". ")}.`;
 
                     // Add a suggestion for improvement with code example
                     const improvement = {

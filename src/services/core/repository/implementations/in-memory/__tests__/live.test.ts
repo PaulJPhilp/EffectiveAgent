@@ -3,15 +3,14 @@
  * Clock integration is deferred, using Date.now() placeholders.
  */
 
-import { Cause, Context, Effect, Exit, Layer, Option, Ref } from "effect";
-import { describe, expect, it } from "vitest";
-
-import type { EntityId, JsonObject } from "@/types.js";
-import { EntityNotFoundError } from "@core/repository/errors.js";
+import type { EntityNotFoundError } from "@core/repository/errors.js";
 // Import the 'make' function directly
 import { make as makeInMemoryRepository } from "@core/repository/implementations/in-memory/live.js";
 import type { BaseEntity, RepositoryApi } from "@core/repository/types.js";
+import { Cause, Context, Effect, Exit, Layer, Option, Ref } from "effect";
+import { describe, expect, it } from "vitest";
 import { ResilienceService } from "@/services/execution/resilience/index.js";
+import type { EntityId, JsonObject } from "@/types.js";
 
 // --- Test Setup ---
 
@@ -96,11 +95,11 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
 
   it("should find an entity by ID", async () => {
     const data: TestEntityData = { name: "FindById Test", value: 2 };
-    let createdId: EntityId;
+    let _createdId: EntityId;
     const effect = Effect.gen(function* () {
       const repo = yield* TestRepositoryService;
       const created = yield* repo.create(data);
-      createdId = created.id;
+      _createdId = created.id;
       const foundSome = yield* repo.findById(created.id);
       const foundNone = yield* repo.findById("non-existent-id");
       expect(Option.isSome(foundSome)).toBe(true);

@@ -1,7 +1,7 @@
-import { Effect, Option } from "effect";
-import { PolicyError } from "./errors.js";
-import { PolicyRuleData, PolicyRuleEntity } from "./schema.js";
-import { PolicyCheckContext, PolicyCheckResult, PolicyRecordContext } from "./types.js";
+import type { Effect, Option } from "effect";
+import type { PolicyError } from "./errors.js";
+import type { PolicyRuleData, PolicyRuleEntity } from "./schema.js";
+import type { PolicyCheckContext, PolicyCheckResult, PolicyRecordContext } from "./types.js";
 
 /**
  * PolicyService API interface

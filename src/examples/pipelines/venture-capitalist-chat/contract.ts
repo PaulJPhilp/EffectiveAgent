@@ -3,7 +3,7 @@
  * @module ea/pipelines/venture-capitalist-chat/contract
  */
 
-import { Context, Effect } from "effect";
+import { Context, type Effect } from "effect";
 import { PipelineError } from "../common/errors.js";
 
 /**

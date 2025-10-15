@@ -4,8 +4,8 @@
  * @module services/ai/provider/schema
  */
 
-import { Description, Name, RateLimit, Url } from "@/schema.js"; // Correct: Adjust path as necessary
 import * as S from "effect/Schema";
+import { Description, Name, RateLimit, Url } from "@/schema.js"; // Correct: Adjust path as necessary
 import { PROVIDER_NAMES } from "./provider-universe.js";
 
 /**

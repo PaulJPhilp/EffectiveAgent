@@ -1,4 +1,4 @@
-import { EffectiveMessage, TextPart } from "@/schema.js";
+import { Message as EffectiveMessage, TextPart } from "@effective-agent/ai-sdk";
 import { Chunk, Effect, Either, Schema as S } from "effect";
 import { describe, expect, it } from "vitest";
 
@@ -32,7 +32,7 @@ describe("OpenAI Client Tools - Schema and Message Handling", () => {
                 }
 
                 // Test invalid input structure
-                
+
                 const invalidInput = { message: "hello", count: "invalid" };
                 // @ts-expect-error - Testing invalid input types
                 const invalidValidationResult = yield* Effect.either(S.decode(TestToolInputSchema)(invalidInput));
@@ -46,7 +46,7 @@ describe("OpenAI Client Tools - Schema and Message Handling", () => {
         it("should handle missing required fields in tool input", async () => {
             const testEffect = Effect.gen(function* () {
                 // Test incomplete input
-                
+
                 const incompleteInput = { message: "hello" }; // missing 'count'
                 // @ts-expect-error - Testing missing required field
                 const validationResult = yield* Effect.either(S.decode(TestToolInputSchema)(incompleteInput));
@@ -80,7 +80,7 @@ describe("OpenAI Client Tools - Schema and Message Handling", () => {
                     query: "search term",
                     filters: ["tag1", "tag2"],
                     options: {
-                      
+
                         includeMetadata: "not_boolean", // should be boolean
                         maxResults: 10
                     }
@@ -243,7 +243,7 @@ describe("OpenAI Client Tools - Schema and Message Handling", () => {
                     implementation: {
                         _tag: "EffectImplementation" as const,
                         inputSchema: TestToolInputSchema,
-                        execute: (input: { message: string; count: number }) =>
+                        execute: (_input: { message: string; count: number }) =>
                             Effect.fail(new Error("Tool execution failed"))
                     }
                 };
@@ -266,7 +266,7 @@ describe("OpenAI Client Tools - Schema and Message Handling", () => {
         it("should handle invalid tool input gracefully", async () => {
             const testEffect = Effect.gen(function* () {
                 // Test with invalid input that doesn't match schema
-               
+
                 const invalidInput = { message: 123, count: "invalid" }; // types are wrong
                 // @ts-expect-error - Testing completely wrong types
                 const validationResult = yield* Effect.either(S.decode(TestToolInputSchema)(invalidInput));
@@ -323,14 +323,14 @@ describe("OpenAI Client Tools - Schema and Message Handling", () => {
         it("should reject null and undefined values", async () => {
             const testEffect = Effect.gen(function* () {
                 // Test null values
-                
+
                 const nullInput = { message: null, count: 5 };
                 // @ts-expect-error - Testing null value handling
                 const nullResult = yield* Effect.either(S.decode(TestToolInputSchema)(nullInput));
                 expect(Either.isLeft(nullResult)).toBe(true);
 
                 // Test undefined values  
-               
+
                 const undefinedInput = { message: "test", count: undefined };
                 // @ts-expect-error - Testing undefined value handling
                 const undefinedResult = yield* Effect.either(S.decode(TestToolInputSchema)(undefinedInput));

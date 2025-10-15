@@ -1,8 +1,8 @@
-import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { Effect, Layer } from "effect";
+import { join } from "node:path";
 import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Layer } from "effect";
 import { describe, expect, it } from "vitest";
-import { join } from "path";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 
 describe("Test Configuration Validation", () => {
     // Create explicit dependency layers following centralized pattern

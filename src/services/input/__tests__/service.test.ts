@@ -1,10 +1,10 @@
+import type { ImageUrlPart, Message, TextPart, ToolCallPart } from "@effective-agent/ai-sdk";
+import { Chunk, Effect } from "effect";
 import { describe, it } from "vitest";
-import { Effect, Chunk } from "effect";
-import { InputService, ROLE_USER, ROLE_SYSTEM } from "@/services/input/service.js";
-import { InvalidInputError, InvalidMessageError, NoAudioFileError } from "@/services/input/errors.js";
 import { EffectiveError } from "@/errors.js";
-import { ImageUrlPart, Message, TextPart, ToolCallPart } from "@/schema.js";
-import { FilePart } from "@/services/input/schema.js";
+import { InvalidMessageError, NoAudioFileError } from "@/services/input/errors.js";
+import type { FilePart } from "@/services/input/schema.js";
+import { InputService, ROLE_USER } from "@/services/input/service.js";
 
 // Helper to create a text part
 const createTextPart = (content: string): TextPart => ({

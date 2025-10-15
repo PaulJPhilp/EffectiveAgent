@@ -1,49 +1,38 @@
 import {
-  EffectiveMessage,
-  ModelCapability,
-  TextPart,
-  ToolCallPart,
-} from "@/schema.js";
+  createProvider,
+  toEffectiveMessages,
+  toVercelMessages,
+  toZodSchema,
+} from "@effective-agent/ai-sdk";
+import { generateText, type CoreMessage as VercelCoreMessage } from "ai";
+import { Chunk, Effect, type Schema as S } from "effect";
+import type { ModelCapability } from "@/schema.js";
+import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
+import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
 import type {
   EffectiveInput,
   FinishReason,
   ProviderEffectiveResponse,
 } from "@/types.js";
-import type { ToolDefinition } from "../../tools/schema.js";
-
-import { createAnthropic } from "@ai-sdk/anthropic";
-import { type CoreMessage as VercelCoreMessage, generateText } from "ai";
-import { Chunk, Duration, Effect, Schema as S } from "effect";
-import { z } from "zod";
-import type { ModelServiceApi } from "../../model/api.js";
-import { ModelService } from "../../model/service.js";
 import { ToolRegistryService } from "../../tool-registry/service.js";
+import type { ToolDefinition } from "../../tools/schema.js";
 import type { FullToolName } from "../../tools/types.js";
 import type { ProviderClientApi } from "../api.js";
 import {
   ProviderMissingModelIdError,
-  ProviderNotFoundError,
+  type ProviderNotFoundError,
   ProviderOperationError,
   ProviderServiceConfigError,
   ProviderToolError,
 } from "../errors.js";
-import { ProvidersType } from "../schema.js";
+import type { ProvidersType } from "../schema.js";
 import type {
-  EffectiveProviderApi,
   GenerateTextResult,
   ProviderChatOptions,
-  ProviderGenerateEmbeddingsOptions,
-  ProviderGenerateImageOptions,
-  ProviderGenerateObjectOptions,
-  ProviderGenerateSpeechOptions,
-  ProviderGenerateTextOptions,
-  ProviderTranscribeOptions,
-  ToolCallRequest,
+  ProviderGenerateTextOptions
 } from "../types.js";
-import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
-import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
 
-function isEffectImplementation(
+function _isEffectImplementation(
   tool: ToolDefinition
 ): tool is ToolDefinition & {
   implementation: {
@@ -94,115 +83,10 @@ function mapFinishReason(finishReason: string): FinishReason {
   }
 }
 
-// Helper to convert EA messages to Vercel AI SDK CoreMessage format
-function mapEAMessagesToVercelMessages(
-  eaMessages: ReadonlyArray<EffectiveMessage>
-): VercelCoreMessage[] {
-  return eaMessages.map((msg) => {
-    const messageParts = Chunk.toReadonlyArray(msg.parts);
-    let textContent = "";
-
-    if (messageParts.length === 1 && messageParts[0]?._tag === "Text") {
-      textContent = (messageParts[0] as TextPart).content;
-    } else {
-      textContent = messageParts
-        .filter((part) => part._tag === "Text")
-        .map((part) => (part as TextPart).content)
-        .join("\n");
-    }
-
-    if (
-      msg.role === "user" ||
-      msg.role === "assistant" ||
-      msg.role === "system"
-    ) {
-      return { role: msg.role, content: textContent };
-    } else if (msg.role === "tool") {
-      const toolCallId = (msg.metadata?.toolCallId as string) || "";
-      const toolName = (msg.metadata?.toolName as string) || "unknown";
-      return {
-        role: "tool" as const,
-        content: [
-          {
-            type: "tool-result" as const,
-            toolCallId: toolCallId,
-            toolName: toolName,
-            result: textContent,
-          },
-        ],
-      };
-    }
-    return { role: "user", content: textContent };
-  });
-}
-
-// Helper to convert a Vercel AI SDK message to an EA EffectiveMessage
-function mapVercelMessageToEAEffectiveMessage(
-  vercelMsg: VercelCoreMessage,
-  modelId: string
-): EffectiveMessage {
-  let eaParts: Array<TextPart | ToolCallPart> = [];
-
-  if (Array.isArray(vercelMsg.content)) {
-    vercelMsg.content.forEach((part) => {
-      if (part.type === "text") {
-        eaParts.push(new TextPart({ _tag: "Text", content: part.text }));
-      }
-    });
-  } else if (typeof vercelMsg.content === "string") {
-    eaParts.push(new TextPart({ _tag: "Text", content: vercelMsg.content }));
-  }
-
-  if ((vercelMsg as any).tool_calls) {
-    (vercelMsg as any).tool_calls.forEach((tc: any) => {
-      const toolCallRequest: ToolCallRequest = {
-        id: tc.id || tc.tool_call_id,
-        type: "tool_call",
-        function: {
-          name: tc.tool_name || (tc.function && tc.function.name),
-          arguments: JSON.stringify(
-            tc.args || (tc.function && tc.function.arguments)
-          ),
-        },
-      };
-      eaParts.push(
-        new ToolCallPart({
-          _tag: "ToolCall",
-          id: toolCallRequest.id,
-          name: toolCallRequest.function.name,
-          args: JSON.parse(toolCallRequest.function.arguments),
-        })
-      );
-    });
-  }
-
-  return new EffectiveMessage({
-    role: vercelMsg.role as EffectiveMessage["role"],
-    parts: Chunk.fromIterable(eaParts),
-    metadata: { model: modelId, eaMessageId: `ea-${Date.now()}` },
-  });
-}
-
-// Helper function to convert Effect Schema to Zod Schema for Vercel AI SDK tool definitions
-function convertEffectSchemaToZodSchema(schema: S.Schema<any, any, any>) {
-  return Effect.try({
-    try: () => {
-      // For Vercel AI SDK tool definitions, we create a flexible Zod schema
-      // Since we don't have sophisticated schema introspection,
-      // we'll create a basic object schema that accepts any properties
-      return z.object({}).passthrough();
-    },
-    catch: (error) =>
-      new ProviderOperationError({
-        providerName: "anthropic",
-        operation: "schema-conversion",
-        message: `Failed to convert Effect Schema to Zod Schema: ${error}`,
-        module: "AnthropicClient",
-        method: "convertEffectSchemaToZodSchema",
-        cause: error,
-      }),
-  });
-}
+// Note: Message transformation functions are now imported from @effective-agent/ai-sdk:
+// - toVercelMessages() replaces mapEAMessagesToVercelMessages()
+// - toEffectiveMessages() replaces mapVercelMessageToEAEffectiveMessage()
+// - toZodSchema() replaces convertEffectSchemaToZodSchema()
 
 // Internal factory for ProviderService only
 function makeAnthropicClient(
@@ -212,9 +96,21 @@ function makeAnthropicClient(
   ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError,
   ToolRegistryService | OrchestratorService
 > {
-  const anthropicProvider = createAnthropic({ apiKey });
-
   return Effect.gen(function* () {
+    // Use ai-sdk's createProvider for provider instance creation
+    const anthropicProvider = yield* createProvider("anthropic", {
+      apiKey,
+    }).pipe(
+      Effect.mapError(
+        (error) =>
+          new ProviderServiceConfigError({
+            description: `Failed to create Anthropic provider: ${error.message}`,
+            module: "AnthropicClient",
+            method: "makeAnthropicClient",
+          })
+      )
+    );
+
     const orchestrator = yield* OrchestratorService;
 
     // Orchestration configurations for Anthropic operations
@@ -437,11 +333,23 @@ function makeAnthropicClient(
         orchestrator.execute(
           Effect.gen(function* () {
             const toolRegistryService = yield* ToolRegistryService;
-            let vercelMessages: VercelCoreMessage[] =
-              mapEAMessagesToVercelMessages(
-                Chunk.toReadonlyArray(input.messages || Chunk.empty())
-              );
-            let llmTools: Record<string, any> | undefined = undefined;
+            // Use ai-sdk's toVercelMessages for message transformation
+            const vercelMessages: VercelCoreMessage[] = yield* toVercelMessages(
+              input.messages || Chunk.empty()
+            ).pipe(
+              Effect.mapError(
+                (error) =>
+                  new ProviderOperationError({
+                    providerName: "anthropic",
+                    operation: "toVercelMessages",
+                    message: `Failed to convert messages: ${error.message}`,
+                    module: "AnthropicClient",
+                    method: "chat",
+                    cause: error,
+                  })
+              )
+            );
+            let llmTools: Record<string, any> | undefined ;
             const modelId = options.modelId || "claude-3-5-sonnet-20241022";
 
             if (options.tools && options.tools.length > 0) {
@@ -449,8 +357,21 @@ function makeAnthropicClient(
               for (const tool of options.tools as ToolDefinition[]) {
                 if (tool.implementation._tag === "EffectImplementation") {
                   const effectImpl = tool.implementation;
-                  const inputZodSchema = yield* convertEffectSchemaToZodSchema(
+                  // Use ai-sdk's toZodSchema for schema conversion
+                  const inputZodSchema = yield* toZodSchema(
                     effectImpl.inputSchema
+                  ).pipe(
+                    Effect.mapError(
+                      (error) =>
+                        new ProviderOperationError({
+                          providerName: "anthropic",
+                          operation: "toZodSchema",
+                          message: `Failed to convert schema: ${error.message}`,
+                          module: "AnthropicClient",
+                          method: "chat",
+                          cause: error,
+                        })
+                    )
                   );
                   llmTools[tool.metadata.name] = {
                     description: tool.metadata.description,
@@ -506,6 +427,38 @@ function makeAnthropicClient(
                 const mappedFinishReason = mapFinishReason(
                   vercelResult.finishReason
                 );
+                // Convert new messages back to EffectiveMessages using ai-sdk
+                const initialMessageCount = yield* Effect.try({
+                  try: () =>
+                    Chunk.toReadonlyArray(input.messages || Chunk.empty()).length,
+                  catch: (error) =>
+                    new ProviderOperationError({
+                      providerName: "anthropic",
+                      operation: "getMessageCount",
+                      message: "Failed to get initial message count",
+                      module: "AnthropicClient",
+                      method: "chat",
+                      cause: error,
+                    }),
+                });
+                const newVercelMessages = vercelMessages.slice(initialMessageCount);
+                const newEffectiveMessages = yield* toEffectiveMessages(
+                  newVercelMessages,
+                  modelId
+                ).pipe(
+                  Effect.mapError(
+                    (error) =>
+                      new ProviderOperationError({
+                        providerName: "anthropic",
+                        operation: "toEffectiveMessages",
+                        message: `Failed to convert messages: ${error.message}`,
+                        module: "AnthropicClient",
+                        method: "chat",
+                        cause: error,
+                      })
+                  )
+                );
+
                 const effectiveResponse: GenerateTextResult = {
                   id: `anthropic-chat-${Date.now()}`,
                   model: modelId,
@@ -519,28 +472,9 @@ function makeAnthropicClient(
                   },
                   messages: Chunk.isChunk(input.messages)
                     ? input.messages.pipe(
-                        Chunk.appendAll(
-                          Chunk.fromIterable(
-                            vercelMessages
-                              .slice(
-                                mapEAMessagesToVercelMessages(
-                                  Chunk.toReadonlyArray(input.messages)
-                                ).length
-                              )
-                              .map((vm) =>
-                                mapVercelMessageToEAEffectiveMessage(
-                                  vm,
-                                  modelId
-                                )
-                              )
-                          )
-                        )
-                      )
-                    : (Chunk.fromIterable(
-                        vercelMessages.map((vm) =>
-                          mapVercelMessageToEAEffectiveMessage(vm, modelId)
-                        )
-                      ) as any),
+                      Chunk.appendAll(Chunk.fromIterable(newEffectiveMessages))
+                    )
+                    : (Chunk.fromIterable(newEffectiveMessages) as any),
                 };
                 return {
                   data: effectiveResponse,
@@ -558,11 +492,11 @@ function makeAnthropicClient(
               const toolMessages: VercelCoreMessage[] = [];
               for (const toolCall of assistantToolCalls) {
                 const toolName = toolCall.toolName;
-                const toolArgs = toolCall.args;
+                const _toolArgs = toolCall.args;
                 let toolExecutionOutputString = "";
 
                 // Get tool from registry
-                const toolResult = yield* toolRegistryService
+                const _toolResult = yield* toolRegistryService
                   .getTool(toolName as FullToolName)
                   .pipe(
                     Effect.catchAll((error) =>
@@ -623,7 +557,11 @@ function makeAnthropicClient(
             );
           }),
           ANTHROPIC_CHAT_CONFIG
-        ),
+        ) as unknown as Effect.Effect<
+          ProviderEffectiveResponse<GenerateTextResult>,
+          ProviderOperationError | ProviderServiceConfigError | ProviderToolError,
+          ToolRegistryService
+        >,
 
       // Model management
       getModels: () => Effect.succeed([]),

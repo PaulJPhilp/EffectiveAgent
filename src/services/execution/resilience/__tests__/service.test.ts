@@ -1,13 +1,13 @@
-import { EffectiveError } from "@/errors.js";
 import { Duration, Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
+import { EffectiveError } from "@/errors.js";
 import { ResilienceService } from "../service.js";
 import {
-    CircuitBreakerConfig,
+    type CircuitBreakerConfig,
     CircuitBreakerError,
-    FallbackStrategy,
+    type FallbackStrategy,
     RetryExhaustedError,
-    RetryPolicy
+    type RetryPolicy
 } from "../types.js";
 
 // Test error types
@@ -394,10 +394,10 @@ describe("ResilienceService", () => {
 
                 const metrics = yield* service.getCircuitBreakerMetrics("metrics-test");
                 expect(metrics).toBeDefined();
-                expect(metrics!.totalRequests).toBe(2);
-                expect(metrics!.totalFailures).toBe(1);
-                expect(metrics!.successCount).toBe(1);
-                expect(metrics!.failureCount).toBe(1);
+                expect(metrics?.totalRequests).toBe(2);
+                expect(metrics?.totalFailures).toBe(1);
+                expect(metrics?.successCount).toBe(1);
+                expect(metrics?.failureCount).toBe(1);
             }).pipe(
                 Effect.provide(resilienceServiceTestLayer)
             ));
@@ -420,8 +420,8 @@ describe("ResilienceService", () => {
 
                 const metrics = yield* service.getResilienceMetrics("retry-operation");
                 expect(metrics).toBeDefined();
-                expect(metrics!.successes).toBeGreaterThan(0);
-                expect(metrics!.attempts).toBeGreaterThan(0);
+                expect(metrics?.successes).toBeGreaterThan(0);
+                expect(metrics?.attempts).toBeGreaterThan(0);
             }).pipe(
                 Effect.provide(resilienceServiceTestLayer)
             ));

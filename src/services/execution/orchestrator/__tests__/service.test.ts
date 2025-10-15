@@ -1,8 +1,8 @@
-import { describe, it } from "vitest";
 import { Duration, Effect } from "effect";
-import { OrchestratorService } from "../service.js";
-import { OrchestratorServiceError } from "../errors.js";
+import { describe, it } from "vitest";
 import { EffectiveError } from "@/errors.js";
+import { OrchestratorServiceError } from "../errors.js";
+import { OrchestratorService } from "../service.js";
 
 // Helper for creating test effects
 const createTestEffect = <A>(value: A, delay = 0): Effect.Effect<A> =>

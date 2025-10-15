@@ -1,15 +1,14 @@
-import { EffectiveError } from "@/errors.js"
+import type { Effect, Stream } from "effect"
+import type { LangGraphAgentState } from "@/ea-langgraph-sdk/types.js"
+import type { EffectiveError } from "@/errors.js"
 import type { ModelServiceApi } from "@/services/ai/model/api.js"
 import type { PolicyServiceApi } from "@/services/ai/policy/api.js"
 import type { ProviderServiceApi } from "@/services/ai/provider/api.js"
 import type { ToolRegistry } from "@/services/ai/tool-registry/api.js"
 import type { FileServiceApi } from "@/services/core/file/api.js"
 import type { ChatServiceApi } from "@/services/pipeline/producers/chat/api.js"
-import { Effect, Stream } from "effect"
-import { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
-import { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
-
-import type { LangGraphAgentState } from "@/ea-langgraph-sdk/types.js"
+import type { AgentRuntimeError, AgentRuntimeNotFoundError, AgentRuntimeTerminatedError } from "./errors.js"
+import type { AgentActivity, AgentRuntimeId, AgentRuntimeState } from "./types.js"
 
 /**
  * Core interface for an individual AgentRuntime instance.
@@ -60,7 +59,7 @@ export interface AgentRuntimeServiceApi {
      * @param initialState - The initial state for the AgentRuntime
      * @returns Effect<AgentRuntime<S>> containing the new AgentRuntime instance handle
      */
-    readonly create: <S, E = never, R = never>(
+    readonly create: <S, _E = never, _R = never>(
         id: AgentRuntimeId,
         initialState: S
     ) => Effect.Effect<AgentRuntime<S>, AgentRuntimeError | Error>

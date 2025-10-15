@@ -1,6 +1,6 @@
 import { join } from "node:path"
 import { FileSystem } from "@effect/platform"
-import { NodeContext, NodeFileSystem } from "@effect/platform-node"
+import { NodeFileSystem } from "@effect/platform-node"
 import { Effect } from "effect"
 import { afterEach, beforeEach, describe, expect, it } from "vitest"
 import { createDir } from "../../services/fs"

@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
+
 // Moved from test/manual/basic/test-cli-args.ts
 // (Original content should be copied here.)
 
-import { Effect } from "effect";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
-import { Console } from "effect";
+import { Console, Effect } from "effect";
 
 // Define Effect type explicitly to use RuntimeServices
 

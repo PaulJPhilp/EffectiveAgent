@@ -5,11 +5,11 @@ export type {
   CircuitBreakerMetrics,
   CircuitBreakerState,
   ErrorClassification,
-  ResilienceServiceApi,
   FallbackError,
   FallbackStrategy,
+  ResilienceContext,
   ResilienceMetrics,
+  ResilienceServiceApi,
   RetryExhaustedError,
   RetryPolicy,
-  ResilienceContext,
 } from "./types.js";

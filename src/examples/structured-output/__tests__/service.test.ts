@@ -1,5 +1,4 @@
-import { Schema as S } from "effect";
-import { Effect } from "effect";
+import { Effect, Schema as S } from "effect";
 import { describe, expect, it } from "vitest";
 
 import { MockLocalSchemaValidatorService, MockStructuredOutputPipelineService } from "../service.js";

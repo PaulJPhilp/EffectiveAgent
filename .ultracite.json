@@ -1,0 +1,9 @@
+{
+    "fix": true,
+    "paths": [
+        "src"
+    ],
+    "biome": {
+        "fix": true
+    }
+}

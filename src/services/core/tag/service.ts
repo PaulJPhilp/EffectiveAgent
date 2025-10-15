@@ -2,12 +2,12 @@
  * @file Implements the TagService using the Effect.Service pattern.
  */
 
-import { EntityId } from "@/types.js";
 import { Option } from "effect";
 import * as Effect from "effect/Effect";
+import type { EntityId } from "@/types.js";
 import { RepositoryError } from "../repository/errors.js";
 import { RepositoryService } from "../repository/service.js";
-import { BaseEntityWithData } from "../repository/types.js";
+import type { BaseEntityWithData } from "../repository/types.js";
 import type { TagServiceApi } from "./api.js";
 import {
   DuplicateTagNameError,

@@ -2,8 +2,9 @@
  * @file Chat History Service implementation for conversation management and tracking
  * @module services/pipeline/chat/service
  */
-import { ChatHistory, ChatHistoryError, ChatHistoryServiceApi, ChatMessage } from "@/services/pipeline/chat/api.js";
-import { Effect, Either, Option, Ref, pipe } from "effect";
+
+import { Effect, Either, Option, pipe, Ref } from "effect";
+import { type ChatHistory, ChatHistoryError, type ChatHistoryServiceApi, type ChatMessage } from "@/services/pipeline/chat/api.js";
 
 /**
  * Chat agent state for tracking conversation activity

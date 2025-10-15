@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for CategorizationService, its live layer, and AI model mock layers
 
 describe("CategorizationService integration tests", () => {

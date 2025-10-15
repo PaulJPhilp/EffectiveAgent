@@ -1,16 +1,16 @@
-import { EffectiveError } from "@/errors.js"
+import { Effect, Ref, Stream } from "effect"
+import type { EffectiveError } from "@/errors.js"
 import { ModelService } from "@/services/ai/model/service.js"
 import { PolicyService } from "@/services/ai/policy/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js"
 import { FileService } from "@/services/core/file/service.js"
-import { Effect, Ref, Stream } from "effect"
 import type { AgentRuntimeServiceApi } from "./api.js"
 import {
     AgentRuntimeError,
     AgentRuntimeNotFoundError
 } from "./errors.js"
-import {
+import type {
     AgentActivity,
     AgentRuntimeId,
     AgentRuntimeState,
@@ -81,7 +81,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
         const send = (_id: AgentRuntimeId, _activity: AgentActivity) =>
             Effect.succeed(void 0) // No-op for agent runtime (no mailbox)
 
-        const getState = <S>(id: AgentRuntimeId) =>
+        const getState = <_S>(id: AgentRuntimeId) =>
             Effect.gen(function* () {
                 const map = yield* Ref.get(runtimes)
                 const stateRef = map.get(id)
@@ -112,9 +112,9 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
 
         // LangGraph support (no mailbox/actor logic)
         const createLangGraphAgent = <TState extends { readonly agentRuntime: any }>(
-            compiledGraph: CompiledLangGraph<TState>,
+            _compiledGraph: CompiledLangGraph<TState>,
             initialState: TState,
-            langGraphRunOptions?: LangGraphRunOptions
+            _langGraphRunOptions?: LangGraphRunOptions
         ) => Effect.gen(function* () {
             // Generate a unique ID for this LangGraph agent
             const id = `langgraph-${Date.now()}-${Math.random().toString(36).slice(2)}` as AgentRuntimeId

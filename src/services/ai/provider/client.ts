@@ -4,13 +4,10 @@
  */
 
 import { Effect, Option, Ref } from "effect";
-import { validateCapabilities, validateModelId } from "./utils.js";
-
-import { ModelCapability } from "@/schema.js";
+import type { ModelCapability } from "@/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
-import { EffectiveInput } from "@/types.js";
-import { ProviderClientApi } from "./api.js";
-
+import type { EffectiveInput } from "@/types.js";
+import type { ProviderClientApi } from "./api.js";
 import {
   ProviderServiceConfigError
 } from "./errors.js";
@@ -23,6 +20,7 @@ import type {
   ProviderGenerateTextOptions,
   ProviderTranscribeOptions
 } from "./types.js";
+import { validateCapabilities, validateModelId } from "./utils.js";
 
 export class ProviderClient extends Effect.Service<ProviderClientApi>()(
   "ProviderClient",
@@ -58,7 +56,7 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
 
         getProvider: getProviderHelper,
 
-        getDefaultModelIdForProvider: (providerName: string) =>
+        getDefaultModelIdForProvider: (_providerName: string) =>
           Effect.gen(function* () {
             const defaultModelId = yield* modelService.getDefaultModelId();
             return defaultModelId;

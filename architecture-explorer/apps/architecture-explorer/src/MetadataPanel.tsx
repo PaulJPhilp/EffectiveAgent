@@ -1,4 +1,4 @@
-import { NodeData } from './types'
+import type { NodeData } from './types'
 
 interface MetadataPanelProps {
     node: NodeData | null
@@ -7,38 +7,42 @@ interface MetadataPanelProps {
 function MetadataPanel({ node }: MetadataPanelProps) {
     const panelStyle = {
         border: '1px solid #ccc',
-        borderRadius: '8px',
-        padding: '16px',
-        backgroundColor: '#f9f9f9',
-        maxWidth: '400px',
-        margin: '16px 0'
+        borderRadius: '4px',
+        padding: '8px 10px',
+        backgroundColor: '#fafbfc',
+        maxWidth: '240px',
+        margin: '8px 0',
+        fontSize: '0.85rem',
+        lineHeight: 1.2
     }
 
     const itemStyle = {
-        marginBottom: '12px'
+        marginBottom: '6px'
     }
 
     const labelStyle = {
         display: 'inline-block',
-        minWidth: '100px',
+        minWidth: '72px',
         color: '#333',
-        fontWeight: 'bold'
+        fontWeight: 500,
+        fontSize: '0.8rem'
     }
 
     const tagStyle = {
         display: 'inline-block',
         backgroundColor: '#e1f5fe',
         color: '#0277bd',
-        padding: '2px 8px',
-        borderRadius: '4px',
-        marginRight: '4px',
-        marginBottom: '4px',
-        fontSize: '0.875rem'
+        padding: '1px 5px',
+        borderRadius: '3px',
+        marginRight: '2px',
+        marginBottom: '2px',
+        fontSize: '0.75rem'
     }
 
     const linkStyle = {
         color: '#1976d2',
-        textDecoration: 'none'
+        textDecoration: 'none',
+        fontSize: '0.8rem'
     }
 
     if (!node) {
@@ -62,10 +66,7 @@ function MetadataPanel({ node }: MetadataPanelProps) {
                 <span style={labelStyle}>ID:</span> {node.id}
             </div>
             
-            <div style={itemStyle}>
-                <span style={labelStyle}>C4 Level:</span> {node.c4Level}
-            </div>
-            
+
             {node.layer && (
                 <div style={itemStyle}>
                     <span style={labelStyle}>Layer:</span> {node.layer}

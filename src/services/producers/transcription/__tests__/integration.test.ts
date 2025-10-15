@@ -3,23 +3,20 @@
  * @module services/pipeline/producers/transcription/__tests__/integration.test
  */
 
-import { randomBytes } from "crypto";
+import { randomBytes } from "node:crypto";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer } from "effect";
+import type { Span } from "effect/Tracer";
+import { describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Layer } from "effect";
-import { Span } from "effect/Tracer";
-import { describe, expect, it } from "vitest";
 import { 
   TranscriptionAudioError, 
-  TranscriptionError, 
   TranscriptionModelError, 
-  TranscriptionProviderError 
 } from "../errors.js";
-import { TranscriptionService } from "../service.js";
-import { AudioFormats } from "../service.js";
-import type { TranscriptionOptions, TranscriptionResult } from "../types.js";
+import { AudioFormats, TranscriptionService } from "../service.js";
+import type { TranscriptionOptions, } from "../types.js";
 
 // Helper function to generate mock audio data
 const generateMockAudioData = (format: string = 'wav'): string => {

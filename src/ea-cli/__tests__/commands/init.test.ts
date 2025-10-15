@@ -1,12 +1,8 @@
 import { Effect } from "effect"
-import { FileSystem } from "@effect/platform"
-import { NodeFileSystem, NodeContext } from "@effect/platform-node"
-import { describe, expect, it, beforeEach } from "vitest"
-import { runCommand, expectCommandFailure } from "../test-utils.js"
+import { beforeEach, describe, expect, it } from "vitest"
 import { initCommand } from "../../src/commands/init.js"
 import { cleanupTestDirs } from "../setup.js"
-import { ConfigurationService } from "../../../services/core/configuration/index.js"
-import { ModelService } from "../../../services/ai/model/service.js"
+import { expectCommandFailure, runCommand } from "../test-utils.js"
 
 describe("Init Command", () => {
   beforeEach(async () => {
@@ -17,19 +13,17 @@ describe("Init Command", () => {
       Effect.gen(function* () {
         const result = yield* runCommand(initCommand, [])
         expect(result).toBeDefined()
-      })
-    )
+      }))
 
     it("should fail if project already exists", () =>
       Effect.gen(function* () {
         // First init
         yield* runCommand(initCommand, [])
-        
+
         // Second init should fail
         const error = yield* expectCommandFailure(initCommand, [])
         expect(error).toBeDefined()
         expect(error.message).toContain("already exists")
-      })
-    )
+      }))
   })
 })

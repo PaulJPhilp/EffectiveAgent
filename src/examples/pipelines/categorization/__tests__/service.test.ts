@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for CategorizationService and any necessary mocks
 
 describe("CategorizationService unit tests", () => {

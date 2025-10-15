@@ -5,100 +5,61 @@
 
 import "dotenv/config";
 
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Schema } from "effect";
 import { AgentRuntimeService } from "@/ea-agent-runtime/index.js";
 import { StructuredOutputAgent } from "@/examples/structured-output/agent.js";
-import { WeatherAgent } from "@/examples/weather/agent.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ObjectService } from "@/services/producers/object/service.js";
 import { TextService } from "@/services/producers/text/service.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Schema } from "effect";
 
 // Example schema for travel recommendation
 const TravelRecommendationSchema = Schema.Struct({
     destination: Schema.String,
-    weatherSummary: Schema.String,
     recommendedActivities: Schema.Array(Schema.String),
     bestTimeToVisit: Schema.String,
-    clothingRecommendations: Schema.Array(Schema.String)
+    travelTips: Schema.Array(Schema.String)
 });
 
 type TravelRecommendation = Schema.Schema.Type<typeof TravelRecommendationSchema>;
 
 /**
- * Example demonstrating how to use both Weather and StructuredOutput agents together
+ * Example demonstrating how to use the StructuredOutput agent
  */
 export const runExample = Effect.gen(function* () {
     console.log("🚀 Starting AgentRuntime Example...");
 
-    // Initialize both agents
-    const weatherAgent = yield* WeatherAgent;
+    // Initialize the structured output agent
     const structuredAgent = yield* StructuredOutputAgent;
 
     const destination = "Tokyo";
 
-    console.log(`\n📍 Getting weather data for ${destination}...`);
-
-    // Get weather data
-    const weatherData = yield* weatherAgent.getWeather({
-        location: destination,
-        units: { type: "celsius", windSpeedUnit: "mps" }
-    });
-
-    console.log("✅ Weather data retrieved:", {
-        location: weatherData.location.name,
-        temperature: `${weatherData.temperature}°C`,
-        conditions: weatherData.conditions[0]?.condition,
-        humidity: `${weatherData.humidity}%`,
-        windSpeed: `${weatherData.windSpeed} m/s`
-    });
-
-    // Get weather summary
-    const weatherSummary = yield* weatherAgent.getWeatherSummary({
-        location: destination,
-        units: { type: "celsius", windSpeedUnit: "mps" }
-    });
-
-    console.log("📝 Weather summary:", weatherSummary);
-
     console.log("\n🏗️ Generating travel recommendation...");
 
-    // Generate structured travel recommendation using the weather data
+    // Generate structured travel recommendation
     const travelRec = yield* structuredAgent.generateStructuredOutput<TravelRecommendation>({
-        prompt: `Based on this weather data for ${destination}:
-        Temperature: ${weatherData.temperature}°C
-        Conditions: ${weatherData.conditions[0]?.condition}
-        Humidity: ${weatherData.humidity}%
-        Wind Speed: ${weatherData.windSpeed} m/s
+        prompt: `Generate a comprehensive travel recommendation for visiting ${destination}.
         
-        Generate a comprehensive travel recommendation including:
-        - Weather summary
-        - Recommended activities based on the weather
+        Include:
+        - Recommended activities for tourists
         - Best time to visit
-        - Clothing recommendations
+        - Practical travel tips
         
-        Make it practical and specific to the current weather conditions.`,
+        Make it informative and engaging.`,
         schema: TravelRecommendationSchema
     });
 
     console.log("✅ Travel recommendation generated:", {
         destination: travelRec.destination,
-        weatherSummary: travelRec.weatherSummary,
         activities: travelRec.recommendedActivities.slice(0, 3),
         bestTime: travelRec.bestTimeToVisit,
-        clothing: travelRec.clothingRecommendations.slice(0, 3)
+        tips: travelRec.travelTips.slice(0, 3)
     });
 
-    // Show agent states
-    console.log("\n📊 Agent States:");
-
-    const weatherState = yield* weatherAgent.getAgentState();
-    console.log("Weather Agent:", {
-        requestCount: weatherState.requestCount,
-        hasCurrentWeather: weatherState.currentWeather._tag === "Some"
-    });
+    // Show agent state
+    console.log("\n📊 Agent State:");
 
     const structuredState = yield* structuredAgent.getAgentState();
     console.log("Structured Output Agent:", {
@@ -107,21 +68,16 @@ export const runExample = Effect.gen(function* () {
     });
 
     // Cleanup
-    console.log("\n🧹 Cleaning up agents...");
-    yield* weatherAgent.terminate();
+    console.log("\n🧹 Cleaning up agent...");
     yield* structuredAgent.terminate();
 
     console.log("✅ Example completed successfully!");
 
     return {
-        weatherData,
-        weatherSummary,
         travelRecommendation: travelRec,
-        weatherAgentState: weatherState,
         structuredAgentState: structuredState
     };
 }).pipe(
-    Effect.provide(WeatherAgent.Default),
     Effect.provide(StructuredOutputAgent.Default),
     Effect.provide(AgentRuntimeService.Default),
     Effect.provide(TextService.Default),

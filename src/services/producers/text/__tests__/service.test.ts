@@ -1,5 +1,5 @@
 import { Effect, Either, Option } from "effect";
-import { Span } from "effect/Tracer";
+import type { Span } from "effect/Tracer";
 import { describe, expect, it } from "vitest";
 import { TextGenerationError, TextInputError, TextModelError, TextProviderError } from "../errors.js";
 import { TextService } from "../service.js";

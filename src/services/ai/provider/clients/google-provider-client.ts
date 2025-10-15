@@ -1,41 +1,38 @@
+import type {
+  LanguageModelV2
+} from "@ai-sdk/provider";
 import {
-  EffectiveMessage,
-  ModelCapability,
+  createProvider,
+  Message as EffectiveMessage,
   TextPart,
   ToolCallPart,
-} from "@/schema.js";
+} from "@effective-agent/ai-sdk";
+import { generateObject, generateText } from "ai";
+import { Chunk, Effect, Either, Option } from "effect";
+import { z } from "zod";
+import type { ModelCapability } from "@/schema.js";
+
+import { ToolService } from "@/services/ai/tools/service.js";
+import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
+import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
 import type {
   EffectiveInput,
   EffectiveResponse,
   FinishReason,
   ProviderEffectiveResponse,
 } from "@/types.js";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-import {
-  LanguageModelV1,
-  type LanguageModelV1CallOptions,
-  type LanguageModelV1CallWarning,
-  type LanguageModelV1FinishReason,
-  type LanguageModelV1StreamPart,
-} from "@ai-sdk/provider";
-import { generateObject, generateText } from "ai";
-import { Chunk, Duration, Effect, Either, Option } from "effect";
-
-import { ModelService } from "@/services/ai/model/service.js";
-import { ToolService } from "@/services/ai/tools/service.js";
-import { z } from "zod";
 import type { ModelServiceApi } from "../../model/api.js";
-import { ToolRegistryService } from "../../tool-registry/service.js";
+import type { ToolRegistryService } from "../../tool-registry/service.js";
 import type { FullToolName } from "../../tools/types.js";
 import type { ProviderClientApi } from "../api.js";
 import {
   ProviderMissingCapabilityError,
-  ProviderNotFoundError,
+  type ProviderNotFoundError,
   ProviderOperationError,
   ProviderServiceConfigError,
   ProviderToolError,
 } from "../errors.js";
-import { ProvidersType } from "../schema.js";
+import type { ProvidersType } from "../schema.js";
 import type {
   ChatResult,
   EffectiveProviderApi,
@@ -49,8 +46,6 @@ import type {
   ProviderGenerateTextOptions,
   ProviderTranscribeOptions,
 } from "../types.js";
-import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
-import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
 
 const MAX_TOOL_ITERATIONS = 5;
 const DEFAULT_MODEL_ID = "gemini-1.5-flash-latest";
@@ -85,7 +80,7 @@ interface GoogleMessage {
   }>;
 }
 
-function mapEAMessagesToGoogleMessages(
+function _mapEAMessagesToGoogleMessages(
   eaMessages: ReadonlyArray<EffectiveMessage>
 ): GoogleMessage[] {
   return eaMessages.map((msg) => {
@@ -126,7 +121,7 @@ function mapEAMessagesToGoogleMessages(
 
 function mapGoogleMessageToEAEffectiveMessage(
   googleMsg: GoogleMessage,
-  modelId: string
+  _modelId: string
 ): EffectiveMessage {
   const eaParts: Array<TextPart | ToolCallPart> = [];
 
@@ -160,9 +155,21 @@ export function makeGoogleClient(
   ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError,
   ModelServiceApi | ToolRegistryService | OrchestratorService
 > {
-  const googleProvider = createGoogleGenerativeAI({ apiKey });
-
   return Effect.gen(function* () {
+    // Use ai-sdk's createProvider for provider instance creation
+    const googleProvider = yield* createProvider("google", {
+      apiKey,
+    }).pipe(
+      Effect.mapError(
+        (error) =>
+          new ProviderServiceConfigError({
+            description: `Failed to create Google provider: ${error.message}`,
+            module: "GoogleClient",
+            method: "makeGoogleClient",
+          })
+      )
+    );
+
     const orchestrator = yield* OrchestratorService;
 
     // Orchestration configurations for Google operations
@@ -317,7 +324,7 @@ export function makeGoogleClient(
           Effect.gen(function* () {
             const modelId = options.modelId ?? DEFAULT_MODEL_ID;
 
-            let messages: any[] = [];
+            const messages: any[] = [];
             if (options.system) {
               messages.push({ role: "system", content: options.system });
             }
@@ -326,7 +333,7 @@ export function makeGoogleClient(
             messages.push({ role: "user", content: effectiveInput.text });
 
             let iteration = 0;
-            let currentMessages = [...messages];
+            const currentMessages = [...messages];
 
             while (iteration < MAX_TOOL_ITERATIONS) {
               const result = yield* Effect.tryPromise({
@@ -337,15 +344,15 @@ export function makeGoogleClient(
                     temperature: options.parameters?.temperature,
                     tools: options.tools
                       ? Object.fromEntries(
-                          Object.entries(options.tools).map(([name, tool]) => [
-                            name,
-                            {
-                              description: (tool as any).description || "",
-                              parameters:
-                                (tool as any).parameters || z.object({}),
-                            },
-                          ])
-                        )
+                        Object.entries(options.tools).map(([name, tool]) => [
+                          name,
+                          {
+                            description: (tool as any).description || "",
+                            parameters:
+                              (tool as any).parameters || z.object({}),
+                          },
+                        ])
+                      )
                       : undefined,
                   }),
                 catch: (error: unknown) => {
@@ -383,7 +390,7 @@ export function makeGoogleClient(
                 modelId
               );
 
-              const responseMessages = Chunk.of(responseMessage);
+              const _responseMessages = Chunk.of(responseMessage);
 
               // Check if there are tool calls to execute
               if (result.toolCalls && result.toolCalls.length > 0) {
@@ -405,9 +412,8 @@ export function makeGoogleClient(
 
                       const processedResult = Either.match(toolResult, {
                         onLeft: (error) => ({
-                          error: `Tool ${
-                            toolCall.toolName
-                          } execution failed: ${String(error)}`,
+                          error: `Tool ${toolCall.toolName
+                            } execution failed: ${String(error)}`,
                         }),
                         onRight: (result) => result,
                       });
@@ -427,8 +433,8 @@ export function makeGoogleClient(
                           result: {
                             error:
                               typeof error === "object" &&
-                              error !== null &&
-                              "message" in error
+                                error !== null &&
+                                "message" in error
                                 ? error.message
                                 : String(error),
                           },
@@ -499,7 +505,7 @@ export function makeGoogleClient(
           GOOGLE_CHAT_CONFIG
         ),
 
-      setVercelProvider: (vercelProvider: EffectiveProviderApi) => Effect.void,
+      setVercelProvider: (_vercelProvider: EffectiveProviderApi) => Effect.void,
 
       generateObject: <T = unknown>(
         effectiveInput: EffectiveInput,
@@ -534,9 +540,8 @@ export function makeGoogleClient(
               new ProviderOperationError({
                 providerName: "google",
                 operation: "generateObject",
-                message: `Failed to generate object: ${
-                  error instanceof Error ? error.message : String(error)
-                }`,
+                message: `Failed to generate object: ${error instanceof Error ? error.message : String(error)
+                  }`,
                 module: "GoogleClient",
                 method: "generateObject",
                 cause: error,
@@ -573,7 +578,7 @@ export function makeGoogleClient(
           };
         }),
 
-      generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
+      generateSpeech: (_input: string, _options: ProviderGenerateSpeechOptions) =>
         Effect.fail(
           new ProviderOperationError({
             providerName: "google",
@@ -584,7 +589,7 @@ export function makeGoogleClient(
           })
         ),
 
-      transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
+      transcribe: (_input: ArrayBuffer, _options: ProviderTranscribeOptions) =>
         Effect.fail(
           new ProviderOperationError({
             providerName: "google",
@@ -596,8 +601,8 @@ export function makeGoogleClient(
         ),
 
       generateEmbeddings: (
-        input: string[],
-        options: ProviderGenerateEmbeddingsOptions
+        _input: string[],
+        _options: ProviderGenerateEmbeddingsOptions
       ) =>
         Effect.fail(
           new ProviderOperationError({
@@ -610,8 +615,8 @@ export function makeGoogleClient(
         ),
 
       generateImage: (
-        input: EffectiveInput,
-        options: ProviderGenerateImageOptions
+        _input: EffectiveInput,
+        _options: ProviderGenerateImageOptions
       ) =>
         Effect.fail(
           new ProviderMissingCapabilityError({
@@ -623,100 +628,23 @@ export function makeGoogleClient(
         ),
 
       getModels: (): Effect.Effect<
-        LanguageModelV1[],
+        LanguageModelV2[],
         ProviderServiceConfigError,
         ModelServiceApi
       > =>
         Effect.gen(function* () {
-          const modelService = yield* ModelService;
-          const models = yield* modelService.getModelsForProvider("google");
-          // Convert readonly array to mutable array and map to LanguageModelV1
-          return models.map(
-            (model): LanguageModelV1 => ({
-              modelId: model.id,
-              provider: "google",
-              specificationVersion: "v1",
-              defaultObjectGenerationMode: "json",
-              doGenerate: async (options: LanguageModelV1CallOptions) => {
-                const result = await generateText({
-                  messages: Array.isArray(options.prompt)
-                    ? options.prompt
-                    : [options.prompt],
-                  model: getModel(model.id),
-                  temperature: options.temperature,
-                  maxTokens: options.maxTokens,
-                  topP: options.topP,
-                  frequencyPenalty: options.frequencyPenalty,
-                  presencePenalty: options.presencePenalty,
-                  seed: options.seed,
-                });
-                return {
-                  text: result.text,
-                  reasoning: [{ type: "text", text: result.text }],
-                  finishReason:
-                    result.finishReason as LanguageModelV1FinishReason,
-                  usage: {
-                    promptTokens: result.usage?.promptTokens ?? 0,
-                    completionTokens: result.usage?.completionTokens ?? 0,
-                    totalTokens: result.usage?.totalTokens ?? 0,
-                  },
-                  rawCall: {
-                    rawPrompt: options.prompt,
-                    rawSettings: {
-                      temperature: options.temperature,
-                      maxTokens: options.maxTokens,
-                      topP: options.topP,
-                    } as Record<string, unknown>,
-                  },
-                  rawResponse: { headers: {} },
-                  request: { body: JSON.stringify(options.prompt) },
-                  warnings: [] as LanguageModelV1CallWarning[],
-                };
-              },
-              doStream: async (options: LanguageModelV1CallOptions) => {
-                const result = await generateText({
-                  messages: Array.isArray(options.prompt)
-                    ? options.prompt
-                    : [options.prompt],
-                  model: getModel(model.id),
-                  temperature: options.temperature,
-                  maxTokens: options.maxTokens,
-                  topP: options.topP,
-                  frequencyPenalty: options.frequencyPenalty,
-                  presencePenalty: options.presencePenalty,
-                  seed: options.seed,
-                });
-                const stream = new ReadableStream<LanguageModelV1StreamPart>({
-                  start(controller) {
-                    controller.enqueue({
-                      type: "text-delta",
-                      textDelta: result.text,
-                    });
-                    controller.close();
-                  },
-                });
-                return {
-                  stream,
-                  rawCall: {
-                    rawPrompt: options.prompt,
-                    rawSettings: {
-                      temperature: options.temperature,
-                      maxTokens: options.maxTokens,
-                      topP: options.topP,
-                    } as Record<string, unknown>,
-                  },
-                  rawResponse: { headers: {} },
-                  request: { body: JSON.stringify(options.prompt) },
-                  warnings: [] as LanguageModelV1CallWarning[],
-                };
-              },
-            })
+          // TODO: Implement proper LanguageModelV2 adapter in Phase 3.2
+          // For now, return empty array to unblock Phase 3.1
+          // The getModels() method is not critical for core provider functionality
+          yield* Effect.logDebug(
+            "getModels() not yet implemented for LanguageModelV2 - returning empty array"
           );
+          return [];
         }),
 
       getDefaultModelIdForProvider: (
         providerName: ProvidersType,
-        capability: ModelCapability
+        _capability: ModelCapability
       ) =>
         Effect.gen(function* () {
           if (providerName !== "google") {

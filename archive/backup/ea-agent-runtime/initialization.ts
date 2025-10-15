@@ -1,17 +1,14 @@
 import { PlatformLogger } from '@effect/platform';
 import { BunFileSystem } from '@effect/platform-bun';
 import { NodeFileSystem } from '@effect/platform-node';
-import { Effect, Layer, LogLevel, Logger, Runtime } from "effect";
-
-import { ConfigurationError } from '@/services/core/configuration/errors.js';
-import { MasterConfig } from './schema.js';
-
+import { Effect, Layer, Logger, LogLevel, type Runtime } from "effect";
 import { ModelService } from '@/services/ai/model/service.js';
 import { PolicyService } from '@/services/ai/policy/service.js';
 import { ProviderService } from '@/services/ai/provider/service.js';
+import type { ConfigurationError } from '@/services/core/configuration/errors.js';
 import { ConfigurationService } from '@/services/core/configuration/service.js';
-
 import { AgentRuntimeInitializationError } from './errors.js';
+import type { MasterConfig } from './schema.js';
 import type { RuntimeServices } from './types.js';
 
 export interface InitializationServiceApi {

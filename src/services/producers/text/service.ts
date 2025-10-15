@@ -3,14 +3,15 @@
  * @module services/pipeline/producers/text/service
  */
 
+import { generateTextWithModel } from "@effective-agent/ai-sdk";
+import { Chunk, Effect, Option, Ref } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import { GenerateTextResult } from "@/services/ai/provider/types";
+import type { GenerateTextResult } from "@/services/ai/provider/types";
 import type { TextServiceApi } from "@/services/producers/text/api.js";
 import { TextInputError, TextModelError } from "@/services/producers/text/errors.js";
 import type { TextGenerationOptions } from "@/services/producers/text/types.js";
-import { EffectiveResponse } from "@/types.js";
-import { Chunk, Effect, Option, Ref } from "effect";
+import type { EffectiveResponse } from "@/types.js";
 
 /**
  * Text generation agent state (simplified without AgentRuntime)
@@ -113,7 +114,7 @@ class TextService extends Effect.Service<TextServiceApi>()(
 
             // Get provider for the model
             const providerName = yield* modelService.getProviderName(modelId);
-            const providerClient = yield* providerService.getProviderClient(providerName);
+            const languageModel = yield* providerService.getAiSdkLanguageModel(providerName, modelId);
 
             // Prepare the final prompt
             const systemPrompt = Option.getOrElse(options.system, () => "");
@@ -121,20 +122,19 @@ class TextService extends Effect.Service<TextServiceApi>()(
               ? `${systemPrompt}\n\n${options.prompt}`
               : options.prompt;
 
-            // Call the real AI provider
-            const providerResult = yield* providerClient.generateText({
+            // Call ai-sdk operation directly
+            const aiSdkResult = yield* generateTextWithModel(languageModel, {
               text: finalPrompt,
               messages: Chunk.empty()
             }, {
-              modelId,
+              system: Option.getOrUndefined(options.system),
               parameters: {
                 temperature: options.parameters?.temperature,
                 maxTokens: options.parameters?.maxSteps,
                 topP: options.parameters?.topP,
                 frequencyPenalty: options.parameters?.frequencyPenalty,
                 presencePenalty: options.parameters?.presencePenalty,
-                stop: options.parameters?.stop
-              }
+              },
             });
 
             const response: EffectiveResponse<GenerateTextResult> = {
@@ -142,16 +142,16 @@ class TextService extends Effect.Service<TextServiceApi>()(
                 id: crypto.randomUUID(),
                 model: modelId,
                 timestamp: new Date(),
-                text: providerResult.data.text,
-                usage: providerResult.usage ?? { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
-                finishReason: providerResult.finishReason ?? "stop"
+                text: aiSdkResult.data.text,
+                usage: aiSdkResult.data.usage ?? { promptTokens: 0, completionTokens: 0, totalTokens: 0 },
+                finishReason: aiSdkResult.data.finishReason ?? "stop"
               },
               metadata: {
                 model: modelId,
                 provider: providerName,
                 promptLength: finalPrompt.length,
-                outputLength: providerResult.data.text.length,
-                usage: providerResult.usage ?? { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
+                outputLength: aiSdkResult.data.text.length,
+                usage: aiSdkResult.data.usage ?? { promptTokens: 0, completionTokens: 0, totalTokens: 0 }
               }
             };
 

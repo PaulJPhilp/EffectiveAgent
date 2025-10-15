@@ -1,7 +1,5 @@
-import { Message } from "@/schema.js";
-import { EffectiveInput } from "@/types.js";
-import { Chunk, Effect } from "effect";
-import { ProviderOperationError } from "../errors.js";
+import { Effect } from "effect";
+import type { EffectiveInput } from "@/types.js";
 import type {
   ModelCapability,
   ProviderChatOptions,
@@ -11,27 +9,25 @@ import type {
   ProviderGenerateObjectOptions,
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
-  ProviderTranscribeOptions,
-  ToolCallRequest,
-  ToolDefinition,
+  ProviderTranscribeOptions
 } from "../types.js";
 
 export const makeProvider = (
-  name: string,
+  _name: string,
   initialCapabilities: ModelCapability[],
-  apiKey: string,
+  _apiKey: string,
   providerClient: ProviderClientApi
 ): ProviderClientApi => {
   // Convert array to Set for O(1) lookups
-  const capabilities = new Set(initialCapabilities);
+  const _capabilities = new Set(initialCapabilities);
 
   // Real implementation only
   return {
-    validateToolInput: (toolName: `${string}:${string}`, input: unknown) =>
+    validateToolInput: (_toolName: `${string}:${string}`, _input: unknown) =>
       Effect.succeed(void 0),
-    executeTool: (toolName: `${string}:${string}`, input: unknown) =>
+    executeTool: (_toolName: `${string}:${string}`, _input: unknown) =>
       Effect.succeed({}),
-    processToolResult: (toolName: `${string}:${string}`, result: unknown) =>
+    processToolResult: (_toolName: `${string}:${string}`, result: unknown) =>
       Effect.succeed(result),
     generateText: (
       input: EffectiveInput,
@@ -64,10 +60,10 @@ export const makeProvider = (
       return providerClient.chat(effectiveInput, options);
     },
     getModels: () => providerClient.getModels(),
-    setVercelProvider: (vercelProvider: any) => Effect.succeed(void 0),
+    setVercelProvider: (_vercelProvider: any) => Effect.succeed(void 0),
     getProvider: () => providerClient.getProvider(),
     getCapabilities: () => providerClient.getCapabilities(),
-    getDefaultModelIdForProvider: (providerName: any, capability: any) =>
+    getDefaultModelIdForProvider: (_providerName: any, _capability: any) =>
       Effect.succeed("default-model"),
   };
 };

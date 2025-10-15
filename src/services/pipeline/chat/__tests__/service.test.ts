@@ -4,16 +4,14 @@
  * conversation history management, and error handling.
  */
 
-import { join } from "path";
-import { PolicyService } from "@/services/ai/policy/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { ChatHistory, ChatMessage } from "@/services/pipeline/chat/schema.js";
-import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
-import type { ChatHistoryServiceApi } from "@/services/pipeline/chat/api.js";
+import { join } from "node:path";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { ChatHistoryServiceApi } from "@/services/pipeline/chat/api.js";
+import type { ChatHistory, ChatMessage } from "@/services/pipeline/chat/schema.js";
+import { ChatHistoryService } from "@/services/pipeline/chat/service.js";
 
 describe("ChatHistoryService", () => {
   const testDir = join(process.cwd(), "test-policy-configs", "chat");
@@ -131,7 +129,7 @@ describe("ChatHistoryService", () => {
           yield* fs.remove(providersConfigPath);
           yield* fs.remove(masterConfigPath);
           yield* fs.remove(testDir, { recursive: true });
-        } catch (error) {
+        } catch (_error) {
           // Ignore cleanup errors
         }
 
@@ -159,7 +157,7 @@ describe("ChatHistoryService", () => {
     role: "user",
     content: "test message",
   };
-  const validMessages = [validMessage] as ReadonlyArray<ChatMessage>;
+  const _validMessages = [validMessage] as ReadonlyArray<ChatMessage>;
   const validHistory: ChatHistory = {
     messages: [validMessage] as ReadonlyArray<ChatMessage>
   };
@@ -315,7 +313,7 @@ describe("ChatHistoryService", () => {
           role: "invalid" as "user",
           content: "test",
         };
-        const invalidMessages = [invalidMessage] as ChatMessage[];
+        const _invalidMessages = [invalidMessage] as ChatMessage[];
         const invalidHistory: ChatHistory = {
           messages: Array.from([invalidMessage])
         };
@@ -340,7 +338,7 @@ describe("ChatHistoryService", () => {
           role: "user",
           content: null,
         } as unknown as ChatMessage;
-        const invalidMessages = [invalidMessage] as ChatMessage[];
+        const _invalidMessages = [invalidMessage] as ChatMessage[];
         const invalidHistory: ChatHistory = {
           messages: Array.from([invalidMessage])
         };
@@ -373,7 +371,7 @@ describe("ChatHistoryService", () => {
           role: "assistant",
           content: "response message",
         };
-        const updatedMessages = [validMessage, updatedMessage] as ChatMessage[];
+        const _updatedMessages = [validMessage, updatedMessage] as ChatMessage[];
         const updatedHistory: ChatHistory = {
           messages: Array.from([validMessage, updatedMessage])
         };

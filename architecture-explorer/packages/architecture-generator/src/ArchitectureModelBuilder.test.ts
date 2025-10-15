@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   buildArchitectureModel,
-  ModelBuildResult,
+  type ModelBuildResult,
 } from "./ArchitectureModelBuilder.js";
-import { NodeData, EdgeData } from "./types.js";
+import type { EdgeData, NodeData } from "./types.js";
 
 describe("ArchitectureModelBuilder", () => {
   describe("Valid Model Building", () => {
@@ -60,7 +60,7 @@ describe("ArchitectureModelBuilder", () => {
           'ServiceComponent["Service Component"]'
         );
         expect(diagram.mermaidDefinition).toContain(
-          'UIComponent -->|"uses"| ServiceComponent'
+          'UIComponent --> ServiceComponent'
         );
       }
     });
@@ -134,7 +134,9 @@ describe("ArchitectureModelBuilder", () => {
           'ComponentWithSpecialChars["Component With Special Chars"]'
         );
         expect(mermaid).toContain('subgraph Special_Layer_["Special Layer!"]');
-        expect(mermaid).toContain("self-ref with brackets and quotes");
+        expect(result.warnings).toContain(
+          "Skipping self-referencing edge: 'ComponentWithSpecialChars' -> 'ComponentWithSpecialChars'"
+        );
       }
     });
   });
@@ -434,8 +436,8 @@ describe("ArchitectureModelBuilder", () => {
       expect(result.success).toBe(true);
       if (result.success) {
         const mermaid = result.data.diagrams[0].mermaidDefinition;
-        expect(mermaid).toContain('CompA -->|"uses API"| CompB');
-        expect(mermaid).toContain('CompB -->|"depends on"| CompC');
+        expect(mermaid).toContain('CompA --> CompB');
+        expect(mermaid).toContain('CompB --> CompC');
       }
     });
   });

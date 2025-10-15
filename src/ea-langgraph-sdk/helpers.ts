@@ -200,7 +200,7 @@ export function setStateProperty<TState extends LangGraphAgentState>(
 
         const cloned: any = {}
         for (const key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (Object.hasOwn(obj, key)) {
                 cloned[key] = cloneValue(obj[key])
             }
         }

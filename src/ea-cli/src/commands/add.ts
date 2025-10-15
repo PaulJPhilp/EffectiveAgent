@@ -3,12 +3,12 @@ import { Effect } from "effect"
 import { createAgent } from "../boilerplate/agent.js"
 import {
   ConfigurationError,
+  mapUnknownError,
   PermissionError,
   ResourceExistsError,
   ValidationError,
-  mapUnknownError,
 } from "../errors.js"
-import { type ResourceType, addConfigItem } from "../utils/config-helpers.js"
+import { addConfigItem, type ResourceType } from "../utils/config-helpers.js"
 
 // Validation utilities with improved error messages
 const validateAgentName = (
@@ -127,16 +127,7 @@ const addAgentCommand = Command.make(
 ).pipe(Command.withDescription(addAgentDesc))
 
 // Helper to create config item command with Effect-based error handling
-const createAddCommand = (
-  type: ResourceType,
-): Command.Command<
-  ResourceType,
-  {
-    readonly itemName: string; // Ensure this matches the args definition
-  },
-  ValidationError | ResourceExistsError | ConfigurationError | PermissionError,
-  never // The handler returns Effect<void, E, R>, so success channel is void, which is effectively never for Command output unless specified
-> => {
+const createAddCommand = (type: ResourceType) => {
   const descriptions = {
     model:
       "Add a new model configuration to the project. This will create an entry in models.json " +
@@ -184,9 +175,15 @@ const createAddCommand = (
 
         // Add config item with Effect-based error handling
         yield* addConfigItem(type, itemName, { placeholder: true }).pipe(
-          Effect.catchAll((error: unknown) => { // Catch error as unknown
-            if (error instanceof ResourceExistsError || error instanceof ConfigurationError || error instanceof PermissionError || error instanceof ValidationError) {
-              return Effect.fail(error);
+          Effect.catchAll((error: unknown) => {
+            // Catch error as unknown
+            if (
+              error instanceof ResourceExistsError ||
+              error instanceof ConfigurationError ||
+              error instanceof PermissionError ||
+              error instanceof ValidationError
+            ) {
+              return Effect.fail(error)
             }
             if (error instanceof Error) {
               if (error.message.includes("ENOENT")) {

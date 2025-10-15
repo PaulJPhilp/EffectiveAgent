@@ -4,19 +4,19 @@ import {
   rmdirSync,
   unlinkSync,
   writeFileSync,
-} from "fs";
-import * as os from "os";
-import { join } from "path";
+} from "node:fs";
+import * as os from "node:os";
+import { join } from "node:path";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Either, Layer } from "effect";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Layer } from "effect";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { AgentRuntimeInitializationError } from "../errors.js";
 import { InitializationService } from "../initialization.js";
-import { MasterConfig } from "../schema.js";
+import type { MasterConfig } from "../schema.js";
 
 describe("AgentRuntime Initialization Integration Tests", () => {
   it("should have .Default available", () => {
@@ -150,7 +150,7 @@ describe("AgentRuntime Initialization Integration Tests", () => {
       unlinkSync(modelsConfigPath);
       unlinkSync(policyConfigPath);
       rmdirSync(testDir);
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
 

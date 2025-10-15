@@ -2,7 +2,7 @@
  * @file Defines the Persona Service API for managing persona configurations.
  */
 
-import { Effect } from "effect";
+import type { Effect } from "effect";
 import type { PersonaConfigError } from "./errors.js";
 import type { PersonasFile } from "./schema.js";
 import type { PersonaDefinition, PersonaDefinitionInput } from "./types.js";

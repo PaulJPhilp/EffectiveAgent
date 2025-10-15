@@ -20,6 +20,12 @@ export interface ArchitectureData {
 	 * An array of all identified relationships (edges) between architectural nodes.
 	 */
 	edges: EdgeData[];
+	/**
+	 * Optional map of layer/group names to color strings (hex or CSS) extracted from @groupByLayer + @color JSDoc tags.
+	 * Used for group/layer coloring in the architecture visualizer.
+	 * Example: { "Core": "#e0e0e0", "AI": "#ffcc00" }
+	 */
+	layerColors?: Record<string, string>;
 }
 
 /**
@@ -76,6 +82,11 @@ export interface NodeData {
 	 * An array of URLs to external resources related to the component (e.g., source code, docs).
 	 */
 	links?: string[];
+	/**
+	 * Optional hex or CSS color string for the node, extracted from the @color JSDoc tag in source code.
+	 * Example: "#ffcc00" or "red".
+	 */
+	color?: string;
 	// Future: Add position or layout hints if needed
 	// x?: number;
 	// y?: number;
@@ -109,7 +120,7 @@ export interface EdgeData {
  * Defines the accepted C4 model levels for architectural components.
  * Corresponds to the `@c4` JSDoc tag.
  */
-export type C4Level = "System" | "Container" | "Component" | "Database" | "External System" | "Person";
+export type C4Level = "SystemContext" | "Container" | "Component" | "Code";
 
 /**
  * Defines the names of the architectural layers for static grouping.

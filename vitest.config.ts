@@ -1,6 +1,6 @@
-import { defineConfig } from 'vitest/config'
-import { resolve } from 'path'
+import { resolve } from 'node:path'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
     plugins: [tsconfigPaths()],
@@ -17,6 +17,10 @@ export default defineConfig({
             '@effectors': resolve(__dirname, 'src/effectors'),
             '@ea': resolve(__dirname, 'src/ea'),
             '@ea-agent-runtime': resolve(__dirname, 'src/ea-agent-runtime')
+            ,
+            // Ensure tests resolve the ai-sdk to the source implementation so
+            // vitest's hoisted vi.mock replaces the correct module instance.
+            '@effective-agent/ai-sdk': resolve(__dirname, 'packages/effect-aisdk/src/index.ts')
         },
         extensions: ['.js', '.ts']
     },
@@ -24,12 +28,12 @@ export default defineConfig({
         globals: true,
         environment: 'node',
         include: ['**/*.test.ts'],
-        exclude: ['**/node_modules/**', '**/dist/**'],
+        exclude: ['**/node_modules/**', '**/dist/**', '**/archive/**'],
         setupFiles: ['./src/ea-agent-runtime/__tests__/setup.ts'],
         coverage: {
             provider: 'v8',
             reporter: ['text', 'json', 'html', 'lcov'],
-            exclude: ['**/node_modules/**', '**/dist/**', '**/__tests__/helpers/**', '**/mocks/**']
+            exclude: ['**/node_modules/**', '**/dist/**', '**/__tests__/helpers/**', '**/mocks/**', '**/archive/**']
         }
     }
 })

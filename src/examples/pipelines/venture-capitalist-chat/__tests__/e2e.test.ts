@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for the VentureCapitalistChatPipeline, live AI service layer, and config.
 
 describe("VentureCapitalistChat pipeline E2E tests", () => {

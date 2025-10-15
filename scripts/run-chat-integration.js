@@ -9,7 +9,7 @@ console.log('Starting chat app integration test server...');
 
 // Import and run the integration test
 import('../src/tests/chat-app-integration.js')
-  .then(module => {
+  .then(_module => {
     console.log('Test module loaded.');
   })
   .catch(error => {

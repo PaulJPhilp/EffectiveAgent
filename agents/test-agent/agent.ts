@@ -1,4 +1,4 @@
-import { AgentRuntimeServiceApi } from "../../src/ea-agent-runtime/api.js";
+import type { AgentRuntimeServiceApi } from "../../src/ea-agent-runtime/api.js";
 
 // Simple test agent for CLI testing
 export const testAgent = {
@@ -14,7 +14,7 @@ export interface TestAgentState {
 }
 
 export class TestAgent {
-  constructor(private readonly runtime: AgentRuntimeServiceApi) { }
+  constructor(readonly _runtime: AgentRuntimeServiceApi) { }
 
   async run(input: string): Promise<void> {
     // Simple echo implementation

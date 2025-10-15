@@ -3,18 +3,18 @@
  * @module services/ai/tool-registry/api
  */
 
-import { EffectiveToolkit } from "@/types.js";
-import { Effect } from "effect";
+import type { Effect } from "effect";
+import type { EffectiveToolkit } from "@/types.js";
 import type {
     EffectiveTool,
     FullToolName,
-    ToolRegistryData,
     ToolkitName,
+    ToolRegistryData,
 } from "../tools/types.js";
 import type {
+    ToolkitNotFoundErrorInRegistry,
     ToolNotFoundErrorInRegistry,
     ToolRegistryError,
-    ToolkitNotFoundErrorInRegistry,
 } from "./errors.js";
 
 /**

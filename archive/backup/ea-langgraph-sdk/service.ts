@@ -1,5 +1,5 @@
-import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 import { Effect } from "effect"
+import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 import {
     EASdkCompatibilityError,
     EASdkConfigurationError,

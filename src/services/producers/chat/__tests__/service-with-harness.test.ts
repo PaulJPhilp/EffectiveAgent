@@ -1,13 +1,13 @@
-import { ChatService } from "@/services/producers/chat/service.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
+import { describe, expect, it } from "vitest";
 
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ChatInputError } from "@/services/producers/chat/errors.js";
-import { type ChatCompletionOptions } from "@/services/producers/chat/types.js";
-import { describe, expect, it } from "vitest";
+import { ChatService } from "@/services/producers/chat/service.js";
+import type { ChatCompletionOptions } from "@/services/producers/chat/types.js";
 
 describe("ChatService (Integration)", () => {
   // Create explicit dependency layers following centralized pattern

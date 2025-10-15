@@ -14,7 +14,7 @@ import {
     type VectorSearchPipelineOutput,
     type VectorSearchResult
 } from "./contract.js";
-import { type SearchResult, type Vector } from "./types.js";
+import type { SearchResult, Vector } from "./types.js";
 
 // Placeholder for dependencies
 class EmbeddingProvider extends Context.Tag("EmbeddingProvider")<EmbeddingProvider, any>() { }
@@ -33,7 +33,7 @@ export interface RerankerServiceApi {
 export class RerankerService extends Effect.Service<RerankerServiceApi>()("RerankerService", {
     effect: Effect.succeed({
         _tag: "RerankerService" as const,
-        rerank: (results: SearchResult[], query: Vector): Effect.Effect<SearchResult[], never> => {
+        rerank: (results: SearchResult[], _query: Vector): Effect.Effect<SearchResult[], never> => {
             // Mock implementation - replace with real reranking logic
             return Effect.succeed(
                 results.sort((a, b) => b.similarity - a.similarity)
@@ -68,7 +68,7 @@ export class VectorDatabaseService extends Effect.Service<VectorDatabaseServiceA
                     vectors.set(id, vector);
                 });
             },
-            search: (query: Vector, k: number): Effect.Effect<SearchResult[], never> => {
+            search: (_query: Vector, k: number): Effect.Effect<SearchResult[], never> => {
                 return Effect.sync(() => {
                     // Mock implementation - replace with real vector similarity search
                     const results: SearchResult[] = Array.from(vectors.entries())
@@ -186,7 +186,7 @@ export class VectorSearchPipelineService extends Effect.Service<VectorSearchPipe
                     });
                 }),
 
-            generateEmbedding: (text: string): Effect.Effect<number[], VectorSearchPipelineError> =>
+            generateEmbedding: (_text: string): Effect.Effect<number[], VectorSearchPipelineError> =>
                 Effect.gen(function* () {
                     yield* Effect.logInfo(`Generating embedding for text`);
 

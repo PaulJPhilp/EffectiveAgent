@@ -70,7 +70,7 @@ export class ConfigPathsSchema extends Schema.Class<ConfigPathsSchema>("ConfigPa
     providers: Schema.String,
     models: Schema.String,
     policy: Schema.String,
-    ["e2e-tools"]: Schema.String
+    "e2e-tools": Schema.String
 }) { }
 
 /**

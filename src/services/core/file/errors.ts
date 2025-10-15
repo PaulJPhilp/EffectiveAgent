@@ -2,8 +2,8 @@
  * @file Defines specific error types for the File service.
  */
 
-import type { EntityId } from "@/types.js";
 import { Data } from "effect";
+import type { EntityId } from "@/types.js";
 
 /** Error indicating a file was not found for the given ID. */
 export class FileNotFoundError extends Data.TaggedError("FileNotFoundError")<{

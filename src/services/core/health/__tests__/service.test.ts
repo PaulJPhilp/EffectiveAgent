@@ -1,7 +1,7 @@
+import { Effect, } from "effect";
 import { describe, expect, it } from "vitest";
-import { Duration, Effect, HashMap, Option } from "effect";
 import { ServiceHealthMonitoringService } from "../service.js";
-import type { HealthCheckFunction, HealthMonitoringConfig } from "../types.js";
+import type { HealthCheckFunction, } from "../types.js";
 
 describe("ServiceHealthMonitoringService", () => {
 

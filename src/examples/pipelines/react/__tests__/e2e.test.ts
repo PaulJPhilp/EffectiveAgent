@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for the ReactPipeline, live layers for all real services (AI, tools), and config.
 
 describe("React pipeline E2E tests", () => {

@@ -4,24 +4,23 @@
  * Handles Base64 encoding/decoding for file content.
  */
 
-import { EntityId } from "@/types.js";
-import {
-  ResilienceService,
-  RetryPolicy,
-  CircuitBreakerConfig,
-} from "@/services/execution/resilience/index.js";
-import { EffectiveError } from "@/errors.js";
 import { Duration, Effect, Option } from "effect";
+import {
+  type CircuitBreakerConfig,
+  ResilienceService,
+  type RetryPolicy,
+} from "@/services/execution/resilience/index.js";
+import type { EntityId } from "@/types.js";
 import { EntityNotFoundError as RepoEntityNotFoundError } from "../repository/errors.js";
-import { RepositoryService } from "../repository/service.js";
 import type { DrizzleClientApi } from "../repository/implementations/drizzle/config.js";
+import { RepositoryService } from "../repository/service.js";
 import type { FileServiceApi } from "./api.js";
 import { FileDbError, FileNotFoundError } from "./errors.js";
 import type { FileEntity, FileEntityData } from "./schema.js";
 import type { FileInfo, FileInput } from "./types.js";
 
 // Resilience configurations for database operations
-const DB_OPERATION_RETRY_POLICY: RetryPolicy = {
+const _DB_OPERATION_RETRY_POLICY: RetryPolicy = {
   maxAttempts: 3,
   baseDelay: Duration.millis(200),
   maxDelay: Duration.seconds(5),
@@ -31,7 +30,7 @@ const DB_OPERATION_RETRY_POLICY: RetryPolicy = {
   nonRetryableErrors: ["FileNotFoundError"], // Don't retry not found errors
 };
 
-const DB_OPERATION_CIRCUIT_BREAKER: CircuitBreakerConfig = {
+const _DB_OPERATION_CIRCUIT_BREAKER: CircuitBreakerConfig = {
   name: "file-service-database",
   failureThreshold: 5,
   resetTimeout: Duration.seconds(60),
@@ -60,7 +59,7 @@ export class FileService extends Effect.Service<FileServiceApi>()(
         // Apply circuit breaker protection to the operation
         // We need to work around type constraints by using a wrapper approach
         return Effect.gen(function* () {
-          const metrics = yield* resilience.getCircuitBreakerMetrics(
+          const _metrics = yield* resilience.getCircuitBreakerMetrics(
             "file-service-database"
           );
 

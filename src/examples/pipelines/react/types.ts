@@ -3,7 +3,7 @@
  * @module examples/pipelines/react/types
  */
 
-import { Effect } from "effect";
+import type { Effect } from "effect";
 
 export interface Tool {
     readonly id: string;

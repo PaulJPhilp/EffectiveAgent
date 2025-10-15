@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Run Ultracite fix on staged files
+bun run ultracite fix -- "src/**/*.{ts,tsx,js,jsx,json,md}"

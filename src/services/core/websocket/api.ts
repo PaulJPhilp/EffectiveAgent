@@ -1,5 +1,5 @@
-import { Effect, Stream } from "effect"
-import { WebSocketConnectionError, WebSocketError, WebSocketSendError, WebSocketSerializationError } from "./errors.js"
+import type { Effect, Stream } from "effect"
+import type { WebSocketConnectionError, WebSocketError, WebSocketSendError, WebSocketSerializationError } from "./errors.js"
 
 /**
  * API for the WebSocket service.

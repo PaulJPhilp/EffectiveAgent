@@ -3,11 +3,11 @@
  * @module examples/structured-output/agent
  */
 
-import { AgentRuntimeId, AgentRuntimeService, makeAgentRuntimeId } from "@/ea-agent-runtime/index.js";
-import { AgentActivity, AgentActivityType } from "@/ea-agent-runtime/types.js";
+import { Effect, Option, type Schema } from "effect";
+import { type AgentRuntimeId, AgentRuntimeService, makeAgentRuntimeId } from "@/ea-agent-runtime/index.js";
+import { type AgentActivity, AgentActivityType } from "@/ea-agent-runtime/types.js";
 import { ObjectService } from "@/services/producers/object/service.js";
-import { Effect, Option, Schema } from "effect";
-import { GenerateStructuredOutputPayload, StructuredOutputPipelineError } from "./api.js";
+import { type GenerateStructuredOutputPayload, StructuredOutputPipelineError } from "./api.js";
 
 export interface StructuredOutputAgentState {
     readonly generationCount: number

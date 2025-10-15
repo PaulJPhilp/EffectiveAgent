@@ -1,7 +1,7 @@
-import { cpus, freemem, loadavg, totalmem, uptime } from "os";
-import { EffectiveError } from "@/errors.js";
+import { cpus, freemem, loadavg, totalmem, uptime } from "node:os";
 import { Duration, Effect, HashMap, Option, Ref } from "effect";
-import {
+import { EffectiveError } from "@/errors.js";
+import type {
     DegradationStrategy,
     HealthAlert,
     HealthCheckFunction,
@@ -421,8 +421,8 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                     const serviceReports: ServiceHealthReport[] = [];
 
                     // Get all service health reports
-                    for (const [serviceName] of HashMap.entries(currentState.serviceMetrics)) {
-                        const report = yield* Effect.succeed(undefined); // Would call getServiceHealth but avoiding recursion
+                    for (const [_serviceName] of HashMap.entries(currentState.serviceMetrics)) {
+                        const _report = yield* Effect.succeed(undefined); // Would call getServiceHealth but avoiding recursion
                         // Implementation would collect all service reports
                     }
 

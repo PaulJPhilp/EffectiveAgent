@@ -10,8 +10,8 @@
  * relationship type and any additional attributes specific to that relationship.
  */
 
+import type { Effect, Option } from "effect";
 import type { EntityId } from "@/types.js";
-import { Effect, Option } from "effect";
 import type { DrizzleClientApi } from "../repository/implementations/drizzle/config.js";
 import type { AttachmentError, AttachmentLinkNotFoundError } from "./errors.js";
 import type { AttachmentLinkEntity } from "./schema.js";

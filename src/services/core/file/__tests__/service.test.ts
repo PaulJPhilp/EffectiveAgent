@@ -4,19 +4,17 @@
 
 import { Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
-
+import { ResilienceService } from "@/services/execution/resilience/service.js";
 import type { EntityId } from "../../../../types.js";
 import type { RepositoryServiceApi } from "../../repository/api.js";
 import {
   EntityNotFoundError,
-  RepositoryError,
+  type RepositoryError,
 } from "../../repository/errors.js";
 import { FileNotFoundError } from "../errors.js";
 import type { FileEntity } from "../schema.js";
 import { FileService } from "../service.js";
 import type { FileInput } from "../types.js";
-import { ResilienceService } from "@/services/execution/resilience/service.js";
-import { Duration } from "effect";
 
 // --- Test Setup ---
 
@@ -121,7 +119,7 @@ describe("FileService", () => {
     sizeBytes: 13,
     ownerId: testOwnerId,
   };
-  const testFileDataOtherOwner: FileInput = {
+  const _testFileDataOtherOwner: FileInput = {
     filename: "test3.txt",
     mimeType: "text/plain",
     content: Buffer.from("Another Owner"),

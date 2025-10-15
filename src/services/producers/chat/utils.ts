@@ -3,7 +3,7 @@
  * @module services/ai/producers/chat/utils
  */
 
-import { Message, TextPart } from "@/schema.js"
+import { type Message, TextPart } from "@effective-agent/ai-sdk"
 import { Chunk, Effect } from "effect"
 
 /** Core message format for chat interactions */

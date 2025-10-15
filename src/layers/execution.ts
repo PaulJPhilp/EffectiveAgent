@@ -1,7 +1,7 @@
+import { Layer } from "effect";
 import { AgentRuntimeService } from "@/ea-agent-runtime/service";
 import { PolicyService } from "@/services/ai/policy/service";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service";
-import { Effect, Layer } from "effect";
 
 /**
  * The ExecutionModuleLayer provides services responsible for agent execution,

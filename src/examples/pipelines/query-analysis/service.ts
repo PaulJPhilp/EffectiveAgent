@@ -4,12 +4,12 @@
  */
 
 import { Effect } from "effect";
-import {
-    type Entity,
-    type Intent,
-    type QueryAnalysisOutput,
-    type QueryAnalysisPipelineApi,
-    type QueryAnalysisPipelineInput
+import type {
+    Entity,
+    Intent,
+    QueryAnalysisOutput,
+    QueryAnalysisPipelineApi,
+    QueryAnalysisPipelineInput
 } from "./contract.js";
 import { QueryAnalysisPipelineError } from "./errors.js";
 
@@ -35,7 +35,7 @@ export interface IntentClassifierToolApi {
 export class EntityRecognitionTool extends Effect.Service<EntityRecognitionToolApi>()("EntityRecognitionTool", {
     effect: Effect.succeed({
         _tag: "EntityRecognitionTool" as const,
-        extractEntities: (text: string): Effect.Effect<Entity[], never> => {
+        extractEntities: (_text: string): Effect.Effect<Entity[], never> => {
             // Mock implementation - replace with real entity recognition
             return Effect.succeed([
                 {
@@ -74,7 +74,7 @@ export class EntityRecognitionTool extends Effect.Service<EntityRecognitionToolA
 export class IntentClassifierTool extends Effect.Service<IntentClassifierToolApi>()("IntentClassifierTool", {
     effect: Effect.succeed({
         _tag: "IntentClassifierTool" as const,
-        classifyIntent: (text: string): Effect.Effect<Intent[], never> => {
+        classifyIntent: (_text: string): Effect.Effect<Intent[], never> => {
             // Mock implementation - replace with real intent classification
             return Effect.succeed([
                 {
@@ -105,7 +105,7 @@ export class QueryAnalysisPipelineService extends Effect.Service<QueryAnalysisPi
         const intentClassifier = yield* IntentClassifierTool;
 
         // Helper to generate a unique ID
-        const generateId = (prefix: string, index: number): string =>
+        const _generateId = (prefix: string, index: number): string =>
             `${prefix}-${index + 1}`;
 
         // Method implementations

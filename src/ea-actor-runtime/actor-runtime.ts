@@ -1,13 +1,13 @@
-import { Effect, Fiber, Queue, Ref, Sink, Stream } from "effect";
-import { AgentRuntimeServiceApi } from "./api.js";
-import { AgentRuntimeError, AgentRuntimeProcessingError } from "./errors.js";
+import { Effect, Fiber, type Queue, Ref, Sink, Stream } from "effect";
+import type { AgentRuntimeServiceApi } from "./api.js";
+import { AgentRuntimeError, type AgentRuntimeProcessingError } from "./errors.js";
 import { PrioritizedMailbox } from "./prioritized-mailbox.js";
 import {
-  AgentActivity,
-  AgentRuntimeId,
-  AgentRuntimeState,
+  type AgentActivity,
+  type AgentRuntimeId,
+  type AgentRuntimeState,
   AgentRuntimeStatus,
-  AgentWorkflow,
+  type AgentWorkflow,
 } from "./types.js";
 
 /**
@@ -29,7 +29,7 @@ type WorkflowRegistry = Map<
 >;
 
 const startProcessing = <S>(
-  id: AgentRuntimeId,
+  _id: AgentRuntimeId,
   stateRef: Ref.Ref<AgentRuntimeState<S>>,
   mailbox: PrioritizedMailbox,
   workflow: AgentWorkflow<S, AgentRuntimeProcessingError>,
@@ -215,7 +215,7 @@ export const createActorRuntimeManager = (
         return yield* entry.mailbox.offer(activity);
       });
 
-    const getState = <S>(id: AgentRuntimeId) =>
+    const getState = <_S>(id: AgentRuntimeId) =>
       Effect.gen(function* () {
         const map = yield* Ref.get(runtimes);
         const entry = map.get(id);

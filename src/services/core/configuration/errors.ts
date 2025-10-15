@@ -4,7 +4,7 @@
  */
 
 import { Data } from "effect";
-import { ParseError } from "effect/ParseResult";
+import type { ParseError } from "effect/ParseResult";
 
 /**
  * Error thrown when reading a configuration file fails.
@@ -55,9 +55,6 @@ export class ConfigurationError extends Data.TaggedError("ConfigurationError")<{
     readonly filePath?: string;
     readonly cause?: unknown;
 }> {
-    constructor(options: { message: string; key?: string; filePath?: string; cause?: unknown }) {
-        super(options);
-    }
 }
 
 export class ConfigSchemaMissingError extends Data.TaggedError("ConfigSchemaMissingError")<{

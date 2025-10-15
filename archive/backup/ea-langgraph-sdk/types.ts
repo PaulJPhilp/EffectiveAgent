@@ -1,5 +1,5 @@
-import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 import { Annotation } from "@langchain/langgraph"
+import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 
 /**
  * Base annotation for LangGraph agents integrated with Effective Agent.
@@ -143,7 +143,7 @@ export interface CreateLangGraphAgentParams<TState extends LangGraphAgentState> 
  * Result of creating a LangGraph agent through the EA SDK.
  * Contains both the runtime handle and the generated ID.
  */
-export interface LangGraphAgentCreationResult<TState extends LangGraphAgentState> {
+export interface LangGraphAgentCreationResult<_TState extends LangGraphAgentState> {
     /**
      * Handle to the created AgentRuntime instance.
      * Use this to interact with the running agent.

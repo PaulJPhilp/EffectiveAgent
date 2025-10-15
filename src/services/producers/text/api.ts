@@ -1,6 +1,6 @@
+import type { Effect, Ref } from "effect";
 import type { GenerateTextResult } from "@/services/ai/provider/types.js";
 import type { EffectiveResponse } from "@/types.js";
-import type { Effect, Ref } from "effect";
 import type { TextAgentState } from "./service.js";
 import type { TextGenerationOptions } from "./types.js";
 

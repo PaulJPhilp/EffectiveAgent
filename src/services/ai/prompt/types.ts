@@ -3,10 +3,10 @@
  * @module services/ai/prompt/types
  */
 
-import { JsonObject } from "@/types.js";
-import { Effect, HashMap } from "effect";
-import { RenderingError, TemplateNotFoundError } from "../errors.js";
-import { Prompt } from "./schema.js";
+import type { Effect, HashMap } from "effect";
+import type { JsonObject } from "@/types.js";
+import type { RenderingError, TemplateNotFoundError } from "../errors.js";
+import type { Prompt } from "./schema.js";
 
 /** The data structure holding loaded prompt definitions. */
 export type PromptConfigData = HashMap.HashMap<string, Prompt>;

@@ -1,6 +1,6 @@
-import { EffectiveError } from "@/errors.js";
 // src/services/pipeline/chat/api.ts
-import { Effect, Ref } from "effect";
+import type { Effect, Ref } from "effect";
+import { EffectiveError } from "@/errors.js";
 import type { ChatAgentState } from "./service.js";
 
 /**

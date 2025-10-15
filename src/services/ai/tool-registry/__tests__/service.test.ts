@@ -1,7 +1,7 @@
-import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer } from "effect";
 import { describe, expect, it } from "vitest";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ToolRegistryService } from "/Users/paul/Projects/EffectiveAgent/src/services/ai/tool-registry/service.js";
 
 describe("ToolRegistryService", () => {

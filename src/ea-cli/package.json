@@ -60,5 +60,9 @@
     "url": "https://github.com/effective-agents/ea-cli/issues"
   },
   "homepage": "https://github.com/effective-agents/ea-cli#readme",
-  "files": ["dist", "README.md", "LICENSE"]
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ]
 }

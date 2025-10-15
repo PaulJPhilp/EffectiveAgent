@@ -3,8 +3,8 @@
  * @file Defines the typed state structure for chat conversations following current TypeScript LangGraph patterns
  */
 
+import type { BaseMessage } from "@langchain/core/messages"
 import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
-import { BaseMessage } from "@langchain/core/messages"
 
 /**
  * Context properties specific to chat conversations

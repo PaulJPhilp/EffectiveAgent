@@ -1,22 +1,17 @@
+import { createProvider, getEmbeddingModel, getLanguageModel, type ProviderName } from "@effective-agent/ai-sdk";
+import { Duration, Effect, Schedule } from "effect";
+import { ModelsRegistryService } from "@/services/ai/model/registry";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
 import { ResilienceService } from "@/services/execution/resilience/service.js";
-import { Duration, Effect, Ref, Schedule } from "effect";
 import type {
   CircuitBreakerConfig,
   RetryPolicy,
 } from "@/services/execution/resilience/types.js";
-import { ProviderServiceApi } from "./api.js";
-import { makeAnthropicClient } from "./clients/anthropic-provider-client.js";
-import { makeDeepseekClient } from "./clients/deepseek-provider-client.js";
-import { makeGoogleClient } from "./clients/google-provider-client.js";
-import { makeOpenAIClient } from "./clients/openai-provider-client.js";
-import { makePerplexityClient } from "./clients/perplexity-provider-client.js";
-import { makeQwenClient } from "./clients/qwen-provider-client.js";
-import { makeXaiClient } from "./clients/xai-provider-client.js";
+import type { ProviderServiceApi } from "./api.js";
 import {
   ProviderNotFoundError,
-  ProviderServiceConfigError,
   ProviderOperationError,
+  ProviderServiceConfigError
 } from "./errors.js";
 import { ProviderFile } from "./schema.js";
 
@@ -31,7 +26,7 @@ const PROVIDER_RETRY_POLICY: RetryPolicy = {
   nonRetryableErrors: ["ProviderNotFoundError", "ProviderServiceConfigError"],
 };
 
-const PROVIDER_CIRCUIT_BREAKER: CircuitBreakerConfig = {
+const _PROVIDER_CIRCUIT_BREAKER: CircuitBreakerConfig = {
   name: "provider-service-api",
   failureThreshold: 5,
   resetTimeout: Duration.seconds(30),
@@ -42,22 +37,53 @@ const makeProviderService = Effect.gen(function* () {
   const configService = yield* ConfigurationService;
   const resilience = yield* ResilienceService;
 
-  const masterConfig = yield* configService.getMasterConfig();
-  const providersConfigPath =
-    masterConfig.configPaths?.providers || "./config/providers.json";
+  const masterCfg = yield* configService.getMasterConfig();
+  const providersConfigPath = masterCfg.configPaths?.providers || "./config/providers.json";
   const providersConfig = yield* configService.loadConfig(
     providersConfigPath,
     ProviderFile
   );
 
+  // Also load local models manifest so we can validate providers against canonical model registry
+  const modelsConfigPath = masterCfg.configPaths?.models || "./config/models.json";
+  const modelsConfig = yield* configService.loadModelConfig(modelsConfigPath);
+
+  // Fetch global canonical models from injected ModelsRegistry
+  let globalModels: any[] = [];
+  try {
+    const registry = yield* ModelsRegistryService;
+    const list = yield* registry.list;
+    globalModels = list as any[];
+  } catch (err) {
+    yield* Effect.logError("Failed to fetch models registry", { err });
+    return yield* Effect.fail(new ProviderServiceConfigError({ description: "Failed to fetch models registry", module: "ProviderService", method: "init" }));
+  }
+
+  // Validate and hydrate local models referenced by providers
+  for (const localModel of modelsConfig.models) {
+    const match = globalModels.find((gm: any) => gm.id === localModel.id || gm.modelId === localModel.id || gm.name === localModel.id);
+    if (!match) {
+      yield* Effect.logError("Local model not found in models.dev registry", { modelId: localModel.id });
+      return yield* Effect.fail(
+        new ProviderServiceConfigError({
+          description: `Local model not found in models registry: ${localModel.id}`,
+          module: "ProviderService",
+          method: "init",
+        })
+      );
+    }
+    // Shallow merge canonical fields into local model object
+    Object.assign(localModel, match);
+  }
+
   // Helper function to wrap provider operations with resilience
-  const withProviderResilience = <A, E>(
-    operation: Effect.Effect<A, E, never>,
+  const withProviderResilience = <A, E, R>(
+    operation: Effect.Effect<A, E, R>,
     operationName: string,
     providerName: string
-  ): Effect.Effect<A, E, never> => {
+  ): Effect.Effect<A, E, R> => {
     return Effect.gen(function* () {
-      const metrics = yield* resilience.getCircuitBreakerMetrics(
+      const _metrics = yield* resilience.getCircuitBreakerMetrics(
         "provider-service-api"
       );
       const result = yield* operation;
@@ -81,6 +107,27 @@ const makeProviderService = Effect.gen(function* () {
   return {
     getProviderClient: (providerName: string) =>
       Effect.gen(function* () {
+        yield* Effect.logWarning(
+          "getProviderClient is deprecated",
+          {
+            providerName,
+            message: "Use getAiSdkLanguageModel or getAiSdkEmbeddingModel instead. Provider client layer is being phased out."
+          }
+        );
+
+        return yield* Effect.fail(
+          new ProviderOperationError({
+            operation: "getProviderClient",
+            message: "getProviderClient is deprecated. Use ai-sdk operations directly via getAiSdkLanguageModel or getAiSdkEmbeddingModel.",
+            providerName,
+            module: "ProviderService",
+            method: "getProviderClient",
+          })
+        );
+      }),
+
+    getAiSdkProvider: (providerName: string) =>
+      Effect.gen(function* () {
         const providerInfo = providersConfig.providers.find(
           (p) => p.name === providerName
         );
@@ -94,7 +141,7 @@ const makeProviderService = Effect.gen(function* () {
             new ProviderNotFoundError({
               providerName,
               module: "ProviderService",
-              method: "getProviderClient",
+              method: "getAiSdkProvider",
             })
           );
         }
@@ -111,7 +158,7 @@ const makeProviderService = Effect.gen(function* () {
             new ProviderServiceConfigError({
               description: `API key environment variable not configured for provider: ${providerName}`,
               module: "ProviderService",
-              method: "getProviderClient",
+              method: "getAiSdkProvider",
             })
           );
         }
@@ -127,48 +174,48 @@ const makeProviderService = Effect.gen(function* () {
             new ProviderServiceConfigError({
               description: `API key not found in environment for provider: ${providerName} (${apiKeyEnvVar})`,
               module: "ProviderService",
-              method: "getProviderClient",
+              method: "getAiSdkProvider",
             })
           );
         }
 
-        // Create provider-specific client based on provider type with resilience
-        const clientEffect = (() => {
-          switch (providerInfo.name) {
-            case "openai":
-              return makeOpenAIClient(apiKey);
-            case "anthropic":
-              return makeAnthropicClient(apiKey);
-            case "google":
-              return makeGoogleClient(apiKey);
-            case "deepseek":
-              return makeDeepseekClient(apiKey);
-            case "perplexity":
-              return makePerplexityClient(apiKey);
-            case "qwen":
-              return makeQwenClient(apiKey);
-            case "xai":
-              return makeXaiClient(apiKey);
-            default:
-              return Effect.fail(
-                new ProviderNotFoundError({
-                  providerName,
-                  module: "ProviderService",
-                  method: "getProviderClient",
-                })
-              );
-          }
-        })();
+        // Validate provider name is supported by ai-sdk
+        const supportedProviders: ProviderName[] = [
+          "openai",
+          "anthropic",
+          "google",
+          "deepseek",
+          "perplexity",
+          "qwen",
+          "xai",
+          "groq",
+        ];
 
-        // Apply resilience patterns to provider client creation
-        const resilientClientEffect = withProviderResilience(
-          clientEffect,
-          "getProviderClient",
+        if (!supportedProviders.includes(providerInfo.name as ProviderName)) {
+          return yield* Effect.fail(
+            new ProviderNotFoundError({
+              providerName,
+              module: "ProviderService",
+              method: "getAiSdkProvider",
+            })
+          );
+        }
+
+        // Create AI SDK provider
+        const providerEffect = createProvider(providerInfo.name as ProviderName, {
+          apiKey,
+          baseURL: providerInfo.baseUrl,
+        });
+
+        // Apply resilience patterns to provider creation
+        const resilientProviderEffect = withProviderResilience(
+          providerEffect,
+          "getAiSdkProvider",
           providerName
         );
 
-        // Apply retry with exponential backoff for provider client creation
-        return yield* Effect.retry(resilientClientEffect, {
+        // Apply retry with exponential backoff for provider creation
+        return yield* Effect.retry(resilientProviderEffect, {
           times: PROVIDER_RETRY_POLICY.maxAttempts - 1,
           schedule: Schedule.exponential(
             PROVIDER_RETRY_POLICY.baseDelay,
@@ -181,6 +228,120 @@ const makeProviderService = Effect.gen(function* () {
           ),
         });
       }),
+
+    getAiSdkLanguageModel: (providerName: string, modelId: string) =>
+      Effect.gen(function* () {
+        // Get provider info
+        const providerInfo = providersConfig.providers.find(
+          (p) => p.name === providerName
+        );
+
+        if (!providerInfo) {
+          return yield* Effect.fail(
+            new ProviderNotFoundError({
+              providerName,
+              module: "ProviderService",
+              method: "getAiSdkLanguageModel",
+            })
+          );
+        }
+
+        const apiKeyEnvVar = providerInfo.apiKeyEnvVar;
+        if (!apiKeyEnvVar) {
+          return yield* Effect.fail(
+            new ProviderServiceConfigError({
+              description: `API key environment variable not configured for provider: ${providerName}`,
+              module: "ProviderService",
+              method: "getAiSdkLanguageModel",
+            })
+          );
+        }
+
+        const apiKey = process.env[apiKeyEnvVar];
+        if (!apiKey) {
+          return yield* Effect.fail(
+            new ProviderServiceConfigError({
+              description: `API key not found in environment for provider: ${providerName} (${apiKeyEnvVar})`,
+              module: "ProviderService",
+              method: "getAiSdkLanguageModel",
+            })
+          );
+        }
+
+        // Create provider and get model
+        const provider = yield* createProvider(providerInfo.name as ProviderName, {
+          apiKey,
+          baseURL: providerInfo.baseUrl,
+        });
+
+        const modelEffect = getLanguageModel(provider, modelId);
+
+        // Apply resilience patterns to model creation
+        const resilientModelEffect = withProviderResilience(
+          modelEffect,
+          "getAiSdkLanguageModel",
+          providerName
+        );
+
+        return yield* resilientModelEffect;
+      }),
+
+    getAiSdkEmbeddingModel: (providerName: string, modelId: string) =>
+      Effect.gen(function* () {
+        // Get provider info
+        const providerInfo = providersConfig.providers.find(
+          (p) => p.name === providerName
+        );
+
+        if (!providerInfo) {
+          return yield* Effect.fail(
+            new ProviderNotFoundError({
+              providerName,
+              module: "ProviderService",
+              method: "getAiSdkEmbeddingModel",
+            })
+          );
+        }
+
+        const apiKeyEnvVar = providerInfo.apiKeyEnvVar;
+        if (!apiKeyEnvVar) {
+          return yield* Effect.fail(
+            new ProviderServiceConfigError({
+              description: `API key environment variable not configured for provider: ${providerName}`,
+              module: "ProviderService",
+              method: "getAiSdkEmbeddingModel",
+            })
+          );
+        }
+
+        const apiKey = process.env[apiKeyEnvVar];
+        if (!apiKey) {
+          return yield* Effect.fail(
+            new ProviderServiceConfigError({
+              description: `API key not found in environment for provider: ${providerName} (${apiKeyEnvVar})`,
+              module: "ProviderService",
+              method: "getAiSdkEmbeddingModel",
+            })
+          );
+        }
+
+        // Create provider and get model
+        const provider = yield* createProvider(providerInfo.name as ProviderName, {
+          apiKey,
+          baseURL: providerInfo.baseUrl,
+        });
+
+        const modelEffect = getEmbeddingModel(provider, modelId);
+
+        // Apply resilience patterns to model creation
+        const resilientModelEffect = withProviderResilience(
+          modelEffect,
+          "getAiSdkEmbeddingModel",
+          providerName
+        );
+
+        return yield* resilientModelEffect;
+      }),
   };
 });
 
@@ -188,6 +349,6 @@ export class ProviderService extends Effect.Service<ProviderServiceApi>()(
   "ProviderService",
   {
     effect: makeProviderService,
-    dependencies: [ConfigurationService.Default, ResilienceService.Default],
+    dependencies: [ConfigurationService.Default, ResilienceService.Default, ModelsRegistryService.Default],
   }
-) {}
+) { }

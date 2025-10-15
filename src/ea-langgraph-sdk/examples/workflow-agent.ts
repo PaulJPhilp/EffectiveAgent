@@ -515,8 +515,8 @@ export class WorkflowAgent {
             return { content: mockContent, filePath, operation: "read" };
           }
           case "write": {
-            const data = task.input?.data as string;
-            const filename =
+            const _data = task.input?.data as string;
+            const _filename =
               (task.input?.filename as string) || "workflow-file.txt";
             const mockFileId = `mock-file-${Date.now()}`;
             return {
@@ -607,8 +607,8 @@ export class WorkflowAgent {
    */
   private async executeValidation(
     task: WorkflowTask,
-    state: WorkflowAgentState,
-    context: { operation: string; nodeId: string; agentId: string }
+    _state: WorkflowAgentState,
+    _context: { operation: string; nodeId: string; agentId: string }
   ): Promise<Record<string, unknown>> {
     const validationType = task.input?.type as string;
     const dataToValidate = task.input?.data;
@@ -679,7 +679,7 @@ export class WorkflowAgent {
    * Handle task failure with rollback if enabled
    */
   private async handleTaskFailure(
-    taskId: string,
+    _taskId: string,
     state: WorkflowAgentState
   ): Promise<WorkflowAgentState> {
     // Implementation would rollback completed tasks

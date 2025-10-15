@@ -2,7 +2,7 @@ import { Prompt } from "@effect/cli"
 import { FileSystem, Path } from "@effect/platform"
 // filepath: /Users/paul/Projects/EffectiveAgent/src/ea-cli/src/utils/config-helpers.ts
 import { Effect } from "effect"
-import { FileSystemLayer, exists, writeJson } from "../services/fs.js"
+import { exists, FileSystemLayer, writeJson } from "../services/fs.js"
 
 export type ResourceType = "model" | "provider" | "rule" | "toolkit"
 

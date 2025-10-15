@@ -1,8 +1,8 @@
-import type { EffectiveRole, Message } from "@/schema.js";
-import { InvalidInputError, InvalidMessageError, NoAudioFileError } from "@/services/input/errors.js";
+import type { EffectiveRole, Message } from "@effective-agent/ai-sdk";
+import type { Effect } from "effect";
+import type * as Chunk from "effect/Chunk";
+import type { InvalidInputError, InvalidMessageError, NoAudioFileError } from "@/services/input/errors.js";
 import type { EffectivePartType } from "@/types.js";
-import { Effect } from "effect";
-import * as Chunk from "effect/Chunk";
 
 /**
  * API for the Input Service.

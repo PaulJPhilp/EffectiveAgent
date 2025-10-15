@@ -1,8 +1,8 @@
-import { BaseEntity, JsonObject } from "@/types.js";
 import { Context, Effect, Layer } from "effect";
-import { RepositoryServiceApi } from "./api.js";
+import type { BaseEntity, JsonObject } from "@/types.js";
+import type { RepositoryServiceApi } from "./api.js";
 import { RepositoryError } from "./errors.js";
-import { FindOptions } from "./types.js";
+import type { FindOptions } from "./types.js";
 
 /**
  * Base entity type with required data property
@@ -23,25 +23,25 @@ export const RepositoryService = <TEntity extends BaseEntityWithData>() => {
     // The actual implementation will be provided by specific implementations
     // like in-memory or drizzle
     return {
-      create: (entityData: TEntity["data"]) =>
+      create: (_entityData: TEntity["data"]) =>
         Effect.fail(new RepositoryError({ message: "Not implemented", entityType: "unknown" })),
 
-      findById: (id: TEntity["id"]) =>
+      findById: (_id: TEntity["id"]) =>
         Effect.fail(new RepositoryError({ message: "Not implemented", entityType: "unknown" })),
 
-      findOne: (options?: FindOptions<TEntity>) =>
+      findOne: (_options?: FindOptions<TEntity>) =>
         Effect.fail(new RepositoryError({ message: "Not implemented", entityType: "unknown" })),
 
-      findMany: (options?: FindOptions<TEntity>) =>
+      findMany: (_options?: FindOptions<TEntity>) =>
         Effect.fail(new RepositoryError({ message: "Not implemented", entityType: "unknown" })),
 
-      update: (id: TEntity["id"], entityData: Partial<TEntity["data"]>) =>
+      update: (_id: TEntity["id"], _entityData: Partial<TEntity["data"]>) =>
         Effect.fail(new RepositoryError({ message: "Not implemented", entityType: "unknown" })),
 
-      delete: (id: TEntity["id"]) =>
+      delete: (_id: TEntity["id"]) =>
         Effect.fail(new RepositoryError({ message: "Not implemented", entityType: "unknown" })),
 
-      count: (options?: Pick<FindOptions<TEntity>, "filter">) =>
+      count: (_options?: Pick<FindOptions<TEntity>, "filter">) =>
         Effect.fail(new RepositoryError({ message: "Not implemented", entityType: "unknown" })),
     } as const;
   });

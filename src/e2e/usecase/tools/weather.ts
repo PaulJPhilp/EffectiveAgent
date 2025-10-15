@@ -3,12 +3,12 @@
  * @module e2e/usecase/tools/weather
  */
 
-import { Schema as S, Effect } from "effect"
-import { EffectImplementation } from "@/services/ai/tools/schema.js"
+import { Effect, Schema as S } from "effect"
 import {
   RegistryToolSchema,
   ToolMetadataSchema
 } from "@/services/ai/tool-registry/schema.js"
+import { EffectImplementation } from "@/services/ai/tools/schema.js"
 
 // 1. Define the input schema for the tool
 export const WeatherToolInputSchema = S.Struct({

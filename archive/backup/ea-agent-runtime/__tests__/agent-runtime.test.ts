@@ -1,13 +1,13 @@
+import { mkdirSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs"
+import * as os from "node:os"
+import { join } from "node:path"
+import { NodeFileSystem } from "@effect/platform-node"
+import { Effect, Layer } from "effect"
+import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { ModelService } from "@/services/ai/model/service.js"
 import { PolicyService } from "@/services/ai/policy/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
 import { ConfigurationService } from "@/services/core/configuration/service.js"
-import { NodeFileSystem } from "@effect/platform-node"
-import { Effect, Layer } from "effect"
-import { mkdirSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from "fs"
-import * as os from "os"
-import { join } from "path"
-import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { AgentRuntimeService } from "../service.js"
 import { makeAgentRuntimeId } from "../types.js"
 
@@ -133,7 +133,7 @@ describe("AgentRuntime", () => {
             unlinkSync(modelsConfigPath)
             unlinkSync(policyConfigPath)
             rmdirSync(testDir)
-        } catch (error) {
+        } catch (_error) {
             // Ignore cleanup errors
         }
 
@@ -165,13 +165,13 @@ describe("AgentRuntime", () => {
         process.env.MASTER_CONFIG_PATH = masterConfigPath
         // Debug: print env and config files
         console.log("[DEBUG] MASTER_CONFIG_PATH:", process.env.MASTER_CONFIG_PATH)
-        console.log("[DEBUG] masterConfigPath contents:", require("fs").readFileSync(masterConfigPath, "utf8"))
-        console.log("[DEBUG] providersConfigPath contents:", require("fs").readFileSync(providersConfigPath, "utf8"))
+        console.log("[DEBUG] masterConfigPath contents:", require("node:fs").readFileSync(masterConfigPath, "utf8"))
+        console.log("[DEBUG] providersConfigPath contents:", require("node:fs").readFileSync(providersConfigPath, "utf8"))
         await Effect.runPromise(
             Effect.provide(
                 Effect.gen(function* () {
                     // Always yield a fresh ConfigurationService instance
-                    const configService = yield* ConfigurationService;
+                    const _configService = yield* ConfigurationService;
                     const service = yield* AgentRuntimeService
                     const id = makeAgentRuntimeId("test-agent")
 

@@ -3,18 +3,14 @@
  * @module services/pipeline/producers/object/__tests__/integration.test
  */
 
-import { Effect, Option, Either, Schema } from "effect";
+import { Effect, Either, Option, Schema } from "effect";
 import { describe, expect, it } from "vitest";
 import { 
+  ObjectGenerationError, 
   ObjectInputError, 
-  ObjectModelError,
-  ObjectGenerationError
+  ObjectModelError
 } from "../errors.js";
 import { ObjectService } from "../service.js";
-import { ObjectGenerationOptions } from "../types.js";
-
-// Import EffectiveResponse type
-import type { EffectiveResponse } from "@/types.js";
 
 // Test schemas
 const PersonSchema = Schema.Struct({

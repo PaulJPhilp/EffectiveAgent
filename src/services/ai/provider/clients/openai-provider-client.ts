@@ -1,42 +1,42 @@
 import {
-  EffectiveMessage,
-  ModelCapability,
-  TextPart,
-  ToolCallPart,
+  AiSdkMessageTransformError,
+  AiSdkSchemaError,
+  createProvider,
+  toEffectiveMessage,
+  toVercelMessages,
+  toZodSchema
+} from "@effective-agent/ai-sdk";
+import {
+  embedMany,
+  experimental_generateImage as generateImage,
+  experimental_generateSpeech as generateSpeech,
+  generateText,
+  experimental_transcribe as transcribe, 
+  type CoreMessage as VercelCoreMessage
+} from "ai";
+import { Chunk, Effect, Either, type Schema as S } from "effect";
+import type {
+  ModelCapability
 } from "@/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import { ModelService } from "@/services/ai/model/service.js";
+import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
+import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
 import type {
   EffectiveInput,
-  FinishReason,
-  ProviderEffectiveResponse,
+  FinishReason
 } from "@/types.js";
-import { createOpenAI } from "@ai-sdk/openai";
-import {
-  type CoreMessage as VercelCoreMessage,
-  embedMany,
-  experimental_generateImage as generateImage,
-  generateObject,
-  experimental_generateSpeech as generateSpeech,
-  generateText,
-  experimental_transcribe as transcribe,
-  type LanguageModelV1,
-  type LanguageModelV1CallOptions,
-} from "ai";
-import { Chunk, Duration, Effect, Either, Option, Schema as S } from "effect";
-import { z } from "zod";
 import { ToolRegistryService } from "../../tool-registry/service.js";
 import { ToolService } from "../../tools/service.js";
 import type { FullToolName } from "../../tools/types.js";
 import type { ProviderClientApi } from "../api.js";
 import {
   ProviderMissingModelIdError,
-  ProviderNotFoundError,
+  type ProviderNotFoundError,
   ProviderOperationError,
-  ProviderServiceConfigError,
-  ProviderToolError,
+  ProviderServiceConfigError
 } from "../errors.js";
-import { ProvidersType } from "../schema.js";
+import type { ProvidersType } from "../schema.js";
 import type {
   EffectiveProviderApi,
   GenerateEmbeddingsResult,
@@ -49,11 +49,8 @@ import type {
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
   ProviderTranscribeOptions,
-  ToolCallRequest,
-  TranscribeResult,
+  TranscribeResult
 } from "../types.js";
-import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
-import type { OrchestratorParameters } from "@/services/execution/orchestrator/api.js";
 
 const MAX_TOOL_ITERATIONS = 5;
 
@@ -79,143 +76,11 @@ function mapFinishReason(finishReason: string): FinishReason {
   }
 }
 
-// Helper to convert EA messages to Vercel AI SDK CoreMessage format
-function mapEAMessagesToVercelMessages(
-  eaMessages: ReadonlyArray<EffectiveMessage>
-): VercelCoreMessage[] {
-  return eaMessages.map((msg) => {
-    const messageParts = Chunk.toReadonlyArray(msg.parts);
-    let textContent = "";
-
-    if (messageParts.length === 1 && messageParts[0]?._tag === "Text") {
-      textContent = (messageParts[0] as TextPart).content;
-    } else {
-      textContent = messageParts
-        .filter((part) => part._tag === "Text")
-        .map((part) => (part as TextPart).content)
-        .join("\n");
-    }
-
-    if (
-      msg.role === "user" ||
-      msg.role === "assistant" ||
-      msg.role === "system"
-    ) {
-      return { role: msg.role, content: textContent };
-    } else if (msg.role === "tool") {
-      const toolCallId = (msg.metadata?.toolCallId as string) || "";
-      const toolName = (msg.metadata?.toolName as string) || "unknown";
-      return {
-        role: "tool" as const,
-        content: [
-          {
-            type: "tool-result" as const,
-            toolCallId: toolCallId,
-            toolName: toolName,
-            result: textContent,
-          },
-        ],
-      };
-    }
-    return { role: "user", content: textContent };
-  });
-}
-
-// Helper to convert a Vercel AI SDK message to an EA EffectiveMessage
-function mapVercelMessageToEAEffectiveMessage(
-  vercelMsg: VercelCoreMessage,
-  modelId: string
-): EffectiveMessage {
-  let eaParts: Array<TextPart | ToolCallPart> = [];
-
-  if (Array.isArray(vercelMsg.content)) {
-    vercelMsg.content.forEach((part) => {
-      if (part.type === "text") {
-        eaParts.push(new TextPart({ _tag: "Text", content: part.text }));
-      }
-    });
-  } else if (typeof vercelMsg.content === "string") {
-    eaParts.push(new TextPart({ _tag: "Text", content: vercelMsg.content }));
-  }
-
-  if ((vercelMsg as any).tool_calls) {
-    (vercelMsg as any).tool_calls.forEach((tc: any) => {
-      const toolCallRequest: ToolCallRequest = {
-        id: tc.id || tc.tool_call_id,
-        type: "tool_call",
-        function: {
-          name: tc.tool_name || (tc.function && tc.function.name),
-          arguments: JSON.stringify(
-            tc.args || (tc.function && tc.function.arguments)
-          ),
-        },
-      };
-      eaParts.push(
-        new ToolCallPart({
-          _tag: "ToolCall",
-          id: tc.id || "tool-call-" + Date.now(),
-          name: tc.tool_name || (tc.function && tc.function.name) || "unknown",
-          args: tc.args || (tc.function && tc.function.arguments) || {},
-        })
-      );
-    });
-  }
-
-  return new EffectiveMessage({
-    role: vercelMsg.role as EffectiveMessage["role"],
-    parts: Chunk.fromIterable(eaParts),
-    metadata: { model: modelId, eaMessageId: `ea-${Date.now()}` },
-  });
-}
-
-// Helper function to convert Effect Schema to OpenAI function parameter schema
-function convertEffectSchemaToZodSchema(schema: S.Schema<any, any, never>) {
-  return Effect.try({
-    try: () => {
-      // For now, use a hardcoded schema for the calculator
-      const zodSchema = z.object({
-        x: z.number().describe("First number to operate on"),
-        y: z.number().describe("Second number to operate on"),
-        operation: z
-          .enum(["add", "subtract", "multiply", "divide"])
-          .describe("Operation to perform"),
-      });
-
-      return zodSchema;
-    },
-    catch: (error) =>
-      new ProviderOperationError({
-        providerName: "openai",
-        operation: "schema-conversion",
-        message: `Failed to convert Effect Schema to OpenAI function parameter schema: ${error}`,
-        module: "OpenAIClient",
-        method: "convertEffectSchemaToZodSchema",
-        cause: error,
-      }),
-  });
-}
-
-// Helper function to convert Effect Schema to Standard Schema for generateObject
-function convertEffectSchemaToStandardSchema<A, I>(
-  schema: S.Schema<A, I, never>
-) {
-  return Effect.try({
-    try: () => {
-      // Convert Effect Schema to Standard Schema v1 format for generateObject
-      // The Vercel AI SDK accepts Standard Schema objects directly for generateObject
-      return S.standardSchemaV1(schema);
-    },
-    catch: (error) =>
-      new ProviderOperationError({
-        providerName: "openai",
-        operation: "schema-conversion",
-        message: `Failed to convert Effect Schema to Standard Schema: ${error}`,
-        module: "OpenAIClient",
-        method: "convertEffectSchemaToStandardSchema",
-        cause: error,
-      }),
-  });
-}
+// Note: Message transformation and schema conversion functions are now imported from @effective-agent/ai-sdk:
+// - toVercelMessages() replaces mapEAMessagesToVercelMessages()
+// - toEffectiveMessages() replaces mapVercelMessageToEAEffectiveMessage()
+// - toZodSchema() replaces convertEffectSchemaToZodSchema()
+// - toStandardSchema() replaces convertEffectSchemaToStandardSchema()
 
 // Internal factory for ProviderService only
 function makeOpenAIClient(
@@ -225,9 +90,21 @@ function makeOpenAIClient(
   ProviderServiceConfigError | ProviderNotFoundError | ProviderOperationError,
   ModelServiceApi | ToolRegistryService | OrchestratorService
 > {
-  const openaiProvider = createOpenAI({ apiKey });
-
   return Effect.gen(function* () {
+    // Use ai-sdk's createProvider for provider instance creation
+    const openaiProvider = yield* createProvider("openai", {
+      apiKey,
+    }).pipe(
+      Effect.mapError(
+        (error) =>
+          new ProviderServiceConfigError({
+            description: `Failed to create OpenAI provider: ${error.message}`,
+            module: "OpenAIClient",
+            method: "makeOpenAIClient",
+          })
+      )
+    );
+
     const orchestrator = yield* OrchestratorService;
 
     // Orchestration configurations for OpenAI operations
@@ -244,7 +121,7 @@ function makeOpenAIClient(
       },
     };
 
-    const OPENAI_CHAT_CONFIG: OrchestratorParameters = {
+    const _OPENAI_CHAT_CONFIG: OrchestratorParameters = {
       operationName: "openai-chat",
       timeoutMs: 45000,
       maxRetries: 3,
@@ -265,11 +142,10 @@ function makeOpenAIClient(
           Effect.gen(function* () {
             const toolRegistryService = yield* ToolRegistryService;
 
-            let vercelMessages: VercelCoreMessage[] =
-              mapEAMessagesToVercelMessages(
-                Chunk.toReadonlyArray(input.messages || Chunk.empty())
-              );
-            let llmTools: Record<string, any> | undefined = undefined;
+            const vercelMessages: VercelCoreMessage[] = yield* toVercelMessages(
+              input.messages || Chunk.empty()
+            );
+            let llmTools: Record<string, any> | undefined ;
             const modelId = options.modelId || "gpt-4o";
 
             if (options.tools && options.tools.length > 0) {
@@ -277,7 +153,7 @@ function makeOpenAIClient(
               for (const tool of options.tools) {
                 if (tool.implementation._tag === "EffectImplementation") {
                   const effectImpl = tool.implementation;
-                  const inputZodSchema = yield* convertEffectSchemaToZodSchema(
+                  const inputZodSchema = yield* toZodSchema(
                     effectImpl.inputSchema
                   );
                   llmTools[tool.metadata.name] = {
@@ -350,29 +226,16 @@ function makeOpenAIClient(
                     totalTokens: vercelResult.usage.totalTokens,
                   },
                   messages: Chunk.isChunk(input.messages)
-                    ? input.messages.pipe(
-                        Chunk.appendAll(
-                          Chunk.fromIterable(
-                            vercelMessages
-                              .slice(
-                                mapEAMessagesToVercelMessages(
-                                  Chunk.toReadonlyArray(input.messages)
-                                ).length
-                              )
-                              .map((vm) =>
-                                mapVercelMessageToEAEffectiveMessage(
-                                  vm,
-                                  modelId
-                                )
-                              )
-                          )
-                        )
-                      )
-                    : (Chunk.fromIterable(
-                        vercelMessages.map((vm) =>
-                          mapVercelMessageToEAEffectiveMessage(vm, modelId)
-                        )
-                      ) as any),
+                    ? yield* Effect.gen(function* () {
+                      const inputMessageCount = (yield* toVercelMessages(input.messages)).length;
+                      const newMessages = vercelMessages.slice(inputMessageCount);
+                      const effectiveNewMessages = yield* Effect.forEach(newMessages, (vm) => toEffectiveMessage(vm, modelId), { concurrency: 1 });
+                      return [...Chunk.toReadonlyArray(input.messages), ...effectiveNewMessages] as any;
+                    })
+                    : yield* Effect.gen(function* () {
+                      const effectiveMessages = yield* Effect.forEach(vercelMessages, (vm) => toEffectiveMessage(vm, modelId), { concurrency: 1 });
+                      return effectiveMessages as any;
+                    }),
                 };
                 return {
                   data: effectiveResponse,
@@ -392,7 +255,7 @@ function makeOpenAIClient(
                 const toolName = sdkToolCall.toolName;
                 const toolArgs = sdkToolCall.args;
 
-                let toolExecutionOutputString: string;
+                let _toolExecutionOutputString: string;
 
                 // Find the original ToolDefinition from the options to get its schema and EffectImplementation
                 const originalToolDef = options.tools?.find(
@@ -403,7 +266,7 @@ function makeOpenAIClient(
                   yield* Effect.logWarning(
                     `Tool '${toolName}' not found in provided options.tools.`
                   );
-                  toolExecutionOutputString = JSON.stringify({
+                  _toolExecutionOutputString = JSON.stringify({
                     error: `Tool '${toolName}' not found in options.`,
                   });
                 } else if (
@@ -412,16 +275,14 @@ function makeOpenAIClient(
                   yield* Effect.logWarning(
                     `Tool '${toolName}' is not an EffectImplementation.`
                   );
-                  toolExecutionOutputString = JSON.stringify({
+                  _toolExecutionOutputString = JSON.stringify({
                     error: `Tool '${toolName}' is not executable by this provider.`,
                   });
                 } else {
                   const effectImpl = originalToolDef.implementation;
-                  const zodSchema = yield* convertEffectSchemaToZodSchema(
+                  const zodSchema = yield* toZodSchema(
                     effectImpl.inputSchema
-                  );
-
-                  // Validate using Zod schema
+                  );                  // Validate using Zod schema
                   const validationResult = zodSchema.safeParse(toolArgs);
 
                   if (!validationResult.success) {
@@ -430,7 +291,7 @@ function makeOpenAIClient(
                       `Invalid arguments for tool ${toolName}`,
                       validationError
                     );
-                    toolExecutionOutputString = JSON.stringify({
+                    _toolExecutionOutputString = JSON.stringify({
                       error: `Invalid arguments for tool ${toolName}. Validation failed.`,
                     });
                   } else {
@@ -447,7 +308,7 @@ function makeOpenAIClient(
                         `Tool '${toolName}' was in options.tools but not resolvable by ToolRegistryService.`,
                         effectiveToolFromRegistryEither.left
                       );
-                      toolExecutionOutputString = JSON.stringify({
+                      _toolExecutionOutputString = JSON.stringify({
                         error: `Tool '${toolName}' could not be resolved by registry.`,
                       });
                     } else {
@@ -462,7 +323,7 @@ function makeOpenAIClient(
                         yield* Effect.logError(
                           `Tool '${toolName}' has unsupported implementation`
                         );
-                        toolExecutionOutputString = JSON.stringify({
+                        _toolExecutionOutputString = JSON.stringify({
                           error: `Tool '${toolName}' has unsupported implementation.`,
                         });
                         continue;
@@ -476,11 +337,10 @@ function makeOpenAIClient(
 
                       const resultContent = Either.isLeft(toolResult)
                         ? {
-                            error: `Tool ${toolName} execution failed: ${
-                              (toolResult.left as any)?.message ||
-                              "Unknown execution error"
+                          error: `Tool ${toolName} execution failed: ${(toolResult.left as any)?.message ||
+                            "Unknown execution error"
                             }`,
-                          }
+                        }
                         : toolResult.right;
 
                       const toolMessage: VercelCoreMessage = {
@@ -518,7 +378,37 @@ function makeOpenAIClient(
                 method: "chat.maxIterations",
               })
             );
-          })
+          }).pipe(
+            Effect.catchAll((error) => {
+              // Map ai-sdk errors to EffectiveError types
+              if (error instanceof AiSdkMessageTransformError) {
+                return Effect.fail(
+                  new ProviderOperationError({
+                    operation: "messageTransform",
+                    message: error.message,
+                    providerName: "openai",
+                    module: "OpenAIProviderClient",
+                    method: "chat",
+                    cause: error,
+                  })
+                );
+              }
+              if (error instanceof AiSdkSchemaError) {
+                return Effect.fail(
+                  new ProviderOperationError({
+                    operation: "schemaConversion",
+                    message: error.message,
+                    providerName: "openai",
+                    module: "OpenAIProviderClient",
+                    method: "chat",
+                    cause: error,
+                  })
+                );
+              }
+              // For other errors, assume they're already EffectiveError types
+              return Effect.fail(error);
+            })
+          )
         ),
 
       getProvider: () =>
@@ -554,9 +444,9 @@ function makeOpenAIClient(
           Effect.tryPromise({
             try: async () => {
               const modelId = options.modelId || "gpt-4o";
-              const vercelMessages = mapEAMessagesToVercelMessages(
-                Chunk.toReadonlyArray(input.messages || Chunk.empty())
-              );
+              const vercelMessages = await Effect.runPromise(toVercelMessages(
+                input.messages || Chunk.empty()
+              ));
               const promptText =
                 input.text || (vercelMessages.length === 0 ? "" : undefined);
 
@@ -597,9 +487,9 @@ function makeOpenAIClient(
                   },
                 })),
                 messages: Chunk.fromIterable(
-                  vercelMessages.map((vm) =>
-                    mapVercelMessageToEAEffectiveMessage(vm, modelId)
-                  )
+                  await Promise.all(vercelMessages.map((vm) =>
+                    Effect.runPromise(toEffectiveMessage(vm, modelId))
+                  ))
                 ) as any,
               };
 
@@ -637,13 +527,13 @@ function makeOpenAIClient(
         Effect.gen(function* () {
           const modelId = options.modelId || "gpt-4o";
           const schema = options.schema; // This is an Effect.Schema
-          const zodSchema = yield* convertEffectSchemaToZodSchema(
+          const _zodSchema = yield* toZodSchema(
             schema as S.Schema<any, any, never>
           );
-          const vercelMessages = mapEAMessagesToVercelMessages(
-            Chunk.toReadonlyArray(input.messages || Chunk.empty())
+          const vercelMessages = yield* toVercelMessages(
+            input.messages || Chunk.empty()
           );
-          const promptText =
+          const _promptText =
             input.text || (vercelMessages.length === 0 ? "" : undefined);
 
           const modelInstance = openaiProvider(modelId);
@@ -856,8 +746,8 @@ function makeOpenAIClient(
               input.text ||
               (Chunk.isChunk(input.messages)
                 ? Chunk.toReadonlyArray(input.messages)
-                    .map((m) => (m.parts as any)[0].content)
-                    .join("\n")
+                  .map((m) => (m.parts as any)[0].content)
+                  .join("\n")
                 : "A futuristic cityscape");
 
             const result = await generateImage({
@@ -909,7 +799,7 @@ function makeOpenAIClient(
 
       getModels: () =>
         Effect.gen(function* () {
-          const ms = yield* ModelService;
+          const _ms = yield* ModelService;
           // Simplified implementation - return empty array since method doesn't exist on interface
           return [];
         }),

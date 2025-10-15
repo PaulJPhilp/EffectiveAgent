@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
+import { join } from "node:path"
+import { fileURLToPath } from "node:url"
 import { Command } from "@effect/cli"
 import { NodeContext } from "@effect/platform-node"
 import * as NodeRuntime from "@effect/platform-node/NodeRuntime"
 import { Data, Effect } from "effect"
-import { join } from "node:path"
-import { fileURLToPath } from "node:url"
 import { ModelService } from "../../services/ai/model/service.js"
 import { ConfigurationService } from "../../services/core/configuration/index.js"
 
@@ -19,7 +19,7 @@ import { listCommand } from "./commands/list.js"
 import { logCommands } from "./commands/log.js"
 import { runCommand } from "./commands/run.js"
 import { ServeCommand } from "./commands/serve.js"
-import { structureOutputCommand } from "./commands/structure-output.js"
+// import { structureOutputCommand } from "./commands/structure-output.js"
 import { testArgsCommand } from "./commands/test-args.js"
 
 // Set up master configuration path and project root
@@ -46,7 +46,7 @@ const commands = [
   listCommand,
   configCommands,
   logCommands,
-  structureOutputCommand,
+  // structureOutputCommand,
   testArgsCommand,
 ] as const
 
@@ -59,10 +59,7 @@ const program = Command.make("ea-cli", Data.struct({})).pipe(
 const args = process.argv
 
 // Create main program Effect with services
-const mainEffect = Command.run(
-  program,
-  { name: "ea-cli", version },
-)(args)
+const mainEffect = Command.run(program, { name: "ea-cli", version })(args)
 
 const mainEffectWithServices = mainEffect.pipe(
   Effect.provide(NodeContext.layer),
@@ -74,6 +71,9 @@ const mainEffectWithServices = mainEffect.pipe(
 )
 
 // Run the program
-NodeRuntime.runMain(mainEffectWithServices as Effect.Effect<void | number, never, never>, {
-  disablePrettyLogger: false,
-})
+NodeRuntime.runMain(
+  mainEffectWithServices as Effect.Effect<undefined | number, never, never>,
+  {
+    disablePrettyLogger: false,
+  },
+)

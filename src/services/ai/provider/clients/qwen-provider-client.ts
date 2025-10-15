@@ -1,23 +1,20 @@
-import {
-  EffectiveMessage,
-  ModelCapability,
-  TextPart,
-  ToolCallPart,
+import { AiSdkMessageTransformError, toEffectiveMessage, toVercelMessages } from "@effective-agent/ai-sdk";
+import { Chunk, Effect } from "effect";
+import type {
+  ModelCapability
 } from "@/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
 import type { EffectiveInput, FinishReason } from "@/types.js";
-import { type CoreMessage as VercelCoreMessage } from "ai";
-import { Chunk, Effect } from "effect";
-import { ToolRegistryService } from "../../tool-registry/service.js";
+import type { ToolRegistryService } from "../../tool-registry/service.js";
 import type { ProviderClientApi } from "../api.js";
 import {
   ProviderMissingCapabilityError,
   ProviderMissingModelIdError,
-  ProviderNotFoundError,
+  type ProviderNotFoundError,
   ProviderOperationError,
-  ProviderServiceConfigError,
+  type ProviderServiceConfigError,
 } from "../errors.js";
-import { ProvidersType } from "../schema.js";
+import type { ProvidersType } from "../schema.js";
 import type {
   EffectiveProviderApi,
   GenerateEmbeddingsResult,
@@ -29,8 +26,7 @@ import type {
   ProviderGenerateObjectOptions,
   ProviderGenerateSpeechOptions,
   ProviderGenerateTextOptions,
-  ProviderTranscribeOptions,
-  ToolCallRequest,
+  ProviderTranscribeOptions
 } from "../types.js";
 
 // Map AI SDK finish reasons to EffectiveAgent finish reasons
@@ -56,93 +52,10 @@ function mapFinishReason(finishReason: string): FinishReason {
 }
 
 // Helper to convert EA messages to Vercel AI SDK CoreMessage format
-function mapEAMessagesToVercelMessages(
-  eaMessages: ReadonlyArray<EffectiveMessage>
-): VercelCoreMessage[] {
-  return eaMessages.map((msg) => {
-    const messageParts = Chunk.toReadonlyArray(msg.parts);
-    let textContent = "";
-
-    if (messageParts.length === 1 && messageParts[0]?._tag === "Text") {
-      textContent = (messageParts[0] as TextPart).content;
-    } else {
-      textContent = messageParts
-        .filter((part) => part._tag === "Text")
-        .map((part) => (part as TextPart).content)
-        .join("\n");
-    }
-
-    if (
-      msg.role === "user" ||
-      msg.role === "assistant" ||
-      msg.role === "system"
-    ) {
-      return { role: msg.role, content: textContent };
-    } else if (msg.role === "tool") {
-      const toolCallId = (msg.metadata?.toolCallId as string) || "";
-      const toolName = (msg.metadata?.toolName as string) || "unknown";
-      return {
-        role: "tool" as const,
-        content: [
-          {
-            type: "tool-result" as const,
-            toolCallId: toolCallId,
-            toolName: toolName,
-            result: textContent,
-          },
-        ],
-      };
-    }
-    return { role: "user", content: textContent };
-  });
-}
-
 // Helper to convert a Vercel AI SDK message to an EA EffectiveMessage
-function mapVercelMessageToEAEffectiveMessage(
-  vercelMsg: VercelCoreMessage,
-  modelId: string
-): EffectiveMessage {
-  let eaParts: Array<TextPart | ToolCallPart> = [];
-
-  if (Array.isArray(vercelMsg.content)) {
-    vercelMsg.content.forEach((part) => {
-      if (part.type === "text") {
-        eaParts.push(new TextPart({ _tag: "Text", content: part.text }));
-      }
-    });
-  } else if (typeof vercelMsg.content === "string") {
-    eaParts.push(new TextPart({ _tag: "Text", content: vercelMsg.content }));
-  }
-
-  if ((vercelMsg as any).tool_calls) {
-    (vercelMsg as any).tool_calls.forEach((tc: any) => {
-      const toolCallRequest: ToolCallRequest = {
-        id: tc.id || tc.tool_call_id,
-        type: "tool_call",
-        function: {
-          name: tc.tool_name || (tc.function && tc.function.name),
-          arguments: JSON.stringify(
-            tc.args || (tc.function && tc.function.arguments)
-          ),
-        },
-      };
-      eaParts.push(
-        new ToolCallPart({
-          _tag: "ToolCall",
-          id: toolCallRequest.id,
-          name: toolCallRequest.function.name,
-          args: JSON.parse(toolCallRequest.function.arguments),
-        })
-      );
-    });
-  }
-
-  return new EffectiveMessage({
-    role: vercelMsg.role as EffectiveMessage["role"],
-    parts: Chunk.fromIterable(eaParts),
-    metadata: { model: modelId, eaMessageId: `ea-${Date.now()}` },
-  });
-}
+// Note: Message transformation functions are now imported from @effective-agent/ai-sdk:
+// - toVercelMessages() replaces mapEAMessagesToVercelMessages()
+// - toEffectiveMessage() replaces mapVercelMessageToEAEffectiveMessage()
 
 // Internal factory for ProviderService only
 function makeQwenClient(
@@ -153,7 +66,7 @@ function makeQwenClient(
   ModelServiceApi | ToolRegistryService
 > {
   // Create a simple provider that matches the Qwen API interface
-  const qwenProvider = (modelId: string) => ({
+  const _qwenProvider = (modelId: string) => ({
     modelId,
     apiKey,
     baseURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
@@ -161,7 +74,7 @@ function makeQwenClient(
 
   return Effect.succeed({
     // Tool-related methods - Qwen supports tools
-    validateToolInput: (toolName: string, input: unknown) =>
+    validateToolInput: (_toolName: string, _input: unknown) =>
       Effect.tryPromise({
         try: () => Promise.resolve(true), // Basic validation
         catch: (error) =>
@@ -175,7 +88,7 @@ function makeQwenClient(
           }),
       }),
 
-    executeTool: (toolName: string, input: unknown) =>
+    executeTool: (_toolName: string, _input: unknown) =>
       Effect.tryPromise({
         try: () =>
           Promise.resolve({ result: "Tool execution not implemented" }),
@@ -190,7 +103,7 @@ function makeQwenClient(
           }),
       }),
 
-    processToolResult: (toolName: string, result: unknown) =>
+    processToolResult: (_toolName: string, result: unknown) =>
       Effect.succeed(result),
 
     // Provider and capability methods
@@ -223,8 +136,8 @@ function makeQwenClient(
     ) =>
       Effect.gen(function* () {
         try {
-          const vercelMessages = mapEAMessagesToVercelMessages(
-            Chunk.toReadonlyArray(input.messages || Chunk.empty())
+          const _vercelMessages = yield* toVercelMessages(
+            input.messages || Chunk.empty()
           );
           const modelId = options.modelId || "qwen-plus";
 
@@ -255,9 +168,7 @@ function makeQwenClient(
           });
 
           const responseMessages = result.response?.messages || [];
-          const eaMessages = responseMessages.map((msg) =>
-            mapVercelMessageToEAEffectiveMessage(msg, modelId)
-          );
+          const _eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
           const textResult: GenerateTextResult = {
             id: `qwen-${Date.now()}`,
@@ -301,7 +212,25 @@ function makeQwenClient(
             })
           );
         }
-      }),
+      }).pipe(
+        Effect.catchAll((error) => {
+          // Map ai-sdk errors to EffectiveError types
+          if (error instanceof AiSdkMessageTransformError) {
+            return Effect.fail(
+              new ProviderOperationError({
+                operation: "messageTransform",
+                message: error.message,
+                providerName: "qwen",
+                module: "QwenProviderClient",
+                method: "generateText",
+                cause: error,
+              })
+            );
+          }
+          // For other errors, assume they're already EffectiveError types
+          return Effect.fail(error);
+        })
+      ),
 
     generateObject: <T = unknown>(
       input: EffectiveInput,
@@ -309,8 +238,8 @@ function makeQwenClient(
     ) =>
       Effect.gen(function* () {
         try {
-          const vercelMessages = mapEAMessagesToVercelMessages(
-            Chunk.toReadonlyArray(input.messages || Chunk.empty())
+          const _vercelMessages = yield* toVercelMessages(
+            input.messages || Chunk.empty()
           );
           const modelId = options.modelId || "qwen-plus";
 
@@ -372,12 +301,30 @@ function makeQwenClient(
             })
           );
         }
-      }),
+      }).pipe(
+        Effect.catchAll((error) => {
+          // Map ai-sdk errors to EffectiveError types
+          if (error instanceof AiSdkMessageTransformError) {
+            return Effect.fail(
+              new ProviderOperationError({
+                operation: "messageTransform",
+                message: error.message,
+                providerName: "qwen",
+                module: "QwenProviderClient",
+                method: "generateObject",
+                cause: error,
+              })
+            );
+          }
+          // For other errors, assume they're already EffectiveError types
+          return Effect.fail(error);
+        })
+      ),
 
     // Unsupported capabilities
     generateImage: (
-      input: EffectiveInput,
-      options: ProviderGenerateImageOptions
+      _input: EffectiveInput,
+      _options: ProviderGenerateImageOptions
     ) =>
       Effect.fail(
         new ProviderMissingCapabilityError({
@@ -388,7 +335,7 @@ function makeQwenClient(
         })
       ),
 
-    generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
+    generateSpeech: (_input: string, _options: ProviderGenerateSpeechOptions) =>
       Effect.fail(
         new ProviderMissingCapabilityError({
           providerName: "qwen",
@@ -398,7 +345,7 @@ function makeQwenClient(
         })
       ),
 
-    transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
+    transcribe: (_input: ArrayBuffer, _options: ProviderTranscribeOptions) =>
       Effect.fail(
         new ProviderMissingCapabilityError({
           providerName: "qwen",
@@ -497,8 +444,8 @@ function makeQwenClient(
         }
 
         // Delegate to generateText for simple chat without tools
-        const vercelMessages = mapEAMessagesToVercelMessages(
-          Chunk.toReadonlyArray(effectiveInput.messages || Chunk.empty())
+        const _vercelMessages = yield* toVercelMessages(
+          effectiveInput.messages || Chunk.empty()
         );
         const modelId = options.modelId || "qwen-plus";
 
@@ -528,9 +475,7 @@ function makeQwenClient(
         });
 
         const responseMessages = result.response?.messages || [];
-        const eaMessages = responseMessages.map((msg) =>
-          mapVercelMessageToEAEffectiveMessage(msg, modelId)
-        );
+        const _eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
         const chatResult: GenerateTextResult = {
           id: `qwen-${Date.now()}`,
@@ -562,7 +507,25 @@ function makeQwenClient(
           usage: chatResult.usage,
           finishReason: chatResult.finishReason,
         };
-      }),
+      }).pipe(
+        Effect.catchAll((error) => {
+          // Map ai-sdk errors to EffectiveError types
+          if (error instanceof AiSdkMessageTransformError) {
+            return Effect.fail(
+              new ProviderOperationError({
+                operation: "messageTransform",
+                message: error.message,
+                providerName: "qwen",
+                module: "QwenProviderClient",
+                method: "chat",
+                cause: error,
+              })
+            );
+          }
+          // For other errors, assume they're already EffectiveError types
+          return Effect.fail(error);
+        })
+      ),
 
     // Model management
     getModels: () => Effect.succeed([]),
@@ -602,7 +565,7 @@ function makeQwenClient(
     },
 
     // Vercel provider integration
-    setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
+    setVercelProvider: (_vercelProvider: EffectiveProviderApi) =>
       Effect.succeed(undefined),
   });
 }

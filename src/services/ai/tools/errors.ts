@@ -3,7 +3,6 @@
  * @module services/tools/errors
  */
 
-import type { ParseResult } from "effect";
 import { AppToolParseError, EffectiveError } from "../../../errors.js";
 
 /**

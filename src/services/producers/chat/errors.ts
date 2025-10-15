@@ -24,9 +24,6 @@ export type ChatServiceError =
  * Error thrown when there is an issue with the model
  */
 export class ChatModelError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -34,9 +31,6 @@ export class ChatModelError extends EffectiveError {
  * @extends EffectiveError
  */
 export class ChatProviderError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -44,9 +38,6 @@ export class ChatProviderError extends EffectiveError {
  * @extends EffectiveError
  */
 export class ChatCompletionError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -54,9 +45,6 @@ export class ChatCompletionError extends EffectiveError {
  * @extends EffectiveError
  */
 export class ChatInputError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -64,9 +52,6 @@ export class ChatInputError extends EffectiveError {
  * @extends EffectiveError
  */
 export class ChatToolError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**

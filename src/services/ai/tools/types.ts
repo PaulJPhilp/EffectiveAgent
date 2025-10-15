@@ -3,13 +3,13 @@
  * @module services/tools/types
  */
 
+import { Effect, HashMap, Schema } from "effect";
 import type {
     EffectiveTool,
     ToolExecutionError,
     ToolInputValidationError,
     ToolOutputValidationError
 } from "@/types.js";
-import { Effect, HashMap, Schema } from "effect";
 // Import error types that might be used in service signatures or implementation types
 import { ToolNotFoundError } from "./errors.js"; // Changed from type import to value import
 // Import the schema definition type
@@ -64,7 +64,7 @@ export class ToolExecutorService extends Effect.Service<{
         effect: Effect.succeed({
             run: <Output = unknown>(
                 toolName: FullToolName,
-                rawInput: unknown
+                _rawInput: unknown
             ): Effect.Effect<
                 Output,
                 | ToolNotFoundError
@@ -79,7 +79,7 @@ export class ToolExecutorService extends Effect.Service<{
 
 // Export the EffectImplementation type from schema
 // Export the EffectImplementation type from schema
-export type { EffectImplementation, IEffectImplementation, EffectiveTool } from "./schema.js";
+export type { EffectImplementation, EffectiveTool, IEffectImplementation } from "./schema.js";
 
 /** Implementation using HTTP requests to external services. */
 export type HttpImplementation<InputA = any, InputE = any, OutputA = any, OutputE = any> = {
@@ -184,7 +184,7 @@ export class ToolRegistry extends Effect.Service<ToolRegistryApi>()(
             getMetadata: (toolName: FullToolName) =>
                 Effect.fail(new ToolNotFoundError({ toolName, module: "ToolRegistry", method: "getMetadata" })),
             listTools: () => Effect.succeed([]),
-            registerTool: (toolName: FullToolName, implementation: ToolImplementation, metadata: Metadata) =>
+            registerTool: (_toolName: FullToolName, _implementation: ToolImplementation, _metadata: Metadata) =>
                 Effect.succeed(void 0)
         })
     }

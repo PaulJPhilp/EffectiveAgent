@@ -3,7 +3,7 @@
  * @module services/tools/schema
  */
 
-import { Effect, Schema as S } from "effect";
+import { type Effect, Schema as S } from "effect";
 
 // --- Tool Names ---
 

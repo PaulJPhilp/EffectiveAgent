@@ -2,14 +2,14 @@
  * e2e simple prompt test using ea-cli chat command with OpenAI
  */
 
-import { Console, Effect, Chunk, pipe } from "effect"
-import { Args, Command } from "@effect/cli"
 import { join } from "node:path"
-import { ProviderService } from "@/services/ai/provider/service.js"
-import { ModelService } from "@/services/ai/model/service.js"
+import { Args, Command } from "@effect/cli"
 import { NodeContext } from "@effect/platform-node"
+import { Message, TextPart } from "@effective-agent/ai-sdk"
+import { Chunk, Console, Effect, pipe } from "effect"
+import { ModelService } from "@/services/ai/model/service.js"
+import { ProviderService } from "@/services/ai/provider/service.js"
 import { EffectiveInput } from "@/types.js"
-import { Message, TextPart } from "@/schema.js"
 
 // Use e2e configuration
 process.env.EFFECTIVE_AGENT_MASTER_CONFIG = join(
@@ -27,7 +27,7 @@ const makeChatCommand = Effect.gen(function* () {
     chat: (input: string) => Effect.gen(function* () {
       // Load available models
       const models = yield* model.load()
-      const defaultModel = models.models[0]
+      const _defaultModel = models.models[0]
 
       // Create message with user input
       const message = new Message({
@@ -51,7 +51,7 @@ const makeChatCommand = Effect.gen(function* () {
 })
 
 // Create chat command
-const chatCommand = Command.make(
+const _chatCommand = Command.make(
   "chat",
   {
     message: Args.text({ name: "message" }).pipe(

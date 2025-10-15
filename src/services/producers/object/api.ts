@@ -3,8 +3,8 @@
  * Defines the contract for object generation using AI models/providers.
  */
 
+import type { Effect, Ref, Schema as S } from "effect";
 import type { EffectiveResponse } from "@/types.js";
-import { type Effect, type Ref, Schema as S } from "effect";
 import type { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectProviderError } from "./errors.js";
 import type { ObjectAgentState } from "./service.js";
 import type { ObjectGenerationOptions } from "./types.js";

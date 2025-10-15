@@ -7,14 +7,14 @@
 
 import "dotenv/config";
 
+import { NodeFileSystem } from "@effect/platform-node";
+import { Effect, Logger, LogLevel, Option, Schema } from "effect";
 import { AgentRuntimeService } from "@/ea-agent-runtime/service.js";
 import { StructuredOutputAgent } from "@/examples/structured-output/agent.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ObjectService } from "@/services/producers/object/service.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, LogLevel, Logger, Option, Schema } from "effect";
 
 // Set up environment for testing
 process.env.MASTER_CONFIG_PATH = "./config/master-config.json";

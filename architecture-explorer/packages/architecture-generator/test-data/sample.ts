@@ -1,9 +1,11 @@
 /**
  * @architectureComponent
+ * @c4 Component
+ * @color #cccccc
  * @c4 System
  * @description A sample component for testing the generator.
  * @tag sample
- * @groupByLayer Core
+ * @groupByLayer Service
  */
 export class SampleComponent {
     /**

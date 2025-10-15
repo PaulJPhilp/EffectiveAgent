@@ -1,7 +1,7 @@
-import { ModelServiceApi, ProviderServiceApi } from "@/services/ai/index.js"
-import { PolicyServiceApi } from "@/services/ai/policy/api.js"
-import { ConfigurationServiceApi } from "@/services/core/configuration/api.js"
-import { Brand, Effect, Stream } from "effect"
+import type { Brand, Effect, Stream } from "effect"
+import type { ModelServiceApi, ProviderServiceApi } from "@/services/ai/index.js"
+import type { PolicyServiceApi } from "@/services/ai/policy/api.js"
+import type { ConfigurationServiceApi } from "@/services/core/configuration/api.js"
 
 /**
  * Message priority levels for the mailbox system.

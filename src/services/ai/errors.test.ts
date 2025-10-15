@@ -3,9 +3,9 @@
  * @module services/ai/errors/tests
  */
 
-import { EffectiveError } from "@/errors.js"
 import { Cause, Effect, Exit, Option } from "effect"
 import { describe, expect, it } from "vitest"
+import type { EffectiveError } from "@/errors.js"
 import {
     AuthenticationError,
     ChatCompletionError,

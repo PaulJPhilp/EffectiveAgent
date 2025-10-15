@@ -1,14 +1,14 @@
-import { wsParse, wsStringify } from "@/utils/ws-utils.js";
 /**
  * @file WebSocket server for the Actor Runtime, allowing stateful, per-client agent interactions.
  */
 import { Effect, Fiber, Queue, Ref, Sink, Stream } from "effect";
 import type { WebSocket } from "ws";
 import { WebSocketServer } from "ws";
+import { wsParse, wsStringify } from "@/utils/ws-utils.js";
 import { getAgentRuntime } from "../ea-agent-runtime/production-runtime.js";
 import { createActorRuntimeManager } from "./actor-runtime.js";
 import { AgentRuntimeError } from "./errors.js";
-import { AgentActivity, AgentRuntimeId } from "./types.js";
+import type { AgentActivity, AgentRuntimeId } from "./types.js";
 
 export interface ActorServerApi {
   readonly wss: WebSocketServer;

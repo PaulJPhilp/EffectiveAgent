@@ -1,18 +1,16 @@
-import { join } from "path";
-import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
+import { join } from "node:path";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
-import { Effect, Either, Layer, Schema } from "effect";
+import { Duration, Effect, Either, Layer, Schema } from "effect";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-
+import { BaseConfigSchema } from "@/services/core/configuration/schema.js";
+import { ResilienceService } from "@/services/execution/resilience/service.js";
 import {
   ConfigParseError,
   ConfigReadError,
   ConfigValidationError,
 } from "../errors.js";
 import { ConfigurationService } from "../service.js";
-import { ResilienceService } from "@/services/execution/resilience/service.js";
-import { Duration } from "effect";
 
 describe("ConfigurationService", () => {
   it("should have .Default available", () => {

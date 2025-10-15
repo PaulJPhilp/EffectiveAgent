@@ -1,15 +1,15 @@
+import { mkdirSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import * as os from "node:os";
+import { join } from "node:path";
+import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
-import { mkdirSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import * as os from "os";
-import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { InitializationService } from "../initialization.js";
 import { AgentRuntimeInitializationError } from "../errors.js";
+import { InitializationService } from "../initialization.js";
 
 describe("AgentRuntime Initialization Integration Tests", () => {
     let testDir: string;
@@ -136,7 +136,7 @@ describe("AgentRuntime Initialization Integration Tests", () => {
             unlinkSync(modelsConfigPath);
             unlinkSync(policyConfigPath);
             rmdirSync(testDir);
-        } catch (error) {
+        } catch (_error) {
             // Ignore cleanup errors
         }
 
@@ -379,7 +379,7 @@ describe("AgentRuntime Initialization Integration Tests", () => {
 
             for (const level of logLevels) {
                 writeFileSync(providersConfigPath, JSON.stringify(JSON.parse(JSON.stringify(validProviderConfig)), null, 2));
-                console.log("[DEBUG] providers.json for log level", level, require("fs").readFileSync(providersConfigPath, "utf8"));
+                console.log("[DEBUG] providers.json for log level", level, require("node:fs").readFileSync(providersConfigPath, "utf8"));
                 const configWithLogLevel = JSON.parse(JSON.stringify(validMasterConfig));
                 configWithLogLevel.logging = {
                     level,
@@ -395,7 +395,7 @@ describe("AgentRuntime Initialization Integration Tests", () => {
 
                 await Effect.runPromise(
                     Effect.gen(function* () {
-                        const configService = yield* ConfigurationService;
+                        const _configService = yield* ConfigurationService;
                         const initService = yield* InitializationService;
                         const runtime = yield* initService.initialize(configWithLogLevel);
                         expect(runtime).toBeDefined();

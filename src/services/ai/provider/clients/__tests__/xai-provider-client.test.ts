@@ -1,27 +1,24 @@
-import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import { join } from "path";
+import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { NodeFileSystem } from "@effect/platform-node";
 import {
-  EffectiveMessage,
-  ModelCapability,
-  TextPart,
-  ToolCallPart,
-} from "@/schema.js";
+  Message as EffectiveMessage,
+  TextPart
+} from "@effective-agent/ai-sdk";
+import { Chunk, Effect, Layer } from "effect";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { ModelCapability } from "@/schema.js";
 import type { ModelServiceApi } from "@/services/ai/model/api.js";
-import type { EffectiveInput } from "@/types.js";
-import {
-  ProviderServiceError,
-  ProviderServiceConfigError,
-  ProviderMissingCapabilityError,
-  ProviderOperationError,
-} from "@/services/ai/provider/errors.js";
 import { ModelService } from "@/services/ai/model/service.js";
+import {
+  ProviderMissingCapabilityError,
+  ProviderOperationError
+} from "@/services/ai/provider/errors.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { OrchestratorService } from "@/services/execution/orchestrator/service.js";
 import { ResilienceService } from "@/services/execution/resilience/service.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Chunk, Effect, Layer } from "effect";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { EffectiveInput } from "@/types.js";
 import { makeXaiClient } from "../xai-provider-client.js";
 
 describe("xAI Provider Client", () => {
@@ -113,7 +110,7 @@ describe("xAI Provider Client", () => {
       unlinkSync(providersConfigPath);
       unlinkSync(policyConfigPath);
       rmdirSync(testDir);
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
     // biome-ignore lint/performance/noDelete: <explanation>

@@ -1,14 +1,14 @@
-import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import { join } from "path";
-import { ModelService } from "@/services/ai/model/service.js";
-import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { ToolRegistryService } from "@/services/ai/tool-registry/index.js";
-import { EffectiveInput } from "@/types.js";
-import { EffectImplementation } from "@/services/ai/tools/schema.js";
+import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Chunk, Effect } from "effect";
-import { z } from "zod";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { z } from "zod";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ToolRegistryService } from "@/services/ai/tool-registry/index.js";
+import { EffectImplementation } from "@/services/ai/tools/schema.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
+import { EffectiveInput } from "@/types.js";
 import { makeGoogleClient } from "../google-provider-client.js";
 
 describe("Google Provider Client", () => {
@@ -113,7 +113,7 @@ describe("Google Provider Client", () => {
             unlinkSync(providersConfigPath);
             unlinkSync(policyConfigPath);
             rmdirSync(testDir);
-        } catch (error) {
+        } catch (_error) {
             // Ignore cleanup errors
         }
 
@@ -264,7 +264,7 @@ describe("Google Provider Client", () => {
                         outputSchema: z.object({
                             result: z.string()
                         }),
-                        execute: (input: unknown) => Effect.succeed({ result: "4" })
+                        execute: (_input: unknown) => Effect.succeed({ result: "4" })
                     })
                 }];
 

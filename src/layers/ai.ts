@@ -1,6 +1,6 @@
+import { Layer } from "effect";
 import { ModelService } from "@/services/ai/model/service";
 import { ProviderService } from "@/services/ai/provider/service";
-import { Effect, Layer } from "effect";
 
 /**
  * The AiModuleLayer provides all services related to AI functionality.

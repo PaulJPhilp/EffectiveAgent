@@ -3,7 +3,7 @@
  * @module services/core/auth/service
  */
 
-import { Effect, Ref, pipe } from "effect";
+import { Effect, pipe, Ref } from "effect";
 import type { AuthServiceApi } from "./api.js";
 import { AuthenticationError, AuthorizationError, InvalidAuthContextError } from "./errors.js";
 import type { AuthContext } from "./types.js";

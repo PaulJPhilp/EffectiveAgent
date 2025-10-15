@@ -9,5 +9,5 @@ export {
     EmbeddingInputError, EmbeddingModelError,
     EmbeddingProviderError, type EmbeddingServiceError
 } from "./errors.js";
-export { EmbeddingService, type EmbeddingAgentState } from "./service.js";
+export { type EmbeddingAgentState, EmbeddingService } from "./service.js";
 

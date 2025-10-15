@@ -1,6 +1,6 @@
-import { Effect } from "effect";
-import { PipelineError } from "../pipeline/errors.js";
-import { PipelineConfig } from "../pipeline/types.js";
+import type { Effect } from "effect";
+import type { PipelineError } from "../pipeline/errors.js";
+import type { PipelineConfig } from "../pipeline/types.js";
 
 export interface GeminiProCodingPipelineApi {
   readonly _tag: "GeminiProCodingPipeline";

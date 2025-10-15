@@ -1,15 +1,15 @@
-import { mkdirSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from "fs"
-import * as os from "os"
-import { join } from "path"
+import { mkdirSync, mkdtempSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs"
+import * as os from "node:os"
+import { join } from "node:path"
+import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node"
+import { Effect, } from "effect"
+import { afterEach, beforeEach, describe, expect, it, } from "vitest"
 import { ModelService } from "@/services/ai/model/service.js"
 import { PolicyService } from "@/services/ai/policy/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
-import { ConfigurationService } from "@/services/core/configuration/index.js"
-import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node"
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js"
 import { AgentRuntimeService } from "../service.js";
-import { Effect, Layer } from "effect"
-import { afterEach, beforeEach, describe, expect, test, it } from "vitest"
 import { AgentRecordType, makeAgentRuntimeId } from "../types.js"
 
 describe("AgentRuntime", () => {
@@ -130,7 +130,7 @@ describe("AgentRuntime", () => {
             unlinkSync(modelsConfigPath)
             unlinkSync(policyConfigPath)
             rmdirSync(testDir)
-        } catch (error) {
+        } catch (_error) {
             // Ignore cleanup errors
         }
 

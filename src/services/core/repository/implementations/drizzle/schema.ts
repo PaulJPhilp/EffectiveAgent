@@ -3,13 +3,13 @@
  * @module services/core/repository/implementations/drizzle/schema
  */
 
+import { jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import type { JsonObject } from "@/types.js";
-import { pgTable, text, timestamp, jsonb } from "drizzle-orm/pg-core";
 
 /**
  * Creates a base table schema for an entity type
  */
-export const createBaseTable = <TData extends JsonObject>(tableName: string) => 
+export const createBaseTable = <_TData extends JsonObject>(tableName: string) => 
     pgTable(tableName, {
         id: text("id").primaryKey(),
         createdAt: timestamp("created_at", { withTimezone: true }).notNull(),

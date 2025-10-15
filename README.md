@@ -34,43 +34,35 @@ At the heart of the application is the **`AgentRuntimeService`**, which serves a
 ## Service Architecture
 
 ```
-services/
-├── ai/
-│   ├── model/          # AI model definitions and capabilities
-│   ├── policy/         # Usage policies and rate limiting
-│   ├── prompt/         # Prompt templates and management
-│   ├── provider/       # AI provider configurations and clients
-│   ├── tool-registry/  # Central tool registry
-│   └── tools/          # Tool execution and validation
-├── core/
-│   ├── attachment/     # File and data attachment handling
-│   ├── audit/          # Execution tracking and compliance
-│   ├── auth/           # Authentication and authorization
-│   ├── configuration/  # Configuration loading and validation
-│   ├── executive/      # Policy-enforced operation orchestration
-│   ├── file/           # File system operations
-│   ├── logging/        # Centralized logging
-│   ├── repository/     # Generic CRUD storage
-│   ├── tag/            # Entity tagging and metadata
-│   └── websocket/      # Real-time communication
-├── pipeline/
-│   ├── bridge/         # Inter-runtime message passing
-│   ├── chat/           # Conversational context management
-│   ├── input/          # Input validation and transformation
-│   ├── pipeline/       # Core workflow orchestration
-│   └── producers/      # Multi-modal output generation
-│       ├── chat/       # AI chat completions
-│       ├── embedding/  # Vector embeddings
-│       ├── image/      # Image generation
-│       ├── object/     # Structured object generation
-│       ├── text/       # Text generation
-│       └── transcription/ # Audio transcription
-└── capabilities/
-    ├── intelligence/   # Intelligence profiles
-    ├── persona/        # Behavioral configuration
-    └── skill/          # Modular agent skills
-
-agent-runtime/          # Central orchestration service
+src/
+├── ea-agent-runtime/   # Central agent orchestration service
+├── services/
+│   ├── ai/
+│   │   ├── model/          # AI model definitions and capabilities
+│   │   ├── policy/         # Usage policies and rate limiting
+│   │   ├── provider/       # AI provider configurations and clients
+│   │   ├── tool-registry/  # Central tool registry
+│   │   └── tools/          # Tool execution and validation
+│   ├── core/
+│   │   ├── configuration/  # Configuration loading and validation
+│   │   ├── health/         # Service health monitoring
+│   │   ├── performance/    # Performance metrics
+│   │   ├── test-utils/     # Testing utilities (effect-test-harness)
+│   │   └── websocket/      # Real-time communication
+│   ├── execution/
+│   │   ├── orchestrator/   # Policy-enforced operation orchestration
+│   │   └── resilience/     # Circuit breakers, retries, fallbacks
+│   ├── capabilities/
+│   │   └── skill/          # Modular agent skills
+│   ├── input/              # Input validation and transformation
+│   └── producers/          # Multi-modal output generation
+│       ├── chat/           # AI chat completions
+│       ├── embedding/      # Vector embeddings
+│       ├── image/          # Image generation
+│       ├── object/         # Structured object generation
+│       ├── text/           # Text generation
+│       └── transcription/  # Audio transcription
+└── ea-cli/                 # Command-line interface
 ```
 
 ---
@@ -120,7 +112,7 @@ yield* agent.send(activity);
 - Supports environment-specific configurations
 
 **FileSystem:** Cross-platform file operations
-- Abstracts Node.js and Bun file systems
+- Abstracts Node.js and Bun file systems via `@effect/platform`
 - Provides Effect-based file operations
 - Supports both sync and async operations
 
@@ -128,88 +120,283 @@ yield* agent.send(activity);
 
 ## Getting Started
 
-1. **Install dependencies:**
+### Prerequisites
+
+- [Bun](https://bun.sh) v1.0+
+- Node.js v18+ (for compatibility)
+- TypeScript 5.8+
+
+### Installation
+
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/yourusername/EffectiveAgent.git
+   cd EffectiveAgent
+   ```
+
+2. **Install dependencies:**
    ```sh
    bun install
    ```
 
-2. **Set up master configuration:**
-   ```sh
-   cp config/master-config.example.json config/master-config.json
-   # Edit master-config.json for your environment
-   ```
+### Configuration
 
-3. **Configure services:**
-   ```sh
-   cp config/models.example.json config/models.json
-   cp config/providers.example.json config/providers.json
-   cp config/policies.example.json config/policies.json
-   # Edit each configuration file as needed
-   ```
-
-4. **Set environment variables:**
+3. **Set up environment variables:**
    ```sh
    cp .env.example .env
-   # Add your API keys to .env
-   
-   # Set configuration paths (optional - defaults provided)
-   export MASTER_CONFIG_PATH=./config/master-config.json
-   export MODELS_CONFIG_PATH=./config/models.json
-   export PROVIDERS_CONFIG_PATH=./config/providers.json
-   export POLICY_CONFIG_PATH=./config/policies.json
+   # Edit .env and add your API keys:
+   # - ANTHROPIC_API_KEY
+   # - OPENAI_API_KEY
+   # - GROQ_API_KEY
+   # (etc. for other providers)
    ```
 
-5. **Run tests:**
+4. **Configure master settings:**
+   ```sh
+   # The default configuration is located at:
+   # configuration/config/master-config.json
+
+   # Set the path via environment variable (optional):
+   export MASTER_CONFIG_PATH=./configuration/config/master-config.json
+   ```
+
+5. **Configure AI services:**
+
+   Configuration files are in `configuration/config/`:
+   - `models.json` - AI model definitions and capabilities
+   - `providers.json` - Provider configurations
+   - `policies.json` - Usage policies and rate limits
+
+   Edit these files to customize your AI service configurations.
+
+### Development
+
+6. **Run tests:**
    ```sh
    bun test
+
+   # Run with coverage
+   bun test --coverage
+
+   # Run a specific test file
+   bun test path/to/test.test.ts
    ```
 
-6. **Start the application:**
+7. **Build the project:**
    ```sh
-   bun src/main.ts
+   bun run build
    ```
 
-### Example Usage
+8. **Type checking:**
+   ```sh
+   bun run typecheck
+   ```
+
+9. **Lint code:**
+   ```sh
+   bunx biome lint .
+   ```
+
+---
+
+## Quick Start Example
 
 ```typescript
-import { AgentRuntimeService } from "@/agent-runtime";
-import { Effect } from "effect";
+import { AgentRuntimeService } from "@/ea-agent-runtime";
+import { Effect, Layer } from "effect";
 
 // Basic agent creation and management
 const program = Effect.gen(function* () {
   // Get the runtime service
   const runtime = yield* AgentRuntimeService;
-  
+
   // Access configured AI services
   const modelService = yield* runtime.getModelService();
   const defaultModel = yield* modelService.getDefaultModelId();
-  
-  // Create an agent
-  const agent = yield* runtime.create("my-agent", { 
+
+  // Create an agent with initial state
+  const agent = yield* runtime.create("my-agent", {
     status: "ready",
-    model: defaultModel 
+    model: defaultModel
   });
-  
+
   // Send activities to the agent
   yield* agent.send({
     type: "user-message",
     content: "Hello, agent!"
   });
-  
+
   // Monitor agent state
   const currentState = yield* agent.getState();
   console.log("Agent state:", currentState);
+
+  return agent;
 });
 
 // Run with proper service dependencies
-Effect.runMain(program.pipe(
+Effect.runPromise(program.pipe(
   Effect.provide(AgentRuntimeService.Default)
-));
+)).then(
+  (agent) => console.log("Agent created successfully:", agent),
+  (error) => console.error("Failed to create agent:", error)
+);
 ```
+
+---
+
+## Project Structure
+
+```
+EffectiveAgent/
+├── src/
+│   ├── ea-agent-runtime/    # Core agent runtime
+│   ├── ea-cli/              # Command-line interface
+│   ├── services/            # Modular service architecture
+│   ├── examples/            # Usage examples
+│   └── docs/                # Technical documentation
+├── configuration/
+│   └── config/              # Configuration files
+├── architecture-explorer/   # Architecture visualization tool
+└── tests/                   # Test files
+```
+
+---
 
 ## Documentation
 
-- [Agent Runtime Architecture](./src/agent-runtime/docs/ARCHITECTURE.md)
-- [Agent Runtime API](./src/agent-runtime/docs/API.md)
-- [Service Development Guide](./docs/SERVICE_DEVELOPMENT.md)
-- [Configuration Reference](./docs/CONFIGURATION.md)
+### Core Documentation
+- [Agent Runtime Architecture](./src/ea-agent-runtime/docs/ARCHITECTURE.md) - Runtime design and patterns
+- [Agent Runtime API](./src/ea-agent-runtime/docs/API.md) - API reference
+- [Examples](./src/ea-agent-runtime/docs/EXAMPLES.md) - Usage examples
+
+### Development Guides
+- [Service Pattern Guide](./src/docs/service-pattern/README.md) - Effect.Service pattern
+- [Testing Strategy](./src/docs/guides/pipeline-testing-strategy.md) - Testing best practices
+- [Test Harness Utilities](./src/docs/guides/test-harness-utilities.md) - Testing tools
+
+### Architecture
+- [System Architecture](./src/docs/architecture/Architecture.md) - Overall system design
+- [Technology Stack](./src/docs/TECHNOLOGY_STACK.md) - Tech stack overview
+
+---
+
+## Technology Stack
+
+- **Runtime:** Bun & Node.js
+- **Language:** TypeScript 5.8+
+- **Effect System:** Effect-TS 3.16+
+- **AI SDK:** Vercel AI SDK (via `@effective-agent/ai-sdk`)
+- **Testing:** Vitest
+- **Linting:** Biome
+- **AI Providers:** Anthropic, OpenAI, Groq, Google, DeepSeek, xAI, Perplexity
+
+---
+
+## Packages
+
+### `@effective-agent/ai-sdk`
+
+A standalone Effect-TS communication layer for AI operations, providing type-safe wrappers around the Vercel AI SDK.
+
+**Key Features:**
+- **Type-Safe AI Operations**: Effect wrappers for `generateText`, `generateObject`, `embedMany`
+- **Message Transformation**: Bidirectional conversion between `EffectiveMessage` and Vercel `CoreMessage`
+- **Schema Conversion**: Utilities for Effect Schema ↔ Zod/Standard Schema
+- **Provider Factory**: Create and manage AI provider instances (OpenAI, Anthropic, Google, etc.)
+- **Error Handling**: Comprehensive error types with Effect integration
+
+**Remaining Legacy Code:**
+- **Image and Transcription producers** still use `getProviderClient` since image generation and transcription operations are not yet implemented in the ai-sdk package
+- **Deprecated method maintained** for backward compatibility until these features are added to ai-sdk
+
+**Package Structure:**
+```
+packages/effect-aisdk/
+├── src/
+│   ├── index.ts            # Main exports
+│   ├── errors.ts           # AiSdk error types
+│   ├── message.ts          # EffectiveMessage & Part schemas
+│   ├── message-transformer.ts  # Message format conversion
+│   ├── schema-converter.ts # Schema utilities
+│   ├── provider-factory.ts # Provider creation
+│   ├── ai-operations.ts    # generateText, generateObject, embedMany
+│   ├── types.ts            # Core types (EffectiveResponse, etc.)
+│   ├── input-types.ts      # Option types
+│   └── result-types.ts     # Result types
+├── package.json
+└── tsconfig.json
+```
+
+**Usage Example:**
+```typescript
+import {
+  createProvider,
+  getLanguageModel,
+  generateTextWithModel,
+  type EffectiveInput,
+} from "@effective-agent/ai-sdk";
+import { Effect } from "effect";
+
+const program = Effect.gen(function* () {
+  // Create provider
+  const provider = yield* createProvider("openai", {
+    apiKey: process.env.OPENAI_API_KEY!
+  });
+
+  // Get model
+  const model = yield* getLanguageModel(provider, "gpt-4");
+
+  // Generate text
+  const input: EffectiveInput = {
+    text: "Hello, AI!",
+    messages: Chunk.empty()
+  };
+
+  const response = yield* generateTextWithModel(model, input);
+  console.log(response.data.text);
+});
+```
+
+---
+
+## Contributing
+
+When contributing to EffectiveAgent:
+
+1. **Follow the Effect.Service pattern** - All services must use the Effect.Service class pattern
+2. **Write tests** - Use integration tests with real services (no mocks)
+3. **Update documentation** - Keep docs in sync with code changes
+4. **Run linting** - Ensure code passes Biome checks
+5. **Type safety** - Avoid `any`, create proper types
+
+See [CLAUDE.md](./CLAUDE.md) for detailed development guidelines.
+
+Canonical models source (URL)
+-----------------------------------
+
+The project obtains canonical model metadata from a public JSON registry. By default the adapter fetches from:
+
+  https://models.dev/models.json
+
+You can override the source URL using the environment variable `MODELS_DEV_URL` — useful for an internal mirror or testing:
+
+```sh
+export MODELS_DEV_URL=https://my-mirror.example/models.json
+```
+
+The runtime will fetch this JSON at service initialization (and the GitHub Action periodically updates `packages/effect-aisdk/config/models.reg.json` from the same URL). If the fetch fails, bootstrap will fail with a structured `ModelsDevMissingError` so CI can detect the condition programmatically and report it.
+
+---
+
+## License
+
+[Your License Here]
+
+---
+
+## Support
+
+For questions, issues, or contributions:
+- GitHub Issues: [Report an issue](https://github.com/yourusername/EffectiveAgent/issues)
+- Documentation: See the `src/docs/` directory
+- Examples: See the `src/examples/` directory

@@ -112,7 +112,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
         return Effect.succeed(Option.some(entity));
       },
       delete: (id: string) => {
-        if (config.failOnDelete && config.failOnDelete.includes(id)) {
+        if (config.failOnDelete?.includes(id)) {
           return Effect.fail(
             new RepositoryError({
               message: "Simulated delete failure for specific entity",
@@ -564,7 +564,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
     it("should roll back partial deletions on failure", () =>
       Effect.gen(function* () {
         // Create a repo that will fail on specific deletes
-        const repo = makeAdvancedTestRepo();
+        const _repo = makeAdvancedTestRepo();
 
         // Track created entity IDs and delete counter
         const createdIds: string[] = [];

@@ -3,12 +3,12 @@
  * @module services/ai/producers/transcription/service.test
  */
 
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Exit, Layer } from "effect";
 import { describe, expect, it, vi } from "vitest";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { TranscriptionService } from "../service.js";
 
 // --- Minimal mock for TranscriptionService ---

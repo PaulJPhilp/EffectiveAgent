@@ -1,7 +1,7 @@
 import { Effect, Stream } from "effect"
 import { describe, expect, it } from "vitest"
 import { PrioritizedMailbox } from "../prioritized-mailbox.js"
-import { AgentActivity, MessagePriority } from "../types.js"
+import { type AgentActivity, MessagePriority } from "../types.js"
 
 describe("PrioritizedMailbox", () => {
   const createTestActivity = (priority?: MessagePriority): AgentActivity => ({

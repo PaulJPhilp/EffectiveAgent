@@ -13,9 +13,6 @@ import { EffectiveError } from "@/errors.js";
  * @extends EffectiveError
  */
 export class ImageModelError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -43,9 +40,6 @@ export class ImageProviderError extends EffectiveError {
  * @extends EffectiveError
  */
 export class ImageGenerationError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**

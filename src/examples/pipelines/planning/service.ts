@@ -4,14 +4,14 @@
  */
 
 import { Cause, Effect } from "effect";
-import {
-    type PlanStep,
-    type PlanningPipelineApi,
-    type PlanningPipelineInput,
-    type PlanningPipelineOutput
+import type {
+    PlanningPipelineApi,
+    PlanningPipelineInput,
+    PlanningPipelineOutput, 
+    PlanStep
 } from "./contract.js";
 import { PlanningPipelineError } from "./errors.js";
-import { type TaskAnalysisResult } from "./types.js";
+import type { TaskAnalysisResult } from "./types.js";
 
 /**
  * Service for analyzing tasks
@@ -27,7 +27,7 @@ export interface TaskAnalysisToolApi {
 export class TaskAnalysisTool extends Effect.Service<TaskAnalysisToolApi>()("TaskAnalysisTool", {
     effect: Effect.succeed({
         _tag: "TaskAnalysisTool" as const,
-        analyzeTask: (task: string): Effect.Effect<TaskAnalysisResult, never> => {
+        analyzeTask: (_task: string): Effect.Effect<TaskAnalysisResult, never> => {
             // Mock implementation - replace with real task analysis
             return Effect.succeed({
                 complexity: "medium",

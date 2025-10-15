@@ -1,8 +1,8 @@
-import { MailboxError } from "@/ea-agent-runtime/errors.js"
 import { Effect, Stream } from "effect"
 import { describe, expect, it } from "vitest"
+import { MailboxError } from "@/ea-agent-runtime/errors.js"
 import { Mailbox } from "../mailbox.js"
-import { AgentActivity, MessagePriority } from "../types.js"
+import { type AgentActivity, MessagePriority } from "../types.js"
 
 describe("Mailbox", () => {
   const createTestActivity = (priority?: MessagePriority): AgentActivity => ({

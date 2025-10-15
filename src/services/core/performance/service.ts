@@ -1,5 +1,5 @@
 import { Duration, Effect, HashMap, Ref } from "effect";
-import {
+import type {
     BenchmarkConfig,
     BenchmarkResult,
     CPUMetrics,
@@ -334,7 +334,7 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
                         cpu: getCPUMetrics()
                     };
 
-                    const serviceMetrics = yield* Effect.succeed([]);
+                    const _serviceMetrics = yield* Effect.succeed([]);
 
                     // Get recent alerts (last 24 hours)
                     const twentyFourHoursAgo = Date.now() - Duration.toMillis(Duration.hours(24));
@@ -358,7 +358,7 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
 
                     // Calculate error rates by service
                     const errorRatesByService = Array.from(HashMap.entries(timingsByOperation))
-                        .map(([operationName, durations]) => {
+                        .map(([operationName, _durations]) => {
                             const serviceName = operationName.split('.')[0];
                             const serviceTimings = currentState.timings.filter(t => t.operationName.startsWith(serviceName));
                             const errorCount = serviceTimings.filter(t => !t.success).length;

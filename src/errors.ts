@@ -55,14 +55,6 @@ export class EffectiveError extends BaseError {
  * Allows associating an optional cause.
  */
 export class ServiceError extends EffectiveError {
-  constructor(params: {
-    description: string
-    module: string
-    method: string
-    cause?: unknown
-  }) {
-    super(params)
-  }
 }
 
 /**

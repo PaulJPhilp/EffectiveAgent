@@ -1,7 +1,7 @@
-import { Context, Effect, Option } from "effect";
+import { Context, Option } from "effect";
 import type { Span, SpanKind, SpanLink, SpanStatus } from "effect/Tracer";
 
-const SpanStatusValues = {
+const _SpanStatusValues = {
   Ok: "ok",
   Error: "error",
   Unset: "unset"

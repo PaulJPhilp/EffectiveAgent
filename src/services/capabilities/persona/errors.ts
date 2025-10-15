@@ -10,12 +10,4 @@ import { EffectiveError } from "@/errors.js";
  * @extends EffectiveError
  */
 export class PersonaConfigError extends EffectiveError {
-    constructor(params: {
-        description: string;
-        module: string;
-        method: string;
-        cause?: unknown;
-    }) {
-        super(params);
-    }
 }

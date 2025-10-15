@@ -1,0 +1,17 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "../.."
+    },
+    "include": [
+        "src/**/*",
+        "../effect-aisdk/src/**/*",
+        "../../src/agent-runner.ts",
+        "../../src/services/ai/tools/implementations/fetch-content.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist"
+    ]
+}

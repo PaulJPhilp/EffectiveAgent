@@ -225,7 +225,7 @@ export const testCommand = Command.make(
                     )
                   }
                 }),
-              onFailure: (error) =>
+              onFailure: (_error) =>
                 Effect.gen(function* () {
                   yield* Console.warn(
                     `⚠️ Error checking model: ${modelId}. Will attempt to use anyway.`,
@@ -240,32 +240,28 @@ export const testCommand = Command.make(
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-")
       const resultsDir = path.join(output, timestamp)
       yield* Console.log(`Creating results directory: ${resultsDir}`)
-      yield* fs
-        .makeDirectory(resultsDir, { recursive: true })
-        .pipe(
-          Effect.mapError(
-            (cause) =>
-              new TestCommandError({
-                message: `Failed to create output directory ${resultsDir}`,
-                cause,
-              }),
-          ),
-        )
+      yield* fs.makeDirectory(resultsDir, { recursive: true }).pipe(
+        Effect.mapError(
+          (cause) =>
+            new TestCommandError({
+              message: `Failed to create output directory ${resultsDir}`,
+              cause,
+            }),
+        ),
+      )
       yield* Console.log(`✅ Results directory created: ${resultsDir}`)
 
       // 2. Read and parse input config JSON
       yield* Console.log(`Reading input config: ${input}`)
-      const configFileContent = yield* fs
-        .readFileString(input)
-        .pipe(
-          Effect.mapError(
-            (cause) =>
-              new TestCommandError({
-                message: `Failed to read input file ${input}`,
-                cause,
-              }),
-          ),
-        )
+      const configFileContent = yield* fs.readFileString(input).pipe(
+        Effect.mapError(
+          (cause) =>
+            new TestCommandError({
+              message: `Failed to read input file ${input}`,
+              cause,
+            }),
+        ),
+      )
       const parsedConfig = yield* Schema.decode(InputConfigSchema)(
         JSON.parse(configFileContent),
       ).pipe(
@@ -283,18 +279,16 @@ export const testCommand = Command.make(
       if (modelsString) {
         modelIdsToTest = modelsString.split(",")
       } else {
-        const defaultModelId = yield* modelService
-          .getDefaultModelId()
-          .pipe(
-            Effect.catchAll((error) =>
-              Effect.die(
-                new TestCommandError({
-                  message: "Failed to get default model ID",
-                  cause: error,
-                }),
-              ),
+        const defaultModelId = yield* modelService.getDefaultModelId().pipe(
+          Effect.catchAll((error) =>
+            Effect.die(
+              new TestCommandError({
+                message: "Failed to get default model ID",
+                cause: error,
+              }),
             ),
-          )
+          ),
+        )
         modelIdsToTest = [defaultModelId]
         yield* Console.log(
           `ℹ️  No models specified, using default: ${defaultModelId}`,

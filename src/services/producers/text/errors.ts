@@ -10,9 +10,6 @@ import { EffectiveError } from "@/errors.js";
  * @extends EffectiveError
  */
 export class TextModelError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -34,9 +31,6 @@ export class TextProviderError extends EffectiveError {
  * @extends EffectiveError
  */
 export class TextGenerationError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -44,9 +38,6 @@ export class TextGenerationError extends EffectiveError {
  * @extends EffectiveError
  */
 export class TextInputError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 // Custom error for text completion

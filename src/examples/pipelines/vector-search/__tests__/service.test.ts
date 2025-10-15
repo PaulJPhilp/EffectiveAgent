@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for VectorSearchService, mock embedding services, and mock vector stores
 
 describe("VectorSearchService unit tests", () => {

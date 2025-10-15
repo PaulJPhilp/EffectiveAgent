@@ -2,25 +2,23 @@ import { Effect } from "effect";
 // PipelineService import removed
 import { 
   PipelineConfigError, 
-  PipelineError, 
+  type PipelineError, 
   PipelineSharedExecutionError, 
   PipelineValidationError 
 } from "../pipeline/errors.js";
-import { PipelineConfig } from "../pipeline/types.js";
-import { GeminiProCodingPipelineApi } from "./gemini-pro-coding.api.js";
+import type { PipelineConfig } from "../pipeline/types.js";
+import type { GeminiProCodingPipelineApi } from "./gemini-pro-coding.api.js";
 
 const SYSTEM_PROMPT = "You are an expert coding AI assistant.";
 
 export class GeminiProCodingPipeline implements GeminiProCodingPipelineApi {
   readonly _tag = "GeminiProCodingPipeline" as const;
 
-  constructor() {} // pipelineService removed
-
   static make = Effect.succeed(new GeminiProCodingPipeline()); // Simplified make
   
   execute = <A, E, R>(
     effect: Effect.Effect<A, E, R>,
-    config?: PipelineConfig // config is now unused here, but kept for API compatibility if necessary
+    _config?: PipelineConfig // config is now unused here, but kept for API compatibility if necessary
   ): Effect.Effect<A, PipelineError, R> => {
     // Directly execute the effect. Retry/timeout logic previously in PipelineService is removed.
     // The config parameter is no longer used by this direct execution.

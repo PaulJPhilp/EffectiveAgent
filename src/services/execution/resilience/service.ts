@@ -1,14 +1,14 @@
-import { EffectiveError } from "@/errors.js";
 import { Duration, Effect, HashMap, Ref, Schedule } from "effect";
+import type { EffectiveError } from "@/errors.js";
 import {
-  CircuitBreakerConfig,
+  type CircuitBreakerConfig,
   CircuitBreakerError,
-  CircuitBreakerState,
-  ErrorClassification,
-  ResilienceServiceApi,
-  FallbackStrategy,
+  type CircuitBreakerState,
+  type ErrorClassification,
+  type FallbackStrategy,
+  type ResilienceServiceApi,
   RetryExhaustedError,
-  RetryPolicy,
+  type RetryPolicy,
 } from "./types.js";
 
 interface CircuitBreakerInternalState {
@@ -50,7 +50,7 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
       // Helper function to get or create circuit breaker state
       const getCircuitBreakerState = (
         name: string,
-        config: CircuitBreakerConfig
+        _config: CircuitBreakerConfig
       ) =>
         Effect.gen(function* () {
           const breakers = yield* Ref.get(circuitBreakers);
@@ -114,26 +114,26 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
             totalRequests: state.totalRequests + 1,
             ...(success
               ? {
-                  successCount: state.successCount + 1,
-                  failureCount:
-                    state.state === "HALF_OPEN" ? 0 : state.failureCount,
-                  state: state.state === "HALF_OPEN" ? "CLOSED" : state.state,
-                  lastStateChange:
-                    state.state === "HALF_OPEN" ? now : state.lastStateChange,
-                }
+                successCount: state.successCount + 1,
+                failureCount:
+                  state.state === "HALF_OPEN" ? 0 : state.failureCount,
+                state: state.state === "HALF_OPEN" ? "CLOSED" : state.state,
+                lastStateChange:
+                  state.state === "HALF_OPEN" ? now : state.lastStateChange,
+              }
               : {
-                  failureCount: state.failureCount + 1,
-                  totalFailures: state.totalFailures + 1,
-                  lastFailureTime: now,
-                  state:
-                    state.failureCount + 1 >= config.failureThreshold
-                      ? "OPEN"
-                      : state.state,
-                  lastStateChange:
-                    state.failureCount + 1 >= config.failureThreshold
-                      ? now
-                      : state.lastStateChange,
-                }),
+                failureCount: state.failureCount + 1,
+                totalFailures: state.totalFailures + 1,
+                lastFailureTime: now,
+                state:
+                  state.failureCount + 1 >= config.failureThreshold
+                    ? "OPEN"
+                    : state.state,
+                lastStateChange:
+                  state.failureCount + 1 >= config.failureThreshold
+                    ? now
+                    : state.lastStateChange,
+              }),
           }));
         });
 
@@ -149,7 +149,7 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
           if (
             state.state === "OPEN" &&
             now - state.lastStateChange >=
-              Duration.toMillis(config.resetTimeout)
+            Duration.toMillis(config.resetTimeout)
           ) {
             yield* Ref.update(stateRef, (s) => ({
               ...s,
@@ -283,7 +283,7 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
         ) =>
           Effect.gen(function* () {
             const stateRef = yield* getCircuitBreakerState(config.name, config);
-            const state = yield* Ref.get(stateRef);
+            const _state = yield* Ref.get(stateRef);
 
             // Check if we should reset from OPEN to HALF_OPEN
             yield* checkCircuitBreakerReset(stateRef, config);
@@ -303,7 +303,7 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
             if (
               currentState.state === "HALF_OPEN" &&
               currentState.totalRequests - currentState.totalFailures >=
-                config.halfOpenMaxAttempts
+              config.halfOpenMaxAttempts
             ) {
               return yield* Effect.fail(
                 new CircuitBreakerError({
@@ -435,11 +435,11 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
               (a, b) => a.priority - b.priority
             );
             let lastError = primaryResult.left;
-            let strategiesAttempted = 0;
+            let _strategiesAttempted = 0;
 
             for (const strategy of sortedStrategies) {
               if (strategy.condition(lastError)) {
-                strategiesAttempted++;
+                _strategiesAttempted++;
 
                 const strategyEffect = strategy.timeout
                   ? strategy.handler.pipe(Effect.timeout(strategy.timeout))
@@ -533,4 +533,4 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
       };
     }),
   }
-) {}
+) { }

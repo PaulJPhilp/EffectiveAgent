@@ -2,26 +2,28 @@
  * @file Tests for the MODEL_UNIVERSE implementation in the ModelService
  */
 
-import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { NodeContext } from "@effect/platform-node";
+import { ConfigurationService } from "@/services/core/configuration/index.js";
 import type { ModelServiceApi } from "../api.js";
 import { ModelService } from "../service.js";
 
 // Set up environment before imports
-process.env.MODELS_CONFIG_PATH = process.cwd() + "/src/services/ai/model/__tests__/config/models.json";
+process.env.MODELS_CONFIG_PATH = `${process.cwd()}/src/services/ai/model/__tests__/config/models.json`;
 console.log('MODELS_CONFIG_PATH:', process.env.MODELS_CONFIG_PATH);
 
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
 import { MODEL_IDS, MODEL_UNIVERSE } from "../model-universe.js";
 
-const provideLayer = <A>(effect: Effect.Effect<A, never, ModelServiceApi>) =>
+const _provideLayer = <A>(effect: Effect.Effect<A, never, ModelServiceApi>) =>
+  // Cast to any because TypeScript's Effect environment inference cannot
+  // easily express the merged Layer environment in this test helper.
   Effect.runPromiseExit(
-    effect.pipe(
+    (effect.pipe(
       Effect.provide(ModelService.Default),
       Effect.provide(ConfigurationService.Default),
       Effect.provide(NodeContext.layer)
-    )
+    ) as any)
   );
 
 describe("MODEL_UNIVERSE", () => {

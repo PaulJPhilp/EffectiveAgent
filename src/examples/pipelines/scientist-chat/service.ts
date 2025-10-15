@@ -4,14 +4,13 @@
  */
 
 import { Effect } from "effect";
-import {
-  ScientistChatPipeline,
-  type ScientistChatPipelineApi,
-  type ScientistChatPipelineInput,
-  type ScientistChatResponse,
+import type {
+  ScientistChatPipelineApi,
+  ScientistChatPipelineInput,
+  ScientistChatResponse,
 } from "./contract.js";
 import { ScientistChatPipelineError } from "./errors.js";
-import { type CitationData, type ResearchData } from "./types.js";
+import type { CitationData, ResearchData } from "./types.js";
 
 /**
  * Service for research data
@@ -232,7 +231,7 @@ export class ScientistChatPipelineService extends Effect.Service<ScientistChatPi
 // Helper functions outside the class
 const getDomainInfo = (
   domain: string,
-  query: string
+  _query: string
 ): { info: string; citations: Array<any> } => {
   // TODO: Replace with actual Phoenix MCP server call
   // For now, using mock domain-specific responses

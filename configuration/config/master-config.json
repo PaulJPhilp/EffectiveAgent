@@ -9,8 +9,9 @@
     }
   },
   "configPaths": {
-    "providers": "/Users/paul/Projects/EffectiveAgent/test-main-app-configs/providers.json",
-    "models": "/Users/paul/Projects/EffectiveAgent/test-main-app-configs/models.json",
-    "policy": "/Users/paul/Projects/EffectiveAgent/test-main-app-configs/policy.json"
+    "providers": "/Users/paul/Projects/EffectiveAgent/src/config/providers.json",
+    "models": "/Users/paul/Projects/EffectiveAgent/src/config/models.json",
+    "policy": "/Users/paul/Projects/EffectiveAgent/src/config/providers.json",
+    "e2e-tools": "/Users/paul/Projects/EffectiveAgent/test-main-app-configs/e2e-tools.json"
   }
 }

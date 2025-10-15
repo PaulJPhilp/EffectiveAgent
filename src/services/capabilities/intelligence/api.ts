@@ -3,11 +3,10 @@
  * @module services/capabilities/intelligence/api
  */
 
-import { IntelligenceType } from "./schema.js";
 
-import { Effect } from "effect";
-import { IntelligenceConfigError } from "./errors.js";
-import { IntelligenceFile } from "./schema.js";
+import type { Effect } from "effect";
+import type { IntelligenceConfigError } from "./errors.js";
+import type { IntelligenceFile, IntelligenceType } from "./schema.js";
 
 
 /**

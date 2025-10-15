@@ -1,12 +1,12 @@
 import { Effect, Fiber, Ref, Stream } from "effect"
-import { AgentRuntimeError, AgentRuntimeProcessingError } from "./errors.js"
+import { AgentRuntimeError, type AgentRuntimeProcessingError } from "./errors.js"
 import { PrioritizedMailbox } from "./prioritized-mailbox.js"
 import {
-    AgentActivity,
-    AgentRuntimeId,
-    AgentRuntimeState,
+    type AgentActivity,
+    type AgentRuntimeId,
+    type AgentRuntimeState,
     AgentRuntimeStatus,
-    AgentWorkflow
+    type AgentWorkflow
 } from "./types.js"
 
 /**
@@ -20,7 +20,7 @@ interface RuntimeEntry<S> {
 }
 
 const startProcessing = <S>(
-    id: AgentRuntimeId,
+    _id: AgentRuntimeId,
     stateRef: Ref.Ref<AgentRuntimeState<S>>,
     mailbox: PrioritizedMailbox,
     workflow: AgentWorkflow<S, AgentRuntimeProcessingError>
@@ -144,7 +144,7 @@ export const ActorRuntimeManager = Effect.gen(function* () {
             return yield* entry.mailbox.offer(activity)
         })
 
-    const getState = <S>(id: AgentRuntimeId) =>
+    const getState = <_S>(id: AgentRuntimeId) =>
         Effect.gen(function* () {
             const map = yield* Ref.get(runtimes)
             const entry = map.get(id)

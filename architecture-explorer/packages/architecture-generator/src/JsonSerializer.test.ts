@@ -1,21 +1,21 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { readFileSync, existsSync, rmSync, mkdirSync } from "fs";
-import { serializeToJson, JsonSerializeResult } from "./JsonSerializer.js";
-import {
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { type JsonSerializeResult, serializeToJson } from "./JsonSerializer.js";
+import type {
   ArchitectureData,
-  NodeData,
   EdgeData,
-  DiagramDefinition,
+  NodeData,
 } from "./types.js";
 
 describe("JsonSerializer", () => {
   const testDir = "test-output";
 
   beforeEach(() => {
-    // Clean up any existing test files
+    // Clean up and recreate test directory before each test
     if (existsSync(testDir)) {
       rmSync(testDir, { recursive: true, force: true });
     }
+    mkdirSync(testDir, { recursive: true });
   });
 
   afterEach(() => {

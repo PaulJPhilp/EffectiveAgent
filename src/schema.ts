@@ -1,78 +1,10 @@
 /**
  * @file Defines core Effect schemas used across the application.
+ * @note Message types (EffectiveRole, TextPart, etc.) have been moved to @effective-agent/ai-sdk
  */
 
+import { Message as EffectiveMessage, type Part } from "@effective-agent/ai-sdk";
 import { Schema as S } from "effect";
-
-/**
- * Schema for model roles.
- */
-export const EffectiveRole = S.Union(
-  S.Literal("user"),
-  S.Literal("model"),
-  S.Literal("system"),
-  S.Literal("assistant"),
-  S.Literal("tool")
-);
-export type EffectiveRole = S.Schema.Type<typeof EffectiveRole>;
-
-
-/**
- * Text part in a message
- */
-export class TextPart extends S.Class<TextPart>("TextPart")({
-  _tag: S.Literal("Text"),
-  content: S.String
-}) {
-  static is(part: Part): part is TextPart {
-    return part._tag === "Text";
-  }
-}
-
-/**
- * Tool call part in a message
- */
-export class ToolCallPart extends S.Class<ToolCallPart>("ToolCallPart")({
-  _tag: S.Literal("ToolCall"),
-  id: S.String,       // Corresponds to Vercel's toolCallId
-  name: S.String,     // Corresponds to Vercel's toolName
-  args: S.Record({ key: S.String, value: S.Any })     // Represents a JSON object for tool arguments
-}) {
-  static is(part: Part): part is ToolCallPart {
-    return part._tag === "ToolCall";
-  }
-}
-
-/**
- * Tool result part in a message
- */
-export class ToolPart extends S.Class<ToolPart>("ToolPart")({
-  _tag: S.Literal("Tool"),
-  tool_call_id: S.String,
-  content: S.String
-}) {
-  static is(part: Part): part is ToolPart {
-    return part._tag === "Tool";
-  }
-}
-
-/**
- * Image URL part in a message
- */
-export class ImageUrlPart extends S.Class<ImageUrlPart>("ImageUrlPart")({
-  _tag: S.Literal("ImageUrl"),
-  url: S.String
-}) {
-  static is(part: Part): part is ImageUrlPart {
-    return part._tag === "ImageUrl";
-  }
-}
-
-/**
- * Union type for all message parts
- */
-export const Part = S.Union(TextPart, ToolCallPart, ImageUrlPart, ToolPart);
-export type Part = S.Schema.Type<typeof Part>;
 
 // --- Core String Schemas ---
 
@@ -82,7 +14,7 @@ export type Part = S.Schema.Type<typeof Part>;
 export const Name = S.String.pipe(
   S.minLength(1),
   S.maxLength(64),
-  S.pattern(new RegExp("^[a-zA-Z0-9_-]{1,64}$"))
+  S.pattern(/^[a-zA-Z0-9_-]{1,64}$/)
 );
 
 /**
@@ -91,7 +23,7 @@ export const Name = S.String.pipe(
 export const Identifier = S.String.pipe(
   S.minLength(1),
   S.maxLength(16),
-  S.pattern(new RegExp("^[a-zA-Z0-9_-]{1,16}$"))
+  S.pattern(/^[a-zA-Z0-9_-]{1,16}$/)
 );
 
 /**
@@ -105,7 +37,7 @@ export const Version = S.String.pipe(
  * Schema for URLs with validation.
  */
 export const Url = S.String.pipe(
-  S.pattern(/^https?:\/\/[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!$&'()*+,;=.]+$/)
+  S.pattern(/^https?:\/\/[\w.-]+(?:\.[\w.-]+)+[\w\-._~:/?#[\]@!$&'()*+,;=.]+$/)
 );
 
 /**
@@ -236,19 +168,7 @@ export const Metadata = S.Record({
   value: S.Unknown
 })
 
-/**
- * Schema for a message in a conversation.
- */
-export class Message extends S.Class<Message>("Message")({
-  /** Role of the message sender */
-  role: EffectiveRole,
-  /** Parts that make up the message content */
-  parts: S.Chunk(Part),
-  /** Optional metadata */
-  metadata: S.optional(Metadata)
-}) { }
-
 // Compatibility exports for legacy imports
-export { Message as EffectiveMessage };
+export { EffectiveMessage as Message };
 export type { Part as EffectiveLocalPart };
 

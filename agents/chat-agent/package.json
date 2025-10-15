@@ -2,7 +2,7 @@
   "name": "chat-agent",
   "version": "1.0.0",
   "description": "Chat agent built with Effective Agent and LangGraph",
-  "type": "module",
+  "type": "commonjs",
   "main": "dist/main.js",
   "scripts": {
     "build": "tsc",

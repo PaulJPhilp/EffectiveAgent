@@ -1,8 +1,8 @@
-import { EffectiveResponse } from "@/types.js";
 import { Effect } from "effect";
-import { ChatServiceApi } from "../api.js";
-import type { ChatService } from "../service.js";
+import type { EffectiveResponse } from "@/types.js";
+import type { ChatServiceApi } from "../api.js";
 import type { ChatCompletionOptions } from "../types.js";
+
 // Inline definition for test harness dependencies
 interface AiServiceDeps {
   modelService: unknown;
@@ -12,7 +12,7 @@ interface AiServiceDeps {
 
 export class TestChatService extends Effect.Service<ChatServiceApi>()('TestChatService', {
   effect: Effect.succeed({
-    create: (options: ChatCompletionOptions) =>
+    create: (_options: ChatCompletionOptions) =>
       Effect.succeed({
         data: "Hello, world!", // Assuming the string response goes into 'data'
         metadata: { /* mock metadata if needed */ },

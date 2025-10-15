@@ -1,5 +1,5 @@
-import { Effect, Ref } from "effect";
-import { EffectiveError } from "@/errors.js";
+import type { Effect, Ref } from "effect";
+import type { EffectiveError } from "@/errors.js";
 import type { PipelineAgentState } from "./service.js";
 
 /**

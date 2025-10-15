@@ -20,18 +20,16 @@
  * ```
  */
 
-import { ConfigurationService } from "@/services/core/configuration/service";
 import { Effect, HashMap, Option, Ref } from "effect";
+import { ConfigurationService } from "@/services/core/configuration/service";
 import type { PolicyServiceApi } from "./api.js";
 import { PolicyError } from "./errors.js";
-import { PolicyRuleEntity } from "./schema.js";
+import type { PolicyConfigFile, PolicyRuleEntity } from "./schema.js";
 import type {
   PolicyCheckContext,
   PolicyCheckResult
 } from "./types.js";
 import { POLICY_RULE_ALLOW, POLICY_RULE_DENY } from "./types.js";
-
-import { PolicyConfigFile } from "./schema.js";
 
 type PolicyConfigData = typeof PolicyConfigFile.Type;
 
@@ -166,7 +164,7 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
         return addRule({ id, data: { ...rule, id }, createdAt: new Date(), updatedAt: new Date() });
       },
       getRule: (ruleId) => Effect.map(getRules(), (rules) => Option.fromNullable(rules.find((r) => r.id === ruleId))),
-      updateRule: (ruleId, updates) => Effect.fail(new PolicyError({ description: "Not implemented", method: "updateRule" })),
+      updateRule: (_ruleId, _updates) => Effect.fail(new PolicyError({ description: "Not implemented", method: "updateRule" })),
       deleteRule: (ruleId) => Effect.gen(function* () {
         const rule = yield* Effect.map(Ref.get(ruleRepo), r => HashMap.get(r, ruleId));
         yield* removeRule(ruleId);

@@ -3,8 +3,8 @@
  * @module services/ai/errors
  */
 
-import { EffectiveError } from "@/errors.js"
 import { Effect } from "effect"
+import { EffectiveError } from "@/errors.js"
 
 /**
  * Base error class for all AI service errors

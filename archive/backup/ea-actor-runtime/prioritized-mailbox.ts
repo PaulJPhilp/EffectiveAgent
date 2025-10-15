@@ -2,9 +2,9 @@
  * @file Prioritized mailbox implementation for agent runtime message handling.
  */
 
-import { Effect, Queue, Ref, Schedule, Stream, pipe } from "effect"
+import { Effect, pipe, Queue, Ref, Schedule, Stream } from "effect"
 import { Mailbox } from "./mailbox.js"
-import { AgentActivity, MessagePriority as Priority } from "./types.js"
+import { type AgentActivity, MessagePriority as Priority } from "./types.js"
 
 class MailboxError extends Error {
     readonly agentRuntimeId: string | undefined

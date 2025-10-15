@@ -1,19 +1,19 @@
-import { Effect, HashMap } from "effect";
-import {
+import type { Effect, HashMap } from "effect";
+import type { EffectiveToolkit } from "@/types.js";
+import type {
     SimpleToolName as SchemaSimpleToolName,
     ToolDefinition
 } from "../tools/schema.js";
-import {
+import type {
     ToolRegistryData as ActualToolRegistryData,
     EffectiveTool,
     FullToolName,
     ToolkitName,
 } from "../tools/types.js";
-import { EffectiveToolkit } from "@/types.js";
 import type {
+    ToolkitNotFoundErrorInRegistry,
     ToolNotFoundErrorInRegistry,
     ToolRegistryError,
-    ToolkitNotFoundErrorInRegistry,
 } from "./errors.js";
 
 

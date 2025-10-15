@@ -1,12 +1,13 @@
-import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import { join } from "path";
-import { EffectiveMessage, ModelCapability, TextPart } from "@/schema.js";
+import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Message as EffectiveMessage, TextPart } from "@effective-agent/ai-sdk";
+import { Chunk, Effect, Layer } from "effect";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { ModelCapability } from "@/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Chunk, Effect, Layer } from "effect";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   ProviderMissingCapabilityError,
   ProviderOperationError,
@@ -107,7 +108,7 @@ describe("DeepSeek Provider Client", () => {
       unlinkSync(providersConfigPath);
       unlinkSync(policyConfigPath);
       rmdirSync(testDir);
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
     // biome-ignore lint/performance/noDelete: <explanation>
@@ -294,9 +295,9 @@ describe("DeepSeek Provider Client", () => {
           const client = yield* DeepseekProviderClient;
 
           // DeepSeek supports tools, but execution will fail due to API call
-                          const result = yield* Effect.either(
-                    client.executeTool("test:testTool", { param: "value" })
-                );
+          const result = yield* Effect.either(
+            client.executeTool("test:testTool", { param: "value" })
+          );
 
           expect(result._tag).toBe("Left");
           if (result._tag === "Left") {
@@ -312,9 +313,9 @@ describe("DeepSeek Provider Client", () => {
           const client = yield* DeepseekProviderClient;
 
           // DeepSeek supports tools, but processing will fail due to API call
-                          const result = yield* Effect.either(
-                    client.processToolResult("test:testTool", { result: "data" })
-                );
+          const result = yield* Effect.either(
+            client.processToolResult("test:testTool", { result: "data" })
+          );
 
           expect(result._tag).toBe("Left");
           if (result._tag === "Left") {

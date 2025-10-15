@@ -1,0 +1,6 @@
+{
+    "name": "e2e-tools-config",
+    "version": "1.0.0",
+    "description": "E2E tools configuration for testing",
+    "tools": []
+}

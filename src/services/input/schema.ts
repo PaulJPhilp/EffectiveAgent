@@ -1,5 +1,5 @@
+import { ImageUrlPart as BaseImageUrlPart, TextPart as BaseTextPart, ToolCallPart as BaseToolCallPart } from "@effective-agent/ai-sdk"; // Import base parts
 import { Schema as S } from "effect";
-import { ImageUrlPart as BaseImageUrlPart, TextPart as BaseTextPart, ToolCallPart as BaseToolCallPart } from "@/schema.js"; // Import base parts
 
 /**
  * Represents a file part in a message.
@@ -113,4 +113,4 @@ declare namespace EffectivePart {
 
 // [DEPRECATED] All exports have been moved to input.service.ts
 // This file will be deleted after migration.
-const EffectivePart: EffectivePart.Schema = S.Union(BaseTextPart, BaseImageUrlPart, BaseToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);
+const _EffectivePart: _EffectivePart.Schema = S.Union(BaseTextPart, BaseImageUrlPart, BaseToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);

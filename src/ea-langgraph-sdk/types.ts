@@ -153,7 +153,7 @@ export interface CreateLangGraphAgentParams<
  * Contains both the runtime handle and the generated ID.
  */
 export interface LangGraphAgentCreationResult<
-  TState extends LangGraphAgentState
+  _TState extends LangGraphAgentState
 > {
   /**
    * Handle to the created AgentRuntime instance.

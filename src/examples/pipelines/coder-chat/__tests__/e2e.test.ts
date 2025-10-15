@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for the CoderChatPipeline, live layers for all real services, and any necessary config.
 
 describe("CoderChat pipeline E2E tests", () => {

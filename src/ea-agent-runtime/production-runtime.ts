@@ -3,15 +3,14 @@
  * @module agent-runtime/runtime
  */
 
+import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
+import { Effect, Layer, Logger, LogLevel } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
-import { ConfigReadError, ConfigParseError, ConfigValidationError } from "@/services/core/configuration/errors.js";
+import { ConfigParseError, ConfigReadError, ConfigValidationError } from "@/services/core/configuration/errors.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { Logger, LogLevel } from "effect";
-import { NodeFileSystem, NodePath, NodeTerminal } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
 import { AgentRuntimeService } from "./service.js";
 import type { RuntimeServices } from "./types.js";
 

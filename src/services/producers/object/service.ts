@@ -3,15 +3,14 @@
  * @module services/pipeline/producers/object/service
  */
 
+import { generateObjectWithModel } from "@effective-agent/ai-sdk";
+import { Chunk, Effect, Option, Ref, Schema as S } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
+import type { EffectiveResponse } from "@/types.js";
 import type { ObjectServiceApi } from "./api.js";
 import { ObjectGenerationError, ObjectInputError, ObjectModelError, ObjectSchemaError } from "./errors.js";
 import type { ObjectGenerationOptions } from "./types.js";
-import type { EffectiveResponse } from "@/types.js";
-import { Chunk, Effect, Option, Ref, Schema as S, Context } from "effect";
-import type { Scope } from "effect/Scope";
-import type { SpanOptions } from "effect/Tracer";
 
 /**
  * Object generation agent state
@@ -133,26 +132,24 @@ export class ObjectService extends Effect.Service<ObjectServiceApi<S.Schema<any,
 
                     // Get provider for the model
                     const providerName = yield* modelService.getProviderName(modelId);
-                    const providerClient = yield* providerService.getProviderClient(providerName);
+                    const languageModel = yield* providerService.getAiSdkLanguageModel(providerName, modelId);
 
                     // Get schema name for tracking
                     const schemaName = options.schema?.ast?.annotations?.title?.toString() ?? "unknown";
 
-                    // Call the real AI provider for object generation
-                    const providerResult = yield* providerClient.generateObject(
-                        { text: options.prompt, messages: Chunk.empty() },
-                        {
-                            modelId,
-                            schema: options.schema,
-                            parameters: {
-                                temperature: options.parameters?.temperature,
-                                topP: options.parameters?.topP,
-                            }
+                    // Call ai-sdk operation directly
+                    const aiSdkResult = yield* generateObjectWithModel(languageModel, {
+                        text: options.prompt,
+                        messages: Chunk.empty()
+                    }, options.schema, {
+                        parameters: {
+                            temperature: options.parameters?.temperature,
+                            topP: options.parameters?.topP,
                         }
-                    );
+                    });
 
                     // Validate the result against the schema
-                    const validatedObject = yield* S.decode(options.schema)(providerResult.data.object).pipe(
+                    const validatedObject = yield* S.decode(options.schema)(aiSdkResult.data.object).pipe(
                         Effect.mapError(error => new ObjectSchemaError({
                             description: "Generated object does not match the provided schema",
                             module: "ObjectService",
@@ -169,8 +166,8 @@ export class ObjectService extends Effect.Service<ObjectServiceApi<S.Schema<any,
                             schema: schemaName,
                             promptLength: options.prompt.length,
                             objectSize: JSON.stringify(validatedObject).length,
-                            usage: providerResult.usage,
-                            finishReason: providerResult.finishReason
+                            usage: aiSdkResult.data.usage,
+                            finishReason: aiSdkResult.data.finishReason
                         }
                     };
 

@@ -1,15 +1,13 @@
-import { Effect, Chunk } from "effect";
-import { describe, expect, it } from "vitest";
-import { makeGoogleClient } from "../google-provider-client.js";
-import { ProviderChatOptions } from "../../types.js";
-import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
-import { EffectImplementation, HttpImplementation, McpImplementation, ToolMetadata, type ToolDefinition } from "@/services/ai/tools/schema.js";
 import { NodeFileSystem, NodeHttpClient } from "@effect/platform-node";
+import type { Message as EffectiveMessage, TextPart } from "@effective-agent/ai-sdk";
+import { Chunk, Effect } from "effect";
+import { describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
-import { EffectiveMessage, TextPart } from "@/schema.js";
-import { EffectiveInput } from "@/types.js";
-import { FileSystem, HttpClient } from "@effect/platform";
-import { GenerateTextResult } from "../../types.js";
+import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
+import type { ToolDefinition } from "@/services/ai/tools/schema.js";
+import type { EffectiveInput } from "@/types.js";
+import type { ProviderChatOptions } from "../../types.js";
+import { makeGoogleClient } from "../google-provider-client.js";
 
 describe("Google Tool Integration Tests", () => {
   const createTestClient = () =>
@@ -23,7 +21,7 @@ describe("Google Tool Integration Tests", () => {
       // Convert EffectiveTool to ToolDefinition
       const tools = effectiveTools.map(tool => {
         // Create implementation based on tool type
-        let implementation;
+        let implementation: ToolDefinition["implementation"];
         switch (tool.implementation) {
           case "Effect":
             implementation = {

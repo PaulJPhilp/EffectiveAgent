@@ -3,9 +3,9 @@
  * @module agent-runtime/bootstrap
  */
 
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import { AgentRuntimeInitializationError } from "./errors.js";
-import { MasterConfig } from "./schema.js";
+import type { MasterConfig } from "./schema.js";
 
 /**
  * Bootstrap function: Pure TypeScript function that loads master config

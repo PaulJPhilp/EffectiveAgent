@@ -1,5 +1,5 @@
 import { Effect } from "effect"
-import { AgentRecord, AgentRuntimeId, AgentRuntimeState } from "./types.js"
+import type { AgentRecord, AgentRuntimeId, AgentRuntimeState } from "./types.js"
 
 /**
  * Creates a new AgentRuntime ID with optional namespace
@@ -61,11 +61,11 @@ export const updateStateWithMetrics = <S>(
     ...currentState,
     lastUpdated: Date.now(),
     processing: {
-        processed: currentState.processing!.processed + (isSuccess ? 1 : 0),
-        failures: currentState.processing!.failures + (isSuccess ? 0 : 1),
+        processed: currentState.processing?.processed + (isSuccess ? 1 : 0),
+        failures: currentState.processing?.failures + (isSuccess ? 0 : 1),
         avgProcessingTime: (
-            (currentState.processing!.avgProcessingTime * currentState.processing!.processed + processingTime) /
-            (currentState.processing!.processed + 1)
+            (currentState.processing?.avgProcessingTime * currentState.processing?.processed + processingTime) /
+            (currentState.processing?.processed + 1)
         )
     }
 })

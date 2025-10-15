@@ -1,7 +1,7 @@
 // Re-export from ConfigurationService for backward compatibility
-export {
+export {type AgentConfig, 
     AgentConfigSchema,
-    ConfigPathsSchema, LoggingConfigSchema, MasterConfigSchema,
-    RuntimeSettingsSchema, type AgentConfig, type LoggingConfig, type MasterConfig,
-    type RuntimeSettings
+    ConfigPathsSchema, type LoggingConfig, LoggingConfigSchema, type MasterConfig,MasterConfigSchema,
+    type RuntimeSettings, 
+    RuntimeSettingsSchema 
 } from "@/services/core/configuration/schema.js";

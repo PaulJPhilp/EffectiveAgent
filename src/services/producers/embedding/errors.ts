@@ -10,9 +10,6 @@ import { EffectiveError } from "@/errors.js";
  * @extends EffectiveError
  */
 export class EmbeddingError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -20,9 +17,6 @@ export class EmbeddingError extends EffectiveError {
  * @extends EffectiveError
  */
 export class EmbeddingModelError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**

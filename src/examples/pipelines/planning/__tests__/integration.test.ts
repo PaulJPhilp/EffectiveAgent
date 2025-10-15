@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
+
 // Add imports for PlanningService, its live layer, and AI model mock layers
 
-process.env.PROVIDERS_CONFIG_PATH = require('path').resolve(__dirname, '../../config/providers.json');
+process.env.PROVIDERS_CONFIG_PATH = require('node:path').resolve(__dirname, '../../config/providers.json');
 
 describe("PlanningService integration tests", () => {
     it("should run the planning pipeline with a mock AI model", async () => {

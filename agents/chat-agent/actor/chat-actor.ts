@@ -1,3 +1,4 @@
+import { Effect, Stream } from "effect"
 import { AgentRuntimeProcessingError } from "@/ea-actor-runtime/errors.js"
 import { ActorRuntimeManager } from "@/ea-actor-runtime/index.js"
 import type {
@@ -5,7 +6,6 @@ import type {
     AgentRuntimeId,
     AgentWorkflow
 } from "@/ea-actor-runtime/types.js"
-import { Effect, Stream } from "effect"
 import type { ChatAgentState } from "../agent/agent.js"
 import { ChatAgent } from "../agent/agent.js"
 import type { ChatAgentConfig } from "../agent/types.js"
@@ -76,7 +76,7 @@ export async function startChatActor(params: {
         })
 
     // 3. Spin up actor runtime
-    const actorId = "chat-" + crypto.randomUUID();
+    const actorId = `chat-${crypto.randomUUID()}`;
     const actor = await Effect.runPromise(
         ActorRuntimeManager.create<ChatAgentState>(actorId, initialState, workflow)
     )

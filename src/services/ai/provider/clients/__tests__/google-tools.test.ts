@@ -1,4 +1,4 @@
-import { EffectiveMessage, TextPart } from "@/schema.js";
+import { Message as EffectiveMessage, TextPart } from "@effective-agent/ai-sdk";
 import { Chunk, Effect, Either, Schema as S } from "effect";
 import { describe, expect, it } from "vitest";
 
@@ -240,7 +240,7 @@ describe("Google Client Tools - Schema and Message Handling", () => {
                     implementation: {
                         _tag: "EffectImplementation" as const,
                         inputSchema: TestToolInputSchema,
-                        execute: (input: { message: string; count: number }) =>
+                        execute: (_input: { message: string; count: number }) =>
                             Effect.fail(new Error("Tool execution failed"))
                     }
                 };

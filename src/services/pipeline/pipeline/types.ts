@@ -1,12 +1,12 @@
+import type { Effect } from "effect";
+import type { Duration } from "effect/Duration";
 import { EffectiveError } from "@/errors.js";
-import { Effect } from "effect";
-import { Duration } from "effect/Duration";
 import type {
   InputValidationError,
   OutputValidationError,
   PipelineConfigurationError,
-  PipelineError, // For PipelineApi
-  PipelineValidationError, // For PipelineApi
+  PipelineError,
+  PipelineValidationError,
 } from "./errors.js";
 
 /**
@@ -39,46 +39,13 @@ export interface PipelineConfig {
 }
 
 /**
- * Error types that can occur during pipeline execution
- */
-export type PipelineError =
-  | PipelineTimeoutError
-  | PipelineValidationError
-  | PipelineExecutionError;
-
-/**
  * Error thrown when pipeline execution times out
+ * This is a local error type specific to timeout handling in this module
  */
 export class PipelineTimeoutError extends EffectiveError {
   constructor(timeoutMs: number) {
     super({
       description: `Pipeline execution timed out after ${timeoutMs}ms`,
-      module: "PipelineService",
-      method: "execute",
-    });
-  }
-}
-
-/**
- * Error thrown when pipeline configuration is invalid
- */
-export class PipelineValidationError extends EffectiveError {
-  constructor(message: string) {
-    super({
-      description: `Pipeline configuration validation failed: ${message}`,
-      module: "PipelineService",
-      method: "validateConfig",
-    });
-  }
-}
-
-/**
- * Error thrown during pipeline execution
- */
-export class PipelineExecutionError extends EffectiveError {
-  constructor(message: string) {
-    super({
-      description: `Pipeline execution failed: ${message}`,
       module: "PipelineService",
       method: "execute",
     });

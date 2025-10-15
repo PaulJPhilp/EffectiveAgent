@@ -1,12 +1,13 @@
-import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import { join } from "path";
-import { EffectiveMessage, ModelCapability, TextPart } from "@/schema.js";
+import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { NodeFileSystem } from "@effect/platform-node";
+import { Message as EffectiveMessage, TextPart } from "@effective-agent/ai-sdk";
+import { Chunk, Effect, Layer, Schema as S } from "effect";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import type { ModelCapability } from "@/schema.js";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
-import { NodeFileSystem } from "@effect/platform-node";
-import { Chunk, Effect, Layer, Schema as S } from "effect";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ProviderMissingCapabilityError, ProviderOperationError } from "../../errors.js";
 import { makePerplexityClient } from "../perplexity-provider-client.js";
 
@@ -101,7 +102,7 @@ describe("Perplexity Provider Client", () => {
             unlinkSync(providersConfigPath);
             unlinkSync(policyConfigPath);
             rmdirSync(testDir);
-        } catch (error) {
+        } catch (_error) {
             // Ignore cleanup errors
         }
         // biome-ignore lint/performance/noDelete: <explanation>

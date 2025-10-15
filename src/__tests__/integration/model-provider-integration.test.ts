@@ -3,21 +3,25 @@
  * @module tests/integration/model-provider-integration
  */
 
-import path from "path";
-import { fileURLToPath } from "url";
-import { ModelService } from "@/services/ai/model/service.js";
-import { ProviderNotFoundError } from "@/services/ai/provider/errors.js";
-import { ProviderService } from "@/services/ai/provider/service.js";
-import { ConfigurationService } from "@/services/core/configuration/service.js";
-import { NodeFileSystem } from "@effect/platform-node";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 import { beforeAll, describe, expect, it } from "vitest";
+import { ModelService } from "@/services/ai/model/service.js";
+import { ProviderService } from "@/services/ai/provider/service.js";
+import { ConfigurationService } from "@/services/core/configuration/service.js";
+import { ResilienceService } from "@/services/execution/resilience/service.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Set up test configuration paths
 beforeAll(() => {
+  process.env.MASTER_CONFIG_PATH = path.join(
+    path.dirname(fileURLToPath(import.meta.url)),
+    "../../../config/master-config.json"
+  );
   process.env.PROVIDERS_CONFIG_PATH = path.join(
     path.dirname(fileURLToPath(import.meta.url)),
     "../../config/providers.json"
@@ -29,11 +33,20 @@ beforeAll(() => {
 });
 
 const testLayer = Layer.provideMerge(
-  ModelService.Default,
   Layer.provideMerge(
-    ProviderService.Default,
-    Layer.provideMerge(ConfigurationService.Default, NodeFileSystem.layer)
-  )
+    NodePath.layer,
+    Layer.provideMerge(
+      ModelService.Default,
+      Layer.provideMerge(
+        ProviderService.Default,
+        Layer.provideMerge(
+          ConfigurationService.Default,
+          Layer.mergeAll(NodeFileSystem.layer, NodePath.layer)
+        )
+      )
+    )
+  ),
+  ResilienceService.Default
 );
 
 // Test suite for ModelService
@@ -55,7 +68,7 @@ describe("ModelService", () => {
   it("should validate models from configured providers", async () => {
     const effect = Effect.gen(function* () {
       const service = yield* ModelService;
-      const result = yield* service.validateModel("gemini-2.0-flash");
+      const result = yield* service.exists("gpt-4o");
       expect(result).toBe(true);
     });
 
@@ -68,8 +81,8 @@ describe("ModelService", () => {
   it("should return provider name for a model", async () => {
     const effect = Effect.gen(function* () {
       const service = yield* ModelService;
-      const result = yield* service.getProviderName("gemini-2.0-flash");
-      expect(result).toBeDefined();
+      const result = yield* service.getProviderName("gpt-4o");
+      expect(result).toBe("openai");
     });
 
     const providedEffect = effect.pipe(
@@ -81,12 +94,11 @@ describe("ModelService", () => {
 
 // Test suite for ProviderService
 describe("ProviderService", () => {
-  it("should pass health check", async () => {
+  it("should return an AI SDK provider by name", async () => {
     const effect = Effect.gen(function* () {
       const service = yield* ProviderService;
-      yield* service.healthCheck();
-      // If we reach here, health check passed
-      expect(true).toBe(true);
+      const provider = yield* service.getAiSdkProvider("openai");
+      expect(provider).toBeDefined();
     });
 
     const providedEffect = effect.pipe(
@@ -95,11 +107,11 @@ describe("ProviderService", () => {
     await Effect.runPromise(providedEffect);
   });
 
-  it("should return a provider client by name", async () => {
+  it("should return an AI SDK language model by provider and model ID", async () => {
     const effect = Effect.gen(function* () {
       const service = yield* ProviderService;
-      const client = yield* service.getProviderClient("google");
-      expect(client).toBeDefined();
+      const model = yield* service.getAiSdkLanguageModel("openai", "gpt-4o");
+      expect(model).toBeDefined();
     });
 
     const providedEffect = effect.pipe(
@@ -112,11 +124,13 @@ describe("ProviderService", () => {
     const effect = Effect.gen(function* () {
       const service = yield* ProviderService;
       const result = yield* Effect.either(
-        service.getProviderClient("nonexistent")
+        service.getAiSdkProvider("nonexistent")
       );
       expect(result._tag).toBe("Left");
       if (result._tag === "Left") {
-        expect(result.left).toBeInstanceOf(ProviderNotFoundError);
+        // Check if it's a ProviderNotFoundError by checking for providerName property
+        expect(result.left).toHaveProperty("providerName");
+        expect((result.left as any).providerName).toBe("nonexistent");
       }
     });
 

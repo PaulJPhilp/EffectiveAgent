@@ -10,7 +10,7 @@ import { Effect } from "effect";
  */
 export function generateAiResponseEffect(
     prompt: string,
-    modelId = "gpt-4"
+    _modelId = "gpt-4"
 ): Effect.Effect<string, unknown, never> {
     return Effect.gen(function* () {
         // For now, return a simple response since we're not connected to real services
@@ -22,8 +22,8 @@ export function generateAiResponseEffect(
  * Effect to validate user policies using EA policy service
  */
 export function validateUserPoliciesEffect(
-    userId: string,
-    sessionId: string,
+    _userId: string,
+    _sessionId: string,
     messageCount: number
 ): Effect.Effect<{ allowed: boolean; reason: string }, unknown, never> {
     return Effect.gen(function* () {

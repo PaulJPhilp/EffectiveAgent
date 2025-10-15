@@ -42,6 +42,61 @@
         },
         "execute": "calculatorImpl"
       }
+    },
+    "fetch-content": {
+      "metadata": {
+        "name": "fetch-content",
+        "description": "A tool for fetching and extracting text content from URLs",
+        "version": "1.0.0",
+        "author": "system"
+      },
+      "implementation": {
+        "_tag": "EffectImplementation",
+        "inputSchema": {
+          "_tag": "Struct",
+          "fields": {
+            "url": {
+              "_tag": "String",
+              "annotations": {
+                "description": "The URL to fetch content from"
+              },
+              "constraints": [
+                {
+                  "_tag": "Pattern",
+                  "pattern": "^https?://.+"
+                }
+              ]
+            }
+          }
+        },
+        "outputSchema": {
+          "_tag": "Struct",
+          "fields": {
+            "content": {
+              "_tag": "String",
+              "annotations": {
+                "description": "The extracted text content from the URL"
+              }
+            },
+            "title": {
+              "_tag": "Optional",
+              "_def": {
+                "_tag": "String",
+                "annotations": {
+                  "description": "The title of the page (if available)"
+                }
+              }
+            },
+            "url": {
+              "_tag": "String",
+              "annotations": {
+                "description": "The original URL that was fetched"
+              }
+            }
+          }
+        },
+        "execute": "fetchContentImpl"
+      }
     }
   }
 }

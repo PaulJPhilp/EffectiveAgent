@@ -3,7 +3,7 @@
  * @module ea/pipelines/categorization/contract
  */
 
-import { Context, Effect } from "effect";
+import { Context, type Effect } from "effect";
 import { PipelineError } from "../common/errors.js";
 
 /**

@@ -1,5 +1,5 @@
-import { Effect } from "effect";
-import { AnyPipelineError } from "./errors.js";
+import type { Effect } from "effect";
+import type { AnyPipelineError } from "./errors.js";
 
 /**
  * Generic interface for pipeline input

@@ -3,8 +3,8 @@
  * @module services/tools/implementations/hackernews
  */
 
-import { HttpClient } from "@effect/platform/HttpClient";
 import * as HttpBody from "@effect/platform/HttpBody";
+import { HttpClient } from "@effect/platform/HttpClient";
 import * as HttpClientRequest from "@effect/platform/HttpClientRequest";
 import { Effect, Schema } from "effect";
 // Import base ToolExecutionError

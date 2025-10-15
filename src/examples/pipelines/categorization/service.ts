@@ -12,7 +12,7 @@ import {
     type CategorizationResult,
     type Category
 } from "./contract.js";
-import { type ClusteringResult, type EmbeddingResult } from "./types.js";
+import type { ClusteringResult, EmbeddingResult } from "./types.js";
 
 /**
  * Service for generating embeddings
@@ -28,7 +28,7 @@ export interface EmbeddingProviderApi {
 export class EmbeddingProvider extends Effect.Service<EmbeddingProviderApi>()("EmbeddingProvider", {
     effect: Effect.succeed({
         _tag: "EmbeddingProvider" as const,
-        generateEmbedding: (text: string): Effect.Effect<EmbeddingResult, never> => {
+        generateEmbedding: (_text: string): Effect.Effect<EmbeddingResult, never> => {
             // Mock implementation - replace with real embedding generation
             return Effect.succeed({
                 vector: Array.from({ length: 10 }, () => Math.random()),
@@ -116,7 +116,7 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                     }));
 
                     // Mock categorization results
-                    const results: CategorizationResult[] = input.items.map((item, index) => {
+                    const results: CategorizationResult[] = input.items.map((item, _index) => {
                         // Randomly assign 1-2 categories
                         const numCategories = input.allowMultipleCategories ?
                             Math.floor(Math.random() * 2) + 1 : 1;
