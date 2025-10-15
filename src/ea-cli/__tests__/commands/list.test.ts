@@ -1,11 +1,7 @@
 import { Effect } from "effect"
 import { describe, expect, it } from "vitest"
 import { listCommand } from "../../src/commands/list.js"
-import {
-  ConfigurationError,
-  FileSystemError,
-  PermissionError,
-} from "../../src/errors.js"
+import { ConfigurationError, FileSystemError } from "../../src/errors.js"
 import { expectCommandFailure, runCommand } from "../test-utils.js"
 
 describe("List Command", () => {

@@ -42,7 +42,7 @@ process.env.EFFECTIVE_AGENT_MASTER_CONFIG = join(
 const makeChatCommand = Effect.gen(function* () {
   // Get required services
   const provider = yield* ProviderService
-  const model = yield* ModelService
+  const _model = yield* ModelService
   const toolRegistry = yield* ToolRegistryService
 
   return {

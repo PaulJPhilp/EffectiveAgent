@@ -16,14 +16,9 @@ import type { ExecutiveCallConfig } from "./types.js";
 export abstract class AiPipeline<
   In,
   Out,
-  PipelineSpecificError extends EffectiveError,
+  _PipelineSpecificError extends EffectiveError,
   PipelineConfigServices = never // This R might need adjustment later
 > {
-  constructor() {
-    // pipelineService removed
-    // If pipelineService was used for other things, those need to be addressed.
-    // For now, assuming it was only for execute.
-  }
 
   // --- Abstract Properties/Methods (to be implemented by subclass) ---
 

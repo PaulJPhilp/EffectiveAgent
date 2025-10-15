@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { Project } from "ts-morph";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildArchitectureModel } from "./ArchitectureModelBuilder.js";
@@ -648,7 +648,7 @@ describe("Architecture Generator Integration", () => {
               }
             }
           });
-        } catch (error) {
+        } catch (_error) {
           // Should handle parse errors gracefully
           console.log(`Error processing file: ${sourceFile.getFilePath()}`);
         }

@@ -123,7 +123,7 @@ export function toVercelMessage(message: Message): Effect.Effect<CoreMessage, Ai
  */
 export function toEffectiveMessage(
   coreMessage: CoreMessage,
-  modelId: string
+  _modelId: string
 ): Effect.Effect<Message, AiSdkMessageTransformError> {
   return Effect.gen(function* () {
     try {

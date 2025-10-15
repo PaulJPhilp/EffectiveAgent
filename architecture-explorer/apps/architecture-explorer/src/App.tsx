@@ -104,7 +104,7 @@ function App() {
         architectureData.layerColors,
         c4Level
     )
-    console.log('[App] Generated diagram definition:', filteredMermaidDefinition.slice(0, 100) + '...')
+    console.log('[App] Generated diagram definition:', `${filteredMermaidDefinition.slice(0, 100)}...`)
 
     // Handle node clicks
     const handleNodeClick = (nodeId: string) => {

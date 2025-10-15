@@ -1,10 +1,8 @@
 import { Effect, Either } from "effect";
 import { describe, expect, it } from "vitest";
 import { TestSpan } from "@/test/test-span.js";
-import type { EffectiveResponse } from "@/types.js";
 import { ChatInputError, ChatModelError } from "../errors.js";
 import { ChatService } from "../service.js";
-import type { ChatCompletionOptions, ChatCompletionResult } from "../types.js";
 
 describe("ChatService Integration Tests", () => {
   const testModelId = "test-model" as const;

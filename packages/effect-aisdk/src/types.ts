@@ -3,7 +3,6 @@
  * @module @effective-agent/ai-sdk/types
  */
 
-import type { Chunk } from "effect/Chunk";
 import type { EffectiveMessage } from "./message.js";
 
 /**

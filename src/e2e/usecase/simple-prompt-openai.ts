@@ -17,9 +17,9 @@ import "./load-env.js";
 // Run with:
 // bun run src/e2e/usecase/simple-prompt-openai.ts
 
+import { join } from "node:path";
 import { NodeContext } from "@effect/platform-node";
 import { Chunk, Effect, Layer } from "effect";
-import { join } from "path";
 import { ModelService } from "@/services/ai/model/index.js";
 import { ProviderService } from "@/services/ai/provider/index.js";
 import type { ProviderClientApi } from "@/services/ai/provider/types.js";

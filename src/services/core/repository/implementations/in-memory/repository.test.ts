@@ -35,7 +35,7 @@ describe("InMemoryRepository", () => {
 
   describe("create", () => {
     it("should create a new entity", async () => {
-      const result = await runTest(
+      const _result = await runTest(
         Effect.gen(function* (_) {
           const service = yield* repository.Tag;
           const entity = yield* service.create({ name: "test", value: 42 });

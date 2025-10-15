@@ -275,7 +275,7 @@ export class FinancialModelingTool extends Effect.Service<FinancialModelingToolA
             };
 
             // Default to seed if stage not specified or not found
-            return Effect.succeed(stageData[stage?.toLowerCase()] || stageData["seed"]);
+            return Effect.succeed(stageData[stage?.toLowerCase()] || stageData.seed);
         }
     }),
     dependencies: []
@@ -293,7 +293,7 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
             const financialModeling = yield* FinancialModelingTool;
 
             // Helper to analyze pitch
-            const analyzePitch = (pitch: string, industry?: string, stage?: string): Effect.Effect<{
+            const analyzePitch = (_pitch: string, industry?: string, stage?: string): Effect.Effect<{
                 strengths: string[];
                 concerns: string[];
                 suggestions: string[];
@@ -342,7 +342,7 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                     };
 
                     // Get industry insights for valuation
-                    const industryInsights = yield* marketResearch.getIndustryInsights(industry || "");
+                    const _industryInsights = yield* marketResearch.getIndustryInsights(industry || "");
                     const stageRequirements = yield* financialModeling.getInvestmentStageRequirements(stage || "seed");
 
                     // Create a valuation range based on industry and stage
@@ -373,7 +373,7 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
 
                     // TODO: Replace with actual Phoenix MCP server call
                     // For now, using mock responses
-                    const providedMetrics = input.metrics || [];
+                    const _providedMetrics = input.metrics || [];
 
                     // Get industry insights
                     const industryData = yield* marketResearch.getIndustryInsights(input.industry || "");

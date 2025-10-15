@@ -1,11 +1,10 @@
-import { existsSync, mkdirSync, readFileSync, rmSync } from "fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { type JsonSerializeResult, serializeToJson } from "./JsonSerializer.js";
-import {
-  type ArchitectureData,
-  DiagramDefinition,
-  type EdgeData,
-  type NodeData,
+import type {
+  ArchitectureData,
+  EdgeData,
+  NodeData,
 } from "./types.js";
 
 describe("JsonSerializer", () => {

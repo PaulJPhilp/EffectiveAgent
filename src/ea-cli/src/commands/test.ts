@@ -225,7 +225,7 @@ export const testCommand = Command.make(
                     )
                   }
                 }),
-              onFailure: (error) =>
+              onFailure: (_error) =>
                 Effect.gen(function* () {
                   yield* Console.warn(
                     `⚠️ Error checking model: ${modelId}. Will attempt to use anyway.`,

@@ -98,13 +98,4 @@ export class AgentRuntimeProcessingError extends AgentRuntimeError {
  */
 export class AgentRuntimeInitializationError extends EffectiveError {
     readonly _tag = "AgentRuntimeInitializationError";
-
-    constructor(params: {
-        description: string;
-        module: string;
-        method: string;
-        cause?: unknown;
-    }) {
-        super(params);
-    }
 }

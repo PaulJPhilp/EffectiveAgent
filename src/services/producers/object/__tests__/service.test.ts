@@ -39,7 +39,7 @@ const TaskSchema = Schema.Struct({
 type Task = Schema.Schema.Type<typeof TaskSchema>;
 
 // Helper function to create a test response
-const createTestResponse = <T>(data: T): EffectiveResponse<T> => ({
+const _createTestResponse = <T>(data: T): EffectiveResponse<T> => ({
   data,
   metadata: {
     id: randomUUID(),

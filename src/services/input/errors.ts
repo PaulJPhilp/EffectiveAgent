@@ -14,9 +14,6 @@ export class InputServiceError extends EffectiveError {
 }
 
 export class InvalidMessageError extends InputServiceError {
-  constructor(params: { description: string; method: string; cause?: unknown }) {
-    super(params);
-  }
 
   static missingRole(method: string): InvalidMessageError {
     return new InvalidMessageError({
@@ -34,16 +31,13 @@ export class InvalidMessageError extends InputServiceError {
 
   static invalidFormat(method: string, details?: string): InvalidMessageError {
     return new InvalidMessageError({
-      description: `Invalid message format${details ? ': ' + details : ''}`,
+      description: `Invalid message format${details ? `: ${details}` : ''}`,
       method
     });
   }
 }
 
 export class InvalidInputError extends InputServiceError {
-  constructor(params: { description: string; method: string; cause?: unknown }) {
-    super(params);
-  }
 
   static emptyInput(method: string): InvalidInputError {
     return new InvalidInputError({

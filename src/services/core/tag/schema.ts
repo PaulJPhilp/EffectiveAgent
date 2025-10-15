@@ -4,7 +4,7 @@
 
 import { Schema as S } from "effect";
 import { BaseEntitySchema } from "@/schema.js";
-import { BaseEntity, type BaseEntityWithData } from "@/services/core/repository/types.js";
+import type { BaseEntityWithData } from "@/services/core/repository/types.js";
 import type { JsonObject } from "@/types.js";
 
 // Helper for EntityId schema

@@ -3,10 +3,10 @@
  * @module tests/integration/model-provider-integration
  */
 
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
-import path from "path";
-import { fileURLToPath } from "url";
 import { beforeAll, describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";

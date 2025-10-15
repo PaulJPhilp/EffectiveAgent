@@ -50,7 +50,7 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
       // Helper function to get or create circuit breaker state
       const getCircuitBreakerState = (
         name: string,
-        config: CircuitBreakerConfig
+        _config: CircuitBreakerConfig
       ) =>
         Effect.gen(function* () {
           const breakers = yield* Ref.get(circuitBreakers);
@@ -283,7 +283,7 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
         ) =>
           Effect.gen(function* () {
             const stateRef = yield* getCircuitBreakerState(config.name, config);
-            const state = yield* Ref.get(stateRef);
+            const _state = yield* Ref.get(stateRef);
 
             // Check if we should reset from OPEN to HALF_OPEN
             yield* checkCircuitBreakerReset(stateRef, config);
@@ -435,11 +435,11 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
               (a, b) => a.priority - b.priority
             );
             let lastError = primaryResult.left;
-            let strategiesAttempted = 0;
+            let _strategiesAttempted = 0;
 
             for (const strategy of sortedStrategies) {
               if (strategy.condition(lastError)) {
-                strategiesAttempted++;
+                _strategiesAttempted++;
 
                 const strategyEffect = strategy.timeout
                   ? strategy.handler.pipe(Effect.timeout(strategy.timeout))

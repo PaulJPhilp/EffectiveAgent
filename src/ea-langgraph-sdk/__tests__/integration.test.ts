@@ -37,11 +37,11 @@ const createMockAgentRuntime = (): AgentRuntimeServiceApi => ({
     getModelService: () => Effect.succeed({
         generateResponse: (prompt: string) => Effect.succeed(`Response to: ${prompt}`),
         getModelInfo: () => Effect.succeed({ model: "test-model", provider: "test" }),
-        getProviderName: (modelName: string) => Effect.succeed("openai")
+        getProviderName: (_modelName: string) => Effect.succeed("openai")
     } as any),
     getProviderService: () => Effect.succeed({
-        getProviderClient: (providerName: string) => Effect.succeed({
-            generateText: (input: any, options: any) => Effect.succeed({
+        getProviderClient: (_providerName: string) => Effect.succeed({
+            generateText: (input: any, _options: any) => Effect.succeed({
                 data: { text: `Response to: ${input.messages[0].content}` },
                 usage: { tokens: 10 }
             })
@@ -304,7 +304,7 @@ describe("EA SDK Integration Tests", () => {
         it("should work with complete SDK workflow", async () => {
             const program = Effect.gen(function* () {
                 const sdk = yield* TestEASdk
-                const mockRuntime = createMockAgentRuntime()
+                const _mockRuntime = createMockAgentRuntime()
 
                 // Validate configuration
                 const config = yield* sdk.validateConfiguration({

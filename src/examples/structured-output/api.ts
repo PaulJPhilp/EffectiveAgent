@@ -51,7 +51,7 @@ export class SchemaValidatorTool extends Effect.Service<SchemaValidatorToolApi>(
     {
         effect: Effect.gen(function* () {
             return {
-                validate: <A>(data: unknown, schema: Schema.Schema<A, unknown>) => Effect.fail(
+                validate: <A>(_data: unknown, _schema: Schema.Schema<A, unknown>) => Effect.fail(
                     new SchemaValidationError({
                         message: "Validation not implemented by default",
                         validationIssues: []
@@ -101,13 +101,13 @@ export class StructuredOutputPipeline extends Effect.Service<StructuredOutputPip
         effect: Effect.gen(function* () {
             return {
                 generateStructuredOutput: <A>(
-                    input: GenerateStructuredOutputPayload<Schema.Schema<A, A>>,
-                    maxRetries?: number
+                    _input: GenerateStructuredOutputPayload<Schema.Schema<A, A>>,
+                    _maxRetries?: number
                 ) => Effect.fail(new StructuredOutputPipelineError({ message: "generateStructuredOutput not implemented by default" })),
                 extractStructured: <A>(
-                    text: string,
-                    schema: Schema.Schema<A, A>,
-                    options?: { maxRetries?: number; modelId?: string }
+                    _text: string,
+                    _schema: Schema.Schema<A, A>,
+                    _options?: { maxRetries?: number; modelId?: string }
                 ) => Effect.fail(new StructuredOutputPipelineError({ message: "extractStructured not implemented by default" }))
             };
         }),

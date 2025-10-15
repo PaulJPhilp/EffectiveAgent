@@ -13,9 +13,6 @@ import { EffectiveError } from "@/errors.js";
  * @extends EffectiveError
  */
 export class TranscriptionModelError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -43,9 +40,6 @@ export class TranscriptionProviderError extends EffectiveError {
  * @extends EffectiveError
  */
 export class TranscriptionError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -56,9 +50,6 @@ export class TranscriptionError extends EffectiveError {
  * @extends EffectiveError
  */
 export class TranscriptionInputError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**

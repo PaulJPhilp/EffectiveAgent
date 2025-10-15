@@ -2,7 +2,7 @@
  * @file Tests for FileService implementation
  */
 
-import { Duration, Effect, Layer, Option } from "effect";
+import { Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 import { ResilienceService } from "@/services/execution/resilience/service.js";
 import type { EntityId } from "../../../../types.js";
@@ -119,7 +119,7 @@ describe("FileService", () => {
     sizeBytes: 13,
     ownerId: testOwnerId,
   };
-  const testFileDataOtherOwner: FileInput = {
+  const _testFileDataOtherOwner: FileInput = {
     filename: "test3.txt",
     mimeType: "text/plain",
     content: Buffer.from("Another Owner"),

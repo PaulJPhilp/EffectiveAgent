@@ -1,6 +1,5 @@
-import { Effect, Either, Option } from "effect";
+import { Effect, Either, } from "effect";
 import { describe, expect, it } from "vitest";
-import type { EffectiveResponse } from "@/types.js";
 import { EmbeddingGenerationError, EmbeddingModelError } from "../errors.js";
 import { EmbeddingService } from "../service.js";
 

@@ -42,16 +42,6 @@ export class ProviderServiceError extends EffectiveError {
  * @extends EffectiveError
  */
 export class ProviderServiceConfigError extends EffectiveError {
-    /**
-     * @param params - Error details
-     * @param params.description - Error description
-     * @param params.module - Module name
-     * @param params.method - Method name
-     * @param params.cause - Optional cause
-     */
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
-        super(params);
-    }
 }
 
 /**
@@ -239,16 +229,6 @@ export class ProviderEmptyInputError extends EffectiveError {
  * @extends EffectiveError
  */
 export class GenerateTextError extends EffectiveError {
-    /**
-     * @param params - Error details
-     * @param params.description - Error message
-     * @param params.module - Module name
-     * @param params.method - Method name
-     * @param params.cause - Optional cause
-     */
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
-        super(params);
-    }
 }
 
 /**
@@ -256,9 +236,6 @@ export class GenerateTextError extends EffectiveError {
  * @extends EffectiveError
  */
 export class GenerateObjectError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
-        super(params);
-    }
 }
 
 /**
@@ -266,9 +243,6 @@ export class GenerateObjectError extends EffectiveError {
  * @extends EffectiveError
  */
 export class GenerateSpeechError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
-        super(params);
-    }
 }
 
 /**
@@ -276,9 +250,6 @@ export class GenerateSpeechError extends EffectiveError {
  * @extends EffectiveError
  */
 export class TranscribeError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
-        super(params);
-    }
 }
 
 /**
@@ -286,16 +257,6 @@ export class TranscribeError extends EffectiveError {
  * @extends EffectiveError
  */
 export class GenerateEmbeddingsError extends EffectiveError {
-    /**
-     * @param params - Error details
-     * @param params.description - Error message
-     * @param params.module - Module name
-     * @param params.method - Method name
-     * @param params.cause - Optional cause
-     */
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) { // Potentially Renamed from ProviderConfigError or other error classes
-        super(params);
-    }
 }
 
 /**

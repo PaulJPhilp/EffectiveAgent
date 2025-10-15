@@ -1,9 +1,7 @@
 import type { LanguageModelV2 } from "@ai-sdk/provider";
-import { Chunk, Effect, Either, Layer, pipe, Schema as S } from "effect";
+import { Effect, pipe, } from "effect";
 import type { ModelCapability } from "@/schema.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
-import { ConfigurationServiceApi } from "@/services/core/configuration/api.js";
-import { ConfigurationService } from "@/services/core/configuration/index.js";
 import type { EffectiveInput, EffectiveResponse } from "@/types.js";
 import type { ModelServiceApi } from "../../model/api.js";
 import { ModelService } from "../../model/service.js";
@@ -197,40 +195,40 @@ export class DeepseekProviderClient extends Effect.Service<ProviderClientApi>()(
 					Effect.succeed<EffectiveProviderApi>({
 						name: PROVIDER_NAME,
 						provider: {
-							validateToolInput: (toolName: string, input: unknown): Effect.Effect<unknown, ProviderToolError> => {
+							validateToolInput: (_toolName: string, _input: unknown): Effect.Effect<unknown, ProviderToolError> => {
 								throw new Error("Function not implemented.");
 							},
-							executeTool: (toolName: string, input: unknown): Effect.Effect<unknown, ProviderToolError> => {
+							executeTool: (_toolName: string, _input: unknown): Effect.Effect<unknown, ProviderToolError> => {
 								throw new Error("Function not implemented.");
 							},
-							processToolResult: (toolName: string, result: unknown): Effect.Effect<unknown, ProviderToolError> => {
+							processToolResult: (_toolName: string, _result: unknown): Effect.Effect<unknown, ProviderToolError> => {
 								throw new Error("Function not implemented.");
 							},
-							chat: (effectiveInput: EffectiveInput, options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderServiceConfigError> => {
+							chat: (_effectiveInput: EffectiveInput, _options: ProviderChatOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderServiceConfigError> => {
 								throw new Error("Function not implemented.");
 							},
-							setVercelProvider: (vercelProvider: EffectiveProviderApi): Effect.Effect<void, ProviderServiceConfigError> => {
+							setVercelProvider: (_vercelProvider: EffectiveProviderApi): Effect.Effect<void, ProviderServiceConfigError> => {
 								throw new Error("Function not implemented.");
 							},
 							getProvider: (): Effect.Effect<EffectiveProviderApi, ProviderServiceConfigError> => {
 								throw new Error("Function not implemented.");
 							},
-							generateText: (input: EffectiveInput, options: ProviderGenerateTextOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderServiceConfigError | ProviderMissingCapabilityError> => {
+							generateText: (_input: EffectiveInput, _options: ProviderGenerateTextOptions): Effect.Effect<EffectiveResponse<GenerateTextResult>, ProviderOperationError | ProviderServiceConfigError | ProviderMissingCapabilityError> => {
 								throw new Error("Function not implemented.");
 							},
-							generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>): Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, ProviderOperationError | ProviderServiceConfigError> => {
+							generateObject: <T = unknown>(_input: EffectiveInput, _options: ProviderGenerateObjectOptions<T>): Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, ProviderOperationError | ProviderServiceConfigError> => {
 								throw new Error("Function not implemented.");
 							},
-							generateSpeech: (input: string, options: ProviderGenerateSpeechOptions): Effect.Effect<EffectiveResponse<GenerateSpeechResult>, ProviderOperationError | ProviderServiceConfigError> => {
+							generateSpeech: (_input: string, _options: ProviderGenerateSpeechOptions): Effect.Effect<EffectiveResponse<GenerateSpeechResult>, ProviderOperationError | ProviderServiceConfigError> => {
 								throw new Error("Function not implemented.");
 							},
-							transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions): Effect.Effect<EffectiveResponse<TranscribeResult>, ProviderOperationError | ProviderServiceConfigError> => {
+							transcribe: (_input: ArrayBuffer, _options: ProviderTranscribeOptions): Effect.Effect<EffectiveResponse<TranscribeResult>, ProviderOperationError | ProviderServiceConfigError> => {
 								throw new Error("Function not implemented.");
 							},
-							generateEmbeddings: (input: string[], options: ProviderGenerateEmbeddingsOptions): Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, ProviderOperationError | ProviderServiceConfigError> => {
+							generateEmbeddings: (_input: string[], _options: ProviderGenerateEmbeddingsOptions): Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, ProviderOperationError | ProviderServiceConfigError> => {
 								throw new Error("Function not implemented.");
 							},
-							generateImage: (input: EffectiveInput, options: ProviderGenerateImageOptions): Effect.Effect<EffectiveResponse<GenerateImageResult>, ProviderOperationError | ProviderServiceConfigError> => {
+							generateImage: (_input: EffectiveInput, _options: ProviderGenerateImageOptions): Effect.Effect<EffectiveResponse<GenerateImageResult>, ProviderOperationError | ProviderServiceConfigError> => {
 								throw new Error("Function not implemented.");
 							},
 							getCapabilities: (): Effect.Effect<Set<ModelCapability>, ProviderOperationError | ProviderServiceConfigError> => {
@@ -239,7 +237,7 @@ export class DeepseekProviderClient extends Effect.Service<ProviderClientApi>()(
 							getModels: (): Effect.Effect<LanguageModelV2[], ProviderServiceConfigError, ModelServiceApi> => {
 								throw new Error("Function not implemented.");
 							},
-							getDefaultModelIdForProvider: (providerName: ProvidersType, capability: ModelCapability): Effect.Effect /* Unsupported capabilities */<string, ProviderServiceConfigError | ProviderMissingModelIdError> => {
+							getDefaultModelIdForProvider: (_providerName: ProvidersType, _capability: ModelCapability): Effect.Effect /* Unsupported capabilities */<string, ProviderServiceConfigError | ProviderMissingModelIdError> => {
 								throw new Error("Function not implemented.");
 							}
 						},

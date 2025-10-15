@@ -6,7 +6,6 @@ import type {
   OutputValidationError,
   PipelineConfigurationError,
   PipelineError,
-  PipelineExecutionError,
   PipelineValidationError,
 } from "./errors.js";
 

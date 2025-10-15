@@ -1,5 +1,5 @@
 import { Args, Command } from "@effect/cli"
-import { Chunk, Console, Data, Effect, pipe } from "effect"
+import { Chunk, Console, Effect } from "effect"
 import { Message, TextPart } from "@/schema.js"
 import type { ModelServiceApi } from "@/services/ai/model/api.js"
 import type { ModelNotFoundError } from "@/services/ai/model/errors.js"

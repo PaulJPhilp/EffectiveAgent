@@ -2,8 +2,8 @@
 // Simple validation script for the canonical models JSON
 // Usage: node scripts/check_models_dev.js <path-to-json>
 
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 
 const argv = process.argv.slice(2);
 if (argv.length === 0) {

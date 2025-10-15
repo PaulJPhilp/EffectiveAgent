@@ -1,5 +1,5 @@
-import fs from "fs";
-import path from "path";
+import fs from "node:fs";
+import path from "node:path";
 /**
  * Adapter around the required `models.dev` package.
  * Exposes a single function `fetchGlobalModels` which returns a list of

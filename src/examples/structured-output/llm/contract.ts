@@ -75,9 +75,9 @@ export abstract class LlmService extends Effect.Service<LlmServiceApi>()(
     {
         effect: Effect.gen(function* () {
             return {
-                complete: (prompt: string) => 
+                complete: (_prompt: string) => 
                     Effect.fail(new LlmError({ message: "complete not implemented by default" })),
-                completeJson: <T>(prompt: string) =>
+                completeJson: <_T>(_prompt: string) =>
                     Effect.fail(new LlmError({ message: "completeJson not implemented by default" }))
             };
         }),

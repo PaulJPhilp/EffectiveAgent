@@ -13,9 +13,6 @@ import { EffectiveError } from "@/errors.js";
  * @extends EffectiveError
  */
 export class ObjectModelError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -43,9 +40,6 @@ export class ObjectProviderError extends EffectiveError {
  * @extends EffectiveError
  */
 export class ObjectGenerationError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**
@@ -53,9 +47,6 @@ export class ObjectGenerationError extends EffectiveError {
  * @extends EffectiveError
  */
 export class ObjectInputError extends EffectiveError {
-    constructor(params: { description: string; module: string; method: string; cause?: unknown }) {
-        super(params);
-    }
 }
 
 /**

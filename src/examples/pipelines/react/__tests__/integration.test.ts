@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 // Add imports for ReactPipelineService, its live layer, and any dependent service layers/mocks
 
-process.env.PROVIDERS_CONFIG_PATH = require('path').resolve(__dirname, '../../config/providers.json');
+process.env.PROVIDERS_CONFIG_PATH = require('node:path').resolve(__dirname, '../../config/providers.json');
 
 describe("ReactPipelineService integration tests", () => {
     it("should run the ReAct pipeline with mock dependencies", async () => {

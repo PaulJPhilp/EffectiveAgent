@@ -80,7 +80,7 @@ interface GoogleMessage {
   }>;
 }
 
-function mapEAMessagesToGoogleMessages(
+function _mapEAMessagesToGoogleMessages(
   eaMessages: ReadonlyArray<EffectiveMessage>
 ): GoogleMessage[] {
   return eaMessages.map((msg) => {
@@ -121,7 +121,7 @@ function mapEAMessagesToGoogleMessages(
 
 function mapGoogleMessageToEAEffectiveMessage(
   googleMsg: GoogleMessage,
-  modelId: string
+  _modelId: string
 ): EffectiveMessage {
   const eaParts: Array<TextPart | ToolCallPart> = [];
 
@@ -390,7 +390,7 @@ export function makeGoogleClient(
                 modelId
               );
 
-              const responseMessages = Chunk.of(responseMessage);
+              const _responseMessages = Chunk.of(responseMessage);
 
               // Check if there are tool calls to execute
               if (result.toolCalls && result.toolCalls.length > 0) {
@@ -505,7 +505,7 @@ export function makeGoogleClient(
           GOOGLE_CHAT_CONFIG
         ),
 
-      setVercelProvider: (vercelProvider: EffectiveProviderApi) => Effect.void,
+      setVercelProvider: (_vercelProvider: EffectiveProviderApi) => Effect.void,
 
       generateObject: <T = unknown>(
         effectiveInput: EffectiveInput,
@@ -578,7 +578,7 @@ export function makeGoogleClient(
           };
         }),
 
-      generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
+      generateSpeech: (_input: string, _options: ProviderGenerateSpeechOptions) =>
         Effect.fail(
           new ProviderOperationError({
             providerName: "google",
@@ -589,7 +589,7 @@ export function makeGoogleClient(
           })
         ),
 
-      transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
+      transcribe: (_input: ArrayBuffer, _options: ProviderTranscribeOptions) =>
         Effect.fail(
           new ProviderOperationError({
             providerName: "google",
@@ -601,8 +601,8 @@ export function makeGoogleClient(
         ),
 
       generateEmbeddings: (
-        input: string[],
-        options: ProviderGenerateEmbeddingsOptions
+        _input: string[],
+        _options: ProviderGenerateEmbeddingsOptions
       ) =>
         Effect.fail(
           new ProviderOperationError({
@@ -615,8 +615,8 @@ export function makeGoogleClient(
         ),
 
       generateImage: (
-        input: EffectiveInput,
-        options: ProviderGenerateImageOptions
+        _input: EffectiveInput,
+        _options: ProviderGenerateImageOptions
       ) =>
         Effect.fail(
           new ProviderMissingCapabilityError({
@@ -644,7 +644,7 @@ export function makeGoogleClient(
 
       getDefaultModelIdForProvider: (
         providerName: ProvidersType,
-        capability: ModelCapability
+        _capability: ModelCapability
       ) =>
         Effect.gen(function* () {
           if (providerName !== "google") {

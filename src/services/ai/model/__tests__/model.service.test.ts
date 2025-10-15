@@ -1,7 +1,7 @@
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer } from "effect";
-import { mkdirSync, rmSync, writeFileSync } from "fs";
-import { join } from "path";
 import { beforeEach, describe, expect, it } from "vitest";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ModelConfigError } from "../errors.js";
@@ -28,8 +28,8 @@ describe("ModelService (models.dev hydration)", () => {
       const loaded = yield* svc.load();
       const hydrated = loaded.models.find((m: any) => m.id === "gpt-4o");
       expect(hydrated).toBeDefined();
-      expect(hydrated!.contextWindow).toBe(12345);
-      expect((hydrated!.pricing as any)?.input).toBe(0.02);
+      expect(hydrated?.contextWindow).toBe(12345);
+      expect((hydrated?.pricing as any)?.input).toBe(0.02);
     }).pipe(Effect.provide(modelServiceLayer));
   });
 

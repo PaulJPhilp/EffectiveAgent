@@ -82,7 +82,7 @@ export function generateFilteredDiagram(
     if (!nodesByLayer.has(layer)) {
       nodesByLayer.set(layer, []);
     }
-    nodesByLayer.get(layer)!.push(node);
+    nodesByLayer.get(layer)?.push(node);
   });
 
   // Generate subgraphs for each layer
@@ -92,7 +92,7 @@ export function generateFilteredDiagram(
       mermaidString += `    ${node.id}[${node.name}]\n`;
       if (node.color) {
         mermaidString += `    style ${node.id} fill:${node.color},stroke:#333,stroke-width:2px\n`;
-      } else if (layerColors && layerColors[layerName]) {
+      } else if (layerColors?.[layerName]) {
         mermaidString += `    style ${node.id} fill:${layerColors[layerName]},stroke:#333,stroke-width:2px\n`;
       }
     });

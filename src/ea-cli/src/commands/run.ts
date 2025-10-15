@@ -95,7 +95,7 @@ const runAgent = (options: {
   })
 
 // Validate agent configuration with comprehensive error handling
-const validateAgentConfiguration = (agentDir: string, configDir: string) =>
+const validateAgentConfiguration = (_agentDir: string, configDir: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
     const path = yield* Path.Path
@@ -186,7 +186,7 @@ export const runCommand = Command.make(
   },
   ({ agentName, input }) =>
     Effect.gen(function* () {
-      const fs = yield* FileSystem.FileSystem
+      const _fs = yield* FileSystem.FileSystem
       const pathSvc = yield* Path.Path
       const projectRoot = process.env.PROJECT_ROOT || process.cwd()
 

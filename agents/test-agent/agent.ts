@@ -14,7 +14,7 @@ export interface TestAgentState {
 }
 
 export class TestAgent {
-  constructor(private readonly runtime: AgentRuntimeServiceApi) { }
+  constructor(readonly _runtime: AgentRuntimeServiceApi) { }
 
   async run(input: string): Promise<void> {
     // Simple echo implementation

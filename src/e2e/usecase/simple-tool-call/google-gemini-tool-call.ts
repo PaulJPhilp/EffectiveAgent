@@ -51,7 +51,7 @@ const makeChatCommand = Effect.gen(function* () {
 })
 
 // Create chat command
-const chatCommand = Command.make(
+const _chatCommand = Command.make(
   "chat",
   {
     message: Args.text({ name: "message" }).pipe(

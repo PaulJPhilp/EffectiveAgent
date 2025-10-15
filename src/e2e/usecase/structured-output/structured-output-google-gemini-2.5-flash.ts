@@ -37,7 +37,7 @@ const makeChatCommand = Effect.gen(function* (_) {
   const chat = (input: EffectiveInput) =>
     Effect.gen(function* (_) {
       const client = yield* providerService.getProviderClient("google")
-      const models = yield* modelService.load()
+      const _models = yield* modelService.load()
 
       return yield* client.chat(
         input,

@@ -1,7 +1,7 @@
+import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer } from "effect";
-import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { ResilienceService } from "@/services/execution/resilience/index.js";
@@ -60,7 +60,7 @@ describe("ProviderService", () => {
       unlinkSync(validProvidersConfig);
       unlinkSync(invalidProvidersConfig);
       rmdirSync(testDir);
-    } catch (error) {
+    } catch (_error) {
       // Ignore cleanup errors
     }
     // biome-ignore lint/performance/noDelete: <explanation>
@@ -216,7 +216,7 @@ describe("ProviderService", () => {
   describe("with ResilienceService integration", () => {
     it("should initialize circuit breaker for provider operations", () =>
       Effect.gen(function* () {
-        const service = yield* ProviderService;
+        const _service = yield* ProviderService;
         const resilience = yield* ResilienceService;
 
         // Verify circuit breaker is initialized
@@ -234,7 +234,7 @@ describe("ProviderService", () => {
         const resilience = yield* ResilienceService;
 
         // Get initial metrics
-        const initialMetrics = yield* resilience.getCircuitBreakerMetrics(
+        const _initialMetrics = yield* resilience.getCircuitBreakerMetrics(
           "provider-service-api"
         );
 

@@ -1,12 +1,6 @@
 import { FileSystem, Path } from "@effect/platform"
 import { NodeContext, NodeFileSystem } from "@effect/platform-node"
-import { Effect, Schema } from "effect"
-import { beforeEach } from "vitest"
-import {
-  ConfigPathsSchema,
-  LoggingConfigSchema,
-  RuntimeSettingsSchema,
-} from "../../services/core/configuration/schema.js"
+import { Effect } from "effect"
 import { initCommand } from "../src/commands/init.js"
 import { runCommand } from "./test-utils.js"
 
@@ -21,7 +15,7 @@ const setupEnvironment = (): Effect.Effect<void, never, never> =>
     )
   }).pipe(Effect.provide(Path.layer))
 
-const removeFile = (path: string): Effect.Effect<void, never, never> =>
+const _removeFile = (path: string): Effect.Effect<void, never, never> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem
     yield* fs.remove(path).pipe(Effect.catchAll(() => Effect.succeed(void 0)))

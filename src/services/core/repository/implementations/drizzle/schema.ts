@@ -9,7 +9,7 @@ import type { JsonObject } from "@/types.js";
 /**
  * Creates a base table schema for an entity type
  */
-export const createBaseTable = <TData extends JsonObject>(tableName: string) => 
+export const createBaseTable = <_TData extends JsonObject>(tableName: string) => 
     pgTable(tableName, {
         id: text("id").primaryKey(),
         createdAt: timestamp("created_at", { withTimezone: true }).notNull(),

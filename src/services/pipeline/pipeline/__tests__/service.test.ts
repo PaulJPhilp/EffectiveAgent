@@ -3,10 +3,10 @@
  * @module services/pipeline/pipeline/tests
  */
 
+import { join } from "node:path";
 import { FileSystem } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either, Layer, Option, Schema } from "effect";
-import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { PolicyService } from "@/services/ai/policy/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
@@ -91,7 +91,7 @@ function makeFileRepo(): RepositoryServiceApi<FileEntity> {
 }
 
 // Create the repository layer for FileEntity
-const FileRepositoryLayer = Layer.succeed(
+const _FileRepositoryLayer = Layer.succeed(
   RepositoryService<FileEntity>().Tag,
   makeFileRepo()
 );
@@ -242,7 +242,7 @@ describe("PipelineService", () => {
   });
 
   // Test schemas
-  const TestInput = Schema.Struct({
+  const _TestInput = Schema.Struct({
     prompt: Schema.String,
   });
 
@@ -252,7 +252,7 @@ describe("PipelineService", () => {
     totalTokens: Schema.Number,
   });
 
-  const TestOutput = Schema.Struct({
+  const _TestOutput = Schema.Struct({
     text: Schema.String,
     usage: TestUsage,
   });
@@ -291,7 +291,7 @@ describe("PipelineService", () => {
       withLayers(
         Effect.gen(function* () {
           const pipeline: PipelineServiceInterface = yield* PipelineService;
-          const input = { prompt: "test prompt" };
+          const _input = { prompt: "test prompt" };
 
           const result = yield* Effect.either(
             pipeline.execute(

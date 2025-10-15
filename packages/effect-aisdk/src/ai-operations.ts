@@ -4,13 +4,13 @@
  */
 
 import type { EmbeddingModel, LanguageModelV1 } from "ai";
-import { embedMany, generateObject, generateText, streamText } from "ai";
-import { Chunk, Effect } from "effect";
+import { embedMany, generateObject, generateText, } from "ai";
+import { Effect } from "effect";
 import { type AiSdkMessageTransformError, AiSdkOperationError } from "./errors.js";
 import type { EffectiveInput, GenerateObjectOptions, GenerateTextOptions } from "./input-types.js";
 import { toVercelMessages } from "./message-transformer.js";
 import type { GenerateEmbeddingsResult, GenerateObjectResult, GenerateTextResult } from "./result-types.js";
-import type { BaseAiParameters, EffectiveResponse, EffectiveUsage } from "./types.js";
+import type { EffectiveResponse, } from "./types.js";
 
 /**
  * Generate text using a language model
@@ -184,7 +184,7 @@ export function generateEmbeddingsWithModel(
 
       // Transform result
       const embeddingsResult: GenerateEmbeddingsResult = {
-        id: "embedding-" + Date.now(),
+        id: `embedding-${Date.now()}`,
         model: "unknown",
         timestamp: new Date(),
         embeddings: result.embeddings,

@@ -3,8 +3,8 @@
 // Simple script to run the structured output test directly
 // This bypasses the CLI argument parsing issues
 
-import { mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 // Set environment variables
 process.env.MASTER_CONFIG_PATH = join(process.cwd(), "configuration/config-master/test.json");
@@ -19,7 +19,7 @@ import('./src/ea-agent-runtime/production-runtime.js').then(async ({ runWithAgen
   const inputFile = "/Users/paul/Projects/EffectiveAgent/test-config.json";
   const outputDir = "/Users/paul/Projects/EffectiveAgent/test-outputs";
   const modelId = "gemini-2.0-flash";
-  const runs = 1;
+  const _runs = 1;
   
   // Main function
   const runTest = Effect.gen(function* () {

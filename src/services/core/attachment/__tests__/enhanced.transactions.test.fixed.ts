@@ -2,7 +2,7 @@
  * @file Enhanced tests for transaction support in the AttachmentService.
  */
 
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import { Effect, Layer, Option } from "effect";
 import { describe, expect, it } from "vitest";
 
@@ -81,7 +81,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
             delete: (id: string) => {
                 // Fail on specific entity IDs
-                if (config.failOnDelete && config.failOnDelete.includes(id)) {
+                if (config.failOnDelete?.includes(id)) {
                     return Effect.fail(new RepositoryError({
                         message: "Simulated delete failure for specific entity",
                         entityType: "AttachmentLink"

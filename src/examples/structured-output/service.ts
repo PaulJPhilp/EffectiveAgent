@@ -27,13 +27,13 @@ export class LocalSchemaValidatorService extends Effect.Service<SchemaValidatorT
 // Mock implementation of StructuredOutputPipelineService
 export class MockStructuredOutputPipelineService extends Effect.Service<StructuredOutputPipelineApi>()("MockStructuredOutputPipelineService", {
     effect: Effect.succeed({
-        generateStructuredOutput: <T>(payload: { prompt: string; schema: Schema.Schema<T, any> }) =>
+        generateStructuredOutput: <T>(_payload: { prompt: string; schema: Schema.Schema<T, any> }) =>
             Effect.succeed({
                 name: "Mock Person",
                 age: 25
             } as T),
 
-        extractStructured: <T>(text: string, schema: Schema.Schema<T, any>) =>
+        extractStructured: <T>(_text: string, _schema: Schema.Schema<T, any>) =>
             Effect.succeed({
                 name: "Extracted Person",
                 age: 30
@@ -45,7 +45,7 @@ export class MockStructuredOutputPipelineService extends Effect.Service<Structur
 // Mock implementation of LocalSchemaValidatorService for testing
 export class MockLocalSchemaValidatorService extends Effect.Service<SchemaValidatorToolApi>()("MockLocalSchemaValidatorService", {
     effect: Effect.succeed({
-        validate: <A>(data: unknown, schema: Schema.Schema<A, unknown>) =>
+        validate: <A>(data: unknown, _schema: Schema.Schema<A, unknown>) =>
             Effect.succeed(data as A)
     }),
     dependencies: []
@@ -59,7 +59,7 @@ export function makeStructuredOutputPipelineService(
     return {
         generateStructuredOutput: <A>(
             input: GenerateStructuredOutputPayload<Schema.Schema<A, A>>,
-            maxRetries?: number
+            _maxRetries?: number
         ) =>
             Effect.gen(function* () {
                 const options: ObjectGenerationOptions<Schema.Schema<A, A>> = {

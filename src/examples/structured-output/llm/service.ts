@@ -7,7 +7,6 @@ import { Effect } from "effect";
 
 // Mock OpenAI implementation since the module is not available
 class MockOpenAI {
-  constructor(config: any) {}
 
   chat = {
     completions: {
@@ -33,7 +32,6 @@ import {
   LlmCallError,
   type LlmConfig,
   LlmResponseParseError,
-  LlmService,
   type LlmServiceApi,
 } from "./contract.js";
 

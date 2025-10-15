@@ -1,5 +1,5 @@
 import { Command } from "@effect/cli"
-import { Effect, Either } from "effect"
+import { Effect } from "effect"
 import { describe, expect, it } from "vitest"
 import { createTestCli, expectCommandFailure } from "./test-utils"
 

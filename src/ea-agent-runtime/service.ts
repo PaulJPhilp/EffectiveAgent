@@ -116,7 +116,7 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
                 return yield* Effect.void;
             });
 
-        const getState = <S>(id: AgentRuntimeId) =>
+        const getState = <_S>(id: AgentRuntimeId) =>
             Effect.gen(function* () {
                 const map = yield* Ref.get(runtimes)
                 const stateRef = map.get(id)
@@ -146,9 +146,9 @@ export class AgentRuntimeService extends Effect.Service<AgentRuntimeServiceApi>(
 
         // LangGraph support (no mailbox/actor logic)
         const createLangGraphAgent = <TState extends { readonly agentRuntime: any }>(
-            compiledGraph: CompiledLangGraph<TState>,
+            _compiledGraph: CompiledLangGraph<TState>,
             initialState: TState,
-            langGraphRunOptions?: LangGraphRunOptions
+            _langGraphRunOptions?: LangGraphRunOptions
         ) => Effect.gen(function* () {
             // Generate a unique ID for this LangGraph agent
             const id = `langgraph-${Date.now()}-${Math.random().toString(36).slice(2)}` as AgentRuntimeId

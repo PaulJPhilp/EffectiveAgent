@@ -33,12 +33,12 @@ export class InitializationService extends Effect.Service<InitializationServiceA
   "InitializationService",
   {
     effect: Effect.gen(function* () {
-      const configurationService = yield* ConfigurationService;
-      const modelService = yield* ModelService;
-      const policyService = yield* PolicyService;
-      const providerService = yield* ProviderService;
-      const toolRegistryService = yield* ToolRegistryService;
-      const agentRuntimeService = yield* AgentRuntimeService;
+      const _configurationService = yield* ConfigurationService;
+      const _modelService = yield* ModelService;
+      const _policyService = yield* PolicyService;
+      const _providerService = yield* ProviderService;
+      const _toolRegistryService = yield* ToolRegistryService;
+      const _agentRuntimeService = yield* AgentRuntimeService;
 
       return {
         initialize: (masterConfig: MasterConfigSchema): Effect.Effect<Runtime.Runtime<RuntimeServices>, AgentRuntimeInitializationError | ConfigurationError, never> =>
@@ -51,8 +51,8 @@ export class InitializationService extends Effect.Service<InitializationServiceA
             });
 
             // Get file system and path services
-            const fs = yield* FileSystem.FileSystem;
-            const path = yield* Path.Path;
+            const _fs = yield* FileSystem.FileSystem;
+            const _path = yield* Path.Path;
 
             yield* Effect.logInfo("📂 FileSystem and Path services initialized");
 

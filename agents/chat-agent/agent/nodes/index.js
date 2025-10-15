@@ -1,16 +1,16 @@
 // CommonJS shim to re-export implementations from TypeScript source for tests
 try {
   module.exports = require("./index.ts");
-} catch (err) {
+} catch (_err) {
   // If direct requiring .ts fails in some environments, export simple stubs
   module.exports = {
-    validateConversation: async (state) => {
+    validateConversation: async (_state) => {
       return {};
     },
-    processUserMessage: async (state) => {
+    processUserMessage: async (_state) => {
       return {};
     },
-    generateResponse: async (state) => {
+    generateResponse: async (_state) => {
       return {};
     },
   };

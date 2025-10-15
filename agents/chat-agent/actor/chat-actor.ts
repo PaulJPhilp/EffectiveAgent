@@ -76,7 +76,7 @@ export async function startChatActor(params: {
         })
 
     // 3. Spin up actor runtime
-    const actorId = "chat-" + crypto.randomUUID();
+    const actorId = `chat-${crypto.randomUUID()}`;
     const actor = await Effect.runPromise(
         ActorRuntimeManager.create<ChatAgentState>(actorId, initialState, workflow)
     )

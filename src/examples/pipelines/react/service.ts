@@ -4,13 +4,12 @@
  */
 
 import { Effect } from "effect";
-import {
-  ReActPipeline,
-  type ReActPipelineApi,
-  type ReActPipelineInput,
-  type ReActPipelineOutput,
-  type ReActStep,
-  type ReActTool,
+import type {
+  ReActPipelineApi,
+  ReActPipelineInput,
+  ReActPipelineOutput,
+  ReActStep,
+  ReActTool,
 } from "./contract.js";
 import { ReActPipelineError } from "./errors.js";
 import type { Tool } from "./types.js";
@@ -61,7 +60,7 @@ export class ReActPipelineService extends Effect.Service<ReActPipelineApi>()(
   {
     effect: Effect.gen(function* (_) {
       // Yield dependencies
-      const toolRegistry = yield* _(ToolRegistry);
+      const _toolRegistry = yield* _(ToolRegistry);
 
       // Helper to generate unique step IDs
       const generateStepId = (index: number): string => {
@@ -228,7 +227,7 @@ export class ReActPipelineService extends Effect.Service<ReActPipelineApi>()(
           let finalAnswer: string | null = null;
 
           // Format the initial prompt for Phoenix
-          const initialPrompt = `
+          const _initialPrompt = `
                         Solve the following query step-by-step using the available tools:
                         
                         Query: ${input.query}
@@ -259,7 +258,7 @@ export class ReActPipelineService extends Effect.Service<ReActPipelineApi>()(
             currentStep++;
 
             // Format current reasoning chain for context
-            const reasoningChain = formatReasoningChain(steps);
+            const _reasoningChain = formatReasoningChain(steps);
 
             // Call Phoenix MCP server for next step
             const thinkingStartTime = Date.now();
@@ -451,7 +450,7 @@ Action Input: {"expression": "10 * ${currentStep}"}`;
             additionalStepsTaken++;
 
             // Format current reasoning chain for context
-            const reasoningChain = formatReasoningChain(steps);
+            const _reasoningChain = formatReasoningChain(steps);
 
             // TODO: Replace with actual Phoenix MCP server call
             // For now, using mock responses

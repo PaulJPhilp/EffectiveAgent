@@ -5,8 +5,7 @@
 import { join } from "node:path"
 import { Args, Command } from "@effect/cli"
 import { NodeContext } from "@effect/platform-node"
-import { Chunk, Console, Effect, Layer, pipe } from "effect"
-import { AgentRuntimeService } from "@/ea-agent-runtime/service.js"
+import { Chunk, Console, Effect, pipe } from "effect"
 import { ModelService } from "@/services/ai/model/service.js"
 import { ProviderService } from "@/services/ai/provider/service.js"
 import { EffectiveInput } from "@/types.js"
@@ -45,7 +44,7 @@ const makeChatCommand = Effect.gen(function* () {
 })
 
 // Create chat command
-const chatCommand = Command.make(
+const _chatCommand = Command.make(
   "chat",
   {
     message: Args.text({ name: "message" }).pipe(

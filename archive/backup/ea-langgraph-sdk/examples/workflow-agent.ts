@@ -512,8 +512,8 @@ export class WorkflowAgent {
      */
     private async executeValidation(
         task: WorkflowTask,
-        state: WorkflowAgentState,
-        context: { operation: string; nodeId: string; agentId: string }
+        _state: WorkflowAgentState,
+        _context: { operation: string; nodeId: string; agentId: string }
     ): Promise<Record<string, unknown>> {
         const validationType = task.input?.type as string
         const dataToValidate = task.input?.data
@@ -580,7 +580,7 @@ export class WorkflowAgent {
     /**
      * Handle task failure with rollback if enabled
      */
-    private async handleTaskFailure(taskId: string, state: WorkflowAgentState): Promise<WorkflowAgentState> {
+    private async handleTaskFailure(_taskId: string, state: WorkflowAgentState): Promise<WorkflowAgentState> {
         // Implementation would rollback completed tasks
         // For simplicity, just mark workflow as failed
         return this.updateWorkflowStatus("failed", state)

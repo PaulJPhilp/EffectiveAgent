@@ -172,8 +172,8 @@ describe("StructuredOutputAgent E2E Tests", () => {
 
             expect(finalStates).toHaveLength(3);
             for (let i = 0; i < finalStates.length; i++) {
-                expect(finalStates[i]!.processing?.failures).toBe(0);
-                expect(finalStates[i]!.state.generationCount).toBe(0);
+                expect(finalStates[i]?.processing?.failures).toBe(0);
+                expect(finalStates[i]?.state.generationCount).toBe(0);
             }
 
             // Cleanup all runtimes

@@ -226,7 +226,7 @@ function validateNodes(nodes: NodeData[], warnings: string[]): NodeData[] {
 /**
  * Validates and sanitizes edge data.
  */
-function validateEdges(
+function _validateEdges(
   edges: EdgeData[],
   validNodes: NodeData[],
   warnings: string[]
@@ -334,7 +334,7 @@ function generateMermaidDefinition(
       if (!nodesByLayer.has(layer)) {
         nodesByLayer.set(layer, []);
       }
-      nodesByLayer.get(layer)!.push(node);
+      nodesByLayer.get(layer)?.push(node);
     });
 
     // Generate subgraphs for each layer
@@ -347,7 +347,7 @@ function generateMermaidDefinition(
     nodesByLayer.forEach((layerNodes, layerName) => {
       // Sanitize layer name for Mermaid (escape special characters)
       const escapedLayerName = layerName;
-      const sanitizedLayerName = layerName.replace(/[^a-zA-Z0-9_]/g, "_") + "_";
+      const sanitizedLayerName = `${layerName.replace(/[^a-zA-Z0-9_]/g, "_")}_`;
 
       if (layerNodes.length > 0) {
         mermaidString += `  subgraph ${sanitizedLayerName.replace(/__+$/, "_")}["${escapedLayerName}"]\n`;

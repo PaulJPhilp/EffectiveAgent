@@ -12,8 +12,8 @@ import { AgentRunnerError } from "../../../src/agent-runner.js";
 import { fetchContentImpl } from "../../../src/services/ai/tools/implementations/fetch-content.js";
 
 // Define START and END as strings if not available
-const GRAPH_START = "__start__";
-const GRAPH_END = "__end__";
+const _GRAPH_START = "__start__";
+const _GRAPH_END = "__end__";
 
 /**
  * State for the LangGraph
@@ -40,7 +40,7 @@ type GraphState = typeof GraphStateAnnotation.State;
 /**
  * Node function that calls the LLM
  */
-async function callLLM(state: GraphState): Promise<Partial<GraphState>> {
+async function _callLLM(state: GraphState): Promise<Partial<GraphState>> {
     // Get the model. In test mode we avoid calling into provider factory to
     // prevent environment/API key related failures and to keep tests fast and
     // deterministic. Tests mock generateTextWithModel directly, so a simple
@@ -68,7 +68,7 @@ async function callLLM(state: GraphState): Promise<Partial<GraphState>> {
                 try {
                     const maybeEffect = fn(model, { text: prompt });
                     return await Effect.runPromise(maybeEffect);
-                } catch (e2) {
+                } catch (_e2) {
                     return { data: { text: "Mocked LLM response" } };
                 }
             }
@@ -173,7 +173,7 @@ async function summarizeNode(state: GraphState): Promise<Partial<GraphState>> {
                 try {
                     const maybeEffect = fn(model, { text: summaryPrompt });
                     return await Effect.runPromise(maybeEffect);
-                } catch (e2) {
+                } catch (_e2) {
                     return { data: { text: "Mocked summary of fetched content" } };
                 }
             }

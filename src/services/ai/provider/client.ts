@@ -56,7 +56,7 @@ export class ProviderClient extends Effect.Service<ProviderClientApi>()(
 
         getProvider: getProviderHelper,
 
-        getDefaultModelIdForProvider: (providerName: string) =>
+        getDefaultModelIdForProvider: (_providerName: string) =>
           Effect.gen(function* () {
             const defaultModelId = yield* modelService.getDefaultModelId();
             return defaultModelId;

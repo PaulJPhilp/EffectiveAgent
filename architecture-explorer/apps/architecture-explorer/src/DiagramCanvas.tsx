@@ -133,7 +133,7 @@ function DiagramCanvas({ mermaidDefinition, onNodeClick }: DiagramCanvasProps) {
                 }
             }
         }
-    }, [onNodeClick, mermaidDefinition])
+    }, [onNodeClick])
 
     return (
         <div 

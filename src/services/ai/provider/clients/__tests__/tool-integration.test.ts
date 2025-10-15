@@ -1,8 +1,8 @@
+import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Message as EffectiveMessage, TextPart } from "@effective-agent/ai-sdk";
 import { Chunk, Effect, Either, Layer, Schema as S } from "effect";
-import { mkdirSync, rmdirSync, unlinkSync, writeFileSync } from "fs";
-import { join } from "path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/service.js";
@@ -137,7 +137,7 @@ describe("Tool Integration Tests - End-to-End", () => {
             unlinkSync(providersConfigPath);
             unlinkSync(policyConfigPath);
             rmdirSync(testDir);
-        } catch (error) {
+        } catch (_error) {
             // Ignore cleanup errors
         }
         process.env = { ...originalEnv };
@@ -316,7 +316,7 @@ describe("Tool Integration Tests - End-to-End", () => {
         it("should verify error handling method signatures", () =>
             Effect.gen(function* () {
                 // Test that all client factory functions exist and can handle error scenarios
-                const testTools = [{
+                const _testTools = [{
                     metadata: {
                         name: "test-tool",
                         description: "A test tool"
@@ -324,11 +324,11 @@ describe("Tool Integration Tests - End-to-End", () => {
                     implementation: {
                         _tag: "EffectImplementation" as const,
                         inputSchema: CalculatorInputSchema,
-                        execute: (input: any) => Effect.succeed({ result: "success" })
+                        execute: (_input: any) => Effect.succeed({ result: "success" })
                     }
                 }];
 
-                const invalidInput = {
+                const _invalidInput = {
                     text: "Use the test tool",
                     messages: Chunk.of(new EffectiveMessage({
                         role: "user",

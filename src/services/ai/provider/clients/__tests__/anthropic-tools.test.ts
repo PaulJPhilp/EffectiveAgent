@@ -240,7 +240,7 @@ describe("Anthropic Client Tools - Schema and Message Handling", () => {
                     implementation: {
                         _tag: "EffectImplementation" as const,
                         inputSchema: TestToolInputSchema,
-                        execute: (input: { message: string; count: number }) =>
+                        execute: (_input: { message: string; count: number }) =>
                             Effect.fail(new Error("Claude tool execution failed"))
                     }
                 };

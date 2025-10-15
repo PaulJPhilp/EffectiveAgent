@@ -32,7 +32,7 @@ import type {
   ProviderGenerateTextOptions
 } from "../types.js";
 
-function isEffectImplementation(
+function _isEffectImplementation(
   tool: ToolDefinition
 ): tool is ToolDefinition & {
   implementation: {
@@ -492,11 +492,11 @@ function makeAnthropicClient(
               const toolMessages: VercelCoreMessage[] = [];
               for (const toolCall of assistantToolCalls) {
                 const toolName = toolCall.toolName;
-                const toolArgs = toolCall.args;
+                const _toolArgs = toolCall.args;
                 let toolExecutionOutputString = "";
 
                 // Get tool from registry
-                const toolResult = yield* toolRegistryService
+                const _toolResult = yield* toolRegistryService
                   .getTool(toolName as FullToolName)
                   .pipe(
                     Effect.catchAll((error) =>

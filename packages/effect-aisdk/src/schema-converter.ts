@@ -22,7 +22,7 @@ export function toZodSchema<A, I, R>(
       // For now, we use a simplified approach
       
       // Get the schema's AST to understand its structure
-      const ast = schema.ast;
+      const _ast = schema.ast;
       
       // For most cases, we can use Effect Schema's standardSchemaV1 
       // and then adapt it to Zod if needed

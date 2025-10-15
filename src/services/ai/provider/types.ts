@@ -346,7 +346,7 @@ export interface ProviderGenerateTextOptions extends BaseProviderOptions {
 /**
  * Options specific to object generation.
  */
-export interface ProviderGenerateObjectOptions<T> extends BaseProviderOptions {
+export interface ProviderGenerateObjectOptions<_T> extends BaseProviderOptions {
     /** The schema for the object to be generated */
     readonly schema: unknown; // Keeping as unknown for now, consistent with Vercel AI SDK
     /** Optional system prompt or instructions */
@@ -407,7 +407,7 @@ export interface ProviderGenerateImageOptions extends BaseProviderOptions {
 /**
  * Options specific to object generation.
  */
-export interface ProviderGenerateObjectOptions<T> extends BaseProviderOptions {
+export interface ProviderGenerateObjectOptions<_T> extends BaseProviderOptions {
     /** The schema for the object to be generated */
     readonly schema: unknown;
     /** Optional system prompt or instructions */

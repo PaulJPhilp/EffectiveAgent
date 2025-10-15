@@ -3,7 +3,7 @@
  * @module ea/pipelines/structured-output/cache/service
  */
 
-import { createHash } from "crypto";
+import { createHash } from "node:crypto";
 import { Effect, Layer, type Schema as S } from "effect";
 import { CacheService, type CacheServiceApi } from "./contract.js";
 

@@ -65,7 +65,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
 
     return {
       // Tool-related methods - Perplexity does not support tools
-      validateToolInput: (toolName: string, input: unknown) =>
+      validateToolInput: (_toolName: string, _input: unknown) =>
         Effect.fail(new ProviderMissingCapabilityError({
           providerName: "perplexity",
           capability: "tool-use",
@@ -73,7 +73,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
           method: "validateToolInput"
         })),
 
-      executeTool: (toolName: string, input: unknown) =>
+      executeTool: (_toolName: string, _input: unknown) =>
         Effect.fail(new ProviderMissingCapabilityError({
           providerName: "perplexity",
           capability: "tool-use",
@@ -81,7 +81,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
           method: "executeTool"
         })),
 
-      processToolResult: (toolName: string, result: unknown) =>
+      processToolResult: (_toolName: string, _result: unknown) =>
         Effect.fail(new ProviderMissingCapabilityError({
           providerName: "perplexity",
           capability: "tool-use",
@@ -131,7 +131,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
           });
 
           const responseMessages = result.response?.messages || [];
-          const eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
+          const _eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
           const textResult: GenerateTextResult = {
             id: `perplexity-${Date.now()}`,
@@ -188,7 +188,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
         })
       ),
 
-      generateObject: <T = unknown>(input: EffectiveInput, options: ProviderGenerateObjectOptions<T>) =>
+      generateObject: <T = unknown>(_input: EffectiveInput, _options: ProviderGenerateObjectOptions<T>) =>
         Effect.fail(new ProviderMissingCapabilityError({
           providerName: "perplexity",
           capability: "function-calling",
@@ -196,7 +196,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
           method: "generateObject"
         })),
 
-      generateImage: (input: EffectiveInput, options: ProviderGenerateImageOptions) =>
+      generateImage: (_input: EffectiveInput, _options: ProviderGenerateImageOptions) =>
         Effect.fail(new ProviderMissingCapabilityError({
           providerName: "perplexity",
           capability: "image-generation",
@@ -205,7 +205,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
         })),
 
       // Unsupported capabilities
-      generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
+      generateSpeech: (_input: string, _options: ProviderGenerateSpeechOptions) =>
         Effect.fail(new ProviderMissingCapabilityError({
           providerName: "perplexity",
           capability: "audio",
@@ -213,7 +213,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
           method: "generateSpeech"
         })),
 
-      transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
+      transcribe: (_input: ArrayBuffer, _options: ProviderTranscribeOptions) =>
         Effect.fail(new ProviderMissingCapabilityError({
           providerName: "perplexity",
           capability: "audio",
@@ -221,7 +221,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
           method: "transcribe"
         })),
 
-      generateEmbeddings: (input: string[], options: ProviderGenerateEmbeddingsOptions) =>
+      generateEmbeddings: (_input: string[], _options: ProviderGenerateEmbeddingsOptions) =>
         Effect.fail(new ProviderMissingCapabilityError({
           providerName: "perplexity",
           capability: "embeddings",
@@ -270,7 +270,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
         });
 
         const responseMessages = result.response?.messages || [];
-        const eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
+        const _eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
         const chatResult: GenerateTextResult = {
           id: `perplexity-${Date.now()}`,
@@ -345,7 +345,7 @@ function makePerplexityClient(apiKey: string): Effect.Effect<ProviderClientApi, 
       },
 
       // Vercel provider integration
-      setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
+      setVercelProvider: (_vercelProvider: EffectiveProviderApi) =>
         Effect.succeed(undefined)
     };
   });

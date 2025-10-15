@@ -127,7 +127,7 @@ export class ModelService extends Effect.Service<ModelServiceApi>()("ModelServic
                         description: "No models found in configuration"
                     }));
                 }
-                return config.models[0]!.id;
+                return config.models[0]?.id;
             });
 
         const getModelsForProvider = (providerName: string) =>

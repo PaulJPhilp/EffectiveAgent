@@ -1,4 +1,4 @@
-import { Effect, Layer } from "effect";
+import { Layer } from "effect";
 import { ModelService } from "@/services/ai/model/service";
 import { ProviderService } from "@/services/ai/provider/service";
 

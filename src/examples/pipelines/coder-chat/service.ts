@@ -48,7 +48,7 @@ export interface LanguageToolProviderApi {
 export class LanguageToolProvider extends Effect.Service<LanguageToolProviderApi>()("LanguageToolProvider", {
     effect: Effect.succeed({
         _tag: "LanguageToolProvider" as const,
-        analyzeCode: (code: string, language: string): Effect.Effect<LanguageAnalysis, never> => {
+        analyzeCode: (_code: string, language: string): Effect.Effect<LanguageAnalysis, never> => {
             // Mock implementation - replace with real code analysis
             return Effect.succeed({
                 language,
@@ -70,11 +70,11 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
     {
         effect: Effect.gen(function* () {
             // Yield dependencies
-            const languageTool = yield* LanguageToolProvider;
-            const documentation = yield* DocumentationService;
+            const _languageTool = yield* LanguageToolProvider;
+            const _documentation = yield* DocumentationService;
 
             // Helper to get language-specific examples
-            const getCodeExample = (language: string, prompt: string): { code: string; explanation: string } => {
+            const getCodeExample = (language: string, _prompt: string): { code: string; explanation: string } => {
                 // TODO: Replace with actual Phoenix MCP server call
                 // For now, we'll return predefined examples based on language
                 const examples: Record<string, { code: string; explanation: string }> = {
@@ -181,7 +181,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
             const reviewCode = (
                 code: string,
                 language: string,
-                options?: Partial<Omit<CoderChatPipelineInput, "message">>
+                _options?: Partial<Omit<CoderChatPipelineInput, "message">>
             ): Effect.Effect<CoderChatResponse, CoderChatPipelineError> =>
                 Effect.gen(function* () {
                     yield* Effect.logInfo(`Reviewing code in language: ${language}`);
@@ -225,7 +225,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                     }
 
                     // Format the message
-                    reviewMessage += feedbackPoints.join(". ") + ".";
+                    reviewMessage += `${feedbackPoints.join(". ")}.`;
 
                     // Add a suggestion for improvement with code example
                     const improvement = {

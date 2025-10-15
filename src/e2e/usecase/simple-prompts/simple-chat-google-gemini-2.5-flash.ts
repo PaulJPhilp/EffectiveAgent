@@ -35,10 +35,10 @@ const makeChatCommand = Effect.gen(function* () {
       Effect.gen(function* () {
         // Load available models
         const models = yield* model.load();
-        const defaultModel = models.models[0];
+        const _defaultModel = models.models[0];
 
         // Create message with user input
-        const message = new Message({
+        const _message = new Message({
           role: "user",
           parts: Chunk.fromIterable([
             new TextPart({ _tag: "Text", content: input }),
@@ -63,7 +63,7 @@ const makeChatCommand = Effect.gen(function* () {
 });
 
 // Create chat command
-const chatCommand = Command.make(
+const _chatCommand = Command.make(
   "chat",
   {
     message: Args.text({ name: "message" }).pipe(

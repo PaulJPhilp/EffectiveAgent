@@ -16,11 +16,11 @@ const createTestAgentRuntime = (): AgentRuntimeServiceApi => ({
     getState: () => Effect.succeed({} as any),
     subscribe: () => ({} as any),
     getModelService: () => Effect.succeed({
-        getProviderName: (modelName: string) => Effect.succeed("openai")
+        getProviderName: (_modelName: string) => Effect.succeed("openai")
     } as any),
     getProviderService: () => Effect.succeed({
-        getProviderClient: (providerName: string) => Effect.succeed({
-            generateText: (input: any, options: any) => Effect.succeed({
+        getProviderClient: (_providerName: string) => Effect.succeed({
+            generateText: (_input: any, _options: any) => Effect.succeed({
                 data: { text: "AI response" },
                 usage: { tokens: 10 }
             })
@@ -48,8 +48,8 @@ const createTestAgentRuntime = (): AgentRuntimeServiceApi => ({
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         }),
-        deleteFile: (id: string) => Effect.succeed(undefined),
-        findFilesByOwner: (ownerId: string) => Effect.succeed([])
+        deleteFile: (_id: string) => Effect.succeed(undefined),
+        findFilesByOwner: (_ownerId: string) => Effect.succeed([])
     } as any),
     createLangGraphAgent: () => Effect.succeed({
         agentRuntime: {
@@ -126,13 +126,13 @@ describe("Workflow Agent with Real Services Integration", () => {
             workflowState = await workflowAgent.executeNextTask(workflowState)
 
             // After first task, update second task input with file ID
-            if (workflowState.tasks["create_file"]?.status === "completed" &&
-                workflowState.tasks["verify_file"]?.input?.fileId === "will-be-set-from-previous-task") {
-                const createdFileId = workflowState.tasks["create_file"]?.output?.fileId as string
-                workflowState.tasks["verify_file"] = {
-                    ...workflowState.tasks["verify_file"]!,
+            if (workflowState.tasks.create_file?.status === "completed" &&
+                workflowState.tasks.verify_file?.input?.fileId === "will-be-set-from-previous-task") {
+                const createdFileId = workflowState.tasks.create_file?.output?.fileId as string
+                workflowState.tasks.verify_file = {
+                    ...workflowState.tasks.verify_file!,
                     input: {
-                        ...workflowState.tasks["verify_file"]!.input,
+                        ...workflowState.tasks.verify_file?.input,
                         fileId: createdFileId
                     }
                 }
@@ -142,14 +142,14 @@ describe("Workflow Agent with Real Services Integration", () => {
         }
 
         // Check first task completed
-        expect(workflowState.tasks["create_file"]?.status).toBe("completed")
-        expect(workflowState.tasks["create_file"]?.output).toBeDefined()
-        expect(workflowState.tasks["create_file"]?.output?.success).toBe(true)
-        expect(workflowState.tasks["create_file"]?.output?.fileId).toBeDefined()
+        expect(workflowState.tasks.create_file?.status).toBe("completed")
+        expect(workflowState.tasks.create_file?.output).toBeDefined()
+        expect(workflowState.tasks.create_file?.output?.success).toBe(true)
+        expect(workflowState.tasks.create_file?.output?.fileId).toBeDefined()
 
         // Check second task completed
-        expect(workflowState.tasks["verify_file"]?.status).toBe("completed")
-        expect(workflowState.tasks["verify_file"]?.output?.exists).toBe(true)
+        expect(workflowState.tasks.verify_file?.status).toBe("completed")
+        expect(workflowState.tasks.verify_file?.output?.exists).toBe(true)
 
         // Check workflow completion
         expect(workflowState.workflow.status).toBe("completed")
@@ -327,8 +327,8 @@ describe("Workflow Agent with Real Services Integration", () => {
 
         // Verify workflow failed after retries
         expect(workflowState.workflow.status).toBe("failed")
-        expect(workflowState.tasks["failing_task"]?.status).toBe("failed")
-        expect(workflowState.tasks["failing_task"]?.retryCount).toBe(2) // Should have retried max times
+        expect(workflowState.tasks.failing_task?.status).toBe("failed")
+        expect(workflowState.tasks.failing_task?.retryCount).toBe(2) // Should have retried max times
         // Each retry attempt gets counted, so 3 total failures (initial + 2 retries)
         expect(workflowState.metadata.failedTasks).toBeGreaterThanOrEqual(1)
 

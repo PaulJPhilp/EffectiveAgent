@@ -4,7 +4,6 @@
  */
 
 import { Effect, Option, Ref } from "effect";
-import type { Span } from "effect/Tracer";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import type { TranscribeResult } from "@/services/ai/provider/types.js";

@@ -3,10 +3,10 @@
  */
 
 
+import path from "node:path";
 import { FileSystem, Path } from "@effect/platform";
 import { NodeFileSystem } from "@effect/platform-node";
 import { Effect, Either } from "effect";
-import path from "path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   ProviderOperationError
@@ -142,7 +142,7 @@ describe("ProviderService", () => {
 
         // Cleanup
         yield* fs.remove(tempConfigPath).pipe(
-          Effect.catchAll((error) => Effect.logDebug("Ignored cleanup error: " + JSON.stringify(error)))
+          Effect.catchAll((error) => Effect.logDebug(`Ignored cleanup error: ${JSON.stringify(error)}`))
         );
       }).pipe(
         Effect.provide(ProviderService.Default),

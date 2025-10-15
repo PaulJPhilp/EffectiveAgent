@@ -78,7 +78,7 @@ const serveAgent = (
   host: string,
 ): Stream.Stream<ServerEventUnion, never, unknown> => {
   // Validate server configuration with Effect
-  const validateServerConfig = Effect.gen(function* () {
+  const _validateServerConfig = Effect.gen(function* () {
     const server = yield* ActorServer
 
     const addr = yield* Effect.try({
@@ -108,7 +108,7 @@ const serveAgent = (
   // Create startup event stream with proper error handling
   const startupEvents = Stream.fromEffect(
     Effect.gen(function* () {
-      const server = yield* ActorServer
+      const _server = yield* ActorServer
       const startEvent: ServerEventUnion = {
         type: "SERVER_START",
         timestamp: new Date(),
@@ -375,7 +375,7 @@ const validateAgentConfiguration = (agentDir: string, configDir: string) =>
 
 // Create application layer with explicit dependency chain:
 // NodeContext -> AgentRuntime -> ActorServer
-const AppLayer = Layer.merge(
+const _AppLayer = Layer.merge(
   NodeContext.layer,
   Layer.provide(ActorServer.Default, AgentRuntimeService.Default),
 )

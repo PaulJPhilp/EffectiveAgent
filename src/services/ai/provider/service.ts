@@ -26,7 +26,7 @@ const PROVIDER_RETRY_POLICY: RetryPolicy = {
   nonRetryableErrors: ["ProviderNotFoundError", "ProviderServiceConfigError"],
 };
 
-const PROVIDER_CIRCUIT_BREAKER: CircuitBreakerConfig = {
+const _PROVIDER_CIRCUIT_BREAKER: CircuitBreakerConfig = {
   name: "provider-service-api",
   failureThreshold: 5,
   resetTimeout: Duration.seconds(30),
@@ -83,7 +83,7 @@ const makeProviderService = Effect.gen(function* () {
     providerName: string
   ): Effect.Effect<A, E, R> => {
     return Effect.gen(function* () {
-      const metrics = yield* resilience.getCircuitBreakerMetrics(
+      const _metrics = yield* resilience.getCircuitBreakerMetrics(
         "provider-service-api"
       );
       const result = yield* operation;

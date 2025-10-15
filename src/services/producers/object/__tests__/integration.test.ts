@@ -5,15 +5,12 @@
 
 import { Effect, Either, Option, Schema } from "effect";
 import { describe, expect, it } from "vitest";
-// Import EffectiveResponse type
-import type { EffectiveResponse } from "@/types.js";
 import { 
   ObjectGenerationError, 
   ObjectInputError, 
   ObjectModelError
 } from "../errors.js";
 import { ObjectService } from "../service.js";
-import { ObjectGenerationOptions } from "../types.js";
 
 // Test schemas
 const PersonSchema = Schema.Struct({

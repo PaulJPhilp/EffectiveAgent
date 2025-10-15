@@ -105,7 +105,7 @@ function makeXaiClient(
 
     return {
       // Tool-related methods - xAI Grok does not support tools
-      validateToolInput: (toolName: string, input: unknown) =>
+      validateToolInput: (toolName: string, _input: unknown) =>
         Effect.fail(
           new ProviderToolError({
             description: `Tool validation not supported by xAI provider: ${toolName}`,
@@ -115,7 +115,7 @@ function makeXaiClient(
           })
         ),
 
-      executeTool: (toolName: string, input: unknown) =>
+      executeTool: (toolName: string, _input: unknown) =>
         Effect.fail(
           new ProviderToolError({
             description: `Tool execution not supported by xAI provider: ${toolName}`,
@@ -125,7 +125,7 @@ function makeXaiClient(
           })
         ),
 
-      processToolResult: (toolName: string, result: unknown) =>
+      processToolResult: (toolName: string, _result: unknown) =>
         Effect.fail(
           new ProviderToolError({
             description: `Tool result processing not supported by xAI provider: ${toolName}`,
@@ -198,7 +198,7 @@ function makeXaiClient(
               });
 
               const responseMessages = result.response?.messages || [];
-              const eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
+              const _eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
               const textResult: GenerateTextResult = {
                 id: `xai-${Date.now()}`,
@@ -260,8 +260,8 @@ function makeXaiClient(
         ),
 
       generateObject: <T = unknown>(
-        input: EffectiveInput,
-        options: ProviderGenerateObjectOptions<T>
+        _input: EffectiveInput,
+        _options: ProviderGenerateObjectOptions<T>
       ) =>
         Effect.fail(
           new ProviderToolError({
@@ -278,7 +278,7 @@ function makeXaiClient(
       ) =>
         Effect.gen(function* () {
           try {
-            const modelId = options.modelId || "grok-2-image";
+            const _modelId = options.modelId || "grok-2-image";
 
             // Extract prompt from input messages
             const messages = Chunk.toReadonlyArray(
@@ -326,7 +326,7 @@ function makeXaiClient(
         }),
 
       // Unsupported capabilities
-      generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
+      generateSpeech: (_input: string, _options: ProviderGenerateSpeechOptions) =>
         Effect.fail(
           new ProviderToolError({
             description: "Speech generation not supported by xAI provider",
@@ -336,7 +336,7 @@ function makeXaiClient(
           })
         ),
 
-      transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
+      transcribe: (_input: ArrayBuffer, _options: ProviderTranscribeOptions) =>
         Effect.fail(
           new ProviderToolError({
             description: "Transcription not supported by xAI provider",
@@ -347,8 +347,8 @@ function makeXaiClient(
         ),
 
       generateEmbeddings: (
-        input: string[],
-        options: ProviderGenerateEmbeddingsOptions
+        _input: string[],
+        _options: ProviderGenerateEmbeddingsOptions
       ) =>
         Effect.fail(
           new ProviderToolError({
@@ -410,7 +410,7 @@ function makeXaiClient(
             });
 
             const responseMessages = result.response?.messages || [];
-            const eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
+            const _eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
             const chatResult: GenerateTextResult = {
               id: `xai-${Date.now()}`,
@@ -496,7 +496,7 @@ function makeXaiClient(
       },
 
       // Vercel provider integration
-      setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
+      setVercelProvider: (_vercelProvider: EffectiveProviderApi) =>
         Effect.succeed(undefined),
     };
   });

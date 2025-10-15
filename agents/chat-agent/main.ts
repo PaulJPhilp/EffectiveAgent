@@ -176,7 +176,7 @@ export async function runMultiTurnConversation(agentRuntime: AgentRuntimeService
 
         // Final summary
         const summary = await chatAgent.getSummary(state)
-        console.log("\n" + "=".repeat(50))
+        console.log(`\n${"=".repeat(50)}`)
         console.log("Final Conversation Summary:")
         console.log(summary)
 

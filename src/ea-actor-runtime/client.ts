@@ -30,7 +30,7 @@ setTimeout(() => {
 
   ws.on("message", async (data: WebSocket.Data) => {
     try {
-      const parseEffect = wsParse(data.toString());
+      const _parseEffect = wsParse(data.toString());
       // Since wsParse returns an Effect, we need to run it
       const message = JSON.parse(data.toString()); // Fallback to direct parsing for now
       console.log("Received from server:", message);

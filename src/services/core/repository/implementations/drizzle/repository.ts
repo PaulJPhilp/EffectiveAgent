@@ -21,7 +21,7 @@ import type { BaseModel, BaseTable } from "./schema.js";
 
 // --- Resilience Configuration ---
 
-const DB_OPERATION_RETRY_POLICY: RetryPolicy = {
+const _DB_OPERATION_RETRY_POLICY: RetryPolicy = {
   maxAttempts: 3,
   baseDelay: Duration.millis(200),
   maxDelay: Duration.seconds(5),
@@ -31,7 +31,7 @@ const DB_OPERATION_RETRY_POLICY: RetryPolicy = {
   nonRetryableErrors: ["EntityNotFoundError"],
 };
 
-const DB_OPERATION_CIRCUIT_BREAKER: CircuitBreakerConfig = {
+const _DB_OPERATION_CIRCUIT_BREAKER: CircuitBreakerConfig = {
   name: "repository-service-database",
   failureThreshold: 5,
   resetTimeout: Duration.seconds(60),
@@ -83,7 +83,7 @@ export function make<
       const resilience = yield* Effect.serviceOption(ResilienceService);
 
       if (Option.isSome(resilience)) {
-        const metrics = yield* resilience.value.getCircuitBreakerMetrics(
+        const _metrics = yield* resilience.value.getCircuitBreakerMetrics(
           "repository-service-database"
         );
         const result = yield* operation;
@@ -169,7 +169,7 @@ export function make<
                 data: table.data,
               })
               .from(table)
-              .where(eq(table["id"], id))
+              .where(eq(table.id, id))
               .limit(1)
               .execute();
             return result as unknown as BaseModel<TData>[];
@@ -278,12 +278,12 @@ export function make<
             const result = await dbClient
               .update(table)
               .set({
-                data: sql`${table["data"]} || ${JSON.stringify(
+                data: sql`${table.data} || ${JSON.stringify(
                   entityData
                 )}::jsonb`,
                 updatedAt: sql`now()`,
               })
-              .where(eq(table["id"], id))
+              .where(eq(table.id, id))
               .returning({
                 id: table.id,
                 createdAt: table.createdAt,
@@ -319,7 +319,7 @@ export function make<
           try: async (): Promise<BaseModel<TData>[]> => {
             const result = await dbClient
               .delete(table)
-              .where(eq(table["id"], id))
+              .where(eq(table.id, id))
               .returning({
                 id: table.id,
                 createdAt: table.createdAt,
@@ -394,7 +394,7 @@ export function createDrizzleRepository<
   table: BaseTable<TData>
 ): Effect.Effect<RepositoryServiceApi<TEntity>, never, DrizzleClientApi> {
   return Effect.gen(function* () {
-    const client = yield* DrizzleClient;
+    const _client = yield* DrizzleClient;
     return make<TData, TEntity>(entityType, table);
   });
 }

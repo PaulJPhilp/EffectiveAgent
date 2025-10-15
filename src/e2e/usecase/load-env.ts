@@ -1,5 +1,5 @@
+import { join } from "node:path";
 import { config } from "dotenv";
-import { join } from "path";
 
 // Load environment variables from .env.test
 const result = config({ path: join(process.cwd(), ".env.test") });

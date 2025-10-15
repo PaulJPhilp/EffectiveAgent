@@ -121,7 +121,7 @@ function makeOpenAIClient(
       },
     };
 
-    const OPENAI_CHAT_CONFIG: OrchestratorParameters = {
+    const _OPENAI_CHAT_CONFIG: OrchestratorParameters = {
       operationName: "openai-chat",
       timeoutMs: 45000,
       maxRetries: 3,
@@ -255,7 +255,7 @@ function makeOpenAIClient(
                 const toolName = sdkToolCall.toolName;
                 const toolArgs = sdkToolCall.args;
 
-                let toolExecutionOutputString: string;
+                let _toolExecutionOutputString: string;
 
                 // Find the original ToolDefinition from the options to get its schema and EffectImplementation
                 const originalToolDef = options.tools?.find(
@@ -266,7 +266,7 @@ function makeOpenAIClient(
                   yield* Effect.logWarning(
                     `Tool '${toolName}' not found in provided options.tools.`
                   );
-                  toolExecutionOutputString = JSON.stringify({
+                  _toolExecutionOutputString = JSON.stringify({
                     error: `Tool '${toolName}' not found in options.`,
                   });
                 } else if (
@@ -275,7 +275,7 @@ function makeOpenAIClient(
                   yield* Effect.logWarning(
                     `Tool '${toolName}' is not an EffectImplementation.`
                   );
-                  toolExecutionOutputString = JSON.stringify({
+                  _toolExecutionOutputString = JSON.stringify({
                     error: `Tool '${toolName}' is not executable by this provider.`,
                   });
                 } else {
@@ -291,7 +291,7 @@ function makeOpenAIClient(
                       `Invalid arguments for tool ${toolName}`,
                       validationError
                     );
-                    toolExecutionOutputString = JSON.stringify({
+                    _toolExecutionOutputString = JSON.stringify({
                       error: `Invalid arguments for tool ${toolName}. Validation failed.`,
                     });
                   } else {
@@ -308,7 +308,7 @@ function makeOpenAIClient(
                         `Tool '${toolName}' was in options.tools but not resolvable by ToolRegistryService.`,
                         effectiveToolFromRegistryEither.left
                       );
-                      toolExecutionOutputString = JSON.stringify({
+                      _toolExecutionOutputString = JSON.stringify({
                         error: `Tool '${toolName}' could not be resolved by registry.`,
                       });
                     } else {
@@ -323,7 +323,7 @@ function makeOpenAIClient(
                         yield* Effect.logError(
                           `Tool '${toolName}' has unsupported implementation`
                         );
-                        toolExecutionOutputString = JSON.stringify({
+                        _toolExecutionOutputString = JSON.stringify({
                           error: `Tool '${toolName}' has unsupported implementation.`,
                         });
                         continue;
@@ -527,13 +527,13 @@ function makeOpenAIClient(
         Effect.gen(function* () {
           const modelId = options.modelId || "gpt-4o";
           const schema = options.schema; // This is an Effect.Schema
-          const zodSchema = yield* toZodSchema(
+          const _zodSchema = yield* toZodSchema(
             schema as S.Schema<any, any, never>
           );
           const vercelMessages = yield* toVercelMessages(
             input.messages || Chunk.empty()
           );
-          const promptText =
+          const _promptText =
             input.text || (vercelMessages.length === 0 ? "" : undefined);
 
           const modelInstance = openaiProvider(modelId);
@@ -799,7 +799,7 @@ function makeOpenAIClient(
 
       getModels: () =>
         Effect.gen(function* () {
-          const ms = yield* ModelService;
+          const _ms = yield* ModelService;
           // Simplified implementation - return empty array since method doesn't exist on interface
           return [];
         }),

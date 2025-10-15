@@ -1,6 +1,6 @@
 import { join } from "node:path"
 import { FileSystem } from "@effect/platform"
-import { NodeContext, NodeFileSystem } from "@effect/platform-node"
+import { NodeFileSystem } from "@effect/platform-node"
 import { Effect, Either, Layer } from "effect"
 import { afterEach, beforeEach, describe, expect, test } from "vitest"
 import { AgentRuntimeService } from "@/ea-agent-runtime/service.js"

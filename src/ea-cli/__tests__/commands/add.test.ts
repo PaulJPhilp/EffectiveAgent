@@ -1,15 +1,7 @@
-import { NodeContext, NodeFileSystem } from "@effect/platform-node"
-import { Effect, Option } from "effect"
+import { Effect } from "effect"
 import { beforeEach, describe, expect, it } from "vitest"
-import { ModelService } from "../../../services/ai/model/service.js"
-import { ConfigurationService } from "../../../services/core/configuration/index.js"
 import { addCommand } from "../../src/commands/add.js"
-import {
-  ConfigurationError,
-  PermissionError,
-  ResourceExistsError,
-  ValidationError,
-} from "../../src/errors.js"
+import { ResourceExistsError, ValidationError } from "../../src/errors.js"
 import { setupTestWorkspace } from "../setup.js"
 import { expectCommandFailure, runCommand } from "../test-utils.js"
 

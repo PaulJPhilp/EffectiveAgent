@@ -1,9 +1,5 @@
 import { Command } from "@effect/cli"
-import { Path } from "@effect/platform"
-import { NodeContext, NodeFileSystem } from "@effect/platform-node"
 import { Effect } from "effect"
-import { ModelService } from "../../services/ai/model/service.js"
-import { ConfigurationService } from "../../services/core/configuration/index.js"
 
 /**
  * Creates a test CLI environment with all required services

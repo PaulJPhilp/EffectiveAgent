@@ -3,7 +3,7 @@
  * @module agent-runtime/bootstrap
  */
 
-import { readFileSync } from "fs";
+import { readFileSync } from "node:fs";
 import { AgentRuntimeInitializationError } from "./errors.js";
 import type { MasterConfig } from "./schema.js";
 

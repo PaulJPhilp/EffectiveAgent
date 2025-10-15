@@ -5,7 +5,6 @@
  */
 
 import { Duration, Effect, Option } from "effect";
-import { EffectiveError } from "@/errors.js";
 import {
   type CircuitBreakerConfig,
   ResilienceService,
@@ -21,7 +20,7 @@ import type { FileEntity, FileEntityData } from "./schema.js";
 import type { FileInfo, FileInput } from "./types.js";
 
 // Resilience configurations for database operations
-const DB_OPERATION_RETRY_POLICY: RetryPolicy = {
+const _DB_OPERATION_RETRY_POLICY: RetryPolicy = {
   maxAttempts: 3,
   baseDelay: Duration.millis(200),
   maxDelay: Duration.seconds(5),
@@ -31,7 +30,7 @@ const DB_OPERATION_RETRY_POLICY: RetryPolicy = {
   nonRetryableErrors: ["FileNotFoundError"], // Don't retry not found errors
 };
 
-const DB_OPERATION_CIRCUIT_BREAKER: CircuitBreakerConfig = {
+const _DB_OPERATION_CIRCUIT_BREAKER: CircuitBreakerConfig = {
   name: "file-service-database",
   failureThreshold: 5,
   resetTimeout: Duration.seconds(60),
@@ -60,7 +59,7 @@ export class FileService extends Effect.Service<FileServiceApi>()(
         // Apply circuit breaker protection to the operation
         // We need to work around type constraints by using a wrapper approach
         return Effect.gen(function* () {
-          const metrics = yield* resilience.getCircuitBreakerMetrics(
+          const _metrics = yield* resilience.getCircuitBreakerMetrics(
             "file-service-database"
           );
 

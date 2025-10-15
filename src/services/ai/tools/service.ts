@@ -12,8 +12,6 @@ import {
     ToolNotFoundError,
     type ToolOutputValidationError
 } from "./errors.js";
-import type { EffectiveTool, IEffectImplementation } from "./schema.js";
-import type { FullToolName } from "./types.js";
 
 /**
  * Implementation of the Tool Service.
@@ -43,7 +41,7 @@ export class ToolService extends Effect.Service<ToolServiceApi>()("ToolService",
                 // Look up the tool in the registry
                 const tool = yield* Effect.mapError(
                     registry.getTool(toolName),
-                    (error) => new ToolNotFoundError({
+                    (_error) => new ToolNotFoundError({
                         toolName,
                         module: "ToolService",
                         method: "run"

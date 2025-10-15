@@ -1,4 +1,4 @@
-import { resolve } from 'path'
+import { resolve } from 'node:path'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import { defineConfig } from 'vitest/config'
 

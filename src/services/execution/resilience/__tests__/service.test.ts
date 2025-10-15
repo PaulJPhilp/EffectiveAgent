@@ -394,10 +394,10 @@ describe("ResilienceService", () => {
 
                 const metrics = yield* service.getCircuitBreakerMetrics("metrics-test");
                 expect(metrics).toBeDefined();
-                expect(metrics!.totalRequests).toBe(2);
-                expect(metrics!.totalFailures).toBe(1);
-                expect(metrics!.successCount).toBe(1);
-                expect(metrics!.failureCount).toBe(1);
+                expect(metrics?.totalRequests).toBe(2);
+                expect(metrics?.totalFailures).toBe(1);
+                expect(metrics?.successCount).toBe(1);
+                expect(metrics?.failureCount).toBe(1);
             }).pipe(
                 Effect.provide(resilienceServiceTestLayer)
             ));
@@ -420,8 +420,8 @@ describe("ResilienceService", () => {
 
                 const metrics = yield* service.getResilienceMetrics("retry-operation");
                 expect(metrics).toBeDefined();
-                expect(metrics!.successes).toBeGreaterThan(0);
-                expect(metrics!.attempts).toBeGreaterThan(0);
+                expect(metrics?.successes).toBeGreaterThan(0);
+                expect(metrics?.attempts).toBeGreaterThan(0);
             }).pipe(
                 Effect.provide(resilienceServiceTestLayer)
             ));

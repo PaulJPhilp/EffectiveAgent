@@ -14,13 +14,11 @@ const SYSTEM_PROMPT = "You are a helpful AI assistant.";
 export class GeminiProPipeline implements GeminiProPipelineApi {
   readonly _tag = "GeminiProPipeline" as const;
 
-  constructor() {} // pipelineService removed
-
   static make = Effect.succeed(new GeminiProPipeline()); // Simplified make
   
   execute = <A, E, R>(
     effect: Effect.Effect<A, E, R>,
-    config?: PipelineConfig // config is now unused here, but kept for API compatibility if necessary
+    _config?: PipelineConfig // config is now unused here, but kept for API compatibility if necessary
   ): Effect.Effect<A, PipelineError, R> => {
     // Directly execute the effect. Retry/timeout logic previously in PipelineService is removed.
     // The config parameter is no longer used by this direct execution.

@@ -496,7 +496,7 @@ describe("Error Recovery Integration Tests", () => {
                     { concurrency: "unbounded" }
                 );
 
-                const results = yield* Effect.either(concurrentOperations);
+                const _results = yield* Effect.either(concurrentOperations);
 
                 // Verify shared resource consistency
                 expect(sharedResourceCount).toBeLessThanOrEqual(10);

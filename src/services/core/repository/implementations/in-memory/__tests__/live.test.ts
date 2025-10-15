@@ -95,11 +95,11 @@ describe("InMemoryRepositoryLiveLayer (No Clock)", () => {
 
   it("should find an entity by ID", async () => {
     const data: TestEntityData = { name: "FindById Test", value: 2 };
-    let createdId: EntityId;
+    let _createdId: EntityId;
     const effect = Effect.gen(function* () {
       const repo = yield* TestRepositoryService;
       const created = yield* repo.create(data);
-      createdId = created.id;
+      _createdId = created.id;
       const foundSome = yield* repo.findById(created.id);
       const foundNone = yield* repo.findById("non-existent-id");
       expect(Option.isSome(foundSome)).toBe(true);

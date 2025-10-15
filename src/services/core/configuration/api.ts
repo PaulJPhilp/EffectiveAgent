@@ -3,7 +3,6 @@
  * @module services/core/configuration/api
  */
 
-import type { FileSystem } from "@effect/platform";
 import type { Effect, Schema } from "effect";
 import type { ModelConfigData } from "@/services/ai/model/types.js";
 import type { PolicyConfigFile } from "@/services/ai/policy/schema.js";

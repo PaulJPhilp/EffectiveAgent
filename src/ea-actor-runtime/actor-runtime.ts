@@ -29,7 +29,7 @@ type WorkflowRegistry = Map<
 >;
 
 const startProcessing = <S>(
-  id: AgentRuntimeId,
+  _id: AgentRuntimeId,
   stateRef: Ref.Ref<AgentRuntimeState<S>>,
   mailbox: PrioritizedMailbox,
   workflow: AgentWorkflow<S, AgentRuntimeProcessingError>,
@@ -215,7 +215,7 @@ export const createActorRuntimeManager = (
         return yield* entry.mailbox.offer(activity);
       });
 
-    const getState = <S>(id: AgentRuntimeId) =>
+    const getState = <_S>(id: AgentRuntimeId) =>
       Effect.gen(function* () {
         const map = yield* Ref.get(runtimes);
         const entry = map.get(id);

@@ -27,7 +27,7 @@ export interface TaskAnalysisToolApi {
 export class TaskAnalysisTool extends Effect.Service<TaskAnalysisToolApi>()("TaskAnalysisTool", {
     effect: Effect.succeed({
         _tag: "TaskAnalysisTool" as const,
-        analyzeTask: (task: string): Effect.Effect<TaskAnalysisResult, never> => {
+        analyzeTask: (_task: string): Effect.Effect<TaskAnalysisResult, never> => {
             // Mock implementation - replace with real task analysis
             return Effect.succeed({
                 complexity: "medium",

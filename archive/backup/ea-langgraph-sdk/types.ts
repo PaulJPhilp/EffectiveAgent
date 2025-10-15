@@ -143,7 +143,7 @@ export interface CreateLangGraphAgentParams<TState extends LangGraphAgentState> 
  * Result of creating a LangGraph agent through the EA SDK.
  * Contains both the runtime handle and the generated ID.
  */
-export interface LangGraphAgentCreationResult<TState extends LangGraphAgentState> {
+export interface LangGraphAgentCreationResult<_TState extends LangGraphAgentState> {
     /**
      * Handle to the created AgentRuntime instance.
      * Use this to interact with the running agent.

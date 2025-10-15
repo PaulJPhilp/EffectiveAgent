@@ -10,7 +10,7 @@ import { getAgentRuntime } from "@/ea-agent-runtime/production-runtime.js";
 async function startActorServer() {
   try {
     // Initialize the AgentRuntime first
-    const agentRuntime = await getAgentRuntime();
+    const _agentRuntime = await getAgentRuntime();
     console.log("✅ AgentRuntime initialized successfully");
 
     // Start WebSocket server

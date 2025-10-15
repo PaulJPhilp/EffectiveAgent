@@ -30,11 +30,11 @@ describe("TagService", () => {
           } as TagEntity);
         },
 
-        getTagById: (id: string) => Effect.succeed(Option.none()),
+        getTagById: (_id: string) => Effect.succeed(Option.none()),
 
-        getTagByName: (name: string) => Effect.succeed(Option.none()),
+        getTagByName: (_name: string) => Effect.succeed(Option.none()),
 
-        findTags: (prefix?: string) => Effect.succeed([]),
+        findTags: (_prefix?: string) => Effect.succeed([]),
 
         tagEntity: (tagId: string, entityId: string, entityType: string) =>
           Effect.succeed({
@@ -44,13 +44,13 @@ describe("TagService", () => {
             data: { tagId, entityId, entityType }
           } as EntityTagLinkEntity),
 
-        untagEntity: (tagId: string, entityId: string, entityType: string) =>
+        untagEntity: (_tagId: string, _entityId: string, _entityType: string) =>
           Effect.succeed(undefined),
 
-        getTagsForEntity: (entityId: string, entityType: string) =>
+        getTagsForEntity: (_entityId: string, _entityType: string) =>
           Effect.succeed([]),
 
-        getEntitiesForTag: (tagId: string) =>
+        getEntitiesForTag: (_tagId: string) =>
           Effect.succeed([{ entityId: "entity-123", entityType: "Document" }])
       } satisfies TagServiceApi;
     })
@@ -126,7 +126,7 @@ describe("TagService", () => {
       // Get entities for tag
       const taggedEntities = yield* service.getEntitiesForTag(tag.id);
       expect(taggedEntities.length).toBe(1);
-      expect(taggedEntities[0]["entityId"]).toBe(testEntityId);
+      expect(taggedEntities[0].entityId).toBe(testEntityId);
 
       // Untag entity
       yield* service.untagEntity(tag.id, testEntityId, testEntityType);

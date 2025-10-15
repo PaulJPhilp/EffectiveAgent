@@ -59,7 +59,7 @@ export interface AgentRuntimeServiceApi {
      * @param initialState - The initial state for the AgentRuntime
      * @returns Effect<AgentRuntime<S>> containing the new AgentRuntime instance handle
      */
-    readonly create: <S, E = never, R = never>(
+    readonly create: <S, _E = never, _R = never>(
         id: AgentRuntimeId,
         initialState: S
     ) => Effect.Effect<AgentRuntime<S>, AgentRuntimeError | Error>

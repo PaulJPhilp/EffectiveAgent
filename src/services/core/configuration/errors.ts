@@ -55,9 +55,6 @@ export class ConfigurationError extends Data.TaggedError("ConfigurationError")<{
     readonly filePath?: string;
     readonly cause?: unknown;
 }> {
-    constructor(options: { message: string; key?: string; filePath?: string; cause?: unknown }) {
-        super(options);
-    }
 }
 
 export class ConfigSchemaMissingError extends Data.TaggedError("ConfigSchemaMissingError")<{

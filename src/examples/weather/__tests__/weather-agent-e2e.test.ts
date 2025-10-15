@@ -11,7 +11,7 @@ config(); // Load environment variables from .env file
 // import { WeatherAgent } from "@/examples/weather/agent.js";
 
 // Test data
-const testLocation = "San Francisco";
+const _testLocation = "San Francisco";
 
 // describe("WeatherAgent E2E Tests with Automatic AgentRuntime", () => {
 /*

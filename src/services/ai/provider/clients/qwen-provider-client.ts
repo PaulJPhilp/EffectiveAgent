@@ -66,7 +66,7 @@ function makeQwenClient(
   ModelServiceApi | ToolRegistryService
 > {
   // Create a simple provider that matches the Qwen API interface
-  const qwenProvider = (modelId: string) => ({
+  const _qwenProvider = (modelId: string) => ({
     modelId,
     apiKey,
     baseURL: "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
@@ -74,7 +74,7 @@ function makeQwenClient(
 
   return Effect.succeed({
     // Tool-related methods - Qwen supports tools
-    validateToolInput: (toolName: string, input: unknown) =>
+    validateToolInput: (_toolName: string, _input: unknown) =>
       Effect.tryPromise({
         try: () => Promise.resolve(true), // Basic validation
         catch: (error) =>
@@ -88,7 +88,7 @@ function makeQwenClient(
           }),
       }),
 
-    executeTool: (toolName: string, input: unknown) =>
+    executeTool: (_toolName: string, _input: unknown) =>
       Effect.tryPromise({
         try: () =>
           Promise.resolve({ result: "Tool execution not implemented" }),
@@ -103,7 +103,7 @@ function makeQwenClient(
           }),
       }),
 
-    processToolResult: (toolName: string, result: unknown) =>
+    processToolResult: (_toolName: string, result: unknown) =>
       Effect.succeed(result),
 
     // Provider and capability methods
@@ -136,7 +136,7 @@ function makeQwenClient(
     ) =>
       Effect.gen(function* () {
         try {
-          const vercelMessages = yield* toVercelMessages(
+          const _vercelMessages = yield* toVercelMessages(
             input.messages || Chunk.empty()
           );
           const modelId = options.modelId || "qwen-plus";
@@ -168,7 +168,7 @@ function makeQwenClient(
           });
 
           const responseMessages = result.response?.messages || [];
-          const eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
+          const _eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
           const textResult: GenerateTextResult = {
             id: `qwen-${Date.now()}`,
@@ -238,7 +238,7 @@ function makeQwenClient(
     ) =>
       Effect.gen(function* () {
         try {
-          const vercelMessages = yield* toVercelMessages(
+          const _vercelMessages = yield* toVercelMessages(
             input.messages || Chunk.empty()
           );
           const modelId = options.modelId || "qwen-plus";
@@ -323,8 +323,8 @@ function makeQwenClient(
 
     // Unsupported capabilities
     generateImage: (
-      input: EffectiveInput,
-      options: ProviderGenerateImageOptions
+      _input: EffectiveInput,
+      _options: ProviderGenerateImageOptions
     ) =>
       Effect.fail(
         new ProviderMissingCapabilityError({
@@ -335,7 +335,7 @@ function makeQwenClient(
         })
       ),
 
-    generateSpeech: (input: string, options: ProviderGenerateSpeechOptions) =>
+    generateSpeech: (_input: string, _options: ProviderGenerateSpeechOptions) =>
       Effect.fail(
         new ProviderMissingCapabilityError({
           providerName: "qwen",
@@ -345,7 +345,7 @@ function makeQwenClient(
         })
       ),
 
-    transcribe: (input: ArrayBuffer, options: ProviderTranscribeOptions) =>
+    transcribe: (_input: ArrayBuffer, _options: ProviderTranscribeOptions) =>
       Effect.fail(
         new ProviderMissingCapabilityError({
           providerName: "qwen",
@@ -444,7 +444,7 @@ function makeQwenClient(
         }
 
         // Delegate to generateText for simple chat without tools
-        const vercelMessages = yield* toVercelMessages(
+        const _vercelMessages = yield* toVercelMessages(
           effectiveInput.messages || Chunk.empty()
         );
         const modelId = options.modelId || "qwen-plus";
@@ -475,7 +475,7 @@ function makeQwenClient(
         });
 
         const responseMessages = result.response?.messages || [];
-        const eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
+        const _eaMessages = yield* Effect.forEach(responseMessages, (msg) => toEffectiveMessage(msg, modelId), { concurrency: 1 });
 
         const chatResult: GenerateTextResult = {
           id: `qwen-${Date.now()}`,
@@ -565,7 +565,7 @@ function makeQwenClient(
     },
 
     // Vercel provider integration
-    setVercelProvider: (vercelProvider: EffectiveProviderApi) =>
+    setVercelProvider: (_vercelProvider: EffectiveProviderApi) =>
       Effect.succeed(undefined),
   });
 }

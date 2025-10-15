@@ -3,7 +3,7 @@
  * Defines the contract for image generation using AI models/providers.
  */
 
-import type { Effect, Ref } from "effect";
+import type { Effect, } from "effect";
 import type { EffectiveResponse } from "@/types.js";
 import type { ImageAgentState } from "./service.js";
 import type { ImageGenerationOptions, ImageGenerationResult } from "./types.js";

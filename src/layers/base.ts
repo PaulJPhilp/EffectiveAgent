@@ -1,5 +1,5 @@
 import { NodeFileSystem, NodePath } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
+import { Layer } from "effect";
 import { ConfigurationService } from "@/services/core/configuration/service";
 
 /**

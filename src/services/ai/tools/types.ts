@@ -64,7 +64,7 @@ export class ToolExecutorService extends Effect.Service<{
         effect: Effect.succeed({
             run: <Output = unknown>(
                 toolName: FullToolName,
-                rawInput: unknown
+                _rawInput: unknown
             ): Effect.Effect<
                 Output,
                 | ToolNotFoundError
@@ -184,7 +184,7 @@ export class ToolRegistry extends Effect.Service<ToolRegistryApi>()(
             getMetadata: (toolName: FullToolName) =>
                 Effect.fail(new ToolNotFoundError({ toolName, module: "ToolRegistry", method: "getMetadata" })),
             listTools: () => Effect.succeed([]),
-            registerTool: (toolName: FullToolName, implementation: ToolImplementation, metadata: Metadata) =>
+            registerTool: (_toolName: FullToolName, _implementation: ToolImplementation, _metadata: Metadata) =>
                 Effect.succeed(void 0)
         })
     }

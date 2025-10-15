@@ -17,7 +17,7 @@ import { generateAiResponse, logActivity, validateUserPolicies } from "../utils/
 /**
  * State transformers for common operations
  */
-const addMessage = createStateTransformer<ChatAgentState, {
+const _addMessage = createStateTransformer<ChatAgentState, {
     role: "user" | "assistant" | "system"
     content: string
     metadata?: Record<string, unknown>
@@ -56,7 +56,7 @@ const updateStep = createStateTransformer<ChatAgentState, ChatAgentState["curren
     (step, state) => ({ ...state, currentStep: step })
 )
 
-const setError = createStateTransformer<ChatAgentState, string>(
+const _setError = createStateTransformer<ChatAgentState, string>(
     (error, state) => ({ ...state, error, currentStep: "error" })
 )
 

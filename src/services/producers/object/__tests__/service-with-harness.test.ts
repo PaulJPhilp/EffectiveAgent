@@ -5,13 +5,6 @@ import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import type { EffectiveResponse } from "@/types.js";
-import {
-  ObjectGenerationError,
-  ObjectInputError,
-  ObjectModelError,
-  ObjectProviderError,
-  ObjectSchemaError,
-} from "../errors.js";
 import { ObjectService } from "../service.js";
 import type { ObjectGenerationOptions } from "../types.js";
 
@@ -46,7 +39,7 @@ type PersonGenerationResult = {
 
 type PersonResponse = EffectiveResponse<PersonGenerationResult>;
 
-type GenerateResult<T> = Effect.Effect<PersonResponse, Error, never>;
+type GenerateResult<_T> = Effect.Effect<PersonResponse, Error, never>;
 
 describe("ObjectService Integration Tests", () => {
   // Test setup

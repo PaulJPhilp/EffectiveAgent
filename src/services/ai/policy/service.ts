@@ -164,7 +164,7 @@ export class PolicyService extends Effect.Service<PolicyServiceApi>()("PolicySer
         return addRule({ id, data: { ...rule, id }, createdAt: new Date(), updatedAt: new Date() });
       },
       getRule: (ruleId) => Effect.map(getRules(), (rules) => Option.fromNullable(rules.find((r) => r.id === ruleId))),
-      updateRule: (ruleId, updates) => Effect.fail(new PolicyError({ description: "Not implemented", method: "updateRule" })),
+      updateRule: (_ruleId, _updates) => Effect.fail(new PolicyError({ description: "Not implemented", method: "updateRule" })),
       deleteRule: (ruleId) => Effect.gen(function* () {
         const rule = yield* Effect.map(Ref.get(ruleRepo), r => HashMap.get(r, ruleId));
         yield* removeRule(ruleId);
