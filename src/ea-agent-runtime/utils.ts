@@ -61,11 +61,11 @@ export const updateStateWithMetrics = <S>(
     ...currentState,
     lastUpdated: Date.now(),
     processing: {
-        processed: currentState.processing?.processed + (isSuccess ? 1 : 0),
-        failures: currentState.processing?.failures + (isSuccess ? 0 : 1),
+        processed: (currentState.processing?.processed ?? 0) + (isSuccess ? 1 : 0),
+        failures: (currentState.processing?.failures ?? 0) + (isSuccess ? 0 : 1),
         avgProcessingTime: (
-            (currentState.processing?.avgProcessingTime * currentState.processing?.processed + processingTime) /
-            (currentState.processing?.processed + 1)
+            ((currentState.processing?.avgProcessingTime ?? 0) * (currentState.processing?.processed ?? 0) + processingTime) /
+            ((currentState.processing?.processed ?? 0) + 1)
         )
     }
 })

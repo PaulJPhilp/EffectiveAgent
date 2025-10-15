@@ -7,6 +7,12 @@ import { Effect } from "effect";
 
 // Mock OpenAI implementation since the module is not available
 class MockOpenAI {
+  // Accept an optional options object so calls like `new OpenAI({ apiKey })` compile
+  // biome-ignore lint/complexity/noUselessConstructor: <explanation>
+    constructor(_options?: { apiKey?: string } | Record<string, unknown>) {
+    // no-op: this mock doesn't use the api key, but accepts it to match the
+    // real OpenAI constructor signature used in the codebase
+  }
 
   chat = {
     completions: {
@@ -124,6 +130,6 @@ export class VercelLlmService extends Effect.Service<LlmServiceApi>()(
     }),
     dependencies: [],
   }
-) {}
+) { }
 
 export default VercelLlmService;

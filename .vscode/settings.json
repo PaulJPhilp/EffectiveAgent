@@ -1,5 +1,6 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
+    "markdownlint.enable": false,
     "markdownlint.config": {
         "MD032": false,
         "MD031": false,

@@ -113,4 +113,4 @@ declare namespace EffectivePart {
 
 // [DEPRECATED] All exports have been moved to input.service.ts
 // This file will be deleted after migration.
-const _EffectivePart: _EffectivePart.Schema = S.Union(BaseTextPart, BaseImageUrlPart, BaseToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);
+const _EffectivePart = S.Union(BaseTextPart, BaseImageUrlPart, BaseToolCallPart, FilePart, ToolPart, ToolResultPart, ReasoningPart, RedactedReasoningPart);
