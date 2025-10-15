@@ -3,10 +3,10 @@
  * @module @effective-agent/ai-sdk/message-transformer
  */
 
-import { Chunk, Effect } from "effect";
 import type { CoreMessage } from "ai";
+import { Chunk, Effect } from "effect";
 import { AiSdkMessageTransformError } from "./errors.js";
-import { Message, TextPart, ToolCallPart, ToolPart, ImageUrlPart, type Part } from "./message.js";
+import { ImageUrlPart, Message, type Part, TextPart, ToolCallPart, ToolPart } from "./message.js";
 
 /**
  * Convert a single EffectiveMessage to Vercel CoreMessage

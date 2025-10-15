@@ -5,7 +5,7 @@
 
 import { readFileSync } from "fs";
 import { AgentRuntimeInitializationError } from "./errors.js";
-import { MasterConfig } from "./schema.js";
+import type { MasterConfig } from "./schema.js";
 
 /**
  * Bootstrap function: Pure TypeScript function that loads master config

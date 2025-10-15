@@ -1,4 +1,4 @@
-import { NodeData } from './types'
+import type { NodeData } from './types'
 
 interface MetadataPanelProps {
     node: NodeData | null

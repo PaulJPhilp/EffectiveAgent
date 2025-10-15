@@ -3,6 +3,7 @@
  * @file Defines the core nodes for chat conversation processing
  */
 
+import { AIMessage, type BaseMessage, HumanMessage } from "@langchain/core/messages"
 import {
     createActivity,
     createStateTransformer,
@@ -10,7 +11,6 @@ import {
     setStateProperty,
     validateStateStructure
 } from "@/ea-langgraph-sdk/helpers.js"
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages"
 import type { ChatAgentState } from "../agent.js"
 import { generateAiResponse, logActivity, validateUserPolicies } from "../utils/index.js"
 

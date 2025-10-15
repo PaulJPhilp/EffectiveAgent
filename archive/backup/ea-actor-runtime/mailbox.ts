@@ -3,7 +3,7 @@
  */
 
 import { Effect, Queue, Stream } from "effect"
-import { AgentActivity, MessagePriority } from "./types.js"
+import type { AgentActivity, MessagePriority } from "./types.js"
 
 class MailboxError extends Error {
     readonly agentRuntimeId: string | undefined

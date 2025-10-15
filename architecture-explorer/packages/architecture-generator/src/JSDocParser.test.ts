@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { Project, ClassDeclaration } from "ts-morph";
-import { parseComponentJSDoc, JSDocParseResult } from "./JSDocParser.js";
+import { type ClassDeclaration, Project } from "ts-morph";
+import { describe, expect, it } from "vitest";
+import { type JSDocParseResult, parseComponentJSDoc } from "./JSDocParser.js";
 
 describe("JSDocParser", () => {
   // Helper function to create a class with JSDoc from source code

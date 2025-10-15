@@ -17,15 +17,15 @@ import "./load-env.js";
 // Run with:
 // bun run src/e2e/usecase/simple-prompt-openai.ts
 
+import { NodeContext } from "@effect/platform-node";
+import { Chunk, Effect, Layer } from "effect";
+import { join } from "path";
 import { ModelService } from "@/services/ai/model/index.js";
 import { ProviderService } from "@/services/ai/provider/index.js";
 import type { ProviderClientApi } from "@/services/ai/provider/types.js";
 import { ToolRegistryService } from "@/services/ai/tool-registry/index.js";
 import { ConfigurationService } from "@/services/core/configuration/index.js";
 import { EffectiveInput } from "@/types.js";
-import { NodeContext } from "@effect/platform-node";
-import { Chunk, Effect, Layer } from "effect";
-import { join } from "path";
 
 const prompt = "What is the capital of France?";
 

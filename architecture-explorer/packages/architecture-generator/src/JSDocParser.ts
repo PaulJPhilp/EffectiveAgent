@@ -1,5 +1,5 @@
-import { ClassDeclaration, JSDoc } from "ts-morph";
-import { NodeData, C4Level, LayerName } from "./types.js";
+import { type ClassDeclaration, JSDoc } from "ts-morph";
+import type { C4Level, LayerName, NodeData } from "./types.js";
 
 export interface ParseResult {
   success: true;

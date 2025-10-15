@@ -1,5 +1,5 @@
 import { Effect } from "effect"
-import { AgentRecord, AgentRuntimeId, AgentRuntimeState } from "./types.js"
+import type { AgentRecord, AgentRuntimeId, AgentRuntimeState } from "./types.js"
 
 /**
  * Creates a new AgentRuntime ID with optional namespace

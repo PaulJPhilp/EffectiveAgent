@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { readFileSync, existsSync, rmSync, mkdirSync } from "fs";
-import { serializeToJson, JsonSerializeResult } from "./JsonSerializer.js";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "fs";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { type JsonSerializeResult, serializeToJson } from "./JsonSerializer.js";
 import {
-  ArchitectureData,
-  NodeData,
-  EdgeData,
+  type ArchitectureData,
   DiagramDefinition,
+  type EdgeData,
+  type NodeData,
 } from "./types.js";
 
 describe("JsonSerializer", () => {

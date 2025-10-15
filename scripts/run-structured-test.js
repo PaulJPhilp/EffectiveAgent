@@ -3,7 +3,7 @@
 // Simple script to run the structured output test directly
 // This bypasses the CLI argument parsing issues
 
-import { readFileSync, mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 // Set environment variables

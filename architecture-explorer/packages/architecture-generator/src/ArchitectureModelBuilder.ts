@@ -1,8 +1,8 @@
-import {
+import type {
   ArchitectureData,
-  NodeData,
-  EdgeData,
   DiagramDefinition,
+  EdgeData,
+  NodeData,
 } from "./types.js";
 
 export interface ArchitectureModelResult {
@@ -353,7 +353,7 @@ function generateMermaidDefinition(
         mermaidString += `  subgraph ${sanitizedLayerName.replace(/__+$/, "_")}["${escapedLayerName}"]\n`;
         layerNodes.forEach((node) => {
           // Remove special characters from node names for Mermaid
-          const sanitizedNodeName = node.name.replace(/["\[\]]/g, "");
+          const sanitizedNodeName = node.name.replace(/["[\]]/g, "");
           mermaidString += `    ${node.id}["${sanitizedNodeName}"]\n`;
         });
         mermaidString += `  end\n`;

@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { CalculatorService } from "../service.js";
 import { CalculatorError } from "../api.js";
+import { CalculatorService } from "../service.js";
 
 describe("CalculatorService", () => {
   it("should add two numbers", () =>

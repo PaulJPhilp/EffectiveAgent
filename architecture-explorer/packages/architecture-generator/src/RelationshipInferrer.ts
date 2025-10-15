@@ -1,5 +1,5 @@
-import { Project, ClassDeclaration, ImportDeclaration } from "ts-morph";
-import { EdgeData } from "./types.js";
+import { ClassDeclaration, ImportDeclaration, type Project } from "ts-morph";
+import type { EdgeData } from "./types.js";
 
 export interface RelationshipInferenceResult {
   success: true;

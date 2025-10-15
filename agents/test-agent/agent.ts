@@ -1,4 +1,4 @@
-import { AgentRuntimeServiceApi } from "../../src/ea-agent-runtime/api.js";
+import type { AgentRuntimeServiceApi } from "../../src/ea-agent-runtime/api.js";
 
 // Simple test agent for CLI testing
 export const testAgent = {

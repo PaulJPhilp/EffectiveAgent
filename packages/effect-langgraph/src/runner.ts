@@ -4,10 +4,10 @@
  */
 
 import { generateTextWithModel, getLanguageModel } from "@effective-agent/ai-sdk";
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages";
+import { AIMessage, type BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { Annotation } from "@langchain/langgraph";
 import { Effect, Stream } from "effect";
-import type { AgentRunInput, AgentRunOutput, AgentRunner } from "../../../src/agent-runner.js";
+import type { AgentRunInput, AgentRunner, AgentRunOutput } from "../../../src/agent-runner.js";
 import { AgentRunnerError } from "../../../src/agent-runner.js";
 import { fetchContentImpl } from "../../../src/services/ai/tools/implementations/fetch-content.js";
 

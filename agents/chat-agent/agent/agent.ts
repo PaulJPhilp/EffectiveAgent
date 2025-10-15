@@ -3,10 +3,10 @@
  * @file Main agent class with StateGraph definition and compilation using current patterns
  */
 
+import { AIMessage, type BaseMessage, HumanMessage } from "@langchain/core/messages"
+import { Annotation, END, START, StateGraph } from "@langchain/langgraph"
 import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 import { createStateTransformer } from "@/ea-langgraph-sdk/helpers.js"
-import { AIMessage, BaseMessage, HumanMessage } from "@langchain/core/messages"
-import { Annotation, END, START, StateGraph } from "@langchain/langgraph"
 import type { ChatAgentContext, ConversationMetadata } from "./agent-state.js"
 import type { ChatAgentConfig } from "./types.js"
 import { DEFAULT_CHAT_CONFIG } from "./types.js"

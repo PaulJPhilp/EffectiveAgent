@@ -1,12 +1,12 @@
 import { Effect, Fiber, Ref, Stream } from "effect"
-import { AgentRuntimeError, AgentRuntimeProcessingError } from "./errors.js"
+import { AgentRuntimeError, type AgentRuntimeProcessingError } from "./errors.js"
 import { PrioritizedMailbox } from "./prioritized-mailbox.js"
 import {
-    AgentActivity,
-    AgentRuntimeId,
-    AgentRuntimeState,
+    type AgentActivity,
+    type AgentRuntimeId,
+    type AgentRuntimeState,
     AgentRuntimeStatus,
-    AgentWorkflow
+    type AgentWorkflow
 } from "./types.js"
 
 /**

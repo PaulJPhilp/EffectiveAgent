@@ -29,13 +29,10 @@
  * ```
  */
 
-// Core library
-export { EASdk } from "./service.js"
 
-// Types and interfaces
-export type {
-    AgentStateValidationResult, CreateLangGraphAgentParams, LangGraphActivityPayload, LangGraphAgentConfig, LangGraphAgentCreationResult, LangGraphAgentState
-} from "./types.js"
+// Re-export for convenience - commonly used types from parent modules
+export type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
+export type { AgentActivity, AgentRuntimeId } from "@/ea-agent-runtime/types.js"
 
 // Error types
 export {
@@ -46,8 +43,10 @@ export {
 export {
     createActivity, createNodeErrorHandler, createStateTransformer, getStateProperty, mergeState, runEffect, setStateProperty, validateStateStructure, wrapLangGraphNode
 } from "./helpers.js"
-
-// Re-export for convenience - commonly used types from parent modules
-export type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
-export type { AgentActivity, AgentRuntimeId } from "@/ea-agent-runtime/types.js"
+// Core library
+export { EASdk } from "./service.js"
+// Types and interfaces
+export type {
+    AgentStateValidationResult, CreateLangGraphAgentParams, LangGraphActivityPayload, LangGraphAgentConfig, LangGraphAgentCreationResult, LangGraphAgentState
+} from "./types.js"
 

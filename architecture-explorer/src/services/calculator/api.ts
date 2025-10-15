@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import type { Effect } from "effect";
 
 export interface CalculatorServiceApi {
   readonly add: (a: number, b: number) => Effect.Effect<number, never, never>;

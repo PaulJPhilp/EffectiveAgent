@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react'
 import mermaid from 'mermaid'
+import { useEffect, useRef } from 'react'
 
 // DEBUG: DiagramCanvas loaded
 console.log('[DiagramCanvas] Module loaded')
@@ -66,7 +66,7 @@ function DiagramCanvas({ mermaidDefinition, onNodeClick }: DiagramCanvasProps) {
             return
         }
         const container = containerRef.current
-        let observer: MutationObserver | undefined = undefined
+        let observer: MutationObserver | undefined 
 
         function attachListeners() {
             const svg = container.querySelector('svg')

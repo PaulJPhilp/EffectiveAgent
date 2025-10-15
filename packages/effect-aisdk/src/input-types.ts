@@ -3,8 +3,7 @@
  * @module @effective-agent/ai-sdk/input-types
  */
 
-import type { Chunk } from "effect";
-import type { Schema } from "effect";
+import type { Chunk, Schema } from "effect";
 import type { EffectiveMessage } from "./message.js";
 import type { BaseAiOptions, BaseAiParameters } from "./types.js";
 

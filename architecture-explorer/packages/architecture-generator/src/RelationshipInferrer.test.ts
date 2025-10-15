@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
 import { Project } from "ts-morph";
+import { describe, expect, it } from "vitest";
 import {
   inferImportRelationships,
-  RelationshipResult,
+  type RelationshipResult,
 } from "./RelationshipInferrer.js";
 
 describe("RelationshipInferrer", () => {

@@ -1,14 +1,10 @@
-import { ArchitectureData, NodeData } from "./types";
-
 /**
  * Generates a filtered Mermaid diagram definition string based on active tag filters.
  * @param architectureData - The complete architecture data
  * @param activeFilters - Set of active tag filters
  * @returns A Mermaid diagram definition string containing only filtered nodes and edges
  */
-import type { LayerColors } from "./types";
-
-import type { C4Level } from "./types";
+import type { ArchitectureData, C4Level, LayerColors, NodeData } from "./types";
 
 // C4 levels from most abstract (SystemContext) to most detailed (Code)
 const c4LevelOrder: Record<C4Level, number> = {

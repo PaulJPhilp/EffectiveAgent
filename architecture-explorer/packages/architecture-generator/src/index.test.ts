@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
 import { Project } from "ts-morph";
-import { existsSync, rmSync, mkdirSync, writeFileSync, readFileSync } from "fs";
-import { serializeToJson } from "./JsonSerializer.js";
-import { parseComponentJSDoc } from "./JSDocParser.js";
-import { inferImportRelationships } from "./RelationshipInferrer.js";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { buildArchitectureModel } from "./ArchitectureModelBuilder.js";
-import { ArchitectureData, NodeData, EdgeData } from "./types.js";
+import { parseComponentJSDoc } from "./JSDocParser.js";
+import { serializeToJson } from "./JsonSerializer.js";
+import { inferImportRelationships } from "./RelationshipInferrer.js";
+import type { ArchitectureData, EdgeData, NodeData } from "./types.js";
 
 describe("Architecture Generator Integration", () => {
   const testDataDir = "test-integration-data";

@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import { CalculatorServiceApi, CalculatorError } from "./api.js";
+import { CalculatorError, type CalculatorServiceApi } from "./api.js";
 
 export class CalculatorService extends Effect.Service<CalculatorServiceApi>()(
   "CalculatorService",

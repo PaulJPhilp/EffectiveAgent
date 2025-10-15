@@ -1,18 +1,18 @@
-import { Project } from "ts-morph";
-import { readFileSync } from "fs";
 import Ajv from "ajv";
 import addFormats from "ajv-formats";
-import { parseComponentJSDoc, JSDocParseResult } from "./JSDocParser.js";
-import {
-  inferImportRelationships,
-  RelationshipResult,
-} from "./RelationshipInferrer.js";
+import { readFileSync } from "fs";
+import { Project } from "ts-morph";
 import {
   buildArchitectureModel,
-  ModelBuildResult,
+  type ModelBuildResult,
 } from "./ArchitectureModelBuilder.js";
-import { serializeToJson, JsonSerializeResult } from "./JsonSerializer.js";
-import { NodeData, EdgeData } from "./types.js";
+import { type JSDocParseResult, parseComponentJSDoc } from "./JSDocParser.js";
+import { type JsonSerializeResult, serializeToJson } from "./JsonSerializer.js";
+import {
+  inferImportRelationships,
+  type RelationshipResult,
+} from "./RelationshipInferrer.js";
+import type { EdgeData, NodeData } from "./types.js";
 
 interface GenerationStats {
   filesProcessed: number;

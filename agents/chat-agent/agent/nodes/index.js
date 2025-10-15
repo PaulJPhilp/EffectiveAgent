@@ -4,13 +4,13 @@ try {
 } catch (err) {
   // If direct requiring .ts fails in some environments, export simple stubs
   module.exports = {
-    validateConversation: async function (state) {
+    validateConversation: async (state) => {
       return {};
     },
-    processUserMessage: async function (state) {
+    processUserMessage: async (state) => {
       return {};
     },
-    generateResponse: async function (state) {
+    generateResponse: async (state) => {
       return {};
     },
   };

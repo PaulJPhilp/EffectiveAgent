@@ -1,5 +1,5 @@
-import { DatabaseService } from './database';
-import { SampleComponent } from './sample';
+import type { DatabaseService } from './database';
+import type { SampleComponent } from './sample';
 
 /**
  * @architectureComponent

@@ -7,28 +7,26 @@
  * integration patterns.
  */
 
+
+// Re-export all helper utilities for convenient access
+export {
+    createActivity, createNodeErrorHandler, createStateTransformer, getStateProperty, mergeState, runEffect, setStateProperty, validateStateStructure, wrapLangGraphNode
+} from "../helpers.js"
+// Re-export core types for example usage
+export type {
+    LangGraphActivityPayload, LangGraphAgentConfig, LangGraphAgentState
+} from "../types.js"
 // Chat Agent Example
 export {
     ChatAgent,
     createChatAgent,
     exampleChatAgentUsage
 } from "./chat-agent.js"
-
 // Workflow Agent Example  
 export {
     createWorkflowAgent,
     exampleWorkflowDefinition, WorkflowAgent
 } from "./workflow-agent.js"
-
-// Re-export all helper utilities for convenient access
-export {
-    createActivity, createNodeErrorHandler, createStateTransformer, getStateProperty, mergeState, runEffect, setStateProperty, validateStateStructure, wrapLangGraphNode
-} from "../helpers.js"
-
-// Re-export core types for example usage
-export type {
-    LangGraphActivityPayload, LangGraphAgentConfig, LangGraphAgentState
-} from "../types.js"
 
 /**
  * Quick Start Guide

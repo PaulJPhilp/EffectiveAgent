@@ -1,6 +1,6 @@
-import { writeFileSync, existsSync, mkdirSync } from "fs";
+import { existsSync, mkdirSync, writeFileSync } from "fs";
 import { dirname } from "path";
-import { ArchitectureData } from "./types.js";
+import type { ArchitectureData } from "./types.js";
 
 export interface SerializationResult {
   success: true;

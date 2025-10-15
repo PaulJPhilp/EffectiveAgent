@@ -1,48 +1,41 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
-	"formatter": {
-		"enabled": false
-	},
-	"javascript": {
-		"globals": [
-			"Buffer",
-			"crypto",
-			"Bun",
-			"fetch",
-			"Headers",
-			"Request",
-			"Response"
-		],
-		"parser": {
-			"unsafeParameterDecoratorsEnabled": true
-		}
-	},
-	"linter": {
-		"enabled": true,
-		"rules": {
-			"recommended": true,
-			"suspicious": {
-				"noConsole": "off",
-				"noImplicitAnyLet": "error",
-				"noExplicitAny": "off"
-			},
-			"style": {},
-			"complexity": {}
-		}
-	},
-	"files": {
-		"include": [
-			"**/*.ts",
-			"**/*.tsx",
-			"**/*.js",
-			"**/*.jsx",
-			"**/*.json",
-			"!**/*.md"
-		]
-	},
-	"vcs": {
-		"enabled": true,
-		"clientKind": "git",
-		"useIgnoreFile": true
-	}
+  "$schema": "https://biomejs.dev/schemas/2.2.6/schema.json",
+  "formatter": {
+    "enabled": false
+  },
+  "javascript": {
+    "globals": [
+      "Buffer",
+      "crypto",
+      "Bun",
+      "fetch",
+      "Headers",
+      "Request",
+      "Response"
+    ],
+    "parser": {
+      "unsafeParameterDecoratorsEnabled": true
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "suspicious": {
+        "noConsole": "off",
+        "noImplicitAnyLet": "error",
+        "noExplicitAny": "off"
+      },
+      "style": {},
+      "complexity": {}
+    }
+  },
+  "files": {
+    "ignoreUnknown": true
+  },
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  }
 }

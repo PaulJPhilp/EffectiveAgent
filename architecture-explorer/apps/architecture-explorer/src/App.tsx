@@ -1,11 +1,9 @@
-import { useState, useEffect } from 'react'
 import Ajv from 'ajv'
-import { ArchitectureData } from './types'
+import { useEffect, useState } from 'react'
 import DiagramCanvas from './DiagramCanvas'
-import MetadataPanel from './MetadataPanel'
 import { generateFilteredDiagram } from './diagramUtils'
-
-import type { C4Level } from './types';
+import MetadataPanel from './MetadataPanel'
+import type { ArchitectureData, C4Level } from './types'
 
 function App() {
     const [architectureData, setArchitectureData] = useState<ArchitectureData | null>(null)

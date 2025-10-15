@@ -1,4 +1,4 @@
-import { ApiService } from './api';
+import type { ApiService } from './api';
 
 /**
  * @architectureComponent

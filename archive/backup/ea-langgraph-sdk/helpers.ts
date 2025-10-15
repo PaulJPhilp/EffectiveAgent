@@ -1,5 +1,5 @@
-import type { AgentRuntimeServiceApi } from "@/agent-runtime/api.js"
 import { Effect } from "effect"
+import type { AgentRuntimeServiceApi } from "@/agent-runtime/api.js"
 import { EASdkOperationError } from "./errors.js"
 import type { LangGraphActivityPayload, LangGraphAgentState } from "./types.js"
 
@@ -200,7 +200,7 @@ export function setStateProperty<TState extends LangGraphAgentState>(
 
         const cloned: any = {}
         for (const key in obj) {
-            if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (Object.hasOwn(obj, key)) {
                 cloned[key] = cloneValue(obj[key])
             }
         }

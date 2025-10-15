@@ -1,5 +1,5 @@
-import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 import { Annotation } from "@langchain/langgraph"
+import type { AgentRuntimeServiceApi } from "@/ea-agent-runtime/api.js"
 
 /**
  * Base annotation for LangGraph agents integrated with Effective Agent.

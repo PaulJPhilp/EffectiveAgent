@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   buildArchitectureModel,
-  ModelBuildResult,
+  type ModelBuildResult,
 } from "./ArchitectureModelBuilder.js";
-import { NodeData, EdgeData } from "./types.js";
+import type { EdgeData, NodeData } from "./types.js";
 
 describe("ArchitectureModelBuilder", () => {
   describe("Valid Model Building", () => {

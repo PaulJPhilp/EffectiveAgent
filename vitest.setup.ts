@@ -1,8 +1,8 @@
+import * as NodePath from "node:path"
 import { PlatformLogger } from "@effect/platform"
 import { NodeFileSystem } from "@effect/platform-node"
 import { config as loadEnv } from "dotenv"
 import { Effect, Logger } from "effect"
-import * as NodePath from "node:path"
 
 // Ensure .env is loaded for tests so provider integration tests can find
 // API key environment variables when running locally. These are fallbacks
