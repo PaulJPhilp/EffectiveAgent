@@ -19,7 +19,7 @@ import { AudioFormats, TranscriptionService } from "../service.js";
 import type { TranscriptionOptions, } from "../types.js";
 
 // Helper function to generate mock audio data
-const generateMockAudioData = (format: string = 'wav'): string => {
+const generateMockAudioData = (format = 'wav'): string => {
   // Generate some random binary data
   const buffer = randomBytes(1024);
   return `data:audio/${format};base64,${buffer.toString('base64')}`;

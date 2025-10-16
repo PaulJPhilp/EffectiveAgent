@@ -2,3 +2,6 @@
 dist/
 *.js
 src/services/pipeline/producers/chat/__tests__/*.js
+
+# Ignore architecture-explorer app
+architecture-explorer/**
