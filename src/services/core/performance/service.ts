@@ -266,9 +266,8 @@ export class PerformanceMonitoringService extends Effect.Service<PerformanceMoni
 
                     if (result._tag === "Right") {
                         return result.right;
-                    } else {
-                        return yield* Effect.fail(result.left);
                     }
+                        return yield* Effect.fail(result.left);
                 }),
 
             getSystemMetrics: () =>

@@ -76,8 +76,6 @@ export const weatherImpl = (input: unknown): Effect.Effect<WeatherOutput, Error>
         // This tool requires a weather service provider (e.g., OpenWeatherMap, WeatherAPI, etc.)
         // to be integrated with the agent runtime configuration
         return yield* Effect.fail(new Error(
-            `Weather API integration not available. ` +
-            `Requested ${data.operation} weather for ${data.location} in ${data.units} units. ` +
-            `Please configure a weather service provider in the agent runtime.`
+            `Weather API integration not available. Requested ${data.operation} weather for ${data.location} in ${data.units} units. Please configure a weather service provider in the agent runtime.`
         ));
     }); 

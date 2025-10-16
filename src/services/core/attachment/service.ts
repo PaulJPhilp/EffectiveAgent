@@ -341,7 +341,7 @@ export class AttachmentService extends Effect.Service<AttachmentServiceApi>()(
                 const cause = enrichedError.originalError || enrichedError;
                 const finalMessage =
                   enrichedError.message ||
-                  `Transaction failed during link creation.`;
+                  "Transaction failed during link creation.";
 
                 if (
                   cause instanceof AttachmentValidationError ||

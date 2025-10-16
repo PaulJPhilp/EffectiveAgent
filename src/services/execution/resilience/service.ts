@@ -319,10 +319,9 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
             if (result._tag === "Right") {
               yield* updateCircuitBreakerState(stateRef, config, true);
               return result.right;
-            } else {
+            }
               yield* updateCircuitBreakerState(stateRef, config, false);
               return yield* Effect.fail(result.left);
-            }
           }),
 
         withRetry: <A, E extends EffectiveError, R>(
@@ -357,7 +356,7 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
                   lastRecoveryTime: endTime,
                 }));
                 return result.right;
-              } else {
+              }
                 lastError = result.left;
                 yield* Ref.update(metricsRef, (m) => ({
                   ...m,
@@ -366,7 +365,7 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
 
                 if (shouldRetryError(result.left, policy)) {
                   return yield* Effect.fail(result.left);
-                } else {
+                }
                   return yield* Effect.fail(
                     new RetryExhaustedError({
                       operationName: "retry-operation",
@@ -374,8 +373,6 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
                       lastError: result.left,
                     }) as unknown as E
                   );
-                }
-              }
             });
 
             const finalResult = yield* Effect.either(
@@ -457,13 +454,12 @@ export class ResilienceService extends Effect.Service<ResilienceServiceApi>()(
                     lastRecoveryTime: endTime,
                   }));
                   return strategyResult.right;
-                } else {
+                }
                   lastError = strategyResult.left as E;
                   yield* Ref.update(metricsRef, (m) => ({
                     ...m,
                     failures: m.failures + 1,
                   }));
-                }
               }
             }
 

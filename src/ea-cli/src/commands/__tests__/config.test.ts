@@ -119,7 +119,7 @@ describe("config command functionality", () => {
     )
     // Restore CWD and clear environment variable
     process.chdir(originalCwd)
-    delete process.env.PROJECT_ROOT
+    process.env.PROJECT_ROOT = undefined
   })
 
   describe("config validation", () => {

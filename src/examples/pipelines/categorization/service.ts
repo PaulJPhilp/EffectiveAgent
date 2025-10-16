@@ -199,7 +199,7 @@ export class CategorizationPipelineService extends Effect.Service<Categorization
                     const discoveredCategories: Category[] = clusterResult.clusters.map((cluster, i) => ({
                         id: generateId("discovered-cat", i),
                         name: cluster.label,
-                        description: `This category was automatically discovered from content patterns.`,
+                        description: "This category was automatically discovered from content patterns.",
                         metadata: {
                             keyTerms: ["term1", "term2", "term3"],
                             avgSimilarity: 0.75 + Math.random() * 0.2

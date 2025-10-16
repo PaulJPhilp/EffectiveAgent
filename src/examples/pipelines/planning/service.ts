@@ -145,7 +145,7 @@ export class PlanningPipelineService extends Effect.Service<PlanningPipelineApi>
             updatedInput: Partial<PlanningPipelineInput>
         ): Effect.Effect<PlanningPipelineOutput, PlanningPipelineError> =>
             Effect.gen(function* () {
-                yield* Effect.logInfo(`Refining existing plan with updated constraints`);
+                yield* Effect.logInfo("Refining existing plan with updated constraints");
 
                 // TODO: Replace with actual Phoenix MCP server call
                 // For now, we\'ll add a refinement note and an extra step

@@ -158,7 +158,7 @@ export const pdfImpl = (input: unknown): Effect.Effect<PdfOutput, Error> =>
 
             default: {
                 // This should never happen due to the schema validation
-                return yield* Effect.fail(new Error(`Unsupported operation`));
+                return yield* Effect.fail(new Error("Unsupported operation"));
             }
         }
     }); 

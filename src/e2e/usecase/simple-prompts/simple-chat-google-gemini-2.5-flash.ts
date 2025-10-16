@@ -107,13 +107,13 @@ const testEffect = Effect.gen(function* () {
           "Test failed: Response did not correctly identify Paris as the capital of France"
         )
       );
-    } else if (prompt.includes("population") && !text.includes("million")) {
+    }if (prompt.includes("population") && !text.includes("million")) {
       return yield* Effect.fail(
         new Error(
           "Test failed: Response did not mention population in millions"
         )
       );
-    } else if (prompt.includes("museum") && !text.includes("louvre")) {
+    }if (prompt.includes("museum") && !text.includes("louvre")) {
       return yield* Effect.fail(
         new Error("Test failed: Response did not mention the Louvre museum")
       );

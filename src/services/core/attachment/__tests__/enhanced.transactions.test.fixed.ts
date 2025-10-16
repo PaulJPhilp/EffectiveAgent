@@ -484,21 +484,21 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                     // First, create multiple links
                     const links = [
                         {
-                            entityA_id: `source-1`,
+                            entityA_id: "source-1",
                             entityA_type: "Source",
-                            entityB_id: `target-1`,
+                            entityB_id: "target-1",
                             entityB_type: "Target"
                         },
                         {
-                            entityA_id: `source-1`, // Same source
+                            entityA_id: "source-1", // Same source
                             entityA_type: "Source",
-                            entityB_id: `target-2`,
+                            entityB_id: "target-2",
                             entityB_type: "Target"
                         },
                         {
-                            entityA_id: `source-1`, // Same source
+                            entityA_id: "source-1", // Same source
                             entityA_type: "Source",
-                            entityB_id: `target-3`,
+                            entityB_id: "target-3",
                             entityB_type: "Target"
                         }
                     ];
@@ -565,23 +565,23 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                     // First, create multiple links
                     const links = [
                         {
-                            entityA_id: `batch-source`,
+                            entityA_id: "batch-source",
                             entityA_type: "Source",
-                            entityB_id: `target-1`,
+                            entityB_id: "target-1",
                             entityB_type: "Target",
                             metadata: { key: "batch-info", value: { index: 1, batchTest: true } }
                         },
                         {
-                            entityA_id: `batch-source`,
+                            entityA_id: "batch-source",
                             entityA_type: "Source",
-                            entityB_id: `target-2`,
+                            entityB_id: "target-2",
                             entityB_type: "Target",
                             metadata: { key: "batch-info", value: { index: 2, batchTest: true } }
                         },
                         {
-                            entityA_id: `batch-source`,
+                            entityA_id: "batch-source",
                             entityA_type: "Source",
-                            entityB_id: `target-3`,
+                            entityB_id: "target-3",
                             entityB_type: "Target",
                             metadata: { key: "batch-info", value: { index: 3, batchTest: true } }
                         }
@@ -644,21 +644,21 @@ describe("Enhanced AttachmentService Transaction Support", () => {
                     // First, create multiple links to the same target
                     const links = [
                         {
-                            entityA_id: `source-1`,
+                            entityA_id: "source-1",
                             entityA_type: "Source",
-                            entityB_id: `common-target`,
+                            entityB_id: "common-target",
                             entityB_type: "Target"
                         },
                         {
-                            entityA_id: `source-2`,
+                            entityA_id: "source-2",
                             entityA_type: "Source",
-                            entityB_id: `common-target`, // Same target
+                            entityB_id: "common-target", // Same target
                             entityB_type: "Target"
                         },
                         {
-                            entityA_id: `source-3`,
+                            entityA_id: "source-3",
                             entityA_type: "Source",
-                            entityB_id: `common-target`, // Same target
+                            entityB_id: "common-target", // Same target
                             entityB_type: "Target"
                         }
                     ];
@@ -710,7 +710,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
                     // Create a large batch of links to increase chance of triggering network issue
                     const links = Array.from({ length: 20 }, (_, i) => ({
-                        entityA_id: `network-source`,
+                        entityA_id: "network-source",
                         entityA_type: "Source",
                         entityB_id: `network-target-${i}`,
                         entityB_type: "Target",

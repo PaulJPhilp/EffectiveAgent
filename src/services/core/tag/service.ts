@@ -221,7 +221,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
               Effect.option,
               Effect.mapError(error => new TagDbError({
                 operation: "tagEntity",
-                message: `Failed to check existing link`,
+                message: "Failed to check existing link",
                 cause: error
               }))
             );
@@ -241,7 +241,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             yield* linkRepo.create({ tagId, entityId, entityType }).pipe(
               Effect.mapError(error => new TagDbError({
                 operation: "tagEntity",
-                message: `Failed to create link`,
+                message: "Failed to create link",
                 cause: error
               }))
             );
@@ -290,7 +290,7 @@ export class TagService extends Effect.Service<TagServiceApi>()(
             return yield* linkRepo.delete(link.id).pipe(
               Effect.mapError((error) => new TagDbError({
                 operation: "untagEntity",
-                message: `Failed to delete link`,
+                message: "Failed to delete link",
                 cause: error
               }))
             );

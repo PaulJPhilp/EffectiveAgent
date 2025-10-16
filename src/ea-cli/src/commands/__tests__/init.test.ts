@@ -33,7 +33,7 @@ describe("init command", () => {
         yield* Effect.ignore(fs.remove(TEST_DIR, { recursive: true }))
       }).pipe(Effect.provide(NodeFileSystem.layer)),
     )
-    delete process.env.PROJECT_ROOT // Clean up env var
+    process.env.PROJECT_ROOT // Clean up env var = undefined // Clean up env var
   })
 
   it("should create a complete and valid workspace", async () => {

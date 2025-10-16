@@ -454,9 +454,8 @@ export class WorkflowAgent {
           // Max retries exceeded, handle failure
           if (this.config.enableRollback) {
             return await this.handleTaskFailure(nextTask.id, currentState);
-          } else {
-            return this.updateWorkflowStatus("failed", currentState);
           }
+            return this.updateWorkflowStatus("failed", currentState);
         }
 
         return currentState;

@@ -147,7 +147,7 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
               });
 
               return yield* Effect.fail(result.left);
-            } else {
+            }
               // Update state with successful load
               yield* updateState({
                 action: "LOAD",
@@ -157,7 +157,6 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
               });
 
               return result.right;
-            }
           });
         },
 
@@ -193,7 +192,7 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
               });
 
               return yield* Effect.fail(result.left);
-            } else {
+            }
               // Update state with successful save
               yield* updateState({
                 action: "SAVE",
@@ -201,7 +200,6 @@ export class ChatHistoryService extends Effect.Service<ChatHistoryServiceApi>()(
                 success: true,
                 messageCount: history.messages.length
               });
-            }
           });
         },
 

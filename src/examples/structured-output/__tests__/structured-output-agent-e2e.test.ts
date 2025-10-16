@@ -205,7 +205,7 @@ describe("StructuredOutputAgent E2E Tests", () => {
 
             // Send a single activity to verify basic processing
             const activity: AgentActivity = {
-                id: `lifecycle-activity`,
+                id: "lifecycle-activity",
                 agentRuntimeId: agentId,
                 timestamp: Date.now(),
                 type: AgentActivityType.EVENT,
