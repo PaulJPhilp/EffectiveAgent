@@ -821,7 +821,7 @@ describe("Enhanced AttachmentService Transaction Support", () => {
 
           // Create a large batch of links
           const largeInput = Array.from({ length: 50 }, (_, i) => ({
-            entityA_id: `batch-source`,
+            entityA_id: "batch-source",
             entityA_type: "LargeBatchTest",
             entityB_id: `batch-target-${i}`,
             entityB_type: "Target",

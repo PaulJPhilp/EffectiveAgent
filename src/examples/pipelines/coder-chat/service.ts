@@ -79,7 +79,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                 // For now, we'll return predefined examples based on language
                 const examples: Record<string, { code: string; explanation: string }> = {
                     typescript: {
-                        code: `interface User {\n  id: string;\n  name: string;\n  email: string;\n}\n\nfunction getUserInfo(userId: string): Promise<User> {\n  return fetch(\`/api/users/\${userId}\`)\n    .then(response => {\n      if (!response.ok) {\n        throw new Error(\`Failed to fetch user: \${response.statusText}\`);\n      }\n      return response.json();\n    });\n}`,
+                        code: "interface User {\n  id: string;\n  name: string;\n  email: string;\n}\n\nfunction getUserInfo(userId: string): Promise<User> {\n  return fetch(\`/api/users/\${userId}\`)\n    .then(response => {\n      if (!response.ok) {\n        throw new Error(\`Failed to fetch user: \${response.statusText}\`);\n      }\n      return response.json();\n    });\n}",
                         explanation: "This TypeScript example shows how to define an interface and use it in a typed function that fetches user data asynchronously."
                     },
                     javascript: {
@@ -230,8 +230,7 @@ export class CoderChatPipelineService extends Effect.Service<CoderChatPipelineAp
                     // Add a suggestion for improvement with code example
                     const improvement = {
                         language,
-                        code: "// Improved version of your code would include:\n" +
-                            (hasErrorHandling ? "" : "try {\n  // Your code here\n} catch (error) {\n  // Handle errors\n}\n"),
+                        code: `// Improved version of your code would include:\n${hasErrorHandling ? "" : "try {\n  // Your code here\n} catch (error) {\n  // Handle errors\n}\n"}`,
                         explanation: "This example shows how you might improve your code based on my review."
                     };
 

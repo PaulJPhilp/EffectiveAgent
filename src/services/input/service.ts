@@ -219,7 +219,7 @@ const convertToMessagePart = (part: Part): TextPart | ToolCallPart | ImageUrlPar
   }
 
   // Fallback for any other part type
-  return new TextPart({ _tag: "Text", content: `Unknown part type` });
+  return new TextPart({ _tag: "Text", content: "Unknown part type" });
 };
 
 const addPartAsMessage = (part: Part, role: EffectiveRole = ROLE_USER): Message => {

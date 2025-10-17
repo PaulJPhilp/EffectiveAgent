@@ -1,0 +1,13 @@
+{
+  "name": "effect-ai-sdk-node-examples",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "stream-text": "tsx stream-text.ts"
+  },
+  "dependencies": {
+    "@effective-agent/ai-sdk": "workspace:*",
+    "tsx": "^4.0.0"
+  }
+}

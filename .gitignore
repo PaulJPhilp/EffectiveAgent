@@ -52,3 +52,6 @@ oldcode/
 
 # Keep
 !.gitkeep
+
+# Ignore architecture-explorer app (large generated code / tooling)
+architecture-explorer/

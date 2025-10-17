@@ -355,7 +355,7 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
 
                     if (result._tag === "Right") {
                         return result.right;
-                    } else {
+                    }
                         return {
                             checkName,
                             status: "UNHEALTHY" as HealthStatus,
@@ -364,7 +364,6 @@ export class ServiceHealthMonitoringService extends Effect.Service<ServiceHealth
                             timestamp: endTime,
                             error: result.left
                         };
-                    }
                 }),
 
             getServiceHealth: (serviceName: string) =>

@@ -91,10 +91,9 @@ export function make<
           `Database operation '${operationName}' completed successfully`
         );
         return result;
-      } else {
+      }
         // Run operation directly if ResilienceService is not available
         return yield* operation;
-      }
     }).pipe(
       Effect.catchAll((error: E) => {
         return Effect.gen(function* () {

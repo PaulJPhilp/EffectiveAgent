@@ -58,9 +58,8 @@ export interface ServiceMasterApi {
 const swapEither = <E, A>(either: Either.Either<A, E>): Either.Either<E, A> => {
     if (either._tag === "Left") {
         return { _tag: "Right", right: either.left } as Either.Either<E, A>;
-    } else {
-        return { _tag: "Left", left: either.right } as Either.Either<E, A>;
     }
+        return { _tag: "Left", left: either.right } as Either.Either<E, A>;
 };
 
 // Helper function to swap the generic parameters in Exit

@@ -131,7 +131,7 @@ describe("run command", () => {
     // Restore CWD first
     process.chdir(originalCwd)
     // Clear specific env var
-    delete process.env.PROJECT_ROOT
+    process.env.PROJECT_ROOT = undefined
     // Clean up environment
     process.env = { ...originalEnv }
 

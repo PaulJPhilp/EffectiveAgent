@@ -425,7 +425,7 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                         responseMessage += `These metrics provide insight into the company's growth trajectory, unit economics, and market potential.`;
                     } else if (input.message.toLowerCase().includes("trend")) {
                         responseMessage += `we're seeing several interesting trends in the market: ${industryData.trends.join(", ")}. `;
-                        responseMessage += `Companies that position themselves to capitalize on these trends often attract more investor interest.`;
+                        responseMessage += "Companies that position themselves to capitalize on these trends often attract more investor interest.";
                     } else {
                         responseMessage += `I'd consider several factors: market opportunity, team capabilities, traction, and competitive advantage. `;
                         responseMessage += `For ${input.investmentStage || "early stage"} companies in ${input.industry || "this space"}, we typically look for ${stageData.expectations.slice(0, 2).join(" and ")}. `;
@@ -468,10 +468,7 @@ export class VentureCapitalistChatPipelineService extends Effect.Service<Venture
                     const stageData = yield* financialModeling.getInvestmentStageRequirements(options?.investmentStage || "seed");
 
                     // Craft a comprehensive response
-                    const responseMessage = `I've reviewed your business pitch through a venture capital lens. ` +
-                        `For a ${options?.investmentStage || "seed"} stage company in ${options?.industry || "this industry"}, ` +
-                        `we typically evaluate against key criteria like ${stageData.expectations.slice(0, 2).join(" and ")}. ` +
-                        `Your pitch demonstrates several interesting aspects that warrant further discussion.`;
+                    const responseMessage = `I've reviewed your business pitch through a venture capital lens. For a ${options?.investmentStage || "seed"} stage company in ${options?.industry || "this industry"}, we typically evaluate against key criteria like ${stageData.expectations.slice(0, 2).join(" and ")}. Your pitch demonstrates several interesting aspects that warrant further discussion.`;
 
                     // Return detailed analysis
                     return {

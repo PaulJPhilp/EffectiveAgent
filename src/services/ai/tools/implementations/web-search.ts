@@ -59,8 +59,6 @@ export const webSearchImpl = (input: unknown): Effect.Effect<{ result: string },
         // This tool requires a search service provider (e.g., Google Custom Search, Bing Search API, etc.)
         // to be integrated with the agent runtime configuration
         return yield* Effect.fail(new Error(
-            `Web search API integration not available. ` +
-            `Requested ${data.operation} search for "${data.query}". ` +
-            `Please configure a search service provider in the agent runtime.`
+            `Web search API integration not available. Requested ${data.operation} search for "${data.query}". Please configure a search service provider in the agent runtime.`
         ));
     }); 

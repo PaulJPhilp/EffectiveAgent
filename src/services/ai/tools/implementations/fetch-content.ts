@@ -68,7 +68,7 @@ export const fetchContentImpl = (input: unknown): Effect.Effect<FetchContentOutp
                     content: textContent,
                     url: data.url
                 };
-            } else if (contentType.includes('text/')) {
+            }if (contentType.includes('text/')) {
                 // For plain text content
                 const text = yield* Effect.tryPromise({
                     try: () => response.text(),
@@ -79,9 +79,8 @@ export const fetchContentImpl = (input: unknown): Effect.Effect<FetchContentOutp
                     content: text,
                     url: data.url
                 };
-            } else {
-                return yield* Effect.fail(new Error(`Unsupported content type: ${contentType}`));
             }
+                return yield* Effect.fail(new Error(`Unsupported content type: ${contentType}`));
 
         } catch (error) {
             return yield* Effect.fail(new Error(`Failed to fetch content: ${String(error)}`));

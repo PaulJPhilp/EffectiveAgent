@@ -1,0 +1,311 @@
+{
+  "generatedAt": "2025-10-16T00:00:00.000Z",
+  "vercelVersionTag": "v5.1.0-beta.28",
+  "features": [
+    {
+      "feature": "Core text generate (sync)",
+      "vercelSupport": "Full",
+      "effectSupport": "Full",
+      "parityStatus": "AtParity",
+      "priority": "N/A",
+      "complexity": "N/A",
+      "notes": "Both support basic text generation",
+      "providerImpact": [],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": []
+    },
+    {
+      "feature": "Text streaming (server-side stream, client consumption)",
+      "vercelSupport": "Full",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P0",
+      "complexity": "Medium",
+      "notes": "streamText not implemented",
+      "providerImpact": ["OpenAI", "Anthropic", "Google", "Grok", "AzureOpenAI"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Add streamText and streamObject wrappers similar to generateText/generateObject",
+        "Implement Effect.Stream return types",
+        "Add streaming-specific error handling",
+        "Update input/output types for streaming results"
+      ]
+    },
+    {
+      "feature": "Tool/function calling (single tool, multi-tool, parallel tools)",
+      "vercelSupport": "Full",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P0",
+      "complexity": "High",
+      "notes": "No tool support yet",
+      "providerImpact": ["OpenAI", "Anthropic", "Google", "Grok"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Add tool definition types and schema conversion",
+        "Implement tool execution orchestration loop",
+        "Add tool result message transformation",
+        "Support both single and multi-tool calling",
+        "Handle tool approval/denial workflows"
+      ]
+    },
+    {
+      "feature": "Tool streaming/partial tool invocation",
+      "vercelSupport": "Full",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P0",
+      "complexity": "High",
+      "notes": "Requires streaming + tools",
+      "providerImpact": ["OpenAI", "Anthropic", "Google", "Grok"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Combine streaming and tool calling implementations",
+        "Support partial tool invocation in streams"
+      ]
+    },
+    {
+      "feature": "Structured outputs / schema validation (Zod/JSON Schema/TypeScript types)",
+      "vercelSupport": "Full",
+      "effectSupport": "Full",
+      "parityStatus": "AtParity",
+      "priority": "N/A",
+      "complexity": "N/A",
+      "notes": "Both support Zod schemas",
+      "providerImpact": [],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": []
+    },
+    {
+      "feature": "Images (generation, transforms, providers)",
+      "vercelSupport": "Partial",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P1",
+      "complexity": "Low",
+      "notes": "experimental_generateImage not wrapped",
+      "providerImpact": ["OpenAI"],
+      "runtime": ["Node"],
+      "recommendedSteps": [
+        "Add generateImage wrapper",
+        "Update provider factory for image models",
+        "Add image-specific types"
+      ]
+    },
+    {
+      "feature": "Audio TTS (providers, formats, streaming)",
+      "vercelSupport": "Partial",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P1",
+      "complexity": "Low",
+      "notes": "experimental_generateSpeech not wrapped",
+      "providerImpact": ["OpenAI"],
+      "runtime": ["Node"],
+      "recommendedSteps": [
+        "Add generateSpeech wrapper",
+        "Update provider factory for speech models"
+      ]
+    },
+    {
+      "feature": "Audio STT (providers, streaming)",
+      "vercelSupport": "Partial",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P1",
+      "complexity": "Low",
+      "notes": "experimental_transcribe not wrapped",
+      "providerImpact": ["OpenAI"],
+      "runtime": ["Node"],
+      "recommendedSteps": [
+        "Add transcribe wrapper",
+        "Support audio file input types"
+      ]
+    },
+    {
+      "feature": "Vision (image understanding)",
+      "vercelSupport": "Full",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P1",
+      "complexity": "Low",
+      "notes": "No vision model support exposed",
+      "providerImpact": ["OpenAI", "Anthropic", "Google"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Expose vision-enabled models in provider factory",
+        "Update message types to support image content"
+      ]
+    },
+    {
+      "feature": "Providers: OpenAI",
+      "vercelSupport": "Full",
+      "effectSupport": "Full",
+      "parityStatus": "AtParity",
+      "priority": "N/A",
+      "complexity": "N/A",
+      "notes": "Both support OpenAI API",
+      "providerImpact": ["OpenAI"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": []
+    },
+    {
+      "feature": "Providers: Anthropic",
+      "vercelSupport": "Full",
+      "effectSupport": "Full",
+      "parityStatus": "AtParity",
+      "priority": "N/A",
+      "complexity": "N/A",
+      "notes": "Both support Anthropic API",
+      "providerImpact": ["Anthropic"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": []
+    },
+    {
+      "feature": "Providers: Google",
+      "vercelSupport": "Full",
+      "effectSupport": "Full",
+      "parityStatus": "AtParity",
+      "priority": "N/A",
+      "complexity": "N/A",
+      "notes": "Both support Google API",
+      "providerImpact": ["Google"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": []
+    },
+    {
+      "feature": "Providers: Grok (xAI)",
+      "vercelSupport": "Full",
+      "effectSupport": "Full",
+      "parityStatus": "AtParity",
+      "priority": "N/A",
+      "complexity": "N/A",
+      "notes": "Both support xAI/Grok API",
+      "providerImpact": ["Grok"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": []
+    },
+    {
+      "feature": "Providers: Azure OpenAI",
+      "vercelSupport": "Full",
+      "effectSupport": "Full",
+      "parityStatus": "AtParity",
+      "priority": "N/A",
+      "complexity": "N/A",
+      "notes": "Both support Azure OpenAI",
+      "providerImpact": ["AzureOpenAI"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": []
+    },
+    {
+      "feature": "Node runtime",
+      "vercelSupport": "Full",
+      "effectSupport": "Full",
+      "parityStatus": "AtParity",
+      "priority": "N/A",
+      "complexity": "N/A",
+      "notes": "Both support Node.js 18+",
+      "providerImpact": [],
+      "runtime": ["Node"],
+      "recommendedSteps": []
+    },
+    {
+      "feature": "Edge runtime",
+      "vercelSupport": "Full",
+      "effectSupport": "Unknown",
+      "parityStatus": "Gap",
+      "priority": "P0",
+      "complexity": "Low",
+      "notes": "Edge compatibility not verified",
+      "providerImpact": [],
+      "runtime": ["Edge"],
+      "recommendedSteps": [
+        "Test all operations on Vercel Edge Runtime",
+        "Verify streaming compatibility",
+        "Update documentation with Edge support status"
+      ]
+    },
+    {
+      "feature": "Error handling idioms",
+      "vercelSupport": "Full",
+      "effectSupport": "Partial",
+      "parityStatus": "Gap",
+      "priority": "P2",
+      "complexity": "Medium",
+      "notes": "Basic error types but missing advanced handling",
+      "providerImpact": [],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Add structured error types for different failure modes",
+        "Implement error recovery patterns",
+        "Add error context and metadata"
+      ]
+    },
+    {
+      "feature": "Observability hooks (events, logging, tracing)",
+      "vercelSupport": "Full",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P2",
+      "complexity": "Medium",
+      "notes": "No telemetry/observability integration",
+      "providerImpact": [],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Integrate OpenTelemetry support",
+        "Add configurable logging hooks",
+        "Support custom metrics collection"
+      ]
+    },
+    {
+      "feature": "Retries/backoff",
+      "vercelSupport": "Full",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P2",
+      "complexity": "Medium",
+      "notes": "No built-in retry mechanisms",
+      "providerImpact": [],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Add retry policies with exponential backoff",
+        "Implement circuit breaker pattern",
+        "Support custom retry configurations"
+      ]
+    },
+    {
+      "feature": "Agentic loops/state",
+      "vercelSupport": "Partial",
+      "effectSupport": "None",
+      "parityStatus": "Gap",
+      "priority": "P0",
+      "complexity": "High",
+      "notes": "No agent orchestration",
+      "providerImpact": ["OpenAI", "Anthropic", "Google", "Grok"],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Implement BasicAgent wrapper",
+        "Add agent state management types",
+        "Support agent configuration and lifecycle",
+        "Integrate with existing tool and streaming capabilities"
+      ]
+    },
+    {
+      "feature": "SDK ergonomics",
+      "vercelSupport": "Full",
+      "effectSupport": "Partial",
+      "parityStatus": "Gap",
+      "priority": "P1",
+      "complexity": "Medium",
+      "notes": "Effect wrapper provides some benefits but limited feature set",
+      "providerImpact": [],
+      "runtime": ["Node", "Edge"],
+      "recommendedSteps": [
+        "Add convenience methods for common patterns",
+        "Improve TypeScript inference",
+        "Add fluent API interfaces",
+        "Provide migration guides from Vercel AI SDK"
+      ]
+    }
+  ]
+}

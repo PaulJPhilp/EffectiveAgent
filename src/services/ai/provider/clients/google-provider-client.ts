@@ -365,7 +365,7 @@ export function makeGoogleClient(
                       method: "chat",
                       cause: error,
                     });
-                  } else {
+                  }
                     return new ProviderOperationError({
                       providerName: "google",
                       operation: "chat",
@@ -376,7 +376,6 @@ export function makeGoogleClient(
                       method: "chat",
                       cause: error,
                     });
-                  }
                 },
               });
 

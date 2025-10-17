@@ -188,7 +188,7 @@ export class VectorSearchPipelineService extends Effect.Service<VectorSearchPipe
 
             generateEmbedding: (_text: string): Effect.Effect<number[], VectorSearchPipelineError> =>
                 Effect.gen(function* () {
-                    yield* Effect.logInfo(`Generating embedding for text`);
+                    yield* Effect.logInfo("Generating embedding for text");
 
                     return yield* Effect.try({
                         try: () => {
