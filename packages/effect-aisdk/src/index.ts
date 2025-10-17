@@ -18,13 +18,13 @@ export {
 // Re-export input types
 export type {
   ChatOptions, EffectiveInput, GenerateEmbeddingsOptions,
-  GenerateImageOptions, GenerateObjectOptions, GenerateSpeechOptions, GenerateTextOptions, StreamObjectOptions, StreamTextOptions, ToolDefinition, TranscribeOptions
+  GenerateImageOptions, GenerateObjectOptions, GenerateSpeechOptions, GenerateTextOptions, StreamObjectOptions, StreamTextOptions, TranscribeOptions
 } from "./input-types.js";
 // Re-export message types and schemas
-export {type EffectiveMessage, 
-  EffectiveRole, type EffectiveRole as EffectiveRoleType, ImageUrlPart, Message, Metadata, Part, type Part as PartType, TextPart,
+export {
+  EffectiveRole, ImageUrlPart, Message, Metadata, Part, TextPart,
   ToolCallPart,
-  ToolPart 
+  ToolPart, type EffectiveMessage, type EffectiveRole as EffectiveRoleType, type Part as PartType
 } from "./message.js";
 // Re-export message transformation utilities
 export {
@@ -44,6 +44,25 @@ export type {
 export {
   encodeWithSchema, toStandardSchema, toZodSchema, validateWithSchema
 } from "./schema-converter.js";
+// Re-export streaming API
+export { streamObject, streamText } from "./streaming/index.js";
+
+// Re-export streaming types
+export type {
+  FinalMessageEvent, MessagePartEvent, StreamCallbacks, StreamCompleteEvent, StreamController, StreamErrorEvent, StreamEvents, StreamHandle, StreamOptions, StreamResult, TokenDeltaEvent, ToolCallDeltaEvent,
+  ToolCallReadyEvent, ToolCallStartedEvent, ToolResultEvent, UnifiedStreamEvent
+} from "./streaming/types.js";
+
+// Re-export tool APIs
+export {
+  defineTool, defineToolWithDescription, runTools, runToolsWithMap
+} from "./tools/index.js";
+
+// Re-export tool types
+export type {
+  Tool, ToolCall, ToolCallingOptions, ToolDefinition, ToolHandler, ToolOrchestrationContext, ToolOrchestrationResult, ToolResult, ToolSchemaType
+} from "./tools/types.js";
+
 // Re-export core types
 export type {
   BaseAiOptions, BaseAiParameters, EffectiveResponse, EffectiveUsage, FinishReason, GenerateBaseResult, ProviderEffectiveResponse
