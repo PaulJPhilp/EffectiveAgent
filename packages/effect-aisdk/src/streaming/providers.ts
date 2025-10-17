@@ -45,7 +45,11 @@ export async function createOpenAIStreamAdapter(
 
     // Get the response body as a ReadableStream
     const response = result.toDataStreamResponse();
-    const reader = response.body!.getReader();
+    const reader = response.body?.getReader();
+    if (!reader) {
+      controller.error(new Error("Response body is empty or streaming not supported"));
+      return;
+    }
     const decoder = new TextDecoder();
     let buffer = "";
 
@@ -155,7 +159,11 @@ export async function createAnthropicStreamAdapter(
 
     // Get the response body as a ReadableStream
     const response = result.toDataStreamResponse();
-    const reader = response.body!.getReader();
+    const reader = response.body?.getReader();
+    if (!reader) {
+      controller.error(new Error("Response body is empty or streaming not supported"));
+      return;
+    }
     const decoder = new TextDecoder();
     let buffer = "";
 
@@ -266,7 +274,11 @@ export async function createObjectStreamAdapter<T>(
 
     // Get the response body as a ReadableStream
     const response = result.toTextStreamResponse();
-    const reader = response.body!.getReader();
+    const reader = response.body?.getReader();
+    if (!reader) {
+      controller.error(new Error("Response body is empty or streaming not supported"));
+      return;
+    }
     const decoder = new TextDecoder();
     let buffer = "";
 
