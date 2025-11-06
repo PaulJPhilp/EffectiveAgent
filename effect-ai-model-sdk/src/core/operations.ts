@@ -3,8 +3,8 @@
  * @module @org_name/effect-ai-model-sdk/core/operations
  */
 
-import type { EmbeddingModel, LanguageModelV1 } from "ai";
-import { embedMany, generateObject, generateText, } from "ai";
+import type { EmbeddingModel, ImageModelV1, LanguageModelV1 } from "ai";
+import { embedMany, generateImage, generateObject, generateSpeech, generateText, transcribe } from "ai";
 import { Effect } from "effect";
 import { type AiSdkMessageTransformError, AiSdkOperationError } from "../errors.js";
 import type { EffectiveInput, GenerateObjectOptions, GenerateTextOptions } from "../types/inputs.js";
@@ -213,6 +213,203 @@ export function generateEmbeddings(
         new AiSdkOperationError({
           message: "Unexpected error during embedding generation",
           operation: "embedMany",
+          cause: error,
+        })
+      );
+    }
+  });
+}
+
+/**
+ * Generate images using an image model
+ */
+export function generateImages(
+  model: ImageModelV1,
+  prompt: string,
+  options?: { n?: number; size?: string; aspectRatio?: string }
+): Effect.Effect<EffectiveResponse<GenerateImageResult>, AiSdkOperationError> {
+  return Effect.gen(function* () {
+    try {
+      const result = yield* Effect.tryPromise({
+        try: () => generateImage({
+          model,
+          prompt,
+          n: options?.n ?? 1,
+          size: options?.size as any,
+          aspectRatio: options?.aspectRatio as any,
+        }),
+        catch: (error) => new AiSdkOperationError({
+          message: "Failed to generate image",
+          operation: "generateImage",
+          cause: error,
+        }),
+      });
+
+      // Transform result
+      const imageResult: GenerateImageResult = {
+        id: result.response.id || `image-${Date.now()}`,
+        model: result.response.modelId || "unknown",
+        timestamp: result.response.timestamp || new Date(),
+        imageUrl: result.images[0]?.url || "",
+        additionalImages: result.images.slice(1).map(img => img.url || ""),
+        parameters: {
+          size: options?.size,
+        },
+        usage: {
+          promptTokens: 0, // Image generation doesn't use text tokens in the same way
+          completionTokens: 0,
+          totalTokens: 0,
+        },
+        finishReason: "stop",
+      };
+
+      return {
+        data: imageResult,
+        metadata: {
+          model: result.response.modelId || "unknown",
+          provider: "unknown",
+        },
+        usage: imageResult.usage,
+        finishReason: imageResult.finishReason,
+      };
+    } catch (error) {
+      return yield* Effect.fail(
+        new AiSdkOperationError({
+          message: "Unexpected error during image generation",
+          operation: "generateImage",
+          cause: error,
+        })
+      );
+    }
+  });
+}
+
+/**
+ * Generate speech using a speech model
+ */
+export function generateAudio(
+  model: any, // SpeechModelV1 not exported from ai package yet
+  input: string,
+  options?: { voice?: string; speed?: number }
+): Effect.Effect<EffectiveResponse<GenerateSpeechResult>, AiSdkOperationError> {
+  return Effect.gen(function* () {
+    try {
+      const result = yield* Effect.tryPromise({
+        try: () => generateSpeech({
+          model,
+          text: input,
+          voice: options?.voice as any,
+          speed: options?.speed,
+        }),
+        catch: (error) => new AiSdkOperationError({
+          message: "Failed to generate speech",
+          operation: "generateSpeech",
+          cause: error,
+        }),
+      });
+
+      // Transform result
+      const speechResult: GenerateSpeechResult = {
+        id: result.response.id || `speech-${Date.now()}`,
+        model: result.response.modelId || "unknown",
+        timestamp: result.response.timestamp || new Date(),
+        audioData: result.audio || "",
+        format: "mp3", // Default format
+        parameters: {
+          voice: options?.voice,
+          speed: options?.speed,
+        },
+        usage: {
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0,
+        },
+        finishReason: "stop",
+      };
+
+      return {
+        data: speechResult,
+        metadata: {
+          model: result.response.modelId || "unknown",
+          provider: "unknown",
+        },
+        usage: speechResult.usage,
+        finishReason: speechResult.finishReason,
+      };
+    } catch (error) {
+      return yield* Effect.fail(
+        new AiSdkOperationError({
+          message: "Unexpected error during speech generation",
+          operation: "generateSpeech",
+          cause: error,
+        })
+      );
+    }
+  });
+}
+
+/**
+ * Transcribe audio using a transcription model
+ */
+export function transcribeAudio(
+  model: any, // TranscriptionModelV1 not exported yet
+  audio: Uint8Array,
+  options?: { language?: string }
+): Effect.Effect<EffectiveResponse<TranscribeResult>, AiSdkOperationError> {
+  return Effect.gen(function* () {
+    try {
+      const result = yield* Effect.tryPromise({
+        try: () => transcribe({
+          model,
+          audio: { data: audio },
+          language: options?.language,
+        }),
+        catch: (error) => new AiSdkOperationError({
+          message: "Failed to transcribe audio",
+          operation: "transcribe",
+          cause: error,
+        }),
+      });
+
+      // Transform result
+      const transcriptionResult: TranscribeResult = {
+        id: result.response.id || `transcription-${Date.now()}`,
+        model: result.response.modelId || "unknown",
+        timestamp: result.response.timestamp || new Date(),
+        text: result.text,
+        segments: result.segments?.map(seg => ({
+          id: seg.id,
+          start: seg.start,
+          end: seg.end,
+          text: seg.text,
+          confidence: seg.confidence,
+        })),
+        detectedLanguage: result.language,
+        parameters: {
+          language: options?.language,
+        },
+        usage: {
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0,
+        },
+        finishReason: "stop",
+      };
+
+      return {
+        data: transcriptionResult,
+        metadata: {
+          model: result.response.modelId || "unknown",
+          provider: "unknown",
+        },
+        usage: transcriptionResult.usage,
+        finishReason: transcriptionResult.finishReason,
+      };
+    } catch (error) {
+      return yield* Effect.fail(
+        new AiSdkOperationError({
+          message: "Unexpected error during audio transcription",
+          operation: "transcribe",
           cause: error,
         })
       );

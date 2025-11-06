@@ -4,7 +4,10 @@
  */
 
 // Re-export core operations
-export { generateText, generateObject, generateEmbeddings } from "./core/operations.js";
+export { generateText, generateObject, generateEmbeddings, generateImages, generateAudio, transcribeAudio } from "./core/operations.js";
+
+// Re-export streaming operations
+export { streamText, streamObject } from "./streaming/index.js";
 
 // Re-export error types
 export {
@@ -81,3 +84,7 @@ export type {
   BaseAiParameters,
   BaseAiOptions
 } from "./types/core.js";
+
+// Re-export tools
+export { defineTool, runTools } from "./tools/index.js";
+export type { Tool, ToolDefinition } from "./tools/types.js";
