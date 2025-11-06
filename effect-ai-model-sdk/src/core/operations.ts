@@ -21,6 +21,12 @@ export function generateText(
   options?: Partial<GenerateTextOptions>
 ): Effect.Effect<EffectiveResponse<GenerateTextResult>, AiSdkOperationError | AiSdkMessageTransformError> {
   return Effect.gen(function* () {
+    yield* Effect.log("Starting text generation", {
+      model: (model as any).modelId || "unknown",
+      hasMessages: !!input.messages,
+      hasText: !!input.text,
+    });
+
     try {
       // Convert messages if provided
       let messages: any[] = [];
@@ -68,6 +74,11 @@ export function generateText(
         })),
       };
 
+      yield* Effect.log("Text generation completed successfully", {
+        model: result.response.modelId,
+        tokens: textResult.usage.totalTokens,
+      });
+
       return {
         data: textResult,
         metadata: {
@@ -78,6 +89,7 @@ export function generateText(
         finishReason: textResult.finishReason,
       };
     } catch (error) {
+      yield* Effect.logError("Text generation failed", { error });
       return yield* Effect.fail(
         new AiSdkOperationError({
           message: "Unexpected error during text generation",
