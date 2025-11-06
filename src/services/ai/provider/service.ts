@@ -1,4 +1,4 @@
-import { createProvider, getEmbeddingModel, getLanguageModel, type ProviderName } from "@effective-agent/ai-sdk";
+import { createProvider, getEmbeddingModel, getLanguageModel, type ProviderName } from "@org_name/effect-ai-model-sdk";
 import { Duration, Effect, Schedule } from "effect";
 import { ModelsRegistryService } from "@/services/ai/model/registry";
 import { ConfigurationService } from "@/services/core/configuration/service.js";

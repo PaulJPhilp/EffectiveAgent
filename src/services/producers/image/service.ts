@@ -4,9 +4,9 @@
  */
 
 import { Chunk, Effect, Option, Ref } from "effect";
+import { generateImages } from "@org_name/effect-ai-model-sdk";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
-import type { GenerateImageResult } from "@/services/ai/provider/types.js";
 import { EffectiveInput } from "@/types.js";
 import type { ImageGenerationOptions, ImageServiceApi } from "./api.js";
 import { ImageGenerationError, ImageModelError, ImageSizeError } from "./errors.js";
@@ -163,7 +163,7 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
 
                     // Get provider for the model
                     const providerName = yield* modelService.getProviderName(modelId);
-                    const providerClient = yield* providerService.getProviderClient(providerName);
+                    const languageModel = yield* providerService.getAiSdkLanguageModel(providerName, modelId);
 
                     // Prepare the final prompt with system context if provided
                     const systemPrompt = Option.getOrElse(options.system, () => "");
@@ -171,21 +171,16 @@ class ImageService extends Effect.Service<ImageServiceApi>()("ImageService", {
                         ? `${systemPrompt}\n\n${options.prompt}`
                         : options.prompt;
 
-                    // Call the real AI provider
-                    const effectiveInput = new EffectiveInput(finalPrompt, Chunk.empty());
-                    const providerResult = yield* providerClient.generateImage(
-                        effectiveInput,
-                        {
-                            modelId,
-                            size: options.size,
-                            quality: options.quality,
-                            style: options.style,
-                            n: options.n || 1,
-                        }
-                    );
+                    // Call the new AI SDK
+                    const aiSdkResult = yield* generateImages(languageModel, finalPrompt, {
+                        n: options.n || 1,
+                        size: options.size,
+                        quality: options.quality,
+                        style: options.style,
+                    });
 
-                    // Use providerResult.data directly as the result
-                    const result = providerResult.data;
+                    // Use aiSdkResult.data as the result
+                    const result = aiSdkResult.data;
 
                     yield* Effect.log("Image generation completed successfully");
 

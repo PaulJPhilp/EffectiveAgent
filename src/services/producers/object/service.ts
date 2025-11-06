@@ -3,7 +3,7 @@
  * @module services/pipeline/producers/object/service
  */
 
-import { generateObjectWithModel } from "@effective-agent/ai-sdk";
+import { generateObject } from "@org_name/effect-ai-model-sdk";
 import { Chunk, Effect, Option, Ref, Schema as S } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
@@ -138,7 +138,7 @@ export class ObjectService extends Effect.Service<ObjectServiceApi<S.Schema<any,
                     const schemaName = options.schema?.ast?.annotations?.title?.toString() ?? "unknown";
 
                     // Call ai-sdk operation directly
-                    const aiSdkResult = yield* generateObjectWithModel(languageModel, {
+                    const aiSdkResult = yield* generateObject(languageModel, {
                         text: options.prompt,
                         messages: Chunk.empty()
                     }, options.schema, {

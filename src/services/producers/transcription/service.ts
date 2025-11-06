@@ -3,6 +3,7 @@
  * @module services/pipeline/producers/transcription/service
  */
 
+import { transcribeAudio } from "@org_name/effect-ai-model-sdk";
 import { Effect, Option, Ref } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
@@ -135,14 +136,11 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
 
                         // Get provider for the model
                         const providerName = yield* modelService.getProviderName(modelId);
-                        const providerClient = yield* providerService.getProviderClient(providerName);
+                        const languageModel = yield* providerService.getAiSdkLanguageModel(providerName, modelId);
 
-                        // Convert Uint8Array to Buffer for provider compatibility
-                        const audioBuffer = Buffer.from(options.audioData);
-
-                        // Call the real AI provider
-                        const providerResult = yield* providerClient.transcribe(audioBuffer.buffer, {
-                            modelId
+                        // Call the new AI SDK
+                        const aiSdkResult = yield* transcribeAudio(languageModel, options.audioData, {
+                            language: options.language
                         });
 
                         yield* Effect.log("Audio transcription completed successfully");
@@ -152,12 +150,12 @@ class TranscriptionService extends Effect.Service<TranscriptionServiceApi>()(
                             timestamp: Date.now(),
                             modelId,
                             audioLength: options.audioData.length,
-                            transcriptionLength: providerResult.data.text.length,
+                            transcriptionLength: aiSdkResult.data.text.length,
                             success: true,
-                            language: providerResult.data.detectedLanguage
+                            language: aiSdkResult.data.detectedLanguage
                         });
 
-                        return providerResult;
+                        return aiSdkResult;
 
                     }).pipe(
                         Effect.withSpan("TranscriptionService.transcribe"),

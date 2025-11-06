@@ -3,7 +3,7 @@
  * @module services/pipeline/producers/embedding/service
  */
 
-import { generateEmbeddingsWithModel } from "@effective-agent/ai-sdk";
+import { generateEmbeddings } from "@org_name/effect-ai-model-sdk";
 import { Effect, Option, Ref } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
@@ -121,7 +121,7 @@ class EmbeddingService extends Effect.Service<EmbeddingServiceApi>()(
                         const languageModel = yield* providerService.getAiSdkLanguageModel(providerName, modelId);
 
                         // Call ai-sdk operation directly
-                        const aiSdkResult = yield* generateEmbeddingsWithModel(languageModel, [options.text]);
+                        const aiSdkResult = yield* generateEmbeddings(languageModel, [options.text]);
 
                         const result: GenerateEmbeddingsResult = {
                             embeddings: aiSdkResult.data.embeddings,

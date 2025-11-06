@@ -3,7 +3,7 @@ import { NodeFileSystem, NodePath } from "@effect/platform-node";
  * @file Chat Service implementation for AI chat completion
  * @module services/pipeline/producers/chat/service
  */
-import { generateTextWithModel, TextPart } from "@effective-agent/ai-sdk";
+import { generateText, TextPart } from "@org_name/effect-ai-model-sdk";
 import { Chunk, Effect, Option, Ref } from "effect";
 import { ModelService } from "@/services/ai/model/service.js";
 import { ProviderService } from "@/services/ai/provider/service.js";
@@ -171,18 +171,18 @@ export class ChatService extends Effect.Service<ChatServiceApi>()(
             );
 
             // Call ai-sdk operation directly
-            const aiSdkResult = yield* generateTextWithModel(languageModel, {
-              text: options.input,
-              messages: Chunk.fromIterable(effectiveMessages)
+            const aiSdkResult = yield* generateText(languageModel, {
+            text: options.input,
+            messages: Chunk.fromIterable(effectiveMessages)
             }, {
-              system: options.system,
-              parameters: {
-                temperature: options.parameters?.temperature ?? 0.7,
-                maxTokens: options.parameters?.maxTokens ?? 1000,
-                topP: options.parameters?.topP ?? 1,
-                frequencyPenalty: options.parameters?.frequencyPenalty ?? 0,
-                presencePenalty: options.parameters?.presencePenalty ?? 0,
-              },
+            system: options.system,
+            parameters: {
+            temperature: options.parameters?.temperature ?? 0.7,
+            maxTokens: options.parameters?.maxTokens ?? 1000,
+            topP: options.parameters?.topP ?? 1,
+            frequencyPenalty: options.parameters?.frequencyPenalty ?? 0,
+            presencePenalty: options.parameters?.presencePenalty ?? 0,
+            },
             });
 
             const completion: ChatCompletionResult = {
