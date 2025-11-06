@@ -237,3 +237,64 @@ export interface StreamingObjectChunk<T> {
   /** Current token count */
   readonly currentTokenCount: number;
 }
+
+/**
+ * Image generation result (added for v5 compatibility)
+ */
+export interface GenerateImageResult extends GenerateBaseResult {
+  /** Generated image URL or base64 data */
+  readonly imageUrl: string;
+  /** Optional additional generated images */
+  readonly additionalImages?: string[];
+  /** Image generation parameters used */
+  readonly parameters: {
+    /** Size of the generated image */
+    readonly size?: string;
+    /** Quality setting used */
+    readonly quality?: string;
+    /** Style setting used */
+    readonly style?: string;
+  };
+}
+
+/**
+ * Speech generation result (added for v5 compatibility)
+ */
+export interface GenerateSpeechResult extends GenerateBaseResult {
+  /** Generated audio data as base64 string or URL */
+  readonly audioData: string;
+  /** Audio format of the generated speech */
+  readonly format: string;
+  /** Speech generation parameters used */
+  readonly parameters: {
+    /** Voice ID or name used */
+    readonly voice?: string;
+    /** Speed/rate of speech */
+    readonly speed?: number;
+  };
+  /** Duration of the generated audio in seconds */
+  readonly duration?: number;
+}
+
+/**
+ * Transcription result (added for v5 compatibility)
+ */
+export interface TranscribeResult extends GenerateBaseResult {
+  /** Full transcribed text */
+  readonly text: string;
+  /** Detailed transcription segments with timing */
+  readonly segments?: TranscriptionSegment[];
+  /** Language detected in the audio */
+  readonly detectedLanguage?: string;
+  /** Audio processing parameters used */
+  readonly parameters: {
+    /** Language hint provided */
+    readonly language?: string;
+    /** Whether speaker diarization was enabled */
+    readonly diarization?: boolean;
+    /** Whether timestamps were enabled */
+    readonly timestamps?: boolean;
+    /** Audio quality settings used */
+    readonly quality?: string;
+  };
+}

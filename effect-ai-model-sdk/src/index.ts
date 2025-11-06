@@ -57,9 +57,8 @@ export type {
   GenerateSpeechOptions,
   TranscribeOptions,
   StreamTextOptions,
-  StreamObjectOptions,
-  ToolDefinition
-} from "./types/inputs.js";
+  StreamObjectOptions
+  } from "./types/inputs.js";
 
 // Re-export result types
 export type {

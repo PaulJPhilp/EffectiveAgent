@@ -3,12 +3,12 @@
  * @module @org_name/effect-ai-model-sdk/core/operations
  */
 
-import type { EmbeddingModel, ImageModelV1, LanguageModelV1 } from "ai";
-import { embedMany, generateImage, generateObject, generateSpeech, generateText, transcribe } from "ai";
+import type { EmbeddingModel, ImageModel, LanguageModel } from "ai";
+import { embedMany, experimental_generateImage, experimental_generateSpeech, experimental_transcribe } from "ai";
 import { Effect } from "effect";
 import { type AiSdkMessageTransformError, AiSdkOperationError } from "../errors.js";
 import type { EffectiveInput, GenerateObjectOptions, GenerateTextOptions } from "../types/inputs.js";
-import { toVercelMessages } from "../types/transformers.js";
+import { toVercelMessages } from "../types/messages.js";
 import type { GenerateEmbeddingsResult, GenerateObjectResult, GenerateTextResult } from "../types/results.js";
 import type { EffectiveResponse, } from "../types/core.js";
 
@@ -16,10 +16,10 @@ import type { EffectiveResponse, } from "../types/core.js";
  * Generate text using a language model
  */
 export function generateText(
-  model: LanguageModelV1,
+  model: LanguageModel,
   input: EffectiveInput,
   options?: Partial<GenerateTextOptions>
-): Effect.Effect<EffectiveResponse<GenerateTextResult>, AiSdkOperationError | AiSdkMessageTransformError> {
+): Effect.Effect<EffectiveResponse<GenerateTextResult>, AiSdkOperationError | AiSdkMessageTransformError | unknown> {
   return Effect.gen(function* () {
     yield* Effect.log("Starting text generation", {
       model: (model as any).modelId || "unknown",
@@ -37,8 +37,8 @@ export function generateText(
       }
 
       // Call Vercel AI SDK
-      const result = yield* Effect.tryPromise({
-        try: () => generateText({
+      const result = yield* Effect.tryPromise(
+        async () => await generateText({
           model,
           messages,
           system: options?.system,
@@ -48,29 +48,31 @@ export function generateText(
           frequencyPenalty: options?.parameters?.frequencyPenalty,
           presencePenalty: options?.parameters?.presencePenalty,
           seed: options?.parameters?.seed,
-        }),
-        catch: (error) => new AiSdkOperationError({
+        })
+      ).pipe(
+        Effect.mapError((error) => new AiSdkOperationError({
           message: "Failed to generate text",
           operation: "generateText",
           cause: error,
-        }),
-      });
+        }))
+      );
 
       // Transform result
+      const resultTyped = result as any; // Type assertion for v5 API
       const textResult: GenerateTextResult = {
-        id: result.response.id,
-        model: result.response.modelId,
-        timestamp: result.response.timestamp,
-        text: result.text,
-        finishReason: result.finishReason as any,
-        usage: {
-          promptTokens: result.usage.promptTokens,
-          completionTokens: result.usage.completionTokens,
-          totalTokens: result.usage.totalTokens,
-        },
-        warnings: result.warnings?.map(w => ({
-          code: w.type || "warning",
-          message: "type" in w ? `${w.type}: ${(w as any).setting || ""}` : "warning"
+      id: resultTyped.response.id,
+      model: resultTyped.response.modelId,
+      timestamp: resultTyped.response.timestamp,
+      text: resultTyped.text,
+      finishReason: resultTyped.finishReason as any,
+      usage: {
+      promptTokens: resultTyped.usage.promptTokens,
+      completionTokens: resultTyped.usage.completionTokens,
+        totalTokens: resultTyped.usage.totalTokens,
+      },
+      warnings: resultTyped.warnings?.map((w: any) => ({
+      code: w.type || "warning",
+        message: "type" in w ? `${w.type}: ${w.setting || ""}` : "warning"
         })),
       };
 
@@ -105,11 +107,11 @@ export function generateText(
  * Generate a structured object using a language model
  */
 export function generateObject<T>(
-  model: LanguageModelV1,
+  model: LanguageModel,
   input: EffectiveInput,
   schema: any,
   options?: Partial<GenerateObjectOptions<T>>
-): Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, AiSdkOperationError | AiSdkMessageTransformError> {
+): Effect.Effect<EffectiveResponse<GenerateObjectResult<T>>, AiSdkOperationError | AiSdkMessageTransformError | unknown> {
   return Effect.gen(function* () {
     try {
       // Convert messages if provided
@@ -121,8 +123,8 @@ export function generateObject<T>(
       }
 
       // Call Vercel AI SDK
-      const result = yield* Effect.tryPromise({
-        try: () => generateObject({
+      const result = yield* Effect.tryPromise(
+        async () => await generateObject({
           model,
           messages,
           schema,
@@ -130,25 +132,27 @@ export function generateObject<T>(
           temperature: options?.parameters?.temperature,
           maxTokens: options?.parameters?.maxTokens,
           topP: options?.parameters?.topP,
-        }),
-        catch: (error) => new AiSdkOperationError({
+        })
+      ).pipe(
+        Effect.mapError((error) => new AiSdkOperationError({
           message: "Failed to generate object",
           operation: "generateObject",
           cause: error,
-        }),
-      });
+        }))
+      );
 
       // Transform result
+      const resultTyped = result as any; // Type assertion for v5 API
       const objectResult: GenerateObjectResult<T> = {
-        id: result.response.id,
-        model: result.response.modelId,
-        timestamp: result.response.timestamp,
-        object: result.object as T,
-        finishReason: result.finishReason as any,
-        usage: {
-          promptTokens: result.usage.promptTokens,
-          completionTokens: result.usage.completionTokens,
-          totalTokens: result.usage.totalTokens,
+      id: resultTyped.response.id,
+      model: resultTyped.response.modelId,
+      timestamp: resultTyped.response.timestamp,
+      object: resultTyped.object as T,
+      finishReason: resultTyped.finishReason as any,
+      usage: {
+      promptTokens: resultTyped.usage.promptTokens,
+      completionTokens: resultTyped.usage.completionTokens,
+        totalTokens: resultTyped.usage.totalTokens,
         },
       };
 
@@ -179,36 +183,38 @@ export function generateObject<T>(
 export function generateEmbeddings(
   model: EmbeddingModel<string>,
   texts: string[]
-): Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, AiSdkOperationError> {
+): Effect.Effect<EffectiveResponse<GenerateEmbeddingsResult>, AiSdkOperationError | unknown> {
   return Effect.gen(function* () {
     try {
-      const result = yield* Effect.tryPromise({
-        try: () => embedMany({
+      const result = yield* Effect.tryPromise(
+        async () => await embedMany({
           model,
           values: texts,
-        }),
-        catch: (error) => new AiSdkOperationError({
+        })
+      ).pipe(
+        Effect.mapError((error) => new AiSdkOperationError({
           message: "Failed to generate embeddings",
           operation: "embedMany",
           cause: error,
-        }),
-      });
+        }))
+      );
 
       // Transform result
+      const resultTyped = result as any; // Type assertion for v5 API
       const embeddingsResult: GenerateEmbeddingsResult = {
         id: `embedding-${Date.now()}`,
         model: "unknown",
         timestamp: new Date(),
-        embeddings: result.embeddings,
-        dimensions: result.embeddings[0]?.length || 0,
+        embeddings: resultTyped.embeddings,
+        dimensions: resultTyped.embeddings[0]?.length || 0,
         texts,
         finishReason: "stop",
         usage: {
-          promptTokens: result.usage?.tokens || 0,
+          promptTokens: resultTyped.usage?.tokens || 0,
           completionTokens: 0,
-          totalTokens: result.usage?.tokens || 0,
+          totalTokens: resultTyped.usage?.tokens || 0,
         },
-        parameters: {},
+          parameters: {},
       };
 
       return {
@@ -236,42 +242,44 @@ export function generateEmbeddings(
  * Generate images using an image model
  */
 export function generateImages(
-  model: ImageModelV1,
+  model: ImageModel,
   prompt: string,
   options?: { n?: number; size?: string; aspectRatio?: string }
-): Effect.Effect<EffectiveResponse<GenerateImageResult>, AiSdkOperationError> {
+): Effect.Effect<EffectiveResponse<GenerateImageResult>, AiSdkOperationError | unknown> {
   return Effect.gen(function* () {
     try {
-      const result = yield* Effect.tryPromise({
-        try: () => generateImage({
+      const result = yield* Effect.tryPromise(
+        async () => await experimental_generateImage({
           model,
           prompt,
           n: options?.n ?? 1,
           size: options?.size as any,
           aspectRatio: options?.aspectRatio as any,
-        }),
-        catch: (error) => new AiSdkOperationError({
+        })
+      ).pipe(
+        Effect.mapError((error) => new AiSdkOperationError({
           message: "Failed to generate image",
           operation: "generateImage",
           cause: error,
-        }),
-      });
+        }))
+      );
 
       // Transform result
+      const resultTyped = result as any; // Type assertion for v5 API
       const imageResult: GenerateImageResult = {
-        id: result.response.id || `image-${Date.now()}`,
-        model: result.response.modelId || "unknown",
-        timestamp: result.response.timestamp || new Date(),
-        imageUrl: result.images[0]?.url || "",
-        additionalImages: result.images.slice(1).map(img => img.url || ""),
-        parameters: {
-          size: options?.size,
-        },
-        usage: {
-          promptTokens: 0, // Image generation doesn't use text tokens in the same way
-          completionTokens: 0,
-          totalTokens: 0,
-        },
+      id: resultTyped.response.id || `image-${Date.now()}`,
+      model: resultTyped.response.modelId || "unknown",
+      timestamp: resultTyped.response.timestamp || new Date(),
+      imageUrl: resultTyped.images[0]?.url || "",
+      additionalImages: resultTyped.images.slice(1).map((img: any) => img.url || ""),
+      parameters: {
+        size: options?.size,
+      },
+      usage: {
+        promptTokens: 0, // Image generation doesn't use text tokens in the same way
+        completionTokens: 0,
+        totalTokens: 0,
+      },
         finishReason: "stop",
       };
 
@@ -303,39 +311,41 @@ export function generateAudio(
   model: any, // SpeechModelV1 not exported from ai package yet
   input: string,
   options?: { voice?: string; speed?: number }
-): Effect.Effect<EffectiveResponse<GenerateSpeechResult>, AiSdkOperationError> {
+): Effect.Effect<EffectiveResponse<GenerateSpeechResult>, AiSdkOperationError | unknown> {
   return Effect.gen(function* () {
     try {
-      const result = yield* Effect.tryPromise({
-        try: () => generateSpeech({
+      const result = yield* Effect.tryPromise(
+        async () => await experimental_generateSpeech({
           model,
           text: input,
           voice: options?.voice as any,
           speed: options?.speed,
-        }),
-        catch: (error) => new AiSdkOperationError({
+        })
+      ).pipe(
+        Effect.mapError((error) => new AiSdkOperationError({
           message: "Failed to generate speech",
           operation: "generateSpeech",
           cause: error,
-        }),
-      });
+        }))
+      );
 
       // Transform result
+      const resultTyped = result as any; // Type assertion for v5 API
       const speechResult: GenerateSpeechResult = {
-        id: result.response.id || `speech-${Date.now()}`,
-        model: result.response.modelId || "unknown",
-        timestamp: result.response.timestamp || new Date(),
-        audioData: result.audio || "",
-        format: "mp3", // Default format
-        parameters: {
-          voice: options?.voice,
-          speed: options?.speed,
-        },
-        usage: {
-          promptTokens: 0,
-          completionTokens: 0,
-          totalTokens: 0,
-        },
+      id: resultTyped.response.id || `speech-${Date.now()}`,
+      model: resultTyped.response.modelId || "unknown",
+      timestamp: resultTyped.response.timestamp || new Date(),
+      audioData: resultTyped.audio || "",
+      format: "mp3", // Default format
+      parameters: {
+        voice: options?.voice,
+        speed: options?.speed,
+      },
+      usage: {
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+      },
         finishReason: "stop",
       };
 
@@ -367,44 +377,46 @@ export function transcribeAudio(
   model: any, // TranscriptionModelV1 not exported yet
   audio: Uint8Array,
   options?: { language?: string }
-): Effect.Effect<EffectiveResponse<TranscribeResult>, AiSdkOperationError> {
+): Effect.Effect<EffectiveResponse<TranscribeResult>, AiSdkOperationError | unknown> {
   return Effect.gen(function* () {
     try {
-      const result = yield* Effect.tryPromise({
-        try: () => transcribe({
+      const result = yield* Effect.tryPromise(
+        async () => await experimental_transcribe({
           model,
-          audio: { data: audio },
+          audio: audio,
           language: options?.language,
-        }),
-        catch: (error) => new AiSdkOperationError({
+        })
+      ).pipe(
+        Effect.mapError((error) => new AiSdkOperationError({
           message: "Failed to transcribe audio",
           operation: "transcribe",
           cause: error,
-        }),
-      });
+        }))
+      );
 
       // Transform result
+      const resultTyped = result as any; // Type assertion for v5 API
       const transcriptionResult: TranscribeResult = {
-        id: result.response.id || `transcription-${Date.now()}`,
-        model: result.response.modelId || "unknown",
-        timestamp: result.response.timestamp || new Date(),
-        text: result.text,
-        segments: result.segments?.map(seg => ({
-          id: seg.id,
-          start: seg.start,
-          end: seg.end,
-          text: seg.text,
-          confidence: seg.confidence,
-        })),
-        detectedLanguage: result.language,
-        parameters: {
-          language: options?.language,
-        },
-        usage: {
-          promptTokens: 0,
-          completionTokens: 0,
-          totalTokens: 0,
-        },
+      id: resultTyped.response.id || `transcription-${Date.now()}`,
+      model: resultTyped.response.modelId || "unknown",
+      timestamp: resultTyped.response.timestamp || new Date(),
+      text: resultTyped.text,
+      segments: resultTyped.segments?.map((seg: any) => ({
+        id: seg.id,
+        start: seg.start,
+        end: seg.end,
+        text: seg.text,
+        confidence: seg.confidence,
+      })),
+      detectedLanguage: resultTyped.language,
+      parameters: {
+        language: options?.language,
+      },
+      usage: {
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+      },
         finishReason: "stop",
       };
 

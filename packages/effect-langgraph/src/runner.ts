@@ -3,7 +3,7 @@
  * @module @effective-agent/langgraph
  */
 
-import { generateTextWithModel, getLanguageModel } from "@effective-agent/ai-sdk";
+import { generateText, getLanguageModel } from "@org_name/effect-ai-model-sdk";
 import { AIMessage, type BaseMessage, HumanMessage } from "@langchain/core/messages";
 import { Annotation } from "@langchain/langgraph";
 import { Effect, Stream } from "effect";
@@ -57,7 +57,7 @@ async function _callLLM(state: GraphState): Promise<Partial<GraphState>> {
     // Prefer the statically imported binding so Vitest's hoisted mocks apply.
     // Fall back to dynamic import only if the static binding is not present.
     let result: any;
-    const staticGen = typeof generateTextWithModel === "function" ? generateTextWithModel : undefined;
+    const staticGen = typeof generateText === "function" ? generateText : undefined;
     // (no-op debug removed) prefer static binding; fall back to dynamic import.
 
     const callGenerator = async (fn: any) => {
@@ -81,13 +81,13 @@ async function _callLLM(state: GraphState): Promise<Partial<GraphState>> {
     } else {
         // Try dynamic import as last resort
         try {
-            const aiSdk: any = await import("@effective-agent/ai-sdk");
-            if (typeof aiSdk.generateTextWithModel === "function") {
-                result = await callGenerator(aiSdk.generateTextWithModel);
+            const aiSdk: any = await import("@org_name/effect-ai-model-sdk");
+            if (typeof aiSdk.generateText === "function") {
+            result = await callGenerator(aiSdk.generateText);
             } else if (process.env.NODE_ENV === "test") {
-                result = { data: { text: "Mocked LLM response" } };
+            result = { data: { text: "Mocked LLM response" } };
             } else {
-                throw new Error("generateTextWithModel not available");
+            throw new Error("generateText not available");
             }
         } catch (e) {
             if (process.env.NODE_ENV === "test") {
@@ -163,7 +163,7 @@ async function summarizeNode(state: GraphState): Promise<Partial<GraphState>> {
     // Call the AI SDK for summarization. Use the same robust approach as
     // above to tolerate missing or failing mocks during tests.
     let summaryResult: any;
-    const staticGen2 = typeof generateTextWithModel === "function" ? generateTextWithModel : undefined;
+    const staticGen2 = typeof generateText === "function" ? generateText : undefined;
 
     const callGenerator2 = async (fn: any) => {
         try {
@@ -185,14 +185,14 @@ async function summarizeNode(state: GraphState): Promise<Partial<GraphState>> {
         summaryResult = await callGenerator2(staticGen2);
     } else {
         try {
-            const aiSdk: any = await import("@effective-agent/ai-sdk");
-            if (typeof aiSdk.generateTextWithModel === "function") {
-                summaryResult = await callGenerator2(aiSdk.generateTextWithModel);
-            } else if (process.env.NODE_ENV === "test") {
-                summaryResult = { data: { text: "Mocked summary of fetched content" } };
-            } else {
-                throw new Error("generateTextWithModel not available for summarization");
-            }
+        const aiSdk: any = await import("@org_name/effect-ai-model-sdk");
+        if (typeof aiSdk.generateText === "function") {
+        summaryResult = await callGenerator2(aiSdk.generateText);
+        } else if (process.env.NODE_ENV === "test") {
+        summaryResult = { data: { text: "Mocked summary of fetched content" } };
+        } else {
+        throw new Error("generateText not available for summarization");
+        }
         } catch (e) {
             if (process.env.NODE_ENV === "test") {
                 summaryResult = { data: { text: "Mocked summary of fetched content" } };

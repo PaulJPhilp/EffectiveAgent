@@ -13,8 +13,8 @@
         "effect": "^3.0.0"
     },
     "dependencies": {
-        "@effective-agent/ai-sdk": "workspace:*",
-        "@langchain/langgraph": "latest"
+    "@org_name/effect-ai-model-sdk": "workspace:*",
+    "@langchain/langgraph": "latest"
     },
     "devDependencies": {
         "typescript": "^5.0.0"
